@@ -932,12 +932,48 @@ class PublicationStagingAreaUncontained(Exception):
     """This feature's own `.resolver-staging` area does not really resolve
     inside `specs/<feature>/` (panel round 3, CRITICAL) -- it is a symlink, or
     sits behind one. Distinct from `PublicationJournalUnrecoverable` because
-    the response differs: the staging area a Block record's own single-target
-    transaction would itself have to use is the very thing that is
-    compromised, so this invocation can make NO live write at all, not even
-    Resolver Evidence. It still reports the CORRECT diagnostic id
+    the response differs: the scan refuses before it globs, having touched
+    nothing.
+
+    Panel round 5 (openai, Major) corrected what follows the refusal. The
+    earlier revision made NO live write here at all, reasoning that a Block
+    record's own transaction needs the compromised staging area. That was
+    true of the code as it then stood and false of the contract: design.md
+    requires an Evidence-only write to be DIRECT, "no staging area, no
+    journal" (design.md:1419, :2846). The direct write puts its temp file
+    beside the target in `specs/<feature>/`, so a compromised staging area
+    does not obstruct it, and this Block now emits Evidence like every other
+    one -- AC-012's always-emitted rule with exactly its two stated
+    exceptions and no third. It still reports the CORRECT diagnostic id
     (`publication-journal-recovery`) rather than being misattributed to a
     publication failure, so the operator is pointed at the real cause."""
+
+
+class EvidenceTargetUncontained(Exception):
+    """`specs/<feature>/resolver-evidence.yaml` does not itself resolve inside
+    `specs/<feature>/` -- the feature directory is a symlink, or sits behind
+    one (panel round 4's scenario, reached again by round 5's direct Evidence
+    route).
+
+    This is NOT the staging-area condition and must not be answered the same
+    way. There, only the bookkeeping area was compromised and the Evidence
+    target was still where it should be, so the record can be written. Here
+    the record's own destination is outside the tree, so writing it IS the
+    escape -- the one thing every panel round since round 1 has been closing.
+
+    So this alone keeps a Block from emitting Evidence, and it is narrower
+    than the condition it replaces: not "the staging area is compromised" but
+    "this feature's own Evidence artifact has no valid location". AC-012
+    names an artifact at a fixed path inside `specs/<feature>/`; when that
+    path does not resolve inside `specs/<feature>/`, the artifact the
+    criterion governs has no well-defined location in the governed tree at
+    all, which is a different situation from declining to write one that
+    does.
+
+    The caller preserves the ORIGINAL diagnostic id rather than relabelling
+    the Block a publication failure -- relabelling would point the operator
+    at the wrong cause, which is exactly the misattribution the staging-area
+    class above was written to avoid."""
 
 
 class PublicationJournalUnrecoverable(Exception):
@@ -1770,14 +1806,56 @@ def _write_evidence(
         evidence["context_binding"] = context_binding
     if resolver_block is not None:
         evidence["resolver"] = resolver_block
-    # T-007: a Block's own Resolver Evidence record is published through the
-    # IDENTICAL journaled transaction step 14 uses for a successful run --
-    # design.md step 14 spans "exactly one target (`resolver-evidence.yaml`
-    # alone) on a Block", never a second, bare-rename write path of its own.
-    _publish_and_complete(
-        repo_root, feature,
-        [(repo_root / "specs" / feature / "resolver-evidence.yaml", _canonical_payload(evidence))],
-    )
+    # Panel round 5 (openai, Major, AC-012): a Block's own Resolver Evidence
+    # record is written DIRECTLY -- `temp file + fsync + rename`, no staging
+    # area and no journal -- because that is what the frozen design says, in
+    # two places, and what REQ-001 step (m) and requirements.md's own Roles
+    # and Permissions table authorize as the second publication route ("direct
+    # temp+fsync+rename when Evidence is the whole write set").
+    #
+    #   design.md:1419  "`resolver-evidence.yaml` itself receives this
+    #     invocation's own Block record, written directly (`temp file + fsync
+    #     + rename`, no staging area, no journal -- REQ-001 step (m); opening
+    #     a second journal against the very Feature whose existing journal
+    #     this invocation has just declared unconvergeable would be
+    #     incoherent), exactly as on the step-1 Block branches above."
+    #   design.md:2846  "when Resolver Evidence is a Block's whole write set
+    #     THAT WRITE NEVER PASSES THROUGH THE ON-DISK AREA: it is a direct
+    #     `temp file + fsync + rename` with no staging area and no journal".
+    #
+    # The revision this replaces routed every Block's Evidence through
+    # `_publish_and_complete`, and its comment asserted design.md said the
+    # opposite of the two sentences above. That was the root cause of the
+    # round-5 AC-012 finding rather than a separate defect: because the write
+    # needed the staging area, the one Block whose premise IS a compromised
+    # staging area could not perform it, and fell back to writing nothing --
+    # behaviour outside AC-012's two stated exceptions, and outside the
+    # owner's 2026-08-27 ruling that this Block writes Evidence directly.
+    # With the direct route the staging area is irrelevant to this write, so
+    # that Block emits its record like every other one.
+    #
+    # `_atomic_write_bytes` creates its temp file in the TARGET's own parent
+    # (`specs/<feature>/`), never in the staging area, and `os.replace`
+    # replaces a symlink at the target rather than following it. The
+    # symlinked-PARENT case that `os.replace` cannot see is still refused
+    # here, by the same round-2 check the journaled route applies.
+    evidence_target = repo_root / "specs" / feature / "resolver-evidence.yaml"
+    if _target_escapes_via_symlink(repo_root, feature, evidence_target):
+        # Not `ArtifactPublicationFailed`: that id would relabel the Block a
+        # publication failure and point the operator at the wrong cause. The
+        # caller preserves whatever id it was already Blocking on and writes
+        # nothing, which is the only fail-closed option when the record's own
+        # destination lies outside the tree.
+        raise EvidenceTargetUncontained(
+            "this feature's own resolver-evidence.yaml does not resolve inside its own specs/<feature> directory"
+        )
+    try:
+        _atomic_write_bytes(evidence_target, _canonical_payload(evidence))
+    except OSError as exc:
+        # No live rename was ever committed on this route -- the direct write
+        # either renamed into place or did not -- so the count is 0 and the
+        # canonical no-rollback-needed clause is the accurate one.
+        raise ArtifactPublicationFailed(_rollback_clause(0, True)) from exc
 
 
 def _block(
@@ -1791,6 +1869,19 @@ def _block(
             capability_evaluations, warn_diagnostics,
             context_binding, resolver_block,
         )
+    except EvidenceTargetUncontained:
+        # Panel round 5: this feature's own Evidence artifact has no valid
+        # location -- `specs/<feature>/resolver-evidence.yaml` does not
+        # resolve inside `specs/<feature>/`. Writing it would be the very
+        # escape every round since round 1 has been closing, so nothing is
+        # written; but the ORIGINAL diagnostic id is preserved rather than
+        # relabelled, so the operator sees the cause this invocation actually
+        # Blocked on. This is the only condition under which a Block outside
+        # AC-012's two stated exceptions emits no record, and it is narrower
+        # than the staging-area condition it replaced: a compromised staging
+        # area no longer suppresses Evidence, because the direct write route
+        # design.md requires does not touch that area at all.
+        return _block_no_write(diagnostic_id, detail)
     except ArtifactPublicationFailed as exc:
         # Fail-closed terminal, defense-in-depth: this invocation had already
         # decided to Block, and the one-target transaction that publishes
@@ -2489,20 +2580,28 @@ def main(argv=None):
     try:
         _crash_recovery_scan(repo_root, args.feature)
     except PublicationStagingAreaUncontained:
-        # Panel round 3 (CRITICAL). Ordinarily a Block writes Resolver
-        # Evidence (REQ-002/AC-012), and that write is itself a one-target
-        # journaled transaction -- which needs this feature's own staging
-        # area. Here the staging area is precisely what is compromised, so
-        # attempting it would either fail again or, worse, write through the
-        # same symlink. Writing NOTHING is the only fail-closed option, the
-        # identical posture step 12's own Evidence-itself-fails sub-case
-        # already takes (`_block_no_write`), and it is reported under the
-        # CORRECT id rather than being misattributed to a publication
-        # failure. Disclosed AC-012 interaction: the
-        # `publication-journal-recovery` row's Evidence-writing behaviour is
-        # still covered by its own corruption fixture, which reaches this
-        # diagnostic with an intact staging area.
-        return _block_no_write("publication-journal-recovery", JOURNAL_RECOVERY_DETAIL)
+        # Panel round 3 (CRITICAL) established the refusal; panel round 5
+        # (openai, Major) established that refusing must not also suppress
+        # this Block's own Evidence record.
+        #
+        # The earlier revision returned `_block_no_write` here, reasoning
+        # that a Block's Evidence write is a one-target journaled
+        # transaction and so needs the very staging area this branch has
+        # just declared compromised. That reasoning was sound about the
+        # code as it then stood and wrong about the contract: design.md
+        # requires an Evidence-only write to go DIRECTLY -- "no staging
+        # area, no journal" (design.md:1419, :2846) -- which `_write_evidence`
+        # now does. The staging area is therefore irrelevant to this write:
+        # `_atomic_write_bytes` puts its temp file in `specs/<feature>/`
+        # beside the target, so nothing here passes through the symlink that
+        # caused the refusal.
+        #
+        # So this Block emits Evidence like every other one, and AC-012's
+        # always-emitted rule holds with exactly its two stated exceptions --
+        # no third exception, which is what the owner ruled on 2026-08-27.
+        return _block(
+            repo_root, args.feature, "publication-journal-recovery", JOURNAL_RECOVERY_DETAIL, None,
+        )
     except PublicationJournalUnrecoverable:
         # The live state is left exactly as found, pending manual operator
         # intervention -- the scan itself has already refused to half-revert

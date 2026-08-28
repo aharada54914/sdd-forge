@@ -3384,15 +3384,53 @@ def run_t007_staging_symlink_case(kind, counts):
             f"{label}: no live artifact was published either -- the refusal precedes step 1 entirely "
             f"(TEST-038)",
         )
-        counts.check(
-            not (feature_dir / "resolver-evidence.yaml").exists(),
-            f"{label}: NO live write of any kind, not even Resolver Evidence -- the staging area a "
-            f"Block record's own transaction would need is the very thing that is compromised, so this "
-            f"takes the same no-write posture step 12's Evidence-itself-fails case already does "
-            f"(disclosed AC-012 interaction; the row's Evidence-writing behaviour is covered by the "
-            f"`publication-journal-recovery` corruption fixture)",
-            repr(read_or_missing(feature_dir / "resolver-evidence.yaml")),
-        )
+        # Panel round 5 (openai, Major, AC-012). The earlier revision asserted
+        # NO write here, matching an implementation that published a Block's
+        # Evidence through the journaled transaction and so could not write it
+        # when the staging area was compromised. design.md requires the
+        # opposite: an Evidence-only write is DIRECT, "no staging area, no
+        # journal" (design.md:1419, :2846), and a direct write puts its temp
+        # file beside the target in `specs/<feature>/`. So the two scenarios
+        # that compromise only the BOOKKEEPING area must still emit Evidence,
+        # and AC-012's always-emitted rule holds with exactly its two stated
+        # exceptions.
+        #
+        # `feature-dir-symlinked` is the one scenario that genuinely cannot:
+        # there `specs/<feature>` ITSELF is the symlink, so the Evidence
+        # target's own destination is outside the tree and writing it would BE
+        # the escape. That case writes nothing and keeps the original
+        # diagnostic id rather than relabelling the Block a publication
+        # failure.
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        if scenario == "feature-dir-symlinked":
+            counts.check(
+                not evidence_path.exists(),
+                f"{label}: NO Resolver Evidence -- `specs/<feature>` is itself the symlink, so the "
+                f"record's own destination lies outside the tree and writing it would be the very "
+                f"escape this fixture exists to close; the Block still reports "
+                f"`publication-journal-recovery`, never a misattributed publication failure",
+                repr(read_or_missing(evidence_path)),
+            )
+        else:
+            evidence, parse_error = read_evidence(evidence_path)
+            counts.check(
+                evidence == {
+                    "schema": "sdd-resolver-evidence/v1",
+                    "feature": "example-feature",
+                    "capability_evaluations": [],
+                    "diagnostics": [{
+                        "id": "publication-journal-recovery",
+                        "detail": JOURNAL_RECOVERY_DETAIL,
+                        "severity": "block",
+                    }],
+                },
+                f"{label}: Resolver Evidence IS written, through the direct `temp file + fsync + "
+                f"rename` route design.md requires for an Evidence-only write -- a compromised "
+                f"BOOKKEEPING area does not obstruct a write that never passes through it, so AC-012's "
+                f"always-emitted rule holds here with no third exception",
+                parse_error or repr(evidence),
+            )
+            check_evidence_schema(counts, evidence_path, label)
 
 
 def run_t007_unresolved_repo_roundtrip_case(kind, counts):
