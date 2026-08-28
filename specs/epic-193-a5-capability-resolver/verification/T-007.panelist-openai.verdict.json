@@ -3,17 +3,22 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1422",
-      "note": "Recovery accepts any nonempty, unique subset of allowed target paths instead of validating that the journal exactly represents a legitimate Full or Lite publication bundle. Because the same unprotected journal supplies PRE/POST hashes, a fabricated mixed-state journal can classify an existing artifact as POST with PRE=ABSENT and cause recovery to delete it, violating the required all-target transaction boundary and preservation of pre-existing bytes."
+      "ref": "resolve-project-context.py:_recover_journal (all-POST branch)",
+      "note": "Recovery treats an all-POST journal as a completed transaction and deletes it, although the same state exists after the final rename but before post-publication verification. A crash in that window therefore bypasses the required final race-closing verification and can preserve stale artifacts."
+    },
+    {
+      "severity": "Major",
+      "ref": "resolve-project-context.py:_publish_bundle exception path",
+      "note": "On a caught publication failure, rollback is invoked with discard enabled, removing the journal and batch before the caller writes artifact-publication-failed Block evidence. A crash between those operations leaves neither durable recovery state nor the required failure evidence."
     }
   ],
   "blind": true,
-  "input_digest": "9da3a9b3eb71118492af10a116e2c32c848ebce6ea6251c2868336739f7e3d43",
+  "input_digest": "e86b36e0ebc3c66b6e96d5e62e6be3b7b9fb9b498e9226bf4e61cb1aadd372c2",
   "consent": {
     "kind": "sudo",
     "ref": "sudo 2026-08-08T16:04:17Z"

@@ -300,7 +300,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 361 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 369 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
   step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
@@ -329,8 +329,8 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
   commit 前に publish が拒否されるため、fixture では作れない）。
-  **3 件とも rollback / Evidence / journal 経路に集中しており、この領域の
-  正しさはテストでなくレビューに依存している。**
+  **残る 2 件はいずれも rollback / Evidence / journal 経路にあり、この領域の
+  正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。

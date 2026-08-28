@@ -411,6 +411,7 @@ ALL_CASE_NAMES = (
         "publication-target-parent-symlink",
         "publication-staging-parent-symlink",
         "publication-journal-roundtrip-unresolved-repo",
+        "post-publication-crash-before-evidence",
     ]
 )
 

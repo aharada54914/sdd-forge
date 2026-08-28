@@ -4,36 +4,41 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md - Regression Tests Run, GREEN capture, Mutation proofs",
-      "note": "Round-1 tallies still stand in three sections while the shipped state is 361/0. The Regression Tests Run table records the block suite at 306 passed / 0 failed, the Mutation proofs table records a control of 46 passed / 0 failed with four mutants (a)-(d), and the closing line of that section says the real tree was re-run at 306/0. The declared mutation log carries a clean control of 361 and six mutants A-F, and both declared green captures are 361/0. Round 13 repointed only the Test Result field. The Snapshot Notice does cover the convention and every later round appends a fresh table, so no evidence is misrepresented - but this is the same propagation class the report itself has now logged thirteen times, landing on the two sections a reviewer scans for tallies."
+      "severity": "Major",
+      "ref": "staged resolver _recover_journal / _legitimate_journal_bundles (bundle-shape check) vs T-007.contract.json comment and implementation report Round 15",
+      "note": "The round-15 remedy does not close the attack class the contract and the report both say it closes. _legitimate_journal_bundles constrains only the SET of journal-listed paths, not the per-entry PRE/POST encoding. Take the Full-track set the check itself accepts, which main() builds as facet-manifest.yaml + generated/project-context.resolved.json + resolver-evidence.yaml. A committed journal naming exactly those three, with pre_hash ABSENT plus post_hash equal to the live facet-manifest bytes on the first entry and the true live hashes as pre_hash on the other two, passes every guard: each path is in the allowed set, none repeats, the frozenset IS the Full-track bundle, and _read_journal imposes no hash-consistency rule. States classify as post/pre/pre, which is MIX, the only writing branch. The pre-image validation loop skips post entries whose pre_hash is ABSENT, so no backup is needed; _restore_to_pre then unlinks the live facet-manifest.yaml; the confirmation loop passes because _live_digest of a missing file returns ABSENT, and _discard_batch reports success. That is the identical 'MIX rollback unlinks a live artifact that was never part of any transaction' outcome the round-14 finding named, reachable with a bundle-shaped journal instead of a subset one. The new fixture (in-set-non-bundle) and mutant G cover only the subset variant, so nothing in the suite would notice. Mitigating, and why this is Major rather than Critical: the owner already ruled the round-1 class (attacker content reaching an in-set target through a supplied pre-image backup) out of scope, and a clean resolve republishes the deleted artifact. The defect here is that the contract comment and the report assert the class is closed when the strictly-equivalent full-bundle path remains open and untested."
+    },
+    {
+      "severity": "Major",
+      "ref": "T-007.contract.json comment; implementation report Test Evidence Test Result field; CHANGELOG.md T-007 entry",
+      "note": "The declared green tally is stale by eight in all three artifacts, and disagrees with the very captures they name. Every green capture in the bundle reports 369 passed, 0 failed: the two contract-declared green_evidence files (qg/T-007/focused-tests-sh.log and focused-tests-ps1.log), both green-shipped captures, and the CLEAN CONTROL run at the top of mutation-proofs.log. The contract nevertheless says 361/0, the report's headline Test Result field says 361 passed / 0 failed while pointing at the green-shipped captures, and the CHANGELOG entry says 361 passed / 0 failed. This is a verbatim recurrence of the round-11 Major (contract said 355 while its captures said 356) that round 12 claimed to fix structurally; ironically the contract states 361 three times in the same comment that declares THE GREEN TALLY IS STATED ONCE ON PURPOSE. It is a required-check declaration disagreeing with its own evidence, on the field a reader checks first."
+    },
+    {
+      "severity": "Major",
+      "ref": "implementation report Files Changed (fixture/function counts) and Tests Added Or Updated opening sentence; CHANGELOG T-007 entry (fixture total)",
+      "note": "The fixture and driver-function counts are stale and are presented as freshly verified. The report states, under a heading claiming the counts were corrected and 'Verified now by counting', that grep -c for the T-007 run functions reports ten and that the fixture directory holds ten scenario directories. Counted from the bundle's own copies: the check driver defines twelve run_t007_ functions (all twelve are wired in main()), and the report's own Outputs table lists eleven distinct fixture directories under resolve-project-context-block. The same paragraph's own arithmetic contradicts itself (six original plus four containment plus the round-12 leaf-symlink scenario is eleven, before round 15 added two more cases). The CHANGELOG repeats the stale figure as 'fixture total is 10'. A count asserted as verified by execution but contradicted by the artifacts in the same document is the third instance of this class in this bundle."
     },
     {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log - mutants C, D, F",
-      "note": "Verified honest: the clean control is present at the top of the log, all three mutants report exactly the control tally, and the log restores to the sha256 that the Outputs table and the human-copy manifest both declare for the staged resolver. None of the three guards implements a frozen acceptance criterion, so no AC is left untested. The reservation is that the stated reason for C understates feasibility. C needs a kill hook between the rollback and the Block Evidence write, and this suite already ships a sys.addaudithook observer of the os.rename audit event whose kill point is a single integer constant; the shipped and mutated end states are observably different across a second invocation (journal standing, so the scan Blocks publication-journal-recovery, versus journal gone, so the scan proceeds while Evidence still holds the success-form record). Two of the three uncovered guards were remediations of a Critical and a Major on the one code path in this feature that writes a live artifact, and the report itself states that this area now rests on review rather than on regression tests."
+      "ref": "verification/T-007/mutation-proofs.log, notes under MUTANT C and MUTANT F",
+      "note": "Two explanatory notes in the mutation log are stale relative to the results in the same log. The note under mutant C still asserts that no fixture can observe the crash window without a new kill hook, although mutant C now dies at 368/1 in that very section. The note under mutant F still says it is 'the third uncovered hardening on this path, alongside mutants C and D', which contradicts the contract and report claim that the uncovered set is D and F. A reader taking the evidence artifact at face value would conclude C is uncovered."
     },
     {
       "severity": "Minor",
-      "ref": "staged resolve-project-context.py, module docstring first line",
-      "note": "The summary line still reads 'Capability Resolver, implementation stages T-002+T-003+T-004 (steps 0-13)' while the body of the same docstring goes on to describe T-007 completing the pipeline with step 0.5 and step 14. In a Security-Sensitive file whose own Standing Note tells reviewers to trust these descriptions, the opening sentence and the body disagree about what the file implements."
+      "ref": "CHANGELOG.md T-007 entry, uncovered-guard paragraph",
+      "note": "The round-15 correction changed the count to two uncovered guards but left the enumeration at three and closed with 'all three concentrate on the rollback / Evidence / journal path'. The paragraph therefore states two and then lists three, including the journal-delete-ordering change whose fixture was written this round. Same amendment-propagation class the report itself tracks, introduced by this round's own edit."
     },
     {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json versus tasks.md T-007 block",
-      "note": "The contract declares cross_model as 'required'; the frozen task block declares 'Cross-Model: not enabled'. The contract comment justifies the difference from the ship-stage rule that makes a panel mandatory for a Security-Sensitive task, and it errs toward more verification rather than less, so nothing is weakened. Recorded because the two authoritative records disagree on one field and only the contract explains why."
-    },
-    {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md - Specification Differences",
-      "note": "Planned Files in the task block names the block suite launcher pair as edited to append the transactional fixtures; the Outputs table and Files Changed carry only the shared Python driver and the fixture directories. The launcher-delegates-to-driver architecture makes that correct and the Outputs table matches the bundle one-for-one, but the section that reads 'None' does not record the deviation from the task's own Planned Files."
+      "ref": "block-suite check driver, ALL_CASE_NAMES tuple and its T-007 comment",
+      "note": "ALL_CASE_NAMES lists ten T-007 case names and omits post-publication-crash-before-evidence, the fixture directory added this round. The tuple is used only on the branch taken when the staged implementation is absent, so a TDD RED replay would emit one fewer named failure than there are cases; GREEN is unaffected. Separately, the comment introducing that block still reads 'REQ-002 own four remaining diagnostic-id rows', which is the pre-ruling-D(2) wording the frozen documents corrected to three rows plus one additional fixture."
     }
   ],
   "blind": true,
-  "input_digest": "9da3a9b3eb71118492af10a116e2c32c848ebce6ea6251c2868336739f7e3d43",
+  "input_digest": "e86b36e0ebc3c66b6e96d5e62e6be3b7b9fb9b498e9226bf4e61cb1aadd372c2",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"
