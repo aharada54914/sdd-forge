@@ -29,20 +29,54 @@ if (-not (Test-Path -LiteralPath $Baseline -PathType Leaf)) {
     exit 1
 }
 
+# Runtime pin of the frozen baseline bytes (2026-08-28 hardening): a silently
+# rewritten fixture would re-tautologize AC-007 without any test going red, so
+# the pinned sha256 is asserted here, not only documented in the header.
+$BaselineExpectedSha = 'd1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38'
+$BaselineActualSha = (Get-FileHash -LiteralPath $Baseline -Algorithm SHA256).Hash.ToLower()
+if ($BaselineActualSha -eq $BaselineExpectedSha) {
+    Ok 'TEST-007-baseline-hash: frozen baseline sha256 matches the pinned value'
+} else {
+    Bad "TEST-007-baseline-hash: frozen baseline sha256 drifted (expected $BaselineExpectedSha, got $BaselineActualSha)"
+    Write-Host ''
+    Write-Host "Results: $Script:Pass passed, $Script:Fail failed"
+    exit 1
+}
+
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t002-bi-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
 $Work = (Resolve-Path -LiteralPath $Work).Path
 
+# Strict byte comparison (2026-08-28 hardening): stdout and stderr are
+# captured as raw bytes via Process streams, so trailing-newline or joining
+# differences that string-based capture would normalize away are detected.
 function Invoke-Script([string]$ScriptPath, [string]$InputPath) {
-    $output = & $PowerShell -NoProfile -File $ScriptPath -Path $InputPath 2>&1
-    return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = ($output -join "`n") }
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $PowerShell
+    $psi.Arguments = "-NoProfile -File `"$ScriptPath`" -Path `"$InputPath`""
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $p = [System.Diagnostics.Process]::Start($psi)
+    $outMs = New-Object System.IO.MemoryStream
+    $errMs = New-Object System.IO.MemoryStream
+    $p.StandardOutput.BaseStream.CopyTo($outMs)
+    $p.StandardError.BaseStream.CopyTo($errMs)
+    $p.WaitForExit()
+    return [pscustomobject]@{
+        ExitCode = $p.ExitCode
+        OutB64 = [Convert]::ToBase64String($outMs.ToArray())
+        ErrB64 = [Convert]::ToBase64String($errMs.ToArray())
+        OutText = [System.Text.Encoding]::UTF8.GetString($outMs.ToArray())
+        ErrText = [System.Text.Encoding]::UTF8.GetString($errMs.ToArray())
+    }
 }
 
 function Assert-Identical([string]$Label, [string]$Fixture) {
     $liveResult = Invoke-Script $Live $Fixture
     $baseResult = Invoke-Script $Baseline $Fixture
     if ($liveResult.ExitCode -eq $baseResult.ExitCode) { Ok "$Label`: exit code identical ($($liveResult.ExitCode))" } else { Bad "$Label`: exit code differs (live=$($liveResult.ExitCode), baseline=$($baseResult.ExitCode))" }
-    if ($liveResult.Output -eq $baseResult.Output) { Ok "$Label`: stdout byte-identical" } else { Bad "$Label`: stdout differs. live=[$($liveResult.Output)] baseline=[$($baseResult.Output)]" }
+    if (($liveResult.OutB64 -eq $baseResult.OutB64) -and ($liveResult.ErrB64 -eq $baseResult.ErrB64)) { Ok "$Label`: output byte-identical" } else { Bad "$Label`: output differs. live=[$($liveResult.OutText)$($liveResult.ErrText)] baseline=[$($baseResult.OutText)$($baseResult.ErrText)]" }
 }
 
 try {

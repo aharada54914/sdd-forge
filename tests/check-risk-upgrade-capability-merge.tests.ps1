@@ -7,7 +7,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$Sut = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
+# SUT repointed 2026-08-28 (post-apply hardening): the shipped live script
+# is the SUT; staged==live is held by human-copy-mirror-freshness.
+$Sut = Join-Path $RepoRoot 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
 $PowerShell = (Get-Process -Id $PID).Path
 
 $Script:Pass = 0

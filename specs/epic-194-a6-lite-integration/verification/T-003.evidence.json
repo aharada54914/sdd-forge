@@ -6,7 +6,7 @@
   "spec_revision": "3500fe3b5230354a743fe45f52c117716eaeddcbbc35bddf61ba48231a22f0a3",
   "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-003.md",
   "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-003.contract.json",
-  "git_commit": "7f9ccbdf843e21e6e9f573f02bd5162fe4f05aa1",
+  "git_commit": "8e82eea70d442e79652dbe9e4457cce90f00b031",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -91,7 +91,7 @@
       "started_at": null,
       "finished_at": null,
       "evidence": "specs/epic-194-a6-lite-integration/verification/T-003/regression-20260828-excerpt.log",
-      "evidence_sha256": "e1f68a1a01558df796eb865b459145c70a6e4360351a46bb57b5741ab7a072bd"
+      "evidence_sha256": "258fccc454ce5d98635d5a4e595810778bd3a53df7244b3b38b3cd5f6d495973"
     },
     {
       "id": "build",
@@ -123,8 +123,8 @@
       "exit_code": null,
       "started_at": null,
       "finished_at": null,
-      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
-      "evidence_sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check-20260828.log",
+      "evidence_sha256": "633dc5a78ceadde435442827f2452e53b29ee4ba6c6b3d8cabc7716c3f4fe1b3"
     },
     {
       "id": "smoke-run",
@@ -185,7 +185,7 @@
   "artifacts": [
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-003.contract.json",
-      "sha256": "a92e0bdb9f2feae499fe2daa7c3681f1989262d347ca9cb0d99d3f1901202825"
+      "sha256": "eb2cc4f5fd5197dd324894e0fec8348315bd73216c2a3ed3dad3c06a8e85a708"
     },
     {
       "path": "reports/quality-gate/epic-194-a6-lite-integration/T-003.md",
@@ -197,15 +197,15 @@
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-003/regression-20260828-excerpt.log",
-      "sha256": "e1f68a1a01558df796eb865b459145c70a6e4360351a46bb57b5741ab7a072bd"
+      "sha256": "258fccc454ce5d98635d5a4e595810778bd3a53df7244b3b38b3cd5f6d495973"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/qg/T-003/capability-block-green-20260828.log",
       "sha256": "bab46bc9b6da52fcbd0622956c45f13fe6af6d28016445db07893b83c8a3fe09"
     },
     {
-      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
-      "sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check-20260828.log",
+      "sha256": "633dc5a78ceadde435442827f2452e53b29ee4ba6c6b3d8cabc7716c3f4fe1b3"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/traceability-check.log",
