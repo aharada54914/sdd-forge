@@ -307,7 +307,7 @@ PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (r
 PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
 PASS: publication-target-parent-symlink: the Block's own Resolver Evidence is still written (AC-012) -- and its own single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected by the symlinked generated/ parent
 PASS: publication-target-parent-symlink: Resolver Evidence schema agreement
-PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence's own transaction cleaned up after itself
+PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence write creates none (it is a direct temp+fsync+rename into the target's own parent, with no staging area and no journal)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)

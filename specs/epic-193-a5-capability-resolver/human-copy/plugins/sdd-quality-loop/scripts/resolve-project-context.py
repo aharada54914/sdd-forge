@@ -1421,7 +1421,7 @@ class _PublicationTransaction:
         self.committed = 0
 
 
-def _rollback_transaction(transaction):
+def _rollback_transaction(transaction, discard=True):
     """The in-process half of the journal-based rollback (design.md step 4's
     own mechanism, reused verbatim by the Prepare/Journal/Commit failure
     path). Returns `(count, complete)`.
@@ -1536,7 +1536,21 @@ def _rollback_transaction(transaction):
                 return rolled_back, False
         except OSError:
             return rolled_back, False
-    _discard_batch(transaction.batch_dir)
+    # `discard=False` defers the journal's deletion to the caller. It is used
+    # on the post-publication paths ONLY, and it is not a fourth journal
+    # operation -- it is this same delete, moved to the far side of the Block
+    # Evidence write. Deleting here instead would open a window in which the
+    # publication artifacts are back at PRE, Evidence still holds the
+    # SUCCESS-form record committed moments earlier, and no journal survives
+    # for the next invocation's recovery scan to notice: a crash there leaves
+    # Evidence asserting a publication whose artifacts are gone, undetectably.
+    # Keeping the journal until Evidence is durable makes that same crash
+    # land in the recovery scan's own unrecoverable third state, which Blocks
+    # `publication-journal-recovery` for a human -- fail-closed and visible,
+    # which is the behaviour the owner ruled acceptable for this corner on
+    # 2026-08-27. (openai panel slot, round 8 Critical.)
+    if discard:
+        _discard_batch(transaction.batch_dir)
     return rolled_back, True
 
 
@@ -1646,14 +1660,12 @@ def _publish_bundle(repo_root, feature, targets):
     return transaction
 
 
-def _publish_and_complete(repo_root, feature, targets):
-    """The whole transaction for a batch that needs no post-publication
-    verification of its own: the Block path's single `resolver-evidence.yaml`
-    target (design.md step 14's "Resolver Evidence alone" case, whose own
-    Block has already been decided and whose recheck snapshot does not
-    exist). The success path calls `_publish_bundle` directly, because it
-    must hold the journal open across step 4's own verification."""
-    _discard_batch(_publish_bundle(repo_root, feature, targets).batch_dir)
+# `_publish_and_complete` stood here: the one-target transaction helper the
+# Block path used before panel round 5 withdrew that route. `_write_evidence`
+# now writes Evidence directly (temp file + fsync + rename, no staging area
+# and no journal), so nothing called it. Deleted on round 9 rather than left
+# standing as a second, unreachable write path into the journal machinery of
+# a Security-Sensitive file.
 
 
 def _recover_journal(repo_root, feature, journal_path):
@@ -3025,13 +3037,19 @@ def main(argv=None):
             script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest,
         )
     except SnapshotGenerationMismatch:
-        rolled_back, complete = _rollback_transaction(transaction)
-        return _block(
+        rolled_back, complete = _rollback_transaction(transaction, discard=False)
+        result = _block(
             repo_root, args.feature, "post-publication-generation-mismatch",
             f"{POST_PUBLICATION_MISMATCH_PREFIX}; {_rollback_clause(rolled_back, complete)}",
             state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
+        # Only now, with the Block record durable at Evidence's live path, is
+        # the journal no longer needed. An INCOMPLETE rollback still retains
+        # it, exactly as before.
+        if complete:
+            _discard_batch(transaction.batch_dir)
+        return result
     except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) as exc:
         # A verification dependency that cannot even RUN is not a "mismatch"
         # -- re-labelling it `post-publication-generation-mismatch` would
@@ -3043,7 +3061,7 @@ def main(argv=None):
         # carries the SAME REQ-002 id the corresponding step-13 handler
         # already uses -- never a seventeenth diagnostic-id value, which the
         # enum is closed against.
-        _rollback_transaction(transaction)
+        _rolled_back, _complete = _rollback_transaction(transaction, discard=False)
         # Resolved by `isinstance`, never by an exact `type(exc)` key lookup:
         # a future subclass of any of these five would be CAUGHT by the
         # `except` above and then `KeyError` out of the mapping as a raw
@@ -3053,10 +3071,15 @@ def main(argv=None):
             mapped for exception_class, mapped in _POST_PUBLICATION_DEPENDENCY_BLOCKS.items()
             if isinstance(exc, exception_class)
         )
-        return _block(
+        result = _block(
             repo_root, args.feature, diagnostic_id, detail, state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
+        # Same deferral as the mismatch branch above: the journal outlives the
+        # rollback and dies only once the Block record is durable.
+        if _complete:
+            _discard_batch(transaction.batch_dir)
+        return result
 
     # Complete (design.md step 5): every rename succeeded AND the
     # post-publication verification passed -- delete the journal. This is

@@ -4,26 +4,41 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "staged resolve-project-context.py, _rollback_transaction and main() step-14 post-publication branch",
-      "note": "REQ-001 step (m) scopes a rollback to the publication artifacts and says resolver-evidence.yaml is never rolled back, receiving the Block record after that rollback completes. The implementation rolls back every committed entry, evidence included, and then re-writes the Block record directly. The mandated end state is correct and is asserted by the fixture (sentinels cover only the three publication artifacts, evidence is asserted to carry the Block record), and the transient restore is arguably safer, but the canonical detail therefore reports 3 rolled-back renames on a Full-track post-publication mismatch where a contract-literal count would be 2, and the driver hard-codes that 3. Not listed among the four Specification Differences."
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (Round 8 note in Outputs; Test Evidence section)",
+      "note": "The shipped bytes have no clean full-suite GREEN capture anywhere in the bundle. Rounds 1-5 each carried a 'Verification after remediation' subsection with fresh dual-runtime numbers and output hashes; Round 8 carries none. Round 8 changed the sole live-write rollback path (Evidence filtered out of the rollback set) AND the compensating suite assertion (rollback count three to two) at the same time, so the check total stayed 355 and the newest declared GREEN artifacts (green-panel8-sh.log / green-panel8-ps1.log, 355 passed / 0 failed) attest the Round 7 code that Round 8 itself describes as carrying a Critical defect. The only runtime evidence for the shipped resolver is mutation-proofs-round7.log, which contains no clean control run (only 354/1 and 353/2), no '# runner:' marker, and therefore no PowerShell-lane attestation of the Round 8 change at all. The Test Evidence section still reports 306 passed / 0 failed, and the contract's green_evidence points at verification/qg/T-007/focused-tests-{sh,ps1}.log, which are not in the bundle and which predate Round 8 by construction. The Done When bullet 'TDD evidence - RED ... and GREEN (the full suite)' is therefore not satisfied for the code being shipped on a high-risk, Security-Sensitive, sole-live-write task."
+    },
+    {
+      "severity": "Major",
+      "ref": "CHANGELOG.md (T-007 Unreleased entry) and reports/implementation/epic-193-a5-capability-resolver/T-007.md (Summary; Files Changed; Specification Differences item 1)",
+      "note": "Declared outputs misdescribe the shipped Evidence write route. The CHANGELOG entry states that a Block path's Resolver Evidence is published as a one-target instance of the same journaled transaction, citing design.md step 14; the report Summary says _write_evidence 'was therefore rerouted onto the same _publish_bundle primitive ... rather than keeping a second, bare-rename write path', Files Changed repeats '_write_evidence rerouted onto the transaction', and Specification Differences item 1 is titled 'Block-path Evidence goes through the transaction'. The shipped _write_evidence does the opposite: it calls _atomic_write_bytes directly on specs/<feature>/resolver-evidence.yaml with no staging area and no journal, which is exactly the Round 5 remediation the report's own Panel Round 5 section documents as required by design.md:1419 and :2846 and by the owner's 2026-08-27 ruling. The CHANGELOG carries no Snapshot Notice, so a reader of the shipping changelog would conclude the pre-Round-5 behaviour (and its AC-012 suppression on a compromised staging area) is still in effect. Four separate statements across two declared outputs were left describing the defect rather than the fix."
     },
     {
       "severity": "Minor",
-      "ref": "tests/resolve-project-context-block-check.py, run_test_059 and the STAGED constant",
-      "note": "AC-059 and this task's Done When name the scanned set verbatim as plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}. TEST-059 scans the human-copy staged candidates instead. That matches this suite's own convention (STAGED is the subject of every case, and the live paths are protected and applied by a human, not authored by T-007), and the log lines print the staged paths, so nothing is concealed. But the implementation report and the verification contract both describe the scanned set as the three Resolver files without disclosing the staged-for-live substitution, so a reader checking AC-059 against the criterion text meets a path mismatch."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (_publish_and_complete)",
+      "note": "_publish_and_complete is defined but has no call site anywhere in the file; it is the vestige of the pre-Round-5 route that sent Block Evidence through the journaled transaction. Dead code on the one live-filesystem write surface in this feature, and its docstring still asserts it serves 'the Block path's single resolver-evidence.yaml target', which is no longer true."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Panel Round 1 Remediation, Verification after remediation",
-      "note": "The report states red-panel1-sh.log is 311 passed / 10 failed; the bundled log for that exact sha256 ends with RESULT: 308 passed, 10 failed. Tally-only inaccuracy in a superseded round record; every other tally I cross-checked (327, 335, 339, 343, 345, 355, and the 631-assertion regression sum) reconciles with its log."
+      "ref": "resolve-project-context-block-check.py (run_t007_post_publication_mismatch_case, the TWO-not-three comment)",
+      "note": "The comment carrying the load-bearing Round 8 correction says 'This fixture is a Lite track', then enumerates facet-manifest.yaml and generated/project-context.resolved.json as the two publication artifacts - a Full-track output set. The stated rationale for the three-to-two change is therefore self-contradictory in the one place a future reader will consult to decide whether the count is right."
+    },
+    {
+      "severity": "Minor",
+      "ref": "resolve-project-context-block-check.py (run_test_059) vs acceptance-tests.md AC-059/TEST-059",
+      "note": "AC-059 names the scanned set as plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1} and describes a repository-wide grep of TEST-025's kind. The implementation scans STAGED, i.e. the human-copy candidates under specs/epic-193-a5-capability-resolver/human-copy/, and only those three files. That is consistent with the package's staging convention and with what T-007 can author, but it is a literal divergence from the criterion's own path text: if a human has already applied an earlier candidate, the live plugin copies the criterion names are never scanned."
+    },
+    {
+      "severity": "Minor",
+      "ref": "resolve-project-context-block-check.py (run_t007_parent_symlink_case final assertions)",
+      "note": "Assertion messages still say 'the Block Evidence's own transaction cleaned up after itself' and 'its own single-target transaction', which describe the withdrawn pre-Round-5 route. Same stale-narrative class as the CHANGELOG finding, but confined to test output text."
     }
   ],
   "blind": true,
-  "input_digest": "103bdba0ae8ffaf3cc9b68b40f38571b95e8c7951e382784abcbecf9d556896a",
+  "input_digest": "a4ad353f068d9a64fb92a96b23ae2dc582f973c3acd4a5b35704df790e4fe3d7",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

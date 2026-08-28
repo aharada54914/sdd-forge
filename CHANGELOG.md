@@ -251,8 +251,14 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   完了済み rename は journal の `pre/<target-basename>` backup から
   **復元**する — bare `unlink` は使わない（adversarial review B1 の
   「既存 live bytes が復元不能なまま破壊される」ギャップを閉じる）。
-  Block 経路の Resolver Evidence も同一 transaction の 1-target
-  インスタンスとして publish する（design.md step 14）。
+  Block 経路の Resolver Evidence は**この transaction を通さない** —
+  Evidence が書き込み集合の全体である以上、cross-file atomicity は不要で、
+  `temp file + fsync + rename` の直接書き込みになる（design.md:1419 と
+  :2846 が「no staging area, no journal」を明示的に要求している）。
+  **訂正 2026-08-28**: この行は当初「同一 transaction の 1-target
+  インスタンスとして publish する」と述べていたが、それはパネル round 5 が
+  撤回した経路であり、出荷コードの挙動でもない。docstring だけを直して
+  この兄弟記述を取り残していた。
   step 0.5 の scan が書き込み・削除する path は、すべて事前に
   requirements.md:1144-1151 が名指しで固定した publication target set と
   照合する（journal は unprotected な repository-local staging 領域に

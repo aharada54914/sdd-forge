@@ -2846,7 +2846,9 @@ def run_t007_post_publication_mismatch_case(kind, counts):
         )
         stdout = result.stdout.decode("utf-8", errors="replace")
         stderr = result.stderr.decode("utf-8", errors="replace")
-        # TWO, not three. This fixture is a Lite track: the transaction commits
+        # TWO, not three. This fixture is a FULL track (corrected 2026-08-28 --
+        # the first version of this comment said "Lite" while listing the very
+        # artifacts that make it Full). The transaction commits
         # three entries, but only two of them are PUBLICATION ARTIFACTS
         # (`facet-manifest.yaml` and `generated/project-context.resolved.json`).
         # The third is `resolver-evidence.yaml`, and REQ-001 step (m) makes it
@@ -3226,7 +3228,8 @@ def run_t007_parent_symlink_case(kind, counts):
         counts.check(
             not journal_paths(feature_dir) and not staging_litter(feature_dir),
             f"{case_name}: no journal or staging litter survives -- the refused publish left none, and the "
-            f"Block Evidence's own transaction cleaned up after itself",
+            f"Block Evidence write creates none (it is a direct temp+fsync+rename into the target's own "
+            f"parent, with no staging area and no journal)",
             repr(staging_litter(feature_dir)),
         )
 
@@ -3607,6 +3610,16 @@ def run_block_matrix_completeness_check(counts):
 # package", so `validate-resolver-evidence.*` is deliberately NOT scanned here
 # (it is not the Resolver, and T-008 authors it after T-007, which would make
 # this criterion unverifiable by its own owner at its own gate).
+#
+# Scanned PATHS: the staged human-copy candidates, not the live
+# `plugins/sdd-quality-loop/scripts/` paths AC-059's prose names. Those live
+# paths do not yet carry T-007's code -- this whole package is staged for a
+# human to apply -- so scanning them would assert the criterion against bytes
+# this task did not write, and would pass vacuously until the day of that
+# application. TEST-025, the allow-list grep this row is the counterpart to,
+# resolves its own Resolver targets exactly the same way (`STAGED_SCRIPTS`),
+# so this is the established reading of "the Resolver" in this package's
+# tests, not a narrowing invented here.
 #
 # Mechanism: absence of the surface's own path vocabulary in the source is a
 # conservative superset of absence of a write to it -- a script that never
