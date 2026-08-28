@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: ff016b1bd76f49147145824558cd0bdaf58699545a7481c86967c3a80dd72ee2
+# input_digest: 539c19af5bf30ab437476b2706e710c638108bf94d9317561a675f2d92411238
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -10059,6 +10059,61 @@ cited AC-032 alongside AC-033/AC-034 as sharing a per-commit binding, where
 AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
 sentence carrying that citation is removed by this commit, so the advisory
 is closed as a side effect rather than left open.
+
+### Rulings (a) and (b) — the third AC-012 exception, and a containment check stricter than its own write
+
+Both cross-model panel slots reached the same code on rounds 8 and 9 and
+disagreed only about severity. The openai slot filed a Major with two halves;
+the anthropic slot had already filed the first half as a Minor on round 6.
+Neither half was an implementer's call, so both were put to the repository
+owner, who answered on 2026-08-28: **「(a) 受容 / (b) 承認」**.
+
+**Ruling (a) — the third no-write exception is accepted as a known
+limitation.** `requirements.md` line 386 says AC-012's always-emitted rule
+"excepts exactly two diagnostic ids". `EvidenceTargetUncontained` is a third:
+when `specs/<feature>/resolver-evidence.yaml` does not resolve inside
+`specs/<feature>/`, the Block emits no Evidence. The alternatives were stated
+plainly and there is no third one — writing to a destination that resolves
+outside the tree IS the escape every panel round since round 1 has been
+closing, not writing exceeds AC-012's count, and only the latter fails
+closed. The owner accepted the deviation rather than authorizing an amendment
+to the frozen text.
+
+**No frozen document was amended for it.** The ruling is recorded in this
+file and in the `EvidenceTargetUncontained` docstring, which is the same way
+the 2026-08-27 ruling on the doubly-degraded rollback corner was recorded.
+Amending `requirements.md` would have invalidated all three currently-green
+review gates and forced the whole spec → impl → task chain again, for a
+sentence whose count is now documented as having a sanctioned exception.
+
+**Ruling (b) — `_target_escapes_via_symlink` is narrowed to the target's
+parent.** The check resolved the FINAL path component, but every write in
+this file lands via `os.replace(tmp, target)`, which replaces the directory
+entry at `target` rather than following a symlink sitting there, and the temp
+file is created with `mkstemp(dir=target.parent)`. The parent is therefore
+the only component whose symlinks can move a write. Resolving the leaf too
+modelled a write the code does not perform, and refused valid in-tree
+destinations. The narrowed form still catches a symlinked `specs/<feature>`,
+a symlinked `generated/`, any symlink between the trusted base and the
+parent, and every lexical `..` traversal.
+
+The two rulings interact: (b) shrinks (a)'s reach to the irreducible case. A
+symlink at `resolver-evidence.yaml` itself no longer suppresses Evidence;
+what remains is a feature directory that genuinely resolves outside the tree,
+where no valid write exists at all.
+
+Both changes are behaviour-preserving against the existing suite (356 passed,
+0 failed in both runtimes, unchanged by either edit), which is expected: no
+fixture places a symlink at a leaf publication target, and none constructs an
+uncontained feature directory other than the one whose no-Evidence outcome
+ruling (a) now sanctions.
+
+#### Per-document SHA-256 after these rulings
+
+| Path | SHA-256 |
+|---|---|
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85` |
+| `tests/resolve-project-context-block-check.py` | `5fe9878df20d77e232456dbc12bb4a5e958070a24588dee0a5e4532c79b02e04` |
 # ---- specs/epic-193-a5-capability-resolver/ux-spec.md ----
 # UX Specification: epic-193-a5-capability-resolver
 
@@ -15305,19 +15360,20 @@ PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survive
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial application would leave an unscanned live twin
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
-PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 completeness: the scanned set is the whole staged Resolver family (py, sh, ps1), plus every live twin that exists (0 of 3 applied), and nothing else
 PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 355 passed, 0 failed
+RESULT: 356 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -15663,19 +15719,20 @@ PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survive
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial application would leave an unscanned live twin
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
-PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 completeness: the scanned set is the whole staged Resolver family (py, sh, ps1), plus every live twin that exists (0 of 3 applied), and nothing else
 PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 355 passed, 0 failed
+RESULT: 356 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
@@ -16298,21 +16355,27 @@ RESULT: 306 passed, 0 failed
 mutant injected
 --- MUTANT A: approval-surface mention injected (expect TEST-059 FAIL) ---
 FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
-RESULT: 354 passed, 1 failed
+RESULT: 355 passed, 1 failed
 mutant B injected: Evidence back inside the rollback set
 --- MUTANT B: Evidence rolled back again (expect post-publication case FAIL) ---
 FAIL: post-publication-generation-mismatch: canonical diagnostic only (AC-014): stdout='' stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
 FAIL: post-publication-generation-mismatch: exact Resolver Evidence (AC-012): {'capability_evaluations': [], 'context_binding': {'dependency_pointers': ['/components/comp-a', '/workflow'], 'full_context_revision': 'sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e', 'ownership_digest': 'sha256:0000000000000000000000000000000000000000000000000000000000000000', 'projection_sha256': 'sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82', 'registry_digest': 'sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0'}, 'diagnostics': [{'detail': "a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal", 'id': 'post-publication-generation-mismatch', 'severity': 'block'}], 'feature': 'example-feature', 'resolver': {'rule_set_revision': 'sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b', 'version': '1.0.0'}, 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
-RESULT: 353 passed, 2 failed
+RESULT: 354 passed, 2 failed
 mutant C injected: journal discarded BEFORE the Block Evidence write
 --- MUTANT C: journal deleted before Evidence (crash-window regression) ---
-RESULT: 355 passed, 0 failed
+RESULT: 356 passed, 0 failed
 (If mutant C shows 355/0 it is UNCOVERED: the end state is byte-identical
  either way, and no fixture can observe the crash window without a new
  test-harness kill hook between the rollback and the Evidence write.
  Recorded here rather than left implied.)
+mutant D injected: journal nonce no longer bound to its batch directory
+--- MUTANT D: nonce/batch-directory binding removed ---
+RESULT: 356 passed, 0 failed
+(A 356/0 here means this hardening is UNCOVERED: no fixture grafts a
+ journal from one batch into another batch directory. Recorded, not
+ implied.)
 --- restoring ---
-restored sha256: d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76
+restored sha256: a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -20486,8 +20549,8 @@ Cross-cutting checks extended per the Done When bullets:
 | Path | SHA-256 |
 |---|---|
 | `CHANGELOG.md` | `08df4eea8ac4a267b82aa05a117966d9be5ebd124526b82a33a3836a82d29691` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `d59fa56f948f7e34c6c013f61eaadf3ab3fe5641c7ac5f0f04772a50a93d3513` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `c422c4c867cb61efab9ba91740e4d9709c7c4e6bcd523548b4528a60f0261821` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -20500,11 +20563,11 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel5-sh.log` | `2dbd97b8653fa5a59174618e7cfcdd7ab09d684b3462eeefd27e92a0860ed098` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-ps1.log` | `13d517b03c4be5ebb9f1cdc060414626fbaaf188c59ee15959c0caadead3a9d3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-sh.log` | `99d0373e460efe7fc44b59cf92db7eba13be48e605ab401886817527b316fa9d` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-ps1.log` | `f91ee71c58a16096a5984b1b889422825c9e7e227c4755f81e3812659108924e` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log` | `8076ff645602091fe343b3be54aca289f88d1c6e4e7e748a6f06aa52fa50c453` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-ps1.log` | `7a6a66eae9bf7cb11bf23a7da09365b39f07154d3deb97047dc84dbad9d84dac` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log` | `028d2e4b1e3dd44d67105aa7a5cb1c6d67a3aa6e228c1d927b5a59b9368f7899` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log` | `86fcc1b0e0f312952d4344280fcd28deb73a239a80737a3f941a51905a7833a5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log` | `a76b9ae870556a9798a2f1566f2e04c0f20b06c070e19b06a9036df91ced9a7e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log` | `0d3638067e0cda9f028aa164454fcda10547798ca9e176c71296590b59a42d98` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -20532,7 +20595,105 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml` | `31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
-| `tests/resolve-project-context-block-check.py` | `9b37fee36f78131d9986e6b19ee7b75f649686db3be0f548454512f326b6dddd` |
+| `tests/resolve-project-context-block-check.py` | `5fe9878df20d77e232456dbc12bb4a5e958070a24588dee0a5e4532c79b02e04` |
+
+**Round 11 (2026-08-28) — the owner ruled, and both halves of the standing
+Major are now closed.** The question left open at the end of round 10 was put
+to the repository owner, who answered 「(a) 受容 / (b) 承認」.
+
+Ruling (b) narrows `_target_escapes_via_symlink` to resolve the target's
+PARENT and join the leaf on by name. Every write in this file lands via
+`os.replace(tmp, target)`, which replaces the directory entry at `target`
+rather than following a symlink sitting there, and the temp file is created
+with `mkstemp(dir=target.parent)` — so the parent is the only component whose
+symlinks can move a write, and resolving the leaf as well modelled a write
+this code does not perform. What is still caught is unchanged in substance: a
+symlinked `specs/<feature>`, a symlinked `generated/`, any symlink between
+the trusted base and the parent, and every lexical `..` traversal. Reading is
+the one operation that does follow a leaf symlink (`_live_bytes` captures the
+PRE image) and it cannot escape either, because a rollback writes those bytes
+back to the leaf NAME inside the tree, never to the symlink's own target.
+
+Ruling (a) accepts `EvidenceTargetUncontained` as a third AC-012 no-write
+exception, a known limitation rather than an open defect. **No frozen
+document was amended for it.** The ruling is recorded in the exception's own
+docstring and in `investigation.md` — the same way the 2026-08-27 ruling on
+the doubly-degraded rollback corner was recorded — because amending
+`requirements.md` line 386 would invalidate all three currently-green review
+gates and force the whole spec → impl → task chain again for a single count.
+
+The two rulings interact, and that is why (b) was worth taking: it shrinks
+(a)'s reach to the irreducible case. A symlink at `resolver-evidence.yaml`
+itself no longer suppresses Evidence; what remains is a feature directory
+that genuinely resolves outside the tree, where no valid write exists at all.
+
+Both edits are behaviour-preserving against the suite (356/0 in both
+runtimes, unchanged), which is the expected result and not evidence of
+coverage: no fixture places a symlink at a leaf publication target, and the
+only uncontained-feature-directory fixture asserts the no-Evidence outcome
+ruling (a) now sanctions.
+
+`specs/epic-193-a5-capability-resolver/investigation.md` is touched by this
+round but is NOT listed in the Outputs table above, for the same reason
+`tasks.md` is not: it is a feature-level record this task amends, not an
+artifact this task authors. It reaches the panel anyway — the bundle carries
+it as one of the feature's spec documents — so the rulings are visible to
+every reviewer without being double-declared here.
+
+**Round 10 (2026-08-28).** The Anthropic slot returned PASS (0 Critical, 0
+Major, 6 Minor) on the round-9 bytes; the OpenAI slot returned NEEDS_WORK
+with one Major and one Minor. Everything in that set which an implementer
+may decide alone is closed here.
+
+The Anthropic Minor that mattered most was a correction of me: round 9's
+entry above declared the "Evidence publishes through the transaction" sweep
+complete, and it was not. Three sites still said it, including the comment
+that introduces the whole transactional section (`resolve-project-context.py`
+line 906) and the `ArtifactPublicationFailed` terminal's own reasoning. Both
+are corrected, as are two more in this report. That is the eleventh instance
+of this class in this epic set, and the second time in two rounds that a
+"swept" claim of mine was wrong — the lesson recorded for the retrospective
+is that declaring a propagation sweep complete requires grepping the phrase,
+not remembering the edits.
+
+TEST-059 now scans the live `plugins/sdd-quality-loop/scripts/` twins as
+well as the staged candidates, whenever they exist, with an explicit
+assertion that the live family is wholly applied or wholly unapplied so a
+partial application cannot leave an unscanned twin. Today it reports "0 of 3
+applied", which is the honest state of a staged package.
+
+`_read_journal` now requires the journal's `nonce` to BE its own batch
+directory's name rather than merely a string (OpenAI Minor). A journal whose
+nonce names a different batch is malformed — copied, hand-edited, or grafted
+across batches — and acting on it would restore one batch's pre-images
+against another's targets.
+
+**Two changes in this task are deliberately uncovered by tests, and both say
+so in `mutation-proofs-round7.log` rather than being left implied.** Mutant C
+restores the pre-round-9 journal-delete ordering and the suite stays green,
+because the end state is byte-identical on every non-crashing path. Mutant D
+removes the nonce/batch binding and the suite stays green, because no fixture
+grafts a journal from one batch into another batch's directory. Both would
+need new fixtures — a kill hook between the rollback and the Evidence write,
+and a cross-batch journal graft — and both are named here so a later reader
+can add them deliberately instead of discovering the gap.
+
+**Still open, and not an implementer's call.** The OpenAI Major has two
+halves. Its first is the `EvidenceTargetUncontained` third AC-012 no-write
+exception, escalated for a ruling and unresolved: `requirements.md` line 386
+says the always-emitted rule "excepts exactly two diagnostic ids", and when a
+feature directory is a symlink whose target resolves outside the tree there
+is no third option — writing violates containment, not writing violates
+AC-012, and only the latter is fail-closed. Its second is that
+`_target_escapes_via_symlink` resolves the FINAL path component, while
+`os.replace` replaces that directory entry rather than following it; the
+check is therefore stricter than the write semantics it models and can
+suppress a valid in-tree Evidence destination. Narrowing it to the resolved
+parent plus the literal leaf name would be more accurate and would shrink the
+third exception's reach to the genuinely unreachable case — but it loosens a
+containment predicate that all three publication paths share, on a
+Security-Sensitive surface, so it is left for the owner rather than taken
+here.
 
 **Round 9 (2026-08-28), after both slots reported on the round-8 bytes.**
 Codex raised a second Critical, and it was a window round 8 itself opened:
@@ -21281,7 +21442,7 @@ GREEN (`green-panel2-sh.log` / `green-panel2-ps1.log`): 327 passed / 0 failed,
 both runtimes. The fixture asserts the Block (`artifact-publication-failed`
 with the no-rollback clause), the byte-untouched outside sentinel, the
 never-published Full-track artifact, the Block's own Resolver Evidence still
-written (AC-012 — its single-target transaction only ever touches
+written (AC-012 — the Evidence write is direct, and it only ever touches
 `resolver-evidence.yaml`, which `specs/<feature>/` still holds as a real
 directory), and no journal/staging litter.
 
@@ -21409,10 +21570,18 @@ hand-maintained copies.
 
 **Diagnostic id preserved.** A new `PublicationStagingAreaUncontained` keeps
 the correct `publication-journal-recovery` id instead of letting the failure
-degrade into a misattributed `artifact-publication-failed`. Because the
+degrade into a misattributed `artifact-publication-failed`.
+
+**Corrected 2026-08-28 (round 10).** This paragraph used to end: "Because the
 staging area a Block record's own single-target transaction would itself need
-is precisely what is compromised, this path writes NOTHING — the same
-fail-closed posture step 12's Evidence-itself-fails sub-case already takes.
+is precisely what is compromised, this path writes NOTHING." Both halves are
+now false. The Evidence write needs no staging area — it is direct — so a
+compromised staging area is no reason to withhold the Block record, and under
+ruling B this path calls `_block` and writes Resolver Evidence on the
+`publication-journal-recovery` id exactly as Main Workflows 4 specifies. The
+only path that still writes nothing is the one where Evidence's own target
+cannot be reached at all (`EvidenceTargetUncontained`), which is escalated
+separately as a third AC-012 exception.
 **Disclosed AC-012 interaction:** this is a second, no-write trigger of the
 `publication-journal-recovery` row; the row's Evidence-writing behavior
 remains covered by its original corruption fixture, which reaches the
@@ -25520,7 +25689,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -26429,9 +26598,14 @@ def _project_context_valid(document, repo_root):
 #
 # Everything below is reachable from exactly two places: `main()`'s own step
 # 0.5 (`_crash_recovery_scan`) and its own step 14 (`_publish_bundle`), plus
-# `_write_evidence`, whose single-target publication is itself a degenerate
-# instance of the SAME transaction (design.md: a Block publishes "exactly one
-# target -- `resolver-evidence.yaml` alone").
+# `_write_evidence`, which does NOT use this transaction at all: a Block's
+# Evidence write is a direct `temp file + fsync + rename` with no staging
+# area and no journal (design.md:1419, :2846; requirements.md line 371,
+# "published directly, not through the journaled transaction"). An earlier
+# revision of this comment called it "a degenerate instance of the SAME
+# transaction", quoting design.md's own "exactly one target" sentence --
+# that is one of the stale siblings panel round 5 withdrew, corrected here
+# on round 10.
 # ---------------------------------------------------------------------------
 
 TRANSACTION_SCHEMA = "sdd-resolver-transaction/v1"
@@ -26510,6 +26684,27 @@ class EvidenceTargetUncontained(Exception):
     criterion governs has no well-defined location in the governed tree at
     all, which is a different situation from declining to write one that
     does.
+
+    RULED 2026-08-28 (repository owner, ruling (a)). This is nonetheless a
+    THIRD no-write exception where requirements.md line 386 says the
+    always-emitted rule "excepts exactly two diagnostic ids", and both
+    cross-model panel slots raised it as such. The question was put to the
+    owner with the alternatives stated plainly -- there is no third option
+    here, because writing to a destination that resolves outside the tree IS
+    the escape, not writing violates AC-012's count, and only the latter is
+    fail-closed -- and the owner ACCEPTED it as a known limitation. So the
+    behaviour below is SPECIFIED-WITH-A-KNOWN-LIMITATION, not an open defect.
+    No frozen document was amended for it: the ruling is recorded here and in
+    investigation.md, the same way the 2026-08-27 ruling on the
+    doubly-degraded rollback corner was recorded.
+
+    Ruling (b), taken at the same time, narrowed
+    `_target_escapes_via_symlink` to resolve only the target's PARENT. That
+    shrinks this exception's reach to the irreducible case: a symlink AT
+    `resolver-evidence.yaml` itself no longer trips it, because
+    `os.replace` replaces that entry rather than following it. What remains
+    is a feature directory that genuinely resolves outside the tree, where no
+    valid write exists at all.
 
     The caller preserves the ORIGINAL diagnostic id rather than relabelling
     the Block a publication failure -- relabelling would point the operator
@@ -26662,8 +26857,31 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     the existing prefix while leaving a not-yet-created leaf lexical) and
     require the result to be one of the fixed, base-resolved target
     locations. It also subsumes the lexical `..`-traversal case, so the two
-    checks are belt-and-suspenders, not redundant coverage of one bug."""
-    return os.path.realpath(str(target)) not in _allowed_publication_targets_real(repo_root, feature)
+    checks are belt-and-suspenders, not redundant coverage of one bug.
+
+    NARROWED 2026-08-28 (repository owner, ruling (b), raised by the openai
+    panel slot on round 9). The resolution stops at the target's PARENT; the
+    leaf is then joined on by name. Resolving the leaf as well modelled a
+    write this code does not perform: every write here lands via
+    `os.replace(tmp, target)`, which replaces the directory ENTRY at `target`
+    rather than following a symlink sitting there, and the temp file itself
+    is created with `mkstemp(dir=target.parent)`. So the parent is the only
+    component whose symlinks can move a write, and a symlink AT the leaf is
+    destroyed by the rename rather than followed. The old form refused those
+    cases anyway, suppressing a valid in-tree destination -- stricter than
+    the semantics it existed to guard.
+
+    What is still caught is unchanged in substance: a symlinked
+    `specs/<feature>`, a symlinked `generated/`, any symlink between the
+    trusted base and the parent, and every lexical `..` traversal, because
+    each of those makes the resolved parent diverge from the fixed reference.
+    Reading is the one operation that does follow a leaf symlink
+    (`_live_bytes` captures the PRE image), and it cannot escape either: the
+    bytes it reads are written back, on rollback, to the leaf NAME inside the
+    tree, never to the symlink's own target."""
+    parent_real = os.path.realpath(str(Path(target).parent))
+    candidate = os.path.join(parent_real, Path(target).name)
+    return candidate not in _allowed_publication_targets_real(repo_root, feature)
 
 
 def _path_contained_in(container_real, candidate_real):
@@ -26884,6 +27102,15 @@ def _read_journal(journal_path):
         or not document["targets"]
     ):
         raise PublicationJournalUnrecoverable("journal does not conform to its own transaction shape")
+    # The nonce must BE this batch's own directory name, not merely a string
+    # (openai panel slot, round 9 Minor). `_write_journal` records exactly
+    # that, so any journal whose nonce names a different batch is malformed --
+    # a copied, hand-edited, or cross-batch-grafted journal -- and acting on
+    # it would restore one batch's pre-images against another batch's targets.
+    # Refusing here routes it to `publication-journal-recovery`, which is the
+    # fail-closed outcome every other shape deviation already gets.
+    if document["nonce"] != journal_path.parent.name:
+        raise PublicationJournalUnrecoverable("journal nonce does not name its own batch directory")
     entries = []
     for target in document["targets"]:
         if not isinstance(target, dict) or set(target) != {"live_path", "pre_hash", "post_hash"}:
@@ -27465,7 +27692,7 @@ def _block(
         return _block_no_write(diagnostic_id, detail)
     except ArtifactPublicationFailed as exc:
         # Fail-closed terminal, defense-in-depth: this invocation had already
-        # decided to Block, and the one-target transaction that publishes
+        # decided to Block, and the direct write that publishes
         # that Block's own record has itself failed. Writing the record is
         # then impossible by definition, so re-entering `_block` for the
         # `artifact-publication-failed` row would recurse forever; instead
@@ -32900,11 +33127,30 @@ def _scan_approval_surface(text):
 
 
 def run_test_059(counts):
-    targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    staged_targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    # The live paths AC-059's prose names are scanned TOO, whenever they exist
+    # (anthropic panel slot, round 9: "the fix -- scan both -- costs nothing").
+    # Today they do not: this whole package is staged for a human to apply, so
+    # `plugins/sdd-quality-loop/scripts/resolve-project-context.*` is absent and
+    # the live half of this scan is empty. That is asserted explicitly below
+    # rather than skipped in silence, so the day a human applies the package
+    # the live files come under the same scan with no edit here, and until then
+    # the log says plainly which half did the work.
+    live_dir = ROOT / "plugins/sdd-quality-loop/scripts"
+    live_targets = [live_dir / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    present_live = [t for t in live_targets if t.is_file()]
+    counts.check(
+        len(present_live) in (0, 3),
+        "TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial "
+        "application would leave an unscanned live twin",
+        repr([str(t.relative_to(ROOT)) for t in present_live]),
+    )
+    targets = staged_targets + present_live
     scanned_any = False
+    for target in staged_targets:
+        counts.check(target.is_file(), f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
     for target in targets:
         exists = target.is_file()
-        counts.check(exists, f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
         if not exists:
             continue
         scanned_any = True
@@ -32920,8 +33166,9 @@ def run_test_059(counts):
         "TEST-059 non-vacuity: at least one scan target was actually found and scanned",
     )
     counts.check(
-        len(targets) == 3 and scanned_any,
-        "TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else",
+        len(targets) == 3 + len(present_live) and scanned_any,
+        "TEST-059 completeness: the scanned set is the whole staged Resolver family (py, sh, ps1), plus "
+        f"every live twin that exists ({len(present_live)} of 3 applied), and nothing else",
     )
 
     dirty_hits = _scan_approval_surface(_APPROVAL_SURFACE_DIRTY_CANARY)

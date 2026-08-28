@@ -8,19 +8,14 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1875",
-      "note": "_write_evidence raises EvidenceTargetUncontained and _block consequently emits no Resolver Evidence. This creates a third no-evidence exception beyond the two explicitly allowed by REQ-002/AC-012. The check also rejects a symlink at the final resolver-evidence.yaml component even though os.replace replaces that directory entry rather than following it, so a valid in-tree Evidence destination can be suppressed unnecessarily."
-    },
-    {
-      "severity": "Minor",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1355",
-      "note": "_read_journal verifies only that nonce is a string; it never requires it to equal the containing batch directory name. The transaction contract says the journal records this batch's own nonce, so a mismatched and therefore malformed journal is accepted and acted upon instead of blocking publication-journal-recovery."
+      "ref": "plugins/sdd-quality-loop/scripts/resolve-project-context.py:229",
+      "note": "Leaf symlinks are explicitly accepted by _target_escapes_via_symlink, but _repo_relative calls Path.resolve() and therefore records an in-repository symlink referent rather than the lexical publication target in TRANSACTION.json. Commit still replaces the lexical symlink entry, while rollback/recovery operates on or validates the recorded referent; this can leave a committed artifact at POST after purported rollback or make the resolver's own journal unrecoverable, violating the atomic publication and crash-recovery contract."
     }
   ],
   "blind": true,
-  "input_digest": "ff016b1bd76f49147145824558cd0bdaf58699545a7481c86967c3a80dd72ee2",
+  "input_digest": "539c19af5bf30ab437476b2706e710c638108bf94d9317561a675f2d92411238",
   "consent": {
     "kind": "sudo",
-    "ref": "specs/epic-193-a5-capability-resolver/tasks.md:T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "tasks.md T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

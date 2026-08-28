@@ -233,6 +233,34 @@ def _repo_relative(path, repo_root):
         return path.as_posix()
 
 
+def _repo_relative_target(path, repo_root):
+    """`_repo_relative` for a PUBLICATION TARGET, which must name the LEXICAL
+    directory entry the commit will replace -- never a symlink's referent.
+
+    Introduced 2026-08-28 (openai panel slot, round 11 Major) as the necessary
+    companion to ruling (b). Narrowing `_target_escapes_via_symlink` to the
+    target's parent made a symlink AT the leaf acceptable, which is correct
+    for the write -- `os.replace` replaces that entry rather than following
+    it. But `_repo_relative` resolves the whole path, so the journal would
+    then record the symlink's REFERENT while the commit replaced the lexical
+    entry. Rollback and crash recovery both work from the recorded path, so
+    they would restore or validate the referent and leave the entry the commit
+    actually wrote still holding its POST bytes: a rollback that reports
+    success and did not undo the publication, and a journal the recovery scan
+    cannot converge.
+
+    The rule here is therefore the SAME rule the containment check uses --
+    resolve the parent, join the leaf by name -- and it must stay the same
+    rule. A check and a journal that disagree about what "the target" means
+    reintroduce exactly this class of defect."""
+    parent_real = Path(os.path.realpath(str(path.parent)))
+    lexical = parent_real / path.name
+    try:
+        return lexical.relative_to(Path(os.path.realpath(str(repo_root)))).as_posix()
+    except ValueError:
+        return lexical.as_posix()
+
+
 def _reemit_dependency_stderr(result):
     """B5 (security-spec.md)/REQ-005: "a dependency subprocess's own
     stderr remains visible to a human operator on the terminal exactly as
@@ -1701,7 +1729,7 @@ def _publish_bundle(repo_root, feature, targets):
                 if _digest(backup.read_bytes()) != pre_hash:
                     raise OSError("pre-image backup is not byte-exact")
             transaction.entries.append({
-                "live_path": _repo_relative(target, repo_root),
+                "live_path": _repo_relative_target(target, repo_root),
                 "pre_hash": pre_hash,
                 "post_hash": _digest(payload),
                 "target": target,

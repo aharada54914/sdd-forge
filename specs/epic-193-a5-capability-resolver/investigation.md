@@ -2594,15 +2594,29 @@ symlink at `resolver-evidence.yaml` itself no longer suppresses Evidence;
 what remains is a feature directory that genuinely resolves outside the tree,
 where no valid write exists at all.
 
-Both changes are behaviour-preserving against the existing suite (356 passed,
-0 failed in both runtimes, unchanged by either edit), which is expected: no
-fixture places a symlink at a leaf publication target, and none constructs an
-uncontained feature directory other than the one whose no-Evidence outcome
-ruling (a) now sanctions.
+When the rulings landed, both changes were behaviour-preserving against the
+existing suite (356 passed, 0 failed in both runtimes, unchanged by either
+edit). **That was not reassurance, it was the warning.** No fixture placed a
+symlink at a leaf publication target, so ruling (b)'s whole newly-permitted
+branch was unexercised — and the very next panel round found a defect
+reachable only through it: `_repo_relative` resolved the entire path, so with
+a leaf symlink now accepted the journal recorded the symlink's REFERENT while
+the commit replaced the LEXICAL entry, and a rollback then restored the
+referent and left the published bytes standing while reporting success.
 
-#### Per-document SHA-256 after these rulings
+`_repo_relative_target` now records the lexical entry, by the same
+parent-resolve rule the containment check uses — a check and a journal that
+disagree about what "the target" means reintroduce exactly this class. The
+missing fixture was written rather than disclosed: the
+post-publication-mismatch path with `facet-manifest.yaml` planted as a
+symlink to an in-tree sibling, asserting that the publish is not refused,
+that the LEXICAL entry holds its PRE bytes after rollback, and that the
+referent is byte-untouched. The suite is 361/0 in both runtimes, and mutant E
+(journal path resolving the leaf again) kills it on three assertions.
+
+#### Per-document SHA-256 after these rulings and the fixture they required
 
 | Path | SHA-256 |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85` |
-| `tests/resolve-project-context-block-check.py` | `5fe9878df20d77e232456dbc12bb4a5e958070a24588dee0a5e4532c79b02e04` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `46d3143eded2fb771226a1d691613f62c09e72f0d4ae5852825e76b6c920c37c` |
+| `tests/resolve-project-context-block-check.py` | `3f4308c8f1c9fc4562d62595502483eca32ee58446c2b61d57529ad60bc5cbfe` |

@@ -4,41 +4,46 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "staged resolve-project-context.py, transactional section header comment (bundle lines 26430-26434)",
-      "note": "Stale sibling of the route round 5 withdrew. The header comment introducing the whole T-007 section still says the Evidence write is reachable via _write_evidence, whose single-target publication is itself a degenerate instance of the SAME transaction. The shipped _write_evidence performs a direct temp+fsync+rename with no staging area and no journal, and _publish_and_complete was deleted on round 9. Two further sites carry the same withdrawn wording: _block's except ArtifactPublicationFailed comment (bundle line 27468, the one-target transaction that publishes that Block's own record) and a parent-symlink assertion message in the block-suite driver (bundle line 32461, its own single-target transaction). Round 9 declared this amendment-propagation class swept across all sites; three survive inside a Security-Sensitive file whose own Standing Note tells reviewers to trust these descriptions. Documentation only; no behaviour is affected."
+      "severity": "Major",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json comment field",
+      "note": "The contract describes the green evidence for the two required test checks (unit-tests, acceptance-tests) as 355/0 in both runtimes, twice. Every green capture the bundle actually carries for the shipped bytes shows 356/0: green-panel9-sh.log and green-panel9-ps1.log both end RESULT: 356 passed, 0 failed and both already contain the round-10 TEST-059 live-family assertion, and mutation-proofs-round7.log, whose trailer records restored sha256 a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85 (the shipped resolver hash in the Outputs table and in investigation.md), reports 356 passed 0 failed for its two behaviour-preserving mutants. investigation.md and the round-11 section of the implementation report both say 356. The contract also cites verification/T-007/mutation-proofs-test059.log as the non-vacuity proof for TEST-059; no such path exists among the declared outputs, the file is mutation-proofs-round7.log, and mutation-proofs-test059.log occurs exactly once in the whole bundle, in this comment. Compounding both, the declared green_evidence paths themselves (verification/qg/T-007/focused-tests-sh.log and -ps1.log) are not in the bundle, so the only description available of what they contain is this comment, and that description contradicts the shipped state. A gate consumer following the contract reaches a nonexistent proof file and a tally that does not match the code under review; on a high-risk Security-Sensitive task the record that two required checks passed at the shipped bytes cannot be confirmed from the artifact that declares it. This is the same amendment-propagation class the report names eleven times: round 11 carried 356 into the report and investigation.md and left the contract at 355."
     },
     {
       "severity": "Minor",
-      "ref": "staged resolve-project-context.py, module docstring first line (bundle line 25528)",
-      "note": "The summary line still scopes the file to implementation stages T-002+T-003+T-004 (steps 0-13) while the docstring body, and the code, add step 0.5 and step 14. Same stale-sibling class as above, cosmetic."
+      "ref": "CHANGELOG.md, T-007 Unreleased entry",
+      "note": "Same stale tally in a declared output with a recorded SHA: the entry says sh/ps1 both 355 passed / 0 failed. It also says non-vacuity was proved by five mutations and enumerates bare-unlink rollback, skipped journal write, skipped post-publication recheck, digest-only step 13, and the TEST-059 injection, omitting the round-8 mutant that returns resolver-evidence.yaml to the rollback set, which is the one mutant tied to the Critical this task most recently closed and which the post-publication case does kill."
     },
     {
       "severity": "Minor",
-      "ref": "block-suite driver, run_test_059 (bundle lines 32902-32940) vs AC-059 (bundle lines 986, 4755)",
-      "note": "AC-059 names the live resolve-project-context.{py,sh,ps1} under the quality-loop scripts directory as the scanned set. run_test_059 scans the staged human-copy candidates instead. The deviation is documented in place with a defensible reason (the live paths do not yet carry this task's bytes, so scanning them alone would pass vacuously), and tasks.md's own Done When wording (the scanned set is exactly the files this task authors) is only coherent under the staged reading. The residual is that the live half of AC-059's literal scanned set is never exercised; adding the live paths alongside the staged ones would close it at no cost. Mitigating: the live path is protection-gated and reachable only through the human-copy apply route, which binds it to the staged bytes via the manifest. The supporting claim that TEST-025 resolves its Resolver targets the same way could not be verified from this bundle (that suite is not included)."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Files Changed",
+      "note": "States six new fixture directories (listed under Outputs). The Outputs table enumerates ten fixture directories, and the CHANGELOG entry independently says fixture total is ten. The Tests Added Or Updated section likewise lists only six. The four containment-regression fixtures added in panel rounds 1 to 5 (journal-target-escape, staging-parent-symlink, target-parent-symlink, journal-roundtrip-unresolved-repo) never reached this line."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Specification Differences (bundle line 20786) vs _block / EvidenceTargetUncontained (bundle lines 26493-26517, 27424-27432, 27453-27465)",
-      "note": "The Specification Differences section states None, but the shipped code introduces a third condition under which a Block emits no Resolver Evidence: EvidenceTargetUncontained, when specs/<feature> itself resolves outside the tree. AC-012 closes the Evidence-always rule at exactly two named exceptions, neither of which is this one, and the in-code comment says so in as many words (the only condition under which a Block outside AC-012's two stated exceptions emits no record). I judge the behaviour itself correct and fail-closed: the alternative is a write outside the fixed named target set, which requirements.md forbids absolutely, so no conforming behaviour exists in that state. The defect is that the collision is not registered as a specification difference and was self-adjudicated, where the package's own precedent for a structurally identical frozen-mandate collision (panel round 1 MAJOR 2, and the round 5 escalation) was to obtain an owner ruling. The condition is fixture-asserted (publication-staging-parent-symlink[feature-dir-symlinked])."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Test Evidence and Regression Tests Run",
+      "note": "Test Result reads PASS (306 passed / 0 failed, both runtimes), the GREEN capture subsection reads 306 passed 0 failed, and the Regression Tests Run table reads block 306 and discovery 12. These are the pre-panel numbers, superseded only by prose many hundreds of lines later. The Snapshot Notice partly covers this, but the headline result of a report whose later sections say 356 is a reader trap rather than a snapshot."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Test Evidence (bundle lines 20630-20668)",
-      "note": "The headline Test Result and GREEN capture paragraphs still read 306 passed / 0 failed, the round-0 figures. The shipped state is 355 passed / 0 failed in both runtimes (green-panel9 logs, which are what the Outputs table declares). The Snapshot Notice and the round-superseding convention cover this, but a reader meeting the report top-down gets the stale number first."
+      "ref": "tests/resolve-project-context-block-check.py, TEST-059 header comment",
+      "note": "The comment block introducing TEST-059 states: Scanned PATHS: the staged human-copy candidates, not the live plugins/sdd-quality-loop/scripts/ paths AC-059 prose names. The code below it no longer behaves that way: run_test_059 builds present_live from the three live twins and appends them to the scanned set, and its own inline comment (round 10) says so explicitly. The two comments contradict each other about the same function, forty lines apart."
     },
     {
       "severity": "Minor",
-      "ref": "_rollback_transaction discard deferral (bundle lines 27065-27080) and step 14 post-publication branches (bundle lines 28566-28608); mutation-proofs-round7.log mutant C",
-      "note": "Weighed on its merits, as directed, rather than on the fact of disclosure. The round-9 change defers the journal delete to the far side of the Block Evidence write on both post-publication branches, and is the one behavioural change in the shipped bytes with zero test coverage: mutant C restores the old ordering and the suite still reports 355/0. I accept it. It is strictly fail-closed relative to what it replaces (a crash in the closed window now leaves a standing journal that the next scan classifies as its unrecoverable third state and Blocks on, instead of leaving Evidence asserting a publication whose artifacts have been rolled back with no journal to notice); it adds no fourth journal operation, only moves an existing delete; the end state is byte-identical on every non-crashing path, which is exactly why no fixture can see it; and the incomplete-rollback retention path is untouched. The disclosure is accurate and mutation-backed rather than asserted. Residual: the ordering is unproven by test and sits on a Security-Sensitive rollback path, so a future edit could silently revert it. A harness kill hook between the rollback and the Evidence write is the only thing that would lock it."
+      "ref": "resolve-project-context.py, _target_escapes_via_symlink and _live_bytes (ruling (b) narrowing)",
+      "note": "The ruling-(b) rationale, recorded identically in the docstring, investigation.md and the report, justifies stopping resolution at the parent purely on write semantics: os.replace replaces the entry at the leaf and mkstemp targets the parent. Correct for writes. But _live_bytes does follow a leaf symlink when it captures the PRE image, so a symlink planted at a leaf publication target causes out-of-tree bytes to be copied into the repository-local pre/ backup and, on rollback, materialised as a regular file at the leaf name inside the tree. The docstring asserts reading cannot escape either, which is true of the destination but not of the source. Low impact given the attacker already needs repository write access and the single-writer disposition of round 2, but the read direction is asserted rather than analysed in the record the owner ruled on."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log, mutants C and D",
+      "note": "The two disclosed-uncovered changes are described accurately: mutant C restores the pre-round-9 journal-delete ordering and mutant D removes the nonce/batch-directory binding, and both runs stay at 356 passed 0 failed, which the log itself labels UNCOVERED with the reason and the fixture that would be needed. The disclosure is honest and is the right way to record this. It remains the case that a crash-window ordering fix and a security hardening on a Security-Sensitive write path ship with no fixture, on a task whose own risk rationale is irreversible filesystem damage."
     }
   ],
   "blind": true,
-  "input_digest": "ff016b1bd76f49147145824558cd0bdaf58699545a7481c86967c3a80dd72ee2",
+  "input_digest": "539c19af5bf30ab437476b2706e710c638108bf94d9317561a675f2d92411238",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

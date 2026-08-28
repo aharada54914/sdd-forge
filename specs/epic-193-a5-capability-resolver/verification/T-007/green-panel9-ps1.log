@@ -284,6 +284,11 @@ PASS: post-publication-generation-mismatch: every one of those just-completed re
 PASS: post-publication-generation-mismatch: the journal is deleted once every target is confirmed back at PRE
 PASS: post-publication-generation-mismatch: exact Resolver Evidence (AC-012)
 PASS: post-publication-generation-mismatch: Resolver Evidence schema agreement
+PASS: post-publication-generation-mismatch[leaf-symlinked]: precondition -- the publication target is a symlink to an in-tree sibling carrying the PRE bytes
+PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b))
+PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
+PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
+PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -355,4 +360,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 356 passed, 0 failed
+RESULT: 361 passed, 0 failed

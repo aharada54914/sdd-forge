@@ -300,12 +300,18 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 355 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 361 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
-  step 13 を digest 比較のみにする、および Resolver に承認面パスの
-  言及を 1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、の
-  5 mutation で非空虚性を実証済み。
+  step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
+  1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、Evidence を rollback
+  集合へ戻す、journal パスを末端解決へ戻す（末端 symlink fixture が
+  3 アサーションで撃墜）、の mutation で非空虚性を実証済み。
+  **未カバーと判明した 2 件も同じログに明記してある** — journal 削除を
+  Evidence 書き込みの前に戻す変更（非クラッシュ経路では最終状態が
+  バイト同一なので、rollback と Evidence 書き込みの間に kill hook を
+  持たない限り観測できない）と、journal の nonce をバッチ名から
+  切り離す変更（バッチをまたいで journal を移植する fixture が無い）。
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。

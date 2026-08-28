@@ -2915,6 +2915,95 @@ def run_t007_post_publication_mismatch_case(kind, counts):
         check_evidence_schema(counts, evidence_path, case_name)
 
 
+def run_t007_leaf_symlink_target_case(kind, counts):
+    """Ruling (b)'s own coverage, and the round-11 Major it exposed.
+
+    Ruling (b) (repository owner, 2026-08-28) narrowed
+    `_target_escapes_via_symlink` to resolve the target's PARENT, so a symlink
+    AT a publication target's leaf is accepted -- correct, because
+    `os.replace` replaces that directory entry rather than following it. No
+    fixture exercised that, and the very next panel round found a defect only
+    reachable through it: `_repo_relative` resolved the whole path, so the
+    journal recorded the symlink's REFERENT while the commit replaced the
+    LEXICAL entry, and a rollback then restored the referent and left the
+    entry the commit actually wrote still holding its POST bytes -- a
+    rollback that reports success and did not undo the publication.
+
+    Two rounds of Majors came out of an unexercised branch, so this is a
+    fixture rather than a fourth disclosure. It runs the
+    post-publication-mismatch path, which is the only path where a completed
+    commit is rolled back and the outcome is observable afterwards, with
+    `facet-manifest.yaml` planted as a symlink to a sibling inside the same
+    feature directory.
+
+    The load-bearing assertion is the LEXICAL entry's bytes. Restoring the
+    referent instead is invisible there -- the referent already holds the PRE
+    bytes and rollback would rewrite them unchanged, then report complete --
+    so a check that only looked at the referent would pass against the defect.
+    """
+    case_name = "post-publication-generation-mismatch"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[leaf-symlinked]"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        pre_bytes = b"facet-preimage\n"
+        target = feature_dir / "facet-manifest.yaml"
+        referent = feature_dir / "facet-referent.yaml"
+        referent.write_bytes(pre_bytes)
+        target.unlink()
+        target.symlink_to(referent.name)
+
+        counts.check(
+            target.is_symlink() and target.read_bytes() == pre_bytes,
+            f"{label}: precondition -- the publication target is a symlink to an in-tree sibling "
+            f"carrying the PRE bytes",
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("post-publication-generation-mismatch")
+
+        counts.check(
+            result.returncode == 1
+            and stderr == (
+                f"capability-resolver: post-publication-generation-mismatch: "
+                f"{POST_PUBLICATION_MISMATCH_PREFIX}; {rolled_back_clause(2)}\n"
+            ),
+            f"{label}: the leaf symlink does NOT make the publish refuse -- the run reaches the same "
+            f"post-publication Block, with the same rollback clause, as the non-symlinked fixture "
+            f"(ruling (b))",
+            f"rc={result.returncode} stderr={stderr!r}",
+        )
+        counts.check(
+            not target.is_symlink() and target.read_bytes() == pre_bytes,
+            f"{label}: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the "
+            f"symlink entry, so the rollback must restore THAT entry and not the referent the old "
+            f"whole-path resolution would have recorded in the journal",
+            f"is_symlink={target.is_symlink()} bytes={read_or_missing(target)[:60]!r}",
+        )
+        counts.check(
+            referent.read_bytes() == pre_bytes,
+            f"{label}: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the "
+            f"symlink, in either direction",
+            repr(read_or_missing(referent)[:60]),
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{label}: the journal is deleted once the Block record is durable, and no staging litter "
+            f"survives",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_t007_affected_components_mismatch_case(kind, counts):
     """TEST-040's own SECOND fixture (AC-040 share, B8 revised): every
     digest -- including `ownership_digest` -- stays byte-identical between
@@ -3780,6 +3869,7 @@ def main():
         run_t007_journal_recovery_cases(args.launcher, counts)
         run_t007_artifact_publication_failed_case(args.launcher, counts)
         run_t007_post_publication_mismatch_case(args.launcher, counts)
+        run_t007_leaf_symlink_target_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
