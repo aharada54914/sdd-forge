@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-007",
+  "feature": "risk-adaptive-layer",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "plugins/sdd-quality-loop/scripts/check-task-state.sh and check-task-state.ps1, critical Done two-person enforcement",
+      "note": "Two-person enforcement derives criticality solely from the editable Risk line in tasks.md, unlike evidence verification which trusts the validated contract risk. A task whose contract remains critical can set tasks.md Risk to high and reach Done without a Second Approval. The tests cover high tasks and critical tasks separately but do not test this tasks/contract risk mismatch."
+    },
+    {
+      "severity": "Major",
+      "ref": "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh and check-evidence-bundle.ps1, sigstore verification branch",
+      "note": "The policy requires SDD_EVIDENCE_SIGSTORE_VERIFIED to be truthy, but both implementations accept every non-empty value. Values such as \"0\" or \"false\" therefore approve an arbitrary sigstore signature value; the tests exercise only unset and \"1\" and miss this fail-open case."
+    }
+  ],
+  "blind": true,
+  "input_digest": "3d2fda875149d951ee738cf17ddec16818824eb2b63530b938c19eb45bd81180",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "specs/risk-adaptive-layer/tasks.md T-007"
+  }
+}

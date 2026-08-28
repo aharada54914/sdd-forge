@@ -1,0 +1,109 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-007",
+  "feature": "risk-adaptive-layer",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "77e91e00b47dc47c3703b466287c8213032a02dcae84f2f04a106b9751b498b7",
+  "created": "2026-08-28T00:00:00Z",
+  "comment": "Authored 2026-08-28. T-007 was implemented and merged on 2026-06-14 (PR #16, merge 4a215ed) before the per-task cycle existed, so no contract was written at the time. The red/green evidence is the compensating differential authorized by docs/review-tickets/RT-20260826-002-waiver-t007-red-log.md; every other log declared here is a real run captured today.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell/docs repository: no lint toolchain (stack: shell waiver, risk-gate-matrix.md)",
+      "requirement_ids": []
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell/docs repository: no type toolchain (stack: shell waiver, risk-gate-matrix.md)",
+      "requirement_ids": []
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "shell/docs repository: no compile toolchain (stack: shell waiver, risk-gate-matrix.md)",
+      "requirement_ids": []
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/risk-adaptive-layer/verification/T-007.red-compensating-20260826.log",
+      "green_evidence": "specs/risk-adaptive-layer/verification/T-007.green-compensating-20260826.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/regression-ps1.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "specs/risk-adaptive-layer/verification/T-007.red-compensating-20260826.log",
+      "green_evidence": "specs/risk-adaptive-layer/verification/T-007.green-compensating-20260826.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/guards.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ]
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006",
+        "REQ-007"
+      ]
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": []
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ]
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-007/component-coverage.json",
+      "waiver_reason": "",
+      "requirement_ids": []
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+ticket_id: RT-20260828-001
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-007"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-task-state.sh"
+    - "plugins/sdd-quality-loop/scripts/check-task-state.ps1"
+    - "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+    - "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1"
+summary: >-
+  Cross-model panel FAILED consensus for T-007 (anthropic NEEDS_WORK 5 major /
+  4 minor, openai NEEDS_WORK 2 major). Two findings independently reproduced
+  in source: the critical two-person rule keys off the self-asserted tasks.md
+  Risk line while the sibling evidence gate refuses to trust self-asserted
+  risk, and the sigstore branch accepts any non-empty verified flag
+problem: |
+  Cross-model verification ran 2026-08-28 on input digest
+  3d2fda875149d951ee738cf17ddec16818824eb2b63530b938c19eb45bd81180.
+  check-cross-model exited 1: "consensus FAIL: not all verdicts are PASS".
+  Both vendor slots returned NEEDS_WORK independently and blind. The Google
+  slot did not run (gemini CLI auth failure); the gate's diversity minimum was
+  met by anthropic + openai.
+
+  T-007 is Risk: critical, so ship policy requires cross-model verification to
+  pass BEFORE the quality gate. The gate was therefore not run, and T-007
+  remains Implementation Complete.
+
+  TWO FINDINGS REPRODUCED INDEPENDENTLY IN SOURCE (not taken on the panel's
+  word), both raised by openai and one echoed by anthropic:
+
+  1. Risk-source asymmetry (both twins). check-task-state.sh:160 gates the
+     two-person rule on `status == "Done" && risk == "critical"`, where risk
+     is read from the tasks.md `Risk:` line. The sibling gate does the
+     opposite: check-evidence-bundle.sh:332-340 reads the contract's risk,
+     compares it against the bundle's, fails on mismatch, and uses
+     `effective_risk = contract_risk or bundle_risk`. So a task whose contract
+     says critical can carry `Risk: high` in tasks.md and reach Done with no
+     Second Approval. The two gates disagree about what makes a task critical,
+     and the weaker source governs the stronger control. No test covers the
+     tasks/contract risk mismatch.
+
+  2. Sigstore fail-open (both twins). check-evidence-bundle.sh:380 reads
+     `if not str(os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED", "")).strip():`
+     -- it fails only on empty or whitespace. Values of "0" or "false"
+     therefore satisfy it and approve an arbitrary sigstore signature value.
+     The ps1 twin carries the same shape at :443-445. Tests exercise unset and
+     "1" only.
+
+  FURTHER PANEL FINDINGS, recorded but NOT independently reproduced here:
+  ps1 two-person coverage is deny-only (sh has the alice+bob pass case and the
+  non-critical case; ps1 has neither); the `unsupported signature alg` branch
+  is never executed on either runtime; no cross-runtime signature-parity test
+  despite reproducibility being the stated rationale for the fixed-field
+  canonical; and a case-sensitivity divergence on the `Second Approval:` label
+  (sh matches case-sensitively, ps1 with -match case-insensitively), which the
+  anthropic panelist flagged as possibly critical depending on the guard
+  regex's flags.
+expected_fix: |
+  Finding 2 (sigstore) is unambiguous and needs no adjudication: require the
+  flag to be a recognised truthy value on both twins, and add a fixture per
+  runtime asserting that "0" and "false" are REJECTED. Assert the rejection,
+  not the absence of a symptom.
+
+  Finding 1 (risk source) needs an owner ruling first, because both readings
+  are defensible and they lead to different code:
+    (a) tasks.md is authoritative for lifecycle gating and the contract for
+        evidence gating -- in which case the asymmetry is intended, and what
+        is missing is a test pinning it plus a line in design.md saying so; or
+    (b) criticality is one fact and must have one source -- in which case
+        check-task-state must consult the contract's risk, or fail closed when
+        the two disagree, which is a behaviour change to a guard-protected
+        gate and needs its own red/green.
+  Recommend (b), on the grounds that a control's trigger should not be weaker
+  than the control it guards. This is the owner's call.
+
+  All four target files are guard-protected, so every code change here has to
+  travel through docs/ci-staging as a staged patch and a human apply. The two
+  suites that would carry the fixtures are protected as well.
+
+  Re-run cross-model verification after the fixes land. T-007 cannot reach
+  Done until consensus passes, because ship policy makes that a precondition
+  of the gate for a critical task.
+references:
+  - "specs/risk-adaptive-layer/verification/T-007.panelist-anthropic.verdict.json"
+  - "specs/risk-adaptive-layer/verification/T-007.panelist-openai.verdict.json"
+  - "docs/review-tickets/RT-20260826-002-waiver-t007-red-log.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0

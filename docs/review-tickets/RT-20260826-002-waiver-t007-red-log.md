@@ -24,13 +24,13 @@ approved for T-006 of this feature on 2026-08-23.
 
 ## Compensating control (captured 2026-08-26, this branch)
 
-A present-day differential proving each delivered control is load-bearing on
-BOTH runtimes.
+A present-day differential proving each of the three delivered controls is
+load-bearing on every runtime that implements it.
 
 - `specs/risk-adaptive-layer/verification/T-007.red-compensating-20260826.log`
-  (sha256 `c691d405456709581a00a4c990e8189cfa7d0f011a2e8990ead4bcee1fcfcad9`):
-  two mutations in a `git clone --no-hardlinks` scratch tree, each applied to
-  both twins at once.
+  (sha256 `5d5d75b66ce1ad92ab662c244371fcfa785d076e4ecc5bf476f5fe2425843c0a`):
+  THREE mutations in a `git clone --no-hardlinks` scratch tree, each applied
+  to every runtime twin of the control at once.
   - **Mutation A (signing)** — the HMAC comparison guard neutered in
     `check-evidence-bundle.sh` and `.ps1`. sh: exit 1, PASS 160 / FAIL 1,
     failing `T-007a.3`. ps1: exit 1, throw at `scripts.tests.ps1:2203`, raised
@@ -39,14 +39,42 @@ BOTH runtimes.
     neutered in `check-task-state.sh` and `.ps1`. sh: exit 1, PASS 160 /
     FAIL 1, failing `T-007b.3`. ps1: exit 1, throw at
     `scripts.tests.ps1:2500`, raised by the same assertion `T-007b.3`.
+  - **Mutation C (Second Approval hook guard)** -- added 2026-08-28, see the
+    correction below. Detection neutered in all THREE guard twins at once
+    (`sdd-hook-guard.py`, `sdd-hook-guard.js`, and all three inline pattern
+    literals in `sdd-hook-guard.ps1` -- it carries literals rather than one
+    constant, so changing fewer than three would have left a detection path
+    alive). `tests/guards.tests.sh`: exit 1, 3 failures, every one a Second
+    Approval assertion, across the sh, py and node twins.
+    `tests/hooks.tests.ps1`: exit 1, 1 failure. All four are on the SUDO path,
+    which is precisely the property the guard exists for -- a valid sudo token
+    must not bypass the mark.
 - `specs/risk-adaptive-layer/verification/T-007.green-compensating-20260826.log`
-  (sha256 `6820972a718199450672767e5e9652d82990b79d41e6d506535318d1b4ddd0b3`):
+  (sha256 `5b02069102ed2e132b4c869787db02da9f5aad78b29eb56e467e2c69c573af0d`):
   pristine tree — sh exit 0, PASS 161 / FAIL 0 over 21 distinct T-007
   assertion ids; ps1 exit 0 over 20.
 
-Each mutation reddens exactly ONE assertion, and the SAME id on both runtimes.
-Both were reverted between phases and the tree re-run to exit 0, so neither red
-is a residue of the other.
+Mutations A and B each redden exactly ONE assertion, the SAME id on both
+runtimes. All three were reverted between phases and the tree re-run to exit 0,
+so no red is a residue of another.
+
+## Correction, 2026-08-28 -- the original claim was an overclaim
+
+As first filed, this waiver said the compensating control was "a present-day
+differential proving **each delivered control** is load-bearing on BOTH
+runtimes", and named three delivery commits including `1b558f95`, the Second
+Approval hook guard. It was not. Both captures ran only `tests/gates.tests.sh`
+and `tests/scripts.tests.ps1`; the hook guard is asserted in
+`tests/guards.tests.sh` and `tests/hooks.tests.ps1`, which neither capture
+executed. That control had no red and no green anywhere in the evidence, while
+this waiver's own sentence claimed otherwise.
+
+Found by the Anthropic panelist during cross-model verification, not by me.
+Recorded rather than quietly fixed, because the failure mode is the point: a
+differential can be rigorous about the mutations it does perform and still fail
+to cover what its summary sentence claims, and the sentence is what a reader
+carries away. The gap is closed by Mutation C above, and the claim is true as
+written for the first time.
 
 ## Method note — a first attempt was rejected as unsound
 

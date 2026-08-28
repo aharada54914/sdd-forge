@@ -95,3 +95,27 @@ ok: T-007b.8: sudo Approval format still accepted (backward compat)
 PASS: 160
 FAIL: 1
 ==========================
+
+--- ADDENDUM 2026-08-28: MUTATION C, the third control ---
+
+MUTATION C -- Second Approval hook guard, all THREE guard twins at once:
+  sdd-hook-guard.py  : SECOND_APPROVAL_RE pattern made non-matching
+  sdd-hook-guard.js  : the same constant, same change
+  sdd-hook-guard.ps1 : all THREE inline occurrences of the pattern (it carries
+                       literals rather than one constant; changing fewer than
+                       three would have left a detection path alive)
+
+  RESULT sh  (tests/guards.tests.sh)   : exit 1, 3 failures, every one a
+               Second Approval assertion, across the sh, py and node twins
+  RESULT ps1 (tests/hooks.tests.ps1)   : exit 1, 1 failure
+
+FAIL: sh sudo: Second Approval must be denied under sudo (expected 2, got 0)
+FAIL: py sudo: Second Approval must be denied under sudo (expected 2, got 0)
+FAIL: node sudo: Second Approval must be denied under sudo (expected 2, got 0)
+FAIL: ps sudo: Second Approval denied even with valid sudo (exit 2) -- sudo does NOT bypass
+
+Restored and re-run: both suites exit 0 again.
+
+The property this establishes is the one the guard exists for: the failures are
+all on the SUDO path. A valid sudo token does not bypass the Second Approval
+mark, and if detection is removed, that is exactly what breaks.

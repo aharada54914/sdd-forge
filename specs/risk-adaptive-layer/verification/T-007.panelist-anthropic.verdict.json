@@ -1,0 +1,63 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task": "T-007",
+  "task_id": "T-007",
+  "feature": "risk-adaptive-layer",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "confidence": 0.78,
+  "blind": true,
+  "input_digest": "3d2fda875149d951ee738cf17ddec16818824eb2b63530b938c19eb45bd81180",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "bundle header '# consent: human-flag'; tasks.md T-007 Cross-Model enabled"
+  },
+  "findings": [
+    {
+      "severity": "major",
+      "locus": "specs/risk-adaptive-layer/verification/T-007.red-compensating-20260826.log (header, COMMAND lines) and docs/review-tickets/RT-20260826-002-waiver-t007-red-log.md (## Compensating control)",
+      "summary": "The compensating differential omits the third delivered control entirely. The waiver names three delivery commits, including 1b558f95 'the Second Approval hook guard', and claims the compensating control is 'A present-day differential proving each delivered control is load-bearing on BOTH runtimes'. Both captures run only 'bash tests/gates.tests.sh' and 'pwsh -NoProfile -File tests/scripts.tests.ps1'. The Second Approval hook-guard assertions live in tests/guards.tests.sh (sh/py/node) and tests/hooks.tests.ps1 (ps), which neither capture executes. There is therefore no red AND no green evidence for the hook guard in this bundle - not a weaker proof, but none. Mutation coverage is also one assertion per covered control (T-007a.3, T-007b.3), so the differential does not establish that the no-signature, no-key, generate-without-key, or missing-Second-Approval assertions are non-vacuous either. The differential is sound for what it touches; the waiver's 'each delivered control' claim overstates it."
+    },
+    {
+      "severity": "major",
+      "locus": "tests/scripts.tests.ps1 T-007b block (bundle lines 15921-16016) vs tests/gates.tests.sh T-007b block (bundle lines 10548-10619)",
+      "summary": "Twin coverage asymmetry on the two-person rule. The sh suite has T-007b.5 (critical Done with alice+bob passes: asserts all four two-person diagnostics are ABSENT) and T-007b.6 (non-critical Done without Second Approval is not enforced). The ps1 suite has no equivalent of either - its T-007b.5/T-007b.6 are 'Approval format accepted' regressions on a Status: In Progress fixture and never touch the two-person rule. The ps1 twin is thus tested only in the deny direction: a check-task-state.ps1 that enforced two-person approval on non-critical tasks, or that rejected a legitimate distinct pair, would ship green on that runtime. The green log's own counts confirm the gap (21 sh vs 20 ps1 assertion ids)."
+    },
+    {
+      "severity": "major",
+      "locus": "plugins/sdd-quality-loop/references/evidence-signing-policy.md, section 'Fail-closed cases that MUST be tested (both runtimes)'",
+      "summary": "Two of the policy's own MUST-test cases are untested on both runtimes. (a) 'critical bundle with missing/unknown alg => FAIL' has no test anywhere: the only alg values exercised are 'hmac-sha256' and 'sigstore', so the 'unsupported signature alg' else-branch and the empty-alg/empty-value branch in check-evidence-bundle.sh:1054-1055 / .ps1:632,654-656 are never executed. An agent writing signature.alg='' or an unknown alg is exactly the dodge the policy anticipates. (b) The tamper case names five signed fields (risk, spec_revision, git_commit, artifact sha256, verdict); only git_commit is tampered (T-007a.3), and a tampered git_commit is independently caught by the ancestry check, so the HMAC's coverage of spec_revision, required_workflow, feature and artifacts_digest rests on inspection rather than test."
+    },
+    {
+      "severity": "major",
+      "locus": "check-evidence-bundle.sh evidence_canonical() vs check-evidence-bundle.ps1 Get-EvidenceCanonical; evidence-signing-policy.md section 'Why a fixed-field canonical string'",
+      "summary": "No cross-runtime signature-parity test exists. The policy's stated rationale for the fixed-field canonical is that a signature the generator and verifier compute from different byte streams 'is worthless' and that the chosen form is 'trivially identical across runtimes'. Every test generates and verifies inside one runtime: gates.tests.sh drives the .sh pair (python3 branch) and scripts.tests.ps1 drives the .ps1 pair, and check-evidence-bundle.sh only falls through to the .ps1 implementation when no Python 3 exists. So a canonical divergence would leave both suites green while a Linux-generated bundle failed verification on Windows. Two concrete divergences are visible in the delivered code: Python's pairs.sort() orders by code point while [System.Array]::Sort(..., StringComparer::Ordinal) orders by UTF-16 code unit (these differ for supplementary-plane characters in artifact paths, the exact hazard the ordinal-sort comment claims to have closed), and PS 'if ($Bundle.git_generated_dirty)' is truthiness while Python uses 'dirty is True' (a string-valued field yields 'true' on one twin and 'false' on the other)."
+    },
+    {
+      "severity": "major",
+      "locus": "check-task-state.sh:1370 (/^Second Approval:/) vs check-task-state.ps1:1153 ($line -match '^Second Approva...')",
+      "summary": "Case-sensitivity divergence on the field label introduced by this task. The awk twin matches '^Second Approval:' case-sensitively; the PowerShell twin parses the same field with -match, which is case-insensitive. The same file uses -cmatch deliberately for the approval-value grammar and documents (lines 1194-1196) that ported -match sites must preserve the awk twin's case sensitivity, so the label sites are an unfollowed instance of that rule rather than a deliberate choice. Consequence: a tasks.md carrying 'second approval: Approved (bob <ISO>)' satisfies the critical two-person rule on the PowerShell gate and fails it on the POSIX gate - the PowerShell side being the permissive one. Whether that spelling is also blocked by the never-sudo-bypassable hook guard cannot be determined from this bundle, because SECOND_APPROVAL_RE's flags are redacted in all three guard twins; if that regex is case-sensitive this divergence is a bypass of the control and should be escalated to critical."
+    },
+    {
+      "severity": "minor",
+      "locus": "generate-evidence-bundle.sh (python3-only probe) vs check-evidence-bundle.sh _find_python3()",
+      "summary": "Interpreter-selection asymmetry inside the sh family: the verifier accepts 'python3' or a 3.x 'python', the generator probes only 'python3' and otherwise delegates to generate-evidence-bundle.ps1. On a host that ships only 'python', signing runs through the PowerShell implementation while verification runs through Python - the untested cross-implementation path of the finding above."
+    },
+    {
+      "severity": "minor",
+      "locus": "resolve_evidence_key() in check-evidence-bundle.sh / generate-evidence-bundle.sh vs Resolve-EvidenceKey in the .ps1 twins",
+      "summary": "Key-resolution fallback diverges. When SDD_EVIDENCE_KEY_FILE is set, Python returns None unconditionally if the file is unreadable or strips to empty (fail-closed, no HOME fallback); PowerShell returns $null only on an exception and otherwise falls through to ~/.sdd/evidence-key when the file strips to empty. PowerShell also skips a whitespace-only SDD_EVIDENCE_KEY (IsNullOrWhiteSpace) that Python would accept as key bytes. Same environment, different key on the two runtimes."
+    },
+    {
+      "severity": "minor",
+      "locus": "check-task-state.ps1:1229 ($primId.ToLower() -eq $secId.ToLower()) vs check-task-state.sh:1475 (tolower())",
+      "summary": "The distinct-approver comparison uses culture-sensitive .ToLower() on PowerShell and ASCII tolower() in awk. The same file uses ToLowerInvariant() elsewhere. Under a Turkish-locale host the two twins can disagree about whether two approver ids are the same identity."
+    },
+    {
+      "severity": "minor",
+      "locus": "check-task-state.{sh,ps1} two-person block (risk source) vs check-evidence-bundle.{sh,ps1} effective_risk comment",
+      "summary": "The two-person rule keys off the self-asserted 'Risk:' line in tasks.md, while check-evidence-bundle in the same delivery explicitly refuses to trust a self-asserted risk ('never the bundle's own self-asserted risk - see the T-006 fix') and uses the hash-validated contract risk, even though check-task-state already reads and validates verification/<task>.contract.json for the same task. No guard in this bundle protects the 'Risk:' line, so the critical-only control can be switched off by a one-word edit. Rated minor only because the bundle carries no requirement making risk-line provenance part of T-007, and tasks.md may be hash-frozen elsewhere in the process; if it is not, this is the load-bearing weakness of the control."
+    }
+  ]
+}

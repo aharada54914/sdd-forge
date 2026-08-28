@@ -69,3 +69,32 @@ ok: T-007b.6: sudo Approval format still accepted (backward compat)
 (the ps1 harness reports a single aggregate line rather than a PASS/FAIL
 summary block; its exit code is the verdict, and it aborts on the first failed
 assertion rather than tallying.)
+
+--- ADDENDUM 2026-08-28: the third control, added after the cross-model panel ---
+
+The 2026-08-26 capture covered two of T-007's three delivered controls. The
+Second Approval HOOK GUARD is asserted in tests/guards.tests.sh and
+tests/hooks.tests.ps1, and neither of those suites was run, so that control had
+no green and no red here. The panel caught it. Pristine runs of both:
+
+COMMAND (sh) : bash tests/guards.tests.sh          EXIT: 0
+COMMAND (ps1): pwsh -NoProfile -File tests/hooks.tests.ps1   EXIT: 0
+SECOND-APPROVAL ASSERTIONS: 12 (sh) / 5 (ps1)
+
+ok: sh: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: sh: Write content adds Second Approval -> deny (exit 2)
+ok: sh: bash writes Second Approval to tasks.md -> deny (exit 2)
+ok: sh: apply_patch adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh: Second Approval edit denied (not bypassed by primary guard)
+ok: py: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: py sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: py: Second Approval edit denied (not bypassed by primary guard)
+ok: node: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: node sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: node: Second Approval edit denied (not bypassed by primary guard)
+ok: ps: edit adds Second Approval -> deny (exit 2)
+ok: ps sudo: Second Approval denied even with valid sudo (exit 2) -- sudo does NOT bypass
+ok: ps: write content adds Second Approval -> deny (exit 2)
+ok: ps: apply_patch adds Second Approval to tasks.md -> deny (exit 2)
+ok: ps: shell appends Second Approval to tasks.md -> deny (exit 2)
