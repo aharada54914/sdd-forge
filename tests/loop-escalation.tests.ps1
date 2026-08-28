@@ -662,17 +662,25 @@ mktemp repo-root.
     $spyLog = Join-Path $spyDir "invocations.log"
     New-Item -ItemType File -Path $spyLog -Force | Out-Null
     $spyScript = Join-Path $spyDir "resolve-project-context.sh"
+    # Forward-slash form of the log path: the script body is bash, and on the
+    # windows runner git-bash reads C:/... reliably while C:\... in a redirect
+    # is at the mercy of MSYS translation (2026-08-28 portability fix).
+    $spyLogBash = $spyLog -replace '\\', '/'
     @"
 #!/usr/bin/env bash
-printf '%s\n' "`$*" >> "$spyLog"
+printf '%s\n' "`$*" >> "$spyLogBash"
 exit 0
 "@ | Set-Content -LiteralPath $spyScript -NoNewline -Encoding utf8
 if ($IsWindows -ne $true) { chmod +x $spyScript }
 
 $originalPath = $env:PATH
-$env:PATH = "${spyDir}:${originalPath}"
+$env:PATH = "${spyDir}$([IO.Path]::PathSeparator)${originalPath}"
 try {
-    & $spyScript --probe | Out-Null
+    # Invoke via bash: pwsh on windows cannot execute a .sh document directly
+    # ("Cannot run a document in the middle of a pipeline", observed on the
+    # windows-latest runner 2026-08-28); bash exists on every CI lane that
+    # runs this suite and the unix behaviour is unchanged.
+    & bash $spyScript --probe | Out-Null
     $spyLineCount = @(Get-Content -LiteralPath $spyLog).Count
     if ($LASTEXITCODE -eq 0 -and $spyLineCount -eq 1) {
         Test-Ok "TEST-019.10a (negative self-check): the spy-harness mechanism itself records a direct invocation (no false negative)"
