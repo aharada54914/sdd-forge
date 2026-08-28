@@ -2388,3 +2388,88 @@ Commit `4854a1bc`, six documents.
 - `traceability.md`: `0463f93ef01be1ceb04b27f1ccba6040e8638fa8da3c0db874cd49835006b528`
 - `infra-spec.md` and `frontend-spec.md` are unchanged by this commit and
   keep the digests recorded for `4c80eb35` and `071c42fa` above.
+
+### Ruling E's own repair — AC-059 named a glob its owner cannot reach
+
+Ruling E's amendment cleared spec attempt 9 round 1 and impl attempt 5
+round 1 with zero findings from all four reviewers, then met two Major
+findings from `task-reviewer-b` at task attempt 11 round 1. Both were
+against the AC-059 addition, and both were mine.
+
+**`DEPENDENCY-OVERLAP` is the substantive one, and it is a real ordering
+defect.** AC-059's grep names two Resolver-owned script families. Its
+owning task T-007 authors only one of them: `validate-resolver-evidence.*`
+is authored by **T-008**, which `tasks.md` sequences *after* T-007
+(T-008's Blockers are `T-001, T-006, T-007`). T-007 therefore could not
+scan half its own glob at its own gate, and T-008 carried no AC-059 anchor
+of its own, so no task-level checkpoint anywhere in the package would have
+verified the boundary against those files once they existed.
+
+The mistake was mirroring AC-025 without noticing *why* AC-025 works: its
+owner is **T-009**, whose Blockers span `T-002` through `T-008`, placing it
+downstream of every script it scans. Ownership by the task that writes the
+guarded path is not the same as ownership by a task that can see the whole
+guarded set — and only the second makes a single-gate discharge sound.
+
+All three load-bearing facts were verified directly before acting rather
+than taken from the reviewer: T-008's Scope creates
+`plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
+as new files; T-008's Blockers include T-007; T-009's Blockers span
+T-002..T-008. Neither script exists on disk yet — this is Phase 1, and both
+are Phase 2 work — so the defect is genuinely in the specification's own
+sequencing rather than an artefact of the current lifecycle state.
+
+**The repair splits the discharge rather than moving the owner.** Moving
+AC-059 to T-009, AC-025's own owner, would have made the glob verifiable at
+one gate but would have landed the obligation on a task already `Done` —
+the verification-backfill problem ruling E chose T-007 specifically to
+avoid. So the criterion is now discharged in two parts: T-007 authors and
+registers the check and it passes over the scripts that exist at its own
+gate, and the registered check — a **per-commit CI gate**, not a one-shot
+verification — covers `validate-resolver-evidence.*` when T-008's commit
+lands, with no separate task obligation. That is exactly how
+AC-032/AC-033/AC-034 already bind every task's commits without per-task
+re-verification. The single respect in which AC-059 departs from AC-025 is
+now stated at every site rather than glossed.
+
+**`TASK-SIZE`** is the second finding. The bullet I added pushed T-007's
+Done When from eight items to nine, past the oversized-task threshold, on
+the package's most structurally complex task — and it was also the only
+item in that list missing the `- [ ]` checkbox every sibling carries. It is
+now folded into T-007's existing **Governance** bullet, which is already
+the home of the AC-032/AC-033/AC-034 boundary self-checks and is where a
+governance-boundary grep belongs. Done When is back to eight items and the
+formatting inconsistency is gone.
+
+Two observations worth keeping. First, this is the third consecutive stage
+at which a repair carried its own defect — the ruling-D(2) scope rule, the
+AC-042 clause, and now AC-059 — which is the strongest evidence yet that
+the risk in this package is no longer missing content but the propagation
+of newly written content. Second, `task-reviewer-a` returned PASS on all
+fourteen checks against the same bytes in which `task-reviewer-b` found
+two Majors, including A's own `AC-COVERAGE` and `TRACEABILITY-SYNC` checks
+which read the very rows at issue. The two roles' check sets are genuinely
+complementary rather than redundant, and a single-reviewer gate at this
+stage would have shipped the ordering defect.
+
+Commit `94704f9c`, six documents.
+
+### Per-document SHA-256 at remediation commit 94704f9c
+
+- `requirements.md`: `052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01`
+  (at `Spec-Review-Status: Passed`)
+- `acceptance-tests.md`: `8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a`
+- `design.md`: `c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f`
+  (at `Impl-Review-Status: Passed`)
+- `security-spec.md`: `2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b`
+- `tasks.md`: `9c2684f076a6f8f4779a965fa5302d4758b5c488a98323d5e6e8735095d9df0f`
+  (at `Task-Review-Status: Passed`)
+- `traceability.md`: `8c64e87e95f753c19d69f630c1217b010bc341a5a4ce1562e1aa7996aa2dc452`
+- `infra-spec.md` and `frontend-spec.md` are unchanged by this commit and
+  keep the digests recorded for `4c80eb35` and `071c42fa` above.
+
+Because this amendment touches `requirements.md` and `acceptance-tests.md`,
+the spec stage is re-staled along with impl and task. The three gates are
+therefore re-run in order — spec, then impl, then task — with **no document
+edit between them**, which is the only sequence in which this package's
+prechecks converge.
