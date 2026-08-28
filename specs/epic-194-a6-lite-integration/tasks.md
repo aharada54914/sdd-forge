@@ -1072,14 +1072,24 @@ Commit B (documentation):
   self-check confirms no version string was mutated outside
   `scripts/bump-version.sh` (none of this task's changes touch any
   version string).
-- [~] **TDD evidence** — RED (`verification/T-004.red.log`, 30 genuine
+- [x] **TDD evidence** — RED (`verification/T-004.red.log`, 30 genuine
   failures against a deliberately disabled Step 2a/2b) and GREEN
-  (`verification/T-004.green.log`, 60/60 passing) both captured. An
-  independent quality-gate verdict has **not yet** been recorded — QG
-  delegation is held per main's own instruction pending Epic A2's
-  evaluator-identity-ledger pattern for the non-reserve-mode validator
-  gap; launch materials are prepared, not yet sent. This bullet is not
-  fully satisfied until that verdict lands.
+  (`verification/T-004.green.log`, 60/60 passing) both captured. The
+  independent quality-gate verdict this bullet was waiting on HAS since
+  landed: evaluator run seq0329
+  (`RUN-epic-194-a6-lite-integration-qg-T-004-seq0329`, an independent
+  isolated evaluator, distinct session/context from implementer a6-impl2)
+  recorded `VERDICT: PASS` (0 Critical, 0 Major, 2 Minor non-blocking) —
+  full report
+  `reports/quality-gate/epic-194-a6-lite-integration/T-004.md` (sha256
+  `135fbfc755a4a92dab4e675d85450dcd9b66acd88b14461389643c61e259e203`),
+  recorded at the time in this task's own Quality-Gate Addendum
+  (2026-07-22T16:30:38Z, above). This line's original wording predated
+  that verdict and was never brought forward because Done-When text is
+  frozen; ratified to match the recorded fact on 2026-08-28 under the
+  owner's explicit approval, verbatim 「T-004 の bullet 追認を承認する」
+  (task re-review attempt 6 round 1, HIGH-CRITICAL-EVIDENCE finding,
+  reports/task-review/epic-194-a6-lite-integration/attempt-6/round-1/).
 
 ### Out of Scope
 

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 6,
+  "round": 2,
+  "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-b-attempt6r2-seq0910",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-194-a6-lite-integration-0910",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-2/integrated-summary.json",
+        "sha256": "7ae3a45e73f8d7024c76f5d3bf0a242bc95a48ef4ce2e65fca4bc2f85d5212c6"
+      },
+      {
+        "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-2/precheck-result.json",
+        "sha256": "27f63ce28050a09d84ca2db8c26501f2ed5cccee78bae3ffe8e6e0763e726688"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+        "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/design.md",
+        "sha256": "559622b69879a0628f3accc7ed3d6564863a61be895287431b3cdbf3699af781"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+        "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+        "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/requirements.md",
+        "sha256": "e0867913178a6129877623940331d04bf06e3dfa0608fb7b9ff2cc7c53e38200"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+        "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/tasks.md",
+        "sha256": "857fa46aa785dd340f47cf12c3cb2ce889eaaad61da957969f214d967e373534"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/traceability.md",
+        "sha256": "05ea256df88b1c4a94bb099efc349577db76ab5cfaf378453b5809768fe9770f"
+      },
+      {
+        "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+        "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four tasks (T-001..T-004) declare Risk: high with a Risk Rationale citing a genuine sensitive surface each (protected-file application integrity, the risk-upgrade decision gate, the pre-generation Block gate, the post-implementation quality-gate enforcement step), evaluated explicitly against risk-classification-policy.md and correctly not escalated to critical (no financial/physical-safety/irreversible-destructive surface named). No task's scope is UI-copy/docs/test-only, so no over-classification either. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Judged fresh per the TYPE-H convergence note's carve-out for TYPE-D checks: T-004's ratified TDD-evidence bullet (Done-When, now [x]) cites RED (verification/T-004.red.log, 30 failures) and GREEN (verification/T-004.green.log, 60/60) plus a concretely-identified independent evaluator verdict (run id RUN-epic-194-a6-lite-integration-qg-T-004-seq0329, distinct session/context from implementer a6-impl2, VERDICT: PASS, report path + sha256, 2026-08-28 ratification citing the owner's verbatim approval) -- this satisfies Red-Green evidence and an independently-recorded review verdict for a Risk: high task. T-001/T-002/T-003 (Status: Implementation Complete, not yet Done) each still carry both required Done-When items (TDD evidence, and for T-001 additionally Security review) in their planned text, unchecked, consistent with not yet having reached Done. No task here is Risk: critical, so the two-person-approval/signed-bundle addendum does not apply. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001..T-004 is one coherent unit of work scoped around a single artifact/contract (the human-copy runner; check-risk-upgrade's extension; lite-spec's Block path; lite-gate's Step 2a/2b) with a bounded Done-When list (5-7 items each). No task spans unrelated implementation areas, and no task is fragmented into a single-function/single-file edit with no integration concern. No issues found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional tasks are backed by explicit edge-case ACs beyond happy path: AC-027/AC-028 (fragment fail-closed, ineligible-no-reasons synthetic token) for T-002; AC-012/AC-030/AC-026 (schema-invalid Summary, active-enforcement absent Summary, full_upgrade_required backstop) and AC-016/AC-017 (unmapped check-id, protection-status re-verification) for T-004; AC-021/defense-in-depth companion fixture for T-003. No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each planned tests/*.tests.sh/.ps1 suite targets a bounded module/skill-process boundary matching its declared scope (e.g. check-risk-upgrade-byte-identical/-capability-merge/-fragment-fail-closed/-ineligible-no-reasons for T-002's CLI extension; lite-gate-summary-consumption/-absent/-invalid/-full-upgrade-backstop/-absent-active-enforcement for T-004's gate Process; lite-spec-capability-block for T-003's pre-generation gate; human-copy-runner-contract for T-001's runner). No suite is labeled a type inconsistent with its Scope/Must-Read/Done-When target. No issues found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task (all Risk: high) carries an explicit Rollback: field: T-001/T-002/T-003 state revert-the-two-commits plus an explicit note on how an already-human-applied protected-file change is separately hand-reverted by a stated procedure; T-004 states a direct-edit revert since no human-copy staging is involved for its own file. No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared touch points (tests/run-all.sh/.ps1, CHANGELOG.md's own Unreleased section per-task, human-copy/MANIFEST.sha256, human-copy/.github/workflows/test.yml) are all covered by the Global Constraints' serialized T-001->T-002->T-003->T-004 registration-order discipline and each task's own Blockers field enforcing that ordering (T-002 Blockers: T-001; T-003 Blockers: T-001, T-002; T-004 Blockers: T-003) -- this is the legitimate ordered-append case, not an uncoordinated race. No issues found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002/T-003's Blocker on T-001 is functionally grounded (their own Done-When HUMAN APPLY STEP needs T-001's runner to exist). T-003's Blocker on T-002 and T-004's Blocker on T-003 are explicitly and honestly disclosed as registration-order-only, not functional dependencies (tasks.md T-003 Depends On text, T-004 Depends On text), which is consistent with each task's own Planned Files/Scope showing no read of the prior task's live staged content. No spurious or missing blocker found. No issues found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All four tasks (T-001..T-004) are additive feature-implementation tasks (a new runner, a CLI extension, two gate-process extensions), none scoped as a bugfix, regression fix, or failure-diagnosis task."
+    }
+  ],
+  "findings": []
+}

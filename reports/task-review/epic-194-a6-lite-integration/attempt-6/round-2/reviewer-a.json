@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 6,
+  "round": 2,
+  "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-a-attempt6r2-seq0909",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-194-a6-lite-integration-0909",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-2/dependency-graph.json",
+      "sha256": "6eea60e0c4669b643ebb57c46d18aa3ca6dce9fb34c5f25a29f3041584e60920"
+    },
+    {
+      "path": "reports/task-review/epic-194-a6-lite-integration/attempt-6/round-2/precheck-result.json",
+      "sha256": "27f63ce28050a09d84ca2db8c26501f2ed5cccee78bae3ffe8e6e0763e726688"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/design.md",
+      "sha256": "559622b69879a0628f3accc7ed3d6564863a61be895287431b3cdbf3699af781"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+      "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+      "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "e0867913178a6129877623940331d04bf06e3dfa0608fb7b9ff2cc7c53e38200"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+      "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/tasks.md",
+      "sha256": "857fa46aa785dd340f47cf12c3cb2ce889eaaad61da957969f214d967e373534"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/traceability.md",
+      "sha256": "05ea256df88b1c4a94bb099efc349577db76ab5cfaf378453b5809768fe9770f"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+      "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in tasks.md Requirements fields (AC-007..AC-010, AC-011..AC-018, AC-019..AC-022, AC-026..AC-028, AC-030, AC-031) resolves to a real row in acceptance-tests.md. No dangling ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: None; T-002 Blockers: T-001; T-003 Blockers: T-001, T-002; T-004 Blockers: T-003. All match the required `None` or comma-separated `T-\\d{3}` list format, consistent with precheck-result.json's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-002 (T-001/T-002), REQ-003 (T-004), REQ-004 (T-004), REQ-005 (T-001/T-003), REQ-006 (all tasks, shared) each appear in a task's Requirements field. REQ-001 has no task but is deferred with a stated rationale in traceability.md's 'Deferred Requirements' section (Epic A2 Phase 2 ownership, requirements.md Non-goals). No uncovered requirement without deferral."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN in acceptance-tests.md (AC-001..AC-022, AC-026..AC-031) is traceable via traceability.md's Acceptance Mapping table: AC-001..006/AC-029 deferred (REQ-001, rationale stated); AC-023..025 covered as Already-Satisfied Phase-1-commit facts; all remaining ACs map to T-001..T-004. No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 references REQ-002/REQ-005/REQ-006; T-002 references REQ-002/REQ-006; T-003 references REQ-005/REQ-006; T-004 references REQ-003/REQ-004/REQ-006. No task lacks a REQ-NNN reference."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title in tasks.md contains 'test', 'spec', or 'verify' (T-001 'Author...runner', T-002 'Extend check-risk-upgrade...', T-003 'Extend lite-spec's...', T-004 'Extend lite-gate...'), and no task's scope is exclusively test-file changes \u00e2\u0080\u0094 each pairs a script/skill edit with its own test suite. No dedicated test-only task exists to check for AC orphaning."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This is a declared post-implementation provenance re-review (round context). T-001/T-002/T-003: Approval: Approved (sudo <timestamp>) \u00e2\u0080\u0094 a workflow-bypass-mode authorization mark \u00e2\u0080\u0094 Status: Implementation Complete, both within the allowed post-implementation vocabulary {Planned, In Progress, Blocked, Implementation Complete, Done}. T-004: Approval: Approved (sudo 2026-07-22T15:44:54Z), Status: Done \u00e2\u0080\u0094 also within the allowed vocabulary. No task carries a missing or invalid status/approval field under the applicable rule."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All four tasks declare Risk: high and Required Workflow: tdd, which is the correct pairing per the risk-gate-matrix (high/critical -> tdd). precheck-result.json's workflow_match_precheck is PASS, consistent with this reading. No mismatch or missing field found."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-010, AC-021 and AC-031 each appear in more than one task's Requirements field (T-001 and T-002/T-003), but T-001's own citations are explicitly labeled '(share \u00e2\u0080\u0094 ...)' in both cases (e.g. 'REQ-002 (share \u00e2\u0080\u0094 this is the application mechanism T-002's own Done-When human-apply step depends on, AC-010/AC-031)'), distinguishing T-001's shared-mechanism scope from T-002/T-003's own primary-test-target scope (T-002's own 'human-copy staging lock' for AC-010; T-003's own 'single-file, human-copy-only lock' for AC-021). This is the explicit-differentiation case the check's own exception allows, not an unlabeled duplicate claim."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-002's Blockers (T-001), T-003's Blockers (T-001, T-002), and T-004's Blockers (T-003) all reference task IDs present in dependency-graph.json's nodes array (T-001, T-002, T-003, T-004). No reference to a non-existent task ID."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check ran. dependency-graph.json edges (T-002->T-001, T-003->T-001, T-003->T-002, T-004->T-003, each duplicated once) form a strict DAG: T-001 is a sink with no outgoing edge, and following from -> to direction from any node terminates at T-001 with no revisit. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002/T-003 titles and Scope sections each address one coherent extension point. T-004's title ('Extend lite-gate to consume the Capability Summary and execute Registry-sourced checks') connects two clauses via 'and', but both are inherently coupled steps of the SAME lite-gate Process extension for the SAME requirement pairing (REQ-003/REQ-004): Step 2a (consume/backstop) gates entry to Step 2b (execute), both operate on the same capability-summary.yaml artifact, are inserted at the same point in the same file (design.md Architecture/API Contract Plan), and are tested by overlapping suites. This is not two independent feature concerns (unlike the 'user profile and notifications' counter-example) but one pipeline described in two clauses; this content is unchanged from the version bound by this feature's own prior task-review PASS evidence (Task-Review-Status: Passed header)."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "precheck-result.json's frozen_artifact_done_when flags exactly one item: T-001 line 384, the 'Security review' Done-When bullet, which reads in part '(design.md: \"A future implementation task authors and has this runner security-reviewed before this feature's own human-copy batch is ever applied\")'. Adjudicated: this item is satisfiable WITHOUT editing the frozen design.md \u00e2\u0080\u0094 the design.md text appears only as a parenthetical citation/justification for why a security review is required, not as an instruction to edit design.md. The item's actual observable completion artifact is 'the quality-gate verdict above' recording the review 'as part of its independent-review evidence' \u00e2\u0080\u0094 i.e. the task's own non-frozen Quality-Gate Addendum / quality-gate report (a specs/verification-adjacent, non-frozen artifact), which is exactly the kind of addendum record the frozen-artifact rule directs such items toward. No edit to design.md's body is implied or required. All other Done-When items across T-001..T-004 name concrete artifacts (test IDs, log files with pass counts, MANIFEST.sha256 entry counts, staged file paths, grep self-checks, a named human-apply step with SHA-256 verification, or \u00e2\u0080\u0094 for T-004's ratified TDD-evidence bullet \u00e2\u0080\u0094 a named run id, report path, sha256, and verbatim human approval quotation); no item uses 'ensure', 'consider', an unmeasured 'update <X>', 'verify is correct', 'works correctly', or an outcome-free 'review'/'confirm'. No Done-When item requires editing tasks.md's own frozen body or traceability.md's frozen body."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All four task IDs (T-001..T-004) appear in traceability.md's Task Mapping and Deliverables tables. All six requirement IDs in traceability.md (REQ-001..REQ-006) exist in requirements.md. Full-profile layer-anchor check: REQ-002/REQ-003/REQ-004/REQ-005 cite security-spec.md#trust-boundaries (matches security-spec.md's '## Trust Boundaries' heading) and, for REQ-004, security-spec.md#stride-analysis (matches '## STRIDE Analysis'); REQ-003/REQ-004/REQ-006 cite infra-spec.md#cicd-sequence (matches infra-spec.md's '## CI/CD Sequence'); REQ-001 carries a reasoned 'N/A \u00e2\u0080\u0094 cross-layer only: ...' value citing Epic A2 Phase 2 ownership. All cited anchors resolve inside the hash-bound layer documents listed in precheck-result.json's layer_sha256. No dangling reference in either direction."
+    }
+  ],
+  "findings": []
+}
