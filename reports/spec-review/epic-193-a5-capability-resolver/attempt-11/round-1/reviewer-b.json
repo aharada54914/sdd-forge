@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a11r1-seq0852",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a11r1-0852",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "f2247851e7f6f7f9876bf7cf6d80b44234ef4b0c141499b965dba177c9e2fe22"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "c2837dddd02a319011faf0db2410b389bcec885b12ac28b6dc0477737ca0dda9"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-11/round-1/precheck-result.json", "sha256": "1aeb024bec7ec24f003bcf7fd3f68a546cb3bcccf1f0e70eebd3e16882e4789c"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-11/round-1/integrated-summary.json", "sha256": "1b0363afc6a384ae1150314f3d2e96cacaf9fc40fd63ee6e3eac6a53ac1e6b8c"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions (requirements.md:979-1044) pins Resolver, Affected component, Matched Capability, capability_minimum_enforcement, Block, and Resolver Evidence to single, non-overloaded meanings; the Field Definitions entry for Resolver ('this term never refers to a different script anywhere in this package', :981-984) is the exact clause that grounds AC-059's corrected scanned set (AC-059 row, requirements.md:977; TEST-059, acceptance-tests.md:120), and no remaining term used by that criterion is left to interpretation across the two documents."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-059/TEST-059 (requirements.md:977, acceptance-tests.md:120) now scope the deny-list grep to the Resolver alone and explicitly state the validate-resolver-evidence write scope is 'left to a future criterion' rather than asserted here; this does not contradict the adjacent Security Boundaries bullet (requirements.md:1303-1308), which states the Resolver's own write scope only, or AC-025 (requirements.md:943, acceptance-tests.md:89), which legitimately scans both script families for a different property (REQ-005's clock/network/provider-API determinism guarantee, which the text says by name applies to both). investigation.md's 'AC-059's real error was one level up' entry documents the same T-007/T-008 sequencing fact that motivates the narrowing and is consistent with tasks.md's Blockers as cited; no other Block-taxonomy, byte-identity, or rollback-scope statement I checked (REQ-002's 16-row table, REQ-001 step (m), REQ-003's byte-identity carve-outs) conflicts with a sibling statement."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases (requirements.md:1160-1291) enumerates zero-affected-components, any-branch WARN, duplicate-facet-name aggregation (cross- and same-Capability), empty conditional_facets, source-rev==target-rev delegation, snapshot/post-publication TOCTOU races, and crash-recovery convergence/non-convergence, each with a corresponding AC/TEST row (e.g. AC-047/TEST-047 crash recovery, AC-048/AC-049 TOCTOU, AC-055 dual-artifact-scope, AC-057/AC-058 the two amended sub-triggers). The negative/failure surface (REQ-002's 16-row diagnostic taxonomy) is covered 1:1 by TEST-010 plus dedicated per-row tests."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions (requirements.md:1391-1416) each name a concrete precondition (sibling contract landing unmodified, guard-invariants.json reservation being live, SKILL.md's protection status) with an explicit fallback instruction if the precondition fails at Phase-2 start. The one genuinely open cross-epic gap (required_lite_checks sourcing, investigation.md INV-019) is named with an owner, scope, and migration path in Dependencies (requirements.md:137-163) rather than left as a silent unresolved assumption, and OQ-001/OQ-002 are explicitly deferred to a named future owner while OQ-003 is recorded resolved."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Security Boundaries bullet 2 (requirements.md:1303-1308) states the Resolver never writes to a *.approval.json sidecar, sdd/.approved-context/ anchor, or guard-invariants.json; AC-059/TEST-059 (requirements.md:977, acceptance-tests.md:120) now make that boundary testable via a registration-time, CI-gated grep scoped to the Resolver, which is the only script this package's own T-007 authors and can verify at its own gate. The validator's (validate-resolver-evidence) write scope is explicitly and honestly left ungoverned by this package's own AC set -- stated as 'left to a future criterion rather than asserted unverifiably here' (requirements.md AC-059 row, :977; investigation.md) -- rather than silently omitted, and is attributed to Epic A1's existing guard-invariants.json suffix enforcement as the interim control, which is a defensible, disclosed scope choice, not a coverage gap papered over."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001 through REQ-008 give a fully ordered processing procedure (steps 0/a-m), a closed 16-row Block taxonomy, exact CLI/output/schema shapes, and byte-identity/rollback scope rules stated as governing predicates rather than per-step promises, leaving no product-behavior invention to a design reviewer. The one remaining boundary explicitly deferred (validator write-scope AC) is deferred with a named owner and mechanism, not silently absent, so it does not block downstream design or task decomposition."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists in the repository (Glob for domain/context-map.md returned no matches), so the domain-model precondition for this check is absent; recorded as skipped per the check's own skip condition."
+    }
+  ]
+}
