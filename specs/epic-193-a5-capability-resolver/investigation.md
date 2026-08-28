@@ -2551,3 +2551,58 @@ cited AC-032 alongside AC-033/AC-034 as sharing a per-commit binding, where
 AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
 sentence carrying that citation is removed by this commit, so the advisory
 is closed as a side effect rather than left open.
+
+### Rulings (a) and (b) — the third AC-012 exception, and a containment check stricter than its own write
+
+Both cross-model panel slots reached the same code on rounds 8 and 9 and
+disagreed only about severity. The openai slot filed a Major with two halves;
+the anthropic slot had already filed the first half as a Minor on round 6.
+Neither half was an implementer's call, so both were put to the repository
+owner, who answered on 2026-08-28: **「(a) 受容 / (b) 承認」**.
+
+**Ruling (a) — the third no-write exception is accepted as a known
+limitation.** `requirements.md` line 386 says AC-012's always-emitted rule
+"excepts exactly two diagnostic ids". `EvidenceTargetUncontained` is a third:
+when `specs/<feature>/resolver-evidence.yaml` does not resolve inside
+`specs/<feature>/`, the Block emits no Evidence. The alternatives were stated
+plainly and there is no third one — writing to a destination that resolves
+outside the tree IS the escape every panel round since round 1 has been
+closing, not writing exceeds AC-012's count, and only the latter fails
+closed. The owner accepted the deviation rather than authorizing an amendment
+to the frozen text.
+
+**No frozen document was amended for it.** The ruling is recorded in this
+file and in the `EvidenceTargetUncontained` docstring, which is the same way
+the 2026-08-27 ruling on the doubly-degraded rollback corner was recorded.
+Amending `requirements.md` would have invalidated all three currently-green
+review gates and forced the whole spec → impl → task chain again, for a
+sentence whose count is now documented as having a sanctioned exception.
+
+**Ruling (b) — `_target_escapes_via_symlink` is narrowed to the target's
+parent.** The check resolved the FINAL path component, but every write in
+this file lands via `os.replace(tmp, target)`, which replaces the directory
+entry at `target` rather than following a symlink sitting there, and the temp
+file is created with `mkstemp(dir=target.parent)`. The parent is therefore
+the only component whose symlinks can move a write. Resolving the leaf too
+modelled a write the code does not perform, and refused valid in-tree
+destinations. The narrowed form still catches a symlinked `specs/<feature>`,
+a symlinked `generated/`, any symlink between the trusted base and the
+parent, and every lexical `..` traversal.
+
+The two rulings interact: (b) shrinks (a)'s reach to the irreducible case. A
+symlink at `resolver-evidence.yaml` itself no longer suppresses Evidence;
+what remains is a feature directory that genuinely resolves outside the tree,
+where no valid write exists at all.
+
+Both changes are behaviour-preserving against the existing suite (356 passed,
+0 failed in both runtimes, unchanged by either edit), which is expected: no
+fixture places a symlink at a leaf publication target, and none constructs an
+uncontained feature directory other than the one whose no-Evidence outcome
+ruling (a) now sanctions.
+
+#### Per-document SHA-256 after these rulings
+
+| Path | SHA-256 |
+|---|---|
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85` |
+| `tests/resolve-project-context-block-check.py` | `5fe9878df20d77e232456dbc12bb4a5e958070a24588dee0a5e4532c79b02e04` |

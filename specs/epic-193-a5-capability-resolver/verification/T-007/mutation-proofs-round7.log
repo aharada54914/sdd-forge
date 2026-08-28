@@ -21,4 +21,4 @@ RESULT: 356 passed, 0 failed
  journal from one batch into another batch directory. Recorded, not
  implied.)
 --- restoring ---
-restored sha256: 6bc8875cd7499f7454e5ae7c4db3650007bf6be99315706c6ca1f2b2a1d4330a
+restored sha256: a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85

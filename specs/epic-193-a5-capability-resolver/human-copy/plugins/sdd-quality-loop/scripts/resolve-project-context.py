@@ -990,6 +990,27 @@ class EvidenceTargetUncontained(Exception):
     all, which is a different situation from declining to write one that
     does.
 
+    RULED 2026-08-28 (repository owner, ruling (a)). This is nonetheless a
+    THIRD no-write exception where requirements.md line 386 says the
+    always-emitted rule "excepts exactly two diagnostic ids", and both
+    cross-model panel slots raised it as such. The question was put to the
+    owner with the alternatives stated plainly -- there is no third option
+    here, because writing to a destination that resolves outside the tree IS
+    the escape, not writing violates AC-012's count, and only the latter is
+    fail-closed -- and the owner ACCEPTED it as a known limitation. So the
+    behaviour below is SPECIFIED-WITH-A-KNOWN-LIMITATION, not an open defect.
+    No frozen document was amended for it: the ruling is recorded here and in
+    investigation.md, the same way the 2026-08-27 ruling on the
+    doubly-degraded rollback corner was recorded.
+
+    Ruling (b), taken at the same time, narrowed
+    `_target_escapes_via_symlink` to resolve only the target's PARENT. That
+    shrinks this exception's reach to the irreducible case: a symlink AT
+    `resolver-evidence.yaml` itself no longer trips it, because
+    `os.replace` replaces that entry rather than following it. What remains
+    is a feature directory that genuinely resolves outside the tree, where no
+    valid write exists at all.
+
     The caller preserves the ORIGINAL diagnostic id rather than relabelling
     the Block a publication failure -- relabelling would point the operator
     at the wrong cause, which is exactly the misattribution the staging-area
@@ -1141,8 +1162,31 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     the existing prefix while leaving a not-yet-created leaf lexical) and
     require the result to be one of the fixed, base-resolved target
     locations. It also subsumes the lexical `..`-traversal case, so the two
-    checks are belt-and-suspenders, not redundant coverage of one bug."""
-    return os.path.realpath(str(target)) not in _allowed_publication_targets_real(repo_root, feature)
+    checks are belt-and-suspenders, not redundant coverage of one bug.
+
+    NARROWED 2026-08-28 (repository owner, ruling (b), raised by the openai
+    panel slot on round 9). The resolution stops at the target's PARENT; the
+    leaf is then joined on by name. Resolving the leaf as well modelled a
+    write this code does not perform: every write here lands via
+    `os.replace(tmp, target)`, which replaces the directory ENTRY at `target`
+    rather than following a symlink sitting there, and the temp file itself
+    is created with `mkstemp(dir=target.parent)`. So the parent is the only
+    component whose symlinks can move a write, and a symlink AT the leaf is
+    destroyed by the rename rather than followed. The old form refused those
+    cases anyway, suppressing a valid in-tree destination -- stricter than
+    the semantics it existed to guard.
+
+    What is still caught is unchanged in substance: a symlinked
+    `specs/<feature>`, a symlinked `generated/`, any symlink between the
+    trusted base and the parent, and every lexical `..` traversal, because
+    each of those makes the resolved parent diverge from the fixed reference.
+    Reading is the one operation that does follow a leaf symlink
+    (`_live_bytes` captures the PRE image), and it cannot escape either: the
+    bytes it reads are written back, on rollback, to the leaf NAME inside the
+    tree, never to the symlink's own target."""
+    parent_real = os.path.realpath(str(Path(target).parent))
+    candidate = os.path.join(parent_real, Path(target).name)
+    return candidate not in _allowed_publication_targets_real(repo_root, feature)
 
 
 def _path_contained_in(container_real, candidate_real):
