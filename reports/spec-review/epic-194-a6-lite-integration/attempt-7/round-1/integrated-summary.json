@@ -25,8 +25,8 @@
     },
     {
       "id": "CONSTRAINTS-EXPLICIT",
-      "result": "FAIL",
-      "severity": "Critical"
+      "result": "PASS",
+      "severity": "Major"
     },
     {
       "id": "RISK-VALIDATION-SURFACE",
@@ -39,5 +39,8 @@
       "severity": "Major"
     }
   ],
-  "generated_at": "2026-08-28T00:26:00Z"
+  "reviewer_a_fail_count": 0,
+  "reviewer_a_pass_count": 6,
+  "reviewer_a_skip_count": 1,
+  "generated_at": "2026-08-28T00:48:00Z"
 }
