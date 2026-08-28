@@ -3,19 +3,13 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
-  "verdict": "NEEDS_WORK",
-  "findings": [
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:3127",
-      "note": "Both post-publication rollback handlers discard the retained transaction journal whenever rollback completed, even if the subsequent direct Block-Evidence write failed. `_block` converts that write failure into a return code without reporting whether Evidence became durable, so lines 3136-3137 and 3166-3167 can delete the only recovery marker while the prior success-form resolver-evidence.yaml remains live and the publication artifacts have been restored to PRE. This contradicts the stated invariant that the journal survives until the Block record is durable and leaves a silently inconsistent generation. The disclosed uncovered `_block` ArtifactPublicationFailed branch and mutation-C gap do not exercise this combined failure."
-    }
-  ],
+  "model": "gpt-5.6-sol",
+  "verdict": "PASS",
+  "findings": [],
   "blind": true,
-  "input_digest": "e220b898251939fa393f7327d53b277057a31411752bb443df41e572d3f12c71",
+  "input_digest": "7857dbd797616fb6fbc39c4a140d61c609ecb6809cf40eb208cb876cf1540044",
   "consent": {
     "kind": "sudo",
-    "ref": "specs/epic-193-a5-capability-resolver/tasks.md: T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }

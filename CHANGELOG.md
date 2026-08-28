@@ -307,11 +307,23 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、Evidence を rollback
   集合へ戻す、journal パスを末端解決へ戻す（末端 symlink fixture が
   3 アサーションで撃墜）、の mutation で非空虚性を実証済み。
-  **未カバーと判明した 2 件も同じログに明記してある** — journal 削除を
-  Evidence 書き込みの前に戻す変更（非クラッシュ経路では最終状態が
-  バイト同一なので、rollback と Evidence 書き込みの間に kill hook を
-  持たない限り観測できない）と、journal の nonce をバッチ名から
-  切り離す変更（バッチをまたいで journal を移植する fixture が無い）。
+  さらに `_block` の本体を `_block_reporting(...) -> (exit_code,
+  wrote_evidence)` へ切り出し、post-publication の 2 経路が journal を
+  捨てる条件を `complete and wrote` にした — 従来は rollback の完了だけを
+  見ており、Evidence 書き込みが失敗しても journal を消していた。
+  `_block` は薄いラッパのままなので 40 箇所の呼び出しは無変更。
+  **未カバーと判明した 3 件も同じログに明記してある**（訂正 2026-08-29:
+  この行は「2 件」と書いていたが、3 件目が round 13 で加わっている） —
+  journal 削除を Evidence 書き込みの前に戻す変更（非クラッシュ経路では
+  最終状態がバイト同一なので、rollback と Evidence 書き込みの間に
+  kill hook を持たない限り観測できない）、journal の nonce をバッチ名から
+  切り離す変更（バッチをまたいで journal を移植する fixture が無い）、
+  そして上記の `complete and wrote` を `complete` だけに戻す変更
+  （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
+  feature ディレクトリを不正にすれば publication targets も不正になり
+  commit 前に publish が拒否されるため、fixture では作れない）。
+  **3 件とも rollback / Evidence / journal 経路に集中しており、この領域の
+  正しさはテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
