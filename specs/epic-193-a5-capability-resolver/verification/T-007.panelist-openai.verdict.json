@@ -7,15 +7,20 @@
   "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Critical",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1491",
-      "note": "On post-publication mismatch, _rollback_transaction restores only publication artifacts and deletes the journal before main writes the replacement Block evidence. A crash in that gap leaves the reverted artifacts alongside the previously committed success-form resolver-evidence.yaml and no journal for recovery or reader-side detection, violating the crash-safe atomicity and evidence-consistency contract."
+      "severity": "Major",
+      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1875",
+      "note": "_write_evidence raises EvidenceTargetUncontained and _block consequently emits no Resolver Evidence. This creates a third no-evidence exception beyond the two explicitly allowed by REQ-002/AC-012. The check also rejects a symlink at the final resolver-evidence.yaml component even though os.replace replaces that directory entry rather than following it, so a valid in-tree Evidence destination can be suppressed unnecessarily."
+    },
+    {
+      "severity": "Minor",
+      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1355",
+      "note": "_read_journal verifies only that nonce is a string; it never requires it to equal the containing batch directory name. The transaction contract says the journal records this batch's own nonce, so a mismatched and therefore malformed journal is accepted and acted upon instead of blocking publication-journal-recovery."
     }
   ],
   "blind": true,
-  "input_digest": "a4ad353f068d9a64fb92a96b23ae2dc582f973c3acd4a5b35704df790e4fe3d7",
+  "input_digest": "ff016b1bd76f49147145824558cd0bdaf58699545a7481c86967c3a80dd72ee2",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo 2026-08-08T16:04:17Z"
+    "ref": "specs/epic-193-a5-capability-resolver/tasks.md:T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

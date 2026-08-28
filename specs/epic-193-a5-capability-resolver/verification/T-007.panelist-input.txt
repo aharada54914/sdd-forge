@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: a4ad353f068d9a64fb92a96b23ae2dc582f973c3acd4a5b35704df790e4fe3d7
+# input_digest: ff016b1bd76f49147145824558cd0bdaf58699545a7481c86967c3a80dd72ee2
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -14960,7 +14960,7 @@ PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an indep
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 345 passed, 0 failed
-# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel8-ps1.log ----
+# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -15270,7 +15270,7 @@ PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (r
 PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
 PASS: publication-target-parent-symlink: the Block's own Resolver Evidence is still written (AC-012) -- and its own single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected by the symlinked generated/ parent
 PASS: publication-target-parent-symlink: Resolver Evidence schema agreement
-PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence's own transaction cleaned up after itself
+PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence write creates none (it is a direct temp+fsync+rename into the target's own parent, with no staging area and no journal)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
@@ -15318,7 +15318,7 @@ PASS: TEST-059 false-positive control: the clean canary (English prose plus plur
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 355 passed, 0 failed
-# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel8-sh.log ----
+# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -15628,7 +15628,7 @@ PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (r
 PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
 PASS: publication-target-parent-symlink: the Block's own Resolver Evidence is still written (AC-012) -- and its own single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected by the symlinked generated/ parent
 PASS: publication-target-parent-symlink: Resolver Evidence schema agreement
-PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence's own transaction cleaned up after itself
+PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence write creates none (it is a direct temp+fsync+rename into the target's own parent, with no staging area and no journal)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
 PASS: publication-staging-parent-symlink[staging-root-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
@@ -16304,8 +16304,15 @@ mutant B injected: Evidence back inside the rollback set
 FAIL: post-publication-generation-mismatch: canonical diagnostic only (AC-014): stdout='' stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
 FAIL: post-publication-generation-mismatch: exact Resolver Evidence (AC-012): {'capability_evaluations': [], 'context_binding': {'dependency_pointers': ['/components/comp-a', '/workflow'], 'full_context_revision': 'sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e', 'ownership_digest': 'sha256:0000000000000000000000000000000000000000000000000000000000000000', 'projection_sha256': 'sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82', 'registry_digest': 'sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0'}, 'diagnostics': [{'detail': "a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal", 'id': 'post-publication-generation-mismatch', 'severity': 'block'}], 'feature': 'example-feature', 'resolver': {'rule_set_revision': 'sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b', 'version': '1.0.0'}, 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 RESULT: 353 passed, 2 failed
+mutant C injected: journal discarded BEFORE the Block Evidence write
+--- MUTANT C: journal deleted before Evidence (crash-window regression) ---
+RESULT: 355 passed, 0 failed
+(If mutant C shows 355/0 it is UNCOVERED: the end state is byte-identical
+ either way, and no fixture can observe the crash window without a new
+ test-harness kill hook between the rollback and the Evidence write.
+ Recorded here rather than left implied.)
 --- restoring ---
-restored sha256: 8f29d6c160c7c0a5c78630730ea9de1390be489e0a8c71e4b6f78a61da74ad0d
+restored sha256: d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -20357,14 +20364,28 @@ Resolver's own fixed publication target set first (requirements.md:1144-1151),
 because the journal it reads lives in an unprotected, repository-local staging
 area -- see Panel Round 1 Remediation, MAJOR 1.
 
-Design-faithful detail worth flagging for review: design.md:1208-1210 states
-that a Block reached at step 1/9/10/12/13 publishes "Resolver Evidence alone
-... **via that journaled transaction**", and design.md:1261-1262 calls that
-"exactly one target". `_write_evidence` was therefore rerouted onto the same
-`_publish_bundle` primitive as a one-target instance, rather than keeping a
-second, bare-rename write path. Observable Block behaviour is unchanged (all
-256 pre-existing checks stayed green), and the transient staging directory is
-removed at Complete.
+**WITHDRAWN 2026-08-28 — the paragraph this replaces described a route the
+shipped code does not take.** It read: design.md:1208-1210 says a Block
+reached at step 1/9/10/12/13 publishes "Resolver Evidence alone ... via that
+journaled transaction", design.md:1261-1262 calls that "exactly one target",
+and `_write_evidence` was therefore rerouted onto the same `_publish_bundle`
+primitive as a one-target instance.
+
+Panel round 5 reversed that, and the shipped `_write_evidence` performs a
+direct `temp file + fsync + rename` with no staging area and no journal.
+design.md:1419 and :2846 require exactly that, and requirements.md line 371
+says it verbatim ("published directly, not through the journaled
+transaction"): a one-file write needs no cross-file atomicity, and opening a
+second journal against the very Feature whose existing journal this
+invocation has just declared unconvergeable would be incoherent. The
+design.md sentences quoted above are the stale siblings inside a frozen
+document, not the contract the implementation follows.
+
+This paragraph, the Files Changed line below, Specification Differences item
+1, and the CHANGELOG entry all still carried the withdrawn description after
+round 5 corrected only the module docstring — the amendment-propagation
+defect this package has now hit repeatedly. The Anthropic panel slot caught
+it on round 8; all four sites are corrected together here.
 
 ## Files Changed
 
@@ -20377,7 +20398,10 @@ removed at Complete.
   `_journal_target_path`, `_read_pre_image`, `_restore_to_pre`,
   `_PublicationTransaction`, `_rollback_transaction`, `_publish_bundle`,
   `_publish_and_complete`, `_recover_journal`, `_crash_recovery_scan`);
-  `_write_evidence` rerouted onto the transaction; `_block` hardened against
+  `_write_evidence` writes Evidence DIRECTLY (temp file + fsync + rename, no
+  staging area and no journal — round 5 withdrew the earlier reroute onto the
+  transaction, and `_publish_and_complete`, the one-target helper that reroute
+  needed, was deleted as dead code on round 9); `_block` hardened against
   a failed Evidence-only transaction; `_POST_PUBLICATION_DEPENDENCY_BLOCKS`
   added; `main()` gained step 0.5 and step 14; `canonical_projection` is no
   longer discarded (it is the staged Context Projection candidate step 14
@@ -20461,9 +20485,9 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `902243087b7590e914d9450b863201b9713f7f2cf908543618629ea9c81a0374` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3e388b6b5eb506d4deebb328adbdcdaaf9ec5a43acdb2dfedbcb26ff559136a0` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `8f29d6c160c7c0a5c78630730ea9de1390be489e0a8c71e4b6f78a61da74ad0d` |
+| `CHANGELOG.md` | `08df4eea8ac4a267b82aa05a117966d9be5ebd124526b82a33a3836a82d29691` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `d59fa56f948f7e34c6c013f61eaadf3ab3fe5641c7ac5f0f04772a50a93d3513` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -20476,11 +20500,11 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel5-sh.log` | `2dbd97b8653fa5a59174618e7cfcdd7ab09d684b3462eeefd27e92a0860ed098` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-ps1.log` | `13d517b03c4be5ebb9f1cdc060414626fbaaf188c59ee15959c0caadead3a9d3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-sh.log` | `99d0373e460efe7fc44b59cf92db7eba13be48e605ab401886817527b316fa9d` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel8-ps1.log` | `290de36357b583306cc2045350e5e627767789a31a7e8b82e371e663123e69fc` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel8-sh.log` | `b6acb2d1041ec52feda6681fba1d045ff561b1f7a46d89b5dc45bf1076c6b798` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-ps1.log` | `f91ee71c58a16096a5984b1b889422825c9e7e227c4755f81e3812659108924e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log` | `8076ff645602091fe343b3be54aca289f88d1c6e4e7e748a6f06aa52fa50c453` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log` | `86fcc1b0e0f312952d4344280fcd28deb73a239a80737a3f941a51905a7833a5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log` | `f2d82330dc5e9dab5d0440b554a7c031fb940d8f6c095a3391975aa858451443` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log` | `a76b9ae870556a9798a2f1566f2e04c0f20b06c070e19b06a9036df91ced9a7e` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -20508,25 +20532,48 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml` | `31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
-| `tests/resolve-project-context-block-check.py` | `2b0772b156203c8398b376b2ffde8e5922743fc305c880da587a0357ef667250` |
+| `tests/resolve-project-context-block-check.py` | `9b37fee36f78131d9986e6b19ee7b75f649686db3be0f548454512f326b6dddd` |
 
-**Re-derived 2026-08-28.** The table above was originally written while this
-task's work was still uncommitted, and was derived by re-measuring its own
-declared rows. That method is structurally blind twice over, and both blind
-spots had opened by the time the cross-model panel bundle was rebuilt: six
-rounds of panel remediation had changed four declared paths' bytes
-(`CHANGELOG.md`, `MANIFEST.sha256`, `resolve-project-context.py`,
-`tests/resolve-project-context-block-check.py`), and the same six rounds had
-added twenty-seven paths the old table never listed at all — twenty-two
-`red-panel*`/`green-panel*` captures and five fixture files across four new
-scenario directories (`publication-journal-roundtrip-unresolved-repo`,
-`publication-journal-target-escape`, `publication-staging-parent-symlink`,
-`publication-target-parent-symlink`). Re-measuring declared rows can never
-surface the second class. The rows above are therefore derived from
-`git show --name-only` over this task's own commits (`03a2778a`,
-`4574d221`, `1aee79e1`, `e994ae29`, `5835f353`, `dc9626fc`, `9807c4b4`,
-`5435b1d1`, `a43a5595`), unioned with the still-uncommitted round-7
-worktree changes and then measured from disk.
+**Round 9 (2026-08-28), after both slots reported on the round-8 bytes.**
+Codex raised a second Critical, and it was a window round 8 itself opened:
+with Evidence excluded from the rollback set, `_discard_batch` deleted the
+journal BEFORE `_block` wrote the Block record, so a crash in that gap left
+the publication artifacts back at PRE, Evidence still holding the
+SUCCESS-form record committed moments earlier, and no journal for any later
+scan to notice. That is a worse residual than the one round 8 fixed — the
+earlier state was merely amnesiac; this one actively asserts a publication
+whose artifacts are gone. The journal's deletion is now deferred to the far
+side of the Evidence write on both post-publication branches. This adds no
+fourth journal operation: it is the same delete, later. A crash in the
+remaining window now leaves the journal standing, which the next
+invocation's recovery scan classifies as its unrecoverable third state and
+Blocks `publication-journal-recovery` for a human — the fail-closed,
+visible behaviour the owner ruled acceptable for this corner on 2026-08-27.
+**This change is NOT covered by a test, and that is recorded rather than
+implied**: mutant C in `mutation-proofs-round7.log` restores the old
+ordering and the suite stays at 355/0, because the end state is
+byte-identical either way and no fixture can observe the crash window
+without a new test-harness kill hook between the rollback and the Evidence
+write.
+
+The Anthropic slot returned two Majors on the same bytes. One was the
+amendment-propagation defect this package keeps hitting: round 5 withdrew
+the "Evidence publishes through the transaction" route and corrected only
+the module docstring, leaving the claim standing in the CHANGELOG, this
+report's Summary, its Files Changed line, and Specification Differences item
+1. All four are corrected together above. Its other Major — that the
+declared GREEN logs were the previous round's captures — was not accurate;
+`green-panel8-*.log` were fresh runs of the round-8 code. The confusion was
+mine to cause: the round-7 paragraph listed `green-panel8` files while the
+round-8 paragraph cited `mutation-proofs-round7`, so the capture names and
+the round headings disagreed. The captures are now uniformly
+`green-panel9-*`. Its Minors are closed too: `_publish_and_complete` (dead
+once the reroute was withdrawn) is deleted, a comment calling this fixture a
+Lite track while listing Full-track artifacts is corrected, a
+parent-symlink assertion still describing "the Block Evidence's own
+transaction" now describes the direct write, and TEST-059's choice to scan
+the staged candidates rather than the live paths AC-059 names is documented
+beside the scan with its reason.
 
 **Round 8 (2026-08-28), after the OpenAI panelist's Critical.** Codex found
 that `_rollback_transaction` rolled back `resolver-evidence.yaml` along with
@@ -20740,14 +20787,23 @@ None. The implementation follows the frozen contract; the four decision points
 that required reading two clauses together are recorded here so a reviewer can
 check the reasoning rather than re-derive it:
 
-1. **Block-path Evidence goes through the transaction.** design.md:1208-1210
-   ("... or (on any Block reached at step 1/9/10/12/13, above) Resolver
-   Evidence alone, is published via that journaled transaction") and
-   design.md:1261-1262 ("exactly one target ... on a Block") are explicit, so
-   `_write_evidence` was rerouted rather than left as a second write path. The
-   degenerate one-target case skips only step 4 (post-publication
-   verification), which is defined against a step-13 recheck snapshot a Block
-   path never has.
+1. **Block-path Evidence is written DIRECTLY, not through the transaction**
+   (rewritten 2026-08-28; the earlier text asserted the opposite and was the
+   withdrawn route). design.md:1208-1210 ("... or (on any Block reached at
+   step 1/9/10/12/13, above) Resolver Evidence alone, is published via that
+   journaled transaction") and design.md:1261-1262 ("exactly one target ...
+   on a Block") do say what they say, and `_write_evidence` was originally
+   rerouted onto `_publish_bundle` because of them. Panel round 5 established
+   that those two sentences are the stale siblings: design.md:1419 and :2846
+   require the Block's Evidence write to be a direct `temp file + fsync +
+   rename` with "no staging area, no journal", and requirements.md line 371
+   says it verbatim ("published directly, not through the journaled
+   transaction"). Three sites against two, with the two carrying the explicit
+   reasoning (a one-file write needs no cross-file atomicity; opening a second
+   journal against a Feature whose journal this invocation just declared
+   unconvergeable is incoherent). The shipped code follows the three, and
+   `_publish_and_complete` — the one-target helper the withdrawn reroute
+   needed — was deleted as dead code once nothing called it.
 2. **`publication-journal-recovery` still writes Resolver Evidence.**
    design.md's recovery clause says the Block leaves "the live state exactly
    as found", while REQ-002 (requirements.md:383-388) closes the
@@ -22171,8 +22227,14 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   完了済み rename は journal の `pre/<target-basename>` backup から
   **復元**する — bare `unlink` は使わない（adversarial review B1 の
   「既存 live bytes が復元不能なまま破壊される」ギャップを閉じる）。
-  Block 経路の Resolver Evidence も同一 transaction の 1-target
-  インスタンスとして publish する（design.md step 14）。
+  Block 経路の Resolver Evidence は**この transaction を通さない** —
+  Evidence が書き込み集合の全体である以上、cross-file atomicity は不要で、
+  `temp file + fsync + rename` の直接書き込みになる（design.md:1419 と
+  :2846 が「no staging area, no journal」を明示的に要求している）。
+  **訂正 2026-08-28**: この行は当初「同一 transaction の 1-target
+  インスタンスとして publish する」と述べていたが、それはパネル round 5 が
+  撤回した経路であり、出荷コードの挙動でもない。docstring だけを直して
+  この兄弟記述を取り残していた。
   step 0.5 の scan が書き込み・削除する path は、すべて事前に
   requirements.md:1144-1151 が名指しで固定した publication target set と
   照合する（journal は unprotected な repository-local staging 領域に
@@ -25458,7 +25520,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-8f29d6c160c7c0a5c78630730ea9de1390be489e0a8c71e4b6f78a61da74ad0d  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+d42c9b26a7373a0d07fef414df2b4ae0f53671e937a574f739e761269fa69b76  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -26885,7 +26947,7 @@ class _PublicationTransaction:
         self.committed = 0
 
 
-def _rollback_transaction(transaction):
+def _rollback_transaction(transaction, discard=True):
     """The in-process half of the journal-based rollback (design.md step 4's
     own mechanism, reused verbatim by the Prepare/Journal/Commit failure
     path). Returns `(count, complete)`.
@@ -27000,7 +27062,21 @@ def _rollback_transaction(transaction):
                 return rolled_back, False
         except OSError:
             return rolled_back, False
-    _discard_batch(transaction.batch_dir)
+    # `discard=False` defers the journal's deletion to the caller. It is used
+    # on the post-publication paths ONLY, and it is not a fourth journal
+    # operation -- it is this same delete, moved to the far side of the Block
+    # Evidence write. Deleting here instead would open a window in which the
+    # publication artifacts are back at PRE, Evidence still holds the
+    # SUCCESS-form record committed moments earlier, and no journal survives
+    # for the next invocation's recovery scan to notice: a crash there leaves
+    # Evidence asserting a publication whose artifacts are gone, undetectably.
+    # Keeping the journal until Evidence is durable makes that same crash
+    # land in the recovery scan's own unrecoverable third state, which Blocks
+    # `publication-journal-recovery` for a human -- fail-closed and visible,
+    # which is the behaviour the owner ruled acceptable for this corner on
+    # 2026-08-27. (openai panel slot, round 8 Critical.)
+    if discard:
+        _discard_batch(transaction.batch_dir)
     return rolled_back, True
 
 
@@ -27110,14 +27186,12 @@ def _publish_bundle(repo_root, feature, targets):
     return transaction
 
 
-def _publish_and_complete(repo_root, feature, targets):
-    """The whole transaction for a batch that needs no post-publication
-    verification of its own: the Block path's single `resolver-evidence.yaml`
-    target (design.md step 14's "Resolver Evidence alone" case, whose own
-    Block has already been decided and whose recheck snapshot does not
-    exist). The success path calls `_publish_bundle` directly, because it
-    must hold the journal open across step 4's own verification."""
-    _discard_batch(_publish_bundle(repo_root, feature, targets).batch_dir)
+# `_publish_and_complete` stood here: the one-target transaction helper the
+# Block path used before panel round 5 withdrew that route. `_write_evidence`
+# now writes Evidence directly (temp file + fsync + rename, no staging area
+# and no journal), so nothing called it. Deleted on round 9 rather than left
+# standing as a second, unreachable write path into the journal machinery of
+# a Security-Sensitive file.
 
 
 def _recover_journal(repo_root, feature, journal_path):
@@ -28489,13 +28563,19 @@ def main(argv=None):
             script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest,
         )
     except SnapshotGenerationMismatch:
-        rolled_back, complete = _rollback_transaction(transaction)
-        return _block(
+        rolled_back, complete = _rollback_transaction(transaction, discard=False)
+        result = _block(
             repo_root, args.feature, "post-publication-generation-mismatch",
             f"{POST_PUBLICATION_MISMATCH_PREFIX}; {_rollback_clause(rolled_back, complete)}",
             state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
+        # Only now, with the Block record durable at Evidence's live path, is
+        # the journal no longer needed. An INCOMPLETE rollback still retains
+        # it, exactly as before.
+        if complete:
+            _discard_batch(transaction.batch_dir)
+        return result
     except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) as exc:
         # A verification dependency that cannot even RUN is not a "mismatch"
         # -- re-labelling it `post-publication-generation-mismatch` would
@@ -28507,7 +28587,7 @@ def main(argv=None):
         # carries the SAME REQ-002 id the corresponding step-13 handler
         # already uses -- never a seventeenth diagnostic-id value, which the
         # enum is closed against.
-        _rollback_transaction(transaction)
+        _rolled_back, _complete = _rollback_transaction(transaction, discard=False)
         # Resolved by `isinstance`, never by an exact `type(exc)` key lookup:
         # a future subclass of any of these five would be CAUGHT by the
         # `except` above and then `KeyError` out of the mapping as a raw
@@ -28517,10 +28597,15 @@ def main(argv=None):
             mapped for exception_class, mapped in _POST_PUBLICATION_DEPENDENCY_BLOCKS.items()
             if isinstance(exc, exception_class)
         )
-        return _block(
+        result = _block(
             repo_root, args.feature, diagnostic_id, detail, state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
+        # Same deferral as the mismatch branch above: the journal outlives the
+        # rollback and dies only once the Block record is durable.
+        if _complete:
+            _discard_batch(transaction.batch_dir)
+        return result
 
     # Complete (design.md step 5): every rename succeeded AND the
     # post-publication verification passed -- delete the journal. This is
@@ -31999,7 +32084,9 @@ def run_t007_post_publication_mismatch_case(kind, counts):
         )
         stdout = result.stdout.decode("utf-8", errors="replace")
         stderr = result.stderr.decode("utf-8", errors="replace")
-        # TWO, not three. This fixture is a Lite track: the transaction commits
+        # TWO, not three. This fixture is a FULL track (corrected 2026-08-28 --
+        # the first version of this comment said "Lite" while listing the very
+        # artifacts that make it Full). The transaction commits
         # three entries, but only two of them are PUBLICATION ARTIFACTS
         # (`facet-manifest.yaml` and `generated/project-context.resolved.json`).
         # The third is `resolver-evidence.yaml`, and REQ-001 step (m) makes it
@@ -32379,7 +32466,8 @@ def run_t007_parent_symlink_case(kind, counts):
         counts.check(
             not journal_paths(feature_dir) and not staging_litter(feature_dir),
             f"{case_name}: no journal or staging litter survives -- the refused publish left none, and the "
-            f"Block Evidence's own transaction cleaned up after itself",
+            f"Block Evidence write creates none (it is a direct temp+fsync+rename into the target's own "
+            f"parent, with no staging area and no journal)",
             repr(staging_litter(feature_dir)),
         )
 
@@ -32760,6 +32848,16 @@ def run_block_matrix_completeness_check(counts):
 # package", so `validate-resolver-evidence.*` is deliberately NOT scanned here
 # (it is not the Resolver, and T-008 authors it after T-007, which would make
 # this criterion unverifiable by its own owner at its own gate).
+#
+# Scanned PATHS: the staged human-copy candidates, not the live
+# `plugins/sdd-quality-loop/scripts/` paths AC-059's prose names. Those live
+# paths do not yet carry T-007's code -- this whole package is staged for a
+# human to apply -- so scanning them would assert the criterion against bytes
+# this task did not write, and would pass vacuously until the day of that
+# application. TEST-025, the allow-list grep this row is the counterpart to,
+# resolves its own Resolver targets exactly the same way (`STAGED_SCRIPTS`),
+# so this is the established reading of "the Resolver" in this package's
+# tests, not a narrowing invented here.
 #
 # Mechanism: absence of the surface's own path vocabulary in the source is a
 # conservative superset of absence of a write to it -- a script that never

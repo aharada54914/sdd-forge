@@ -342,16 +342,17 @@ PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survive
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial application would leave an unscanned live twin
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
-PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
 PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
-PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 completeness: the scanned set is the whole staged Resolver family (py, sh, ps1), plus every live twin that exists (0 of 3 applied), and nothing else
 PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 355 passed, 0 failed
+RESULT: 356 passed, 0 failed

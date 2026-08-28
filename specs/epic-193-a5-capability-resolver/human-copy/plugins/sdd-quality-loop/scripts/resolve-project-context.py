@@ -903,9 +903,14 @@ def _project_context_valid(document, repo_root):
 #
 # Everything below is reachable from exactly two places: `main()`'s own step
 # 0.5 (`_crash_recovery_scan`) and its own step 14 (`_publish_bundle`), plus
-# `_write_evidence`, whose single-target publication is itself a degenerate
-# instance of the SAME transaction (design.md: a Block publishes "exactly one
-# target -- `resolver-evidence.yaml` alone").
+# `_write_evidence`, which does NOT use this transaction at all: a Block's
+# Evidence write is a direct `temp file + fsync + rename` with no staging
+# area and no journal (design.md:1419, :2846; requirements.md line 371,
+# "published directly, not through the journaled transaction"). An earlier
+# revision of this comment called it "a degenerate instance of the SAME
+# transaction", quoting design.md's own "exactly one target" sentence --
+# that is one of the stale siblings panel round 5 withdrew, corrected here
+# on round 10.
 # ---------------------------------------------------------------------------
 
 TRANSACTION_SCHEMA = "sdd-resolver-transaction/v1"
@@ -1358,6 +1363,15 @@ def _read_journal(journal_path):
         or not document["targets"]
     ):
         raise PublicationJournalUnrecoverable("journal does not conform to its own transaction shape")
+    # The nonce must BE this batch's own directory name, not merely a string
+    # (openai panel slot, round 9 Minor). `_write_journal` records exactly
+    # that, so any journal whose nonce names a different batch is malformed --
+    # a copied, hand-edited, or cross-batch-grafted journal -- and acting on
+    # it would restore one batch's pre-images against another batch's targets.
+    # Refusing here routes it to `publication-journal-recovery`, which is the
+    # fail-closed outcome every other shape deviation already gets.
+    if document["nonce"] != journal_path.parent.name:
+        raise PublicationJournalUnrecoverable("journal nonce does not name its own batch directory")
     entries = []
     for target in document["targets"]:
         if not isinstance(target, dict) or set(target) != {"live_path", "pre_hash", "post_hash"}:
@@ -1939,7 +1953,7 @@ def _block(
         return _block_no_write(diagnostic_id, detail)
     except ArtifactPublicationFailed as exc:
         # Fail-closed terminal, defense-in-depth: this invocation had already
-        # decided to Block, and the one-target transaction that publishes
+        # decided to Block, and the direct write that publishes
         # that Block's own record has itself failed. Writing the record is
         # then impossible by definition, so re-entering `_block` for the
         # `artifact-publication-failed` row would recurse forever; instead

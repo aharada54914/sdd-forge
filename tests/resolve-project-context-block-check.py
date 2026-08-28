@@ -3662,11 +3662,30 @@ def _scan_approval_surface(text):
 
 
 def run_test_059(counts):
-    targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    staged_targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    # The live paths AC-059's prose names are scanned TOO, whenever they exist
+    # (anthropic panel slot, round 9: "the fix -- scan both -- costs nothing").
+    # Today they do not: this whole package is staged for a human to apply, so
+    # `plugins/sdd-quality-loop/scripts/resolve-project-context.*` is absent and
+    # the live half of this scan is empty. That is asserted explicitly below
+    # rather than skipped in silence, so the day a human applies the package
+    # the live files come under the same scan with no edit here, and until then
+    # the log says plainly which half did the work.
+    live_dir = ROOT / "plugins/sdd-quality-loop/scripts"
+    live_targets = [live_dir / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    present_live = [t for t in live_targets if t.is_file()]
+    counts.check(
+        len(present_live) in (0, 3),
+        "TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial "
+        "application would leave an unscanned live twin",
+        repr([str(t.relative_to(ROOT)) for t in present_live]),
+    )
+    targets = staged_targets + present_live
     scanned_any = False
+    for target in staged_targets:
+        counts.check(target.is_file(), f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
     for target in targets:
         exists = target.is_file()
-        counts.check(exists, f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
         if not exists:
             continue
         scanned_any = True
@@ -3682,8 +3701,9 @@ def run_test_059(counts):
         "TEST-059 non-vacuity: at least one scan target was actually found and scanned",
     )
     counts.check(
-        len(targets) == 3 and scanned_any,
-        "TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else",
+        len(targets) == 3 + len(present_live) and scanned_any,
+        "TEST-059 completeness: the scanned set is the whole staged Resolver family (py, sh, ps1), plus "
+        f"every live twin that exists ({len(present_live)} of 3 applied), and nothing else",
     )
 
     dirty_hits = _scan_approval_surface(_APPROVAL_SURFACE_DIRTY_CANARY)
