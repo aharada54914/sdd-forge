@@ -1,0 +1,19 @@
+{
+  "schema": "sdd-run-record/v1",
+  "run_id": "TEST-011-NORMALIZED",
+  "generated": "TEST-011-NORMALIZED",
+  "feature": "feat-e011",
+  "track": "lite",
+  "model_ids": {
+    "main": "unknown",
+    "reviewers": "unknown"
+  },
+  "plugin_version": "unknown",
+  "active_wfis": [],
+  "metrics": {
+    "tasks": {"done": 1, "blocked": 0, "total": 1},
+    "first_pass_gate": {"passed_first_try": 0, "total": 1},
+    "gate_reports": {"total": 0, "blocked": 0, "max_runs_single_task": 0},
+    "review_tickets": {"critical": 0, "major": 0, "minor": 0}
+  }
+}

@@ -1,0 +1,1522 @@
+=== bash cache prime / GREEN ===
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+25 passed, 0 failed
+MUTATE bash F1:deterministic-script-output
+FAIL: F1 deterministic-script-output differs across invocation or canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:deterministic-script-output (exit 1)
+MUTATE bash F1:exit-code
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 exit-code differs across invocation or canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:exit-code (exit 1)
+MUTATE bash F1:stdout-stderr
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 stdout-stderr differs across invocation or canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:stdout-stderr (exit 1)
+MUTATE bash F1:template-copy-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 template-copy-result differs across invocation or canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:template-copy-result (exit 1)
+MUTATE bash F1:schema-validator-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 schema-validator-result differs across invocation or canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:schema-validator-result (exit 1)
+MUTATE bash F1:install-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 install-result differs across invocation or canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:install-result (exit 1)
+MUTATE bash F1:uninstall-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 uninstall-result differs across invocation or canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:uninstall-result (exit 1)
+MUTATE bash F1:generated-directory-listing
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 generated-directory-listing differs across invocation or canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:generated-directory-listing (exit 1)
+MUTATE bash F1:plugin-manifest
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 plugin-manifest differs across invocation or canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F1:plugin-manifest (exit 1)
+MUTATE bash F2:deterministic-script-output
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 deterministic-script-output differs across invocation or canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:deterministic-script-output (exit 1)
+MUTATE bash F2:exit-code
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 exit-code differs across invocation or canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:exit-code (exit 1)
+MUTATE bash F2:stdout-stderr
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 stdout-stderr differs across invocation or canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:stdout-stderr (exit 1)
+MUTATE bash F2:template-copy-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 template-copy-result differs across invocation or canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:template-copy-result (exit 1)
+MUTATE bash F2:schema-validator-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 schema-validator-result differs across invocation or canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:schema-validator-result (exit 1)
+MUTATE bash F2:install-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 install-result differs across invocation or canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:install-result (exit 1)
+MUTATE bash F2:uninstall-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 uninstall-result differs across invocation or canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:uninstall-result (exit 1)
+MUTATE bash F2:generated-directory-listing
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 generated-directory-listing differs across invocation or canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:generated-directory-listing (exit 1)
+MUTATE bash F2:plugin-manifest
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 plugin-manifest differs across invocation or canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash F2:plugin-manifest (exit 1)
+MUTATE bash CLI:none|present|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+FAIL: CLI cell none|present|LITE differs or selects the wrong track
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:none|present|LITE (exit 1)
+MUTATE bash CLI:none|absent|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell none|absent|FULL differs or selects the wrong track
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:none|absent|FULL (exit 1)
+MUTATE bash CLI:--full|present|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --full|present|FULL differs or selects the wrong track
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:--full|present|FULL (exit 1)
+MUTATE bash CLI:--full|absent|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --full|absent|FULL differs or selects the wrong track
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:--full|absent|FULL (exit 1)
+MUTATE bash CLI:--lite|present|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --lite|present|LITE differs or selects the wrong track
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:--lite|present|LITE (exit 1)
+MUTATE bash CLI:--lite|absent|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --lite|absent|LITE differs or selects the wrong track
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: bash CLI:--lite|absent|LITE (exit 1)
+MUTATE bash negative-self-check
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+FAIL: negative self-check did not detect the one-byte mutation
+24 passed, 1 failed
+EXPECTED RED: bash negative-self-check (exit 1)
+RESTORE bash / GREEN
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+25 passed, 0 failed
+=== pwsh cache prime / GREEN ===
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+25 passed, 0 failed
+MUTATE pwsh F1:deterministic-script-output
+FAIL: F1 deterministic-script-output differs across invocation or canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:deterministic-script-output (exit 1)
+MUTATE pwsh F1:exit-code
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 exit-code differs across invocation or canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:exit-code (exit 1)
+MUTATE pwsh F1:stdout-stderr
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 stdout-stderr differs across invocation or canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:stdout-stderr (exit 1)
+MUTATE pwsh F1:template-copy-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 template-copy-result differs across invocation or canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:template-copy-result (exit 1)
+MUTATE pwsh F1:schema-validator-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 schema-validator-result differs across invocation or canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:schema-validator-result (exit 1)
+MUTATE pwsh F1:install-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 install-result differs across invocation or canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:install-result (exit 1)
+MUTATE pwsh F1:uninstall-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 uninstall-result differs across invocation or canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:uninstall-result (exit 1)
+MUTATE pwsh F1:generated-directory-listing
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 generated-directory-listing differs across invocation or canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:generated-directory-listing (exit 1)
+MUTATE pwsh F1:plugin-manifest
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+FAIL: F1 plugin-manifest differs across invocation or canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F1:plugin-manifest (exit 1)
+MUTATE pwsh F2:deterministic-script-output
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 deterministic-script-output differs across invocation or canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:deterministic-script-output (exit 1)
+MUTATE pwsh F2:exit-code
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 exit-code differs across invocation or canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:exit-code (exit 1)
+MUTATE pwsh F2:stdout-stderr
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 stdout-stderr differs across invocation or canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:stdout-stderr (exit 1)
+MUTATE pwsh F2:template-copy-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 template-copy-result differs across invocation or canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:template-copy-result (exit 1)
+MUTATE pwsh F2:schema-validator-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 schema-validator-result differs across invocation or canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:schema-validator-result (exit 1)
+MUTATE pwsh F2:install-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 install-result differs across invocation or canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:install-result (exit 1)
+MUTATE pwsh F2:uninstall-result
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 uninstall-result differs across invocation or canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:uninstall-result (exit 1)
+MUTATE pwsh F2:generated-directory-listing
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 generated-directory-listing differs across invocation or canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:generated-directory-listing (exit 1)
+MUTATE pwsh F2:plugin-manifest
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+FAIL: F2 plugin-manifest differs across invocation or canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh F2:plugin-manifest (exit 1)
+MUTATE pwsh CLI:none|present|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+FAIL: CLI cell none|present|LITE differs or selects the wrong track
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:none|present|LITE (exit 1)
+MUTATE pwsh CLI:none|absent|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell none|absent|FULL differs or selects the wrong track
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:none|absent|FULL (exit 1)
+MUTATE pwsh CLI:--full|present|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --full|present|FULL differs or selects the wrong track
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:--full|present|FULL (exit 1)
+MUTATE pwsh CLI:--full|absent|FULL
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --full|absent|FULL differs or selects the wrong track
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:--full|absent|FULL (exit 1)
+MUTATE pwsh CLI:--lite|present|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --lite|present|LITE differs or selects the wrong track
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:--lite|present|LITE (exit 1)
+MUTATE pwsh CLI:--lite|absent|LITE
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+FAIL: CLI cell --lite|absent|LITE differs or selects the wrong track
+ok: negative self-check detects a one-byte mutation in the golden baseline
+24 passed, 1 failed
+EXPECTED RED: pwsh CLI:--lite|absent|LITE (exit 1)
+MUTATE pwsh negative-self-check
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+FAIL: negative self-check did not detect the one-byte mutation
+24 passed, 1 failed
+EXPECTED RED: pwsh negative-self-check (exit 1)
+RESTORE pwsh / GREEN
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
+ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
+ok: negative self-check detects a one-byte mutation in the golden baseline
+25 passed, 0 failed
+mutation proof complete: 25 assertions x 2 runtimes
+
+=== cycle 2 blocking-finding remediation (2026-08-12) ===
+Bash: 25 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 0:9: 9 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 9:8: 8 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 17:8: 8 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell total: 25 assertion mutations produced EXPECTED RED.
+The six CLI mutations changed the selected row in a scratch copy of
+plugins/sdd-ship/skills/ship/SKILL.md while leaving PLUGIN-CONTRACTS.md
+unchanged; every selected live-contract assertion went RED.
+The negative-self-check mutation changed the canonical bytes observed by
+the manifest-integrity assertion; the suite reported 24 passed, 1 failed.
+Final direct twins: Bash 25 passed, 0 failed; PowerShell 25 passed, 0 failed.

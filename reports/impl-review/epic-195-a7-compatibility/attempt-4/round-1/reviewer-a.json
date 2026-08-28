@@ -1,0 +1,35 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-a-seq0937",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-195-a7-compatibility-0937",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json","sha256":"9268d5ebc52b77a17063302945d2253a8df527be314646e5a352e32562eecf98"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"04a124d6d56298cc1b2ff63f2eacd21c75c615a781e220d0ad37513636fe9dfc"},
+    {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3"},
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+    {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+    {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {"id":"ARCH-COVERAGE","result":"PASS","severity":"Critical","finding":"design.md Architecture and Components define the loop registry, shared driver, existing suites, baseline tooling, and their interactions; its Data Plan and API / Contract Plan, together with frontend-spec.md and infra-spec.md, identify the JSON/JSON-Schema and Bash/PowerShell implementation choices and explicitly establish that there is no UI or runtime service layer."},
+    {"id":"NO-CIRCULAR-DEPS","result":"SKIP","severity":"Major","finding":"SKIP: no explicit component dependency declarations found; checked the Architecture and Components narratives for circular dependency patterns and found none."},
+    {"id":"DATA-COVERAGE","result":"FAIL","severity":"Major","finding":"design.md:251 uniquely assigns PROJECT_CONTEXT_INVALID to producer skip-stop-message:stop and explicitly forbids quality-gate-outcome, consistent with requirements.md:463-469, but design.md:1127 describes it as a dedicated skip-stop-message/quality-gate-outcome-kind event. This contradictory schema mapping leaves the persisted event kind and producer contract ambiguous for AC-019 through AC-021."},
+    {"id":"API-COVERAGE","result":"PASS","severity":"Major","finding":"design.md API / Contract Plan enumerates the changed shell/PowerShell function contracts, CLI flags, event-trace schema and event types, inputs, outputs, exit behavior, compatibility guarantees, and explicitly records the absence of HTTP endpoints and external integrations."},
+    {"id":"SECURITY-COVERAGE","result":"PASS","severity":"Major","finding":"Primary TYPE-D review applies because design.md contains Security Boundaries. It defines B1-B3 with validation and authorization behavior, states the local filesystem/git trust model and absence of authentication and PII, and maps integrity, access-control, injection, and related OWASP concerns; security-spec.md expands these controls through B1-B5. The TYPE-H fallback is therefore inapplicable."},
+    {"id":"FRONTEND-BACKEND-CONSISTENCY","result":"SKIP","severity":"Major","finding":"SKIP: Feature Type is test-infrastructure specification (Phase 1 — no code); frontend-spec.md confirms that the feature has no frontend/backend interaction surface."},
+    {"id":"TEST-STRATEGY-COVERAGE","result":"FAIL","severity":"Major","finding":"The Test Strategy supplies integration, static/schema, acceptance, command, suite, and artifact plans but does not define unit-test scope or what is mocked. It also has no implementable passing path for AC-026: acceptance-tests.md:30 leaves TEST-026 Planned while stating that its producer firing condition is known-unsatisfied by the implementation AC-009 pins; requirements.md:511-532 and OQ-004 at lines 919-952 explain that failing comparisons emit a transition and early returns emit none, while design.md:1141-1150 incorrectly says all open questions are resolved. The design therefore cannot yield passing verification evidence for this acceptance criterion without a further formal amendment."},
+    {"id":"NO-UNDEFINED-COMPONENT","result":"PASS","severity":"Critical","finding":"Every named component in Architecture and API / Contract Plan is defined in design.md Components or established by investigation.md, including the loop inventory, shared driver, consistency/escalation suites, run-record emitter, fixture builder, baseline scripts, allowlist evaluator, trace collector, and structural corpus."},
+    {"id":"ADR-PRESENT","result":"PASS","severity":"Major","finding":"design.md relies on existing ADR-0010, ADR-0016, and ADR-0023 rather than introducing an uncovered architectural departure; investigation.md INV-008 through INV-010 identifies their canonical docs/adr paths and the decisions applied by this design."},
+    {"id":"DESIGN-SYSTEM-CONFORMANCE","result":"PASS","severity":"Major","finding":"Skipped by rule: design.md Design System Compliance records exactly N/A — ds_profile: none, and the feature has no user-interface surface."},
+    {"id":"DOMAIN-CONFORMANCE","result":"PASS","severity":"Major","finding":"Skipped by rule: the target project has no domain/ directory."}
+  ]
+}

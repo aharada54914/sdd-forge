@@ -1,0 +1,66 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-195-a7-compatibility",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-195-a7-compatibility/verification/T-005/red-sh.log (tail) vs tests/loop-inventory.tests.sh:408",
+      "note": "The contract's declared red_evidence cannot have been produced by the test file in this bundle. All four RED logs (red-sh/red-ps1/red-bash/red-powershell) report exactly 54 passed / 4 failed, the four failures being TEST-008.2 and TEST-009.4 x3 ('_loop_trace_emit is unavailable'), while 'TEST-009.2: assert_terminal remains byte-identical' PASSES. The bundled test file pins EXPECTED_TERMINAL_SHA=f325a4df4a276cf4a4bc7a4051032693cceb6bff6db99fce27eb4b13b18473df, which the contract's own RESOLUTION states is the hash of the post-change assert_terminal body containing the '_loop_trace_emit done-transition done-transition:assert-terminal' call. A RED reconstruction in which _loop_trace_emit does not exist at all cannot contain that call, so TEST-009.2 must fail there and the tally must be 5 failures, not 4. The RED evidence therefore belongs to a superseded test file and does not establish TDD RED for the code under review."
+    },
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-195-a7-compatibility/verification/T-005.contract.json (checks[] evidence fields; RESOLUTION addendum)",
+      "note": "No contract check is backed by a run of the code in this bundle. unit-tests/acceptance-tests point at coder-acceptance-rerun.log, whose own header dates it 2026-08-19; regression points at coder-regression-both-runtimes.log, dated 2026-08-20 in the ADDENDUM; green-sh.log/green-ps1.log/red-sh.log/red-ps1.log are declared unchanged since commit 0b8ab9e8 by the implementation report's Outputs section. The RESOLUTION (2026-08-21) then edited tests/lib/loop-driver.{sh,ps1} and tests/loop-inventory.tests.{sh,ps1} (commit 7652d01b) and re-baselined TEST-009.2, and no check was re-run or re-pointed. coder-acceptance-rerun.log even records 'TEST-009.2: assert_terminal remains byte-identical' against the pre-change body. Every 'passes': true in the contract is an assertion about a tree that no longer exists."
+    },
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-195-a7-compatibility/tasks.md#T-005 Done When / Goal / Planned Files vs tests/lib/loop-driver.sh assert_terminal",
+      "note": "The task's own frozen contract is falsified by the shipped code and was left unrepaired. assert_terminal now calls '_loop_trace_emit done-transition done-transition:assert-terminal \"$value_json\"' (and Test-LoopTerminal calls Write-LoopTraceEvent), while tasks.md#T-005 still states Goal '...without modifying assert_terminal or assert_artifacts_schema', Planned Files 'assert_terminal/assert_artifacts_schema themselves unmodified, AC-009', and Done When 'assert_terminal and assert_artifacts_schema are byte-identical to their pre-task form'. design.md likewise still asserts the opposite in at least three places: the Constraint Compliance table ('assert_terminal/assert_artifacts_schema unmodified (AC-009)'), the Data Plan additive-field section ('assert_terminal/assert_artifacts_schema are themselves unmodified (AC-009)'), and the component table ('AC-009 - neither assert_terminal nor assert_artifacts_schema itself changes'). The design contradiction was not resolved, only relocated: acceptance-tests.md now says one thing and design.md/tasks.md say the reverse. A Done When checkbox is demonstrably unmet."
+    },
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-195-a7-compatibility/acceptance-tests.md AC-009 row; T-005.contract.json RESOLUTION",
+      "note": "A frozen, hash-bound Phase-1 acceptance criterion was rewritten by the implementing session to describe what was built. AC-009's row now embeds the implementation's own justification ('T-005 cycle-2 correction: the prior hash locked a body that omitted this call...') and re-scopes the lock from byte-identity-to-pre-task-form to byte-identity-at-a-re-baselined-hash. The contract concedes this is 'a hash-bound, frozen-document edit this session made deliberately' and that it 'adds acceptance-tests.md hash staleness as a second, distinct cause' of a check-workflow-state.sh stage-provenance failure. The bundle contains no evidence that check-workflow-state.sh is green, and the contract's spec_revision (350aa862...) was authored 2026-08-19, before that edit. The criterion the gate measures against was amended by the party being measured, post hoc."
+    },
+    {
+      "severity": "Critical",
+      "ref": "reports/implementation/epic-195-a7-compatibility/T-005.md (Outputs, 'Four rows are added') vs tasks.md#T-005 Out of Scope",
+      "note": "Out-of-scope edits to another task's files, with zero post-change evidence. T-005's fix commit 7652d01b edited tests/loop-consistency.tests.{sh,ps1} and tests/loop-escalation.tests.{sh,ps1} to delete the T-006/T-007 test-case-level trace emission, and the Outputs table admits these 'are not among T-005's own Planned Files'; tasks.md#T-005 Out of Scope names those exact suites. None of the four files is included in this bundle, and the only runs of those suites (coder-regression-both-runtimes.log: loop-consistency 33/0 bash, 37/0 ps1; loop-escalation 32/0 bash, 31/0 ps1) predate the deletion. This is precisely where the change is most likely to break: assert_terminal now emits done-transition BEFORE its own expected/observed comparison, whereas the removed test-case emission fired AFTER assert_terminal returned, so the seq position of the done-transition event relative to surrounding events can differ. The claim 'both suites' event traces remain byte-identical to their committed goldens' is unverifiable from the bundle."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-195-a7-compatibility/T-005.md (Target, Summary, Files Changed, High-Risk Preflight table, Quality Gate Focus)",
+      "note": "The implementation report still makes verification claims that are false for the tree under review; only the Outputs table and Unresolved Items were updated. Summary: 'assert_terminal/assert_artifacts_schema (Test-LoopTerminal/Test-ArtifactsSchema) are confirmed byte-identical to their pre-task form by function-body SHA-256' - false for assert_terminal. Summary: 'assert_event_trace deliberately does not wire a producer call site inside assert_terminal' - false. Files Changed: 'No production file (tests/loops/loop-inventory.json, tests/lib/loop-driver.{sh,ps1}, tests/loop-inventory.tests.{sh,ps1}) was edited this session' - contradicted by the Outputs table's own six corrected hashes. Quality Gate Focus still instructs the evaluator to 'verify assert_terminal/assert_artifacts_schema... are unmodified by independently comparing them against 45dda57f^', a check that must now fail. Test Evidence still cites green-sh.log as PASS 71/0 for the current tree."
+    },
+    {
+      "severity": "Major",
+      "ref": "T-005.contract.json Required Workflow: tdd; tests/loop-inventory.tests.sh:408,415-427",
+      "note": "The 2026-08-21 change has no RED capture of any kind. Wiring the producer into assert_terminal and re-baselining EXPECTED_TERMINAL_SHA to whatever the new body hashes to is a self-fulfilling assertion: the test was edited to match the code in the same commit. TEST-009.3's negative self-check only proves the hash comparison is non-vacuous (it mutates 'local loop_id=\"$1\" observed=' and confirms rejection); it does not demonstrate that the locked body is the intended one, and no failing-first evidence exists for the new call site. For a high-risk, tdd-required task on Security Boundary B2 this leaves the change's central behavioural addition untested-first."
+    },
+    {
+      "severity": "Major",
+      "ref": "tests/lib/loop-driver.sh assert_terminal vs design.md per-kind producer table ('done-transition')",
+      "note": "The emit fires on paths the design does not sanction and is unasserted either way. design.md requires the event 'firing exactly once per round at the instant it evaluates the freshly-read .terminal.state against the loop's expected terminal state' and 'always the last event in the round's own event sub-sequence'. As implemented, the emit runs before the comparison and therefore also records a done-transition on a FAILING terminal assertion (expected != observed still emits), while the two early returns (exit_code != 0, empty expected) emit nothing - so 'exactly once per round' does not hold in either direction. _loop_trace_normalize enforces sequence monotonicity, known producers, and capability-event ordering, but has no rule making done-transition terminal in its sub-sequence, so nothing in the bundle catches this. No test in the bundle exercises assert_terminal's failing or early-return paths against a trace."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/lib/loop-driver.sh assert_terminal vs tests/lib/loop-driver.ps1 Test-LoopTerminal",
+      "note": "Twin comparison semantics differ: bash '[[ \"$expected\" == \"$observed\" ]]' is case-sensitive, while PowerShell 'return ($expected -eq $Observed)' is case-insensitive. The sibling Test-CapabilityApplicability correctly uses '-ceq', and TEST-009.7 asserts case-sensitivity for applicability but nothing equivalent exists for the terminal state. A mis-cased observed terminal state passes in PowerShell and fails in bash. The divergence predates this task, but AC-009 as re-baselined now purports to lock assert_terminal's 'expected/observed comparison semantics', which the twins do not in fact share."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-195-a7-compatibility/verification/T-005/full-run-all-bash.log",
+      "note": "173,956 of 179,406 bytes elided from the middle, and the visible tail ends mid-suite (generate-approval-sidecar) with no aggregate pass/fail tally or exit status. Nothing in this file is verifiable and it supports no claim. Non-blocking because no contract check cites it, but it should not be read as full-suite evidence by a downstream reviewer."
+    }
+  ],
+  "blind": true,
+  "input_digest": "311fbf9ec1a0f0bf4deab88bab842a6e608c7f5264b0fd30828503ca2087652c",
+  "consent": {
+    "kind": "sudo",
+    "ref": "bundle header '# consent: sudo'; tasks.md#T-005 'Approval: Approved (sudo 2026-08-08T16:33:11Z)'"
+  }
+}

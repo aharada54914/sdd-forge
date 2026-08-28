@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0778",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0778",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-3/round-2/integrated-summary.json", "sha256": "9c37099a91c2e8d5ea5fed9d574b1f1a77f3117add2009cefe6b19b3689efdc5"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-3/round-2/precheck-result.json", "sha256": "234fd20c971699c593a27965ad54e6b149b43e133f48125006f0801d247699e8"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "f3dda65bca1826656215e30849b85c9c83b87ee7648dc9b2a0bca2587d27b337"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every substantive design decision carries an explicit 'because'/rationale clause: suite-placement split (design.md 'Design Decisions' — 'Suite placement...'), 'no ninth loop' basis (Design Decisions — 'capability_applicability/the no ninth loop decision rests on...'), fingerprint-over-locator citation scheme (Design Decisions — 'Cross-epic fingerprint citations', explicitly replacing bare locators after NEW-001's drift finding), golden-baseline location (Design Decisions — OQ-003, citing existing per-feature verification/ convention precedent), capability-only usage-error framing (Design Decisions — 'emit-run-record.sh's capability-only combination is a usage error'), and F7/F8 N/A-vs-SKIP distinction (Design Decisions — 'F7/F8 are N/A, not SKIP'). frontend-spec.md's Technology Stack table also carries a populated Rationale column for every row. No inline 'we will use X' statement found without a stated reason."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Open Questions' states all three (OQ-001/OQ-002/OQ-003) are resolved by this same design's 'Design Decisions' section; requirements.md's Open Questions section marks each '(resolved)' with an inline resolution and pointer to the resolving paragraph (OQ-001: suite placement, requirements.md:887-892; OQ-002: PROJECT_CONTEXT_INVALID as a required negative variant, :893-896; OQ-003: golden-baseline path, :897-904). None remains open, blocking, or ownerless; the literal 'Blocks Implementation:'/'Resolution Path:' field labels are absent but the substance both fields require (blocking status = no, since resolved; resolution path = the cited Design Decisions paragraph) is present for every entry, so there is no concrete implementability gap to cite."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (11 findings, INV-001 through INV-024, each with file:line evidence), so the 'investigation.md absent' trigger does not apply. design.md's Assumptions section mirrors requirements.md's three entries: (1) A1/A3/A5-unmerged/A4-passed-spec-review/A6-in-spec-review status is grounded throughout investigation.md's cross-epic findings (INV-013-INV-016, INV-023); (2) ADR-0010/0016/0023 and decision-doc authority is a reasonable default matching design.md's own ADR Change Log citations; (3) jq/bash/PowerShell as the only runtimes is grounded in INV-005/INV-007."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a populated '## Constraint Compliance' table (primary/TYPE-D path applies). Cross-checked against requirements.md's 'must not'/'never'/'only via' constraint language (no new loop-inventory entry; no new suite file; assert_terminal/assert_artifacts_schema unmodified; emit-run-record.sh no-flag byte-identical; every upstream-dependent assertion has a named degradation; PROJECT_CONTEXT_INVALID distinguishable in the trace; golden baseline cannot be silently regenerated; cross-epic citations cannot silently drift) — every one has a corresponding Constraint Compliance row. The design.md/requirements.md Amendment notes (frozen-document amendment, human-approved per investigation.md '## Amendment Re-Review Context', which meets the calibration's full evidence bar: verbatim dated approvals, full commit hashes, per-document SHA-256s, and commit/SHA-256 citations for tasks.md/traceability.md/tests edits) explain the apparent tension between the original 'no tests/** edits' constraint text and the amended state; per calibration this is an amendment-supersession basis, not a standalone contradiction finding."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This is an internal test-infrastructure specification package with no runtime service, no numeric latency/throughput/concurrency/SLA threshold named anywhere in requirements.md; infra-spec.md's Service Level Objectives section independently confirms 'N/A — no live service to hold an availability/latency SLO.'"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment / CI Plan' names the deployment target (existing GitHub Actions test.yml, unmodified by this task; future registration follows the Pillar-A loop-suite precedent), the feature-flag-equivalent strategy (capability_enforcement / emit_capability additive flags, gated identically to the existing effort flags), and CI pipeline changes (none in this task; Phase 2/3 registers .sh/.ps1 pairs into run-all.{sh,ps1}/test.yml). No data-plane schema requiring migrate-before/after-deploy ordering exists (Data Plan: 'No migration required' — every proposed field is additive/optional). infra-spec.md's Deployment Topology, CI/CD Sequence, and Environments sections expand this concretely, including the CI-write-block guarantee for the golden baseline."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan states 'Existing Data Affected: none' and 'Migration Strategy: No migration required' — every proposed future-task field/object is additive and optional with a documented backward-compatible default (capability_applicability absent-safe; emit-run-record.sh capability object gated behind an independent flag with the no-flag heredoc untouched). Per the check's own rule, a Data Plan stating no data changes is a PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## External Integrations' states 'None. Every target in this package is internal to the repository' — consistent with infra-spec.md ('No cloud, no region, no network boundary') and security-spec.md ('this feature's attack surface is entirely local'). The cross-epic references to Epic A1/A4/A5/A6 (frontend-spec.md Dependencies table) are internal same-repository sibling-worktree spec citations verified by sha256 fingerprint, not runtime API/SDK/webhook integrations, so the INTEGRATION-IDENTIFIED check's applicable surface (external system/third-party/cross-service call) is absent and is correctly documented as such rather than passed over silently."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every design.md component (fixture-matrix builder, golden-baseline capture/promote scripts, compatibility-event-trace/v1 schema, REQ-007 allowlist manifest) traces to a specific REQ (REQ-005/REQ-006/REQ-003/REQ-007 respectively) and AC via the Cross-Layer Dependencies table; no component lacks a requirements.md anchor. Conversely, every REQ-001 through REQ-007 and every named User Story is addressed by a design.md section (Compatibility Matrix, Observable×fixture-state table, API/Contract Plan). No domain/ or design-system/ directory exists in this repository (verified: neither path present), so the DOMAIN-CONFORMANCE and design-system-library sub-checks are not applicable; design.md's own 'Design System Compliance: N/A — ds_profile: none' is consistent with that absence."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: golden-baseline write-integrity (B1), shared cross-epic registry/driver/run-record blast radius (B2), SKIP-allowlist fail-open closure (B3), cross-epic fingerprint-citation integrity (B4), and structural-comparison record-corpus tamper resistance (B5) — all security-relevant per security-spec.md. Each names a concrete AC/TEST validation path: B1 -> AC-040 (static CI-workflow scan) + AC-041 (runtime refusal fixture pair); B2 -> AC-008/AC-009/AC-011/AC-033; B3 -> AC-034/AC-035 (three independent hard-fail conditions); B4 -> AC-035c (fingerprint recompute-and-compare); B5 -> AC-030/AC-031 (parser-failure-is-hard-fail + non-gating refresh test). No high-risk claim is left without a named concrete evidence artifact."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this repository has no domain/ directory (verified: `ls domain/` and `domain/context-map.md`/`domain/domain-contract.json` do not exist at repo root), so the Domain-Model-Status: Approved precondition this check requires is not met. Check skipped per its own skip condition."
+    }
+  ]
+}
