@@ -2004,6 +2004,35 @@ def _block(
     capability_evaluations=None, warn_diagnostics=None,
     context_binding=None, resolver_block=None,
 ):
+    """The exit code alone. Forty call sites want exactly this, so the return
+    type does not change for any of them."""
+    return _block_reporting(
+        repo_root, feature, diagnostic_id, detail, state_marker,
+        capability_evaluations, warn_diagnostics, context_binding, resolver_block,
+    )[0]
+
+
+def _block_reporting(
+    repo_root, feature, diagnostic_id, detail, state_marker,
+    capability_evaluations=None, warn_diagnostics=None,
+    context_binding=None, resolver_block=None,
+):
+    """`_block`, plus whether the Block record actually reached Evidence's
+    live path: returns `(exit_code, wrote_evidence)`.
+
+    Added 2026-08-28 (openai panel slot, round 12 Major). Round 9 deferred the
+    journal's deletion past the Block Evidence write so a crash in between
+    would leave the journal for the recovery scan -- but it guarded that
+    deletion on `complete`, which is whether the ROLLBACK finished, not
+    whether the record became durable. `_block` swallows both write-failure
+    conditions into `_block_no_write` and returns a bare exit code, so the
+    caller could not tell the difference. The journal was therefore discarded
+    even when Evidence had not been written, leaving exactly the state the
+    round-9 fix existed to prevent: artifacts back at PRE, the SUCCESS-form
+    Evidence still live from the commit, and no journal for anyone to notice.
+
+    Only the two post-publication branches need the second value; everything
+    else calls `_block` and is untouched."""
     try:
         _write_evidence(
             repo_root, feature, diagnostic_id, detail, state_marker,
@@ -2022,7 +2051,7 @@ def _block(
         # than the staging-area condition it replaced: a compromised staging
         # area no longer suppresses Evidence, because the direct write route
         # design.md requires does not touch that area at all.
-        return _block_no_write(diagnostic_id, detail)
+        return _block_no_write(diagnostic_id, detail), False
     except ArtifactPublicationFailed as exc:
         # Fail-closed terminal, defense-in-depth: this invocation had already
         # decided to Block, and the direct write that publishes
@@ -2040,9 +2069,9 @@ def _block(
         return _block_no_write(
             "artifact-publication-failed",
             f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {exc.rollback_clause}",
-        )
+        ), False
     sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
-    return EXIT_BLOCK
+    return EXIT_BLOCK, True
 
 
 def _projection(document, source_sha256):
@@ -3124,16 +3153,20 @@ def main(argv=None):
         )
     except SnapshotGenerationMismatch:
         rolled_back, complete = _rollback_transaction(transaction, discard=False)
-        result = _block(
+        result, wrote = _block_reporting(
             repo_root, args.feature, "post-publication-generation-mismatch",
             f"{POST_PUBLICATION_MISMATCH_PREFIX}; {_rollback_clause(rolled_back, complete)}",
             state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
-        # Only now, with the Block record durable at Evidence's live path, is
-        # the journal no longer needed. An INCOMPLETE rollback still retains
-        # it, exactly as before.
-        if complete:
+        # BOTH conditions, not just `complete` (openai panel slot, round 12
+        # Major). `complete` says the rollback finished; `wrote` says the
+        # Block record actually reached Evidence's live path. Discarding on
+        # `complete` alone deleted the journal even when the Evidence write
+        # had failed, which is the very state round 9's deferral existed to
+        # prevent: artifacts back at PRE, the success-form Evidence still live
+        # from the commit, and no journal left for the recovery scan.
+        if complete and wrote:
             _discard_batch(transaction.batch_dir)
         return result
     except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) as exc:
@@ -3157,13 +3190,14 @@ def main(argv=None):
             mapped for exception_class, mapped in _POST_PUBLICATION_DEPENDENCY_BLOCKS.items()
             if isinstance(exc, exception_class)
         )
-        result = _block(
+        result, wrote = _block_reporting(
             repo_root, args.feature, diagnostic_id, detail, state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
-        # Same deferral as the mismatch branch above: the journal outlives the
-        # rollback and dies only once the Block record is durable.
-        if _complete:
+        # Same deferral, and the same two-condition guard, as the mismatch
+        # branch above: the journal outlives the rollback and dies only once
+        # the Block record is genuinely durable.
+        if _complete and wrote:
             _discard_batch(transaction.batch_dir)
         return result
 

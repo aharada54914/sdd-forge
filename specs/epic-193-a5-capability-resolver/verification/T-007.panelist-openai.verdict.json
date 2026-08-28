@@ -8,14 +8,14 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "plugins/sdd-quality-loop/scripts/resolve-project-context.py:229",
-      "note": "Leaf symlinks are explicitly accepted by _target_escapes_via_symlink, but _repo_relative calls Path.resolve() and therefore records an in-repository symlink referent rather than the lexical publication target in TRANSACTION.json. Commit still replaces the lexical symlink entry, while rollback/recovery operates on or validates the recorded referent; this can leave a committed artifact at POST after purported rollback or make the resolver's own journal unrecoverable, violating the atomic publication and crash-recovery contract."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:3127",
+      "note": "Both post-publication rollback handlers discard the retained transaction journal whenever rollback completed, even if the subsequent direct Block-Evidence write failed. `_block` converts that write failure into a return code without reporting whether Evidence became durable, so lines 3136-3137 and 3166-3167 can delete the only recovery marker while the prior success-form resolver-evidence.yaml remains live and the publication artifacts have been restored to PRE. This contradicts the stated invariant that the journal survives until the Block record is durable and leaves a silently inconsistent generation. The disclosed uncovered `_block` ArtifactPublicationFailed branch and mutation-C gap do not exercise this combined failure."
     }
   ],
   "blind": true,
-  "input_digest": "539c19af5bf30ab437476b2706e710c638108bf94d9317561a675f2d92411238",
+  "input_digest": "e220b898251939fa393f7327d53b277057a31411752bb443df41e572d3f12c71",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "specs/epic-193-a5-capability-resolver/tasks.md: T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }
