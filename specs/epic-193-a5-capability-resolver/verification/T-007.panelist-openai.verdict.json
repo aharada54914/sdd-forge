@@ -1,0 +1,21 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-007",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "openai",
+  "model": "gpt-5.6",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1500",
+      "note": "_rollback_transaction restores every committed entry, including resolver-evidence.yaml, and deletes the journal before the subsequent direct Block-evidence write. On post-publication mismatch this contradicts the REQ-001/AC-049 rule that Evidence is never rolled back. A crash or Evidence-write failure in the resulting gap leaves only the PRE evidence and permanently loses the audit record of the rolled-back publication attempt."
+    }
+  ],
+  "blind": true,
+  "input_digest": "103bdba0ae8ffaf3cc9b68b40f38571b95e8c7951e382784abcbecf9d556896a",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md#T-007: Approved (sudo 2026-08-08T16:04:17Z)"
+  }
+}

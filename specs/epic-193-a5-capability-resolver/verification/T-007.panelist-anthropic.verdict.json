@@ -4,31 +4,26 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "tasks.md T-007 Done When (Governance bullet) / acceptance-tests.md AC-059 / traceability.md AC-059 -> T-007",
-      "note": "AC-059 / TEST-059 (approval-surface write-scope grep self-check) is assigned to T-007 by tasks.md, acceptance-tests.md and traceability.md, and T-007's own Done When says this task 'authors and registers' it and 'verifies it in full by direct execution at its own gate'. The bundle contains ZERO evidence that this happened. The strings AC-059, TEST-059, approval-surface, write-scope, the approval sidecar glob, the approved-context directory and the guard invariants file appear 28 times in the spec documents and 0 times anywhere at or after the contract section: not in T-007.contract.json, not in reports/implementation/.../T-007.md (which was updated on 2026-08-28, after ruling E introduced AC-059, and whose Outputs table was re-derived on 2026-08-28 from all nine of this task's commits), not in any red-panel / green-panel / focused-tests / regression / placeholder-scan / traceability log, and not in the block-suite driver (resolve-project-context-block-check.py). The report instead states that no run-all or CI-registration change was made. The criterion is therefore neither authored, nor registered, nor executed, nor recorded. This is not merely a missing check: AC-059 is the only criterion in the package that constrains the Resolver's write set in the deny direction, on a Security-Sensitive task that authors the feature's sole live-write path."
+      "severity": "Minor",
+      "ref": "staged resolve-project-context.py, _rollback_transaction and main() step-14 post-publication branch",
+      "note": "REQ-001 step (m) scopes a rollback to the publication artifacts and says resolver-evidence.yaml is never rolled back, receiving the Block record after that rollback completes. The implementation rolls back every committed entry, evidence included, and then re-writes the Block record directly. The mandated end state is correct and is asserted by the fixture (sentinels cover only the three publication artifacts, evidence is asserted to carry the Block record), and the transient restore is arguably safer, but the canonical detail therefore reports 3 rolled-back renames on a Full-track post-publication mismatch where a contract-literal count would be 2, and the driver hard-codes that 3. Not listed among the four Specification Differences."
     },
     {
       "severity": "Minor",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py module docstring (bundle lines 26099-26111)",
-      "note": "The module docstring still describes the pre-round-5 mechanism and now contradicts the shipped code: it claims step 14 'is this feature's SOLE live-filesystem write of any kind. Every live write this script performs, on a clean resolve and on a Block alike, goes through that one transaction ... any Block publishes Resolver Evidence alone -- all via the identical journaled mechanism'. After the round-5 fix, _write_evidence writes a Block's Evidence DIRECTLY via _atomic_write_bytes with no staging area and no journal (its own in-function comment says so explicitly, citing design.md:1419 and :2846), so there are now two live-write routes, not one. Its first line also still reads 'implementation stages T-002+T-003+T-004 (steps 0-13)'. On a file whose own Standing Note directs the next reviewer to trust these descriptions, the first thing that reviewer reads is now false about the write surface. Related, and worth recording as a spec clarification rather than a code defect: design.md:1208-1210 and :1261-1262 do say a Block publishes Evidence 'via that journaled transaction', while design.md:2846 and :1419 say an Evidence-only write is direct with no staging and no journal; the implementation follows the latter (the more specific, later-amended clause) but nothing in the frozen text records which reading governs."
+      "ref": "tests/resolve-project-context-block-check.py, run_test_059 and the STAGED constant",
+      "note": "AC-059 and this task's Done When name the scanned set verbatim as plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}. TEST-059 scans the human-copy staged candidates instead. That matches this suite's own convention (STAGED is the subject of every case, and the live paths are protected and applied by a human, not authored by T-007), and the log lines print the staged paths, so nothing is concealed. But the implementation report and the verification contract both describe the scanned set as the three Resolver files without disclosing the staged-for-live substitution, so a reader checking AC-059 against the criterion text meets a path mismatch."
     },
     {
       "severity": "Minor",
-      "ref": "CHANGELOG.md, Unreleased T-007 entry (bundle lines ~22787-22850)",
-      "note": "The CHANGELOG entry, this task's Commit B deliverable under AC-033, was not swept after rounds 1-6 and now carries three stale claims. (1) The sentence stating that a Block path's Resolver Evidence is published as a one-target instance of the same transaction asserts exactly the behaviour round 5 removed; the shipped code writes Block Evidence directly, outside the transaction. (2) The sentence describing the new TEST-010 completeness check as comparing the set of diagnostic ids ACTUALLY OBSERVED during the run repeats the emitted-vs-expected claim that round 1 (comment-level) and round 5 (Minor 2) both found inaccurate and that the report says was corrected everywhere it appeared and rewritten in place; the roster is built from each case's hardcoded expected_id, not from emitted output. (3) Tallies are stale: six fixtures added, 306 passed / 0 failed, TDD RED 272 passed / 23 failed, and discovery 12/0, against a shipped state of ten fixture directories, 345/0 GREEN, 341/4 RED, and discovery 24/0."
-    },
-    {
-      "severity": "Minor",
-      "ref": "resolve-project-context.py EvidenceTargetUncontained / _block (bundle lines 27033-27057, 27953-27965); green log publication-staging-parent-symlink[feature-dir-symlinked]: NO Resolver Evidence",
-      "note": "The implementation introduces a THIRD no-write exception to AC-012, and says so itself in code ('This is the only condition under which a Block outside AC-012's two stated exceptions emits no record'). AC-012, AC-038, AC-040, AC-057 and design.md were each amended on 2026-08-27 under ruling D(2) specifically to close the exception list at exactly two ids, and the structurally identical collision in round 1 (MAJOR 2) and round 5 (Finding B) was escalated to the repository owner for a ruling rather than decided in-implementation. Here the equivalent collision -- writing the record would breach requirements.md:1144-1151, omitting it breaches AC-012 -- was resolved unilaterally. The chosen behaviour is fail-closed and the reasoning is disclosed and defensible; the gap is process: no ruling was taken and no frozen document records the third exception, so the shipped code and the frozen acceptance criteria disagree on the record."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Panel Round 1 Remediation, Verification after remediation",
+      "note": "The report states red-panel1-sh.log is 311 passed / 10 failed; the bundled log for that exact sha256 ends with RESULT: 308 passed, 10 failed. Tally-only inaccuracy in a superseded round record; every other tally I cross-checked (327, 335, 339, 343, 345, 355, and the 631-assertion regression sum) reconciles with its log."
     }
   ],
   "blind": true,
-  "input_digest": "86e30dfba33124344223604bda928d7cbed9fed1cec4402e18f72007e1f30379",
+  "input_digest": "103bdba0ae8ffaf3cc9b68b40f38571b95e8c7951e382784abcbecf9d556896a",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

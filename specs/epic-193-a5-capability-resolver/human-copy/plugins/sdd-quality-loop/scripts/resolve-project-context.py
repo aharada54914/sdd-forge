@@ -1490,26 +1490,54 @@ def _rollback_transaction(transaction):
         # invisible to it forever).
         _discard_batch(transaction.batch_dir)
         return 0, True
-    committed_entries = transaction.entries[:count]
+    # Evidence is NEVER rolled back (REQ-001 step (m); requirements.md's own
+    # "the subject is the three publication artifacts ... and never
+    # `resolver-evidence.yaml`"). Restoring it would destroy the only record
+    # that the rolled-back publication was ever attempted, which is precisely
+    # the audit obligation REQ-004 exists to guarantee -- and on the
+    # post-publication-mismatch path Evidence IS among the committed entries,
+    # because it commits last. Both cross-model panelists reached this same
+    # code independently on round 7 (openai Critical, anthropic Minor 1); the
+    # end state was already correct only because `_block` overwrites Evidence
+    # immediately afterwards, but a crash in the gap between the restore and
+    # that write left the PRE record standing as the whole audit trail.
+    #
+    # Excluding it here does not touch the doubly-degraded corner ruled on
+    # 2026-08-27: an INCOMPLETE rollback still retains the journal, and the
+    # journal still lists Evidence as one of its targets, so the next
+    # invocation still Blocks `publication-journal-recovery` for a human.
+    # No journal-amend operation is introduced.
+    committed_entries = [
+        entry
+        for entry in transaction.entries[:count]
+        if Path(entry["live_path"]).name != "resolver-evidence.yaml"
+    ]
+    # The reported count is the number of PUBLICATION ARTIFACTS rolled back,
+    # not the number of journal entries committed, for the same reason the
+    # set above excludes Evidence: REQ-002's own rollback clause names the
+    # publication artifacts as its subject, so counting Evidence among them
+    # overstated the rollback by one on every post-publication-mismatch Full
+    # or Lite track.
+    rolled_back = len(committed_entries)
     try:
         for entry in committed_entries:
             if entry["pre_hash"] != ABSENT:
                 _read_pre_image(transaction.batch_dir, entry)
     except OSError:
-        return count, False
+        return rolled_back, False
     for entry in reversed(committed_entries):
         try:
             _restore_to_pre(transaction.repo_root, transaction.batch_dir, entry)
         except OSError:
-            return count, False
+            return rolled_back, False
     for entry in committed_entries:
         try:
             if _live_digest(_journal_target_path(transaction.repo_root, entry["live_path"])) != entry["pre_hash"]:
-                return count, False
+                return rolled_back, False
         except OSError:
-            return count, False
+            return rolled_back, False
     _discard_batch(transaction.batch_dir)
-    return count, True
+    return rolled_back, True
 
 
 def _validate_publication_preconditions(repo_root, feature, batch_dir, targets):

@@ -1,6 +1,0 @@
-mutant injected
---- suite under mutant (expect TEST-059 FAIL) ---
-FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
-RESULT: 354 passed, 1 failed
---- restoring ---
-restored sha256: 5604f8d3954dcd0d5b14ef16e81e8037b4c44c24017b10463d2116ddafbc0363

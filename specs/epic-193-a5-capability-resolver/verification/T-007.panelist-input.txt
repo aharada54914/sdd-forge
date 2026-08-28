@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 86e30dfba33124344223604bda928d7cbed9fed1cec4402e18f72007e1f30379
+# input_digest: 103bdba0ae8ffaf3cc9b68b40f38571b95e8c7951e382784abcbecf9d556896a
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -10902,7 +10902,7 @@ REQ-004.
       "green_evidence": ""
     }
   ],
-  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (345/0 in both runtimes); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
+  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (355/0 in both runtimes); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. The green tally rose from 345 to 355 in panel round 7, which closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}), contributing ten assertions. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs-test059.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
 }
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log ----
 # runner: pwsh
@@ -14960,6 +14960,722 @@ PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an indep
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 345 passed, 0 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel7-ps1.log ----
+# runner: pwsh
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: the Full-track clean resolve published its whole track-exclusive output set through step 14's own transaction
+PASS: projection-two-components: no capability-summary.yaml on a Full-track resolve (B4)
+PASS: projection-two-components: Complete left no journal or staging litter
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-output-not-object: exit 1
+PASS: projection-output-not-object: canonical diagnostic only
+PASS: projection-output-not-object: exact Resolver Evidence
+PASS: projection-output-not-object: Resolver Evidence schema agreement
+PASS: projection-output-not-object: no partial live artifact
+PASS: projection-output-not-object: no step-4-or-later subprocess
+PASS: projection-components-not-object: exit 1
+PASS: projection-components-not-object: canonical diagnostic only
+PASS: projection-components-not-object: exact Resolver Evidence
+PASS: projection-components-not-object: Resolver Evidence schema agreement
+PASS: projection-components-not-object: no partial live artifact
+PASS: projection-components-not-object: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: resolve-component-paths-binding-not-object: exit 1
+PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
+PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+PASS: resolve-component-paths-binding-not-object: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+PASS: evaluate-predicate-output-malformed-unhashable: exit 1
+PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: evaluate-predicate-failure-after-warn: exact Resolver Evidence
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: affected-component-absent-from-context: exit 1
+PASS: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-absent-from-context: exact Resolver Evidence
+PASS: affected-component-absent-from-context: Resolver Evidence schema agreement
+PASS: affected-component-absent-from-context: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: clean-full-track-publication: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)
+PASS: clean-full-track-publication: exact published Facet Manifest at its live path
+PASS: clean-full-track-publication: exact published Context Projection bytes at its live path (Full track only)
+PASS: clean-full-track-publication: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative)
+PASS: clean-full-track-publication: Resolver Evidence schema agreement
+PASS: clean-full-track-publication: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)
+PASS: clean-full-track-publication: Complete deletes the journal and leaves no staging litter
+PASS: publication-journal-recovery-crash: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery-crash: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery-crash: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery-crash: the recovering invocation proceeded past step 0 into its own separate resolve (reaching step 4), rather than Blocking on the stale journal
+PASS: publication-journal-recovery-crash: the already-committed target was RESTORED to its own PRE-transaction bytes from the journal's own pre/ backup -- never `unlink`ed (B1's own destroyed-bytes gap)
+PASS: publication-journal-recovery-crash: every not-yet-renamed target is still at its own PRE bytes (no mixed generation)
+PASS: publication-journal-recovery-crash: the converged journal and its pre/ backups are deleted once recovery completes
+PASS: publication-journal-recovery-crash: the recovering invocation's own separate Block is what Resolver Evidence records
+PASS: publication-journal-recovery: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery: Prepare captured a byte-exact pre-image backup for the target that had live content
+PASS: publication-journal-recovery: exit 1
+PASS: publication-journal-recovery: canonical diagnostic only (AC-014)
+PASS: publication-journal-recovery: no Registry/ownership work began (step-4-or-later spy never fired)
+PASS: publication-journal-recovery: the unrecoverable journal and its backups are RETAINED for manual operator intervention
+PASS: publication-journal-recovery: the live state is left exactly as found -- no partial recovery attempted
+PASS: publication-journal-recovery: exact Resolver Evidence -- and no `state` key, since the scan Blocks before the Project Context is ever read (AC-012)
+PASS: publication-journal-recovery: Resolver Evidence schema agreement
+PASS: artifact-publication-failed: exit 1
+PASS: artifact-publication-failed: canonical diagnostic whose own detail records the journal-based rollback attempt (AC-039)
+PASS: artifact-publication-failed: the already-completed sibling rename was rolled back to its own PRE-transaction live bytes via the journal -- never a bare `unlink` (AC-039, B1's own destroyed-bytes gap)
+PASS: artifact-publication-failed: no live artifact this invocation had not already committed to survives partially written (AC-011/TEST-038)
+PASS: artifact-publication-failed: a fully-successful in-process rollback deletes the journal it converged
+PASS: artifact-publication-failed[prepare-phase]: a Prepare-phase failure Blocks artifact-publication-failed and records that no rename had been committed (AC-039's own no-rollback-required variant)
+PASS: artifact-publication-failed[prepare-phase]: a Prepare/Journal-phase failure leaves NO orphaned staging directory -- a journal-less nonce directory is invisible to every later crash-recovery scan
+PASS: artifact-publication-failed[prepare-phase]: nothing reached a live path (TEST-038)
+PASS: artifact-publication-failed: exact Resolver Evidence (AC-012)
+PASS: artifact-publication-failed: Resolver Evidence schema agreement
+PASS: post-publication-generation-mismatch: exit 1
+PASS: post-publication-generation-mismatch: canonical diagnostic only (AC-014)
+PASS: post-publication-generation-mismatch: the Block fires only AFTER every rename in the transaction has already, briefly, succeeded -- all three targets observed live from inside the verification window (AC-049(a))
+PASS: post-publication-generation-mismatch: every one of those just-completed renames is rolled back to its own PRE-transaction state via the journal before this invocation exits -- restored bytes, never a bare `unlink` (AC-049(b)(c), AC-011)
+PASS: post-publication-generation-mismatch: the journal is deleted once every target is confirmed back at PRE
+PASS: post-publication-generation-mismatch: exact Resolver Evidence (AC-012)
+PASS: post-publication-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch-affected-components: exit 1
+PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
+PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
+PASS: snapshot-generation-mismatch-affected-components: a step-13 Block never opens a publication transaction at all
+PASS: snapshot-generation-mismatch-affected-components: exact Resolver Evidence (AC-012)
+PASS: snapshot-generation-mismatch-affected-components: Resolver Evidence schema agreement
+PASS: publication-journal-target-escape[relative-traversal-write]: Blocks publication-journal-recovery with the canonical line only
+PASS: publication-journal-target-escape[relative-traversal-write]: the out-of-set path the journal named is BYTE-UNTOUCHED -- recovery never writes or deletes outside the Resolver's own fixed publication target set (requirements.md Security Boundaries bullet 1)
+PASS: publication-journal-target-escape[relative-traversal-write]: the in-set targets are untouched too -- the refusal happens BEFORE any recovery write, never half-way through one
+PASS: publication-journal-target-escape[relative-traversal-write]: the rejected journal is retained for manual operator intervention
+PASS: publication-journal-target-escape[relative-traversal-write]: exact Resolver Evidence, with no journal content interpolated into the detail (AC-012/AC-014, security-spec.md B5)
+PASS: publication-journal-target-escape[relative-traversal-write]: Resolver Evidence schema agreement
+PASS: publication-journal-target-escape[absolute-path-unlink]: Blocks publication-journal-recovery with the canonical line only
+PASS: publication-journal-target-escape[absolute-path-unlink]: the out-of-set path the journal named is BYTE-UNTOUCHED -- recovery never writes or deletes outside the Resolver's own fixed publication target set (requirements.md Security Boundaries bullet 1)
+PASS: publication-journal-target-escape[absolute-path-unlink]: the in-set targets are untouched too -- the refusal happens BEFORE any recovery write, never half-way through one
+PASS: publication-journal-target-escape[absolute-path-unlink]: the rejected journal is retained for manual operator intervention
+PASS: publication-journal-target-escape[absolute-path-unlink]: exact Resolver Evidence, with no journal content interpolated into the detail (AC-012/AC-014, security-spec.md B5)
+PASS: publication-journal-target-escape[absolute-path-unlink]: Resolver Evidence schema agreement
+PASS: publication-target-parent-symlink: a symlinked `generated/` parent Blocks artifact-publication-failed before any live write, rather than following the symlink (MAJOR 2)
+PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (reached only through the symlinked parent) is byte-untouched -- the projection never escaped the fixed set (requirements.md:1144-1151)
+PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
+PASS: publication-target-parent-symlink: the Block's own Resolver Evidence is still written (AC-012) -- and its own single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected by the symlinked generated/ parent
+PASS: publication-target-parent-symlink: Resolver Evidence schema agreement
+PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence's own transaction cleaned up after itself
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: Resolver Evidence IS written, through the direct `temp file + fsync + rename` route design.md requires for an Evidence-only write -- a compromised BOOKKEEPING area does not obstruct a write that never passes through it, so AC-012's always-emitted rule holds here with no third exception
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: Resolver Evidence schema agreement
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: Resolver Evidence IS written, through the direct `temp file + fsync + rename` route design.md requires for an Evidence-only write -- a compromised BOOKKEEPING area does not obstruct a write that never passes through it, so AC-012's always-emitted rule holds here with no third exception
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: Resolver Evidence schema agreement
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: NO Resolver Evidence -- `specs/<feature>` is itself the symlink, so the record's own destination lies outside the tree and writing it would be the very escape this fixture exists to close; the Block still reports `publication-journal-recovery`, never a misattributed publication failure
+PASS: publication-journal-roundtrip-unresolved-repo: the kill hook left exactly one genuine, resolver-authored journal standing
+PASS: publication-journal-roundtrip-unresolved-repo: the Resolver ACCEPTS its own journal under an unresolved repo_root -- a journal that can be safely converged is silently resolved and never reaches this diagnostic at all (REQ-002's own publication-journal-recovery row)
+PASS: publication-journal-roundtrip-unresolved-repo: having converged the stale journal, the invocation completes its own separate resolve normally (exit 0, no diagnostic)
+PASS: publication-journal-roundtrip-unresolved-repo: the converged journal is deleted, leaving no staging litter
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
+PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
+PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
+PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
+PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 355 passed, 0 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel7-sh.log ----
+# runner: bash
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: the Full-track clean resolve published its whole track-exclusive output set through step 14's own transaction
+PASS: projection-two-components: no capability-summary.yaml on a Full-track resolve (B4)
+PASS: projection-two-components: Complete left no journal or staging litter
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-output-not-object: exit 1
+PASS: projection-output-not-object: canonical diagnostic only
+PASS: projection-output-not-object: exact Resolver Evidence
+PASS: projection-output-not-object: Resolver Evidence schema agreement
+PASS: projection-output-not-object: no partial live artifact
+PASS: projection-output-not-object: no step-4-or-later subprocess
+PASS: projection-components-not-object: exit 1
+PASS: projection-components-not-object: canonical diagnostic only
+PASS: projection-components-not-object: exact Resolver Evidence
+PASS: projection-components-not-object: Resolver Evidence schema agreement
+PASS: projection-components-not-object: no partial live artifact
+PASS: projection-components-not-object: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: resolve-component-paths-binding-not-object: exit 1
+PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
+PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+PASS: resolve-component-paths-binding-not-object: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+PASS: evaluate-predicate-output-malformed-unhashable: exit 1
+PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: evaluate-predicate-failure-after-warn: exact Resolver Evidence
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: affected-component-absent-from-context: exit 1
+PASS: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-absent-from-context: exact Resolver Evidence
+PASS: affected-component-absent-from-context: Resolver Evidence schema agreement
+PASS: affected-component-absent-from-context: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: clean-full-track-publication: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)
+PASS: clean-full-track-publication: exact published Facet Manifest at its live path
+PASS: clean-full-track-publication: exact published Context Projection bytes at its live path (Full track only)
+PASS: clean-full-track-publication: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative)
+PASS: clean-full-track-publication: Resolver Evidence schema agreement
+PASS: clean-full-track-publication: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)
+PASS: clean-full-track-publication: Complete deletes the journal and leaves no staging litter
+PASS: publication-journal-recovery-crash: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery-crash: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery-crash: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery-crash: the recovering invocation proceeded past step 0 into its own separate resolve (reaching step 4), rather than Blocking on the stale journal
+PASS: publication-journal-recovery-crash: the already-committed target was RESTORED to its own PRE-transaction bytes from the journal's own pre/ backup -- never `unlink`ed (B1's own destroyed-bytes gap)
+PASS: publication-journal-recovery-crash: every not-yet-renamed target is still at its own PRE bytes (no mixed generation)
+PASS: publication-journal-recovery-crash: the converged journal and its pre/ backups are deleted once recovery completes
+PASS: publication-journal-recovery-crash: the recovering invocation's own separate Block is what Resolver Evidence records
+PASS: publication-journal-recovery: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit)
+PASS: publication-journal-recovery: the crash left exactly one in-progress transaction journal standing
+PASS: publication-journal-recovery: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing
+PASS: publication-journal-recovery: Prepare captured a byte-exact pre-image backup for the target that had live content
+PASS: publication-journal-recovery: exit 1
+PASS: publication-journal-recovery: canonical diagnostic only (AC-014)
+PASS: publication-journal-recovery: no Registry/ownership work began (step-4-or-later spy never fired)
+PASS: publication-journal-recovery: the unrecoverable journal and its backups are RETAINED for manual operator intervention
+PASS: publication-journal-recovery: the live state is left exactly as found -- no partial recovery attempted
+PASS: publication-journal-recovery: exact Resolver Evidence -- and no `state` key, since the scan Blocks before the Project Context is ever read (AC-012)
+PASS: publication-journal-recovery: Resolver Evidence schema agreement
+PASS: artifact-publication-failed: exit 1
+PASS: artifact-publication-failed: canonical diagnostic whose own detail records the journal-based rollback attempt (AC-039)
+PASS: artifact-publication-failed: the already-completed sibling rename was rolled back to its own PRE-transaction live bytes via the journal -- never a bare `unlink` (AC-039, B1's own destroyed-bytes gap)
+PASS: artifact-publication-failed: no live artifact this invocation had not already committed to survives partially written (AC-011/TEST-038)
+PASS: artifact-publication-failed: a fully-successful in-process rollback deletes the journal it converged
+PASS: artifact-publication-failed[prepare-phase]: a Prepare-phase failure Blocks artifact-publication-failed and records that no rename had been committed (AC-039's own no-rollback-required variant)
+PASS: artifact-publication-failed[prepare-phase]: a Prepare/Journal-phase failure leaves NO orphaned staging directory -- a journal-less nonce directory is invisible to every later crash-recovery scan
+PASS: artifact-publication-failed[prepare-phase]: nothing reached a live path (TEST-038)
+PASS: artifact-publication-failed: exact Resolver Evidence (AC-012)
+PASS: artifact-publication-failed: Resolver Evidence schema agreement
+PASS: post-publication-generation-mismatch: exit 1
+PASS: post-publication-generation-mismatch: canonical diagnostic only (AC-014)
+PASS: post-publication-generation-mismatch: the Block fires only AFTER every rename in the transaction has already, briefly, succeeded -- all three targets observed live from inside the verification window (AC-049(a))
+PASS: post-publication-generation-mismatch: every one of those just-completed renames is rolled back to its own PRE-transaction state via the journal before this invocation exits -- restored bytes, never a bare `unlink` (AC-049(b)(c), AC-011)
+PASS: post-publication-generation-mismatch: the journal is deleted once every target is confirmed back at PRE
+PASS: post-publication-generation-mismatch: exact Resolver Evidence (AC-012)
+PASS: post-publication-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch-affected-components: exit 1
+PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
+PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
+PASS: snapshot-generation-mismatch-affected-components: a step-13 Block never opens a publication transaction at all
+PASS: snapshot-generation-mismatch-affected-components: exact Resolver Evidence (AC-012)
+PASS: snapshot-generation-mismatch-affected-components: Resolver Evidence schema agreement
+PASS: publication-journal-target-escape[relative-traversal-write]: Blocks publication-journal-recovery with the canonical line only
+PASS: publication-journal-target-escape[relative-traversal-write]: the out-of-set path the journal named is BYTE-UNTOUCHED -- recovery never writes or deletes outside the Resolver's own fixed publication target set (requirements.md Security Boundaries bullet 1)
+PASS: publication-journal-target-escape[relative-traversal-write]: the in-set targets are untouched too -- the refusal happens BEFORE any recovery write, never half-way through one
+PASS: publication-journal-target-escape[relative-traversal-write]: the rejected journal is retained for manual operator intervention
+PASS: publication-journal-target-escape[relative-traversal-write]: exact Resolver Evidence, with no journal content interpolated into the detail (AC-012/AC-014, security-spec.md B5)
+PASS: publication-journal-target-escape[relative-traversal-write]: Resolver Evidence schema agreement
+PASS: publication-journal-target-escape[absolute-path-unlink]: Blocks publication-journal-recovery with the canonical line only
+PASS: publication-journal-target-escape[absolute-path-unlink]: the out-of-set path the journal named is BYTE-UNTOUCHED -- recovery never writes or deletes outside the Resolver's own fixed publication target set (requirements.md Security Boundaries bullet 1)
+PASS: publication-journal-target-escape[absolute-path-unlink]: the in-set targets are untouched too -- the refusal happens BEFORE any recovery write, never half-way through one
+PASS: publication-journal-target-escape[absolute-path-unlink]: the rejected journal is retained for manual operator intervention
+PASS: publication-journal-target-escape[absolute-path-unlink]: exact Resolver Evidence, with no journal content interpolated into the detail (AC-012/AC-014, security-spec.md B5)
+PASS: publication-journal-target-escape[absolute-path-unlink]: Resolver Evidence schema agreement
+PASS: publication-target-parent-symlink: a symlinked `generated/` parent Blocks artifact-publication-failed before any live write, rather than following the symlink (MAJOR 2)
+PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (reached only through the symlinked parent) is byte-untouched -- the projection never escaped the fixed set (requirements.md:1144-1151)
+PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
+PASS: publication-target-parent-symlink: the Block's own Resolver Evidence is still written (AC-012) -- and its own single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected by the symlinked generated/ parent
+PASS: publication-target-parent-symlink: Resolver Evidence schema agreement
+PASS: publication-target-parent-symlink: no journal or staging litter survives -- the refused publish left none, and the Block Evidence's own transaction cleaned up after itself
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: Resolver Evidence IS written, through the direct `temp file + fsync + rename` route design.md requires for an Evidence-only write -- a compromised BOOKKEEPING area does not obstruct a write that never passes through it, so AC-012's always-emitted rule holds here with no third exception
+PASS: publication-staging-parent-symlink[staging-root-symlinked]: Resolver Evidence schema agreement
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: Resolver Evidence IS written, through the direct `temp file + fsync + rename` route design.md requires for an Evidence-only write -- a compromised BOOKKEEPING area does not obstruct a write that never passes through it, so AC-012's always-emitted rule holds here with no third exception
+PASS: publication-staging-parent-symlink[nonce-dir-symlinked]: Resolver Evidence schema agreement
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: an uncontained staging root Blocks publication-journal-recovery before the scan globs it -- never a misattributed publication failure
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: no live artifact was published either -- the refusal precedes step 1 entirely (TEST-038)
+PASS: publication-staging-parent-symlink[feature-dir-symlinked]: NO Resolver Evidence -- `specs/<feature>` is itself the symlink, so the record's own destination lies outside the tree and writing it would be the very escape this fixture exists to close; the Block still reports `publication-journal-recovery`, never a misattributed publication failure
+PASS: publication-journal-roundtrip-unresolved-repo: the kill hook left exactly one genuine, resolver-authored journal standing
+PASS: publication-journal-roundtrip-unresolved-repo: the Resolver ACCEPTS its own journal under an unresolved repo_root -- a journal that can be safely converged is silently resolved and never reaches this diagnostic at all (REQ-002's own publication-journal-recovery row)
+PASS: publication-journal-roundtrip-unresolved-repo: having converged the stale journal, the invocation completes its own separate resolve normally (exit 0, no diagnostic)
+PASS: publication-journal-roundtrip-unresolved-repo: the converged journal is deleted, leaving no staging litter
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
+PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
+PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
+PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
+PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 355 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
@@ -15578,6 +16294,13 @@ PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an indep
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 306 passed, 0 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-test059.log ----
+mutant injected
+--- suite under mutant (expect TEST-059 FAIL) ---
+FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
+RESULT: 354 passed, 1 failed
+--- restoring ---
+restored sha256: 5604f8d3954dcd0d5b14ef16e81e8037b4c44c24017b10463d2116ddafbc0363
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -19902,9 +20625,19 @@ PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survive
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
+PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 345 passed, 0 failed
+RESULT: 355 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-007/focused-tests-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
@@ -20250,9 +20983,19 @@ PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survive
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059: scan target exists: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
+PASS: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1 never names an approval-surface path, so it writes to none of them (AC-059)
+PASS: TEST-059 non-vacuity: at least one scan target was actually found and scanned
+PASS: TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else
+PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own 3 categories
+PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 345 passed, 0 failed
+RESULT: 355 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-007/regression.log ----
 ########## tests/resolver-evidence-schema.tests.sh ##########
 PASS: TEST-017 schema file exists
@@ -21138,9 +21881,9 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `0a547f5d60c197cd1b23be79375b7515e0264abf2c25a2e050cbe0ed8b886aa5` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `4ae795dadfa86f13d8d4a50282d668e2ecc5a9f8c59d55a7224534ec99abf1e9` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `3ff4ab8dd0eda7ae28e98d3d0791d62602f895a4744ae0e9b4d0cbabebd3aace` |
+| `CHANGELOG.md` | `902243087b7590e914d9450b863201b9713f7f2cf908543618629ea9c81a0374` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `437d9751c01289300994b9263d6ae06016610b7a89018e6904a49d7eefe8b864` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `5604f8d3954dcd0d5b14ef16e81e8037b4c44c24017b10463d2116ddafbc0363` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -21153,8 +21896,11 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel5-sh.log` | `2dbd97b8653fa5a59174618e7cfcdd7ab09d684b3462eeefd27e92a0860ed098` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-ps1.log` | `13d517b03c4be5ebb9f1cdc060414626fbaaf188c59ee15959c0caadead3a9d3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-sh.log` | `99d0373e460efe7fc44b59cf92db7eba13be48e605ab401886817527b316fa9d` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel7-ps1.log` | `290de36357b583306cc2045350e5e627767789a31a7e8b82e371e663123e69fc` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel7-sh.log` | `b6acb2d1041ec52feda6681fba1d045ff561b1f7a46d89b5dc45bf1076c6b798` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log` | `86fcc1b0e0f312952d4344280fcd28deb73a239a80737a3f941a51905a7833a5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-test059.log` | `f5675b007e8c68c161b1e1ad8cb218903f091dd8659a8332f03a5f67872a61c6` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -21182,7 +21928,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml` | `31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
-| `tests/resolve-project-context-block-check.py` | `59c3f5f0bff35479a40e8bb3cec0c0add550c72c256cc6ea2bfbdd7547c22683` |
+| `tests/resolve-project-context-block-check.py` | `79ee249e1b7850cc0fd5c523654a89c8c3a19dd0557e23918c4cd3406f499b52` |
 
 **Re-derived 2026-08-28.** The table above was originally written while this
 task's work was still uncommitted, and was derived by re-measuring its own
@@ -21196,10 +21942,26 @@ added twenty-seven paths the old table never listed at all — twenty-two
 scenario directories (`publication-journal-roundtrip-unresolved-repo`,
 `publication-journal-target-escape`, `publication-staging-parent-symlink`,
 `publication-target-parent-symlink`). Re-measuring declared rows can never
-surface the second class. The forty-five rows above are therefore derived
-from `git show --name-only` over this task's own nine commits (`03a2778a`,
+surface the second class. The rows above are therefore derived from
+`git show --name-only` over this task's own commits (`03a2778a`,
 `4574d221`, `1aee79e1`, `e994ae29`, `5835f353`, `dc9626fc`, `9807c4b4`,
-`5435b1d1`, `a43a5595`), unioned and then measured from disk.
+`5435b1d1`, `a43a5595`), unioned with the still-uncommitted round-7
+worktree changes and then measured from disk.
+
+**Round 7 (2026-08-28), after the Anthropic panelist's NEEDS_WORK.** Three
+rows are new (`green-panel7-sh.log`, `green-panel7-ps1.log`,
+`mutation-proofs-test059.log`) and four changed bytes
+(`tests/resolve-project-context-block-check.py`, the staged
+`resolve-project-context.py`, `MANIFEST.sha256`, `CHANGELOG.md`), for
+forty-eight rows. The panel's Major was that AC-059/TEST-059 — added under
+ruling E on 2026-08-28 and assigned to this task — had never been
+implemented: grepping this repository for `AC-059`, `TEST-059`, and the
+three approval-surface path literals returned zero hits outside the spec
+documents. Verified independently before acting, and true. TEST-059 now
+exists in this task's own suite as the registration-time grep AC-059
+specifies, and a mutation proof (one injected mention of each of the three
+surfaces) shows it fires on all three categories and restores the file
+byte-exactly.
 
 Five paths that those commits report are deliberately NOT listed above,
 because this task did not author them as outputs:
@@ -22830,15 +23592,33 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   AC-040 の 2 本目 `snapshot-generation-mismatch`（全 digest 同一で
   `affected_components` 集合差のみ）、および AC-010 が要求する
   完全クリーンな negative fixture `clean-full-track-publication`。
-  新しい TEST-010 完全性チェックは、走行中に実際に観測された
-  diagnostic id 集合を `contracts/resolver-evidence.schema.json` の
-  enum と突き合わせるので、fixture を失った行はここで落ちる。
-  sh/ps1 とも 306 passed / 0 failed（TDD RED は同一ドライバで
-  272 passed / 23 failed、両ランタイム一致）。rollback を bare `unlink`
+  さらにパネル round 2-5 の指摘対応で containment 回帰 fixture を 4 本
+  追加した（`publication-journal-target-escape`,
+  `publication-staging-parent-symlink`,
+  `publication-target-parent-symlink`,
+  `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
+  シナリオ追加であり新しい diagnostic-id 行は導入しないので、
+  マトリクスは 16 行のまま。fixture 総数は 10 本。
+  新しい TEST-010 完全性チェックは**カバレッジ検査**であって
+  emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
+  `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
+  の enum であり、resolver が実際にその id を出したかは各ケース自身の
+  canonical-line assertion が個別に主張する。fixture を失った行、
+  実行リストに繋がっていない fixture、閉じた enum に無い id が
+  それぞれここで落ちる。
+  また AC-059（ruling E, 2026-08-28）の TEST-059 を同スイートに追加した —
+  Resolver（`resolve-project-context.{py,sh,ps1}` の 3 本のみ）が
+  `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
+  いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
+  TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
+  sh/ps1 とも 355 passed / 0 failed（TDD RED は同一ドライバで
+  341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
-  step 13 を digest 比較のみにする、の 4 mutation で非空虚性を実証済み。
+  step 13 を digest 比較のみにする、および Resolver に承認面パスの
+  言及を 1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、の
+  5 mutation で非空虚性を実証済み。
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
-  `-discovery`（12/0）・`-lite`（18/0）は無編集で回帰なし。
+  `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
   `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` は
   実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。
@@ -26075,7 +26855,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-3ff4ab8dd0eda7ae28e98d3d0791d62602f895a4744ae0e9b4d0cbabebd3aace  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+5604f8d3954dcd0d5b14ef16e81e8037b4c44c24017b10463d2116ddafbc0363  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -26101,14 +26881,29 @@ design.md's own "Resolver publication transactional bundle contract": the
 mandatory crash-recovery scan (step 0.5 -- run by every invocation,
 immediately after argument validation, scoped to this invocation's own
 `--feature`), and the journaled publication transaction (step 14 --
-Prepare/Journal/Commit/Post-publication verification/Complete) that is this
-feature's SOLE live-filesystem write of any kind. Every live write this
-script performs, on a clean resolve and on a Block alike, goes through that
-one transaction (design.md step 14: a successful Full-track run publishes
-three targets, a successful Lite-track run two, and any Block publishes
-"Resolver Evidence alone" -- all via the identical journaled mechanism,
-never a bare per-file `rename()` with no cross-file atomicity and no
-crash-safe rollback).
+Prepare/Journal/Commit/Post-publication verification/Complete).
+
+This script has exactly TWO live-filesystem write routes, and design.md
+requires both to be exactly what they are:
+
+  1. The journaled transaction (step 14). Every MULTI-target publication
+     goes through it -- a successful Full-track run publishes three targets,
+     a successful Lite-track run two -- so that the set lands atomically or
+     not at all, never a bare per-file `rename()` with no cross-file
+     atomicity and no crash-safe rollback.
+
+  2. A direct `temp file + fsync + rename` for the Block case, where
+     Resolver Evidence is the WHOLE write set. design.md:1419 and :2846
+     both require this write to be direct, with no staging area and no
+     journal: a one-file write needs no cross-file atomicity, and opening a
+     second journal against the very Feature whose existing journal this
+     invocation has just declared unconvergeable would be incoherent.
+
+An earlier revision of this docstring said step 14 was the sole write route
+and that a Block published "via the identical journaled mechanism". That was
+never what design.md required, and it is not what this script does; it is
+corrected here rather than left to mislead a reader of a Security-Sensitive
+file whose Standing Note tells reviewers to trust these descriptions.
 """
 
 import argparse
@@ -29863,6 +30658,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -33306,6 +34102,104 @@ def run_block_matrix_completeness_check(counts):
     )
 
 
+# =============================================================================
+# TEST-059: approval-surface write-scope lock (AC-059, ruling E).
+# =============================================================================
+#
+# A registration-time, CI-gated grep self-check of TEST-025's kind -- not a
+# new suite file, exactly as AC-059 and traceability.md both require. It is
+# the deny-list counterpart to TEST-025's own repository-wide grep, and it
+# locks requirements.md's Security Boundaries bullet 2 and security-spec.md's
+# B6 boundary, neither of which previously carried a write-scope criterion.
+#
+# Scanned set: the Resolver ALONE -- `resolve-project-context.{py,sh,ps1}`.
+# requirements.md's Field Definitions define "Resolver" as exactly this script
+# family and say the term "never refers to a different script anywhere in this
+# package", so `validate-resolver-evidence.*` is deliberately NOT scanned here
+# (it is not the Resolver, and T-008 authors it after T-007, which would make
+# this criterion unverifiable by its own owner at its own gate).
+#
+# Mechanism: absence of the surface's own path vocabulary in the source is a
+# conservative superset of absence of a write to it -- a script that never
+# names `*.approval.json`, `sdd/.approved-context/`, or `guard-invariants.json`
+# cannot write to any of them. This is the identical inference TEST-025 makes
+# from the absence of its forbidden API terms, and it errs toward flagging
+# (a read-only mention would also trip it), never toward missing a write.
+
+APPROVAL_SURFACE_PATTERNS = {
+    "approval sidecar (*.approval.json)": re.compile(r"\bapproval\.json\b"),
+    "approved-context anchor (sdd/.approved-context/)": re.compile(r"\.approved-context\b"),
+    "guard invariants file (guard-invariants.json)": re.compile(r"\bguard-invariants\.json\b"),
+}
+
+# Canaries are inline literals rather than fixture files on purpose: this
+# scan's subject is source TEXT, so a literal exercises the scanner exactly
+# as a file would, and adding two fixture files to prove a grep is awake
+# would enlarge this task's declared output set for no verification gain.
+_APPROVAL_SURFACE_DIRTY_CANARY = """
+    sidecar = target.with_suffix(".approval.json")
+    anchor = repo_root / "sdd" / ".approved-context" / feature
+    invariants = repo_root / "guard-invariants.json"
+"""
+
+# Every line below is a near miss the scan must NOT flag: the bare English
+# words, the plural/possessive forms, and a different sidecar suffix. A scan
+# that fired on these would be over-broad and would block honest prose in the
+# Resolver's own docstrings.
+_APPROVAL_SURFACE_CLEAN_CANARY = """
+    # The Resolver requires human approval before any approved context is
+    # published, and the guard invariants are checked by a separate gate.
+    sidecar = target.with_suffix(".approvals.json")
+    anchor = repo_root / "sdd" / "approved-contexts" / feature
+    invariants = repo_root / "guard-invariants.yaml"
+"""
+
+
+def _scan_approval_surface(text):
+    return [label for label, pattern in APPROVAL_SURFACE_PATTERNS.items() if pattern.search(text)]
+
+
+def run_test_059(counts):
+    targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    scanned_any = False
+    for target in targets:
+        exists = target.is_file()
+        counts.check(exists, f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
+        if not exists:
+            continue
+        scanned_any = True
+        hits = _scan_approval_surface(target.read_text(encoding="utf-8", errors="replace"))
+        counts.check(
+            not hits,
+            f"TEST-059: {target.relative_to(ROOT)} never names an approval-surface path, so it writes to "
+            f"none of them (AC-059)",
+            repr(hits),
+        )
+    counts.check(
+        scanned_any,
+        "TEST-059 non-vacuity: at least one scan target was actually found and scanned",
+    )
+    counts.check(
+        len(targets) == 3 and scanned_any,
+        "TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else",
+    )
+
+    dirty_hits = _scan_approval_surface(_APPROVAL_SURFACE_DIRTY_CANARY)
+    counts.check(
+        set(dirty_hits) == set(APPROVAL_SURFACE_PATTERNS),
+        f"TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own "
+        f"{len(APPROVAL_SURFACE_PATTERNS)} categories",
+        repr(dirty_hits),
+    )
+    clean_hits = _scan_approval_surface(_APPROVAL_SURFACE_CLEAN_CANARY)
+    counts.check(
+        not clean_hits,
+        "TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) "
+        "is not flagged",
+        repr(clean_hits),
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -33375,6 +34269,8 @@ def main():
         # Must run LAST: it consumes the diagnostic ids every case above
         # recorded while it ran.
         run_block_matrix_completeness_check(counts)
+
+    run_test_059(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

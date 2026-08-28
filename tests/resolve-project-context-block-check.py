@@ -2846,7 +2846,18 @@ def run_t007_post_publication_mismatch_case(kind, counts):
         )
         stdout = result.stdout.decode("utf-8", errors="replace")
         stderr = result.stderr.decode("utf-8", errors="replace")
-        expected_detail = f"{POST_PUBLICATION_MISMATCH_PREFIX}; {rolled_back_clause(3)}"
+        # TWO, not three. This fixture is a Lite track: the transaction commits
+        # three entries, but only two of them are PUBLICATION ARTIFACTS
+        # (`facet-manifest.yaml` and `generated/project-context.resolved.json`).
+        # The third is `resolver-evidence.yaml`, and REQ-001 step (m) makes it
+        # the explicit non-subject of every rollback sentence in this package --
+        # "the subject is the three publication artifacts ... and never
+        # `resolver-evidence.yaml`", because rolling Evidence back destroys the
+        # only record that the rolled-back publication was ever attempted.
+        # This assertion previously encoded the resolver's own defect (it rolled
+        # Evidence back too, and counted it), which is why it read three. Both
+        # cross-model panelists reached that code independently on round 7.
+        expected_detail = f"{POST_PUBLICATION_MISMATCH_PREFIX}; {rolled_back_clause(2)}"
         expected_line = f"capability-resolver: post-publication-generation-mismatch: {expected_detail}\n"
         counts.record_diagnostic_id("post-publication-generation-mismatch")
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
