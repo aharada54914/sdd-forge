@@ -54,8 +54,14 @@ Strategy: `resolve-project-context-cli`, `resolve-project-context-block`,
 `resolve-project-context-parity`, `resolve-project-context-discovery`,
 `resolver-evidence-schema`, `validate-resolver-evidence`,
 `resolve-project-context-metamorphic`, `resolve-project-context-caller-
-contract`), registered directly (unprotected) in `tests/run-all.sh`/`.ps1`
-(AC-026), with a staged `.github/workflows/test.yml` registration
+contract`) are specified at contract level; the **nine** this package's
+`tasks.md` schedules are registered directly (unprotected) in
+`tests/run-all.sh`/`.ps1`
+(AC-026), and the tenth, `resolve-project-context-caller-contract`, is
+deferred — neither authored nor registered here (scoped 2026-08-27,
+human-approved, ruling D(2), matching AC-026's own narrowing and
+`tasks.md`'s "Deferred, not scheduled") — with a staged
+`.github/workflows/test.yml` registration
 candidate under `specs/epic-193-a5-capability-resolver/human-copy/`
 (design.md Deployment / CI Plan; Test Strategy). No browser/UI test
 tooling applies — no UI exists for this feature.

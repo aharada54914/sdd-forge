@@ -309,7 +309,7 @@ content at a reservation an upstream epic already made.
 |---|---|---|---|---|
 | UX | N/A — no user-facing surface; deterministic CLI script family + validator + schema + documented (not implemented) caller-integration contract only | ux-spec.md (N/A content — no UI to specify) | — | N/A |
 | Frontend | N/A — no browser/client UI, no new runtime service; new stdlib-only Python scripts + `sh`/`ps1` wrappers recorded for completeness | frontend-spec.md (N/A content — no browser/frontend surface) | — | N/A |
-| Infrastructure | No new runtime deployment; ten new CI test-suite pairs registered in `tests/run-all.sh`/`.ps1`, a staged `test.yml` human-copy candidate, and one new vendored-copy `--check` drift entry (`resolver-evidence.schema.json`) | infra-spec.md (expands this document's Deployment / CI Plan) | Implementation task owner | Planned |
+| Infrastructure | No new runtime deployment; ten new CI test-suite pairs specified at contract level, of which the **nine** this package's `tasks.md` schedules are registered in `tests/run-all.sh`/`.ps1` and the tenth (`resolve-project-context-caller-contract`) is deferred with its authoring and registration (scoped 2026-08-27, human-approved, ruling D(2), matching AC-026's own narrowing and `tasks.md`'s "Deferred, not scheduled"), a staged `test.yml` human-copy candidate, and one new vendored-copy `--check` drift entry (`resolver-evidence.schema.json`) | infra-spec.md (expands this document's Deployment / CI Plan) | Implementation task owner | Planned |
 | Security | No new trust boundary beyond this feature's own transactional-publication/snapshot-recheck/provenance-binding rules (Security Boundaries, below); two already-reserved protected paths inherited from Epic A1 (Protected-File Statement, above) | security-spec.md (expands this document's Security Boundaries / Protected-File Statement) | Implementation task owner | Planned |
 
 Added at impl-review-prep time (investigation.md INV-015 already
@@ -2501,15 +2501,23 @@ this document:
    implementation statement, which is why it is scoped here instead.)
    `workflow.capability_enforcement` is read exactly once (API / Contract
    Plan step 1) and recorded in Resolver Evidence's own `state` field for
-   downstream auditability. Steps 3 and 7-11 are the identical code path
+   downstream auditability. Steps 3 and 7-11 **other than step 10b** are
+   the identical code path
    under either value: the Context Projection, the per-Capability and
    per-conditional-facet evaluation sweep, the track branch, and the
    Facet Manifest/Capability Summary/Resolver Evidence assembly all
-   consume the value only as an opaque `state` string. This invocation's
+   consume the value only as an opaque `state` string. Step 10b is the
+   one exception this item names above and it genuinely branches
+   (corrected 2026-08-27, human-approved, ruling D(2): the range "3 and
+   7-11" contains 10b, so the unqualified sentence re-erased the
+   fail-closed exception the item's own heading had just carved out).
+   This invocation's
    own track-exclusive output set (Design Decisions, "track-exclusive
    publication set", above) is therefore byte-identical across an
    otherwise-identical `advisory`/`required` fixture pair, except for the
-   fields item 2 names.
+   fields item 2 names — and, for step 10b, only within AC-016's own
+   fixture domain, which excludes the absent-`required_lite_checks`
+   branch by construction.
 2. **`full_context_revision` and `projection_sha256` must differ, and
    are the only digest fields that may.** `context_binding.full_context_
    revision` is step 2's `source_sha256` over the canonical Project

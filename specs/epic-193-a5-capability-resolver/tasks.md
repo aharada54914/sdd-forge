@@ -269,9 +269,12 @@ the deferred suite's own criteria) are correspondingly out of this
   fixture will assert against) but is **not** authored by any task
   below — design.md states it "is itself authored once the capability
   interview phase is actually implemented (a future task, Non-goals)."
-  **AC-026's own "ten new suites registered" criterion is therefore
-  satisfied by this `tasks.md` only for the nine suites T-001..T-010
-  build** (`resolve-project-context-cli`, `-block`, `-match`, `-lite`,
+  **AC-026 is accordingly scoped to the nine suites this `tasks.md`
+  schedules** (narrowed 2026-08-27, human-approved, ruling D(2): the
+  criterion previously read "all ten new pairs are registered" and is now
+  worded for the nine, with the tenth deferred, so this bullet no longer
+  quotes a superseded criterion as if it still stood) — the nine being
+  those T-001..T-010 build (`resolve-project-context-cli`, `-block`, `-match`, `-lite`,
   `-discovery`, `resolver-evidence-schema`, `validate-resolver-
   evidence`, `-parity`, `-metamorphic`); the tenth (`-caller-contract`)
   registers alongside that future `SKILL.md`-editing task, not here. No
@@ -990,7 +993,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
-  path under `plugins/**` in either of this task's own commits (AC-032).
+  path under `plugins/**` other than any file this task's own Scope names
+  as new and unprotected, in either of this task's own commits (AC-032,
+  whose own scope is this package's two registration commits; scoped
+  2026-08-27, human-approved, ruling D(2)).
 - [ ] **TDD evidence** — RED (each of the seven fixtures against a
   deliberately broken or absent steps-4-9 implementation) and GREEN (all
   twelve block-suite fixtures — T-002's own five plus this task's own
@@ -1008,7 +1014,7 @@ Commit B (documentation):
   site; the
   step-6.5 site's own fixture is T-003's, ruling C(1)) — T-004's own)
   and the
-  four transactional-diagnostic fixtures (T-007's own).
+  four transactional-diagnostic fixtures (three new diagnostic-id rows plus one additional `snapshot-generation-mismatch` fixture on T-004's row — corrected 2026-08-27, ruling D(2)) (T-007's own).
 - The `resolve-project-context-match` suite (T-005's own), the CLI
   required-flag-matrix suite, the discovery-contract-reuse suite, and
   the Lite-track suite (T-006's own).
@@ -1247,7 +1253,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
-  path under `plugins/**` in either of this task's own commits (AC-032).
+  path under `plugins/**` other than any file this task's own Scope names
+  as new and unprotected, in either of this task's own commits (AC-032,
+  whose own scope is this package's two registration commits; scoped
+  2026-08-27, human-approved, ruling D(2)).
 - [ ] **TDD evidence** — RED (each of the three block-suite fixtures
   against a deliberately broken or absent steps-10-13 implementation)
   and GREEN (all fifteen block-suite fixtures — T-002's own five,
@@ -1260,7 +1269,7 @@ Commit B (documentation):
 - The non-transactional Block-diagnostic fixtures T-002/T-003
   already own (`disabled-legacy-invocation` through `dsl-warn-on-
   matched-capability`, the two rulings-C fixtures included) and the
-  four transactional-diagnostic fixtures
+  four transactional-diagnostic fixtures (three new diagnostic-id rows plus one additional `snapshot-generation-mismatch` fixture on T-004's row — corrected 2026-08-27, ruling D(2))
   (T-007's own).
 - The `resolve-project-context-match` suite (TEST-003 through TEST-008,
   TEST-016, TEST-043, TEST-044, TEST-052, TEST-056 — T-005's own scope,
@@ -1468,7 +1477,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
-  path under `plugins/**` in either of this task's own commits (AC-032).
+  path under `plugins/**` other than any file this task's own Scope names
+  as new and unprotected, in either of this task's own commits (AC-032,
+  whose own scope is this package's two registration commits; scoped
+  2026-08-27, human-approved, ruling D(2)).
 - [ ] **Acceptance evidence** — every fixture written before the
   behavior it exercises, failing against a deliberately broken pipeline
   (an under-matched Capability, a mis-aggregated facet, a non-canonical
@@ -1646,7 +1658,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
-  path under `plugins/**` in either of this task's own commits (AC-032).
+  path under `plugins/**` other than any file this task's own Scope names
+  as new and unprotected, in either of this task's own commits (AC-032,
+  whose own scope is this package's two registration commits; scoped
+  2026-08-27, human-approved, ruling D(2)).
 - [ ] **Acceptance evidence** — every fixture written before the
   behavior it exercises, failing against a deliberately regressed
   invocation (e.g. a required flag silently defaulted, a discovery
@@ -1705,7 +1720,7 @@ Security-Sensitive: true
 Cross-Model: not enabled
 
 Requirements: REQ-001 (step 0's crash-recovery scan, step 14's
-transaction), REQ-002 (share — the four transactional diagnostic-id rows:
+transaction), REQ-002 (share — the three transactional diagnostic-id rows, plus one additional `snapshot-generation-mismatch` fixture introducing no new row (corrected 2026-08-27, human-approved, ruling D(2)):
 `publication-journal-recovery`, `artifact-publication-failed`,
 `post-publication-generation-mismatch`, and the `affected_components`-
 only `snapshot-generation-mismatch` companion fixture), REQ-004 (share —
@@ -1717,7 +1732,7 @@ CHANGELOG)
 Depends On: T-004 (extends the same `resolve-project-context.{py,sh,
 ps1}` script with the commit-phase logic; T-004's own staged-artifact
 assembly, steps 0-13 complete, is this task's own transaction's input;
-this task also appends its own four transactional-diagnostic fixtures
+this task also appends its own four transactional-diagnostic fixtures (three new diagnostic-id rows plus one additional `snapshot-generation-mismatch` fixture on T-004's row — corrected 2026-08-27, ruling D(2))
 directly onto T-004's own contribution to `tests/resolve-project-
 context-block.tests.sh`/`.ps1` — a single Blockers entry serves both
 purposes, since T-004 is both the completed engine and the immediately
@@ -1743,7 +1758,7 @@ Planned Files:
   (edited — updated SHA-256 entries for the three updated staged
   candidates)
 - `tests/resolve-project-context-block.tests.sh` / `.ps1` (edited —
-  appends the four transactional-diagnostic fixtures to T-002/T-003/
+  appends the four transactional-diagnostic fixtures (three new diagnostic-id rows plus one additional `snapshot-generation-mismatch` fixture on T-004's row — corrected 2026-08-27, ruling D(2)) to T-002/T-003/
   T-004's own file; no new suite registration)
 - `tests/fixtures/capability-resolver/` (extended — journal/crash-
   recovery/post-publication-race fixtures, including a test-harness-only
@@ -1791,7 +1806,9 @@ bare `unlink`.
 ### Must Read
 
 - `specs/epic-193-a5-capability-resolver/requirements.md` (REQ-002's
-  four transactional diagnostic-id rows, Security Boundaries, Edge
+  three transactional diagnostic-id rows plus the additional
+  `snapshot-generation-mismatch` fixture on T-004's row (corrected
+  2026-08-27, ruling D(2)), Security Boundaries, Edge
   Cases — the TOCTOU/crash paragraphs)
 - `specs/epic-193-a5-capability-resolver/design.md` (`### Resolver
   publication transactional bundle contract (REQ-001/REQ-002, NEW)` in
@@ -1800,7 +1817,7 @@ bare `unlink`.
   the single-writer assumption; `## Test Strategy` item 2's own
   transactional fixtures; `## Security Boundaries`)
 - `specs/epic-193-a5-capability-resolver/acceptance-tests.md` (AC-010
-  [remaining four rows], AC-011 [share], AC-012 [share], AC-014 [share],
+  [remaining three rows plus one additional shared-row fixture], AC-011 [share], AC-012 [share], AC-014 [share],
   AC-038 [share], AC-039, AC-040 [second fixture, share], AC-047,
   AC-049)
 - `specs/epic-193-a5-capability-resolver/infra-spec.md`
@@ -1906,8 +1923,15 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
-  no path under `plugins/**` in either of this task's own commits
-  (AC-032).
+  no path under `plugins/**` **other than any file this task's own Scope
+  names as new and unprotected** in either of this task's own commits
+  (AC-032, whose own scope is this package's two registration commits;
+  the per-task form is the narrower "modify no EXISTING plugin file"
+  guard — scoped 2026-08-27, human-approved, ruling D(2): the unqualified
+  form was unsatisfiable for T-008, whose Scope creates
+  `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
+  as a direct, per-PR-reviewed agent write, per security-spec.md's own
+  authorization table).
 - [ ] **TDD evidence** — RED (each transactional fixture against a
   deliberately broken commit/recovery path) and GREEN (the full suite).
   An independent quality-gate verdict records PASS.
@@ -2101,8 +2125,15 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
-  no path under `plugins/**` in either of this task's own commits
-  (AC-032).
+  no path under `plugins/**` **other than any file this task's own Scope
+  names as new and unprotected** in either of this task's own commits
+  (AC-032, whose own scope is this package's two registration commits;
+  the per-task form is the narrower "modify no EXISTING plugin file"
+  guard — scoped 2026-08-27, human-approved, ruling D(2): the unqualified
+  form was unsatisfiable for T-008, whose Scope creates
+  `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
+  as a direct, per-PR-reviewed agent write, per security-spec.md's own
+  authorization table).
 - [ ] **TDD evidence** — RED (each check-id fixture against a
   deliberately permissive validator) and GREEN (the full suite). An
   independent quality-gate verdict records PASS.
@@ -2256,7 +2287,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
-  no path under `plugins/**` (AC-032).
+  no path under `plugins/**` other than any file this task's own Scope
+  names as new and unprotected (AC-032, whose own scope is this package's
+  two registration commits; scoped 2026-08-27, human-approved, ruling
+  D(2)).
 - [ ] **Acceptance evidence** — every fixture written before the
   behavior it exercises, failing against a deliberately introduced
   cross-runtime or ordering divergence and passing against the correct
@@ -2399,7 +2433,10 @@ Commit B (documentation):
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
-  no path under `plugins/**` (AC-032).
+  no path under `plugins/**` other than any file this task's own Scope
+  names as new and unprotected (AC-032, whose own scope is this package's
+  two registration commits; scoped 2026-08-27, human-approved, ruling
+  D(2)).
 - [ ] **Feature-wide fixture-matrix completeness** — a final check
   confirms every REQ-006 fixture-matrix item (a-h) and every one of the
   nine suites T-001..T-010 build is present and independently invocable
