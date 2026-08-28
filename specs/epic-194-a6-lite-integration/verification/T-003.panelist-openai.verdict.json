@@ -8,29 +8,24 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-003.contract.json: checks.regression",
-      "note": "The required regression check is explicitly passes:false; the cited regression log confirms full-repository regression does not pass. A high-risk implementation cannot receive a passing verification verdict while a required check remains red and unwaived."
+      "ref": "human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md:Risk-Upgrade Gate",
+      "note": "The implementation declares the ship-time recheck mandatory but leaves it unmodified and supplies no Capability-derived fragment there. Consequently it cannot catch a Lite-ineligible Capability introduced or made relevant after intake, despite REQ-005/OQ-002 explicitly assigning that defense-in-depth purpose to the second stage."
     },
     {
       "severity": "Major",
-      "ref": "verification/T-003.contract.json: checks.placeholder-scan",
-      "note": "The required placeholder scan is explicitly passes:false. Its evidence reports five findings in CHANGELOG.md and states that human acceptance in a quality-gate report is required, but the bundle provides no such acceptance."
+      "ref": "tests/lite-spec-capability-block.tests.sh:TEST-019-defense-in-depth",
+      "note": "The defense-in-depth fixture proves only that the legacy keyword scanner later detects an unrelated `secret` keyword. It does not exercise ship-time Capability matching or a capability-reasons fragment, so it cannot verify the required later detection of an ineligible Capability missed at intake."
     },
     {
-      "severity": "Major",
-      "ref": "verification/T-003.contract.json: spec_revision",
-      "note": "The verification contract admits its spec_revision is stale and deliberately retains the old digest. Consequently, its passing unit and acceptance evidence is not independently bound to the amended specification currently under review."
-    },
-    {
-      "severity": "Major",
-      "ref": "tasks.md:T-003 Done When / verification/T-003.contract.json comment",
-      "note": "The mandatory HUMAN APPLY STEP remains outstanding, so the staged lite-spec/SKILL.md has not been installed and post-copy verified at the protected live path. The implementation therefore has not completed its required operational delivery path."
+      "severity": "Minor",
+      "ref": "tests/lite-spec-capability-block.tests.sh:functional fixture assembly",
+      "note": "The functional test replaces the specified A2 `evaluate-predicate` fan-out with component-name equality even though the bundled repository history states that evaluator has landed. Static substring checks plus this surrogate do not verify the actual Capability \u00d7 component invocation, result interpretation, or failure propagation described by REQ-005."
     }
   ],
   "blind": true,
-  "input_digest": "4d7689713c559a39f81707c4a3e96c7bf4d8a3f664dfaba03f42fdad7265bdeb",
+  "input_digest": "27f1eaa3207d5c3087e415615f457c361f40658a07e08828eebc086de0bcadb9",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md:T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
   }
 }

@@ -3,32 +3,27 @@
   "task_id": "T-002",
   "feature": "epic-194-a6-lite-integration",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-002.contract.json checks: regression, placeholder-scan",
-      "note": "The Default-FAIL verification contract records two required checks as passes:false. Regression evidence explicitly says the repository regression does not pass, and placeholder evidence exits 1 without the human acceptance required by that scanner. T-002 therefore lacks a passing verification contract."
+      "ref": "verification/T-002.contract.json checks: unit-tests and acceptance-tests",
+      "note": "The required checks claim REQ-002/REQ-006 pass, but their pinned evidence and green_evidence files cover only TEST-013 fragment validation. They do not contain the current TEST-007, TEST-008/009, or TEST-014 PowerShell evidence, so the contract does not substantiate the full cross-runtime acceptance scope it certifies."
     },
     {
       "severity": "Major",
-      "ref": "verification/T-002.contract.json spec_revision",
-      "note": "The contract explicitly states its spec_revision is stale and deliberately was not reissued after the approved specification amendments. It therefore does not bind an independent quality-gate pass to the implementation and requirements currently under review."
+      "ref": "verification/T-002.contract.json regression; verification/T-002/regression-20260828-excerpt.log authoritative tail",
+      "note": "The contract records the required regression check as passing, while its cited evidence explicitly reports two failing suites and a nonzero full-run result. Labeling those failures designed-red does not make the required regression execution pass; the contract and evidence disagree."
     },
     {
       "severity": "Major",
-      "ref": "verification/qg/T-002/unit-acceptance-green.log; verification/T-002.green.log; tests/check-ri[REDACTED].tests.{sh,ps1} TEST-013ag-aj",
-      "note": "The supplied green evidence ends at TEST-013af, while the current suites and amended AC-027 require TEST-013ag/ah for malformed upgrade_reasons on eligible:true entries and TEST-013ai/aj for falsy-value behavior. The newest mandatory behavior has no current execution evidence in the bundle."
-    },
-    {
-      "severity": "Minor",
-      "ref": "tests/check-ri[REDACTED].tests.ps1 TEST-013r; design.md API / Contract Plan REQ-002",
-      "note": "The PowerShell negative test accepts any exit other than 0 or 10 for an unsupported bare second positional argument and records exit 1, while the documented usage-error convention is exit 2 and the Bash twin returns 2. The assertion does not enforce cross-runtime exit-code parity for this invalid invocation."
+      "ref": "tests/check-risk-upgrade-byte-identical.tests.sh assert_identical; tests/check-risk-upgrade-byte-identical.tests.ps1 Assert-Identical",
+      "note": "AC-007 requires byte-identical stdout, but both twins compare normalized strings: Bash command substitution strips trailing newlines, and PowerShell joins output records without preserving original line terminators or the final newline. Changes limited to stdout newline bytes could therefore pass, so the byte-identity requirement is not fully tested."
     }
   ],
   "blind": true,
-  "input_digest": "a250ff12bc55cd4d760aacc717a9aba77134a92be5f5ad18b43f4a71d5e80319",
+  "input_digest": "d6481a72c5c79e66ce48ddc9516af86a13704d977af49f42df64ac555e76feb4",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
