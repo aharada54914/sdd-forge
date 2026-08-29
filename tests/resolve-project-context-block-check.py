@@ -3181,6 +3181,88 @@ def run_t007_leaf_symlink_escape_case(kind, counts):
         )
 
 
+def run_t007_journal_nonce_mismatch_case(kind, counts):
+    """The fixture round 13 said could not be written, written.
+
+    Round 13 added the nonce/batch-directory binding to `_read_journal` and
+    disclosed it as uncovered, on the reasoning that "no fixture grafts a
+    journal from one batch into another batch directory". The anthropic panel
+    slot answered on round 18 that `plant_journal` already exists and that a
+    mismatched-nonce all-PRE journal flips exit 1 to exit 0. That is the
+    second of my own unreachability claims a panelist has disproved, so this
+    is a fixture rather than a third repetition of the disclosure.
+
+    The journal is deliberately a legitimate Full-track SHAPE and all-PRE. It
+    has to be both: a wrong shape would be refused by the round-15 bundle
+    check first, and a non-all-PRE journal would take a different branch --
+    either way the test would pass for a reason that has nothing to do with
+    the nonce. All-PRE is what makes the nonce load-bearing, because without
+    the binding it classifies as SAFE abandonment, reaches `_discard_batch`,
+    and the run continues to a clean exit 0."""
+    case_name = "publication-journal-target-escape"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[nonce-names-another-batch]"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        entries = [
+            {
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": hashlib.sha256(PRE_FACET_MANIFEST).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+            {
+                "live_path": "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json",
+                "pre_hash": hashlib.sha256(PRE_CONTEXT_PROJECTION).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+            {
+                "live_path": "specs/example-feature/resolver-evidence.yaml",
+                "pre_hash": "ABSENT",
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+        ]
+        journal = plant_journal(feature_dir, entries, {})
+
+        # The one thing under test: the recorded nonce names a DIFFERENT batch.
+        document = json.loads(journal.read_text(encoding="utf-8"))
+        counts.check(
+            document["nonce"] == journal.parent.name,
+            f"{label}: precondition -- plant_journal records the batch's own nonce, so the mismatch "
+            f"below is the only difference from a well-formed journal",
+        )
+        document["nonce"] = "a" * 32
+        journal.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("publication-journal-recovery")
+
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n",
+            f"{label}: a journal whose nonce names another batch is refused -- without the binding this "
+            f"all-PRE journal classifies as SAFE abandonment and the run exits 0, which is exactly what "
+            f"this assertion catches",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            journal.is_file(),
+            f"{label}: the refused journal is retained for manual operator intervention rather than "
+            f"discarded as an abandoned batch",
+        )
+
+
 def run_t007_journal_bundle_shape_case(kind, counts):
     """Panel round 14 Major (openai slot): every journal entry can be in-set
     and unique while the SET describes a transaction that never happened.
@@ -4253,6 +4335,7 @@ def main():
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)
+        run_t007_journal_nonce_mismatch_case(args.launcher, counts)
         run_t007_crash_before_evidence_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
         run_t007_staging_symlink_case(args.launcher, counts)

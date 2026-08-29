@@ -322,6 +322,9 @@ PASS: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bu
 PASS: publication-journal-target-escape[in-set-non-bundle]: the live artifact the fabricated journal marked ABSENT-at-PRE is STILL THERE -- this is the assertion the defect fails, because a MIX rollback would unlink it
 PASS: publication-journal-target-escape[in-set-non-bundle]: the other in-set targets are untouched too -- the refusal happens BEFORE any recovery write
 PASS: publication-journal-target-escape[in-set-non-bundle]: the rejected journal is retained for manual operator intervention
+PASS: publication-journal-target-escape[nonce-names-another-batch]: precondition -- plant_journal records the batch's own nonce, so the mismatch below is the only difference from a well-formed journal
+PASS: publication-journal-target-escape[nonce-names-another-batch]: a journal whose nonce names another batch is refused -- without the binding this all-PRE journal classifies as SAFE abandonment and the run exits 0, which is exactly what this assertion catches
+PASS: publication-journal-target-escape[nonce-names-another-batch]: the refused journal is retained for manual operator intervention rather than discarded as an abandoned batch
 PASS: post-publication-crash-before-evidence: the first invocation dies in the window rather than exiting normally (the kill hook fired)
 PASS: post-publication-crash-before-evidence: the journal is STILL STANDING after a crash between the rollback and the Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it deleted the journal before that write
 PASS: post-publication-crash-before-evidence: the next invocation consumes that journal -- the crash left a state the recovery scan could converge, not a permanent one
@@ -379,4 +382,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 380 passed, 0 failed
+RESULT: 383 passed, 0 failed

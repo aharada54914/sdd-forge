@@ -2595,7 +2595,7 @@ that class and are handled separately:
   limitation rather than patched — the same disposition the 2026-08-27 ruling
   gave the doubly-degraded rollback corner.
 
-**What (d) produced.** `docs/workflow-improvements/WFI-038.md`.
+**What (d) produced.** `docs/workflow-improvements/WFI-060.md` (renumbered from 038 on 2026-08-29: main already carries a WFI-060, and this branch is 575 commits behind it).
 `check-cross-model` requires every panelist verdict to be PASS and has no
 outcome for panelists diverging from each other — its one `NEEDS_HUMAN` path
 fires only when the EVALUATOR diverges from an already-unanimous panel. Across

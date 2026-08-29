@@ -287,7 +287,8 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `publication-target-parent-symlink`,
   `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
   シナリオ追加であり新しい diagnostic-id 行は導入しないので、
-  マトリクスは 16 行のまま。fixture 総数は 10 本。
+  マトリクスは 16 行のまま。round 12 の leaf-symlink scenario を含む
+  T-007 自身の fixture scenario directory 総数は 11 本。
   新しい TEST-010 完全性チェックは**カバレッジ検査**であって
   emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
   `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
@@ -300,7 +301,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 380 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 383 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
   step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
@@ -317,19 +318,20 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
   実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
   検査を外す mutation が 4 アサーションで死ぬ）。
-  **未カバーは 2 件**（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
+  **現在の未カバーは 1 件（F のみ）**。D を到達不能とした主張は、単なる
+  陳腐化ではなく誤りだった。round 19 の `nonce-names-another-batch` fixture が
+  D を被覆して kill し、12 mutant 中 11 件（A, B, C, D, E, G, H, I, J, K,
+  L）が被覆済みとなった。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
   際、直下の列挙を 3 件のまま残していた。しかも先頭に挙げていた
   「journal 削除順序」は round 15 で fixture を書いて被覆済みで、その
   括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
   観測できない」という主張を保持していた。見出しだけ直して兄弟記述を
   取り残す欠陥が、まさにその欠陥を直す行で再発したもの） —
-  journal の nonce をバッチ名から
-  切り離す変更（バッチをまたいで journal を移植する fixture が無い）、
-  そして上記の `complete and wrote` を `complete` だけに戻す変更
+  現在残るのは、上記の `complete and wrote` を `complete` だけに戻す変更
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
   commit 前に publish が拒否されるため、fixture では作れない）。
-  **残る 2 件はいずれも rollback / Evidence / journal 経路にあり、この領域の
+  **残る 1 件（F）は rollback / Evidence / journal 経路にあり、この領域の
   正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
