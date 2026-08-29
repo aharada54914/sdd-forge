@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 852fc465b1b83b233fe8bd091da1fbf12f41b1d4f2e3677f5bd749fee811bfc8
+# input_digest: 5824e2c56fdc2512992f39d96a3b5df0ded2ae8ac8feda592cfe091799b6a9dc
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -16570,7 +16570,12 @@ RESULT: 383 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutant C covered as of round 15, F and D are the two that remain.)
+ mutants C and D both covered since rounds 15 and 19, F and M are the
+ pair that remain. The counting fix and the unlink-side fsync from round
+ 20 are likewise not yet exercised: both only matter when a directory
+ fsync FAILS after a successful replace/unlink, and injecting that fault
+ is feasible via the in-process registry_discovery overlay wrapping
+ os.fsync -- future fixture work, not an impossibility claim.)
 mutant G injected: journal bundle-shape check removed
 --- MUTANT G: bundle-shape check removed (expect in-set-non-bundle FAIL) ---
 FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bundle target set Blocks publication-journal-recovery with the canonical line only -- the shape is refused even though every individual path is allowed: exit=0 stdout='' stderr=''
@@ -16593,7 +16598,7 @@ RESULT: 380 passed, 3 failed
 mutant L injected: pre-image backup read containment removed
 --- MUTANT L: backup read containment removed (expect pre-image-symlink FAIL) ---
 RESULT: 381 passed, 2 failed
-mutant M injected: directory fsync after os.replace removed
+mutant M injected: write-side directory fsync disabled
 --- MUTANT M: directory fsync removed ---
 RESULT: 383 passed, 0 failed
 (A tally here EQUAL to the clean control run means mutant M is UNCOVERED,
@@ -16602,7 +16607,7 @@ RESULT: 383 passed, 0 failed
  in-process fixture can simulate without kernel-level fault injection.
  Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3
+restored sha256: 916ec2e529f2c20678c1210a8896c3fc0524d5dd190b8065a50c265a2c0a6fe4
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -22273,8 +22278,8 @@ Cross-cutting checks extended per the Done When bullets:
 | Path | SHA-256 |
 |---|---|
 | `CHANGELOG.md` | `a15cd562108526e901cf1215d74e29a7f811d32a1bd7793e7de84b00429d0da9` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `0fa00a2bbb79afc6c882f87c35c0f5e547de439b510e6d60dbb39beb868527ce` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `4cad0902d6f7161d86d629b245a2f0c4e4207b384ab01ae7374affa0998867a5` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `916ec2e529f2c20678c1210a8896c3fc0524d5dd190b8065a50c265a2c0a6fe4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22291,7 +22296,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `b9f0d1e411f898f7c2a8f05be57c527c33ba0641bb8f4f3274c6f9f116d4e889` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `bc5c7c3f5649e226fb234d387909fce1821a901a0660c681b0f57c7d7a7747a6` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `1c7da432f32adf9f256241153c4c0cf7befa7aac3ebb3c442dfe098fec0672cb` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `f879cd6e0dbd5788d4a633d6507097cbe9dadb7ee0f9108949bcbf6b94ab4f03` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22438,7 +22443,7 @@ the second the Block record's — which is exactly that window.
 `run_t007_crash_before_evidence_case` asserts the journal is still standing at
 that instant, and mutant C now dies. **At round 15, uncovered guards dropped
 from three to two** (D and F). **Round 19 corrects the current value to one:
-only F is uncovered; D is covered by `nonce-names-another-batch`.**
+F and M are the uncovered pair (corrected round 20 — round 19's fsync hardening added M after this sentence first said only F); D is covered by `nonce-names-another-batch`.**
 
 One prediction of mine failed while writing it, and the test records why
 rather than hiding it: I expected the next invocation to Block
@@ -22617,7 +22622,7 @@ because the end state was byte-identical on every non-crashing path. Mutant D
 removed the nonce/batch binding and the suite stayed green in that round. The
 claim that D was unreachable was wrong, not merely outdated: round 19's
 `nonce-names-another-batch` fixture covers and kills D. C was covered in round
-15, so the current total among these two is **zero**; across all twelve mutants,
+15, so the current total among these two is **zero**; across all thirteen mutants,
 the current uncovered total is **one**, F.
 
 **Still open, and not an implementer's call.** The OpenAI Major has two
@@ -22815,7 +22820,7 @@ The historical round-17 twelve-mutant set ran beneath a clean control of
 J 369/11, K 377/3, L 378/2 were killed; D and F sat at the control tally and
 were labelled UNCOVERED. The stronger claim that D was unreachable was wrong:
 at the current **383/0** control, **eleven of twelve** mutants are killed
-(A, B, C, D, E, G, H, I, J, K, L), and **only F is uncovered**; D is killed by
+(A, B, C, D, E, G, H, I, J, K, L), and **F and M are uncovered** (M being the round-19 directory-fsync hardening, observable only across a power loss); D is killed by
 the round-19 `nonce-names-another-batch` fixture. K is
 ruling (A)'s own guard — `_live_bytes` mutated back to following a leaf
 symlink — and L is the PRE-image backup read containment added in round 18.
@@ -27712,7 +27717,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+916ec2e529f2c20678c1210a8896c3fc0524d5dd190b8065a50c265a2c0a6fe4  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -29143,6 +29148,19 @@ def _live_digest(path):
     return ABSENT if payload is None else _digest(payload)
 
 
+class _ReplacedButNotDurable(OSError):
+    """`os.replace` succeeded -- the target IS live -- and the parent
+    directory fsync afterwards failed, so durability is unconfirmed. Distinct
+    from a plain `OSError` because the two demand opposite bookkeeping in the
+    commit loop (openai panel slot, round 20 Major 1): a failure BEFORE the
+    replace means the target never changed and must not count as committed; a
+    failure AFTER it means the target is visibly published and MUST count, or
+    the rollback skips it, reports completion, discards the journal, and
+    leaves a POST artifact standing. Subclasses `OSError` so every call site
+    that does not care about the distinction keeps its existing fail-closed
+    handling unchanged."""
+
+
 def _atomic_write_bytes(target, payload):
     """The single-file primitive every write in this file uses, unchanged in
     itself from the revision step 14 already used (design.md: "temp file +
@@ -29179,11 +29197,19 @@ def _atomic_write_bytes(target, payload):
         # disclosed as uncovered in the mutation log rather than implied to
         # be tested.
         if os.name == "posix":
-            dir_fd = os.open(str(target.parent), os.O_RDONLY)
             try:
-                os.fsync(dir_fd)
-            finally:
-                os.close(dir_fd)
+                dir_fd = os.open(str(target.parent), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
+            except OSError as exc:
+                # The replace already happened: the target is LIVE. Raising a
+                # plain OSError here made the commit loop treat this entry as
+                # never-committed, so the rollback skipped a visibly published
+                # artifact (round 20 Major 1). The distinct type lets the loop
+                # count it first and then fail.
+                raise _ReplacedButNotDurable(str(exc)) from exc
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)
@@ -29350,6 +29376,22 @@ def _restore_to_pre(repo_root, batch_dir, entry):
     if entry["pre_hash"] == ABSENT:
         if target.is_symlink() or target.exists():
             target.unlink()
+            # Durability barrier for the DELETION (openai panel slot, round
+            # 20 Major 3): the unlink lives in the parent directory's data,
+            # exactly like the rename in `_atomic_write_bytes`, and the
+            # journal's own deletion follows this restore. Without the fsync
+            # a power loss can persist the journal's deletion while losing
+            # this one, leaving a POST artifact standing with no journal for
+            # the recovery scan -- the same undetected-mixed-generation shape
+            # the round-19 rename fsync closed on the write side. A failed
+            # fsync propagates as OSError, which the callers already treat as
+            # an incomplete rollback that RETAINS the journal: fail-closed.
+            if os.name == "posix":
+                dir_fd = os.open(str(target.parent), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
         return
     _atomic_write_bytes(target, _read_pre_image(batch_dir, entry))
 
@@ -29598,7 +29640,15 @@ def _publish_bundle(repo_root, feature, targets):
         _write_journal(batch_dir, batch_dir.name, transaction.entries)
         transaction.journalled = True
         for entry in transaction.entries:
-            _atomic_write_bytes(entry["target"], entry["payload"])
+            try:
+                _atomic_write_bytes(entry["target"], entry["payload"])
+            except _ReplacedButNotDurable:
+                # The rename is live even though its durability barrier
+                # failed. Count it BEFORE failing, so the rollback includes
+                # it (round 20 Major 1: uncounted-but-live meant the rollback
+                # reported completion while the artifact stayed published).
+                transaction.committed += 1
+                raise
             transaction.committed += 1
     except OSError as exc:
         # `discard=False`: the caller Blocks with a record of this failure,

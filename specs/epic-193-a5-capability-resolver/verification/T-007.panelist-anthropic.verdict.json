@@ -4,21 +4,26 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (uncovered-mutant counts; zero-coverage inventory)",
-      "note": "The report was corrected on round 19 for mutant D yet still states three times that the uncovered set is one mutant, F ('only F is uncovered', 'the current uncovered total is one, F', 'no regression net for that one guard, F'), says 'across all twelve mutants', and its Complete zero-coverage inventory omits the round-19 directory-fsync hardening. The shipped mutation-proofs.log and T-007.contract.json both record thirteen mutants with F AND M as the uncovered pair. The authoritative artifacts (log tallies, contract) are accurate and mutually consistent, so this is the recurring propagation-lag class in narrative prose only -- but a reader of the report alone would believe the disclosed-uncovered surface is half its actual size."
+      "severity": "Major",
+      "ref": "resolve-project-context.py: _publish_bundle commit loop and _restore_to_pre (round-20 remediation); mutation-proofs.log mutant F note",
+      "note": "The two round-20 behavioral fixes on the rollback surface -- the _ReplacedButNotDurable count-before-raise that keeps a live-but-unfsynced rename inside the rollback set, and the parent-directory fsync after the ABSENT-restore unlink -- ship with no fixture and no mutant. The bundle's own mutation log concedes the needed fault injection is feasible (in-process registry_discovery overlay wrapping os.fsync, quote: future fixture work, not an impossibility claim), and no test in the driver touches fsync. On a high-risk, tdd-required, Security-Sensitive task this is a testable-but-untested error path load-bearing for AC-039/AC-047 rollback completeness: reverting the count-before-raise would reintroduce the exact silent state round 20 fixed (rollback reports complete while a POST artifact stays published) and the suite would stay green. This package's own history (mutants C and D) shows disclosure-in-place-of-fixture twice concealing coverable windows; here coverability is admitted outright."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (round-13, round-9 and round-17 paragraphs) and CHANGELOG.md Unreleased T-007 entry",
+      "note": "The round-20 sweep that added mutant M corrected the round-15 paragraph and left at least five sibling sites asserting the pre-round-20 state as current, all contradicting the shipped mutation-proofs.log (thirteen mutants; F AND M uncovered): the report says the current uncovered set has one mutant, F (round-13 paragraph, plus the current value is one, mutant F and no regression net for that one guard, F); the round-9 paragraph is self-contradictory (across all thirteen mutants, the current uncovered total is one, F); the round-17 paragraph says eleven of twelve mutants are killed while itself listing eleven killed plus F and M uncovered, which sums to thirteen; and the CHANGELOG T-007 entry states the current uncovered count is one (F only) and eleven of twelve mutants covered, then closes on the remaining one (F) as the limit of the regression net. This understates the uncovered guard set on a security surface in a declared output, and is the same amendment-propagation class this package has now hit repeatedly -- including once before inside the very sentences correcting it. The authoritative artifacts (mutation log, contract comment) are correct; the report and CHANGELOG must be brought to agree with the captures they cite."
     },
     {
       "severity": "Minor",
-      "ref": "verification/T-007/mutation-proofs.log (mutant F annotation)",
-      "note": "Mutant F's parenthetical still reads 'With mutant C covered as of round 15, F and D are the two that remain', which is stale against the same log's own mutant D section (COVERED as of round 19, tally 381/2) and mutant M section (UNCOVERED). The measured tallies on the page are correct and self-labelling; only this prose note lags."
+      "ref": "resolve-project-context.py: _write_evidence OSError handler",
+      "note": "A _ReplacedButNotDurable raised inside the direct Evidence write is caught as OSError and mapped to ArtifactPublicationFailed with the count-zero clause (no live rename had yet been committed), although in that corner the Evidence rename IS live with durability unconfirmed. The end state is fail-closed -- _block_reporting returns wrote False, the journal is retained, and the next scan Blocks publication-journal-recovery -- but the operator-facing clause misdescribes what happened."
     }
   ],
   "blind": true,
-  "input_digest": "852fc465b1b83b233fe8bd091da1fbf12f41b1d4f2e3677f5bd749fee811bfc8",
+  "input_digest": "5824e2c56fdc2512992f39d96a3b5df0ded2ae8ac8feda592cfe091799b6a9dc",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

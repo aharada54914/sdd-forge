@@ -412,6 +412,7 @@ ALL_CASE_NAMES = (
         "publication-staging-parent-symlink",
         "publication-journal-roundtrip-unresolved-repo",
         "post-publication-crash-before-evidence",
+        "publication-fsync-failure",
     ]
 )
 
@@ -3181,6 +3182,83 @@ def run_t007_leaf_symlink_escape_case(kind, counts):
         )
 
 
+def run_t007_fsync_failure_case(kind, counts):
+    """The fault injection round 20 promised and round 21 demanded.
+
+    Round 20 fixed the commit loop to count a live-but-unfsynced rename as
+    committed (`_ReplacedButNotDurable`), and the mutation note said
+    injecting the fsync failure was "feasible via the in-process
+    registry_discovery overlay wrapping os.fsync -- future fixture work, not
+    an impossibility claim". The anthropic slot's round-21 Major was that an
+    admittedly-testable fix on a tdd-required Security-Sensitive surface had
+    shipped untested. This is the fixture.
+
+    The overlay fails the FIRST fsync of `specs/example-feature`, exactly
+    once -- the facet-manifest commit's durability barrier, with the rename
+    already live. Expected: the entry counts as committed, the rollback
+    restores it (its own fsync succeeds, the injection being single-shot),
+    and the run Blocks `artifact-publication-failed` with a one-rename
+    rollback clause. The assertion that kills mutant N (the counting fix
+    reverted) is facet-manifest back at PRE: uncounted-but-live means the
+    rollback skips it and leaves the POST bytes standing."""
+    case_name = "publication-fsync-failure"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("artifact-publication-failed")
+
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {rolled_back_clause(1)}"
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: artifact-publication-failed: {expected_detail}\n",
+            f"{case_name}: a failed durability barrier on an already-live rename Blocks "
+            f"artifact-publication-failed with a ONE-rename rollback clause -- the live-but-unfsynced "
+            f"entry was counted, so the rollback included it",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{case_name}: facet-manifest is back at its PRE bytes -- this is the assertion mutant N "
+            f"fails, because an uncounted-but-live rename is skipped by the rollback and its POST bytes "
+            f"stay published",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:60]),
+        )
+        evidence, parse_error = read_evidence(feature_dir / "resolver-evidence.yaml")
+        # `(... or [{}])[0]`, never a bare `[0]`: under mutant M the write-side
+        # fsync is disabled, the injection never fires, the publication
+        # SUCCEEDS, and diagnostics is [] -- a bare index then killed the
+        # whole driver with IndexError before it printed a RESULT line, which
+        # is this driver's own documented crash-proofing failure mode, and it
+        # is also what revealed that mutant M is killable by this fixture at
+        # all.
+        first_diag = (evidence.get("diagnostics") or [{}])[0] if isinstance(evidence, dict) else {}
+        counts.check(
+            first_diag.get("id") == "artifact-publication-failed",
+            f"{case_name}: the Block record reached Evidence -- the injection is single-shot, so the "
+            f"direct Evidence write's own barrier succeeded",
+            parse_error or repr(evidence)[:120],
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: the journal is gone once the Block record is durable, and no staging litter "
+            f"survives",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_t007_journal_nonce_mismatch_case(kind, counts):
     """The fixture round 13 said could not be written, written.
 
@@ -4336,6 +4414,7 @@ def main():
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)
         run_t007_journal_nonce_mismatch_case(args.launcher, counts)
+        run_t007_fsync_failure_case(args.launcher, counts)
         run_t007_crash_before_evidence_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
         run_t007_staging_symlink_case(args.launcher, counts)

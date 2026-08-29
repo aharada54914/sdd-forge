@@ -3,29 +3,19 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1883",
-      "note": "The commit counter advances only after _atomic_write_bytes returns, but that helper performs os.replace before its parent-directory fsync. If the fsync fails, the target is already live yet is excluded from transaction.committed; rollback can therefore report completion and discard the journal while leaving that POST artifact published, violating the all-or-nothing and AC-039 rollback contract."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1992",
-      "note": "Recovery accepts any attacker-controlled journal whose target set matches the Full or Lite bundle and trusts its claimed PRE/POST hashes. A fabricated full-shaped journal can mark an existing artifact's current hash as POST with PRE=ABSENT and a sibling as PRE, causing MIX recovery to unlink the legitimate artifact. The bundle-shape check therefore does not close the destructive-journal threat that this unprotected staging area explicitly treats as attacker-reachable."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1632 and :1504",
-      "note": "Restoring an ABSENT PRE state unlinks the live target without fsyncing its parent directory, after which batch cleanup removes the journal without a durability barrier preserving that ordering. A power loss can persist the journal deletion while losing the target deletion, leaving a POST artifact with no recovery journal and breaking crash-safe convergence."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1504",
+      "note": "_discard_batch swallows a journal unlink failure without reporting whether deletion succeeded, while recovery at line 2058 unconditionally treats an all-PRE/all-POST journal as resolved and proceeds. The still-live journal can therefore remain while a fresh publication changes its targets; the next scan then classifies those targets as neither the old PRE nor POST generation and Blocks as unrecoverable. The same silent failure after a completed rollback can retain a journal whose Evidence target has already been replaced by the Block record. This violates the required delete-then-proceed/Complete semantics and can turn a transient cleanup failure into persistent manual-intervention state."
     }
   ],
   "blind": true,
-  "input_digest": "852fc465b1b83b233fe8bd091da1fbf12f41b1d4f2e3677f5bd749fee811bfc8",
+  "input_digest": "5824e2c56fdc2512992f39d96a3b5df0ded2ae8ac8feda592cfe091799b6a9dc",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md:T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }

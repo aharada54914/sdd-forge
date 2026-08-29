@@ -1521,18 +1521,26 @@ def _discard_batch(batch_dir):
     parent_real = os.path.realpath(str(batch_dir.parent))
     batch_real = os.path.realpath(str(batch_dir))
     if batch_real == parent_real or not _path_contained_in(parent_real, batch_real):
-        return
+        return False
     journal = batch_dir / JOURNAL_FILENAME
     try:
         if journal.exists():
             journal.unlink()
     except OSError:
-        return
+        # Returns False rather than swallowing silently (openai panel slot,
+        # round 21 Major): the caller decides whether that silence was
+        # acceptable. Every caller's retention outcome is self-consistent --
+        # the surviving journal is exactly what the next invocation's
+        # crash-recovery scan exists to converge -- but a run that claims
+        # Complete while its bookkeeping survived must SAY so, not exit 0
+        # with the claim intact and the state contradicting it.
+        return False
     shutil.rmtree(batch_dir, ignore_errors=True)
     try:
         batch_dir.parent.rmdir()
     except OSError:
         pass
+    return not journal.exists()
 
 
 def _write_journal(batch_dir, nonce, entries):
@@ -2211,10 +2219,21 @@ def _write_evidence(
         )
     try:
         _atomic_write_bytes(evidence_target, _canonical_payload(evidence))
+    except _ReplacedButNotDurable:
+        # The Block record IS at its live path, byte-verified by the round
+        # trip; only its durability barrier failed. Reporting that as "no
+        # live rename had yet been committed" was untrue of the state on
+        # disk (anthropic panel slot, round 21 Minor), and failing the write
+        # outright would be WORSE than every pre-round-19 revision, none of
+        # which had a directory fsync at all. The record is accepted as
+        # written; a crash before the directory entry becomes durable loses
+        # it, which is exactly the exposure every earlier revision always
+        # had on this path.
+        pass
     except OSError as exc:
-        # No live rename was ever committed on this route -- the direct write
-        # either renamed into place or did not -- so the count is 0 and the
-        # canonical no-rollback-needed clause is the accurate one.
+        # Here the direct write genuinely did not rename into place, so the
+        # count is 0 and the canonical no-rollback-needed clause is the
+        # accurate one.
         raise ArtifactPublicationFailed(_rollback_clause(0, True)) from exc
 
 
@@ -3428,7 +3447,20 @@ def main(argv=None):
     # Complete (design.md step 5): every rename succeeded AND the
     # post-publication verification passed -- delete the journal. This is
     # this invocation's own success path, exit 0.
-    _discard_batch(transaction.batch_dir)
+    if not _discard_batch(transaction.batch_dir):
+        # The publication itself succeeded and every artifact is live, so
+        # this stays exit 0 -- but a run that claims Complete while its
+        # journal survived must say so (openai panel slot, round 21 Major:
+        # the old code swallowed the unlink failure and exited silently).
+        # The retained all-POST journal is exactly what the next
+        # invocation's step-0.5 scan converges, and that scan runs BEFORE
+        # any new publication in that invocation, so the retry precedes the
+        # only interleaving that could make this journal unrecoverable.
+        sys.stderr.write(
+            "capability-resolver: warning: publication completed but its "
+            "journal could not be removed; the next invocation's "
+            "crash-recovery scan will retry the cleanup\n"
+        )
     return 0
 
 
