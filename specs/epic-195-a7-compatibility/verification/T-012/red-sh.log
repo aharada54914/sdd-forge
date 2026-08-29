@@ -1,0 +1,21 @@
+FAIL: structurally invalid live response preserves an existing target
+FAIL: structurally invalid live response preserves an absent target
+PASS: missing final result is rejected before write
+PASS: valid F1 response refreshes a scratch target
+PASS: valid F2 response refreshes a scratch target
+PASS: live invocation uses the exact argument contract
+FAIL: validator rejects schema mismatch
+FAIL: validator rejects state mismatch
+FAIL: validator rejects model mismatch
+FAIL: validator rejects commit mismatch
+FAIL: validator rejects refresh mismatch
+FAIL: validator rejects path mismatch
+FAIL: validator rejects frontmatter mismatch
+FAIL: validator rejects heading mismatch
+FAIL: validator rejects status mismatch
+FAIL: validator rejects identifier mismatch
+FAIL: validator rejects reserved-a mismatch
+FAIL: validator rejects reserved-b mismatch
+PASS: live refresh remains outside aggregate runners and CI
+14 self-tests failed
+EXIT_CODE: 1
