@@ -1,0 +1,15 @@
+Mutation-equivalent proof: only a disposable copy of T-005's Status field was changed to In Progress. The frozen task plan was not modified for this proof. Clause (b) held in every invocation.
+
+command: bash tests/cross-runtime-handoff.tests.sh --tasks-file <disposable-active-copy>
+exit: 1
+TEST-001..TEST-006: pass
+trace assertions: result=FAIL coverage_complete=false canary_case.result=FAIL canary_case.skip_reason=null
+cross-runtime-handoff: AC-006 activation gate is active; SKIP is forbidden
+
+command: pwsh -NoProfile -File tests/cross-runtime-handoff.tests.ps1 -TasksFile <disposable-active-copy>
+exit: 1
+TEST-001..TEST-006: pass
+trace assertions: result=FAIL coverage_complete=false canary_case.result=FAIL canary_case.skip_reason=null
+cross-runtime-handoff: AC-006 activation gate is active; SKIP is forbidden
+
+Control branch (the committed T-005 Status is Planned): both GREEN commands exit 0 with result=PASS, coverage_complete=false, and canary_case.result=SKIP.

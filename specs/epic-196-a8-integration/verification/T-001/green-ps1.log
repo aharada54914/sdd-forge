@@ -1,0 +1,13 @@
+command: pwsh -NoProfile -File tests/cross-runtime-handoff.tests.ps1
+exit: 0
+ok - TEST-001 fixed fixture bytes and sentinels match the contract
+ok - TEST-002 Claude-to-Codex final bytes and stdout oracle
+ok - TEST-003 Codex-to-Copilot final bytes and generated-file hash oracle
+ok - TEST-004 three-hop final state carries both upstream contributions
+HEADLESS-CONTRACT claude: confirmed; claude -p/--print and --output-format; https://docs.anthropic.com/en/docs/claude-code/cli-usage
+HEADLESS-CONTRACT codex: confirmed; codex exec accepts prompt/stdin and --ephemeral; https://github.com/openai/codex/blob/main/codex-rs/README.md
+HEADLESS-CONTRACT copilot: confirmed; copilot -p/--prompt and --output-format json; https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
+ok - TEST-005 all CLI headless contracts are confirmed with primary citations
+ok - TEST-006 canary SKIP and activated hard-failure branches are both exercised
+trace assertions: schema=cross-runtime-handoff-trace/v1 result=PASS coverage_complete=false canary_case.result=SKIP
+cross-runtime-handoff: 6 tests passed

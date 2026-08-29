@@ -1,0 +1,10 @@
+command: pwsh -NoProfile -File tests/cross-runtime-handoff.tests.ps1
+exit: 1
+not ok - TEST-001 rejects deliberately permissive trace
+not ok - TEST-002 rejects deliberately permissive trace
+not ok - TEST-003 rejects deliberately permissive trace
+not ok - TEST-004 rejects deliberately permissive trace
+not ok - TEST-005 rejects deliberately permissive trace
+not ok - TEST-006 rejects deliberately permissive trace
+{"schema":"cross-runtime-handoff-trace/v1","result":"PASS","steps":[],"coverage_complete":true}
+cross-runtime-handoff: 6 failure(s)
