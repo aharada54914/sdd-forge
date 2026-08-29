@@ -3,17 +3,17 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1504",
-      "note": "_discard_batch swallows a journal unlink failure without reporting whether deletion succeeded, while recovery at line 2058 unconditionally treats an all-PRE/all-POST journal as resolved and proceeds. The still-live journal can therefore remain while a fresh publication changes its targets; the next scan then classifies those targets as neither the old PRE nor POST generation and Blocks as unrecoverable. The same silent failure after a completed rollback can retain a journal whose Evidence target has already been replaced by the Block record. This violates the required delete-then-proceed/Complete semantics and can turn a transient cleanup failure into persistent manual-intervention state."
+      "ref": "resolve-project-context.py:2080 and :2107",
+      "note": "Crash recovery ignores the false return from _discard_batch for both all-PRE/all-POST and recovered-MIX journals, then proceeds into a fresh resolve. If cleanup fails, the stale journal remains while new publication may change its targets, potentially converting a safely convergeable journal into an unrecoverable one and violating the contract that recovery deletes the stale journal before proceeding."
     }
   ],
   "blind": true,
-  "input_digest": "5824e2c56fdc2512992f39d96a3b5df0ded2ae8ac8feda592cfe091799b6a9dc",
+  "input_digest": "5208a28691ce24ccb511bc4d2f1bc4ad63315617a35cc519cc4c08ecadaf8e2f",
   "consent": {
     "kind": "sudo",
     "ref": "sudo 2026-08-08T16:04:17Z"

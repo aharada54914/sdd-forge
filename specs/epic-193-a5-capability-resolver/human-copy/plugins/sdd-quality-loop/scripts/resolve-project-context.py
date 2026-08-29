@@ -2077,7 +2077,22 @@ def _recover_journal(repo_root, feature, journal_path):
         # SAFE completion / SAFE abandonment: the transaction had in fact
         # fully committed (crash between the last rename and the journal
         # delete), or never began committing / had already fully rolled back.
-        _discard_batch(batch_dir)
+        #
+        # The discard's RESULT is checked (openai panel slot, round 23
+        # Major). Round 21 gave _discard_batch a return value and consumed
+        # it at only ONE of its call sites -- the success-path Complete --
+        # leaving both recovery-scan sites ignoring a failed cleanup and
+        # proceeding into a fresh resolve. A stale journal surviving past
+        # this point is the one thing this scan must never allow: step 14
+        # then publishes new bytes, the journal's recorded targets match
+        # neither PRE nor POST, and a journal that was SAFELY convergeable
+        # this run becomes unrecoverable the next. Refusing here keeps the
+        # contract's delete-before-proceeding ordering fail-closed, on the
+        # existing diagnostic id.
+        if not _discard_batch(batch_dir):
+            raise PublicationJournalUnrecoverable(
+                "a converged journal could not be removed before proceeding"
+            )
         return
     # MIX -- the exact partial-publish state this design must never leave
     # standing. Validate every backup this rollback will need BEFORE
@@ -2104,7 +2119,13 @@ def _recover_journal(repo_root, feature, journal_path):
                 raise PublicationJournalUnrecoverable("a target could not be confirmed back at its PRE state")
         except OSError as exc:
             raise PublicationJournalUnrecoverable("a target could not be confirmed back at its PRE state") from exc
-    _discard_batch(batch_dir)
+    # Same check as the SAFE branch above, for the same round-23 reason: a
+    # recovered-MIX journal that survives its own discard must halt the run,
+    # not let a fresh publication re-stale it into unrecoverability.
+    if not _discard_batch(batch_dir):
+        raise PublicationJournalUnrecoverable(
+            "a converged journal could not be removed before proceeding"
+        )
 
 
 def _crash_recovery_scan(repo_root, feature):

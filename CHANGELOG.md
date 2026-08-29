@@ -333,7 +333,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
   commit 前に publish が拒否されるため、fixture では作れない）。
-  **残る 1 件（F）は rollback / Evidence / journal 経路にあり、この領域の
+  **残る 2 件（F と O）は rollback / Evidence / journal 経路にあり、この領域の
   正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。

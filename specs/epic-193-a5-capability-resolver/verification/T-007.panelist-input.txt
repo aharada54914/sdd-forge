@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 84b2ea77659b6cd5352dcbba5b9cbd25e399bbc234b05770dbc2bcc99988a374
+# input_digest: 5208a28691ce24ccb511bc4d2f1bc4ad63315617a35cc519cc4c08ecadaf8e2f
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -16578,12 +16578,13 @@ RESULT: 387 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutants C and D both covered since rounds 15 and 19, F and M are the
- pair that remain. The counting fix and the unlink-side fsync from round
- 20 are likewise not yet exercised: both only matter when a directory
- fsync FAILS after a successful replace/unlink, and injecting that fault
- is feasible via the in-process registry_discovery overlay wrapping
- os.fsync -- future fixture work, not an impossibility claim.)
+ mutants C, D and M all covered since rounds 15, 19 and 22, F and O are
+ the pair that remain. F is the Evidence-write-fails-after-completed-
+ rollback combination a panelist verified as unconstructable; O is the
+ unlink-side fsync, whose end state is identical on every non-crashing
+ path. The promised fault-injection fixture exists as of round 22 and
+ kills both M and N. This note itself sat stale for two rounds saying F
+ and M remained -- an anthropic Minor caught that on round 22.)
 mutant G injected: journal bundle-shape check removed
 --- MUTANT G: bundle-shape check removed (expect in-set-non-bundle FAIL) ---
 FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bundle target set Blocks publication-journal-recovery with the canonical line only -- the shape is refused even though every individual path is allowed: exit=0 stdout='' stderr=''
@@ -16630,7 +16631,7 @@ RESULT: 387 passed, 0 failed
  the DIFFERENCE visible, because the end state is identical on every
  non-crashing path. Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: 97c55452e671312fe72dde8c21e8d4485bb165dc61a5cf6fa60a3bff0de1f86e
+restored sha256: 11d671de27868ad279333929848e538f6ca6da5518a1e05c25628933e8213545
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -22224,7 +22225,7 @@ it on round 8; all four sites are corrected together here.
   7; `Counts.observed_diagnostic_ids` + `record_diagnostic_id` (wired at all
   four pre-existing canonical-line assertion sites); crash-proof
   `read_or_missing`/`sentinels_unchanged`/`sentinel_report` helpers; the
-  T-007 section (fifteen `run_t007_*` functions plus
+  T-007 section (sixteen `run_t007_*` functions plus
   `run_block_matrix_completeness_check` and `run_test_059`); new names in
   `ALL_CASE_NAMES` and matching call sites in `main()`;
   `projection-two-components`'s two staged-only assertions widened to the
@@ -22308,9 +22309,9 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `dab7d37e71f06ccafb00dced23e4297747bf6c51c4865286c7f55a51df2e4bae` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `66b5cf1d37bae987aff8c00c5006a3e1a4c299734094f4f6d771094b4ea2e167` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `97c55452e671312fe72dde8c21e8d4485bb165dc61a5cf6fa60a3bff0de1f86e` |
+| `CHANGELOG.md` | `e012d84f6b683ba91e281cafcd371e672ff243bd0dbcaa830fab97ae01746cc3` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `88cf9cf1368127e382d13d0078e2da10767139a91b1afa1bb6ea0d03826f8da6` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `11d671de27868ad279333929848e538f6ca6da5518a1e05c25628933e8213545` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22327,7 +22328,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `8c7b57a1e56ee96022452972d2996c46c502f049d38d0f0a93fa667e291d9af3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `936327e026062d28b8f270165365d6c992d7d147e106f548813f52b2ae4fa8b5` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `4e7af3bdb40451d2309855ff73938bed21653f12bb3bd66d07e4a2ad77dde173` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `cfa4c7997b7a7c7d6de6c51ad26493fcdc35ab31015ee0af131936f052d063e6` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22837,8 +22838,10 @@ while `mutation-proofs.log` — the only mutation capture in the bundle — held
 mutants A-G and none of these. `MUTATION[bare-unlink-rollback]` in particular
 is named by Quality Gate Focus item 3 as *the* non-vacuity proof for the
 rollback-vs-`unlink` assertions, and it appeared in no capture anywhere. The
-figures below are the historical round-17 results from its 380-check harness;
-the current shipped suite has **383 passed / 0 failed** in both runtimes:
+figures below are the historical round-17 results from its then-current
+harness; the shipped tally is whatever the contract's single statement and
+the green captures carry (a literal number in this sentence went stale
+within one round of being written):
 
 | Mutation | Historical round-17 result |
 |---|---|
@@ -22954,7 +22957,7 @@ Input manifest: `handoffs/T-007-input-manifest.json`.
 
 | Suite | sh | ps1 |
 |---|---|---|
-| `resolve-project-context-block` | 383 passed / 0 failed | 383 passed / 0 failed |
+| `resolve-project-context-block` | 387 passed / 0 failed | 387 passed / 0 failed |
 | `resolve-project-context-match` | 125 passed / 0 failed | 125 passed / 0 failed |
 | `resolve-project-context-cli` | 13 passed / 0 failed | 13 passed / 0 failed |
 | `resolve-project-context-discovery` | 24 passed / 0 failed | 24 passed / 0 failed |
@@ -24497,10 +24500,12 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
   実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
   検査を外す mutation が 4 アサーションで死ぬ）。
-  **現在の未カバーは 1 件（F のみ）**。D を到達不能とした主張は、単なる
-  陳腐化ではなく誤りだった。round 19 の `nonce-names-another-batch` fixture が
-  D を被覆して kill し、12 mutant 中 11 件（A, B, C, D, E, G, H, I, J, K,
-  L）が被覆済みとなった。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
+  **現在の未カバーは 2 件（F と O）**。到達不能とした主張は D・M と
+  2 度誤りだったと判明している（D は round 19 の
+  `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
+  それぞれ kill した）。15 mutant 中 13 件が被覆済み。この段落自体、
+  「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
+  件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
   際、直下の列挙を 3 件のまま残していた。しかも先頭に挙げていた
   「journal 削除順序」は round 15 で fixture を書いて被覆済みで、その
   括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
@@ -27750,7 +27755,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-97c55452e671312fe72dde8c21e8d4485bb165dc61a5cf6fa60a3bff0de1f86e  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+11d671de27868ad279333929848e538f6ca6da5518a1e05c25628933e8213545  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -29279,17 +29284,27 @@ def _discard_batch(batch_dir):
     if batch_real == parent_real or not _path_contained_in(parent_real, batch_real):
         return False
     journal = batch_dir / JOURNAL_FILENAME
+    # ORDER: pre-images first, journal LAST (anthropic panel slot, round 22
+    # Minor). The old order unlinked the journal and then rmtree'd with
+    # ignore_errors=True, so a partial cleanup failure left journal-less
+    # pre-image litter that no future scan would ever see -- the scan globs
+    # only */TRANSACTION.json. Deleting the journal last makes any cleanup
+    # failure VISIBLE: the journal survives, the next scan finds it,
+    # classifies the batch, and retries this same discard.
+    pre_dir = batch_dir / PRE_IMAGE_DIRNAME
+    if pre_dir.exists():
+        shutil.rmtree(pre_dir, ignore_errors=True)
+        if pre_dir.exists():
+            return False
     try:
         if journal.exists():
             journal.unlink()
     except OSError:
         # Returns False rather than swallowing silently (openai panel slot,
         # round 21 Major): the caller decides whether that silence was
-        # acceptable. Every caller's retention outcome is self-consistent --
-        # the surviving journal is exactly what the next invocation's
-        # crash-recovery scan exists to converge -- but a run that claims
-        # Complete while its bookkeeping survived must SAY so, not exit 0
-        # with the claim intact and the state contradicting it.
+        # acceptable. The surviving journal is exactly what the next
+        # invocation's crash-recovery scan exists to converge -- but a run
+        # that claims Complete while its bookkeeping survived must SAY so.
         return False
     shutil.rmtree(batch_dir, ignore_errors=True)
     try:

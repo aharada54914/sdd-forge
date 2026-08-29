@@ -102,4 +102,4 @@ RESULT: 387 passed, 0 failed
  the DIFFERENCE visible, because the end state is identical on every
  non-crashing path. Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: 11d671de27868ad279333929848e538f6ca6da5518a1e05c25628933e8213545
+restored sha256: 3774247af957ecbc6e6f70bd9615def7c567f2b62c75e754381089c42d42de44
