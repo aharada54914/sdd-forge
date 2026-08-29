@@ -49,7 +49,12 @@ RESULT: 383 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutant C covered as of round 15, F and D are the two that remain.)
+ mutants C and D both covered since rounds 15 and 19, F and M are the
+ pair that remain. The counting fix and the unlink-side fsync from round
+ 20 are likewise not yet exercised: both only matter when a directory
+ fsync FAILS after a successful replace/unlink, and injecting that fault
+ is feasible via the in-process registry_discovery overlay wrapping
+ os.fsync -- future fixture work, not an impossibility claim.)
 mutant G injected: journal bundle-shape check removed
 --- MUTANT G: bundle-shape check removed (expect in-set-non-bundle FAIL) ---
 FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bundle target set Blocks publication-journal-recovery with the canonical line only -- the shape is refused even though every individual path is allowed: exit=0 stdout='' stderr=''
@@ -72,7 +77,7 @@ RESULT: 380 passed, 3 failed
 mutant L injected: pre-image backup read containment removed
 --- MUTANT L: backup read containment removed (expect pre-image-symlink FAIL) ---
 RESULT: 381 passed, 2 failed
-mutant M injected: directory fsync after os.replace removed
+mutant M injected: write-side directory fsync disabled
 --- MUTANT M: directory fsync removed ---
 RESULT: 383 passed, 0 failed
 (A tally here EQUAL to the clean control run means mutant M is UNCOVERED,
@@ -81,4 +86,4 @@ RESULT: 383 passed, 0 failed
  in-process fixture can simulate without kernel-level fault injection.
  Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3
+restored sha256: 916ec2e529f2c20678c1210a8896c3fc0524d5dd190b8065a50c265a2c0a6fe4

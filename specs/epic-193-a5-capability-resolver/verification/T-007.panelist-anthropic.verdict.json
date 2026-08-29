@@ -4,31 +4,21 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md — Round 19 (ruling (A)) vs specs/epic-193-a5-capability-resolver/investigation.md",
-      "note": "Ruling (A) — the 2026-08-29 owner ruling that a symlinked publication target is never read through, its PRE state is ABSENT, and the round-17 read-containment clause is retired in both directions — appears in this bundle only as the implementation report paraphrase and a code comment in _live_bytes. It is absent from investigation.md, where every other owner ruling in this package ((a), (b), (c), D(1)/D(2), E) is recorded with a verbatim dated quote; investigation.md carries no record of rounds 17-19 at all, and its newest per-document hash table still cites the ruling-(a)/(b)-era bytes (46d3143e...). The ruling is load-bearing: it authorizes a deviation from AC-047 and the Done When bullet, whose natural reading (every interrupted target byte-identical to its pre-invocation state) would preserve a symlinked entry, whereas under (A) a rollback restores ABSENT by unlinking, and the round-15 fixture assertion was rewritten to match; it also retired a security guard on a Security-Sensitive surface. From the bundle alone the authorization is self-attested and unverifiable. The code change itself is defensible and well tested (mutant K killed, three leaf-symlink assertions in both green-shipped captures); what is missing is the ruling record in the feature ruling ledger, the same amendment-propagation class this package has hit repeatedly, this time on the consent trail itself."
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (uncovered-mutant counts; zero-coverage inventory)",
+      "note": "The report was corrected on round 19 for mutant D yet still states three times that the uncovered set is one mutant, F ('only F is uncovered', 'the current uncovered total is one, F', 'no regression net for that one guard, F'), says 'across all twelve mutants', and its Complete zero-coverage inventory omits the round-19 directory-fsync hardening. The shipped mutation-proofs.log and T-007.contract.json both record thirteen mutants with F AND M as the uncovered pair. The authoritative artifacts (log tallies, contract) are accurate and mutually consistent, so this is the recurring propagation-lag class in narrative prose only -- but a reader of the report alone would believe the disclosed-uncovered surface is half its actual size."
     },
     {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/investigation.md — Ruling (c), item (d) (bundle line 10106)",
-      "note": "The WFI renumbering sentence is self-contradictory: renumbered from 038 ... main already carries a WFI-060. If main already carries WFI-060, renumbering TO 060 recreates the very collision the renumbering was for; the rationale only coheres if main carries WFI-038. One of the two numbers in the sentence is wrong, and as written a reader cannot tell whether the new number itself collides."
-    },
-    {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md — Round 19 paragraph and ps1/sh twin disclosure",
-      "note": "Two stale tallies survive the round-19 sweep: mutant K is said to be killed at 377/3 while the shipped mutation-proofs.log records 380 passed, 3 failed under the 383/0 control; and the ps1/sh twin disclosure still cites GREEN 306/0 for the locally-executed ps1 lane, superseded by green-shipped-ps1.log at 383/0. Both are the count-with-a-shelf-life class the report itself names; the captures are the authority and are internally consistent, so these are prose corrections only."
-    },
-    {
-      "severity": "Minor",
-      "ref": "verification/T-007/mutation-proofs.log — mutants F and (d)",
-      "note": "Disclosed, not hidden, recorded here for traceability: mutant F (journal discarded even when the Evidence write failed) sits at the control tally and is UNCOVERED, with a mutual-exclusion impossibility argument; and report mutation (d) (step 13 reduced to digests only) is labelled not-re-verified at the shipped bytes, its only measurement being a historical 46-check subset. The AC-040 companion fixture own green assertions carry the set-difference behavior, so neither blocks, but the rollback/Evidence/journal path correctness rests on review for the F branch, exactly as the report states."
+      "ref": "verification/T-007/mutation-proofs.log (mutant F annotation)",
+      "note": "Mutant F's parenthetical still reads 'With mutant C covered as of round 15, F and D are the two that remain', which is stale against the same log's own mutant D section (COVERED as of round 19, tally 381/2) and mutant M section (UNCOVERED). The measured tallies on the page are correct and self-labelling; only this prose note lags."
     }
   ],
   "blind": true,
-  "input_digest": "e4f14b41189c21aee4a45c96545dd0425f9d165180d1e4997600aee2e0245f26",
+  "input_digest": "852fc465b1b83b233fe8bd091da1fbf12f41b1d4f2e3677f5bd749fee811bfc8",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

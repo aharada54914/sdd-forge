@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: e4f14b41189c21aee4a45c96545dd0425f9d165180d1e4997600aee2e0245f26
+# input_digest: 852fc465b1b83b233fe8bd091da1fbf12f41b1d4f2e3677f5bd749fee811bfc8
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -10060,6 +10060,51 @@ AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
 sentence carrying that citation is removed by this commit, so the advisory
 is closed as a side effect rather than left open.
 
+### Ruling (A) — a symlinked publication target is never read through; its PRE state is ABSENT
+
+**Put to the owner 2026-08-29 during panel rounds 17-18, answered verbatim:
+「A」** — selecting option (A) from three stated alternatives: (A) treat a
+symlinked target's PRE as `ABSENT` and never read through the link, (B)
+refuse a symlinked publication target at publish time, (C) keep the round-17
+repository-containment clause and record the residual as a known limitation.
+The recommendation given was (B); the owner chose (A).
+
+**The history that led here, recorded because the panel found it missing.**
+Round 17 (openai Major): ruling (b)'s leaf-symlink acceptance let
+`_live_bytes` read THROUGH a target symlink, copying an out-of-repository
+referent's bytes — a credential included — into the PRE-image staging area,
+against security-spec.md line 17's "never ... reads a credential". The
+round-17 fix refused only referents that leave the repository. Round 18
+(anthropic, two Majors): that fix was under-scoped — the boundary is about
+credentials, not repository containment, so an in-repo `.env` or
+token-bearing git config still passed — and over-applied, because
+`_write_evidence` consults the same predicate before a write that performs no
+read at all, silently widening the owner-ruled third AC-012 no-write
+exception to an undisclosed fourth condition. Round 18 also found the same
+read-escape's sibling on the PRE-image side (`pre/<basename>` as a committed
+symlink, read before its hash check), fixed with backup-side containment and
+its own fixture.
+
+**What (A) does.** The rule lives where the read happens: `_live_bytes` does
+not follow a leaf symlink, so a symlinked target's PRE state is `ABSENT`
+everywhere that helper is consulted — PRE capture, rollback verification,
+recovery classification, post-restore verification. The round-17 clause is
+retired in both directions and `_target_escapes_via_symlink` is purely about
+where writes land again, which restores the ruled third-exception boundary
+for Block Evidence.
+
+**The accepted deviation, stated plainly.** AC-047's wording expects a
+rolled-back target restored to byte-identical PRE. Under (A), a target that
+was a SYMLINK before publication is rolled back to `ABSENT` — the link is
+unlinked, not put back. This is a real behavioral deviation on a
+Security-Sensitive surface, authorized by this ruling: the referent's bytes
+are not the artifact's own content, reading them to "restore" them is itself
+the boundary violation, and the commit would have clobbered the link entry
+anyway. The round-15 leaf-symlink fixture's assertion was rewritten to assert
+exactly this outcome (target ABSENT, referent byte-untouched, referent bytes
+captured nowhere) rather than deleted, and mutant K mutates `_live_bytes`
+back to following the link to keep the ruling itself covered.
+
 ### Ruling (c) — the journal-mediated in-set manipulation class is closed as already-adjudicated
 
 **Put to the owner 2026-08-29 after fifteen panel rounds**, with the options
@@ -10103,7 +10148,7 @@ that class and are handled separately:
   limitation rather than patched — the same disposition the 2026-08-27 ruling
   gave the doubly-degraded rollback corner.
 
-**What (d) produced.** `docs/workflow-improvements/WFI-060.md` (renumbered from 038 on 2026-08-29: main already carries a WFI-060, and this branch is 575 commits behind it).
+**What (d) produced.** `docs/workflow-improvements/WFI-060.md` (renumbered from 038 on 2026-08-29: main already carries a DIFFERENT WFI-038 and its numbering has reached 059, this branch being 575 commits behind; a blanket 038-to-060 text replacement then rewrote this very sentence's explanation into nonsense -- the anthropic panel slot caught it on round 19, and the sweep-breaks-its-own-explanation irony is preserved here on purpose).
 `check-cross-model` requires every panelist verdict to be PASS and has no
 outcome for panelists diverging from each other — its one `NEEDS_HUMAN` path
 fires only when the EVALUATOR diverges from an already-unanimous panel. Across
@@ -11025,7 +11070,7 @@ REQ-004.
       "green_evidence": ""
     }
   ],
-  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (383/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries twelve mutants, all against the shipped bytes, with a clean control run at the top: A, B, C, D, E, G, H, I, J, K and L are killed; F alone stays at the control tally and is labelled UNCOVERED in the log itself. D's coverage arrived on round 19, after a panelist disproved the claim that no fixture could graft a journal across batch directories -- the second of this task's own unreachability claims shown wrong by the panel (C was the first). F's impossibility argument is the one a panelist has verified and endorsed: every route to a failed Evidence write fails during Prepare, so committed==0 and the guarded branch cannot be entered. H, I and J are the report's own mutations (a), (b) and (c), re-run under the current harness after round 16 found the report citing them with no capture behind them anywhere in the bundle; (d) is labelled not-re-verified rather than restated. K covers the round-17 read-containment fix. Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
+  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (383/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries thirteen mutants, all against the shipped bytes, with a clean control run at the top: A, B, C, D, E, G, H, I, J, K and L are killed; F and M stay at the control tally and are labelled UNCOVERED in the log itself, each with its impossibility argument stated there. F is the Evidence-write-fails-after-completed-rollback combination a panelist has verified as unconstructable; M is the round-19 directory-fsync hardening, observable only across a hard crash (power loss between os.replace and the parent-directory fsync), which no in-process fixture can simulate. D's coverage arrived on round 19, after a panelist disproved the claim that no fixture could graft a journal across batch directories -- the second of this task's own unreachability claims shown wrong by the panel (C was the first). F's impossibility argument is the one a panelist has verified and endorsed: every route to a failed Evidence write fails during Prepare, so committed==0 and the guarded branch cannot be entered. H, I and J are the report's own mutations (a), (b) and (c), re-run under the current harness after round 16 found the report citing them with no capture behind them anywhere in the bundle; (d) is labelled not-re-verified rather than restated. K covers the round-17 read-containment fix. Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
 }
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log ----
 # runner: pwsh
@@ -16548,8 +16593,16 @@ RESULT: 380 passed, 3 failed
 mutant L injected: pre-image backup read containment removed
 --- MUTANT L: backup read containment removed (expect pre-image-symlink FAIL) ---
 RESULT: 381 passed, 2 failed
+mutant M injected: directory fsync after os.replace removed
+--- MUTANT M: directory fsync removed ---
+RESULT: 383 passed, 0 failed
+(A tally here EQUAL to the clean control run means mutant M is UNCOVERED,
+ and it is expected to be: rename durability is only observable across a
+ HARD crash -- power loss between the rename and the fsync -- which no
+ in-process fixture can simulate without kernel-level fault injection.
+ Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: 1616efd35042d3be2fbfe66b7e3f905989c2155821c6e4f72610872c249641b6
+restored sha256: e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -22220,8 +22273,8 @@ Cross-cutting checks extended per the Done When bullets:
 | Path | SHA-256 |
 |---|---|
 | `CHANGELOG.md` | `a15cd562108526e901cf1215d74e29a7f811d32a1bd7793e7de84b00429d0da9` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `ad5c5bf10550b4cc4645a136a6c2a6240368122287a9404ce166672a62534321` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `1616efd35042d3be2fbfe66b7e3f905989c2155821c6e4f72610872c249641b6` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `0fa00a2bbb79afc6c882f87c35c0f5e547de439b510e6d60dbb39beb868527ce` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22238,7 +22291,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `b9f0d1e411f898f7c2a8f05be57c527c33ba0641bb8f4f3274c6f9f116d4e889` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `bc5c7c3f5649e226fb234d387909fce1821a901a0660c681b0f57c7d7a7747a6` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `a396aca8296ef88295e20d0be7fca47264869802559e422a09ac80c185a5f873` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `1c7da432f32adf9f256241153c4c0cf7befa7aac3ebb3c442dfe098fec0672cb` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22311,8 +22364,8 @@ path — and a third assertion was added for the band the repository-containment
 check missed: the referent's bytes are captured nowhere, for an IN-TREE
 referent.
 
-Mutant K now mutates `_live_bytes` back to following the leaf and is killed at
-377/3.
+Mutant K now mutates `_live_bytes` back to following the leaf and is killed
+(380/3 at the round-19 capture; the current figure is whatever `mutation-proofs.log` carries — a fixed number here went stale twice).
 
 **Round 16 (2026-08-29) — the owner's ruling (c), the third-branch sweep, and
 a mutation that was testing the wrong line.**
@@ -22828,7 +22881,7 @@ structural.
 
 `pwsh` genuinely executed everything on this Mac (`pwsh 7.6.2`,
 `[PATH_REDACTED]). The ps1 paths executed locally were:
-`tests/resolve-project-context-block.tests.ps1` (RED 272/23 and GREEN 306/0,
+`tests/resolve-project-context-block.tests.ps1` (RED 272/23 and round-1 GREEN 306/0 — the shipped GREEN is `green-shipped-ps1.log` at the tally the contract states,
 each capture led by its own `# runner: pwsh` marker line, which the suite emits
 specifically so a ps1 capture cannot be a duplicated sh capture), plus
 `resolve-project-context-{match,cli,discovery,lite}.tests.ps1`. Each of those
@@ -27659,7 +27712,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-1616efd35042d3be2fbfe66b7e3f905989c2155821c6e4f72610872c249641b6  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -29109,6 +29162,28 @@ def _atomic_write_bytes(target, payload):
             if handle.read() != payload:
                 raise OSError("temp-file round-trip verification failed before rename")
         os.replace(temp_name, target)
+        # Directory fsync (openai panel slot, round 19 Major). Fsyncing the
+        # FILE makes its bytes durable; it does not make the RENAME durable.
+        # On POSIX the new directory entry lives in the parent directory's
+        # own data, so until that directory is fsynced a hard crash can
+        # persist some renames and lose others -- e.g. keep a live-target
+        # rename while losing the journal's, leaving a POST-state artifact
+        # with no journal for the recovery scan to find: an UNDETECTED mixed
+        # generation, which is the one shape the whole discipline exists to
+        # prevent. Windows has no directory handle to fsync and `os.open` on
+        # a directory raises there; rename durability is the filesystem's
+        # concern on that platform, so this is POSIX-only by necessity, not
+        # by choice. Not observable by any in-process fixture -- a hard
+        # crash between the rename and this fsync cannot be simulated
+        # without kernel-level fault injection -- so this hardening is
+        # disclosed as uncovered in the mutation log rather than implied to
+        # be tested.
+        if os.name == "posix":
+            dir_fd = os.open(str(target.parent), os.O_RDONLY)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)

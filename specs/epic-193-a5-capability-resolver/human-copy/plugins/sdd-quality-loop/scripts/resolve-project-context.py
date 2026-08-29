@@ -1425,6 +1425,19 @@ def _live_digest(path):
     return ABSENT if payload is None else _digest(payload)
 
 
+class _ReplacedButNotDurable(OSError):
+    """`os.replace` succeeded -- the target IS live -- and the parent
+    directory fsync afterwards failed, so durability is unconfirmed. Distinct
+    from a plain `OSError` because the two demand opposite bookkeeping in the
+    commit loop (openai panel slot, round 20 Major 1): a failure BEFORE the
+    replace means the target never changed and must not count as committed; a
+    failure AFTER it means the target is visibly published and MUST count, or
+    the rollback skips it, reports completion, discards the journal, and
+    leaves a POST artifact standing. Subclasses `OSError` so every call site
+    that does not care about the distinction keeps its existing fail-closed
+    handling unchanged."""
+
+
 def _atomic_write_bytes(target, payload):
     """The single-file primitive every write in this file uses, unchanged in
     itself from the revision step 14 already used (design.md: "temp file +
@@ -1461,11 +1474,19 @@ def _atomic_write_bytes(target, payload):
         # disclosed as uncovered in the mutation log rather than implied to
         # be tested.
         if os.name == "posix":
-            dir_fd = os.open(str(target.parent), os.O_RDONLY)
             try:
-                os.fsync(dir_fd)
-            finally:
-                os.close(dir_fd)
+                dir_fd = os.open(str(target.parent), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
+            except OSError as exc:
+                # The replace already happened: the target is LIVE. Raising a
+                # plain OSError here made the commit loop treat this entry as
+                # never-committed, so the rollback skipped a visibly published
+                # artifact (round 20 Major 1). The distinct type lets the loop
+                # count it first and then fail.
+                raise _ReplacedButNotDurable(str(exc)) from exc
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)
@@ -1632,6 +1653,22 @@ def _restore_to_pre(repo_root, batch_dir, entry):
     if entry["pre_hash"] == ABSENT:
         if target.is_symlink() or target.exists():
             target.unlink()
+            # Durability barrier for the DELETION (openai panel slot, round
+            # 20 Major 3): the unlink lives in the parent directory's data,
+            # exactly like the rename in `_atomic_write_bytes`, and the
+            # journal's own deletion follows this restore. Without the fsync
+            # a power loss can persist the journal's deletion while losing
+            # this one, leaving a POST artifact standing with no journal for
+            # the recovery scan -- the same undetected-mixed-generation shape
+            # the round-19 rename fsync closed on the write side. A failed
+            # fsync propagates as OSError, which the callers already treat as
+            # an incomplete rollback that RETAINS the journal: fail-closed.
+            if os.name == "posix":
+                dir_fd = os.open(str(target.parent), os.O_RDONLY)
+                try:
+                    os.fsync(dir_fd)
+                finally:
+                    os.close(dir_fd)
         return
     _atomic_write_bytes(target, _read_pre_image(batch_dir, entry))
 
@@ -1880,7 +1917,15 @@ def _publish_bundle(repo_root, feature, targets):
         _write_journal(batch_dir, batch_dir.name, transaction.entries)
         transaction.journalled = True
         for entry in transaction.entries:
-            _atomic_write_bytes(entry["target"], entry["payload"])
+            try:
+                _atomic_write_bytes(entry["target"], entry["payload"])
+            except _ReplacedButNotDurable:
+                # The rename is live even though its durability barrier
+                # failed. Count it BEFORE failing, so the rollback includes
+                # it (round 20 Major 1: uncounted-but-live meant the rollback
+                # reported completion while the artifact stayed published).
+                transaction.committed += 1
+                raise
             transaction.committed += 1
     except OSError as exc:
         # `discard=False`: the caller Blocks with a record of this failure,
