@@ -945,6 +945,21 @@ for an MCP name the repository source expects is itself `change_type:
 absent from the repository's own current MCP selection is `change_type:
 "added"`.
 
+`change_type: "type-changed"` for `surface: "delimited-region"` applies
+when a marker pair for the same MCP name is present on both sides, but the
+installed side's marker delimiter text itself does not match the current
+`register_codex_mcp`-generated marker format (e.g. a prior installer
+version's marker text framing the same MCP name persists on disk after a
+source-tree upgrade). This is distinct from `change_type: "modified"`,
+which covers a same-format marker pair whose extracted content bytes
+differ — `type-changed` instead means the delimiting structure itself has
+changed, paralleling the file surface's own "a symlink replaced by a
+regular file" type-change (a change in the entity's fundamental form, not
+merely its content). In this case both `installed_sha256` and
+`repo_sha256` are populated (never `null`), each the hash of the bytes
+each side's own marker convention actually extracts — unlike `added`/
+`removed`, where exactly one side is `null`.
+
 #### Platform Install-Root Defaults (resolves the sh/ps1 default mismatch)
 
 | Wrapper | Default install root | Matches |

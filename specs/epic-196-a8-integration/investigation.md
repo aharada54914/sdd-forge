@@ -138,6 +138,19 @@ review-pinned package — is the durable, citable approval record.
   relayed to the executing agent rather than as a verbatim transcript
   string, because no verbatim string is available for it; it is marked
   as such rather than presented as a quotation.
+- 2026-08-29: presented with the question "design.md にregion意味論を追加
+  （delimited-region サーフェスの `type_changed` を、インストール済み側の
+  マーカー書式が現在の `register_codex_mcp` 生成書式と一致しない場合として
+  定義する案）で design.md を修正してよいですか？", the human answered
+  「承認、この文言で適用」 — approving the exact proposed text adding
+  `change_type: "type-changed"` semantics for `surface:
+  "delimited-region"` to the Region Extraction Rule subsection: a marker
+  pair present on both sides whose installed-side delimiter text does not
+  match the current installer-generated marker format (distinct from
+  `modified`, which covers same-format content drift), with both
+  `installed_sha256` and `repo_sha256` populated. This closes T-002's
+  blocked attempt, which had correctly declined to invent this semantics
+  itself (`reports/implementation/epic-196-a8-integration/T-002.md`).
 
 Because these approvals were given in conversation, this committed entry
 is itself the durable record of them; no other citable artifact carries
@@ -652,3 +665,16 @@ head of this subsection requires.
   supersedes no earlier one; the value it replaces is
   `2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975`,
   the hash that same contract's four-entry layer map pinned.
+- `specs/epic-196-a8-integration/design.md` — SHA-256
+  `c69ec42ed738a1bb091453920b890459f236a60e5673527338d183e94bab78d4`,
+  amended together with this investigation.md entry (the commit
+  recording both is identified in this repository's history as the one
+  whose only two changed files under `specs/epic-196-a8-integration/`
+  are `design.md` and this file, dated 2026-08-29) to add the
+  delimited-region `type-changed` semantics to the Region Extraction
+  Rule, per the human approval recorded above. **This block supersedes
+  the `specs/epic-196-a8-integration/design.md` block earlier in this
+  subsection**, which is retained unedited and still records
+  `14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c` at
+  commit `8d760af03cacc594afa464841222d7cb7a2201ec` together with that
+  block's own superseded value.
