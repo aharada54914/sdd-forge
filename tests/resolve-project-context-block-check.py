@@ -3008,6 +3008,102 @@ def run_t007_crash_before_evidence_case(kind, counts):
         )
 
 
+def run_t007_pre_image_symlink_escape_case(kind, counts):
+    """Panel round 18 Major (openai slot): the sibling of round 17's read
+    escape, on the PRE-IMAGE side, which round 17 did not sweep.
+
+    Round 17 stopped a leaf symlink at a publication TARGET from having its
+    referent read. The same class was still open one directory over: the
+    staging area is explicitly unprotected and repository-local, so a
+    malicious branch can commit `pre/<basename>` as a symlink, and
+    `_read_pre_image` followed it with `read_bytes()`. The hash check happens
+    AFTER the read, so an arbitrary file's bytes were already in the process;
+    and an attacker who knows the referent's hash can record it as `pre_hash`
+    and have those bytes RESTORED into an allowlisted artifact.
+
+    The journal here is a legitimate Full-track SHAPE -- it has to be, or the
+    round-15 bundle check would refuse it first and this would prove nothing
+    about the backup read. It classifies MIX, which is the only branch that
+    restores."""
+    case_name = "publication-journal-target-escape"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[pre-image-symlink-escapes-repo]"
+    secret = b"PRIVATE-KEY-MATERIAL-MUST-NEVER-BE-READ\n"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        outside = Path(tmp).resolve() / "outside-secret.txt"
+        repo = Path(tmp).resolve() / "repo"
+        repo.mkdir()
+        outside.write_bytes(secret)
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        entries = [
+            {   # classifies POST -> restored on MIX, which is what reads the backup
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": hashlib.sha256(secret).hexdigest(),
+                "post_hash": hashlib.sha256(PRE_FACET_MANIFEST).hexdigest(),
+            },
+            {   # classifies PRE -> forces MIX rather than all-POST
+                "live_path": "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json",
+                "pre_hash": hashlib.sha256(PRE_CONTEXT_PROJECTION).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+            {   # present so the set is a legitimate Full-track bundle shape
+                "live_path": "specs/example-feature/resolver-evidence.yaml",
+                "pre_hash": "ABSENT",
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+        ]
+        journal = plant_journal(feature_dir, entries, {})
+        backup = journal.parent / "pre" / "facet-manifest.yaml"
+        backup.symlink_to(outside)
+        counts.check(
+            backup.is_symlink() and read_or_missing(backup) == secret,
+            f"{label}: precondition -- the PRE-image backup is a symlink to a file OUTSIDE the "
+            f"repository, and its recorded pre_hash is that file's real hash, so the post-read hash "
+            f"check would pass",
+        )
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("publication-journal-recovery")
+
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n",
+            f"{label}: Blocks publication-journal-recovery with the canonical line only",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        leaked = [
+            str(p) for p in repo.rglob("*")
+            if p.is_file() and not p.is_symlink() and read_or_missing(p) == secret
+        ]
+        counts.check(
+            not leaked,
+            f"{label}: the referent's bytes appear NOWHERE as a real file in the repository -- this is "
+            f"the assertion the unguarded backup read fails, because the restore would write them into "
+            f"facet-manifest.yaml with a hash check that passes",
+            repr(leaked),
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{label}: the live artifact still holds its own bytes, not the referent's",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:60]),
+        )
+        counts.check(
+            read_or_missing(outside) == secret and not outside.is_symlink(),
+            f"{label}: the outside file itself is byte-untouched",
+        )
+
+
 def run_t007_leaf_symlink_escape_case(kind, counts):
     """Panel round 17 Major (openai slot): ruling (b) opened a READ escape.
 
@@ -3247,18 +3343,36 @@ def run_t007_leaf_symlink_target_case(kind, counts):
         # signal into an unreadable traceback. These two assertions were
         # written with `read_bytes()` on rounds 12 and 15 and did exactly
         # that when mutant H was first run on round 16.
+        # Rewritten under ruling (A) (repository owner, 2026-08-29). This
+        # assertion used to read "after rollback the LEXICAL entry holds its
+        # PRE bytes", which was true while `_live_bytes` followed the leaf
+        # symlink to capture PRE. It no longer does: a symlinked target's PRE
+        # state is ABSENT, so the rollback restores ABSENT by unlinking, and
+        # the link does not survive a rolled-back publication. That is the
+        # consequence the owner accepted, and asserting it is the point --
+        # deleting the assertion because its old form broke would have thrown
+        # away the only check that watches this path.
         counts.check(
-            not target.is_symlink() and read_or_missing(target) == pre_bytes,
-            f"{label}: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the "
-            f"symlink entry, so the rollback must restore THAT entry and not the referent the old "
-            f"whole-path resolution would have recorded in the journal",
-            f"is_symlink={target.is_symlink()} bytes={read_or_missing(target)[:60]!r}",
+            not target.exists() and not target.is_symlink(),
+            f"{label}: after rollback the target is ABSENT -- ruling (A) makes a symlinked target's PRE "
+            f"state ABSENT (the referent's bytes are not this artifact's own content and are never "
+            f"read), so the rollback restores ABSENT by unlinking rather than putting the link back",
+            f"exists={target.exists()} is_symlink={target.is_symlink()} "
+            f"bytes={read_or_missing(target)[:60]!r}",
         )
         counts.check(
             read_or_missing(referent) == pre_bytes,
-            f"{label}: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the "
-            f"symlink, in either direction",
+            f"{label}: the symlink's referent is byte-untouched -- nothing was written THROUGH the "
+            f"symlink, and under ruling (A) nothing was READ through it either",
             repr(read_or_missing(referent)[:60]),
+        )
+        counts.check(
+            not [p for p in feature_dir.rglob("*")
+                 if p.is_file() and not p.is_symlink() and read_or_missing(p) == pre_bytes
+                 and p != referent],
+            f"{label}: the referent's bytes were never captured anywhere -- no PRE-image backup holds "
+            f"them, which is what ruling (A) closes and what a repository-containment check alone "
+            f"would have missed for an in-tree referent like this one",
         )
         counts.check(
             not journal_paths(feature_dir) and not staging_litter(feature_dir),
@@ -4135,6 +4249,7 @@ def main():
         run_t007_post_publication_mismatch_case(args.launcher, counts)
         run_t007_leaf_symlink_target_case(args.launcher, counts)
         run_t007_leaf_symlink_escape_case(args.launcher, counts)
+        run_t007_pre_image_symlink_escape_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)

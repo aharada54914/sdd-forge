@@ -1279,11 +1279,18 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     # is refused BEFORE any read: `_publish_bundle` consults this predicate in
     # its pre-transaction validation, ahead of the Prepare loop that calls
     # `_live_bytes`.
-    if os.path.islink(str(target)):
-        if not _path_contained_in(
-            os.path.realpath(str(repo_root)), os.path.realpath(str(target))
-        ):
-            return True
+    # Round 17 added a repository-containment clause for leaf symlinks here,
+    # and round 18 retired it in both directions. The anthropic slot showed it
+    # was under-scoped as a READ guard (the boundary is "never reads a
+    # credential", not "never reads outside the repository"), and that it was
+    # over-applied as a WRITE guard -- `_write_evidence` performs no read at
+    # all, so the clause bought nothing there and silently widened the
+    # owner-ruled THIRD AC-012 no-write exception to a FOURTH condition.
+    #
+    # Ruling (A) moved the read question to where the read actually happens:
+    # `_live_bytes` no longer follows a leaf symlink at all. This predicate is
+    # back to being purely about WHERE a write lands, which is what its name
+    # and its three call sites have always meant.
     return False
 
 
@@ -1383,7 +1390,28 @@ def _live_bytes(path):
     a journal and its backups while a real target still stands (Epic A1's
     own seq0360 finding on the isomorphic mechanism). Every other read
     failure propagates as `OSError`, never as a silent `ABSENT`."""
-    if not (path.is_symlink() or path.exists()):
+    # RULING (A), repository owner, 2026-08-29. A publication target that is a
+    # SYMLINK is never read through: its PRE state is `ABSENT`, because the
+    # referent's bytes are by definition not this artifact's own content.
+    #
+    # This replaces round 17's repository-containment clause, which the
+    # anthropic panel slot showed was under-scoped: the boundary
+    # requirements.md:1304-1311 states is "never ... reads a credential", not
+    # "never reads outside the repository", so a symlink pointing at an
+    # in-repo `.env` or a token-bearing git config still passed it and had its
+    # bytes captured into the PRE image and, on rollback, written into a
+    # git-tracked artifact path. Not following the link at all closes the
+    # whole band without this code having to decide what a credential is.
+    #
+    # The consequence the owner accepted when ruling (A): a rollback restores
+    # `ABSENT` by unlinking, so the symlink itself does not survive a
+    # rolled-back publication. The commit would have replaced that entry
+    # anyway -- `os.replace` clobbers the link rather than following it -- so
+    # the artifact path ends up as this Resolver's own regular file either
+    # way; what changes is only that the link is not put back.
+    if path.is_symlink():
+        return None
+    if not path.exists():
         return None
     return path.read_bytes()
 
@@ -1543,7 +1571,29 @@ def _read_pre_image(batch_dir, entry):
     backup raises `OSError` -- the caller turns that into the unrecoverable
     state design.md names, never a silently-wrong restore."""
     basename = Path(entry["live_path"]).name
-    payload = (batch_dir / PRE_IMAGE_DIRNAME / basename).read_bytes()
+    backup = batch_dir / PRE_IMAGE_DIRNAME / basename
+    # READ CONTAINMENT on the backup side (openai panel slot, round 18 Major).
+    # Round 17 closed exactly this class on the TARGET side and did not sweep
+    # here, which is the same fix-one-leave-the-sibling defect this package
+    # keeps producing -- this time in code rather than in prose.
+    #
+    # The staging area is explicitly unprotected and repository-local, so a
+    # malicious branch can commit `pre/<basename>` as a SYMLINK. Reading it
+    # with `read_bytes()` would follow that link, and the hash check below
+    # happens AFTER the read -- so the bytes of an arbitrary file, a private
+    # key included, are already in this process. Worse, an attacker who knows
+    # the referent's hash can record it as `pre_hash` and have those bytes
+    # RESTORED into an allowlisted artifact. security-spec.md line 17's
+    # Security Boundaries bullet 1 ("never invokes a Provider API, reads a
+    # credential, or ...") is violated by the read alone.
+    #
+    # Refused before the read, and `OSError` keeps the caller's contract: an
+    # unreadable backup is exactly the unrecoverable state design.md names.
+    if not _path_contained_in(
+        os.path.realpath(str(batch_dir)), os.path.realpath(str(backup))
+    ):
+        raise OSError("a pre-image backup does not resolve inside its own batch directory")
+    payload = backup.read_bytes()
     if _digest(payload) != entry["pre_hash"]:
         raise OSError("pre-image backup no longer matches its own journal-recorded hash")
     return payload

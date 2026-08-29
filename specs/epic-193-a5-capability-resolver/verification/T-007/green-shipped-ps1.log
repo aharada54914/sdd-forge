@@ -286,14 +286,20 @@ PASS: post-publication-generation-mismatch: exact Resolver Evidence (AC-012)
 PASS: post-publication-generation-mismatch: Resolver Evidence schema agreement
 PASS: post-publication-generation-mismatch[leaf-symlinked]: precondition -- the publication target is a symlink to an in-tree sibling carrying the PRE bytes
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b))
-PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
-PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
+PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the target is ABSENT -- ruling (A) makes a symlinked target's PRE state ABSENT (the referent's bytes are not this artifact's own content and are never read), so the rollback restores ABSENT by unlinking rather than putting the link back
+PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was written THROUGH the symlink, and under ruling (A) nothing was READ through it either
+PASS: post-publication-generation-mismatch[leaf-symlinked]: the referent's bytes were never captured anywhere -- no PRE-image backup holds them, which is what ruling (A) closes and what a repository-containment check alone would have missed for an in-tree referent like this one
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
 PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
 PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
 PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
 PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
 PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
+PASS: publication-journal-target-escape[pre-image-symlink-escapes-repo]: precondition -- the PRE-image backup is a symlink to a file OUTSIDE the repository, and its recorded pre_hash is that file's real hash, so the post-read hash check would pass
+PASS: publication-journal-target-escape[pre-image-symlink-escapes-repo]: Blocks publication-journal-recovery with the canonical line only
+PASS: publication-journal-target-escape[pre-image-symlink-escapes-repo]: the referent's bytes appear NOWHERE as a real file in the repository -- this is the assertion the unguarded backup read fails, because the restore would write them into facet-manifest.yaml with a hash check that passes
+PASS: publication-journal-target-escape[pre-image-symlink-escapes-repo]: the live artifact still holds its own bytes, not the referent's
+PASS: publication-journal-target-escape[pre-image-symlink-escapes-repo]: the outside file itself is byte-untouched
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -373,4 +379,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 374 passed, 0 failed
+RESULT: 380 passed, 0 failed

@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 6d2f79b246cea06b23b5375605ad1176c7f53a9f41ab001f4815fdb9c0e327f8
+# input_digest: 62f82678b2f17fa41fd0e78bf5406a8d687a34dfb0cbc7f0f2d902fe362e2a24
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -11025,7 +11025,7 @@ REQ-004.
       "green_evidence": ""
     }
   ],
-  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (369/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries seven mutants: A, B, C, E and G are killed; D and F stay at the clean control tally and are labelled UNCOVERED in the log itself, with the fixture each would need named. Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
+  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (374/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries eleven mutants, all against the shipped bytes, with a clean control run at the top: A, B, C, E, G, H, I, J and K are killed; D and F stay at the control tally and are labelled UNCOVERED in the log itself, with the fixture each would need named. H, I and J are the report's own mutations (a), (b) and (c), re-run under the current harness after round 16 found the report citing them with no capture behind them anywhere in the bundle; (d) is labelled not-re-verified rather than restated. K covers the round-17 read-containment fix. Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash."
 }
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log ----
 # runner: pwsh
@@ -15993,6 +15993,11 @@ PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink doe
 PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -16072,7 +16077,7 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -16365,6 +16370,11 @@ PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink doe
 PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -16444,28 +16454,28 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log ----
 --- CLEAN CONTROL: no mutant, shipped bytes ---
 (Every UNCOVERED verdict below is stated RELATIVE to this run. Without it
  on the page those verdicts are unverifiable, which is exactly what the
  anthropic panel slot found on round 13: the notes cited a control run
  that this log did not contain.)
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 mutant injected
 --- MUTANT A: approval-surface mention injected (expect TEST-059 FAIL) ---
 FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
-RESULT: 368 passed, 1 failed
+RESULT: 373 passed, 1 failed
 mutant B injected: Evidence back inside the rollback set
 --- MUTANT B: Evidence rolled back again (expect post-publication case FAIL) ---
 FAIL: post-publication-generation-mismatch: canonical diagnostic only (AC-014): stdout='' stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
 FAIL: post-publication-generation-mismatch: exact Resolver Evidence (AC-012): {'capability_evaluations': [], 'context_binding': {'dependency_pointers': ['/components/comp-a', '/workflow'], 'full_context_revision': 'sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e', 'ownership_digest': 'sha256:0000000000000000000000000000000000000000000000000000000000000000', 'projection_sha256': 'sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82', 'registry_digest': 'sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0'}, 'diagnostics': [{'detail': "a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal", 'id': 'post-publication-generation-mismatch', 'severity': 'block'}], 'feature': 'example-feature', 'resolver': {'rule_set_revision': 'sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b', 'version': '1.0.0'}, 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b)): rc=1 stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
-RESULT: 366 passed, 3 failed
+RESULT: 371 passed, 3 failed
 mutant C injected: journal discarded BEFORE the Block Evidence write
 --- MUTANT C: journal deleted before Evidence (crash-window regression) ---
 FAIL: post-publication-crash-before-evidence: the journal is STILL STANDING after a crash between the rollback and the Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it deleted the journal before that write: []
-RESULT: 368 passed, 1 failed
+RESULT: 373 passed, 1 failed
 (This mutant is COVERED as of round 15. The note that used to sit here
  said the crash window could not be observed "without a new test-harness
  kill hook between the rollback and the Evidence write"; a panel slot
@@ -16475,7 +16485,7 @@ RESULT: 368 passed, 1 failed
  expected result.)
 mutant D injected: journal nonce no longer bound to its batch directory
 --- MUTANT D: nonce/batch-directory binding removed ---
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 (A tally here EQUAL to the clean control run means this hardening is
  UNCOVERED: no fixture grafts a journal from one batch into another
  batch directory. Recorded, not implied.)
@@ -16483,11 +16493,11 @@ mutant E injected: journal records the symlink referent, not the lexical entry
 --- MUTANT E: journal path resolves the leaf again (expect leaf-symlinked FAIL) ---
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b)): rc=1 stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; an in-process journal-based rollback of 2 already-committed live renames did not itself complete; the next invocation's own crash-recovery scan is the durable backstop\n"
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal: is_symlink=False bytes=b'{"affected_components":["comp-a"],"capabilities":[],"conditi'
-FAIL: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives: ['4b04b8779665c2be4ce05dad1db41142', '4b04b8779665c2be4ce05dad1db41142/TRANSACTION.json', '4b04b8779665c2be4ce05dad1db41142/pre', '4b04b8779665c2be4ce05dad1db41142/pre/facet-manifest.yaml', '4b04b8779665c2be4ce05dad1db41142/pre/project-context.resolved.json']
-RESULT: 366 passed, 3 failed
+FAIL: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives: ['949fd5fb6e07a0d70ddad345993e1da8', '949fd5fb6e07a0d70ddad345993e1da8/TRANSACTION.json', '949fd5fb6e07a0d70ddad345993e1da8/pre', '949fd5fb6e07a0d70ddad345993e1da8/pre/facet-manifest.yaml', '949fd5fb6e07a0d70ddad345993e1da8/pre/project-context.resolved.json']
+RESULT: 371 passed, 3 failed
 mutant F injected: journal discarded even when the Evidence write failed
 --- MUTANT F: discard guarded on rollback only, not on Evidence durability ---
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 (A tally here EQUAL to the clean control run means mutant F is UNCOVERED.
  Reaching it needs the Evidence write to fail AFTER a completed rollback,
  and no fixture can produce that combination: a feature directory that
@@ -16500,18 +16510,21 @@ FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bu
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the live artifact the fabricated journal marked ABSENT-at-PRE is STILL THERE -- this is the assertion the defect fails, because a MIX rollback would unlink it: b'{"affected_components":[],"capabilities":[],"conditional_facets":[],"context_binding":{"dependency_pointers":["/workflow"],"full_context_revision":"sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e","ownership_digest":"sha256:b1b527049a796f49f35e8ffc4cf30860caf1be83de8ec9b73baa9f2761d7ab63","projection_sha256":"sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82","registry_digest":"sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0"},"feature":"example-feature","lite_eligibility":{"eligible":true,"upgrade_reasons":[]},"required_facets":[],"resolved_gates":[],"resolver":{"rule_set_revision":"sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b","version":"1.0.0"},"schema":"sdd-facet-manifest/v1"}\n'
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the other in-set targets are untouched too -- the refusal happens BEFORE any recovery write
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the rejected journal is retained for manual operator intervention
-RESULT: 365 passed, 4 failed
+RESULT: 370 passed, 4 failed
 mutant H injected: _restore_to_pre reverted to a bare unlink
 --- MUTANT H: rollback reverted to a bare unlink (report mutation (a)) ---
-RESULT: 349 passed, 20 failed
+RESULT: 354 passed, 20 failed
 mutant I injected: no journal before the first rename
 --- MUTANT I: journal write skipped (report mutation (b)) ---
-RESULT: 351 passed, 7 failed
+RESULT: 356 passed, 7 failed
 mutant J injected: step 14 post-publication recheck skipped
 --- MUTANT J: post-publication recheck skipped (report mutation (c)) ---
-RESULT: 359 passed, 10 failed
+RESULT: 364 passed, 10 failed
+mutant K injected: leaf-symlink read containment removed
+--- MUTANT K: read containment removed (expect leaf-symlink-escapes-repo FAIL) ---
+RESULT: 373 passed, 1 failed
 --- restoring ---
-restored sha256: 8d56f3cfe1158289bfc56fbf9e71a0630511c5d3443429b238e3ec00ebb01400
+restored sha256: ce6772bb394e3dce79f71f74d443a72f4b73160a0b6b17cf2f7c29c9d2bd74bb
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -20783,6 +20796,11 @@ PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink doe
 PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -20862,7 +20880,7 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-007/focused-tests-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
@@ -21155,6 +21173,11 @@ PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink doe
 PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -21234,7 +21257,7 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-007/regression.log ----
 ########## tests/resolver-evidence-schema.tests.sh ##########
 PASS: TEST-017 schema file exists
@@ -22152,9 +22175,9 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `953bee8d5043668b40ab424f59e24f5f819cf9ff8afe548082202645a3a49312` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `33380dca037fac21c3ad26e26cedf36a3deee33d8cf434b99c4ff6e2563e3c69` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `8d56f3cfe1158289bfc56fbf9e71a0630511c5d3443429b238e3ec00ebb01400` |
+| `CHANGELOG.md` | `e506d32ed91cb71131a24f92164c8e65e8f11e94dd8469703bbdaf47488aa0c2` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `0de5752dd403f8b4a5be8d10b75b772bb5f2aeea56e95b7830b63f87333dbe2c` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `ce6772bb394e3dce79f71f74d443a72f4b73160a0b6b17cf2f7c29c9d2bd74bb` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22169,9 +22192,9 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-sh.log` | `99d0373e460efe7fc44b59cf92db7eba13be48e605ab401886817527b316fa9d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log` | `86fcc1b0e0f312952d4344280fcd28deb73a239a80737a3f941a51905a7833a5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `d5cfff641ebbc5587470f5486d2143a283c8e8bbe1ada892e08399b1a0a31e03` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `ae644953101c147ced35fd7f131ae34a61dd369e37e6ff5a54828f6fd5006a44` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `73b1f9946bf7e2871ba0ea2a93dabc57afa42a4ea6a9553218c6ba4f2ab1b570` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `0a03f6da665fb7344faedc7b942bdf7cd0370a970194f793f708c48f7f9425fc` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `cabae07b5f30a35f1f48e6b061ff8ca0cf636bac1d85ea130bc779e4bfd774e5` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `d4a6dfbcdf3783fe4fd34c4ef32fb458db8a40ab06c174d16ddd41382d4d5e7c` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22202,7 +22225,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml` | `31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
-| `tests/resolve-project-context-block-check.py` | `86d8ffbc6dfc88318f52517fc5afb6b5fb0cdab0d0ca47ac33816302b359095e` |
+| `tests/resolve-project-context-block-check.py` | `823915198ce5c6ef6907673a36fe72a49d4fb454113eefafc4be3536e587b17f` |
 
 **Round 16 (2026-08-29) — the owner's ruling (c), the third-branch sweep, and
 a mutation that was testing the wrong line.**
@@ -22568,7 +22591,7 @@ RED/GREEN captures but none of its panelist verdicts, contract, or
 
 - **Test Command**: `sh tests/resolve-project-context-block.tests.sh` and
   `pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1`
-- **Test Result**: PASS (369 passed / 0 failed, both runtimes, exit 0) —
+- **Test Result**: PASS (374 passed / 0 failed, both runtimes, exit 0) —
   `verification/T-007/green-shipped-sh.log` and `green-shipped-ps1.log`,
   which are the captures taken at the bytes this report declares under
   Outputs. **Corrected 2026-08-29 (round 13).** This field read
@@ -22613,8 +22636,12 @@ assertion.
 
 ### GREEN capture
 
-`green-sh.log` (`# runner: bash`) and `green-ps1.log` (`# runner: pwsh`):
-**306 passed, 0 failed**, exit 0, both runtimes.
+**Round 1, retained as the historical record of that run** — `green-sh.log`
+(`# runner: bash`) and `green-ps1.log` (`# runner: pwsh`): **306 passed, 0
+failed**, exit 0, both runtimes. These figures are true of those two files and
+have been superseded since panel round 2. The GREEN capture for the SHIPPED
+bytes is `green-shipped-sh.log` / `green-shipped-ps1.log` at **374 passed, 0
+failed**, which is what the Test Result field and the contract both cite.
 
 ### Mutation proofs
 
@@ -22636,11 +22663,19 @@ figures below are from the current 369-check harness and are in
 
 | Mutation | Result at shipped bytes |
 |---|---|
-| (control) no mutation | `RESULT: 369 passed, 0 failed` |
-| (a) `_restore_to_pre` reverted to a bare `unlink` (mutant H) | `RESULT: 349 passed, 20 failed` |
-| (b) `_write_journal` skipped before the first rename (mutant I) | `RESULT: 351 passed, 7 failed` |
-| (c) step 14's post-publication recheck skipped (mutant J) | `RESULT: 359 passed, 10 failed` |
+| (control) no mutation | `RESULT: 374 passed, 0 failed` |
+| (a) `_restore_to_pre` reverted to a bare `unlink` (mutant H) | `RESULT: 354 passed, 20 failed` |
+| (b) `_write_journal` skipped before the first rename (mutant I) | `RESULT: 356 passed, 7 failed` |
+| (c) step 14's post-publication recheck skipped (mutant J) | `RESULT: 364 passed, 10 failed` |
 | (d) step 13 comparison reduced to digests only | **NOT re-run — see below** |
+
+The eleven-mutant set as a whole, all against the shipped bytes and all in
+`mutation-proofs.log` beneath its clean control run: A 373/1, B 371/3,
+C 373/1, E 371/3, G 370/4, H 354/20, I 356/7, J 364/10, K 373/1 are killed;
+D and F sit at the control tally and are labelled UNCOVERED in the log itself,
+with the fixture each would need named. K is the round-17 read-containment
+guard — a leaf symlink whose referent leaves the repository — and it is killed
+by `run_t007_leaf_symlink_escape_case`.
 
 **(d) is not re-verified at the shipped bytes, and is left labelled rather
 than quietly carried.** Its original scoped result
@@ -22738,10 +22773,10 @@ Input manifest: `handoffs/T-007-input-manifest.json`.
 
 | Suite | sh | ps1 |
 |---|---|---|
-| `resolve-project-context-block` | 306 passed / 0 failed | 306 passed / 0 failed |
+| `resolve-project-context-block` | 374 passed / 0 failed | 374 passed / 0 failed |
 | `resolve-project-context-match` | 125 passed / 0 failed | 125 passed / 0 failed |
 | `resolve-project-context-cli` | 13 passed / 0 failed | 13 passed / 0 failed |
-| `resolve-project-context-discovery` | 12 passed / 0 failed | 12 passed / 0 failed |
+| `resolve-project-context-discovery` | 24 passed / 0 failed | 24 passed / 0 failed |
 | `resolve-project-context-lite` | 18 passed / 0 failed | 18 passed / 0 failed |
 | `resolver-evidence-schema` | 20 PASS / 0 FAIL | not run |
 | `guard-invariants-epic-a1` | 82 PASS / 0 FAIL | not run |
@@ -23074,7 +23109,7 @@ they are reported because they exercise this task's resolver, and all are
 green against it.
 
 Fresh evidence, added as new versioned files (originals not overwritten):
-`red-panel1-sh.log` (311 passed / 10 failed — the two escape scenarios),
+`red-panel1-sh.log` (308 passed / 10 failed — the two escape scenarios),
 `green-panel1-sh.log`, `green-panel1-ps1.log` (321/0 each).
 
 `MANIFEST.sha256` re-measured and verified: `shasum -a 256 -c` → 4/4 OK,
@@ -24261,7 +24296,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 369 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 374 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
   step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
@@ -27530,7 +27565,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-8d56f3cfe1158289bfc56fbf9e71a0630511c5d3443429b238e3ec00ebb01400  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+ce6772bb394e3dce79f71f74d443a72f4b73160a0b6b17cf2f7c29c9d2bd74bb  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -28793,7 +28828,34 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     tree, never to the symlink's own target."""
     parent_real = os.path.realpath(str(Path(target).parent))
     candidate = os.path.join(parent_real, Path(target).name)
-    return candidate not in _allowed_publication_targets_real(repo_root, feature)
+    if candidate not in _allowed_publication_targets_real(repo_root, feature):
+        return True
+
+    # READ CONTAINMENT (openai panel slot, round 17 Major). Ruling (b) made a
+    # symlink AT the leaf acceptable because `os.replace` replaces that entry
+    # rather than following it -- correct for the WRITE. The safety argument
+    # put to the owner then said reading "cannot escape either, because a
+    # rollback writes those bytes back to the leaf NAME inside the tree". That
+    # argument only ever considered write-escape. It missed that the READ IS
+    # ITSELF the violation: `_live_bytes` captures the PRE image through
+    # `Path.read_bytes()`, so a leaf symlink pointing outside the repository
+    # -- at a private key, a token file, anything -- has its referent's bytes
+    # copied into `.resolver-staging/<nonce>/pre/`, and on a rollback into a
+    # tracked artifact path. security-spec.md line 17 quotes Security
+    # Boundaries bullet 1 as "never invokes a Provider API, READS A
+    # CREDENTIAL, or ...", so this is a frozen boundary, not a judgement call.
+    #
+    # An in-tree leaf symlink stays acceptable, which is what ruling (b) was
+    # for. Only a leaf whose referent leaves the repository is refused, and it
+    # is refused BEFORE any read: `_publish_bundle` consults this predicate in
+    # its pre-transaction validation, ahead of the Prepare loop that calls
+    # `_live_bytes`.
+    if os.path.islink(str(target)):
+        if not _path_contained_in(
+            os.path.realpath(str(repo_root)), os.path.realpath(str(target))
+        ):
+            return True
+    return False
 
 
 def _path_contained_in(container_real, candidate_real):
@@ -34655,6 +34717,83 @@ def run_t007_crash_before_evidence_case(kind, counts):
         )
 
 
+def run_t007_leaf_symlink_escape_case(kind, counts):
+    """Panel round 17 Major (openai slot): ruling (b) opened a READ escape.
+
+    Ruling (b) made a symlink AT a publication target's leaf acceptable
+    because `os.replace` replaces that entry rather than following it. That is
+    right for the write. The safety argument put to the owner said reading
+    "cannot escape either, because a rollback writes those bytes back to the
+    leaf NAME inside the tree" -- an argument that only ever considered
+    write-escape, and missed that the READ IS ITSELF the violation.
+    `_live_bytes` captures the PRE image with `Path.read_bytes()`, so a leaf
+    symlink pointing outside the repository has its referent's bytes copied
+    into `.resolver-staging/<nonce>/pre/`. security-spec.md line 17 quotes
+    Security Boundaries bullet 1 as "never invokes a Provider API, reads a
+    credential, or ...".
+
+    The round-15 leaf-symlink fixture uses an IN-TREE referent, so it proves
+    the write semantics and says nothing about this. This one points the leaf
+    outside the repository entirely and asserts the bytes never move."""
+    case_name = "post-publication-generation-mismatch"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[leaf-symlink-escapes-repo]"
+    secret = b"PRIVATE-KEY-MATERIAL-MUST-NEVER-BE-READ\n"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        outside = Path(tmp).resolve() / "outside-secret.txt"
+        repo = Path(tmp).resolve() / "repo"
+        repo.mkdir()
+        outside.write_bytes(secret)
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        target = feature_dir / "facet-manifest.yaml"
+        target.unlink()
+        target.symlink_to(outside)
+        counts.check(
+            target.is_symlink() and read_or_missing(target) == secret,
+            f"{label}: precondition -- the publication target is a symlink whose referent lives OUTSIDE "
+            f"the repository and holds bytes the Resolver must never read",
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr.startswith("capability-resolver: "),
+            f"{label}: the run Blocks with a canonical diagnostic rather than publishing",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        leaked = [
+            str(p) for p in feature_dir.rglob("*")
+            if p.is_file() and not p.is_symlink() and read_or_missing(p) == secret
+        ]
+        counts.check(
+            not leaked,
+            f"{label}: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image "
+            f"backup, no staged copy, no published artifact. This is the assertion the read-escape "
+            f"fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/",
+            repr(leaked),
+        )
+        counts.check(
+            read_or_missing(outside) == secret and not outside.is_symlink(),
+            f"{label}: the outside file itself is byte-untouched and still a real file",
+            repr(read_or_missing(outside)[:60]),
+        )
+        counts.check(
+            secret not in stderr.encode("utf-8", errors="replace"),
+            f"{label}: and no referent byte reaches the diagnostic either (B5: attacker-controlled "
+            f"content is never interpolated into a canonical line)",
+        )
+
+
 def run_t007_journal_bundle_shape_case(kind, counts):
     """Panel round 14 Major (openai slot): every journal entry can be in-set
     and unique while the SET describes a transaction that never happened.
@@ -35704,6 +35843,7 @@ def main():
         run_t007_artifact_publication_failed_case(args.launcher, counts)
         run_t007_post_publication_mismatch_case(args.launcher, counts)
         run_t007_leaf_symlink_target_case(args.launcher, counts)
+        run_t007_leaf_symlink_escape_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)
