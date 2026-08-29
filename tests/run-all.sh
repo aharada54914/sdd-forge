@@ -113,6 +113,7 @@ tests=(
   tests/design-sync-scan.tests.sh
   tests/path-lineending-regression.tests.sh
   tests/cross-runtime-handoff.tests.sh
+  tests/check-installed-plugin-drift.tests.sh
   tests/validate-live-host-proof.tests.sh
   tests/human-copy-runner-contract.tests.sh
   tests/check-risk-upgrade-byte-identical.tests.sh

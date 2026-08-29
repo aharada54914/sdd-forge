@@ -244,6 +244,17 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: bash ./tests/cross-runtime-handoff.tests.sh
+
+      # epic-196-a8-integration T-002 (REQ-005, AC-022..AC-023):
+      # read-only installed-cache drift comparison in both wrapper runtimes.
+      - name: Test installed-plugin drift check (PowerShell)
+        shell: pwsh
+        run: ./tests/check-installed-plugin-drift.tests.ps1
+
+      - name: Test installed-plugin drift check (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/check-installed-plugin-drift.tests.sh
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
@@ -1099,4 +1110,3 @@ jobs:
             exit 1
           fi
           echo "all required checks passed"
-

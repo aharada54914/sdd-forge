@@ -1,0 +1,7 @@
+Command: sh plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-196-a8-integration/verification/T-002/traceability.json . require-evidence
+Exit: 0
+Traceability check passed for epic-196-a8-integration: 1 link(s).
+
+Layer command: python3 plugins/sdd-review-loop/scripts/validate-layer-traceability.py specs/epic-196-a8-integration/traceability.md specs/epic-196-a8-integration/requirements.md
+Layer exit: 0
+Layer traceability validation passed with no diagnostics.

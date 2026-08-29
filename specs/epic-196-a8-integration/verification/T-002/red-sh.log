@@ -1,0 +1,27 @@
+Command: bash tests/check-installed-plugin-drift.tests.sh --checker tests/fixtures/installed-plugin-drift/permissive-comparator.py
+Exit: 1 (expected RED)
+not ok TEST-023 not_installed preflight: state mismatch: got installed_synced, expected not_installed
+not ok TEST-023 not_installed verify: state mismatch: got installed_synced, expected not_installed
+ok TEST-023 installed_synced preflight
+ok TEST-023 installed_synced verify
+not ok TEST-022 all surfaces and TEST-023 drift preflight: state mismatch: got installed_synced, expected installed_drifted
+not ok TEST-022 file/added exact entry
+not ok TEST-022 file/removed exact entry
+not ok TEST-022 file/modified exact entry
+not ok TEST-022 file/type-changed exact entry
+not ok TEST-022 delimited-region/added exact entry
+not ok TEST-022 delimited-region/removed exact entry
+not ok TEST-022 delimited-region/modified exact entry
+not ok TEST-022 delimited-region/type-changed exact entry
+not ok TEST-022 all surfaces and TEST-023 drift verify: state mismatch: got installed_synced, expected installed_drifted
+not ok TEST-022 file/added exact entry
+not ok TEST-022 file/removed exact entry
+not ok TEST-022 file/modified exact entry
+not ok TEST-022 file/type-changed exact entry
+not ok TEST-022 delimited-region/added exact entry
+not ok TEST-022 delimited-region/removed exact entry
+not ok TEST-022 delimited-region/modified exact entry
+not ok TEST-022 delimited-region/type-changed exact entry
+ok TEST-022 negative lifecycle initial sync
+not ok TEST-022 negative lifecycle detects later mutation: state mismatch: got installed_synced, expected installed_drifted
+FAIL 5 case group(s)

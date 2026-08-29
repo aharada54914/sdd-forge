@@ -65,6 +65,7 @@ $tests = @(
     'tests/design-sync-scan.tests.ps1',
     'tests/path-lineending-regression.tests.ps1',
     'tests/cross-runtime-handoff.tests.ps1',
+    'tests/check-installed-plugin-drift.tests.ps1',
     'tests/validate-live-host-proof.tests.ps1',
     'tests/human-copy-runner-contract.tests.ps1',
     'tests/check-risk-upgrade-byte-identical.tests.ps1',
