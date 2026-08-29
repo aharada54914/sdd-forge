@@ -4,10 +4,16 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
   "model": "gpt-5",
-  "verdict": "PASS",
-  "findings": [],
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "resolve-project-context.py:_target_escapes_via_symlink/_live_bytes/_publish_bundle",
+      "note": "Leaf symlinks are deliberately accepted, but PRE-image capture and recovery read them through Path.read_bytes(). A publication target symlink can therefore point outside the repository\u2014including at credential material\u2014and its referent bytes are read and copied into .resolver-staging/pre, violating the explicit security boundary that the Resolver never reads a credential. The leaf-symlink fixture covers only an in-tree referent and does not exercise this case."
+    }
+  ],
   "blind": true,
-  "input_digest": "ed393ad0299972b0a4daf53ba5b587b1d73b3b04bc53472c30b113cc4d0a79c4",
+  "input_digest": "6d2f79b246cea06b23b5375605ad1176c7f53a9f41ab001f4815fdb9c0e327f8",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md#T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"

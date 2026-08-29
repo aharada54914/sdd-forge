@@ -4,41 +4,46 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "CHANGELOG.md (declared output), T-007 entry, bundle lines 24244-24257",
-      "note": "The CHANGELOG states in bold that two guards remain uncovered, and then enumerates THREE. The first item listed is the journal-delete-ordering change (mutant C), and its parenthetical still repeats the exact claim round 15 retracted: that the window cannot be observed without a kill hook between the rollback and the Evidence write. The declared capture mutation-proofs.log contradicts this in writing (its mutant C block says the note that used to sit here was wrong, the hook already existed, and a tally below the clean control is now the expected result), mutant C kills at 368/1, and run_t007_crash_before_evidence_case is the fixture. The bold header was corrected on 2026-08-29 and the list stating the same fact directly beneath it was not. This is the same amendment-propagation class the report documents thirteen prior instances of, landing this time on a permanent release artifact that this task's own Governance Done-When bullet makes it responsible for, and it misstates regression coverage of the one code path the panel has circled for five rounds."
-    },
-    {
-      "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, section Test Evidence > Mutation proofs (bundle lines 22610-22652)",
-      "note": "This section presents mutations (a) bare-unlink rollback, (b) journal write skipped before first rename, (c) post-publication recheck skipped, (d) step-13 digest-only as run against the final shipped code, and Quality Gate Focus item 3 names mutation (a) as the non-vacuity proof for the rollback-content assertions that separate a journal-based rollback from a bare unlink (AC-039/AC-047/AC-049). Neither claim holds at the shipped bytes. The section's own closing sentence says the real tree was re-run at 306/0 in both runtimes, while the shipped tally is 369/0; the control it reports (46 passed) is a scoped round-1 run; and the only declared mutation capture, verification/T-007/mutation-proofs.log, carries mutants A through G and none of (a)-(d). The strings MUTATION[bare-unlink-rollback], MUTATION[no-journal-before-rename], MUTATION[no-post-publication-recheck] and MUTATION[digest-only-step13] appear nowhere in any capture the bundle carries. The CHANGELOG repeats the same seven-mutation non-vacuity claim. So the declared non-vacuity evidence for this task's load-bearing rollback assertions is asserted for the shipped code and is not present in the bundle for it; the current log runs the full 369-check suite, so re-running those four mutants is cheap and would settle it."
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: Regression Tests Run / GREEN capture / Mutation proofs closing line",
+      "note": "Three sites still declare the block suite at 306 passed / 0 failed. The shipped captures (green-shipped-sh.log, green-shipped-ps1.log) and the contract green evidence (verification/qg/T-007/focused-tests-sh.log and -ps1.log) all report 369 passed / 0 failed, and I confirmed all four. The Test Evidence field itself was repointed on round 13 and is correct; the Regression Tests Run table, the GREEN capture subsection, and the sentence After the proofs the real tree was re-run: 306/0 both runtimes were not swept with it. The stale figures understate rather than overstate the evidence, so nothing is inflated, but a reader who checks the regression table against the contract gets a 63-check disagreement with no marker."
     },
     {
       "severity": "Minor",
-      "ref": "staged resolve-project-context.py, _rollback_transaction discard=False rationale comment (bundle lines 29167-29179)",
-      "note": "The comment states that keeping the journal until Evidence is durable makes a crash in that window land in the recovery scan's own unrecoverable third state, which Blocks publication-journal-recovery for a human, and cites the 2026-08-27 owner ruling for that being acceptable. Round 15's own fixture measured the opposite and the report says so plainly: the scan converges the journal instead, because the crashed run had already rolled its artifacts back. The safety outcome is still sound (the success-form Evidence is reverted rather than left asserting a vanished publication), so this is a wrong rationale rather than a wrong behaviour, but the correction was propagated into the test and the report and not into the production comment that is the stated reason the guard exists, on a Security-Sensitive surface."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: Panel Round 1 Remediation, Verification after remediation",
+      "note": "The report cites red-panel1-sh.log as 311 passed / 10 failed. The capture the bundle carries reports 308 passed, 10 failed. Historical round record, superseded by later captures, but it is a count contradicted by the evidence sitting beside it."
     },
     {
       "severity": "Minor",
-      "ref": "T-007.md Files Changed and Tests Added Or Updated; CHANGELOG.md bundle line 24214",
-      "note": "Fixture-directory count is stated as ten in three places (the Files Changed bullet text, the opening sentence of Tests Added Or Updated, and the CHANGELOG phrase fixture total is 10) while the Outputs table declares eleven directories and the round-16 correction note appended under Files Changed says eleven. The round-15 directory post-publication-crash-before-evidence is missing from both narrative enumerations (six original plus four containment plus a leaf-symlink scenario does not reach eleven). The round-16 note corrected the count by appending a paragraph rather than by editing the sentences that carry the number, so the report now contradicts itself on the same fact within one section."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json :: comment",
+      "note": "The comment states The mutation log carries seven mutants. mutation-proofs.log carries ten (A through J); round 17 appended H, I and J as the shipped-bytes re-runs of report mutations (a) through (c). Every load-bearing claim in the same comment is accurate and I verified each one: green evidence 369/0 in both runtimes, red evidence 341/4 in both runtimes, D and F sitting at the clean control tally and labelled UNCOVERED, the nine sibling suites summing to 631/0 in regression.log, traceability 8 links. Only the mutant count is stale, one round after the round-12 note that instituted a discipline against exactly this."
     },
     {
       "severity": "Minor",
-      "ref": "T-007.contract.json, unit-tests and acceptance-tests red_evidence",
-      "note": "The declared TDD red evidence is red-panel6-sh.log / red-panel6-ps1.log at 341 passed / 4 failed, which demonstrates RED for the round-6 fix only, not for this task's own transactional fixtures. The capture that does satisfy the Done-When bullet (RED for each transactional fixture against a broken commit/recovery path) is red-sh.log / red-ps1.log at 272/23, and it is against a superseded 295-check driver rather than the shipped 369-check one and is not declared. Both captures are in the bundle; the contract just points at the weaker one for a high-risk tdd task."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: Files Changed, Tests Added Or Updated; CHANGELOG.md Unreleased T-007 entry",
+      "note": "The prose still reads ten new fixture directories and Ten new fixtures, and the changelog entry still reads fixture total is 10. The Outputs table declares eleven fixture directories and the driver defines twelve run_t007_ functions, which I counted directly (grep -c on the embedded driver returns 12; the eleven directories enumerate under Outputs). The round-16 Counts corrected note states the right figures but the sentences it corrects were left standing, and the changelog was not swept at all."
     },
     {
       "severity": "Minor",
-      "ref": "T-007.md, sections GREEN capture and Regression Tests Run",
-      "note": "Both still carry round-1 numbers (306/0 for the block suite, discovery 12/12) that the shipped captures supersede (369/0 and discovery 24/0 in verification/qg/T-007/regression.log and the contract). The Test Result field above them was repointed on round 13 and these two siblings were left behind, which is the same propagation class as the CHANGELOG finding above, at lower stakes because the Snapshot Notice and the round-13 correction both name the retained round-1 captures explicitly."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: Mutation proofs, row (d); CHANGELOG.md T-007 entry mutation list",
+      "note": "Mutation (d), step 13 comparison reduced to digests only, is honestly labelled NOT re-run in the report table, and it is the named non-vacuity proof for the snapshot-generation-mismatch-affected-components fixture. The changelog still lists that same mutation among the set whose non-vacuity is demonstrated, without the qualification. I read the fixture directly and it is not vacuous on its face (it pins ownership_digest to an all-zero constant across both stub calls and asserts the exact canonical line plus the exact Evidence record), so this is a labelling gap rather than an unproven assertion."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy .. resolve-project-context.py :: _recover_journal bundle-shape check, lines 1873-1897",
+      "note": "Recorded for visibility, not as a blocker. I reproduced the residual by reading the code rather than accepting the disposition: _legitimate_journal_bundles constrains the target SET to the Full track three or the Lite track two, but leaves the per-entry pre_hash/post_hash encoding unconstrained. A planted journal carrying a legitimate Full-track set, with pre_hash ABSENT and post_hash set to the current live digest on one entry and the current live digest as pre_hash on the others, still classifies MIX and drives _restore_to_pre into unlinking that live in-set artifact. This is squarely inside the class investigation.md Ruling (c) closed on 2026-08-29, which names attacker-driven deletion of an in-set artifact explicitly and was made with the deletion-versus-substitution difference stated to the owner. I found nothing in this area outside the ruling stated scope: a journal-supplied path containing an embedded null cannot reach os.path.realpath, because the allowlist membership test short-circuits first, and --feature is fullmatch-constrained to ^[a-z0-9][a-z0-9-]*$ so no traversal enters the containment references."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log :: mutants D and F; investigation.md Ruling (c) all-POST limitation",
+      "note": "Two hardenings on the rollback/Evidence/journal path stay at the clean control tally and are unreachable by any fixture this suite can build. Neither is named by an acceptance criterion or a Done When bullet (both are defense-in-depth added during panel remediation, beyond the frozen contract), so no acceptance criterion is left untested, and both are labelled in the log itself with the fixture each would need. Separately, the all-POST recovery classification limitation (a crash after the final rename but before post-publication verification is converged as a completed transaction) is recorded in investigation.md under Ruling (c) but not in this report Unresolved Items, where a reader meeting the behaviour cold would look."
     }
   ],
   "blind": true,
-  "input_digest": "ed393ad0299972b0a4daf53ba5b587b1d73b3b04bc53472c30b113cc4d0a79c4",
+  "input_digest": "6d2f79b246cea06b23b5375605ad1176c7f53a9f41ab001f4815fdb9c0e327f8",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

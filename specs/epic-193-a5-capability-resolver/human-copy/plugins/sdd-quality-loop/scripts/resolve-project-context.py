@@ -1257,7 +1257,34 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     tree, never to the symlink's own target."""
     parent_real = os.path.realpath(str(Path(target).parent))
     candidate = os.path.join(parent_real, Path(target).name)
-    return candidate not in _allowed_publication_targets_real(repo_root, feature)
+    if candidate not in _allowed_publication_targets_real(repo_root, feature):
+        return True
+
+    # READ CONTAINMENT (openai panel slot, round 17 Major). Ruling (b) made a
+    # symlink AT the leaf acceptable because `os.replace` replaces that entry
+    # rather than following it -- correct for the WRITE. The safety argument
+    # put to the owner then said reading "cannot escape either, because a
+    # rollback writes those bytes back to the leaf NAME inside the tree". That
+    # argument only ever considered write-escape. It missed that the READ IS
+    # ITSELF the violation: `_live_bytes` captures the PRE image through
+    # `Path.read_bytes()`, so a leaf symlink pointing outside the repository
+    # -- at a private key, a token file, anything -- has its referent's bytes
+    # copied into `.resolver-staging/<nonce>/pre/`, and on a rollback into a
+    # tracked artifact path. security-spec.md line 17 quotes Security
+    # Boundaries bullet 1 as "never invokes a Provider API, READS A
+    # CREDENTIAL, or ...", so this is a frozen boundary, not a judgement call.
+    #
+    # An in-tree leaf symlink stays acceptable, which is what ruling (b) was
+    # for. Only a leaf whose referent leaves the repository is refused, and it
+    # is refused BEFORE any read: `_publish_bundle` consults this predicate in
+    # its pre-transaction validation, ahead of the Prepare loop that calls
+    # `_live_bytes`.
+    if os.path.islink(str(target)):
+        if not _path_contained_in(
+            os.path.realpath(str(repo_root)), os.path.realpath(str(target))
+        ):
+            return True
+    return False
 
 
 def _path_contained_in(container_real, candidate_real):

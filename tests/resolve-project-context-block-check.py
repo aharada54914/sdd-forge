@@ -3008,6 +3008,83 @@ def run_t007_crash_before_evidence_case(kind, counts):
         )
 
 
+def run_t007_leaf_symlink_escape_case(kind, counts):
+    """Panel round 17 Major (openai slot): ruling (b) opened a READ escape.
+
+    Ruling (b) made a symlink AT a publication target's leaf acceptable
+    because `os.replace` replaces that entry rather than following it. That is
+    right for the write. The safety argument put to the owner said reading
+    "cannot escape either, because a rollback writes those bytes back to the
+    leaf NAME inside the tree" -- an argument that only ever considered
+    write-escape, and missed that the READ IS ITSELF the violation.
+    `_live_bytes` captures the PRE image with `Path.read_bytes()`, so a leaf
+    symlink pointing outside the repository has its referent's bytes copied
+    into `.resolver-staging/<nonce>/pre/`. security-spec.md line 17 quotes
+    Security Boundaries bullet 1 as "never invokes a Provider API, reads a
+    credential, or ...".
+
+    The round-15 leaf-symlink fixture uses an IN-TREE referent, so it proves
+    the write semantics and says nothing about this. This one points the leaf
+    outside the repository entirely and asserts the bytes never move."""
+    case_name = "post-publication-generation-mismatch"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[leaf-symlink-escapes-repo]"
+    secret = b"PRIVATE-KEY-MATERIAL-MUST-NEVER-BE-READ\n"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        outside = Path(tmp).resolve() / "outside-secret.txt"
+        repo = Path(tmp).resolve() / "repo"
+        repo.mkdir()
+        outside.write_bytes(secret)
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        target = feature_dir / "facet-manifest.yaml"
+        target.unlink()
+        target.symlink_to(outside)
+        counts.check(
+            target.is_symlink() and read_or_missing(target) == secret,
+            f"{label}: precondition -- the publication target is a symlink whose referent lives OUTSIDE "
+            f"the repository and holds bytes the Resolver must never read",
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr.startswith("capability-resolver: "),
+            f"{label}: the run Blocks with a canonical diagnostic rather than publishing",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        leaked = [
+            str(p) for p in feature_dir.rglob("*")
+            if p.is_file() and not p.is_symlink() and read_or_missing(p) == secret
+        ]
+        counts.check(
+            not leaked,
+            f"{label}: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image "
+            f"backup, no staged copy, no published artifact. This is the assertion the read-escape "
+            f"fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/",
+            repr(leaked),
+        )
+        counts.check(
+            read_or_missing(outside) == secret and not outside.is_symlink(),
+            f"{label}: the outside file itself is byte-untouched and still a real file",
+            repr(read_or_missing(outside)[:60]),
+        )
+        counts.check(
+            secret not in stderr.encode("utf-8", errors="replace"),
+            f"{label}: and no referent byte reaches the diagnostic either (B5: attacker-controlled "
+            f"content is never interpolated into a canonical line)",
+        )
+
+
 def run_t007_journal_bundle_shape_case(kind, counts):
     """Panel round 14 Major (openai slot): every journal entry can be in-set
     and unique while the SET describes a transaction that never happened.
@@ -4057,6 +4134,7 @@ def main():
         run_t007_artifact_publication_failed_case(args.launcher, counts)
         run_t007_post_publication_mismatch_case(args.launcher, counts)
         run_t007_leaf_symlink_target_case(args.launcher, counts)
+        run_t007_leaf_symlink_escape_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)

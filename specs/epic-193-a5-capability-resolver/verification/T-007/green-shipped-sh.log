@@ -289,6 +289,11 @@ PASS: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink doe
 PASS: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the symlink, in either direction
 PASS: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: precondition -- the publication target is a symlink whose referent lives OUTSIDE the repository and holds bytes the Resolver must never read
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the run Blocks with a canonical diagnostic rather than publishing
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the referent's bytes appear NOWHERE inside the feature directory -- no PRE-image backup, no staged copy, no published artifact. This is the assertion the read-escape fails, because the PRE capture would copy them into .resolver-staging/<nonce>/pre/
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: the outside file itself is byte-untouched and still a real file
+PASS: post-publication-generation-mismatch[leaf-symlink-escapes-repo]: and no referent byte reaches the diagnostic either (B5: attacker-controlled content is never interpolated into a canonical line)
 PASS: snapshot-generation-mismatch-affected-components: exit 1
 PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
 PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
@@ -368,4 +373,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 369 passed, 0 failed
+RESULT: 374 passed, 0 failed
