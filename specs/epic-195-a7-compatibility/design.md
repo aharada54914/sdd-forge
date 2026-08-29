@@ -1111,8 +1111,29 @@ what AC-028 requires.
 
 ## External Integrations
 
-None. Every target in this package is internal to the repository
-(existing scripts, schemas, templates, and the future golden baseline).
+None, with one sanctioned exception: AC-031's own non-gating,
+run-manually-only live-model structural-comparison refresh test (T-012)
+is the sole external integration this package permits. It is deliberately
+excluded from every gating path (`tests/run-all.sh`,
+`.github/workflows/test.yml`) precisely because it depends on a live
+external call this package's own Constraint Compliance (internal-only,
+deterministic) forbids for anything CI-gated. Every other target in this
+package is internal to the repository (existing scripts, schemas,
+templates, and the future golden baseline).
+
+That one exception's own invocation contract: `claude -p` (Claude Code
+CLI headless mode, `--output-format json`), invoked directly by the
+orchestrating session rather than nested inside another agentic CLI
+process (which this package's own investigation recorded as failing under
+sandboxed nesting); the same fixture-matrix cell inputs (F1/F2) the
+recorded `structural-fixture-corpus/v1` entries were originally captured
+from, driving the identical `sdd-bootstrap-interviewer` structural-
+generation path; authentication via whatever the invoking environment's
+existing `claude` CLI session already relies on, introducing no new
+credential handling; response extraction from the JSON response's final
+result text into the corpus schema's `artifacts[]` shape; and Bash/
+PowerShell parity by having both wrapper scripts shell out to the same
+`claude` binary on `PATH` with identical arguments.
 
 ## Deployment / CI Plan
 
