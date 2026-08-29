@@ -3161,15 +3161,24 @@ def run_t007_leaf_symlink_target_case(kind, counts):
             f"(ruling (b))",
             f"rc={result.returncode} stderr={stderr!r}",
         )
+        # `read_or_missing`, never a bare `read_bytes()`. This driver's own
+        # note above says why: the single most important mutant these
+        # assertions must kill -- a rollback reverted to a bare `unlink` --
+        # leaves exactly these paths MISSING, and `read_bytes()` would then
+        # raise FileNotFoundError and take the whole driver down before it
+        # printed a RESULT line, converting the strongest available FAIL
+        # signal into an unreadable traceback. These two assertions were
+        # written with `read_bytes()` on rounds 12 and 15 and did exactly
+        # that when mutant H was first run on round 16.
         counts.check(
-            not target.is_symlink() and target.read_bytes() == pre_bytes,
+            not target.is_symlink() and read_or_missing(target) == pre_bytes,
             f"{label}: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the "
             f"symlink entry, so the rollback must restore THAT entry and not the referent the old "
             f"whole-path resolution would have recorded in the journal",
             f"is_symlink={target.is_symlink()} bytes={read_or_missing(target)[:60]!r}",
         )
         counts.check(
-            referent.read_bytes() == pre_bytes,
+            read_or_missing(referent) == pre_bytes,
             f"{label}: the symlink's referent is byte-untouched -- nothing was ever written THROUGH the "
             f"symlink, in either direction",
             repr(read_or_missing(referent)[:60]),

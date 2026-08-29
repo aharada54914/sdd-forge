@@ -3,24 +3,13 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6",
-  "verdict": "NEEDS_WORK",
-  "findings": [
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_recover_journal (all-POST branch)",
-      "note": "Recovery treats an all-POST journal as a completed transaction and deletes it, although the same state exists after the final rename but before post-publication verification. A crash in that window therefore bypasses the required final race-closing verification and can preserve stale artifacts."
-    },
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_publish_bundle exception path",
-      "note": "On a caught publication failure, rollback is invoked with discard enabled, removing the journal and batch before the caller writes artifact-publication-failed Block evidence. A crash between those operations leaves neither durable recovery state nor the required failure evidence."
-    }
-  ],
+  "model": "gpt-5",
+  "verdict": "PASS",
+  "findings": [],
   "blind": true,
-  "input_digest": "e86b36e0ebc3c66b6e96d5e62e6be3b7b9fb9b498e9226bf4e61cb1aadd372c2",
+  "input_digest": "ed393ad0299972b0a4daf53ba5b587b1d73b3b04bc53472c30b113cc4d0a79c4",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo 2026-08-08T16:04:17Z"
+    "ref": "tasks.md#T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }
