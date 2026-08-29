@@ -1523,17 +1523,27 @@ def _discard_batch(batch_dir):
     if batch_real == parent_real or not _path_contained_in(parent_real, batch_real):
         return False
     journal = batch_dir / JOURNAL_FILENAME
+    # ORDER: pre-images first, journal LAST (anthropic panel slot, round 22
+    # Minor). The old order unlinked the journal and then rmtree'd with
+    # ignore_errors=True, so a partial cleanup failure left journal-less
+    # pre-image litter that no future scan would ever see -- the scan globs
+    # only */TRANSACTION.json. Deleting the journal last makes any cleanup
+    # failure VISIBLE: the journal survives, the next scan finds it,
+    # classifies the batch, and retries this same discard.
+    pre_dir = batch_dir / PRE_IMAGE_DIRNAME
+    if pre_dir.exists():
+        shutil.rmtree(pre_dir, ignore_errors=True)
+        if pre_dir.exists():
+            return False
     try:
         if journal.exists():
             journal.unlink()
     except OSError:
         # Returns False rather than swallowing silently (openai panel slot,
         # round 21 Major): the caller decides whether that silence was
-        # acceptable. Every caller's retention outcome is self-consistent --
-        # the surviving journal is exactly what the next invocation's
-        # crash-recovery scan exists to converge -- but a run that claims
-        # Complete while its bookkeeping survived must SAY so, not exit 0
-        # with the claim intact and the state contradicting it.
+        # acceptable. The surviving journal is exactly what the next
+        # invocation's crash-recovery scan exists to converge -- but a run
+        # that claims Complete while its bookkeeping survived must SAY so.
         return False
     shutil.rmtree(batch_dir, ignore_errors=True)
     try:

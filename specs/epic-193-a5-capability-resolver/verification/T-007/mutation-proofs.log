@@ -49,12 +49,13 @@ RESULT: 387 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutants C and D both covered since rounds 15 and 19, F and M are the
- pair that remain. The counting fix and the unlink-side fsync from round
- 20 are likewise not yet exercised: both only matter when a directory
- fsync FAILS after a successful replace/unlink, and injecting that fault
- is feasible via the in-process registry_discovery overlay wrapping
- os.fsync -- future fixture work, not an impossibility claim.)
+ mutants C, D and M all covered since rounds 15, 19 and 22, F and O are
+ the pair that remain. F is the Evidence-write-fails-after-completed-
+ rollback combination a panelist verified as unconstructable; O is the
+ unlink-side fsync, whose end state is identical on every non-crashing
+ path. The promised fault-injection fixture exists as of round 22 and
+ kills both M and N. This note itself sat stale for two rounds saying F
+ and M remained -- an anthropic Minor caught that on round 22.)
 mutant G injected: journal bundle-shape check removed
 --- MUTANT G: bundle-shape check removed (expect in-set-non-bundle FAIL) ---
 FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bundle target set Blocks publication-journal-recovery with the canonical line only -- the shape is refused even though every individual path is allowed: exit=0 stdout='' stderr=''
@@ -101,4 +102,4 @@ RESULT: 387 passed, 0 failed
  the DIFFERENCE visible, because the end state is identical on every
  non-crashing path. Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: 97c55452e671312fe72dde8c21e8d4485bb165dc61a5cf6fa60a3bff0de1f86e
+restored sha256: 11d671de27868ad279333929848e538f6ca6da5518a1e05c25628933e8213545

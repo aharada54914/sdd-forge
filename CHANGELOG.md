@@ -318,10 +318,12 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
   実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
   検査を外す mutation が 4 アサーションで死ぬ）。
-  **現在の未カバーは 1 件（F のみ）**。D を到達不能とした主張は、単なる
-  陳腐化ではなく誤りだった。round 19 の `nonce-names-another-batch` fixture が
-  D を被覆して kill し、12 mutant 中 11 件（A, B, C, D, E, G, H, I, J, K,
-  L）が被覆済みとなった。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
+  **現在の未カバーは 2 件（F と O）**。到達不能とした主張は D・M と
+  2 度誤りだったと判明している（D は round 19 の
+  `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
+  それぞれ kill した）。15 mutant 中 13 件が被覆済み。この段落自体、
+  「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
+  件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
   際、直下の列挙を 3 件のまま残していた。しかも先頭に挙げていた
   「journal 削除順序」は round 15 で fixture を書いて被覆済みで、その
   括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
