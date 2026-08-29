@@ -1,93 +1,128 @@
-# epic-193-a5 → main merge resolution recipe (DRAFT for co-verification)
+# epic-193-a5 → main merge resolution recipe — v2 after codex (sol) verification
 
-Status: DRAFT — co-produced with codex (sol model) under owner instruction
-2026-08-29. Every claim below carries its evidence method; the codex
-verification pass re-derives each independently before this is offered for
-human application. **No agent applies this: the conflicting files include
-guard-protected gate scripts, and the guard forbids agent modification
-regardless of intent. A human performs the merge with this recipe.**
+Status: v3, 2026-08-29. v1 returned **RECIPE-UNSAFE** from codex
+(gpt-5.6-sol) with seven refutations; v2 incorporated all seven and returned
+**RECIPE-NEEDS-CHANGES** with five documentation-precision corrections, all
+incorporated here. Both passes were read-only with silent correction
+forbidden; each v1/v2 error is kept visible where it changed a resolution. **No agent applies this: several
+conflicting files are guard-protected, and the guard forbids agent
+modification regardless of intent. A human performs the merge.**
 
-## Context
+## What v1 got wrong (codex sol findings, all accepted)
 
-- Branch `feature/epic-193-a5-capability-resolver` is 575 commits behind
-  `origin/main`; `git merge-tree --write-tree HEAD origin/main` reports 19
-  conflicting paths.
-- Probe method: for each conflicting file, take the lines MY branch added
-  since the merge-base (`git diff $(git merge-base HEAD origin/main) HEAD`),
-  select up to 8-10 non-comment lines >30 chars, and test verbatim membership
-  in `origin/main`'s version of the file (or, for the sh prechecks, in
-  main's new `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`).
+1. **Omitted a real conflict**: `prepare-panelist-input.sh` was missing from
+   every group. (Now Group 1: my side's full diff vs the merge-base is
+   +976/-88 lines — v2 said "+722", which counted only added lines longer
+   than 30 characters, an artifact of the probe script's filter; 10/10
+   probes in main, marker counts match — my bundle-composition rewrite
+   landed.)
+2. **Treated replacements as additions**: the six `run-panelist-effort`
+   test lines are not additive — they replace exact-argv assertions, and
+   main's runner now uses `model_reasoning_effort`, `--sandbox read-only`,
+   `--skip-git-repo-check`, `-C`, stdin `-`. Re-adding mine would contradict
+   main's tests. (Resolution changed to: take main's tests wholesale.)
+3. **`project_doc_max_bytes` re-add unjustified**: `project_doc_max_bytes`
+   itself never landed on main; what main commit `a367dda1` deliberately
+   replaced was the older `--no-project-doc` isolation approach, superseding
+   it with an isolated scratch directory + `--sandbox read-only`. Either way
+   the conclusion stands: blindly re-adding my flag ignores an evolved,
+   documented design. (Resolution changed to: take main; treat the
+   flag as superseded. If anyone wants it back, that is a design question
+   for the owner, not a merge step.)
+4. **Ledger justification was false**: reviewer manifests DO pin
+   `sequence`, `previous_record_sha256` and `identity_ledger_sha256`, so
+   re-chaining changes pinned values. (Resolution now carries an explicit
+   archival rule, below.)
+5. **Registry union overstated**: only the feature-key line is unique;
+   braces/comma/`"profile": "full"` must not be duplicated.
+6. **Epic-191 manifest cannot "take main"**: the two rows differ across
+   merge-base, branch AND main. Escalate to the epic-191 owner.
+7. **WFI-060 is not a conflict** in the three-tree result; it needs no
+   resolution step at all.
 
-## Group 1 — take main (`git checkout --theirs`), my changes already landed
+## Group 1 — take main (`git checkout --theirs`)
 
-Probe evidence: every probe line already present in main's version.
+My branch's changes to every file below either landed in main (verbatim, or
+refactored into `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`
+for the sh prechecks) or were superseded by main's evolved design of the same
+concern (the gpt-runner isolation). Verified by probe lines; codex's passes
+added full-diff containment on the largest files and found nothing of the
+branch's lost by take-main beyond the withdrawn/superseded isolation flag.
 
-| File | Probe result |
-|---|---|
-| `plugins/sdd-quality-loop/scripts/check-workflow-state.sh` | 8/8 in main |
-| `plugins/sdd-quality-loop/scripts/check-workflow-state.ps1` | 8/8 in main |
-| `plugins/sdd-review-loop/scripts/impl-review-precheck.ps1` | 8/8 in main |
-| `plugins/sdd-review-loop/scripts/task-review-precheck.ps1` | 8/8 in main |
-| `plugins/sdd-review-loop/scripts/impl-review-precheck.sh` | 10/10 in main's `lib/review-precheck-common.sh` (main refactored the sh prechecks into a shared library; my additions live there) |
-| `plugins/sdd-review-loop/scripts/task-review-precheck.sh` | 10/10 in main's lib |
-| `tests/workflow-state.tests.sh` | 8/8 in main |
-| `tests/downstream-review-precheck.tests.ps1` | 8/8 in main |
-| `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh` | no additions on my side — conflict is delete/modify or context-only; take main |
+- `plugins/sdd-quality-loop/scripts/check-workflow-state.sh` / `.ps1`
+  (investigation-amendment tolerance confirmed present in main's both
+  runtimes: `investigation_amendment_reconciles` et al.)
+- `plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh`
+- `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh`
+- `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh` / `.ps1`
+  (v1 wanted to re-add `-c project_doc_max_bytes=0`; WITHDRAWN — see item 3)
+- `plugins/sdd-review-loop/scripts/impl-review-precheck.sh`
+- `plugins/sdd-review-loop/scripts/task-review-precheck.sh`
+  (the `.ps1` twins were listed in v2 but the second pass's re-derived
+  three-tree conflict list shows they merge cleanly — they need no
+  resolution step and are removed rather than left to invite one)
+- `tests/workflow-state.tests.sh`
+- `tests/downstream-review-precheck.tests.ps1`
+- `tests/run-panelist-effort.tests.sh` / `.ps1` (moved from Group 2 — see
+  item 2)
 
-Risk note for the verifier: probe-line membership is NECESSARY, not
-sufficient — 8 lines present does not prove all my added lines are present.
-The verification pass should diff my full addition set against main for at
-least the two largest (check-workflow-state.sh, workflow-state.tests.sh).
+## Group 2 — union: main's version + exactly these lines
 
-## Group 2 — union: main's version + my branch's specific lines
+- `AGENTS.md`: add my single feature-registration line
+  `` - `specs/epic-193-a5-capability-resolver/` `` at the list position main's
+  ordering implies.
+- `tests/run-all.sh`: add the nine suite registrations (verified by codex as
+  all absent from main): `tests/resolver-evidence-schema.tests.sh`,
+  `tests/resolve-project-context-{block,match,cli,discovery,lite}.tests.sh`,
+  `tests/validate-resolver-evidence.tests.sh`,
+  `tests/resolve-project-context-{parity,metamorphic}.tests.sh`.
+- `tests/run-all.ps1`: the same nine as `.ps1`.
+- `specs/workflow-state-registry.json`: insert ONLY the
+  `epic-193-a5-capability-resolver` feature-key entry into main's registry
+  (do not duplicate braces/commas/`"profile": "full"` scaffolding).
 
-| File | My lines to re-add on top of main |
-|---|---|
-| `AGENTS.md` | one line registering `` `specs/epic-193-a5-capability-resolver/` `` in the feature list |
-| `tests/run-all.sh` | nine suite registrations: resolver-evidence-schema, resolve-project-context-{block,match,cli,discovery,lite}, validate-resolver-evidence, resolve-project-context-{parity,metamorphic} (each as `tests/<name>.tests.sh`) |
-| `tests/run-all.ps1` | the same nine, `.ps1` twins |
-| `tests/run-panelist-effort.tests.sh` | 3 added lines (to be enumerated by the verifier from the diff) |
-| `tests/run-panelist-effort.tests.ps1` | 3 added lines (same) |
-| `specs/workflow-state-registry.json` | my one added registration entry for epic-193-a5-capability-resolver, inserted into main's version of the registry |
+## Group 3 — escalations, not merge steps
 
-## Group 3 — the one judgement call: `run-panelist-gpt.{sh,ps1}`
+- `specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256`: the two
+  rows differ across merge-base, branch and main. This belongs to epic-191's
+  owner; surface it, do not resolve it here.
+- `docs/workflow-improvements/WFI-060.md`: no conflict — keep main's
+  WFI-038.md and this branch's WFI-060.md. Listed only so nobody "resolves"
+  it into damage.
 
-My branch passes `-c project_doc_max_bytes=0` to every codex invocation (and
-documents why: prevents the panelist from pulling extra project context into
-a blind review). `origin/main`'s current version has NO occurrence of
-`project_doc_max_bytes` in either runtime (measured by substring count = 0),
-while it DOES carry the `_model_args` / `--effort` handling (6 and 12
-occurrences respectively in the sh version).
+## Group 4 — identity ledger re-chain, with the corrected rule
 
-Proposed resolution: take main, then re-apply the `-c
-project_doc_max_bytes=0` argument to each codex invocation plus its two
-comment lines. Open question for the verifier: check main's git history for
-whether the flag was ever present and deliberately REMOVED (in which case
-this is a human decision, not a mechanical re-add), or simply never landed
-(in which case re-adding restores blind-review hygiene).
+`reports/review-context/identity-ledger.json`: merge-base 764 records is an
+exact prefix of both sides; branch adds 92 unique tail records (no hash or
+run-id overlap with main's 959, codex-verified).
 
-## Group 4 — data files: append/re-chain, not textual merge
+Procedure: keep main's 959 as the base; re-append the branch's 92 in order
+with recomputed `sequence`, `previous_record_sha256` and record hashes.
 
-| File | Method |
-|---|---|
-| `reports/review-context/identity-ledger.json` | Append-only hash-chained ledger. Both sides appended entries with overlapping seq numbers. Known procedure (recorded in this repo's own merge-sweep history): keep main's chain as the base, re-append my branch's entries at the tail with renumbered seq, recomputing each entry's chain hash; reviewer manifests referencing old seq stay valid because they pin content hashes, not seq. |
-| `specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256` | NOT this epic's file. My branch carries 2 changed lines from an earlier cross-epic sweep. Verifier: determine whether main's version already reflects the same hashes for those rows; if yes take main, if no this needs the epic-191 owner, not us. |
-| `docs/workflow-improvements/WFI-060.md` | No real conflict remains: my branch renamed its WFI-038 to WFI-060 precisely because main's WFI-038 is a different document. If the merge still reports WFI-038.md as delete/modify, resolution is: keep main's WFI-038.md, keep my WFI-060.md. |
+**Archival rule (replacing v1's false claim):** reviewer manifests pin
+sequence-dependent values (`sequence`, `previous_record_sha256`,
+`identity_ledger_sha256`), so re-chaining makes those historical pins
+non-replayable against the merged ledger. The second verification pass
+confirmed the properties that make this safe TODAY: main's validator checks
+the resulting chain end to end, and stage-provenance checks review artifacts
+without referencing identity-ledger fields. Historical manifests attest what
+the ledger looked like when their review ran. At least one prior
+parallel-branch merge in this repository used tail re-chaining; "every prior
+merge did" is not substantiated and is not claimed. What must hold after re-chain: (a) the
+merged chain itself re-validates end to end; (b) the 92 re-appended records
+keep their original `run_id`/`host_session_id` and content fields byte-for-
+byte, changing ONLY the three chain fields; (c) the pre-merge branch ledger
+remains recoverable from git history for audit. No manifest is edited.
 
-## Verification checklist for the codex (sol) pass
+## Verification checklist for the codex (sol) second pass
 
-1. Re-derive the 19-path conflict list from `git merge-tree --write-tree
-   HEAD origin/main` and confirm it matches the union of the groups above
-   (no file missing, none invented).
-2. For Group 1: full-diff containment check on the two largest files, not
-   just probes.
-3. For Group 2: enumerate the exact union lines from the diffs and confirm
-   each is absent from main (a line already in main must not be re-added).
-4. For Group 3: `git log -S project_doc_max_bytes origin/main --
-   plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh` — removed
-   deliberately, or never present?
-5. For Group 4 ledger: confirm main's ledger is a strict prefix of neither
-   side (i.e. both appended), and count my branch's tail entries needing
-   re-chain.
-6. Report every disagreement with this draft explicitly; do not silently
-   correct it.
+1. Confirm every v1 refutation is addressed above and none introduced a new
+   error.
+2. Confirm the Group 1 list now covers ALL conflicting paths except those in
+   Groups 2-4, and re-derive the conflict list to prove nothing is missing.
+3. Full-diff containment for `run-panelist-gpt.sh`: with the flag re-add
+   withdrawn, confirm nothing else of the branch's is lost by take-main.
+4. Confirm the nine run-all registrations and the registry feature-key line
+   are still absent from main at verification time.
+5. Same explicit-disagreement discipline: VERIFIED / REFUTED / CANNOT-VERIFY
+   per claim; end with RECIPE-SOUND or RECIPE-NEEDS-CHANGES or RECIPE-UNSAFE.
