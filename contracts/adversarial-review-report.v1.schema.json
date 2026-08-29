@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/adversarial-review-report.v1.schema.json",
+  "title": "Adversarial Review Report Metadata v1",
+  "description": "Schema for the immutable target identity metadata block in an adversarial review report (issue #349, ADR-0027). The metadata block is YAML embedded in the report Markdown; this schema describes its parsed form. A report is STALE if head_sha or merge_base_sha no longer matches the branch's current state.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "merge_base_sha",
+    "head_sha",
+    "diff_sha256",
+    "created_at",
+    "skill_version",
+    "reviewer_run_ids"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "adversarial-review-report.v1",
+      "description": "Schema identifier. Must equal exactly this string."
+    },
+    "merge_base_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$",
+      "description": "Output of `git merge-base HEAD <base-branch>` at the time the review was conducted."
+    },
+    "head_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$",
+      "description": "Output of `git rev-parse HEAD` on the reviewed branch at review time."
+    },
+    "diff_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest of the raw output of `git diff <merge_base_sha>..<head_sha>`. Used to detect stale reports when the diff changes after the review."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp when this report was first published."
+    },
+    "skill_version": {
+      "type": "string",
+      "description": "Git commit SHA or `git describe` output of skills/adversarial-review/ at review time. Allows pinning the protocol version used."
+    },
+    "reviewer_run_ids": {
+      "type": "object",
+      "required": ["reviewer_a", "reviewer_b"],
+      "additionalProperties": false,
+      "description": "Identity-ledger run_ids of the two Phase 1 reviewers. Used to trace reviewer identities back to the ledger.",
+      "properties": {
+        "reviewer_a": {
+          "type": "string",
+          "minLength": 4,
+          "description": "run_id from the identity ledger for Reviewer A."
+        },
+        "reviewer_b": {
+          "type": "string",
+          "minLength": 4,
+          "description": "run_id from the identity ledger for Reviewer B."
+        }
+      }
+    }
+  },
+  "x-stale-judgement-rules": [
+    "A report is STALE when head_sha != git rev-parse HEAD on the branch.",
+    "A report is STALE when merge_base_sha != git merge-base HEAD <base-branch>.",
+    "A report is STALE when diff_sha256 != sha256(git diff merge_base_sha..head_sha).",
+    "A STALE report MUST NOT satisfy Adversarial-Lane: fired in the PR body.",
+    "A STALE report MAY be kept with a [STALE — superseded by <path>] notice."
+  ]
+}

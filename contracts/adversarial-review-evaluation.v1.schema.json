@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/adversarial-review-evaluation.v1.schema.json",
+  "title": "Adversarial Review Evaluation v1",
+  "description": "Schema for evaluation.json — structural run metrics produced at the end of a risk-adaptive adversarial review invocation (issue #350, ADR-0027). Produced only on triggering runs; non-triggering runs produce no evaluation.json. Token telemetry is out of scope (INV-021).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "branch_slug",
+    "created_at",
+    "trigger_reasons",
+    "reviewer_launch_count",
+    "continuation_status",
+    "finding_counts",
+    "basis_counts",
+    "scope_counts",
+    "phase_r"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "adversarial-review-evaluation.v1"
+    },
+    "branch_slug": {
+      "type": "string",
+      "description": "Slugified branch name; matches the report directory name under reports/adversarial-review/."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of evaluation.json creation (end of the run)."
+    },
+    "report_path": {
+      "type": "string",
+      "description": "Repo-relative path to the corresponding report.md (e.g. reports/adversarial-review/feat-foo/report.md)."
+    },
+    "trigger_reasons": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One or more of the ADR-0027 firing predicates that caused this run. At least one must be present (or the run should not have been triggered).",
+      "items": {
+        "enum": [
+          "risk_tier_high",
+          "risk_tier_critical",
+          "workflow_surface",
+          "mcp_surface",
+          "security_surface"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "reviewer_launch_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of reviewer agent launches during this run. Expected: 2 (Phase 1 A + B); additional launches from Phase R or recovery are included."
+    },
+    "continuation_status": {
+      "type": "object",
+      "required": ["reviewer_a", "reviewer_b"],
+      "additionalProperties": false,
+      "description": "Whether each reviewer was resumed in their existing context (preferred) or re-launched fresh (fallback) for the cross-critique phase.",
+      "properties": {
+        "reviewer_a": {
+          "enum": ["resumed", "fresh_fallback", "unavailable"],
+          "description": "resumed: reviewer context survived through Phase 1. fresh_fallback: context was lost; a fresh context was launched for Phase 2. unavailable: Phase 2 could not run for this reviewer."
+        },
+        "reviewer_b": {
+          "enum": ["resumed", "fresh_fallback", "unavailable"]
+        }
+      }
+    },
+    "finding_counts": {
+      "type": "object",
+      "description": "Finding counts from the integrated Phase 1+2 report.",
+      "required": ["phase1_total", "cross_critique_new"],
+      "additionalProperties": false,
+      "properties": {
+        "phase1_total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total findings from Phase 1 (both reviewers combined)."
+        },
+        "cross_critique_new": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "New findings surfaced during Phase 2 (IDs matching *-C*)."
+        },
+        "by_severity": {
+          "type": "object",
+          "description": "Adopted findings after synthesis, keyed by final severity.",
+          "additionalProperties": false,
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0 },
+            "high": { "type": "integer", "minimum": 0 },
+            "medium": { "type": "integer", "minimum": 0 },
+            "low": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "adopted": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of findings adopted (confirmed) in the synthesis."
+        },
+        "rejected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of findings rejected or re-scoped in the synthesis."
+        }
+      }
+    },
+    "basis_counts": {
+      "type": "object",
+      "description": "Distribution of cross-critique verdict basis kinds (issue #347, cross-critique.v1.schema.json).",
+      "required": ["code_evidence", "spec_evidence", "concern"],
+      "additionalProperties": false,
+      "properties": {
+        "code_evidence": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of verdicts backed by code_evidence citations."
+        },
+        "spec_evidence": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of verdicts backed by spec_evidence citations."
+        },
+        "concern": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of verdicts labelled as concern (no verifiable citation)."
+        },
+        "propose_reject_accepted": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "PROPOSE-REJECT verdicts accepted by the human (finding removed from remediation plan)."
+        },
+        "propose_reject_overridden": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "PROPOSE-REJECT verdicts that the human declined (finding retained despite the proposal)."
+        }
+      }
+    },
+    "scope_counts": {
+      "type": "object",
+      "description": "Distribution of scope assessments across all cross-critique verdicts (issue #348).",
+      "required": ["in_scope", "out_of_scope", "unclear"],
+      "additionalProperties": false,
+      "properties": {
+        "in_scope": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "out_of_scope": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Findings labelled out_of_scope. None of these should appear in the implementation TODO list."
+        },
+        "unclear": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Findings labelled unclear. Each requires a human decision before any fix is requested."
+        }
+      }
+    },
+    "human_dispositions": {
+      "type": "array",
+      "description": "Optional. Human decisions on individual findings (e.g. overrides of PROPOSE-REJECT, scope rulings on unclear findings).",
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "disposition"],
+        "additionalProperties": false,
+        "properties": {
+          "finding_id": { "type": "string" },
+          "disposition": {
+            "enum": ["adopted", "rejected", "scope_confirmed_in", "scope_confirmed_out", "scope_deferred"],
+            "description": "The human's decision on this finding."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "phase_r": {
+      "type": "object",
+      "description": "Phase R (fresh-context fix verification) outcome.",
+      "required": ["ran"],
+      "additionalProperties": false,
+      "properties": {
+        "ran": {
+          "type": "boolean",
+          "description": "Whether Phase R was executed for this run."
+        },
+        "not_ran_reason": {
+          "type": "string",
+          "description": "Present when ran == false. Explains why (e.g. 'no fixes landed yet', 'zero adopted findings')."
+        },
+        "verified_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of findings verified as VERIFIED in Phase R."
+        },
+        "not_fixed_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partially_fixed_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claim_error_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "new_issues_found": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "V-* findings introduced by fixes, per Phase R."
+        }
+      }
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional. Wall-clock duration of the full run in milliseconds, if the orchestrator can measure it."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional. Free-form orchestrator notes (e.g. recovery actions taken, anomalies)."
+    }
+  }
+}
