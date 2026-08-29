@@ -2552,6 +2552,60 @@ AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
 sentence carrying that citation is removed by this commit, so the advisory
 is closed as a side effect rather than left open.
 
+### Ruling (c) — the journal-mediated in-set manipulation class is closed as already-adjudicated
+
+**Put to the owner 2026-08-29 after fifteen panel rounds**, with the options
+stated as: (a) keep chasing the security findings, (b) issue a scope ruling,
+(c) stop here, (d) raise the panel rule itself as a WFI. The recommendation
+given was (b) + (d), and the owner answered **「君の推奨案で進めろ」**.
+
+**What (b) covers.** Panel round 14 (openai) and round 15 (anthropic) both
+found that a journal planted in the unprotected, repository-local staging area
+can steer the MIX rollback into UNLINKING a live in-set artifact — round 14
+via an in-set subset, round 15 via a bundle-shaped set with a fabricated
+`pre_hash: "ABSENT"` on one entry. Round 15 added `_legitimate_journal_bundles`
+and a fixture for the first shape (mutant G kills it on four assertions), and
+the anthropic slot correctly observed that constraining the SET leaves the
+per-entry PRE/POST encoding unconstrained, so the class survives.
+
+That class is the one panel round 1's MAJOR 1 already put to the owner and had
+ruled OUT OF SCOPE: an attacker who can commit a journal into the staging area
+manipulating an artifact that stays INSIDE the fixed publication target set.
+Round 1's instance was attacker CONTENT written into an in-set target; these
+are attacker-driven DELETION of one. Deletion is more destructive than
+substitution, and that difference was stated when the question was put — the
+owner ruled the class closed anyway. Both artifacts are git-tracked and a
+clean resolve republishes them.
+
+**What (b) does NOT cover, and what happens to it.** The ruling is about
+attacker-driven manipulation only. Two round-15 openai findings are not in
+that class and are handled separately:
+
+- *The `artifact-publication-failed` branch discarded its journal before the
+  Block record was durable.* Not attacker-driven, and the same defect already
+  fixed on the two post-publication branches. Swept here: the exception now
+  carries its transaction and rollback outcome, and the caller discards only
+  once `_block_reporting` confirms the record was written. All three
+  Block-after-rollback paths now share one discard discipline.
+- *An all-POST journal is treated as a completed transaction and deleted,
+  although that same state exists after the final rename and before
+  post-publication verification.* This is the frozen four-outcome
+  classification behaving as design.md specifies. Changing it is a contract
+  change, not an implementation choice, so it is recorded here as a known
+  limitation rather than patched — the same disposition the 2026-08-27 ruling
+  gave the doubly-degraded rollback corner.
+
+**What (d) produced.** `docs/workflow-improvements/WFI-038.md`.
+`check-cross-model` requires every panelist verdict to be PASS and has no
+outcome for panelists diverging from each other — its one `NEEDS_HUMAN` path
+fires only when the EVALUATOR diverges from an already-unanimous panel. Across
+rounds 13-15 the two slots alternated, contradicted each other on substance,
+and once returned different verdicts on identical production bytes. The WFI
+proposes splitting step 6 so a no-Critical divergence with at least one PASS
+becomes `NEEDS_HUMAN` (a distinct exit code) instead of an unbounded
+remediation loop. The aggregate schema already carries `divergence` and
+`requires_human_decision`; only the control flow never produces them.
+
 ### Rulings (a) and (b) — the third AC-012 exception, and a containment check stricter than its own write
 
 Both cross-model panel slots reached the same code on rounds 8 and 9 and

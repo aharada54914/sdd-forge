@@ -969,11 +969,24 @@ class ArtifactPublicationFailed(Exception):
     (REQ-002's `artifact-publication-failed` row). Carries the already-
     resolved rollback clause -- AC-039 requires the rollback attempt, and any
     failure encountered in it, to be recorded in this diagnostic's own
-    `detail`, "never silently swallowed"."""
+    `detail`, "never silently swallowed".
 
-    def __init__(self, rollback_clause):
+    Carries the transaction and its rollback outcome as well (openai panel
+    slot, round 15). The journal must outlive this exception: like the two
+    post-publication branches, the caller writes a Block record afterwards,
+    and deleting the journal before that record is durable would leave a
+    crash in between with neither recovery state nor failure evidence. The
+    three Block-after-rollback paths now share one discard discipline instead
+    of two sharing it and this one not.
+
+    `transaction` is None only when the failure happened before a transaction
+    object existed at all, in which case there is nothing to discard."""
+
+    def __init__(self, rollback_clause, transaction=None, rollback_complete=False):
         super().__init__(rollback_clause)
         self.rollback_clause = rollback_clause
+        self.transaction = transaction
+        self.rollback_complete = rollback_complete
 
 
 class PublicationStagingAreaUncontained(Exception):
@@ -1771,8 +1784,14 @@ def _publish_bundle(repo_root, feature, targets):
             _atomic_write_bytes(entry["target"], entry["payload"])
             transaction.committed += 1
     except OSError as exc:
-        rolled_back, complete = _rollback_transaction(transaction)
-        raise ArtifactPublicationFailed(_rollback_clause(rolled_back, complete)) from exc
+        # `discard=False`: the caller Blocks with a record of this failure,
+        # and the journal has to survive until that record is durable. Same
+        # discipline as the two post-publication branches (openai panel slot,
+        # round 15).
+        rolled_back, complete = _rollback_transaction(transaction, discard=False)
+        raise ArtifactPublicationFailed(
+            _rollback_clause(rolled_back, complete), transaction, complete
+        ) from exc
     return transaction
 
 
@@ -3190,11 +3209,16 @@ def main(argv=None):
     try:
         transaction = _publish_bundle(repo_root, args.feature, targets)
     except ArtifactPublicationFailed as exc:
-        return _block(
+        result, wrote = _block_reporting(
             repo_root, args.feature, "artifact-publication-failed",
             f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {exc.rollback_clause}", state, capability_evaluations,
             context_binding=context_binding, resolver_block=resolver_block,
         )
+        # The third and last Block-after-rollback path to adopt the same
+        # guard: the journal dies only once the failure record is durable.
+        if exc.transaction is not None and exc.rollback_complete and wrote:
+            _discard_batch(exc.transaction.batch_dir)
+        return result
 
     # Step 14's own Post-publication verification (B8, design.md step 4):
     # every rename above has now succeeded and the journal is still present,
