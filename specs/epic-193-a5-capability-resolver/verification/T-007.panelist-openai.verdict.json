@@ -3,19 +3,19 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1546",
-      "note": "Recovery validates the journal and live-target paths but follows pre/<basename> with read_bytes() without verifying that the backup path resolves inside the batch directory. Because repository-local staging is explicitly unprotected, a planted backup symlink can cause an arbitrary out-of-repository file, including a credential, to be read before the recorded-hash check; if its hash is known and recorded, its bytes can also be restored into an allowlisted artifact. This violates the stated boundary that the resolver never reads a credential or accesses content outside the permitted repository scope."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1442",
+      "note": "_atomic_write_bytes fsyncs file contents before os.replace but never fsyncs the containing directory after the rename. Consequently, a hard crash can persist a live-target rename without durably persisting the preceding journal rename, or lose PRE-image directory entries while retaining the journal. That permits an unrecoverable or undetected mixed generation and does not satisfy the transaction contract's crash-safe, all-or-nothing journal and recovery guarantees."
     }
   ],
   "blind": true,
-  "input_digest": "62f82678b2f17fa41fd0e78bf5406a8d687a34dfb0cbc7f0f2d902fe362e2a24",
+  "input_digest": "e4f14b41189c21aee4a45c96545dd0425f9d165180d1e4997600aee2e0245f26",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md: Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

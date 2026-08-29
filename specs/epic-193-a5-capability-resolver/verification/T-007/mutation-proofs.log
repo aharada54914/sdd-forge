@@ -72,5 +72,13 @@ RESULT: 380 passed, 3 failed
 mutant L injected: pre-image backup read containment removed
 --- MUTANT L: backup read containment removed (expect pre-image-symlink FAIL) ---
 RESULT: 381 passed, 2 failed
+mutant M injected: directory fsync after os.replace removed
+--- MUTANT M: directory fsync removed ---
+RESULT: 383 passed, 0 failed
+(A tally here EQUAL to the clean control run means mutant M is UNCOVERED,
+ and it is expected to be: rename durability is only observable across a
+ HARD crash -- power loss between the rename and the fsync -- which no
+ in-process fixture can simulate without kernel-level fault injection.
+ Disclosed, not implied covered.)
 --- restoring ---
-restored sha256: 1616efd35042d3be2fbfe66b7e3f905989c2155821c6e4f72610872c249641b6
+restored sha256: e3f827cf3f6a07be6e620fa8ec8f047c159528ae3dca5fa772c21d6deb8a91e3

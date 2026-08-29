@@ -1444,6 +1444,28 @@ def _atomic_write_bytes(target, payload):
             if handle.read() != payload:
                 raise OSError("temp-file round-trip verification failed before rename")
         os.replace(temp_name, target)
+        # Directory fsync (openai panel slot, round 19 Major). Fsyncing the
+        # FILE makes its bytes durable; it does not make the RENAME durable.
+        # On POSIX the new directory entry lives in the parent directory's
+        # own data, so until that directory is fsynced a hard crash can
+        # persist some renames and lose others -- e.g. keep a live-target
+        # rename while losing the journal's, leaving a POST-state artifact
+        # with no journal for the recovery scan to find: an UNDETECTED mixed
+        # generation, which is the one shape the whole discipline exists to
+        # prevent. Windows has no directory handle to fsync and `os.open` on
+        # a directory raises there; rename durability is the filesystem's
+        # concern on that platform, so this is POSIX-only by necessity, not
+        # by choice. Not observable by any in-process fixture -- a hard
+        # crash between the rename and this fsync cannot be simulated
+        # without kernel-level fault injection -- so this hardening is
+        # disclosed as uncovered in the mutation log rather than implied to
+        # be tested.
+        if os.name == "posix":
+            dir_fd = os.open(str(target.parent), os.O_RDONLY)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)

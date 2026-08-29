@@ -2552,6 +2552,51 @@ AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
 sentence carrying that citation is removed by this commit, so the advisory
 is closed as a side effect rather than left open.
 
+### Ruling (A) — a symlinked publication target is never read through; its PRE state is ABSENT
+
+**Put to the owner 2026-08-29 during panel rounds 17-18, answered verbatim:
+「A」** — selecting option (A) from three stated alternatives: (A) treat a
+symlinked target's PRE as `ABSENT` and never read through the link, (B)
+refuse a symlinked publication target at publish time, (C) keep the round-17
+repository-containment clause and record the residual as a known limitation.
+The recommendation given was (B); the owner chose (A).
+
+**The history that led here, recorded because the panel found it missing.**
+Round 17 (openai Major): ruling (b)'s leaf-symlink acceptance let
+`_live_bytes` read THROUGH a target symlink, copying an out-of-repository
+referent's bytes — a credential included — into the PRE-image staging area,
+against security-spec.md line 17's "never ... reads a credential". The
+round-17 fix refused only referents that leave the repository. Round 18
+(anthropic, two Majors): that fix was under-scoped — the boundary is about
+credentials, not repository containment, so an in-repo `.env` or
+token-bearing git config still passed — and over-applied, because
+`_write_evidence` consults the same predicate before a write that performs no
+read at all, silently widening the owner-ruled third AC-012 no-write
+exception to an undisclosed fourth condition. Round 18 also found the same
+read-escape's sibling on the PRE-image side (`pre/<basename>` as a committed
+symlink, read before its hash check), fixed with backup-side containment and
+its own fixture.
+
+**What (A) does.** The rule lives where the read happens: `_live_bytes` does
+not follow a leaf symlink, so a symlinked target's PRE state is `ABSENT`
+everywhere that helper is consulted — PRE capture, rollback verification,
+recovery classification, post-restore verification. The round-17 clause is
+retired in both directions and `_target_escapes_via_symlink` is purely about
+where writes land again, which restores the ruled third-exception boundary
+for Block Evidence.
+
+**The accepted deviation, stated plainly.** AC-047's wording expects a
+rolled-back target restored to byte-identical PRE. Under (A), a target that
+was a SYMLINK before publication is rolled back to `ABSENT` — the link is
+unlinked, not put back. This is a real behavioral deviation on a
+Security-Sensitive surface, authorized by this ruling: the referent's bytes
+are not the artifact's own content, reading them to "restore" them is itself
+the boundary violation, and the commit would have clobbered the link entry
+anyway. The round-15 leaf-symlink fixture's assertion was rewritten to assert
+exactly this outcome (target ABSENT, referent byte-untouched, referent bytes
+captured nowhere) rather than deleted, and mutant K mutates `_live_bytes`
+back to following the link to keep the ruling itself covered.
+
 ### Ruling (c) — the journal-mediated in-set manipulation class is closed as already-adjudicated
 
 **Put to the owner 2026-08-29 after fifteen panel rounds**, with the options
@@ -2595,7 +2640,7 @@ that class and are handled separately:
   limitation rather than patched — the same disposition the 2026-08-27 ruling
   gave the doubly-degraded rollback corner.
 
-**What (d) produced.** `docs/workflow-improvements/WFI-060.md` (renumbered from 038 on 2026-08-29: main already carries a WFI-060, and this branch is 575 commits behind it).
+**What (d) produced.** `docs/workflow-improvements/WFI-060.md` (renumbered from 038 on 2026-08-29: main already carries a DIFFERENT WFI-038 and its numbering has reached 059, this branch being 575 commits behind; a blanket 038-to-060 text replacement then rewrote this very sentence's explanation into nonsense -- the anthropic panel slot caught it on round 19, and the sweep-breaks-its-own-explanation irony is preserved here on purpose).
 `check-cross-model` requires every panelist verdict to be PASS and has no
 outcome for panelists diverging from each other — its one `NEEDS_HUMAN` path
 fires only when the EVALUATOR diverges from an already-unanimous panel. Across
