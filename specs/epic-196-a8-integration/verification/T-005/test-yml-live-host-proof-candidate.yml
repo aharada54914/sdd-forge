@@ -1,8 +1,7 @@
-# T-005 non-protected review draft.
-# Append these steps to the main cross-platform `test` job after the other
-# epic-196 deterministic suite steps. The caller prohibited writes under
-# `specs/*/human-copy/`, so this file is not an apply-ready human-copy asset
-# and deliberately has no MANIFEST.sha256 entry.
+# Historical T-005 review draft, retained as implementation evidence.
+# The same steps are now appended after T-003 in the apply-ready
+# `human-copy/.github/workflows/test.yml`, whose MANIFEST.sha256 entry was
+# refreshed during T-005 completion.
 
 - name: Test live-host proof validator suite (bash)
   if: runner.os != 'Windows'

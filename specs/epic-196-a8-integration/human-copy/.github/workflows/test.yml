@@ -271,6 +271,18 @@ jobs:
         shell: pwsh
         run: ./tests/install-uninstall-matrix.tests.ps1
 
+      # T-005 (REQ-003/REQ-006, AC-026..AC-028): deterministic validation of
+      # disposable live-host-proof fixtures. Real signer registration and
+      # real host-session records remain T-008's human-apply scope.
+      - name: Test live-host proof validator suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/validate-live-host-proof.tests.sh
+
+      - name: Test live-host proof validator suite (pwsh)
+        shell: pwsh
+        run: ./tests/validate-live-host-proof.tests.ps1
+
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

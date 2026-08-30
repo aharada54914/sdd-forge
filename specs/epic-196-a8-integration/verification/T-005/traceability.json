@@ -1,0 +1,26 @@
+{
+  "feature": "epic-196-a8-integration",
+  "links": [
+    {
+      "req": "REQ-003",
+      "acs": ["AC-028"],
+      "tests": ["TEST-028"],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-005/review-red.md",
+        "specs/epic-196-a8-integration/verification/T-005/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-026", "AC-027"],
+      "tests": ["TEST-026", "TEST-027"],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-005/red-evidence.md",
+        "specs/epic-196-a8-integration/verification/T-005/review-red.md",
+        "specs/epic-196-a8-integration/verification/T-005/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-ps1.log"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+Command: bash tests/validate-live-host-proof.tests.sh
+Exit: 0
+Result: live-host-proof: 91 passed, 0 failed
+
+The passing cases include every named contract error code, schema mutation,
+Ed25519 RFC 8032 positive and strict negative vectors (S >= L, small-order,
+and mixed-order points), synthetic-substitution detection, three-state SKIP
+classification, all-five-cell aggregation, atomic/idempotent nonce
+publication, replay/lock contention, lock-release failure reporting, and
+shared byte-preserving wrapper dispatch.

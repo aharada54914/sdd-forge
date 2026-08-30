@@ -1,0 +1,7 @@
+Command: pwsh -NoLogo -NoProfile -Command '$env:LIVE_HOST_VALIDATOR="plugins/sdd-quality-loop/scripts/validate-live-host-proof.ps1"; python3 tests/fixtures/live-host-proof/run_cases.py; $resultCode=$LASTEXITCODE; [Console]::Out.WriteLine("PS1_DRIVER_EXIT=$resultCode"); exit $resultCode'
+Exit: 0
+Result: live-host-proof: 91 passed, 0 failed; PS1_DRIVER_EXIT=0
+
+The PowerShell validator wrapper ran the same 91-case driver and therefore
+the same named errors, cryptographic negatives, replay guard, SKIP states,
+aggregate outcomes, and atomic-ledger checks as the sh entry point.

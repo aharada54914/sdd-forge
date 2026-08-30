@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -213,7 +214,8 @@ class Fixture:
                 "reason": "Epic A1 tracking issue #189",
                 "upstream_epic_a1_commit": "1" * 40,
                 "upstream_epic_a1_path_blob_ids": {
-                    "upstream/check-hook-activation-handshake.py": "2" * 40
+                    f"plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.{suffix}": "2" * 40
+                    for suffix in ("py", "sh", "ps1")
                 },
             }],
         }
@@ -461,9 +463,48 @@ def _synthetic_capture(fixture):
 
 
 def _stale_skip(fixture):
-    activation = fixture.root / "upstream/check-hook-activation-handshake.py"
-    activation.parent.mkdir(parents=True, exist_ok=True)
-    activation.write_text("# activated fixture\n", encoding="utf-8")
+    allowlist = json.loads(fixture.allowlist.read_text(encoding="utf-8"))
+    for relative in allowlist["entries"][0]["upstream_epic_a1_path_blob_ids"]:
+        activation = fixture.root / relative
+        activation.parent.mkdir(parents=True, exist_ok=True)
+        activation.write_text("# activated fixture\n", encoding="utf-8")
+
+
+def _configure_ac006(fixture, task_status):
+    """Model AC-006's task-state + handshake-files activation predicate."""
+    handshake_paths = {
+        f"plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.{suffix}": "2" * 40
+        for suffix in ("py", "sh", "ps1")
+    }
+    # A non-handshake A1 consumer is deliberately absent. AC-006 must not wait
+    # for AC-016's separate five-consumer activation surface.
+    activation_paths = {
+        **handshake_paths,
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "3" * 40,
+    }
+    allowlist = json.loads(fixture.allowlist.read_text(encoding="utf-8"))
+    allowlist["entries"][0].update({
+        "case_id": "AC-006",
+        "upstream_epic_a1_path_blob_ids": activation_paths,
+    })
+    write_json(fixture.allowlist, allowlist)
+    for cell in CELLS:
+        record = fixture.load_record(cell)
+        record["skip_reason"] = "AC-006: Epic A1 tracking issue #189"
+        fixture.save_record(record)
+    for relative in handshake_paths:
+        path = fixture.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("# activated handshake fixture\n", encoding="utf-8")
+    tasks = fixture.root / "specs/epic-196-a8-integration/tasks.md"
+    tasks.parent.mkdir(parents=True, exist_ok=True)
+    tasks.write_text(
+        "## T-005 Author validator\n\n"
+        "Approval: Approved (fixture)\n\n"
+        f"Status: {task_status}\n\n"
+        "## T-006 Later task\n\nStatus: Planned\n",
+        encoding="utf-8",
+    )
 
 
 def special_cases():
@@ -589,12 +630,27 @@ def crypto_known_answer_case():
     )
     malleable = signature[:32] + L.to_bytes(32, "little")
     small_order_key = b"\x01" + b"\x00" * 31
+    order_two = (0, Q - 1, 1, 0)
+    mixed_order_key = encode_point(point_add(B, order_two))
     ok = (
         module.verify_ed25519(public_key, signature, b"")
         and not module.verify_ed25519(public_key, malleable, b"")
         and not module.verify_ed25519(small_order_key, signature, b"")
+        and module.decode_point(mixed_order_key) is None
     )
-    return ok, "RFC 8032 test vector 1 plus S>=L and small-order negative vectors"
+    return ok, "RFC 8032 test vector 1 plus S>=L, small-order, and mixed-order negative vectors"
+
+
+def load_validator_module():
+    spec = importlib.util.spec_from_file_location(
+        "live_host_validator_transaction",
+        ROOT / "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("validator module could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def run_failure_case(name, expected, mutation, verdicts=None):
@@ -652,7 +708,45 @@ def transaction_cases():
         results.append(("lock-contention", result.returncode != 0 and fixture.ledger.read_bytes() == before and "ERR_SCHEMA_INVALID" in result.stderr, f"exit={result.returncode} stderr={result.stderr.strip()!r}"))
     finally:
         shutil.rmtree(temp)
+
+    temp = tempfile.mkdtemp(prefix="live-host-proof-lock-release-")
+    try:
+        fixture = Fixture(temp)
+        module = load_validator_module()
+        ledger = fixture.load_ledger()
+        original = fixture.ledger.read_bytes()
+        proposals = [
+            (entry, f"tests/hook-activation-live-proof/{FILENAMES[entry['matrix_cell']]}")
+            for entry in ledger["entries"]
+        ]
+        raised = None
+        with mock.patch.object(Path, "rmdir", side_effect=OSError("fixture lock release failure")):
+            try:
+                module.publish_consumption(fixture.ledger, ledger, proposals, original)
+            except module.ValidationError as exc:
+                raised = exc
+        results.append((
+            "lock-release-failure-is-not-silent",
+            raised is not None and raised.code == "ERR_SCHEMA_INVALID",
+            f"raised={getattr(raised, 'code', None)!r}",
+        ))
+    finally:
+        shutil.rmtree(temp)
     return results
+
+
+def wrapper_convention_case():
+    script_dir = ROOT / "plugins/sdd-quality-loop/scripts"
+    shell = (script_dir / "validate-live-host-proof.sh").read_text(encoding="utf-8")
+    powershell = (script_dir / "validate-live-host-proof.ps1").read_text(encoding="utf-8")
+    ok = (
+        "lib/py-dispatch.sh" in shell
+        and "sdd_py_dispatch" in shell
+        and "lib/py-dispatch.ps1" in powershell
+        and "Invoke-SddPyDispatch" in powershell
+        and "& $python.Source" not in powershell
+    )
+    return ok, "thin wrappers must use the repository's byte-preserving shared dispatchers"
 
 
 def main():
@@ -685,9 +779,24 @@ def main():
     ):
         ok, detail = run_success_case(name, state, verdicts)
         results.append((name, ok, detail))
+    result = with_fixture(lambda fixture: _configure_ac006(fixture, "Planned"), all_skip)
+    results.append((
+        "ac006-planned-remains-pending",
+        result.returncode == 0 and result.stdout.strip() == "pending",
+        f"exit={result.returncode} stderr={result.stderr.strip()!r} stdout={result.stdout.strip()!r}",
+    ))
+    ok, detail = run_failure_case(
+        "ac006-started-is-stale",
+        "ERR_STALE_SKIP",
+        lambda fixture: _configure_ac006(fixture, "In Progress"),
+        all_skip,
+    )
+    results.append(("ac006-started-is-stale", ok, detail))
     results.extend(transaction_cases())
     crypto_ok, crypto_detail = crypto_known_answer_case()
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
+    wrapper_ok, wrapper_detail = wrapper_convention_case()
+    results.append(("shared-byte-preserving-wrapper-dispatch", wrapper_ok, wrapper_detail))
 
     passed = 0
     for name, ok, detail in results:

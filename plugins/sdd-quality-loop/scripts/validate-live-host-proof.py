@@ -47,6 +47,17 @@ SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 NONCE_RE = re.compile(r"^[A-Za-z0-9_-]{16,}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 KEY_ID_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+HANDSHAKE_PATHS = {
+    f"plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.{suffix}"
+    for suffix in ("py", "sh", "ps1")
+}
+CONSUMER_PATHS = {
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+    "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+    "plugins/sdd-ship/skills/ship/SKILL.md",
+}
 
 Q = 2**255 - 19
 L = 2**252 + 27742317777372353535851937790883648493
@@ -184,6 +195,11 @@ def decode_point(encoded):
         x = Q - x
     point = (x, y, 1, x * y % Q)
     if point_equal(scalar_mult(point, 8), IDENTITY):
+        return None
+    # Ed25519 keys and R encodings produced by conforming signers are in the
+    # prime-order subgroup. Reject mixed-order points as well as the small-
+    # order points above so torsion components cannot enter verification.
+    if not point_equal(scalar_mult(point, L), IDENTITY):
         return None
     return point
 
@@ -440,17 +456,42 @@ def validate_skip(record, allowlist, root, cell):
     ]
     if len(matches) != 1:
         fail("ERR_STALE_SKIP", "SKIP reason does not cite exactly one allowlisted case", cell)
-    entry = allowlist[matches[0]]
-    activation_paths = [root / PurePosixPath(path) for path in entry["upstream_epic_a1_path_blob_ids"]]
+    case_id = matches[0]
+    entry = allowlist[case_id]
+    required = HANDSHAKE_PATHS if case_id in {"AC-006", "AC-015"} else CONSUMER_PATHS
+    configured = set(entry["upstream_epic_a1_path_blob_ids"])
+    if not required.issubset(configured):
+        fail("ERR_SCHEMA_INVALID", f"{case_id} allowlist entry omits required activation paths", cell)
+    if case_id == "AC-006" and not t005_has_started(root, cell):
+        return
+    activation_paths = [root / PurePosixPath(path) for path in sorted(required)]
     if all(path.is_file() for path in activation_paths):
         drifted = []
-        for relative, expected_blob in entry["upstream_epic_a1_path_blob_ids"].items():
+        for relative in sorted(required):
+            expected_blob = entry["upstream_epic_a1_path_blob_ids"][relative]
             data = (root / PurePosixPath(relative)).read_bytes()
             actual = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
             if actual != expected_blob:
                 drifted.append(relative)
         suffix = f"; blob drift={drifted}" if drifted else ""
         fail("ERR_STALE_SKIP", "SKIP activation artifacts now exist" + suffix, cell)
+
+
+def t005_has_started(root, cell):
+    tasks_path = root / "specs/epic-196-a8-integration/tasks.md"
+    try:
+        text = tasks_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        fail("ERR_SCHEMA_INVALID", f"T-005 lifecycle state cannot be read: {exc}", cell)
+    match = re.search(r"(?ms)^## T-005\b.*?(?=^## T-\d+\b|\Z)", text)
+    if match is None:
+        fail("ERR_SCHEMA_INVALID", "T-005 section is missing from tasks.md", cell)
+    statuses = re.findall(r"(?m)^Status: ([^\r\n]+)$", match.group(0))
+    if len(statuses) != 1 or statuses[0] not in {
+        "Planned", "In Progress", "Blocked", "Implementation Complete", "Done"
+    }:
+        fail("ERR_SCHEMA_INVALID", "T-005 has an invalid lifecycle status", cell)
+    return statuses[0] in {"In Progress", "Implementation Complete", "Done"}
 
 
 def validate_pass_record(record, root, manifest, ledger_by_nonce, cell):
@@ -505,6 +546,7 @@ def publish_consumption(ledger_path, ledger, proposals, original_bytes):
     except FileExistsError:
         fail("ERR_SCHEMA_INVALID", "nonce ledger lock is already held")
     temp_name = None
+    cleanup_error = None
     try:
         try:
             current = ledger_path.read_bytes()
@@ -536,12 +578,14 @@ def publish_consumption(ledger_path, ledger, proposals, original_bytes):
         if temp_name is not None:
             try:
                 os.unlink(temp_name)
-            except OSError:
-                pass
+            except OSError as exc:
+                cleanup_error = f"temporary nonce ledger cleanup failed: {exc}"
         try:
             lock.rmdir()
-        except OSError:
-            pass
+        except OSError as exc:
+            cleanup_error = f"nonce ledger lock release failed: {exc}"
+        if cleanup_error is not None:
+            fail("ERR_SCHEMA_INVALID", cleanup_error)
 
 
 def parser():
