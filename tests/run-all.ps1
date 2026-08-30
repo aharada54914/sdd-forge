@@ -68,6 +68,8 @@ $tests = @(
     'tests/cross-runtime-handoff.tests.ps1',
     'tests/check-installed-plugin-drift.tests.ps1',
     'tests/validate-live-host-proof.tests.ps1',
+    'tests/check-a8-process-integrity.tests.ps1',
+    'tests/cli-hook-enforcement.ps1',
     'tests/human-copy-runner-contract.tests.ps1',
     'tests/check-risk-upgrade-byte-identical.tests.ps1',
     'tests/check-risk-upgrade-capability-merge.tests.ps1',

@@ -1,0 +1,15 @@
+Command: A8_PROCESS_CHECK_MODE=red bash tests/check-a8-process-integrity.tests.sh
+Exit: 1
+
+RED: TEST-025 missing row rejected (exit 1)
+missing: AC-001
+RED: TEST-025 ambiguous row rejected (exit 1)
+missing: AC-001
+missing: AC-001 classification
+RED: TEST-029 foreign-Epic artifact rejected (exit 1)
+missing: environment-specific test
+missing: foreign-Epic .sh/.ps1 pair
+missing: plugin hook config
+RED: TEST-030 uncited claim rejected (exit 1)
+missing: design-uncited.md
+RED: all required mutated fixtures were rejected; exiting non-zero by design

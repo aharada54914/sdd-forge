@@ -1,0 +1,13 @@
+Command: pwsh -NoProfile -File tests/check-a8-process-integrity.tests.ps1
+Exit: 0
+
+PASS: TEST-025 real classification table
+PASS: TEST-025 missing classification row
+PASS: TEST-025 ambiguous classification row
+PASS: TEST-025 duplicate classification table
+PASS: TEST-025 malformed classification row
+PASS: TEST-029 real scope boundary
+PASS: TEST-029 foreign-Epic artifact mutation
+PASS: TEST-030 real citation compliance
+PASS: TEST-030 uncited factual-claim mutation
+check-a8-process-integrity: 9 passed, 0 failed

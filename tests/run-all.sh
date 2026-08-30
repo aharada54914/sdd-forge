@@ -116,6 +116,7 @@ tests=(
   tests/cross-runtime-handoff.tests.sh
   tests/check-installed-plugin-drift.tests.sh
   tests/validate-live-host-proof.tests.sh
+  tests/check-a8-process-integrity.tests.sh
   tests/human-copy-runner-contract.tests.sh
   tests/check-risk-upgrade-byte-identical.tests.sh
   tests/check-risk-upgrade-capability-merge.tests.sh
@@ -154,6 +155,19 @@ for test_file in "${tests[@]}"; do
     failed+=("$test_file")
   fi
 done
+
+# T-004 extends the PowerShell-only CLI-hook suite in place. Keep it visible
+# from the aggregate POSIX entry point when PowerShell is available.
+cli_hook_test="tests/cli-hook-enforcement.ps1"
+printf '==> %s\n' "$cli_hook_test"
+if command -v pwsh >/dev/null 2>&1; then
+  if ! pwsh -NoProfile -ExecutionPolicy Bypass -File "$cli_hook_test"; then
+    printf 'FAILED: %s\n' "$cli_hook_test"
+    failed+=("$cli_hook_test")
+  fi
+else
+  printf 'SKIP: pwsh not found; cli-hook-enforcement.ps1 not run\n'
+fi
 
 # Cross-runtime guard parity (PowerShell host suite; itself self-skips when
 # python3 or node is absent). Skip only when pwsh is not installed.
