@@ -160,7 +160,7 @@ function New-Prompt([string]$State, [string]$TrackFlag, [string]$AgentsMarker) {
 Follow the sdd-bootstrap-interviewer workflow at $BootstrapSkill for a throwaway structural recording only.
 The fixture is fixture_state=$State with project_context=absent, agents_marker=$AgentsMarker, ${markerKey}=disabled-legacy, and track_flag=$TrackFlag.
 Do not write files. Generate the track's required specification artifacts structurally, including the shipped required headings, status-field names, and at least REQ-001 and AC-001 where identifiers belong.
-Return only compact JSON with exactly one top-level key named artifacts. Its value must be an array of objects with exactly path and content string fields. Do not use Markdown fences or explanatory prose.
+Return only compact JSON with exactly one top-level key named artifacts. Its value must be an array of objects with exactly path and content string fields. Each object's path must be the bare artifact filename alone (for example requirements.md), never prefixed with specs/<feature>/ or any directory. Do not use Markdown fences or explanatory prose.
 "@
 }
 
