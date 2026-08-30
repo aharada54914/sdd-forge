@@ -1,0 +1,10 @@
+Command: bash tests/validate-live-host-proof.tests.sh
+Exit: 0
+
+GREEN: all 91 inherited T-005 checks passed, including the named-error,
+schema/signature, aggregate-state, transaction, crypto, and shared-wrapper cases.
+ok - TEST-013-codex-classification
+ok - TEST-014-copilot-classification-and-fallback
+ok - TEST-015-five-cell-draft-skip-handling
+ok - TEST-016-five-consumer-fingerprinted-inventory
+live-host-proof: 95 passed, 0 failed

@@ -9,4 +9,6 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 0
 fi
 
+# TEST-013–016 are additive acceptance cases in the shared Python driver.
+# The invocation below is T-005's original TEST-026/027/028 path unchanged.
 LIVE_HOST_VALIDATOR="$VALIDATOR" python3 "$ROOT/tests/fixtures/live-host-proof/run_cases.py"

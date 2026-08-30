@@ -1,0 +1,18 @@
+Initial command: pwsh -NoProfile -File tests/validate-live-host-proof.tests.ps1
+Initial exit: 1
+
+Initial RED: all 91 inherited T-005 checks passed.
+not ok - TEST-013-codex-classification: draft setup invalid: [Errno 2] No such file or directory: 'tests/hook-activation-live-proof/claude-active.json'
+not ok - TEST-014-copilot-classification-and-fallback: draft setup invalid: [Errno 2] No such file or directory: 'tests/hook-activation-live-proof/claude-active.json'
+not ok - TEST-015-five-cell-draft-skip-handling: draft setup invalid: [Errno 2] No such file or directory: 'tests/hook-activation-live-proof/claude-active.json'
+not ok - TEST-016-five-consumer-fingerprinted-inventory: draft setup invalid: [Errno 2] No such file or directory: 'tests/hook-activation-live-proof/claude-active.json'
+live-host-proof: 91 passed, 4 failed
+
+Permissive-addition command: LIVE_HOST_T008_RED=1 pwsh -NoProfile -File tests/validate-live-host-proof.tests.ps1
+Permissive-addition exit: 1 (by design)
+
+RED: ok - TEST-013 permissive automated Codex classification
+RED: ok - TEST-014 permissive Copilot classification without fallback
+RED: ok - TEST-015 permissive signature placeholder; all five cells reported missing=True, skip=True, stale=True, pass=True, fail=True
+RED: ok - TEST-016 permissive partial consumer inventory
+RED: all four deliberately permissive additions were rejected; exiting non-zero by design

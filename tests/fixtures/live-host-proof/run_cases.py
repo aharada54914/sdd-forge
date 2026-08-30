@@ -9,6 +9,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -55,6 +56,24 @@ ERRORS = {
     "ERR_SIGNER_KEY_COLLISION",
     "ERR_SYNTHETIC_SUBSTITUTION",
     "ERR_STALE_SKIP",
+}
+UNSIGNED_MARKER = "UNSIGNED"
+T008_ACCEPTANCE_CASES = {
+    "TEST-013-codex-classification",
+    "TEST-014-copilot-classification-and-fallback",
+    "TEST-015-five-cell-draft-skip-handling",
+    "TEST-016-five-consumer-fingerprinted-inventory",
+}
+HANDSHAKE_PATHS = {
+    f"plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.{suffix}"
+    for suffix in ("py", "sh", "ps1")
+}
+CONSUMER_PATHS = {
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+    "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+    "plugins/sdd-ship/skills/ship/SKILL.md",
 }
 
 # RFC 8032 arithmetic. This test-only signer uses deterministic disposable
@@ -158,6 +177,17 @@ def sha256_bytes(data):
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def git_blob_at_commit(commit, relative):
+    result = subprocess.run(
+        ["git", "rev-parse", f"{commit}:{relative}"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
 
 
 def record_target(record, role):
@@ -424,6 +454,12 @@ def _mutate_record(fixture, mutate, resign=True):
     if resign:
         sign_record(record)
     write_json(fixture.record_path(original_cell), record)
+
+
+def _mutate_cell_record(fixture, cell, mutate):
+    record = fixture.load_record(cell)
+    mutate(record)
+    fixture.save_record(record)
 
 
 def _feature_mismatch(fixture):
@@ -749,6 +785,264 @@ def wrapper_convention_case():
     return ok, "thin wrappers must use the repository's byte-preserving shared dispatchers"
 
 
+def load_committed_drafts():
+    records = ROOT / "tests/hook-activation-live-proof"
+    return {
+        cell: json.loads((records / FILENAMES[cell]).read_text(encoding="utf-8"))
+        for cell in CELLS
+    }
+
+
+def load_allowlist():
+    value = json.loads(
+        (ROOT / "plugins/sdd-review-loop/references/a8-skip-allowlist.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    return value, {entry["case_id"]: entry for entry in value["entries"]}
+
+
+def codex_classification_case(drafts):
+    cells = ("Codex-enabled-active", "Codex-disabled-expected-unavailable")
+    static_ok = all(
+        record["runtime"] == "codex"
+        and record["verdict"] == "SKIP"
+        and record["invocation_mode"] == "manual"
+        and "manual-required" in record.get("notes", "")
+        and "automated-pending-confirmation" in record.get("notes", "")
+        and "native-Codex-dispatcher" in record.get("notes", "")
+        for record in (drafts[cell] for cell in cells)
+    )
+    discriminator_ok = True
+    details = []
+    for cell in cells:
+        result = with_fixture(
+            lambda fixture, target=cell: _mutate_cell_record(
+                fixture,
+                target,
+                lambda record: record.update({
+                    "runtime": "copilot",
+                    "installed_feature_config_ref": None,
+                    "installed_feature_config_digest": None,
+                }),
+            )
+        )
+        case_ok = result.returncode != 0 and "ERR_CELL_RUNTIME_MISMATCH" in result.stderr
+        discriminator_ok = discriminator_ok and case_ok
+        details.append(f"{cell}:exit={result.returncode}")
+    return static_ok and discriminator_ok, ", ".join(details)
+
+
+def copilot_classification_case(drafts):
+    cells = ("Copilot-primary-active", "Copilot-subagent-expected-unavailable")
+    static_ok = all(
+        record["runtime"] == "copilot"
+        and record["verdict"] == "SKIP"
+        and record["invocation_mode"] == "manual"
+        and "manual-required" in record.get("notes", "")
+        and "automated-pending-confirmation" in record.get("notes", "")
+        and "real-Copilot-subagent" in record.get("notes", "")
+        for record in (drafts[cell] for cell in cells)
+    )
+    fallback = drafts["Copilot-subagent-expected-unavailable"].get("notes", "")
+    fallback_ok = all(
+        token in fallback
+        for token in (
+            "docs/troubleshooting.md:185-204",
+            "check-task-state.sh",
+            "check-contract.sh",
+            "check-evidence-bundle.sh",
+        )
+    )
+    contrast_ok = (
+        "primary-active" in drafts["Copilot-primary-active"].get("notes", "")
+        and "subagent-expected-unavailable"
+        in drafts["Copilot-subagent-expected-unavailable"].get("notes", "")
+    )
+    discriminator_ok = True
+    details = []
+    for cell in cells:
+        result = with_fixture(
+            lambda fixture, target=cell: _mutate_cell_record(
+                fixture,
+                target,
+                lambda record: record.update({"runtime": "claude"}),
+            )
+        )
+        case_ok = result.returncode != 0 and "ERR_CELL_RUNTIME_MISMATCH" in result.stderr
+        discriminator_ok = discriminator_ok and case_ok
+        details.append(f"{cell}:exit={result.returncode}")
+    return static_ok and fallback_ok and contrast_ok and discriminator_ok, ", ".join(details)
+
+
+def five_cell_state_matrix_case():
+    all_skip = {cell: "SKIP" for cell in CELLS}
+    details = []
+    all_ok = True
+    for cell in CELLS:
+        missing = with_fixture(
+            lambda fixture, target=cell: fixture.record_path(target).unlink(),
+            all_skip,
+        )
+        missing_ok = (
+            missing.returncode != 0
+            and "ERR_MISSING_CELL" in missing.stderr
+            and cell in missing.stderr
+        )
+
+        valid = with_fixture(lambda fixture: None, all_skip)
+        valid_ok = valid.returncode == 0 and valid.stdout.strip() == "pending"
+
+        stale_verdicts = {
+            candidate: ("SKIP" if candidate == cell else "PASS")
+            for candidate in CELLS
+        }
+        stale = with_fixture(_stale_skip, stale_verdicts)
+        stale_ok = (
+            stale.returncode != 0
+            and "ERR_STALE_SKIP" in stale.stderr
+            and cell in stale.stderr
+        )
+
+        passed = with_fixture(lambda fixture: None)
+        pass_ok = passed.returncode == 0 and passed.stdout.strip() == "discharged"
+
+        fail_verdicts = {
+            candidate: ("FAIL" if candidate == cell else "PASS")
+            for candidate in CELLS
+        }
+        failed = with_fixture(lambda fixture: None, fail_verdicts)
+        fail_ok = (
+            failed.returncode != 0
+            and "ERR_SCHEMA_INVALID" in failed.stderr
+            and cell in failed.stderr
+        )
+
+        cell_ok = missing_ok and valid_ok and stale_ok and pass_ok and fail_ok
+        all_ok = all_ok and cell_ok
+        details.append(
+            f"{cell}:missing={missing_ok},skip={valid_ok},stale={stale_ok},"
+            f"pass={pass_ok},fail={fail_ok}"
+        )
+    return all_ok, "; ".join(details)
+
+
+def five_cell_draft_case(drafts, allowlist_value, allowlist, descriptor):
+    module = load_validator_module()
+    schema_ok = True
+    schema_details = []
+    try:
+        module.validate_allowlist(allowlist_value)
+    except module.ValidationError as exc:
+        schema_ok = False
+        schema_details.append(f"allowlist:{exc.code}")
+    for cell, record in drafts.items():
+        try:
+            module.validate_record_schema(record, cell)
+        except module.ValidationError as exc:
+            schema_ok = False
+            schema_details.append(f"{cell}:{exc.code}")
+    records_ok = all(
+        record["matrix_cell"] == cell
+        and record["verdict"] == "SKIP"
+        and re.findall(r"\bAC-\d{3}\b", record["skip_reason"]) == ["AC-015"]
+        and record["operator_signature"] == UNSIGNED_MARKER
+        and record["reviewer_signature"] == UNSIGNED_MARKER
+        and record["operator"] == "PENDING_HUMAN_OPERATOR"
+        and record["operator_key_id"] == "PENDING_HUMAN_OPERATOR_KEY"
+        and record["reviewer"] == "PENDING_HUMAN_REVIEWER"
+        and record["reviewer_key_id"] == "PENDING_HUMAN_REVIEWER_KEY"
+        for cell, record in drafts.items()
+    )
+    registry = json.loads(
+        (ROOT / "plugins/sdd-review-loop/references/a8-trusted-signers.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    registry_ok = registry == {"schema": "a8-trusted-signers/v1", "signers": {}}
+    ac015 = allowlist.get("AC-015", {})
+    paths = ac015.get("upstream_epic_a1_path_blob_ids", {})
+    commit = ac015.get("upstream_epic_a1_commit")
+    allowlist_ok = set(paths) == HANDSHAKE_PATHS and all(
+        path_value == git_blob_at_commit(commit, relative)
+        for relative, path_value in paths.items()
+    )
+    state_matrix_ok, state_detail = five_cell_state_matrix_case()
+    schema_detail = "; ".join(schema_details) or "five draft schemas accepted before signature verification"
+    return (
+        schema_ok and records_ok and registry_ok and allowlist_ok and state_matrix_ok,
+        f"{schema_detail}; {state_detail}",
+    )
+
+
+def five_consumer_inventory_case(drafts, allowlist):
+    ac015 = allowlist.get("AC-015", {})
+    ac016 = allowlist.get("AC-016", {})
+    inventory = ac016.get("upstream_epic_a1_path_blob_ids", {})
+    commit = ac016.get("upstream_epic_a1_commit")
+    inventory_ok = set(inventory) == CONSUMER_PATHS and all(
+        path_value == git_blob_at_commit(commit, relative)
+        for relative, path_value in inventory.items()
+    )
+    commit_ok = (
+        isinstance(ac016.get("upstream_epic_a1_commit"), str)
+        and ac016.get("upstream_epic_a1_commit") == ac015.get("upstream_epic_a1_commit")
+        and re.fullmatch(r"[0-9a-f]{40}", ac016["upstream_epic_a1_commit"]) is not None
+    )
+    draft_ok = all(
+        "AC-016 five-consumer fingerprinted inventory is a draft SKIP"
+        in record.get("notes", "")
+        for record in drafts.values()
+    )
+    return inventory_ok and commit_ok and draft_ok, f"inventory={sorted(inventory)}"
+
+
+def t008_acceptance_results(descriptor):
+    configured = set(descriptor.get("t008_acceptance_cases", []))
+    if configured != T008_ACCEPTANCE_CASES:
+        return [("T-008-acceptance-descriptor", False, f"configured={sorted(configured)}")]
+    try:
+        drafts = load_committed_drafts()
+        allowlist_value, allowlist = load_allowlist()
+    except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        return [(name, False, f"draft setup invalid: {exc}") for name in sorted(T008_ACCEPTANCE_CASES)]
+    return [
+        ("TEST-013-codex-classification", *codex_classification_case(drafts)),
+        ("TEST-014-copilot-classification-and-fallback", *copilot_classification_case(drafts)),
+        ("TEST-015-five-cell-draft-skip-handling", *five_cell_draft_case(drafts, allowlist_value, allowlist, descriptor)),
+        ("TEST-016-five-consumer-fingerprinted-inventory", *five_consumer_inventory_case(drafts, allowlist)),
+    ]
+
+
+def t008_permissive_red_results(descriptor):
+    drafts = load_committed_drafts()
+    allowlist_value, allowlist = load_allowlist()
+    results = []
+
+    codex_drafts = json.loads(json.dumps(drafts))
+    codex_drafts["Codex-enabled-active"]["notes"] = "automated"
+    ok, detail = codex_classification_case(codex_drafts)
+    results.append(("TEST-013 permissive automated Codex classification", not ok, detail))
+
+    copilot_drafts = json.loads(json.dumps(drafts))
+    copilot_drafts["Copilot-subagent-expected-unavailable"]["notes"] = "automated"
+    ok, detail = copilot_classification_case(copilot_drafts)
+    results.append(("TEST-014 permissive Copilot classification without fallback", not ok, detail))
+
+    unsigned_drafts = json.loads(json.dumps(drafts))
+    unsigned_drafts["Claude-active"]["operator_signature"] = "permissive-placeholder"
+    ok, detail = five_cell_draft_case(unsigned_drafts, allowlist_value, allowlist, descriptor)
+    results.append(("TEST-015 permissive signature placeholder", not ok, detail))
+
+    partial_allowlist = json.loads(json.dumps(allowlist))
+    partial_allowlist["AC-016"]["upstream_epic_a1_path_blob_ids"].pop(
+        "plugins/sdd-ship/skills/ship/SKILL.md"
+    )
+    ok, detail = five_consumer_inventory_case(drafts, partial_allowlist)
+    results.append(("TEST-016 permissive partial consumer inventory", not ok, detail))
+    return results
+
+
 def main():
     descriptor = json.loads((ROOT / "tests/fixtures/live-host-proof/cases.json").read_text(encoding="utf-8"))
     if set(descriptor["named_error_cases"]) != ERRORS:
@@ -761,6 +1055,14 @@ def main():
     if set(fixture_cases) != ERRORS or any(name != value for name, value in fixture_cases.items()):
         print("not ok - fixture tree needs exactly one descriptor per named error")
         return 1
+    if os.environ.get("LIVE_HOST_T008_RED") == "1":
+        results = t008_permissive_red_results(descriptor)
+        for name, rejected, detail in results:
+            print(f"RED: {'ok' if rejected else 'not ok'} - {name}: {detail}")
+        if all(rejected for _, rejected, _ in results):
+            print("RED: all four deliberately permissive additions were rejected; exiting non-zero by design")
+            return 1
+        return 0
 
     results = []
     for expected, mutation in named_cases():
@@ -797,6 +1099,7 @@ def main():
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
     wrapper_ok, wrapper_detail = wrapper_convention_case()
     results.append(("shared-byte-preserving-wrapper-dispatch", wrapper_ok, wrapper_detail))
+    results.extend(t008_acceptance_results(descriptor))
 
     passed = 0
     for name, ok, detail in results:

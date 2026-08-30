@@ -35,5 +35,11 @@
     "operator-signature-replayed-as-reviewer",
     "malformed-public-key",
     "malformed-signature"
+  ],
+  "t008_acceptance_cases": [
+    "TEST-013-codex-classification",
+    "TEST-014-copilot-classification-and-fallback",
+    "TEST-015-five-cell-draft-skip-handling",
+    "TEST-016-five-consumer-fingerprinted-inventory"
   ]
 }

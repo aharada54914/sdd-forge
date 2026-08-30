@@ -15,5 +15,7 @@ if (-not $python) {
 }
 
 $env:LIVE_HOST_VALIDATOR = $validator
+# TEST-013–016 are additive acceptance cases in the shared Python driver.
+# The invocation below is T-005's original TEST-026/027/028 path unchanged.
 & $python.Source (Join-Path $root 'tests/fixtures/live-host-proof/run_cases.py')
 exit $LASTEXITCODE

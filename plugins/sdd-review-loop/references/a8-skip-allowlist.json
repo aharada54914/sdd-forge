@@ -15,6 +15,28 @@
         "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "506ca6279dcd64956fadc53fbba26b78771eebcf",
         "plugins/sdd-ship/skills/ship/SKILL.md": "09600f055e76a5796dfa93e4a8f5d7708f10415f"
       }
+    },
+    {
+      "case_id": "AC-015",
+      "reason": "Live-host semantic-cell evidence remains an unsigned draft SKIP until the human apply step and Epic A1 activation gate are satisfied; tracked by sdd-forge issue #189 and epic #187.",
+      "upstream_epic_a1_commit": "e00478321327b48e4e4ad21a14391d69e0f1baa9",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1": "7c5f84903d7f5f860e023f842852ab8f8a1c792a",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "62a8841c21fee332e83d7bc052dde93f6ab0d1f2",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "506ca6279dcd64956fadc53fbba26b78771eebcf"
+      }
+    },
+    {
+      "case_id": "AC-016",
+      "reason": "Epic A1's five hook-consuming entry points remain a fingerprinted draft SKIP until the human apply step and activation gate are satisfied; tracked by sdd-forge issue #189 and epic #187.",
+      "upstream_epic_a1_commit": "e00478321327b48e4e4ad21a14391d69e0f1baa9",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "ea0ad62ff37fe0774b8660634a93ef713dfe684c",
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "e0b96d9d201fcdbc504fc594be2e3145860c00a0",
+        "plugins/sdd-lite/skills/lite-gate/SKILL.md": "8a389cdfeeb7f38d123fd21ddb3b2a1b59d2fa4e",
+        "plugins/sdd-lite/skills/lite-spec/SKILL.md": "00a56a3dcb70ea35bc3206193abd8ef7d5ebe0d3",
+        "plugins/sdd-ship/skills/ship/SKILL.md": "09600f055e76a5796dfa93e4a8f5d7708f10415f"
+      }
     }
   ]
 }
