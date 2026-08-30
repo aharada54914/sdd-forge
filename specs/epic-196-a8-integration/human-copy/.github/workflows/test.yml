@@ -255,6 +255,22 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: bash ./tests/check-installed-plugin-drift.tests.sh
+
+      # T-003 (REQ-002, AC-007–011, AC-024): install/uninstall matrix across
+      # All/Codex/Claude/Copilot. The local macOS run executes all four cells
+      # sequentially; the existing 3-OS CI matrix can run the same suite one
+      # cell per job. The step name records that split explicitly.
+      - name: Test install-uninstall-matrix suite (local macOS run / existing 3-OS CI split) (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/install-uninstall-matrix.tests.sh
+
+      - name: Test install-uninstall-matrix suite (local macOS run / existing 3-OS CI split) (pwsh)
+        shell: pwsh
+        run: ./tests/install-uninstall-matrix.tests.ps1
+
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
