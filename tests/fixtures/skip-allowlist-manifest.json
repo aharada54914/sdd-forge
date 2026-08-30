@@ -1,0 +1,33 @@
+[
+  {
+    "assertion_id": "AC-004",
+    "dependencies": [{"epic":"A5","issue":193,"fingerprints":[{"source":"specs/epic-193-a5-capability-resolver/design.md","line_range":"1886-1915","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff","quote":"10. `resolve-project-context-caller-contract` (new, M6) — a contract test"}]}],
+    "activation_condition": "merged(A5)"
+  },
+  {
+    "assertion_id": "AC-007",
+    "dependencies": [{"epic":"A4","issue":192,"fingerprints":[{"source":"specs/epic-192-a4-facet-manifest/requirements.md","line_range":"211-213","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:b84bd60bfba1bc9741bb76096d0502a461343c6867efcaa4bc57986b02d11157","quote":"- **REQ-001** (Facet Manifest schema — decision v2 §19 item 1, §16, §12):"}]}],
+    "activation_condition": "merged(A4)"
+  },
+  {
+    "assertion_id": "AC-021",
+    "dependencies": [
+      {"epic":"A1","issue":189,"fingerprints":[{"source":"specs/epic-189-a1-project-context/requirements.md","line_range":"891-908","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a","quote":"**Presence/validity semantics (revised — closes the downgrade-via-"}]},
+      {"epic":"A5","issue":193,"fingerprints":[{"source":"specs/epic-193-a5-capability-resolver/design.md","line_range":"1886-1915","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff","quote":"10. `resolve-project-context-caller-contract` (new, M6) — a contract test"}]}
+    ],
+    "activation_condition": "merged(A1) AND merged(A5)"
+  },
+  {
+    "assertion_id": "AC-042",
+    "dependencies": [{"epic":"A1","issue":189,"fingerprints":[{"source":"specs/epic-189-a1-project-context/requirements.md","line_range":"891-908","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a","quote":"**Presence/validity semantics (revised — closes the downgrade-via-"}]}],
+    "activation_condition": "merged(A1)"
+  },
+  {
+    "assertion_id": "AC-043",
+    "dependencies": [
+      {"epic":"A1","issue":189,"fingerprints":[{"source":"specs/epic-189-a1-project-context/requirements.md","line_range":"891-908","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a","quote":"**Presence/validity semantics (revised — closes the downgrade-via-"}]},
+      {"epic":"A6","issue":194,"fingerprints":[{"source":"specs/epic-194-a6-lite-integration/requirements.md","line_range":"217-219","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:185d9e88b4ef19fd86d4993dabc6446f5e1b2e5dc9a84b3bacbb81f823f25134","quote":"- **REQ-001** (Registry `lite_policy` v1.1 additive extension and"}]}
+    ],
+    "activation_condition": "merged(A1) AND merged(A6)"
+  }
+]

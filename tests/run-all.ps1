@@ -67,6 +67,7 @@ $tests = @(
     'tests/compatibility-byte-identical.tests.ps1',
     'tests/golden-baseline-contract.tests.ps1',
     'tests/structural-compatibility.tests.ps1',
+    'tests/skip-allowlist-manifest.tests.ps1',
     'tests/path-lineending-regression.tests.ps1',
     'tests/validate-live-host-proof.tests.ps1',
     'tests/human-copy-runner-contract.tests.ps1',

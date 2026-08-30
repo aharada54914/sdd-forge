@@ -99,6 +99,8 @@ set -euo pipefail
 START_EPOCH=$(date +%s)
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+SKIP_ALLOWLIST_MANIFEST="$REPO_ROOT/tests/fixtures/skip-allowlist-manifest.json"
+source "$REPO_ROOT/tests/lib/skip-allowlist-evaluator.sh"
 LOOP_INVENTORY_PATH="${REPO_ROOT}/tests/loops/loop-inventory.json"
 export LOOP_INVENTORY_PATH
 # shellcheck source=tests/lib/loop-driver.sh
@@ -791,10 +793,8 @@ fi
 # call site exists to have been correctly declined), not evidence of
 # correct non-invocation policy, so this sub-case is a named SKIP rather
 # than a promoted assertion (AC-004: Epic A5; AC-021: Epic A1 -- already
-# merged -- AND Epic A5, still unmerged; tasks.md T-008 Scope). A local ad
-# hoc probe (specs/epic-193-a5-capability-resolver/ presence in this tree)
-# stands in for the activation condition until T-010's own allowlist
-# manifest exists.
+# merged -- AND Epic A5, still unmerged; tasks.md T-008 Scope). T-010's
+# shared allowlist manifest now supplies both activation conditions.
 # =============================================================================
 echo "=== TEST-019.10 (AC-004, AC-021): Resolver-non-invocation spy-harness (named SKIP until Epic A5 merges) ==="
 
@@ -826,11 +826,8 @@ SPY_F4_INVALID_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture present absent re
 
 if [[ "$SPY_F1_RC" -eq 0 && "$SPY_F3_RC" -eq 0 && "$SPY_F4_RC" -eq 0 ]]; then
   SPY_INVOCATIONS="$(wc -l < "$SPY_LOG" | tr -d ' ')"
-  if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
-    fail "TEST-019.10b (AC-004, AC-021): Epic A5 has merged but no real Resolver-non-invocation fixture is wired against a live caller yet -- promote this SKIP in a follow-on task (observed ${SPY_INVOCATIONS} invocation(s))"
-  else
-    echo "SKIP: TEST-019.10b: AC-004/AC-021 Resolver-non-invocation spy-harness against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; AC-021 additionally needs Epic A1, already merged into this tree) and no caller anywhere in the tree yet invokes resolve-project-context.sh at all (SKIP-with-activation until Epic A5's caller insertion point is implemented, design.md Test Strategy item 6). The spy observes ${SPY_INVOCATIONS} invocation(s) across the F1/F3-invalid/F4-invalid fixture construction above -- a VACUOUSLY true zero, not evidence of correct non-invocation policy, since no call site exists yet to have been correctly declined; reported for provenance only."
-  fi
+  skip_allowlist_line "$SKIP_ALLOWLIST_MANIFEST" 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
+  printf 'INFO: TEST-019.10b spy observed %s invocation(s) across F1/F3-invalid/F4-invalid fixtures\n' "$SPY_INVOCATIONS"
 else
   fail "TEST-019.10b: build_fixture could not construct the F1/F3-invalid/F4-invalid fixtures needed to even name this SKIP (rc: F1=${SPY_F1_RC}, F3=${SPY_F3_RC}, F4=${SPY_F4_RC})"
 fi

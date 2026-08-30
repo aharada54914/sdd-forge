@@ -1,0 +1,14 @@
+T010_PERMISSIVE_EVALUATOR=1 bash tests/skip-allowlist-manifest.tests.sh --case=<case>
+
+CASE=dependency-present
+FAIL: AC-035a dependency-present output is a hard failure
+0 passed, 1 failed
+exit=1
+CASE=unknown-skip
+FAIL: AC-035b unrecognized output is a hard failure
+0 passed, 1 failed
+exit=1
+CASE=fingerprint-drift
+FAIL: AC-035c merged fingerprint drift is a hard failure
+0 passed, 1 failed
+exit=1

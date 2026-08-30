@@ -115,6 +115,7 @@ tests=(
   tests/compatibility-byte-identical.tests.sh
   tests/golden-baseline-contract.tests.sh
   tests/structural-compatibility.tests.sh
+  tests/skip-allowlist-manifest.tests.sh
   tests/path-lineending-regression.tests.sh
   tests/validate-live-host-proof.tests.sh
   tests/human-copy-runner-contract.tests.sh
