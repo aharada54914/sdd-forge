@@ -1,10 +1,9 @@
-Command: pwsh -NoProfile -File tests/path-lineending-regression.tests.ps1
+Command: pwsh -NoLogo -NoProfile -File tests/path-lineending-regression.tests.ps1
 Exit: 0
-Workflow state: GREEN
-
-Prerequisite and contract checks: 10 passed
-Row/case fixed-oracle checks: 48 passed
-path-lineending-fixture-result/v1 schema/count check: 1 passed
-Layer-disposition checks: 4 passed
-
-path-lineending-regression: 63 passed, 0 failed
+48 row x case cells: 48 passed, 0 failed
+ok TEST-018 - rows 10/13/16 ASSERT; remaining rows explicit N/A
+ok TEST-019 - 16 LF identity/CRLF correction cells
+ok TEST-020 - 16 NFC outcomes and uninstall collision checks
+ok TEST-021 - four layer-disposition rows are exhaustive
+JSON result: path-lineending-fixture-result/v1, 48 complete cells
+Full command-output SHA-256: ae1382c9bbb201bdb5e8be1116789a16f0a1de992f74ee2eed44469067ebf6b4

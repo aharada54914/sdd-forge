@@ -283,6 +283,16 @@ jobs:
         shell: pwsh
         run: ./tests/validate-live-host-proof.tests.ps1
 
+      # T-006 (REQ-004, AC-018..AC-021): both launchers exercise the complete
+      # 16-row path, EOL, and Unicode matrix on every existing OS row.
+      - name: Test path-lineending regression suite (bash)
+        shell: bash
+        run: bash ./tests/path-lineending-regression.tests.sh
+
+      - name: Test path-lineending regression suite (pwsh)
+        shell: pwsh
+        run: ./tests/path-lineending-regression.tests.ps1
+
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

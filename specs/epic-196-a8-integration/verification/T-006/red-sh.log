@@ -1,15 +1,49 @@
-Command: bash tests/path-lineending-regression.tests.sh
-Exit: 1
-Workflow state: RED (deliberately permissive harness)
-
-Cell failures:
-- rows 1-16: windows-path-separator rejected permissive oracle (16)
-- rows 1-16: crlf-lf-gitattributes-layer rejected permissive oracle (16)
-- rows 1-16: nfc-nfd-filename rejected permissive oracle (16)
-Layer-disposition failures:
-- windows-path-resolution rejected permissive disposition
-- crlf-lf-gitattributes rejected permissive disposition
-- generated-text-canonicalizer rejected permissive disposition
-- nfc-nfd-normalization rejected permissive disposition
-
-path-lineending-regression: 0 passed, 52 failed
+not ok - row 01 windows-path-separator: permissive harness violated oracle
+not ok - row 01 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 01 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 02 windows-path-separator: permissive harness violated oracle
+not ok - row 02 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 02 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 03 windows-path-separator: permissive harness violated oracle
+not ok - row 03 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 03 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 04 windows-path-separator: permissive harness violated oracle
+not ok - row 04 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 04 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 05 windows-path-separator: permissive harness violated oracle
+not ok - row 05 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 05 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 06 windows-path-separator: permissive harness violated oracle
+not ok - row 06 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 06 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 07 windows-path-separator: permissive harness violated oracle
+not ok - row 07 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 07 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 08 windows-path-separator: permissive harness violated oracle
+not ok - row 08 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 08 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 09 windows-path-separator: permissive harness violated oracle
+not ok - row 09 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 09 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 10 windows-path-separator: permissive harness violated oracle
+not ok - row 10 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 10 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 11 windows-path-separator: permissive harness violated oracle
+not ok - row 11 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 11 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 12 windows-path-separator: permissive harness violated oracle
+not ok - row 12 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 12 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 13 windows-path-separator: permissive harness violated oracle
+not ok - row 13 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 13 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 14 windows-path-separator: permissive harness violated oracle
+not ok - row 14 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 14 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 15 windows-path-separator: permissive harness violated oracle
+not ok - row 15 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 15 nfc-nfd-filename: permissive harness violated oracle
+not ok - row 16 windows-path-separator: permissive harness violated oracle
+not ok - row 16 crlf-lf-gitattributes-layer: permissive harness violated oracle
+not ok - row 16 nfc-nfd-filename: permissive harness violated oracle
+48 row x case cells: 0 passed, 48 failed
