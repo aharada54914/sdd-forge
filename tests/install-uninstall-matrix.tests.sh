@@ -4,8 +4,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-INSTALLER="${ROOT}/install.sh"
-UNINSTALLER="${ROOT}/uninstall.sh"
+INSTALLER="${T003_INSTALLER_OVERRIDE:-${ROOT}/install.sh}"
+UNINSTALLER="${T003_UNINSTALLER_OVERRIDE:-${ROOT}/uninstall.sh}"
 CHECKER="${ROOT}/plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.sh"
 SOURCE_FIXTURE_ROOT="${ROOT}/tests/fixtures/install-uninstall-matrix/source"
 

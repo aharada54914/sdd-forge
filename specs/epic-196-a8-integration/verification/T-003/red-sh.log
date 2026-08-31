@@ -1,0 +1,12 @@
+COMMAND: T003_INSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-installer.sh T003_UNINSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-uninstaller.sh bash tests/install-uninstall-matrix.tests.sh --target All
+EXIT: 1
+
+COMMAND: T003_INSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-installer.sh T003_UNINSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-uninstaller.sh bash tests/install-uninstall-matrix.tests.sh --target Codex
+EXIT: 1
+
+COMMAND: T003_INSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-installer.sh T003_UNINSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-uninstaller.sh bash tests/install-uninstall-matrix.tests.sh --target Claude
+EXIT: 1
+
+COMMAND: T003_INSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-installer.sh T003_UNINSTALLER_OVERRIDE=tests/fixtures/install-uninstall-matrix/permissive-uninstaller.sh bash tests/install-uninstall-matrix.tests.sh --target Copilot
+EXIT: 1
+

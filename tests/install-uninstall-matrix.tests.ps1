@@ -3,8 +3,8 @@ param([string]$Target)
 
 $ErrorActionPreference = "Stop"
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$installer = Join-Path $root "install.ps1"
-$uninstaller = Join-Path $root "uninstall.ps1"
+$installer = if ($env:T003_INSTALLER_OVERRIDE) { $env:T003_INSTALLER_OVERRIDE } else { Join-Path $root "install.ps1" }
+$uninstaller = if ($env:T003_UNINSTALLER_OVERRIDE) { $env:T003_UNINSTALLER_OVERRIDE } else { Join-Path $root "uninstall.ps1" }
 $checker = Join-Path $root "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.ps1"
 $fixtureRoot = $root
 

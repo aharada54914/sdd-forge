@@ -1,0 +1,235 @@
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+Removed installed files at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed.
+
+SDD plugins uninstalled.
+{
+  "schema": "install-uninstall-matrix-result/v1",
+  "target": "All",
+  "os": "macOS 26.5.2",
+  "install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed",
+  "resolved_repository_root": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196",
+  "resolved_install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed",
+  "phases": {
+    "install_1": {
+      "result": "PASS",
+      "registered": []
+    },
+    "verify_1": {
+      "result": "PASS"
+    },
+    "install_2_idempotency": {
+      "result": "PASS",
+      "diff_from_install_1": []
+    },
+    "uninstall": {
+      "result": "PASS"
+    },
+    "verify_residue": {
+      "result": "PASS",
+      "residual_paths": []
+    }
+  },
+  "drift_check": {
+    "diverged": [],
+    "install_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/8a42b3a9-194a-42b3-a64d-86717b5334f3/installed",
+    "mode": "verify",
+    "schema": "installed-plugin-drift-report/v1",
+    "state": "installed_synced"
+  }
+}
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed
+
+Registration summary:
+  Codex : registered
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed
+
+Registration summary:
+  Codex : registered
+Removed installed files at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed.
+
+SDD plugins uninstalled.
+{
+  "schema": "install-uninstall-matrix-result/v1",
+  "target": "Codex",
+  "os": "macOS 26.5.2",
+  "install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed",
+  "resolved_repository_root": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196",
+  "resolved_install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed",
+  "phases": {
+    "install_1": {
+      "result": "PASS",
+      "registered": []
+    },
+    "verify_1": {
+      "result": "PASS"
+    },
+    "install_2_idempotency": {
+      "result": "PASS",
+      "diff_from_install_1": []
+    },
+    "uninstall": {
+      "result": "PASS"
+    },
+    "verify_residue": {
+      "result": "PASS",
+      "residual_paths": []
+    }
+  },
+  "drift_check": {
+    "diverged": [],
+    "install_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/16449216-b949-46e9-a6aa-0b3069f960e6/installed",
+    "mode": "verify",
+    "schema": "installed-plugin-drift-report/v1",
+    "state": "installed_synced"
+  }
+}
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed
+
+Registration summary:
+  Claude: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+Removed installed files at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed.
+
+SDD plugins uninstalled.
+{
+  "schema": "install-uninstall-matrix-result/v1",
+  "target": "Claude",
+  "os": "macOS 26.5.2",
+  "install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed",
+  "resolved_repository_root": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196",
+  "resolved_install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed",
+  "phases": {
+    "install_1": {
+      "result": "PASS",
+      "registered": []
+    },
+    "verify_1": {
+      "result": "PASS"
+    },
+    "install_2_idempotency": {
+      "result": "PASS",
+      "diff_from_install_1": []
+    },
+    "uninstall": {
+      "result": "PASS"
+    },
+    "verify_residue": {
+      "result": "PASS",
+      "residual_paths": []
+    }
+  },
+  "drift_check": {
+    "diverged": [],
+    "install_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/7a4a9e19-44db-43cd-9f74-214f833ec471/installed",
+    "mode": "verify",
+    "schema": "installed-plugin-drift-report/v1",
+    "state": "installed_synced"
+  }
+}
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed
+
+Registration summary:
+  Copilot: registered
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Could not determine Node.js version. MCP server installation was skipped (plugin installation continues).
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed
+
+Registration summary:
+  Copilot: registered
+Removed installed files at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed.
+
+SDD plugins uninstalled.
+{
+  "schema": "install-uninstall-matrix-result/v1",
+  "target": "Copilot",
+  "os": "macOS 26.5.2",
+  "install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed",
+  "resolved_repository_root": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196",
+  "resolved_install_root": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed",
+  "phases": {
+    "install_1": {
+      "result": "PASS",
+      "registered": []
+    },
+    "verify_1": {
+      "result": "PASS"
+    },
+    "install_2_idempotency": {
+      "result": "PASS",
+      "diff_from_install_1": []
+    },
+    "uninstall": {
+      "result": "PASS"
+    },
+    "verify_residue": {
+      "result": "PASS",
+      "residual_paths": []
+    }
+  },
+  "drift_check": {
+    "diverged": [],
+    "install_root": "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/c24999d0-ae29-4f65-8c13-24d1dc08e846/installed",
+    "mode": "verify",
+    "schema": "installed-plugin-drift-report/v1",
+    "state": "installed_synced"
+  }
+}
+FilesOnly is out of matrix for REQ-002
+
+EXIT: 0
