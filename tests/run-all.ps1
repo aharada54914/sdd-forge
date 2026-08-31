@@ -80,7 +80,7 @@ $tests = @(
     'tests/lite-gate-summary-invalid.tests.ps1',
     'tests/lite-gate-full-upgrade-backstop.tests.ps1',
     'tests/lite-gate-summary-absent-active-enforcement.tests.ps1',
-    'tests/lite-gate-direct-edit-contract.tests.ps1'
+    'tests/lite-gate-direct-edit-contract.tests.ps1',
     'tests/capability-registry-schema.tests.ps1',
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',

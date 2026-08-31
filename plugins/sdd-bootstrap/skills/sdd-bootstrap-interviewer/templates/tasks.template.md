@@ -55,6 +55,8 @@ Breaking API: {{breaking_api}}
 - [ ] (high/critical) Independent review verdict recorded
 - [ ] (critical) Second approver recorded and evidence bundle signed
 
+If a Done When item depends on a case staying unchanged and a design clause can change that case from outside the task, name the design clause in the task plan so the contradiction is visible at review time.
+
 ### Out of Scope
 {{out_of_scope}}
 

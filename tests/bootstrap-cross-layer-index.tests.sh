@@ -37,7 +37,13 @@ assert_contains "$DESIGN" '^## Open Questions$' "TEST-007 retains open questions
 assert_contains "$DESIGN" '^## Risks$' "TEST-007 retains risks"
 assert_absent "$DESIGN" '^## (Frontend|Backend) Plan$' "TEST-007 removes legacy inline plan placeholders"
 
-assert_contains "$TRACEABILITY" 'Requirement.*Layer Spec.*Test ID.*Evidence' "TEST-008 Layer Spec traceability column"
+assert_contains "$TRACEABILITY" 'Requirement.*Layer Spec.*Test ID' "TEST-008 Layer Spec traceability column"
+trace_header=$(grep -m 1 '^| Requirement |' "$TRACEABILITY")
+if [ "$trace_header" = '| Requirement | Design | Layer Spec | Code Target | Test ID | Status |' ]; then
+  pass "TEST-008 canonical six-column traceability contract"
+else
+  fail "TEST-008 canonical six-column traceability contract"
+fi
 assert_contains "$TRACEABILITY" '^## Layer Coverage$' "TEST-008 layer coverage summary"
 assert_contains "$TRACEABILITY" 'ux-spec\.md#[a-z0-9-]+' "TEST-008 canonical UX anchor example"
 assert_contains "$TRACEABILITY" 'frontend-spec\.md#[a-z0-9-]+' "TEST-008 canonical frontend anchor example"
@@ -46,8 +52,15 @@ assert_contains "$TRACEABILITY" 'security-spec\.md#[a-z0-9-]+' "TEST-008 canonic
 assert_contains "$TRACEABILITY" 'N/A — cross-layer only: [^|]+' "TEST-008 reasoned cross-layer example"
 
 if awk -F '|' '
+  /^\| Requirement / {
+    for (i = 2; i < NF; i++) {
+      name = $i
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+      if (name == "Layer Spec") layer_spec = i
+    }
+  }
   /^\| REQ-/ {
-    value = $5
+    value = $layer_spec
     gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
     if (value == "" || value == "N/A") invalid = 1
   }
@@ -56,6 +69,48 @@ if awk -F '|' '
   fail "TEST-008 no blank or bare N/A Layer Spec examples"
 else
   pass "TEST-008 no blank or bare N/A Layer Spec examples"
+fi
+
+TMP_WORK=$(mktemp -d)
+trap 'rm -rf "$TMP_WORK"' EXIT
+cat > "$TMP_WORK/requirements.md" <<'EOF'
+# Requirements
+
+- REQ-001
+- REQ-002
+- REQ-003
+- REQ-004
+- REQ-005
+- REQ-006
+EOF
+cp "$TRACEABILITY" "$TMP_WORK/traceability.md"
+cat >> "$TMP_WORK/traceability.md" <<'EOF'
+
+## Investigation Notes
+
+| Requirement | Investigation | Notes |
+|---|---|---|
+| REQ-001 | INV-900 | this table must be ignored by the traceability validator |
+
+| Notes | Requirement | Layer Spec |
+|---|---|---|
+| supporting data | REQ-001 | not-a-layer-anchor |
+EOF
+if python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" "$TMP_WORK/traceability.md" "$TMP_WORK/requirements.md"; then
+  pass "TEST-008 traceability validator ignores requirement-keyed side tables"
+else
+  fail "TEST-008 traceability validator must ignore requirement-keyed side tables"
+fi
+
+if command -v pwsh >/dev/null 2>&1; then
+  if pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+      -Path "$TMP_WORK/traceability.md" -RequirementsPath "$TMP_WORK/requirements.md"; then
+    pass "TEST-008 PowerShell validator ignores requirement-keyed side tables"
+  else
+    fail "TEST-008 PowerShell validator must ignore requirement-keyed side tables"
+  fi
+else
+  printf 'SKIP: TEST-008 PowerShell validator parity (pwsh unavailable)\n'
 fi
 
 printf 'PASS: %s\n' "$PASS"
