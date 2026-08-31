@@ -157,7 +157,7 @@ diff --git a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md b/plugins/sdd
 diff --git a/tests/review-agent-isolation.tests.sh b/tests/review-agent-isolation.tests.sh
 --- a/tests/review-agent-isolation.tests.sh
 +++ b/tests/review-agent-isolation.tests.sh
-@@ -646,8 +646,42 @@
+@@ -646,8 +646,43 @@
  if command -v pwsh >/dev/null 2>&1; then
    run_pwsh "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
      fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
@@ -167,6 +167,7 @@ diff --git a/tests/review-agent-isolation.tests.sh b/tests/review-agent-isolatio
 +# by the implementation root. The same manifest drives both validators.
 +implementation_report="$wfi036_repository/reports/implementation/f/T-001.md"
 +printf '\n## Isolation Evidence\n\n- **Scratch Root**: /tmp/wfi034/implementation/task\n' >> "$implementation_report"
++make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
 +
 +wfi034_manifest() {
 +  local output=$1 scratch=$2

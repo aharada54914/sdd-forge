@@ -14,3 +14,13 @@ git apply specs/wfi-034-scratch-isolation/human-copy/WFI-034.patch
 The patch includes same/ancestor/descendant negative controls in
 `tests/review-agent-isolation.tests.sh`. After applying it, run that suite with
 Bash and PowerShell available, and only then mark WFI-034 fully applied.
+
+If `WFI-034.patch` was applied before the evaluator manifest hash-refresh fix,
+apply the one-time follow-up instead:
+
+```bash
+git apply --check specs/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
+git apply specs/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
+```
+
+Fresh applications need only the corrected `WFI-034.patch`.

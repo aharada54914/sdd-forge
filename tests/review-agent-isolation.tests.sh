@@ -648,6 +648,41 @@ if command -v pwsh >/dev/null 2>&1; then
     fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
 fi
 
+# WFI-034: the evaluator scratch root must not equal, contain, or be contained
+# by the implementation root. The same manifest drives both validators.
+implementation_report="$wfi036_repository/reports/implementation/f/T-001.md"
+printf '\n## Isolation Evidence\n\n- **Scratch Root**: /tmp/wfi034/implementation/task\n' >> "$implementation_report"
+make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
+
+wfi034_manifest() {
+  local output=$1 scratch=$2
+  jq --arg scratch "$scratch" '.scratch_root = $scratch' "$wfi036_evaluator" > "$output"
+}
+
+wfi034_manifest "$tmp/wfi034-distinct.json" /tmp/wfi034/evaluator
+run_bash "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-034: Bash rejected distinct evaluator and implementation roots'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-034: PowerShell rejected distinct evaluator and implementation roots'
+fi
+
+for case_name in equal ancestor descendant; do
+  case "$case_name" in
+    equal) scratch=/tmp/wfi034/implementation/task ;;
+    ancestor) scratch=/tmp/wfi034/implementation ;;
+    descendant) scratch=/tmp/wfi034/implementation/task/child ;;
+  esac
+  wfi034_manifest "$tmp/wfi034-$case_name.json" "$scratch"
+  assert_rejected_both "wfi034-$case_name-root" \
+    "$tmp/wfi034-$case_name.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+done
+
+jq --arg scratch /tmp/wfi034/evaluator '.scratch_root = $scratch' \
+  "$tmp/wfi036-spec-base.json" > "$tmp/wfi034-spec-stage.json"
+assert_rejected_both wfi034-scratch-root-on-a-reviewer-stage \
+  "$tmp/wfi034-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
+
 # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
 # Files introduced after that commit must be deleted, and all surviving files
 # must be byte-identical to the archived baseline.
