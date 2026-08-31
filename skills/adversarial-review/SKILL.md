@@ -78,6 +78,53 @@ protocol's effectiveness.
   reason, so the same false alarm is not re-raised later
 - Skipping Phase R because "the fixes were straightforward"
 
+## Evaluation record (ADR-0027 risk-adaptive lane)
+
+When invoked as the ADR-0027 pre-PR lane (i.e. the firing predicate is
+satisfied), the orchestrator produces an `evaluation.json` alongside `report.md`
+in `reports/adversarial-review/<branch-slug>/`. Non-triggering invocations
+produce no `evaluation.json`.
+
+`evaluation.json` must conform to
+`contracts/adversarial-review-evaluation.v1.schema.json`. Fill all required
+fields at the end of Phase 3 (synthesis). Update `phase_r.*` after Phase R
+completes.
+
+Use full 40-character commit IDs. Compute the target digest without external
+diff drivers so the identity is reproducible across hosts:
+
+```bash
+git diff --binary --no-ext-diff "$merge_base_sha".."$head_sha" | sha256sum
+```
+
+**Minimum required fields at synthesis time:**
+
+```json
+{
+  "schema_version": "adversarial-review-evaluation.v1",
+  "branch_slug": "<branch-slug>",
+  "created_at": "<ISO-8601 UTC>",
+  "report_path": "reports/adversarial-review/<branch-slug>/report.md",
+  "trigger_reasons": ["workflow_surface"],
+  "reviewer_launch_count": 2,
+  "continuation_status": { "reviewer_a": "resumed", "reviewer_b": "resumed" },
+  "finding_counts": { "phase1_total": 0, "cross_critique_new": 0 },
+  "basis_counts": { "code_evidence": 0, "spec_evidence": 0, "concern": 0 },
+  "scope_counts": { "in_scope": 0, "out_of_scope": 0, "unclear": 0 },
+  "phase_r": { "ran": false, "not_ran_reason": "fixes not yet landed" }
+}
+```
+
+Update `phase_r` to `"ran": true` with counts when Phase R completes.
+
+## Contracts and schemas
+
+| Schema | Purpose |
+|--------|---------|
+| `contracts/cross-critique.v1.schema.json` | cross-critique.json annex (issues #347, #348) |
+| `contracts/adversarial-review-report.v1.schema.json` | Report metadata block (issue #349) |
+| `contracts/adversarial-review-evaluation.v1.schema.json` | evaluation.json run metrics (issue #350) |
+
 ## Real-world impact
 
 Proving run (torque-system-manager, 2026-07-07, PR #7): cross-critique and
@@ -88,3 +135,5 @@ lock-site count inside a fix text, and re-calibrated four of five initial
 High/Medium severities — offsetting single-review severity inflation. External
 benchmark (2026): adversarial panels find roughly 20% more bugs than a single
 review.
+
+Usage history: [reports/adversarial-review/](../../../reports/adversarial-review/)

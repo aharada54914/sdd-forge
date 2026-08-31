@@ -1,0 +1,68 @@
+{
+  "schema_version": "adversarial-review-evaluation.v1",
+  "branch_slug": "feat-adversarial-review-enhancements",
+  "created_at": "2026-08-29T13:18:00Z",
+  "report_path": "reports/adversarial-review/feat-adversarial-review-enhancements/report.md",
+  "trigger_reasons": ["workflow_surface"],
+  "reviewer_launch_count": 2,
+  "continuation_status": {
+    "reviewer_a": "fresh_fallback",
+    "reviewer_b": "fresh_fallback"
+  },
+  "finding_counts": {
+    "phase1_total": 5,
+    "cross_critique_new": 0,
+    "by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 2,
+      "low": 3
+    },
+    "adopted": 5,
+    "rejected": 0
+  },
+  "basis_counts": {
+    "code_evidence": 5,
+    "spec_evidence": 1,
+    "concern": 0,
+    "propose_reject_accepted": 0,
+    "propose_reject_overridden": 0
+  },
+  "scope_counts": {
+    "in_scope": 5,
+    "out_of_scope": 0,
+    "unclear": 0
+  },
+  "human_dispositions": [
+    {
+      "finding_id": "A-1",
+      "disposition": "adopted",
+      "note": "if/then constraint strengthened with required:[basis] and explicit citations minItems:1 at the then level. Full oneOf restructuring deferred to schema v2."
+    },
+    {
+      "finding_id": "B-1",
+      "disposition": "adopted",
+      "note": "N placeholders replaced with 0 in SKILL.md JSON example."
+    },
+    {
+      "finding_id": "B-2",
+      "disposition": "adopted",
+      "note": "minLength:4 added to both reviewer_run_ids properties."
+    },
+    {
+      "finding_id": "A-2",
+      "disposition": "adopted",
+      "note": "Added §4.3 Cost Analysis section reference to arXiv paper citation."
+    },
+    {
+      "finding_id": "A+B-1",
+      "disposition": "scope_deferred",
+      "note": "examples array addition deferred to follow-up; schema functionality is not affected."
+    }
+  ],
+  "phase_r": {
+    "ran": false,
+    "not_ran_reason": "Pre-merge self-review; Phase R will run after PR merges and fixes land in main."
+  },
+  "notes": "Run-003: first self-hosted AR run in sdd-forge on a PR that modifies the AR skill itself (workflow_surface trigger). Both reviewers ran as fresh_fallback contexts (no identity ledger integration for standalone skill invocations). Trigger reason: diff touches skills/adversarial-review/ (workflow_surface per ADR-0027 §2)."
+}

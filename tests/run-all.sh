@@ -7,6 +7,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$ROOT"
 
 tests=(
+  tests/ci-suite-wiring.tests.sh
+  tests/adversarial-review-contracts.tests.sh
   tests/install.tests.sh
   tests/installer-idempotency.tests.sh
   tests/uninstall.tests.sh

@@ -141,6 +141,10 @@ Bullet list of areas checked and clean.
 Send to Reviewer A with `{{SELF}}` = A and `{{OTHER_REPORT}}` = Reviewer B's
 full Phase 1 report; mirror for Reviewer B.
 
+The `{{SCOPE_CONTEXT}}` placeholder is optional; fill it with the feature's
+approved requirements / acceptance-test IDs / task IDs when available so the
+reviewer can make a grounded scope judgement.
+
 ```
 CROSS-CRITIQUE — one round; your response here is final.
 
@@ -149,17 +153,31 @@ re-read the cited code before ruling on each finding. You may read any file in
 the repository; you still must not modify anything and must not spawn
 subagents.
 
+SCOPE CONTEXT (for scope assessments — leave "none" if not provided)
+{{SCOPE_CONTEXT}}
+
 For EVERY finding of theirs, output one block:
 ### Verdict on <ID>: <their title>
 - Verdict: SUPPORT | PROPOSE-SEVERITY-CHANGE (to <severity>) | PROPOSE-REJECT
   | SUPPLEMENT
-- Evidence: file:line(s) supporting your verdict.
-  - PROPOSE-REJECT: show why the failure scenario cannot occur in this
-    codebase (validated earlier at line X, no production call site, etc.).
-  - PROPOSE-SEVERITY-CHANGE: argue from the concrete harm path in this
-    codebase's context, not from taste or a generic checklist.
-  - SUPPLEMENT: the additional surface or consequence they understated.
-  - "Plausible but I could not verify it" is NOT SUPPORT — say exactly that.
+- Basis:
+  - kind: code_evidence | spec_evidence | concern
+  - citations: (required for code_evidence and spec_evidence)
+    - path: <file>, line_start: <n>, line_end: <n>, claim: <what this proves>
+  NOTE: PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE REQUIRE code_evidence or
+  spec_evidence. A concern alone is not sufficient to propose rejection or a
+  severity change — it is recorded as a concern and the finding author must
+  respond. "Plausible but I could not verify it" is NOT SUPPORT and NOT a
+  basis for PROPOSE-REJECT; record it as kind: concern.
+- Scope:
+  - assessment: in_scope | out_of_scope | unclear
+  - related_requirements: [REQ-*] (at least one required when in_scope)
+  - related_acceptance_tests: [AC-*]
+  - related_tasks: [T-*]
+  - evidence: <file:line or ID supporting the scope assessment>
+  NOTE: out_of_scope findings must NOT be converted into implementation
+  directives. unclear findings require a human decision before any fix is
+  requested.
 - Fix critique: if the finding stands but the proposed fix is wrong,
   disproportionate, or over-engineered for this codebase, say so and give the
   minimal alternative.
@@ -168,6 +186,7 @@ Then:
 ## Missed findings
 Real issues neither report contains, prompted by reading theirs. Use the full
 Phase 1 finding format with IDs {{SELF}}-C1, {{SELF}}-C2, …
+Each missed finding must also include a Scope block.
 
 ## Self-revision
 Restate your own findings list applying what this critique taught you: mark
