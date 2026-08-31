@@ -1425,6 +1425,18 @@ if command -v python3 >/dev/null 2>&1; then
     else
         fail "py: Second Approval edit should be denied (code=$PY_CODE)"
     fi
+
+    # Test 8 (REGRESSION): bash command writing ONLY Second Approval must be
+    # classified as the Second-Approval message class (never-sudo-bypassable),
+    # not the plain-Approval message class (sudo-bypassable). A raw APPROVAL_RE
+    # substring match previously misclassified this (issue: Second Approval
+    # bash writes reported the wrong permissionDecisionReason under --emit copilot).
+    PY_COPILOT_OUT="$(printf '%s' "$SECOND_BASH_DENY" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit copilot 2>/dev/null || true)"
+    if [[ "$PY_COPILOT_OUT" == *"第二承認"* ]]; then
+        ok "py: bash Second-Approval-only write -> Second-Approval message class"
+    else
+        fail "py: bash Second-Approval-only write should report Second-Approval message class (got: $PY_COPILOT_OUT)"
+    fi
 fi
 
 # Node tests for Second Approval (mirror the key cases)

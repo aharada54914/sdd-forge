@@ -544,7 +544,10 @@ def approval_increases(payload):
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
-        if "tasks.md" in cmd.lower() and APPROVAL_RE.search(cmd):
+        # Use count() (subtracts Second Approval occurrences) rather than a raw
+        # APPROVAL_RE match, so a Second-Approval-only write isn't misclassified
+        # as a primary Approval increase (matches the Node.js semantics).
+        if "tasks.md" in cmd.lower() and count(cmd) > 0:
             return True
         return False
 

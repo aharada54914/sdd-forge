@@ -752,6 +752,14 @@ Approval: Draft
     $r = Invoke-GuardPs $secondShell
     Assert "ps: shell appends Second Approval to tasks.md -> deny (exit 2)" ($r.Code -eq 2)
 
+    # REGRESSION: a shell write of ONLY Second Approval must be classified as the
+    # Second-Approval message class (never-sudo-bypassable), not the plain-Approval
+    # message class (sudo-bypassable). A raw regex substring match previously
+    # misclassified this because "Second Approval: Approved" also matches
+    # "Approval:\s*Approved".
+    $r = Invoke-GuardPs $secondShell "copilot"
+    Assert "ps: shell Second-Approval-only write -> Second-Approval message class" ($r.Out -like "*第二承認*")
+
     $node = Get-Command node -ErrorAction SilentlyContinue
     if ($node) {
         $r = Invoke-GuardNode $wfiApprove

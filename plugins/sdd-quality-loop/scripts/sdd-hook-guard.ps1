@@ -1737,7 +1737,10 @@ function Test-ApprovalIncreases {
     # Codex Bash/shell: conservative heuristic.
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
         # Case-insensitive tasks.md check (intentional: matches JS/py behavior).
-        if ($command.ToLower().Contains("tasks.md") -and [regex]::IsMatch($command, "Approval:\s*Approved")) {
+        # Use Get-Count (subtracts Second Approval occurrences) rather than a raw
+        # regex match, so a Second-Approval-only write isn't misclassified as a
+        # primary Approval increase (matches the Node.js semantics).
+        if ($command.ToLower().Contains("tasks.md") -and (Get-Count $command) -gt 0) {
             return $true
         }
         return $false
