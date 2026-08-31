@@ -45,7 +45,7 @@ def main() -> int:
 
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if not in_traceability_table:
-            if "Requirement" in cells and "Layer Spec" in cells:
+            if cells and cells[0] == "Requirement" and "Layer Spec" in cells:
                 in_traceability_table = True
                 layer_spec_index = cells.index("Layer Spec")
             continue

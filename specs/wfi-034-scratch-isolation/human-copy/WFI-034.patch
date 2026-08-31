@@ -1,0 +1,202 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -53,4 +53,22 @@ is_canonical_path() {
+     [[ ! "$path" =~ ^[A-Za-z]: ]]
+ }
+ 
++is_canonical_scratch_root() {
++  local path=$1
++  [[ "$path" != *\\* ]] &&
++    [[ "$path" != */ ]] &&
++    [[ ! "$path" =~ (^|/)\.\.?(/|$) ]] &&
++    { [[ "$path" =~ ^/([^/]+/)*[^/]+$ ]] ||
++      [[ "$path" =~ ^[A-Za-z]:/([^/]+/)*[^/]+$ ]]; }
++}
++
++scratch_roots_overlap() {
++  local left=$1 right=$2
++  if [[ "$left" =~ ^[A-Za-z]:/ && "$right" =~ ^[A-Za-z]:/ ]]; then
++    left=$(printf '%s' "$left" | tr '[:upper:]' '[:lower:]')
++    right=$(printf '%s' "$right" | tr '[:upper:]' '[:lower:]')
++  fi
++  [[ "$left" == "$right" || "$left" == "$right/"* || "$right" == "$left/"* ]]
++}
++
+ is_forbidden_review_output() {
+@@ -226,6 +245,7 @@ jq -e '
+   (
+     (.stage == "quality" and
+-      (((keys | sort) == ((base_keys + ["task_id"]) | sort)) or
+-        ((keys | sort) ==
+-          ((base_keys + ["task_id", "gate_report_declaration"]) | sort))) and
++      ((keys | sort) ==
++        ((base_keys + ["task_id"] +
++          (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
++          (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
+       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
+@@ -240,3 +260,10 @@ jq -e '
+           (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+-      else true end)) or
++      else true end) and
++      (if has("scratch_root") then
++        (.scratch_root |
++          type == "string" and
++          (test("^/([^/]+/)*[^/]+$") or test("^[A-Za-z]:/([^/]+/)*[^/]+$")) and
++          (contains("\\") | not) and
++          (test("(^|/)\\.\\.?(/|$)") | not))
++      else true end)) or
+     (.stage != "quality" and ((keys | sort) == (base_keys | sort)))
+@@ -275,2 +302,6 @@ task_id=''
+ [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
++scratch_root=''
++if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
++  scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
++fi
+ # WFI-036. Optional, quality-only, and inert unless present: the contract check
+@@ -440,3 +471,14 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
+     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
++  if [[ -n "$scratch_root" ]]; then
++    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .+$' "$repository_root/$implementation_report_path" || true)
++    [[ "$implementation_scratch_count" -eq 1 ]] ||
++      fail PATH 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
++    implementation_scratch_root=$(sed -n 's/^- \*\*Scratch Root\*\*: //p' "$repository_root/$implementation_report_path")
++    is_canonical_scratch_root "$implementation_scratch_root" ||
++      fail PATH 'implementation Scratch Root is not a canonical absolute path'
++    if scratch_roots_overlap "$scratch_root" "$implementation_scratch_root"; then
++      fail PATH 'evaluator scratch root overlaps the implementation scratch root'
++    fi
++  fi
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -34,4 +34,24 @@ function Test-CanonicalPath {
+     )
+ }
+ 
++function Test-CanonicalScratchRoot {
++    param([string]$Path)
++    return ($Path -is [string] -and
++        ($Path -cmatch '^/([^/]+/)*[^/]+$' -or $Path -cmatch '^[A-Za-z]:/([^/]+/)*[^/]+$') -and
++        $Path -cnotmatch '(^|/)\.\.?(/|$)' -and -not $Path.Contains('\') -and
++        -not $Path.EndsWith('/'))
++}
++
++function Test-ScratchRootsOverlap {
++    param([string]$Left, [string]$Right)
++    $comparison = if ($Left -cmatch '^[A-Za-z]:/' -and $Right -cmatch '^[A-Za-z]:/') {
++        [StringComparison]::OrdinalIgnoreCase
++    } else {
++        [StringComparison]::Ordinal
++    }
++    return ($Left.Equals($Right, $comparison) -or
++        $Left.StartsWith("$Right/", $comparison) -or
++        $Right.StartsWith("$Left/", $comparison))
++}
++
+ function Test-JsonInteger {
+@@ -194,4 +216,7 @@ try {
+         if ($document.ContainsKey('gate_report_declaration')) {
+             $topKeys = @($topKeys) + @('gate_report_declaration')
+         }
++        if ($document.ContainsKey('scratch_root')) {
++            $topKeys = @($topKeys) + @('scratch_root')
++        }
+     }
+@@ -214,3 +239,6 @@ try {
+         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+     }
++    if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
++        Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
++    }
+     $gateReportDeclarationPath = ''
+@@ -407,3 +436,16 @@ try {
+             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
+         }
++        if ($document.ContainsKey('scratch_root')) {
++            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .+$' })
++            if ($scratchRootLines.Count -ne 1) {
++                Fail-ReviewContext 'PATH' 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
++            }
++            $implementationScratchRoot = $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
++            if (-not (Test-CanonicalScratchRoot $implementationScratchRoot)) {
++                Fail-ReviewContext 'PATH' 'implementation Scratch Root is not a canonical absolute path'
++            }
++            if (Test-ScratchRootsOverlap $document.scratch_root $implementationScratchRoot) {
++                Fail-ReviewContext 'PATH' 'evaluator scratch root overlaps the implementation scratch root'
++            }
++        }
+         $inOutputs = $false
+
+diff --git a/plugins/sdd-implementation/templates/implementation-report.template.md b/plugins/sdd-implementation/templates/implementation-report.template.md
+--- a/plugins/sdd-implementation/templates/implementation-report.template.md
++++ b/plugins/sdd-implementation/templates/implementation-report.template.md
+@@ -66,3 +66,4 @@ as output paths.
+ ## Isolation Evidence
+ 
++- **Scratch Root**: {{scratch_root}}
+ - **Run ID**: {{run_id}}
+
+diff --git a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+--- a/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
++++ b/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+@@ -205,5 +205,9 @@ implementation identity and every earlier reviewer/evaluator
+    No same-session fallback is permitted for the evaluator.
+    Allocate the evaluator a scratch directory of its own and name it in the
+-   launch brief: a path used by no implementation context for this feature and
++   launch brief and the invocation record's optional `scratch_root` field: a
++   canonical absolute path used by no implementation context for this feature and
+    by no earlier evaluator run. Tell the evaluator to write nothing outside it.
++   When `scratch_root` is present, the deterministic reservation boundary
++   compares it with the current implementation report's `Scratch Root` and
++   rejects equal or ancestor/descendant paths before launch.
+    This is not housekeeping (WFI-034). Sharing one scratch root across roles
+
+diff --git a/tests/review-agent-isolation.tests.sh b/tests/review-agent-isolation.tests.sh
+--- a/tests/review-agent-isolation.tests.sh
++++ b/tests/review-agent-isolation.tests.sh
+@@ -646,8 +646,42 @@
+ if command -v pwsh >/dev/null 2>&1; then
+   run_pwsh "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+     fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
++fi
++
++# WFI-034: the evaluator scratch root must not equal, contain, or be contained
++# by the implementation root. The same manifest drives both validators.
++implementation_report="$wfi036_repository/reports/implementation/f/T-001.md"
++printf '\n## Isolation Evidence\n\n- **Scratch Root**: /tmp/wfi034/implementation/task\n' >> "$implementation_report"
++
++wfi034_manifest() {
++  local output=$1 scratch=$2
++  jq --arg scratch "$scratch" '.scratch_root = $scratch' "$wfi036_evaluator" > "$output"
++}
++
++wfi034_manifest "$tmp/wfi034-distinct.json" /tmp/wfi034/evaluator
++run_bash "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
++  fail 'WFI-034: Bash rejected distinct evaluator and implementation roots'
++if command -v pwsh >/dev/null 2>&1; then
++  run_pwsh "$tmp/wfi034-distinct.json" "$wfi036_repository" >/dev/null ||
++    fail 'WFI-034: PowerShell rejected distinct evaluator and implementation roots'
+ fi
+ 
++for case_name in equal ancestor descendant; do
++  case "$case_name" in
++    equal) scratch=/tmp/wfi034/implementation/task ;;
++    ancestor) scratch=/tmp/wfi034/implementation ;;
++    descendant) scratch=/tmp/wfi034/implementation/task/child ;;
++  esac
++  wfi034_manifest "$tmp/wfi034-$case_name.json" "$scratch"
++  assert_rejected_both "wfi034-$case_name-root" \
++    "$tmp/wfi034-$case_name.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
++done
++
++jq --arg scratch /tmp/wfi034/evaluator '.scratch_root = $scratch' \
++  "$tmp/wfi036-spec-base.json" > "$tmp/wfi034-spec-stage.json"
++assert_rejected_both wfi034-scratch-root-on-a-reviewer-stage \
++  "$tmp/wfi034-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
++
+ # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
+ # Files introduced after that commit must be deleted, and all surviving files
+ # must be byte-identical to the archived baseline.

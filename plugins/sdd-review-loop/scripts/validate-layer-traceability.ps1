@@ -19,12 +19,32 @@ if ($requiredIds.Count -eq 0) { throw 'no requirement ids found in requirements.
 $anchorPattern = '^(?:(?:ux|frontend|infra|security)-spec\.md#[a-z0-9][a-z0-9-]*)(?:\s*;\s*(?:ux|frontend|infra|security)-spec\.md#[a-z0-9][a-z0-9-]*)*$'
 $exclusionPattern = '^N/A — cross-layer only:\s*\S.*$'
 $tracedIds = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-foreach ($line in Get-Content -LiteralPath $Path) {
+$inTraceabilityTable = $false
+$layerSpecIndex = -1
+foreach ($rawLine in Get-Content -LiteralPath $Path) {
+    $line = $rawLine.TrimEnd()
+    if ($line.StartsWith('## ', [StringComparison]::Ordinal) -or [string]::IsNullOrWhiteSpace($line)) {
+        $inTraceabilityTable = $false
+        $layerSpecIndex = -1
+        continue
+    }
+    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) { continue }
+
     $cells = @($line.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
-    if ($cells.Count -gt 0 -and $cells[0] -match '^REQ-\d{3}$') {
+    if (-not $inTraceabilityTable) {
+        $requirementIndex = [Array]::IndexOf($cells, 'Requirement')
+        $candidateLayerSpecIndex = [Array]::IndexOf($cells, 'Layer Spec')
+        if ($requirementIndex -eq 0 -and $candidateLayerSpecIndex -ge 0) {
+            $inTraceabilityTable = $true
+            $layerSpecIndex = $candidateLayerSpecIndex
+        }
+        continue
+    }
+
+    if ($cells.Count -gt 0 -and $cells[0] -cmatch '^REQ-\d{3}$') {
         [void]$tracedIds.Add($cells[0])
-        $value = if ($cells.Count -gt 2) { $cells[2] } else { '' }
-        if ($value -notmatch $anchorPattern -and $value -notmatch $exclusionPattern) {
+        $value = if ($cells.Count -gt $layerSpecIndex) { $cells[$layerSpecIndex] } else { '' }
+        if ($value -cnotmatch $anchorPattern -and $value -cnotmatch $exclusionPattern) {
             throw "invalid Layer Spec for $($cells[0]): $value"
         }
     }
