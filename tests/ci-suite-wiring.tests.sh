@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 WORKFLOW="$ROOT/.github/workflows/test.yml"
+RUN_ALL="$ROOT/tests/run-all.sh"
 
 # CI must consume the canonical inventory through its missing-suite runner;
 # otherwise a newly registered suite silently remains local-only.
@@ -12,17 +13,22 @@ if [[ "$count" != "1" ]]; then
   exit 1
 fi
 
-unwired="$($ROOT/tests/run-ci-unwired.sh --list)"
-for required in \
-  tests/workflow-state-registry.tests.sh \
-  tests/facet-manifest-schema.tests.sh \
-  tests/guard-negative-corpus.tests.sh \
-  tests/guard-cwd-bypass.tests.sh; do
-  if ! grep -qxF "$required" <<<"$unwired"; then
-    printf 'FAIL: expected fallback inventory to contain %s\n' "$required" >&2
-    exit 1
-  fi
-done
+expected="$(
+  sed -n '/^tests=(/,/^)/p' "$RUN_ALL" |
+    sed -n 's/^[[:space:]]*\(tests\/[^[:space:]]*\.tests\.sh\)[[:space:]]*$/\1/p' |
+    while IFS= read -r suite; do
+      if ! grep -qF -- "$suite" "$WORKFLOW"; then
+        printf '%s\n' "$suite"
+      fi
+    done | sort
+)"
+unwired="$($ROOT/tests/run-ci-unwired.sh --list | sort)"
+if [[ "$unwired" != "$expected" ]]; then
+  printf 'FAIL: run-ci-unwired.sh inventory drifted from the canonical run-all/workflow diff\n' >&2
+  printf 'expected:\n%s\n' "$expected" >&2
+  printf 'actual:\n%s\n' "$unwired" >&2
+  exit 1
+fi
 
 if ! grep -qE '^  posix-regression:' "$WORKFLOW"; then
   printf 'FAIL: canonical POSIX inventory must run in its own job\n' >&2
