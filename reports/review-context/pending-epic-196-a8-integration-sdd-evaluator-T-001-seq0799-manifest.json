@@ -1,0 +1,29 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-196-a8-integration",
+  "task_id": "T-001",
+  "run_id": "RUN-epic-196-a8-integration-qg-T-001-seq0799",
+  "host_session_id": "SESS-qg-epic-196-a8-integration-T-001-0799",
+  "sequence": 901,
+  "previous_record_sha256": "02ffb657a81a37143b6b4205409f852c81e0c86edc266ae4e72c1fe2ea4ed3aa",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "4adccc36b4257280c831cb077d52343629b6c2cb17a094c27a1ec49bb2e9ca3b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-quality-loop/references/quality-gate-calibration.md","sha256":"fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"},
+    {"path":"specs/epic-196-a8-integration/requirements.md","sha256":"f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path":"specs/epic-196-a8-integration/design.md","sha256":"c69ec42ed738a1bb091453920b890459f236a60e5673527338d183e94bab78d4"},
+    {"path":"specs/epic-196-a8-integration/acceptance-tests.md","sha256":"4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path":"specs/epic-196-a8-integration/tasks.md","sha256":"3da1c98a27d04dd26a6a81056b3c020d43c0bbdebeec85436a885f0fe29c2540"},
+    {"path":"specs/epic-196-a8-integration/traceability.md","sha256":"6e30ac9907c28455b2169e6d32e77d1f01855cbaf4a91a4c272e49ee627d3749"},
+    {"path":"specs/epic-196-a8-integration/ux-spec.md","sha256":"c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path":"specs/epic-196-a8-integration/frontend-spec.md","sha256":"c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path":"specs/epic-196-a8-integration/infra-spec.md","sha256":"59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path":"specs/epic-196-a8-integration/security-spec.md","sha256":"45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path":"reports/implementation/epic-196-a8-integration/T-001.md","sha256":"e1b34a1a923b4ad8360259a94355093a50950ee05aed7f340e91e909082ad117"}
+  ]
+}

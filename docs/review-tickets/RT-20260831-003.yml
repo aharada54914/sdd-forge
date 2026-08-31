@@ -1,0 +1,27 @@
+ticket_id: RT-20260831-003
+status: open
+type: process-violation
+severity: major
+target:
+  feature: "epic-196-a8-integration"
+  task: "T-001"
+  files:
+    - "reports/implementation/epic-196-a8-integration/T-001.md"
+summary: >-
+  The implementation report cannot authorize an isolated evaluator manifest
+problem: |
+  The report heading is not the exact '# Implementation Report: T-001' form
+  required by validate-review-context-set. It also lacks Run ID, Task Attempt
+  Count, and a canonical Outputs/path/hash table. The reservation precheck
+  therefore failed before changing the identity ledger, and the evaluator was
+  correctly not launched. Because implementation reports are frozen evidence,
+  this cannot be silently repaired during the quality gate.
+expected_fix:
+  - "Use the sanctioned evidence/addendum or re-implementation route to produce a canonical T-001 report identity and complete Outputs hash declaration without rewriting frozen evidence improperly."
+  - "Build a fresh review-context-invocation/v2 manifest from that canonical report, reserve a distinct evaluator identity, and rerun the quality gate."
+references:
+  - "reports/review-context/pending-epic-196-a8-integration-sdd-evaluator-T-001-seq0799-manifest.json"
+  - "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

@@ -1,0 +1,24 @@
+ticket_id: RT-20260831-004
+status: open
+type: provenance-drift
+severity: major
+target:
+  feature: "epic-196-a8-integration"
+  task: "T-001"
+  files:
+    - "specs/epic-196-a8-integration/reviews/spec-review"
+summary: >-
+  The canonical workflow-state gate reports a stale spec-review manifest hash
+problem: |
+  check-workflow-state.sh exits 1 and reports that epic-196-a8-integration's
+  spec reviewer manifest input hash is stale. A quality gate cannot declare
+  Done while the persisted workflow provenance is invalid.
+expected_fix:
+  - "Reconcile the stale spec-review input hash through the governing review/provenance workflow."
+  - "Rerun check-workflow-state.sh and require exit 0 before re-gating T-001."
+references:
+  - "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log"
+  - "reports/quality-gate/20260831T003856Z-epic-196-a8-integration-T-001.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

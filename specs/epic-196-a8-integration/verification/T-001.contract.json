@@ -1,0 +1,27 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-196-a8-integration",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "898e6dbc867d01a1795d86fe10ec9cd5e01f2bc01a53b704b63d67a45d8989ed",
+  "created": "2026-08-31T00:14:46Z",
+  "comment": "Default-FAIL verification contract for T-001. Every check began with passes=false. Compile-oriented checks are non-applicable because the task changes shell/PowerShell test infrastructure, fixture data, and registration files rather than a compiled application stack. Medium-tier unit, acceptance, regression, placeholder, and task-state checks remain mandatory.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "No configured linter applies to this shell/PowerShell fixture-test stack; syntax and behavior are exercised by the focused runtime suites.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No static typechecker is configured for the shell/PowerShell fixture-test stack.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "The behavior-focused cross-runtime handoff suite is recorded under the mandatory acceptance-tests check; no separate integration command exists.", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "regression", "required": true, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No compiled build artifact exists for this shell/PowerShell fixture-test stack.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": false, "passes": false, "evidence": "", "waiver_reason": "Machine-readable traceability is not tier-mandatory for medium risk; the scripted traceability gate is still executed and reported.", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "check-component-coverage", "required": false, "passes": false, "evidence": "", "waiver_reason": "Reverse component coverage is not tier-mandatory for medium risk; the scripted gate is still executed and reported.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "This task ships a deterministic test driver rather than a startable application; direct execution of both runtime twins is the smoke surface.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "The approved task is a net-new feature, not a refactor or bugfix, and has no baseline-behavior.md.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user-facing UI is changed by T-001.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system directory or UI-layer files are in T-001 scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

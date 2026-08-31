@@ -1,0 +1,33 @@
+ticket_id: RT-20260831-001
+status: open
+type: implementation-defect
+severity: critical
+target:
+  feature: "epic-196-a8-integration"
+  task: "T-001"
+  files:
+    - "tests/cross-runtime-handoff.tests.sh"
+    - "tests/cross-runtime-handoff.tests.ps1"
+summary: >-
+  The handoff suites manufacture producer mutations and consumer observables
+  locally instead of driving the three confirmed headless CLI runtimes
+problem: |
+  The approved Goal and Scope require the producing runtime to mutate each
+  fixture and the consuming runtime to emit its own observable, automated when
+  the headless contract is confirmed. Both suites confirm all three contracts,
+  but the Bash twin uses sed/printf and the PowerShell twin uses string
+  replacement/WriteAllText to generate every mutation and observable. Neither
+  invokes claude, codex, or copilot. Consequently TEST-002/003/004 can report
+  PASS without any runtime handoff occurring. This is completion-faking under
+  the quality-gate rubric, not merely missing coverage.
+expected_fix:
+  - "Drive each confirmed headless CLI through its real non-interactive command and capture the producer mutation and consumer observable from that invocation."
+  - "Retain deterministic oracles and counterfactual checks, but make them validate runtime-produced evidence rather than generate the claimed evidence themselves."
+  - "Add a negative fixture proving a locally manufactured observable cannot satisfy TEST-002, TEST-003, or TEST-004."
+references:
+  - "specs/epic-196-a8-integration/tasks.md#T-001"
+  - "specs/epic-196-a8-integration/requirements.md#REQ-001"
+  - "reports/quality-gate/20260831T003856Z-epic-196-a8-integration-T-001.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

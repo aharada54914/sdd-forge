@@ -1,0 +1,27 @@
+ticket_id: RT-20260831-005
+status: open
+type: traceability-gap
+severity: major
+target:
+  feature: "epic-196-a8-integration"
+  task: "T-001"
+  files:
+    - "specs/epic-196-a8-integration/traceability.md"
+    - "specs/epic-196-a8-integration/traceability.json"
+summary: >-
+  Machine-readable traceability is absent and the frozen matrix remains Planned
+problem: |
+  check-traceability.sh exits 1 because traceability.json does not exist. The
+  existing traceability.md still marks REQ-001 and T-001 Planned, so gate-time
+  traceability is not current. Medium risk makes the JSON check optional in the
+  tier minimum, but the Done Decision independently requires current
+  traceability.
+expected_fix:
+  - "Record T-001's gate-time REQ-001 -> AC-001..006 -> TEST-001..006 -> evidence disposition in the sanctioned non-frozen verification addendum."
+  - "Provide the repository's canonical machine-readable traceability artifact or an approved migration path, then rerun check-traceability.sh."
+references:
+  - "specs/epic-196-a8-integration/traceability.md"
+  - "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

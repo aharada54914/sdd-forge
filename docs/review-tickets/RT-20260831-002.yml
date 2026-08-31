@@ -1,0 +1,30 @@
+ticket_id: RT-20260831-002
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "epic-196-a8-integration"
+  task: "T-001"
+  files:
+    - "tests/cross-runtime-handoff.tests.sh"
+    - "tests/cross-runtime-handoff.tests.ps1"
+    - "plugins/sdd-review-loop/references/a8-skip-allowlist.json"
+summary: >-
+  Both runtime twins fail TEST-006 in the current activated feature state
+problem: |
+  Fresh gate runs of both focused twins exit 1 with TEST-006 not ok,
+  result=FAIL, coverage_complete=false, and canary_case.result=FAIL. The full
+  regression repeats the same failure. Later approved tasks have legitimately
+  extended the shared allowlist and T-005 is Implementation Complete; T-001's
+  gate-time verification must remain valid in that cumulative state rather
+  than require its historical one-entry snapshot.
+expected_fix:
+  - "Make the suite select and validate the AC-006 entry without requiring the shared allowlist to contain exactly one total entry."
+  - "Exercise and satisfy the activated TEST-006 branch in both runtime twins while preserving the disposable lifecycle-state branch proof."
+  - "Rerun both focused twins and the full regression from the cumulative feature state."
+references:
+  - "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log"
+  - "reports/quality-gate/20260831T003856Z-epic-196-a8-integration-T-001.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

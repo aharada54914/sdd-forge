@@ -1,0 +1,61 @@
+Quality gate observed evidence
+Feature: epic-196-a8-integration
+Task: T-001
+Observed at: 2026-08-31T00:38:56Z
+HEAD at start: df470e2c
+
+Default-FAIL contract
+- specs/epic-196-a8-integration/verification/T-001.contract.json was initialized with passes=false for every check.
+- Risk: medium; required workflow: acceptance-first; stack: shell/PowerShell test infrastructure.
+
+Scripted gates
+- PASS (exit 0): plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-196-a8-integration/tasks.md T-001
+  Output: Risk check passed for task T-001.
+- PASS (exit 0): plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-review-loop/references/a8-skip-allowlist.json
+  Output: Placeholder scan passed.
+- FAIL (exit 1): plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+  Output: workflow-state: epic-196-a8-integration: stage-provenance: spec reviewer manifest input hash is stale
+- PASS (exit 0): plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-196-a8-integration/tasks.md T-001
+  Output: Task state check passed for 8 task(s).
+- PASS / N/A (exit 0): plugins/sdd-quality-loop/scripts/check-component-coverage.sh --repo-root . --source-rev HEAD --target-rev HEAD --include-untracked
+  Output state: not-applicable (disabled-legacy); manifest_status: not-consulted; fail_conditions: [].
+- FAIL (exit 1): plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-196-a8-integration/traceability.json
+  Output: file not found: specs/epic-196-a8-integration/traceability.json
+- FAIL (exit 1): plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-196-a8-integration/verification/T-001.contract.json
+  Required checks remaining false: unit-tests, acceptance-tests, regression.
+- PASS / skipped (exit 0): check-design-system.sh
+  Output: no design-system/ directory.
+- PASS / skipped (exit 0): check-domain-conformance.sh
+  Output: no domain/ directory.
+
+Focused verification, rerun by the gate
+- FAIL (exit 1): bash tests/cross-runtime-handoff.tests.sh
+  TEST-001 through TEST-005 passed. TEST-006 failed. Trace result=FAIL, coverage_complete=false, canary_case.result=FAIL. Summary: 1 failure(s).
+- FAIL (exit 1): pwsh -NoProfile -File tests/cross-runtime-handoff.tests.ps1
+  TEST-001 through TEST-005 passed. TEST-006 failed. Trace result=FAIL, coverage_complete=false, canary_case.result=FAIL. Summary: 1 failure(s).
+
+Full regression, rerun by the gate
+- FAIL (exit 1): bash tests/run-all.sh
+  Runner summary: 6 failing suite(s): tests/human-copy-mirror-freshness.tests.sh; tests/deterministic-lane-selfcheck.tests.sh; tests/repository-release-validation.tests.sh; tests/design-system-contract.tests.sh; tests/cross-runtime-handoff.tests.sh; tests/validate-capability-registry.tests.sh.
+  The in-scope cross-runtime suite failed TEST-006 with the same FAIL trace as the focused run.
+
+Line inspection
+- tests/cross-runtime-handoff.tests.sh:82-110 generates nonces, performs both fixture mutations with sed, constructs the consumer observable, and writes the generated-file oracle locally.
+- tests/cross-runtime-handoff.tests.sh:112-116 prints confirmed CLI contracts but does not invoke claude, codex, or copilot.
+- tests/cross-runtime-handoff.tests.ps1:75-103 generates nonces, performs both fixture mutations with WriteAllText/string replacement, and constructs both consumer observables locally.
+- tests/cross-runtime-handoff.tests.ps1:105-108 prints confirmed CLI contracts but does not invoke claude, codex, or copilot.
+- reports/implementation/epic-196-a8-integration/T-001.md:1 has heading '# Implementation Report: epic-196-a8-integration T-001', not the required exact '# Implementation Report: T-001'; the report also lacks Run ID, Task Attempt Count, and an Outputs hash table.
+- specs/epic-196-a8-integration/traceability.md records the REQ-001 row and T-001 row as Planned rather than gate-time verified.
+
+Evaluator selection and isolation precheck
+- Selector chose openai/gpt-5.2-codex at high effort for the medium-risk sdd-evaluator role, matching .codex/agents/sdd-evaluator.toml.
+- Candidate run: RUN-epic-196-a8-integration-qg-T-001-seq0799; candidate host session: SESS-qg-epic-196-a8-integration-T-001-0799.
+- Manifest: reports/review-context/pending-epic-196-a8-integration-sdd-evaluator-T-001-seq0799-manifest.json
+- FAIL (exit 1): scripts/validate-review-context-set.sh <manifest> <repository-root> --reserve
+  Output: REVIEW_CONTEXT_PATH: sdd-evaluator implementation report heading does not match task ID.
+- The identity ledger remained byte-identical at sha256 4adccc36b4257280c831cb077d52343629b6c2cb17a094c27a1ec49bb2e9ca3b. No evaluator identity was reserved and no evaluator was launched.
+
+Evidence bundle
+- PASS (exit 0): generate-evidence-bundle.sh generated specs/epic-196-a8-integration/verification/T-001.evidence.json with three bound artifacts at commit df470e2c78be and recorded the dirty gate-artifact worktree.
+- FAIL (exit 1): check-evidence-bundle.sh specs/epic-196-a8-integration/verification/T-001.evidence.json .
+  Reasons: the quality report is not PASS; check-contract rejects unit-tests, acceptance-tests, and regression; dirty-tree warning recorded.

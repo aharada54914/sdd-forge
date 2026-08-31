@@ -1,0 +1,210 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-196-a8-integration",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "898e6dbc867d01a1795d86fe10ec9cd5e01f2bc01a53b704b63d67a45d8989ed",
+  "quality_report": "reports/quality-gate/20260831T003856Z-epic-196-a8-integration-T-001.md",
+  "verification_contract": "specs/epic-196-a8-integration/verification/T-001.contract.json",
+  "git_commit": "df470e2c78beda1a0a91b4e3543dc2ff029b40d0",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "BLOCKED",
+    "critical": 1,
+    "major": 4,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log",
+      "evidence_sha256": "fd9ed85f18fec73402b15a760c35f7bcfa29074b53a51fbac476673c2a212ad1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log",
+      "evidence_sha256": "fd9ed85f18fec73402b15a760c35f7bcfa29074b53a51fbac476673c2a212ad1"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/epic-196-a8-integration/verification/T-001.contract.json",
+      "sha256": "fe37f8a207af3063672b99208c6b1132b7be7ef19fbe85585ba3582b5e41a91f"
+    },
+    {
+      "path": "reports/quality-gate/20260831T003856Z-epic-196-a8-integration-T-001.md",
+      "sha256": "97d6872f8560f29b5958698a7a0a09566c7f796653b48a1701e15f46b12512d5"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log",
+      "sha256": "fd9ed85f18fec73402b15a760c35f7bcfa29074b53a51fbac476673c2a212ad1"
+    }
+  ]
+}
