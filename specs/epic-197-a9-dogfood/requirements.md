@@ -266,12 +266,24 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 
 ## Open Questions
 
-### OQ-001 — Component decomposition
+### OQ-001 — Component decomposition — Resolved
 
 Which stable components should represent sdd-forge: per-package, capability-group,
 or hybrid? Human ruling must include IDs and rationale.
 
-### OQ-002 — Path ownership map
+Resolution (2026-09-02, human approval verbatim: 「OQ 推奨案で全て承認する
+実装せよ」): **hybrid — eight components**: one per plugin
+(`sdd-bootstrap`, `sdd-review-loop`, `sdd-implementation`,
+`sdd-quality-loop`, `sdd-ship`, `sdd-lite`), plus `mcp` (the MCP service
+group under `mcp/`) and `installer` (`install.sh`/`install.ps1`/
+`uninstall.sh`/`uninstall.ps1`/`scripts/bump-version.sh`). Rationale: the
+guard, gates, and test suites are already organized per plugin, and the
+measured defect class this decision guards against — concurrent epics
+overwriting shared plugin files — occurs exactly at the plugin boundary;
+per-package is finer than any enforcement surface, and capability-group is
+too coarse to detect cross-plugin drift.
+
+### OQ-002 — Path ownership map — Resolved
 
 Which include/exclude patterns belong to each component, and which repository
 paths are component-shared versus cross-cutting? Human ruling must address
@@ -280,7 +292,20 @@ reports, marketplaces, CI, release, and root metadata. Issue #197 already fixes
 one constraint: `specs/`-type growing paths must be cross-cutting at bootstrap
 (`issue-197-full-body.md:23`); the human ruling may not reverse that constraint.
 
-### OQ-003 — Phase-2 promotion criteria
+Resolution (2026-09-02, same human approval): **component-owned**:
+`plugins/<name>/**` → its plugin component; `mcp/**` → `mcp`;
+`install.sh`/`install.ps1`/`uninstall.sh`/`uninstall.ps1`/
+`scripts/bump-version.sh` → `installer`. **Cross-cutting (shared)**:
+`specs/**` (fixed by issue #197, not reversible), `tests/**` (suites span
+plugins — measured: epic-195 T-010 re-pointed suites belonging to five
+different tasks), `contracts/**`, `docs/**`, `reports/**`,
+`marketplaces/**`, `.github/**` (protected, human-copy staged),
+release/root metadata (`CHANGELOG.md`, `AGENTS.md`, `README.md`,
+`package.json`). Rationale: this session's principal measured frictions —
+amendment propagation across shared files and stale review provenance —
+all arose from ownership ambiguity on exactly these shared paths.
+
+### OQ-003 — Phase-2 promotion criteria — Resolved
 
 Issue #197 fixes the minimum duration/sample boundary as every PR over one full
 release cycle (`issue-197-full-body.md:27`). Beyond that fixed minimum, what
@@ -288,7 +313,18 @@ false-positive threshold, unresolved-finding threshold, platform coverage,
 compatibility evidence, and rollback rehearsal are mandatory before
 `facet-hybrid`/`required`?
 
-### OQ-004 — Conditional rollback procedure
+Resolution (2026-09-02, same human approval): beyond the fixed
+one-release-cycle minimum, promotion to `facet-hybrid`/`required` requires
+all four, measured mechanically: (1) **every guard/gate false positive
+observed during the advisory period is triaged into a WFI — zero
+untriaged** (grounded in this session's measurement that false positives
+were the dominant operational friction); (2) zero unresolved
+Critical/Major findings; (3) all three OS CI lanes green (platform
+coverage); (4) one successful rollback rehearsal executing the OQ-004
+procedure end-to-end. Rationale: converts the Risks-section warning about
+premature `required` promotion into a machine-checkable precondition.
+
+### OQ-004 — Conditional rollback procedure — Resolved
 
 Issue #197 fixes that the transition is policy weakening and that a solo
 maintainer may execute it with first approval plus a 24-hour cooldown
@@ -296,19 +332,45 @@ maintainer may execute it with first approval plus a 24-hour cooldown
 select the two-party or fixed solo-maintainer branch, handle approver-registry
 changes, and authorize the human-copy application of required-to-advisory rollback?
 
+Resolution (2026-09-02, same human approval): the branch is selected
+**mechanically by approver-registry cardinality** at execution time:
+registry count ≥ 2 → two-party approval; count == 1 → solo-maintainer
+branch (first approval + 24-hour cooldown). A registry-membership change
+is itself a recorded registry update and re-evaluates the branch. The
+persisted evidence is a **signed rollback record reusing the Ed25519
+live-host-proof machinery epic-196 T-005 already implemented and
+verified** (JCS canonicalization + domain-separated signatures +
+trusted-signer registry), applied via the established human-copy staging
+route. Rationale: reuses tested machinery instead of inventing a bespoke
+approval path, and answers the Risks-section requirement to model registry
+cardinality and time-bound approval explicitly.
+
 ### OQ-005 — First Pack selection and priority — Resolved
 
 Resolution (2026-09-01): implement the developer-tooling / cli-library Pack as
 the first Pack implementation. Issue #197 states this explicitly at
 `issue-197-full-body.md:17`. No human decision remains on selection or order.
 
-### OQ-006 — First Pack internal contract
+### OQ-006 — First Pack internal contract — Resolved
 
 Is the selected developer-tooling / cli-library Pack encoded as one capability,
 two capabilities, or a composed Pack, and which predicates, facets, review checks,
 gates, Lite policy, minimum enforcement, and delivery strategy are normative?
 Issue #197 does not answer these internal-contract questions; a dated human ruling
 is required.
+
+Resolution (2026-09-02, human approval verbatim: 「OQ 推奨案で全て承認する
+実装せよ」): a **composed Pack of two capabilities** —
+`developer-tooling` and `cli-library` as separate capabilities, the Pack
+defined as their composition. Predicates and facets **reference and
+compose the existing Epic A2 capability-registry entries**
+(`specs/epic-190-a2-capability-registry`) rather than defining duplicates.
+Minimum enforcement: `advisory`. Lite policy: the lite track is admissible
+for docs-only changes; everything else takes the full track. Delivery:
+via the established human-copy staging route. Rationale: composition by
+reference structurally avoids the Risks-section duplicate-registry-entry
+failure, and keeping the two capabilities separate preserves
+decomposability when later Packs arrive.
 
 ## Risks
 
