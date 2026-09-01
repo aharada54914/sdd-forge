@@ -2,18 +2,31 @@
 
 Investigation-Date: 2026-09-01
 Mode: feature (brownfield)
-Source: supplied Issue #197 summary plus `docs/ai-dlc-foundation-decision-v2.md` §§17,19
+Source: full local captures of GitHub Issue #197 and parent tracking Issue #187,
+plus `docs/ai-dlc-foundation-decision-v2.md` §§17,19
 
 ## Scope
 
 This read-only investigation maps the repository surfaces needed to specify
 sdd-forge's own Project Context and its first developer-tooling / cli-library
 Capability Pack. It does not create `sdd/project-context.yaml`, alter a Registry,
-or run a review gate. The requested `gh issue view 197 --repo
-aharada54914/sdd-forge` call failed because `api.github.com` was unreachable;
-issue-specific facts below are therefore limited to the requirements supplied by
-the task, while the checked-in decision document is the authoritative recoverable
-source.
+or run a review gate. The previously unavailable full issue bodies were supplied
+locally and read in full on 2026-09-01. The A9 draft has now been reconciled
+against every Scope, Notes, Done, Dependency, and Parent Tracking statement in
+Issue #197.
+
+## Authoritative Issue Inputs
+
+- `/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/b1de79a2-362c-4249-a415-6247ab35e3a1/scratchpad/issue-197-full-body.md`,
+  lines 8-37: complete
+  verbatim Issue #197 body, including Scope, Notes, Done conditions, dependency,
+  and parent tracking.
+- `/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/b1de79a2-362c-4249-a415-6247ab35e3a1/scratchpad/issue-187-tracking.md`,
+  lines 4-48: complete parent
+  tracking body; line 25 lists #197 and line 27 places it after #188-#196.
+
+These local captures are the source of truth for issue content in this
+reconciliation. No network retrieval was attempted.
 
 Domain-Sync: `domain-sync skipped: no domain/ directory`
 
@@ -41,6 +54,11 @@ Domain-Sync: `domain-sync skipped: no domain/ directory`
 | INV-018 | The A5 spec exists on `origin/feature/epic-193-a5-capability-resolver` but not in this branch's working tree or Active Spec list. | Readiness cannot be inferred from another ref; implementation must verify merge state and contracts at its own HEAD. | `git ls-tree -r origin/feature/epic-193-a5-capability-resolver`; `AGENTS.md` Active Spec Directories |
 | INV-019 | Workflow improvements are stored as numbered `docs/workflow-improvements/WFI-NNN.md` records with human-controlled status. | Dogfood friction must be captured in the established WFI lane, without self-approval. | `docs/workflow-improvements/WFI-045.md:1-31`; `README.md:257-259` |
 | INV-020 | The checked-in bootstrap documentation requires Phase 1/2 review separation, but this delegated bootstrap explicitly requests first drafts and forbids review execution. | All authored statuses must remain pending/draft/planned. | `README.md:250-251`; task instruction |
+| INV-021 | Issue #197 requires five concrete scope items: a live Context with components/path ownership/characteristics; Phase 1 legacy/advisory; Phase 2 facet-hybrid/required; the first developer-tooling / cli-library Pack; and dogfood-friction WFI capture. | Supplies the complete issue-scope reconciliation oracle. | `issue-197-full-body.md:12-18` |
+| INV-022 | Issue #197's Done conditions require every sdd-forge PR to pass the advisory capability-mode Gate for one full release cycle, at least one feature to finish end-to-end under facet-hybrid after required promotion, and a friction WFI result that records `none` when zero. | Strengthens the earlier representative-run and no-WFI wording. | `issue-197-full-body.md:25-29` |
+| INV-023 | Issue #197 assumes `specs/`-type growing paths were registered cross-cutting at bootstrap under A3. | Makes cross-cutting registration an explicit bootstrap prerequisite and acceptance check. | `issue-197-full-body.md:20-23` |
+| INV-024 | Issue #197 depends on every Epic A1-A8 and is tracked by #187; #187 lists #197 last in the A0-A9 sequence. | Fixes dependency and parent provenance. | `issue-197-full-body.md:31-37`; `issue-187-tracking.md:14-27` |
+| INV-025 | Issue #197 fixes the first Pack selection and priority as developer-tooling / cli-library, but does not define its internal capability count, predicates, facets, checks, gates, Lite policy, minimum enforcement, or delivery shape. | Resolves OQ-005 while preserving the genuinely open internal design as OQ-006. | `issue-197-full-body.md:17` |
 
 ## Candidate Decomposition (Non-binding)
 
@@ -60,9 +78,18 @@ exclude, or shared rule is likewise provisional until OQ-002 is resolved.
 - Treating a policy-weakening rollback as an ordinary YAML edit would bypass the
   accepted approval-sidecar model.
 
+## Issue-Reconciliation Result
+
+The prior limitation that the full Issue #197 body had to be reconciled before
+spec review is discharged. Reconciliation added explicit full-release-cycle,
+post-promotion end-to-end, zero-friction `none`, A3 cross-cutting-bootstrap, and
+#187 provenance criteria. Issue #197 line 17 also resolved OQ-005's Pack choice
+and priority; the issue does not settle the Pack's internal encoding.
+
 ## Open Questions Carried Forward
 
 OQ-001 component decomposition; OQ-002 path ownership; OQ-003 promotion
-criteria; OQ-004 conditional rollback approval workflow; OQ-005 exact first-Pack
-capabilities, facets, checks, gates, and delivery strategy.
-
+criteria beyond the issue's minimum one-release-cycle condition; OQ-004 exact
+conditional rollback operator workflow; OQ-006 exact first-Pack capabilities,
+facets, checks, gates, and delivery strategy. OQ-005 is resolved by
+`issue-197-full-body.md:17`.

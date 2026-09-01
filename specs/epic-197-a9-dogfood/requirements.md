@@ -2,7 +2,9 @@
 
 Spec-Review-Status: Pending
 Human-Spec-Approval: Pending
-Source: Issue #197 supplied requirements; decision document §§17 and 19
+Source: full local Issue #197 body (`issue-197-full-body.md:8-37`), parent
+tracking Issue #187 (`issue-187-tracking.md:14-27`), and decision document
+§§17 and 19
 
 ## Overview
 
@@ -38,7 +40,8 @@ After human approval and dependency preflight, A9 shall create sdd-forge's live
 `capability_enforcement: advisory`. The implementation shall use the protected
 approval publication workflow and shall not make an unsigned or agent-approved
 sidecar (`contracts/project-context.schema.json:1-20`;
-`docs/adr/0019-approval-sidecar-protection.md:32-69`).
+`docs/adr/0019-approval-sidecar-protection.md:32-69`;
+`issue-197-full-body.md:14-15`).
 
 ### REQ-002 — Human-approved component inventory
 
@@ -66,19 +69,23 @@ write” characteristic from the read-only local services (`README.md:108-150`;
 
 ### REQ-005 — First developer-tooling / cli-library Pack
 
-A9 shall add the first Pack selected by Q16 without defining desktop,
-cloud-service, or durable-workflow Packs. The human-approved OQ-005 decision shall
-fix its Registry capability IDs, predicates, facets, review checks, implementation
-gates, Lite policy, minimum enforcement, and delivery strategy before code is
-authored (`docs/ai-dlc-foundation-decision-v2.md:488-492`;
+A9 shall implement the developer-tooling / cli-library Pack as the first Pack
+implementation and shall not define desktop, cloud-service, or durable-workflow
+Packs. This selection and priority are fixed by Issue #197 and recorded as the
+resolution of OQ-005. The human-approved OQ-006 decision shall fix the Pack's
+Registry capability IDs, predicates, facets, review checks, implementation gates,
+Lite policy, minimum enforcement, and delivery strategy before code is authored
+(`issue-197-full-body.md:17`; `docs/ai-dlc-foundation-decision-v2.md:488-492`;
 `contracts/capability-registry.json:1-43`).
 
 ### REQ-006 — Advisory dogfood evidence
 
 Phase 1 shall run the merged A1–A8 Context/ownership/Resolver/Manifest,
-compatibility, and cross-runtime mechanisms against representative sdd-forge
-changes. Advisory diagnostics shall be recorded without blocking delivery solely
-because a new Pack finding exists; existing independent gates remain unchanged.
+compatibility, and cross-runtime mechanisms against sdd-forge changes. Every
+sdd-forge PR in one complete, explicitly bounded release cycle shall pass the
+capability-mode Gate in advisory mode. Advisory diagnostics shall be recorded
+without blocking delivery solely because a new Pack finding exists; existing
+independent gates remain unchanged (`issue-197-full-body.md:27`).
 
 ### REQ-007 — Promotion readiness decision
 
@@ -94,7 +101,9 @@ Phase 2 shall change the live Context from `legacy-seven-layer`/`advisory` to
 `facet-hybrid`/`required` through the protected approval workflow. Verification
 shall reject a mixed transition where only one axis changed, or where required
 enforcement is activated before the selected Pack and resolver evidence are
-available.
+available (`issue-197-full-body.md:16`). After promotion, at least one real
+feature shall complete the full SDD workflow end-to-end under `facet-hybrid`
+with required capability enforcement (`issue-197-full-body.md:28`).
 
 ### REQ-009 — Policy-weakening rollback
 
@@ -103,14 +112,18 @@ and ADR-0019: two distinct approvals when at least two real identities are
 registered, otherwise a first approval plus an HMAC-bound 24-hour cooldown. Early,
 unsigned, self-approved, or identity-duplicated application shall fail
 (`docs/adr/0019-approval-sidecar-protection.md:49-94`).
+The two policy branches are field-test requirements of this epic, not optional
+test variants (`issue-197-full-body.md:22`).
 
 ### REQ-010 — Operational-friction capture
 
-During dogfood, reproducible workflow friction shall be recorded as new Draft WFI
-records in `docs/workflow-improvements/`, with evidence, why-why analysis,
-controllable root-cause hypothesis, proposed change, and expected effect. Agents
-shall not approve those records (`docs/workflow-improvements/WFI-045.md:1-31`;
-`README.md:257-259`).
+During dogfood, reproducible path-ownership, staleness, and approval-flow friction
+shall be recorded as new Draft WFI records in `docs/workflow-improvements/`, with
+evidence, why-why analysis, controllable root-cause hypothesis, proposed change,
+and expected effect. The dogfood cycle shall always persist a friction result; if
+no friction occurs, it shall explicitly record `none` rather than fabricate a WFI.
+Agents shall not approve WFI records (`issue-197-full-body.md:18,29`;
+`docs/workflow-improvements/WFI-045.md:1-31`; `README.md:257-259`).
 
 ### REQ-011 — Dependency and shared-state preflight
 
@@ -127,6 +140,20 @@ The Context, Pack, advisory run, promotion, and rollback paths shall have saved
 deterministic test evidence on the applicable Bash/PowerShell and Windows,
 macOS, Linux surfaces, reusing existing CI topology and preserving current
 install/release behavior (`README.md:148-175,261`; `.github/workflows/test.yml:21-1145`).
+
+### REQ-013 — A3 cross-cutting bootstrap prerequisite
+
+When the live Context is bootstrapped, growing paths such as `specs/` shall
+already be registered as cross-cutting through the A3 ownership contract. A9
+shall verify this prerequisite rather than silently broadening ownership after
+dogfood begins (`issue-197-full-body.md:23`).
+
+### REQ-014 — Epic dependency and parent provenance
+
+A9 work shall remain blocked until all Epic A1-A8 dependencies are merged and
+usable, and its provenance shall identify Issue #197 as the A9 child of tracking
+Issue #187. This is the final epic in #187's stated A0-A9 ordering
+(`issue-197-full-body.md:31-37`; `issue-187-tracking.md:14-27`).
 
 ## Non-goals
 
@@ -173,6 +200,11 @@ install/release behavior (`README.md:148-175,261`; `.github/workflows/test.yml:2
 | AC-022 | REQ-012 | Context/Pack/advisory/promotion tests pass through the applicable `.sh` and `.ps1` entry points. |
 | AC-023 | REQ-012 | Existing CI executes the new checks on Windows, macOS, and Linux without adding a workflow or matrix dimension. |
 | AC-024 | REQ-012 | An install/release regression set proves Phase 1 and Phase 2 preserve current Claude/Codex/Copilot packaging behavior. |
+| AC-025 | REQ-013 | Bootstrap/ownership validation proves every approved growing path, including `specs/`, is covered by an A3 cross-cutting rule from Context bootstrap time. |
+| AC-026 | REQ-014 | A dependency/provenance check blocks unless all A1-A8 surfaces are usable and records Issue #197 under parent #187. |
+| AC-027 | REQ-006 | Release-cycle evidence identifies explicit start/end releases and proves every PR in that complete cycle passed the advisory capability-mode Gate. |
+| AC-028 | REQ-008 | After required promotion, saved evidence proves at least one real feature completed the full workflow end-to-end under `facet-hybrid`. |
+| AC-029 | REQ-010 | The dogfood cycle records WFI references for observed friction or the literal result `none` when zero, covering path ownership, staleness, and approval flow. |
 
 ## Field Definitions
 
@@ -194,7 +226,8 @@ install/release behavior (`README.md:148-175,261`; `.github/workflows/test.yml:2
 
 ## Main Workflows
 
-1. Human resolves OQ-001–OQ-005 and approves the reviewed spec/tasks.
+1. Human resolves OQ-001–OQ-004 and OQ-006 and approves the reviewed spec/tasks;
+   OQ-005 is already resolved by Issue #197.
 2. Preflight A1–A8 and mutable shared state.
 3. Publish and approve Phase-1 Context; add and validate the first Pack.
 4. Run advisory dogfood and capture saved evidence and Draft WFIs.
@@ -210,8 +243,8 @@ install/release behavior (`README.md:148-175,261`; `.github/workflows/test.yml:2
   promotion evidence.
 - Approver registry changes between rollback request and effective time: re-run
   approval validation with the current registry.
-- No friction is observed: record the dogfood run and “no WFI created”; never
-  fabricate a WFI.
+- No friction is observed: record the dogfood-cycle friction result as `none`;
+  never fabricate a WFI.
 
 ## Security Boundaries
 
@@ -223,10 +256,12 @@ install/release behavior (`README.md:148-175,261`; `.github/workflows/test.yml:2
 
 ## Assumptions
 
-- Issue #197's full body must be re-read before spec review because network access
-  failed during this bootstrap; any conflict supersedes the supplied summary.
+- The full local Issue #197 and #187 bodies were read and reconciled on
+  2026-09-01; `investigation.md` records the discharged limitation and changes.
 - A1–A8 availability is mutable shared state and must be re-verified at spec
   review and implementation, never assumed from this draft.
+- The Issue #197 assumption that `specs/`-type growing paths are cross-cutting at
+  bootstrap is verified by REQ-013/AC-025, not accepted without evidence.
 - The next WFI number is not reserved here; allocate it at record-creation time.
 
 ## Open Questions
@@ -241,25 +276,39 @@ or hybrid? Human ruling must include IDs and rationale.
 Which include/exclude patterns belong to each component, and which repository
 paths are component-shared versus cross-cutting? Human ruling must address
 plugins, MCP services, root installers, contracts, scripts, tests, docs, specs,
-reports, marketplaces, CI, release, and root metadata.
+reports, marketplaces, CI, release, and root metadata. Issue #197 already fixes
+one constraint: `specs/`-type growing paths must be cross-cutting at bootstrap
+(`issue-197-full-body.md:23`); the human ruling may not reverse that constraint.
 
 ### OQ-003 — Phase-2 promotion criteria
 
-What measurable advisory duration/sample size, false-positive threshold,
-unresolved-finding threshold, platform coverage, compatibility evidence, and
-rollback rehearsal are mandatory before `facet-hybrid`/`required`?
+Issue #197 fixes the minimum duration/sample boundary as every PR over one full
+release cycle (`issue-197-full-body.md:27`). Beyond that fixed minimum, what
+false-positive threshold, unresolved-finding threshold, platform coverage,
+compatibility evidence, and rollback rehearsal are mandatory before
+`facet-hybrid`/`required`?
 
 ### OQ-004 — Conditional rollback procedure
 
-What exact operator steps and persisted evidence select the two-party branch or
-single-maintainer cooldown branch, handle approver-registry changes, and authorize
-the human-copy application of required-to-advisory rollback?
+Issue #197 fixes that the transition is policy weakening and that a solo
+maintainer may execute it with first approval plus a 24-hour cooldown
+(`issue-197-full-body.md:22`). What exact operator steps and persisted evidence
+select the two-party or fixed solo-maintainer branch, handle approver-registry
+changes, and authorize the human-copy application of required-to-advisory rollback?
 
-### OQ-005 — First Pack contents
+### OQ-005 — First Pack selection and priority — Resolved
 
-Is developer-tooling / cli-library encoded as one capability, two capabilities,
-or a composed Pack, and which predicates, facets, review checks, gates, Lite
-policy, minimum enforcement, and delivery strategy are normative?
+Resolution (2026-09-01): implement the developer-tooling / cli-library Pack as
+the first Pack implementation. Issue #197 states this explicitly at
+`issue-197-full-body.md:17`. No human decision remains on selection or order.
+
+### OQ-006 — First Pack internal contract
+
+Is the selected developer-tooling / cli-library Pack encoded as one capability,
+two capabilities, or a composed Pack, and which predicates, facets, review checks,
+gates, Lite policy, minimum enforcement, and delivery strategy are normative?
+Issue #197 does not answer these internal-contract questions; a dated human ruling
+is required.
 
 ## Risks
 

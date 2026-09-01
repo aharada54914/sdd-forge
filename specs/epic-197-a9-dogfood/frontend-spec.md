@@ -18,7 +18,8 @@ leaves state unchanged.
 ## Dependencies
 
 Existing Project Context, Registry, ownership, Manifest, Resolver,
-compatibility, and cross-runtime contracts from A1–A8.
+compatibility, and cross-runtime contracts from every Epic A1–A8. Issue #197 is
+the A9 child of parent tracking Issue #187.
 
 ## Testing
 
@@ -27,5 +28,5 @@ PowerShell parity, and existing three-OS CI. No snapshot/UI tests.
 
 ## Open Questions
 
-OQ-005 controls Pack state shape; no frontend decision is pending.
-
+OQ-005 fixes Pack selection/order; OQ-006 controls its internal state shape. No
+frontend decision is pending.

@@ -8,10 +8,12 @@ Human-Design-Approval: Pending
 A9 is a two-phase configuration-and-evidence change. Phase 1 publishes a live,
 approved sdd-forge Project Context using the legacy seven-layer artifact layout
 and advisory enforcement, adds the first developer-tooling / cli-library Pack,
-and dogfoods the merged Foundation pipeline. Phase 2 promotes both workflow axes
-atomically after human-approved evidence thresholds. This design deliberately
-leaves component, ownership, promotion, rollback-operation, and Pack-content
-decisions open (OQ-001–OQ-005).
+and dogfoods the merged Foundation pipeline across every PR for a full release
+cycle. Phase 2 promotes both workflow axes atomically after human-approved
+evidence thresholds and completes at least one real feature end-to-end. This
+design deliberately leaves component, ownership, promotion, rollback-operation,
+and Pack-internal-contract decisions open (OQ-001–OQ-004 and OQ-006); Issue #197
+resolved OQ-005's Pack selection and priority (`issue-197-full-body.md:17`).
 
 ## Architecture
 
@@ -43,10 +45,10 @@ re-verified after A5 merges; this draft does not bind another branch's filenames
 | Design component | Responsibility | Planned owner |
 |---|---|---|
 | Context candidate | Human-approved component characteristics and ownership map | T-002 |
-| First Pack | Registry entries selected by OQ-005 | T-003 |
-| Dogfood evidence harness | Representative advisory scenarios and evidence capture | T-004 |
-| Promotion/rollback harness | Threshold, atomic transition, and approval-branch tests | T-005 |
-| WFI capture | Draft records for reproducible operational friction | T-006 |
+| First Pack | Developer-tooling / cli-library Registry entries shaped by OQ-006 | T-003 |
+| Dogfood evidence harness | Representative scenarios plus all-PR/full-cycle advisory evidence | T-004 |
+| Promotion/rollback harness | Threshold, atomic transition, post-promotion feature E2E, and approval-branch tests | T-005 |
+| WFI capture | Draft records for friction, or an explicit `none` result | T-006 |
 
 These are implementation-work components, not the unresolved Project Context
 component inventory itself.
@@ -84,7 +86,7 @@ N/A. sdd-forge is developer tooling and this epic adds no graphical interface.
 ## ADR Change Log
 
 No new ADR is proposed in this draft. ADR-0019 governs approval and rollback.
-If OQ-001, OQ-003, OQ-004, or OQ-005 creates a durable architecture decision not
+If OQ-001, OQ-003, OQ-004, or OQ-006 creates a durable architecture decision not
 already covered, the human ruling must decide whether a new ADR is required and
 re-verify the next free number immediately before drafting.
 
@@ -102,6 +104,9 @@ Uses `contracts/project-context.schema.json`. Phase tuples:
 The component and shared-path bodies are placeholders until OQ-001/OQ-002 are
 resolved. The generic starter is an input, not the live result
 (`contracts/project-context.template.yaml:1-30`).
+At bootstrap, `specs/` and all other approved growing paths must already resolve
+through A3 cross-cutting registration; later broadening is not a substitute
+(`issue-197-full-body.md:23`).
 
 ### `dogfood-run/v1` evidence concept
 
@@ -110,12 +115,27 @@ inventing a competing evidence schema. At minimum the saved run must make
 reviewable: run ID/time, Context revision/hash, Registry and ownership digests,
 resolver version/rule-set revision, changed paths, affected components, phase,
 findings/dispositions, output artifact paths, platform/host, and outcome.
+The operational evidence set also binds explicit release-cycle start/end markers
+and an exhaustive PR roster with one advisory-Gate result per PR.
 
 ### `promotion-decision/v1` evidence concept
 
 Stores the OQ-003 criteria revision, evidence-set references, per-criterion
 pass/fail, human decision identity/time, old tuple, proposed tuple, and result.
 It must not claim promotion if any evidence is stale or any threshold fails.
+
+### Post-promotion feature evidence
+
+After the Context is promoted to `facet-hybrid`/`required`, save the identity and
+workflow evidence for at least one real feature that traverses specification,
+implementation, required capability Gate, and quality completion end-to-end. A
+fixture-only resolver run does not satisfy this evidence (`issue-197-full-body.md:28`).
+
+### Dogfood-friction result
+
+Persist the dogfood-cycle identity and either references to Draft WFI records for
+path-ownership, staleness, or approval-flow friction, or the literal result
+`none` when no friction occurred (`issue-197-full-body.md:18,29`).
 
 ### Rollback request/evidence
 
@@ -129,7 +149,7 @@ and application result (`docs/adr/0019-approval-sidecar-protection.md:32-94`).
 | Contract | Change | Compatibility rule |
 |---|---|---|
 | Project Context schema | no schema change expected | Live YAML validates existing v1. |
-| Capability Registry | extend existing instance per OQ-005 | Existing durable-workflow entry remains semantically unchanged. |
+| Capability Registry | extend existing instance with the OQ-005-selected Pack, shaped per OQ-006 | Existing durable-workflow entry remains semantically unchanged. |
 | A3 ownership tools | consume, do not fork | Results must bind current ownership digest. |
 | A4/A5 outputs | consume merged contract | Block if absent/incompatible. |
 | Approval sidecar | consume A1 contract | Protected, HMAC-bound, no agent approval. |
@@ -140,11 +160,13 @@ and application result (`docs/adr/0019-approval-sidecar-protection.md:32-94`).
 2. Component oracle derived from the dated OQ-001 ruling.
 3. Ownership positive, omitted-path, overlap, and shared-path fixtures.
 4. Pack trigger/non-trigger fixtures and later-Pack absence check.
-5. Advisory non-blocking versus unchanged existing-gate behavior.
+5. Advisory non-blocking versus unchanged existing-gate behavior, plus an
+   exhaustive every-PR oracle over one explicitly bounded release cycle.
 6. Promotion evidence completeness, staleness, and each partial-transition case.
 7. Rollback branch fixtures for multi-identity and solo/cooldown modes plus four
    invalid sidecar classes.
 8. `.sh`/`.ps1`, three-OS, install/release regression evidence in existing CI.
+9. One real post-promotion feature E2E and both friction-result branches.
 
 Tests that scan vocabulary must assemble banned markers at runtime so their own
 source cannot become the detection suite's false positive (AGENTS.md WFI-012).
@@ -158,6 +180,8 @@ cmdlet/language-feature case-sensitivity sweeps with mis-cased negatives.
 - Make Phase-2 axes atomic at the A9 contract level.
 - Reuse the accepted approval-sidecar mechanism for rollback.
 - Persist dogfood friction only when reproducible; do not manufacture WFI volume.
+- Persist `none` for a zero-friction cycle so the Done condition is auditable.
+- Preserve Issue #197 → #187 provenance and require all A1-A8 dependencies.
 
 ## Global Constraints
 
@@ -197,24 +221,24 @@ other epics' frozen artifacts, and leaves every task Draft/Planned.
 
 ## Assumptions
 
-- The issue body will be reachable and reconciled before review.
+- The full local Issue #197 and #187 bodies were reconciled on 2026-09-01.
 - A5's merged filenames/contracts may differ from its current remote feature ref.
 - Current component directories, guard list, Registry, and WFI namespace are
   mutable shared state and require fresh scans.
 
 ## Open Questions
 
-OQ-001 through OQ-005 are defined normatively in `requirements.md` and remain
-unresolved. No implementation task may turn a candidate into a binding choice
-without a dated human ruling.
+OQ-001 through OQ-004 and OQ-006 are defined normatively in `requirements.md`
+and remain unresolved. OQ-005 is resolved by `issue-197-full-body.md:17`. No
+implementation task may turn another candidate into a binding choice without a
+dated human ruling.
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
 | Ownership rules hide changes | omitted/overlap/reverse-coverage fixtures and human map review |
-| Pack overreaches | OQ-005 and explicit later-Pack absence test |
+| Pack overreaches | fixed OQ-005 selection, OQ-006 internal-contract ruling, and explicit later-Pack absence test |
 | Premature enforcement | measurable OQ-003 gates plus stale-evidence rejection |
 | Rollback unusable or weak | both cardinality branches and invalid-sidecar fixtures |
 | Shared state drifts | T-001 fresh inventories/hashes at implementation HEAD |
-
