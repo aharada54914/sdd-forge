@@ -413,6 +413,7 @@ ALL_CASE_NAMES = (
         "publication-journal-roundtrip-unresolved-repo",
         "post-publication-crash-before-evidence",
         "publication-fsync-failure",
+        "publication-staging-chain-fsync-failure",
     ]
 )
 
@@ -3259,6 +3260,69 @@ def run_t007_fsync_failure_case(kind, counts):
         )
 
 
+def run_t007_staging_chain_fsync_failure_case(kind, counts):
+    """The round-24 fix, tested rather than asserted.
+
+    Round 24 closed a durability gap one level ABOVE the rounds 19-20 work:
+    the published files' directories were fsynced, but the batch directory's
+    own entry in the staging root -- and the staging root's entry in
+    specs/<feature> -- were not, so a power loss could keep a fsynced live
+    rename and lose the nonce directory carrying the journal. That is an
+    undetectable partial publication, the one shape the whole discipline
+    exists to forbid.
+
+    The barrier now runs before the journal write, and therefore before any
+    live rename, so failing it must Block with a ZERO-rename clause. Mutant P
+    (both staging-chain fsync calls removed) dies here: with no barrier, the
+    single-shot injection never fires and the publication succeeds where this
+    case demands a Block."""
+    case_name = "publication-staging-chain-fsync-failure"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("artifact-publication-failed")
+
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {NO_ROLLBACK_CLAUSE}"
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: artifact-publication-failed: {expected_detail}\n",
+            f"{case_name}: a failed staging-chain barrier Blocks with a ZERO-rename clause -- the "
+            f"barrier precedes the journal write, so nothing can be live yet",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{case_name}: facet-manifest is untouched -- the run refused before publishing anything",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:60]),
+        )
+        evidence, parse_error = read_evidence(feature_dir / "resolver-evidence.yaml")
+        first_diag = (evidence.get("diagnostics") or [{}])[0] if isinstance(evidence, dict) else {}
+        counts.check(
+            first_diag.get("id") == "artifact-publication-failed",
+            f"{case_name}: the Block record still reached Evidence -- the injection is single-shot, "
+            f"so the Evidence write's own barrier succeeded",
+            parse_error or repr(evidence)[:120],
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: no journal and no staging litter survive a refusal that never published",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_t007_journal_nonce_mismatch_case(kind, counts):
     """The fixture round 13 said could not be written, written.
 
@@ -4415,6 +4479,7 @@ def main():
         run_t007_journal_bundle_shape_case(args.launcher, counts)
         run_t007_journal_nonce_mismatch_case(args.launcher, counts)
         run_t007_fsync_failure_case(args.launcher, counts)
+        run_t007_staging_chain_fsync_failure_case(args.launcher, counts)
         run_t007_crash_before_evidence_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
         run_t007_staging_symlink_case(args.launcher, counts)

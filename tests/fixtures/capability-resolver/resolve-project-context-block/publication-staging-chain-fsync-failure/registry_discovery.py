@@ -1,30 +1,18 @@
 #!/usr/bin/env python3
-"""T-007 fixture: fail the FIRST directory fsync of the feature directory,
-exactly once.
+"""T-007 fixture: fail the staging-chain fsync, BEFORE any live rename.
 
-This is the fault injection the round-20 mutation note promised as "future
-fixture work, not an impossibility claim", written after the anthropic panel
-slot's round-21 Major pointed out that an admittedly-testable fix on a
-tdd-required Security-Sensitive surface had shipped untested.
+Round 24 added a durability barrier on the staging CHAIN -- the batch
+directory's entry in the staging root, and the staging root's entry in
+specs/<feature> -- fsynced BEFORE the journal is written and therefore
+before the first live rename. Failing that barrier must Block with a
+ZERO-rename rollback clause, because nothing is published yet.
 
-WHAT IT EXERCISES. `_atomic_write_bytes` fsyncs the target's parent directory
-after `os.replace`. When that fsync fails the rename is already LIVE, and
-round 20's `_ReplacedButNotDurable` exists so the commit loop counts the
-entry BEFORE the failure propagates -- otherwise the rollback skips a
-visibly published artifact, reports completion, and leaves it standing.
-Failing the first fsync of `specs/example-feature` hits the facet-manifest
-commit (the first live rename whose parent is the feature directory; the
-Context Projection's parent is scripts/generated, and the journal's own
-writes fsync the batch directory). The single-shot design is deliberate: the
-ROLLBACK of that same target fsyncs the same directory moments later, and a
-persistent failure would collapse this into the incomplete-rollback path,
-which is a different case with different assertions.
-
-Everything else is the established overlay mechanism, verbatim from
-`publication-journal-recovery/registry_discovery.py`: the real module is
-planted alongside as `registry_discovery_real` and its entire public surface
-re-exported, because this overlay sits in the shared scripts directory and
-the subprocess dependencies import it too.
+This is the sibling of `publication-fsync-failure`, which arms only AFTER a
+rename lands. Together the two fixtures separate the two durability
+barriers: remove the staging-chain fsync calls and this case's injection
+never fires, the publication succeeds, and this case fails -- which is how
+mutant P dies. The overlay mechanism (real module re-exported as
+`registry_discovery_real`) is unchanged from its siblings.
 """
 import os
 import sys
@@ -88,7 +76,7 @@ def _tracking_close(fd):
 
 
 def _failing_fsync(fd):
-    if fd in _feature_dir_fds and _renamed and not _fired:
+    if fd in _feature_dir_fds and not _fired:
         # Single shot: the first durability barrier on the feature directory
         # dies with EIO; every later one (the rollback's, the Evidence
         # write's) succeeds.

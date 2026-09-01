@@ -1425,6 +1425,29 @@ def _live_digest(path):
     return ABSENT if payload is None else _digest(payload)
 
 
+def _fsync_directory(path):
+    """Make a DIRECTORY's own entries durable.
+
+    A rename or unlink lives in the parent directory's data, so fsyncing the
+    file is not enough: the entry can be lost while the file's blocks
+    survive. Three sites need this now (the write side of
+    `_atomic_write_bytes`, the ABSENT-restore unlink, and the staging-chain
+    creation in `_publish_bundle`), so it is one function rather than three
+    copies.
+
+    POSIX only: Windows has no directory handle to fsync, so the honest
+    statement is that this hardening is POSIX-only rather than a silent
+    no-op everywhere.
+    """
+    if os.name != "posix":
+        return
+    dir_fd = os.open(str(path), os.O_RDONLY)
+    try:
+        os.fsync(dir_fd)
+    finally:
+        os.close(dir_fd)
+
+
 class _ReplacedButNotDurable(OSError):
     """`os.replace` succeeded -- the target IS live -- and the parent
     directory fsync afterwards failed, so durability is unconfirmed. Distinct
@@ -1473,14 +1496,9 @@ def _atomic_write_bytes(target, payload):
         # without kernel-level fault injection -- so this hardening is
         # disclosed as uncovered in the mutation log rather than implied to
         # be tested.
-        if os.name == "posix":
-            try:
-                dir_fd = os.open(str(target.parent), os.O_RDONLY)
-                try:
-                    os.fsync(dir_fd)
-                finally:
-                    os.close(dir_fd)
-            except OSError as exc:
+        try:
+            _fsync_directory(target.parent)
+        except OSError as exc:
                 # The replace already happened: the target is LIVE. Raising a
                 # plain OSError here made the commit loop treat this entry as
                 # never-committed, so the rollback skipped a visibly published
@@ -1681,12 +1699,7 @@ def _restore_to_pre(repo_root, batch_dir, entry):
             # the round-19 rename fsync closed on the write side. A failed
             # fsync propagates as OSError, which the callers already treat as
             # an incomplete rollback that RETAINS the journal: fail-closed.
-            if os.name == "posix":
-                dir_fd = os.open(str(target.parent), os.O_RDONLY)
-                try:
-                    os.fsync(dir_fd)
-                finally:
-                    os.close(dir_fd)
+            _fsync_directory(target.parent)
         return
     _atomic_write_bytes(target, _read_pre_image(batch_dir, entry))
 
@@ -1917,6 +1930,20 @@ def _publish_bundle(repo_root, feature, targets):
     _validate_publication_preconditions(repo_root, feature, batch_dir, targets)
     try:
         (batch_dir / PRE_IMAGE_DIRNAME).mkdir(parents=True, exist_ok=True)
+        # Make the STAGING CHAIN durable before any live rename (openai panel
+        # slot, round 24 Major). Rounds 19-20 fsynced the directories the
+        # published FILES live in, but the batch directory's own entry lives
+        # in the staging root, and the staging root's entry lives in
+        # specs/<feature>. Neither was fsynced, so a power loss could keep a
+        # fsynced live-target rename and lose the nonce directory carrying
+        # the journal -- an undetectable partial publication, the precise
+        # shape REQ-001/AC-047 exist to forbid. Both links in that chain are
+        # fsynced here, before the journal is written and therefore before
+        # the first live rename. Everything INSIDE the batch directory is
+        # covered separately: the journal write fsyncs the batch directory,
+        # making its own entry and the pre/ entry durable together.
+        _fsync_directory(batch_dir.parent)
+        _fsync_directory(batch_dir.parent.parent)
         for target, payload in targets:
             pre_bytes = _live_bytes(target)
             pre_hash = ABSENT if pre_bytes is None else _digest(pre_bytes)

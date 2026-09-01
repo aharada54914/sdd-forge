@@ -3,19 +3,19 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.4",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:2080 and :2107",
-      "note": "Crash recovery ignores the false return from _discard_batch for both all-PRE/all-POST and recovered-MIX journals, then proceeds into a fresh resolve. If cleanup fails, the stale journal remains while new publication may change its targets, potentially converting a safely convergeable journal into an unrecoverable one and violating the contract that recovery deletes the stale journal before proceeding."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1887",
+      "note": "The transaction creates `.resolver-staging/<nonce>` and fsyncs files and the nonce directory, but never fsyncs `.resolver-staging` after creating the nonce directory. A power loss can therefore preserve fsynced live-target renames while losing the nonce-directory entry and its journal, leaving an undetectable partial publication. This violates the crash-recovery and mixed-generation guarantees of REQ-001/AC-047."
     }
   ],
   "blind": true,
-  "input_digest": "5208a28691ce24ccb511bc4d2f1bc4ad63315617a35cc519cc4c08ecadaf8e2f",
+  "input_digest": "fb3712bb87141f9e86515a144571726c4d7a9d4deff6a9c57b9e2f481eab967c",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo 2026-08-08T16:04:17Z"
+    "ref": "tasks.md:T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

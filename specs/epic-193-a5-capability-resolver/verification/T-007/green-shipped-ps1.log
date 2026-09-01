@@ -329,6 +329,10 @@ PASS: publication-fsync-failure: a failed durability barrier on an already-live 
 PASS: publication-fsync-failure: facet-manifest is back at its PRE bytes -- this is the assertion mutant N fails, because an uncounted-but-live rename is skipped by the rollback and its POST bytes stay published
 PASS: publication-fsync-failure: the Block record reached Evidence -- the injection is single-shot, so the direct Evidence write's own barrier succeeded
 PASS: publication-fsync-failure: the journal is gone once the Block record is durable, and no staging litter survives
+PASS: publication-staging-chain-fsync-failure: a failed staging-chain barrier Blocks with a ZERO-rename clause -- the barrier precedes the journal write, so nothing can be live yet
+PASS: publication-staging-chain-fsync-failure: facet-manifest is untouched -- the run refused before publishing anything
+PASS: publication-staging-chain-fsync-failure: the Block record still reached Evidence -- the injection is single-shot, so the Evidence write's own barrier succeeded
+PASS: publication-staging-chain-fsync-failure: no journal and no staging litter survive a refusal that never published
 PASS: post-publication-crash-before-evidence: the first invocation dies in the window rather than exiting normally (the kill hook fired)
 PASS: post-publication-crash-before-evidence: the journal is STILL STANDING after a crash between the rollback and the Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it deleted the journal before that write
 PASS: post-publication-crash-before-evidence: the next invocation consumes that journal -- the crash left a state the recovery scan could converge, not a permanent one
@@ -386,4 +390,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 387 passed, 0 failed
+RESULT: 391 passed, 0 failed

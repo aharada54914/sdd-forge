@@ -301,7 +301,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 387 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 391 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
   step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
