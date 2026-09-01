@@ -1,0 +1,29 @@
+Command: PowerShell AC-015 registration-completeness assertion against aggregate runners and current live workflow basis
+Runtime: PowerShell available at /opt/homebrew/bin/pwsh
+Exit: 1 (expected RED)
+
+ok: aggregate install sh=1 ps1=1
+ok: workflow install sh=1 ps1=1
+ok: aggregate uninstall sh=1 ps1=1
+ok: workflow uninstall sh=1 ps1=1
+ok: aggregate emit-run-record-feature-scope sh=1 ps1=1
+not ok: workflow emit-run-record-feature-scope sh=0 ps1=0
+ok: aggregate loop-inventory sh=1 ps1=1
+ok: workflow loop-inventory sh=1 ps1=1
+ok: aggregate loop-consistency sh=1 ps1=1
+ok: workflow loop-consistency sh=1 ps1=1
+ok: aggregate loop-escalation sh=1 ps1=1
+ok: workflow loop-escalation sh=1 ps1=1
+ok: aggregate compatibility-byte-identical sh=1 ps1=1
+not ok: workflow compatibility-byte-identical sh=0 ps1=0
+ok: aggregate golden-baseline-contract sh=1 ps1=1
+not ok: workflow golden-baseline-contract sh=0 ps1=0
+ok: aggregate structural-compatibility sh=1 ps1=1
+not ok: workflow structural-compatibility sh=0 ps1=0
+ok: aggregate skip-allowlist-manifest sh=1 ps1=1
+not ok: workflow skip-allowlist-manifest sh=0 ps1=0
+ok: aggregate promote-golden-baseline-ci-guard sh=1 ps1=1
+not ok: workflow promote-golden-baseline-ci-guard sh=0 ps1=0
+ok: forbidden gating path absent: structural-compatibility-live-refresh.tests.sh
+ok: forbidden gating path absent: structural-compatibility-live-refresh.tests.ps1
+RED RESULT: failures=6 (expected 6 missing workflow suite pairs)

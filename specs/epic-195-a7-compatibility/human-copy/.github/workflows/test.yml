@@ -42,6 +42,54 @@ jobs:
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
+      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+      # the generated gate-capabilities.json projection, mirroring the guard
+      # invariants --check steps immediately above (design.md Deployment / CI
+      # Plan; infra-spec.md CI/CD Sequence).
+      - name: Verify generated gate-capabilities projection (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+
+      - name: Verify generated gate-capabilities projection (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+
+      # epic-190-a2-capability-registry T-006 (REQ-005 AC-027, Done-When 3):
+      # drift lock for the VENDORED contracts copy under
+      # plugins/sdd-quality-loop/contracts/. This is the SECOND of the two
+      # --check steps tasks.md's Scope assigns to this task in one sentence
+      # (the projection generator's own --check step -- the step pair
+      # immediately above -- "and the vendoring step's `--check` step");
+      # RT-20260809-002 item 1 recorded its absence. Deliberately paraphrased
+      # rather than quoted verbatim: spelling out the projection step's exact
+      # `<script>.py --check` command string here would keep the suite's grep
+      # for that command satisfied even after the step itself were deleted,
+      # silently disarming the assertion. Do not re-introduce the literal.
+      # Release gate per design.md Deployment / CI Plan ("the
+      # vendoring/packaging step's own --check mode (P10, Registry discovery
+      # contract -- sha256 comparison of each canonical contracts/* file
+      # against its vendored plugins/sdd-quality-loop/contracts/* counterpart,
+      # as a release gate)") and infra-spec.md CI/CD Sequence.
+      #
+      # Deliberately a SEPARATE step from the projection drift lock above,
+      # not an extra command inside it: the two scripts compare disjoint
+      # artifact pairs (generated/gate-capabilities.json vs the canonical
+      # Registry; plugins/sdd-quality-loop/contracts/* vs contracts/*), so
+      # removing either step leaves the other's failure mode entirely
+      # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+      # each of the two independently for exactly that reason.
+      - name: Verify vendored contracts copy (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+
+      - name: Verify vendored contracts copy (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
       # log already captures their output.
@@ -411,7 +459,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -610,16 +658,346 @@ jobs:
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
-      # epic-195-a7-compatibility T-004 (REQ-002): deterministic,
-      # recorded-response structural compatibility. No model or network call.
-      - name: Test structural compatibility suite (bash)
+      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+      # post-3baadda5 parallel job split (this feature's own staged candidate
+      # predated that split and was stale against the 9-job/854-line live
+      # file it was meant to extend). Appended at the end of this job,
+      # alongside the other schema/generator suites already registered here
+      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+      # task fixed a location before the split occurred.
+      - name: Test capability-registry-schema suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/capability-registry-schema.tests.sh
+
+      - name: Test capability-registry-schema suite (pwsh)
+        shell: pwsh
+        run: ./tests/capability-registry-schema.tests.ps1
+
+      - name: Test evaluate-predicate suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/evaluate-predicate.tests.sh
+
+      - name: Test evaluate-predicate suite (pwsh)
+        shell: pwsh
+        run: ./tests/evaluate-predicate.tests.ps1
+
+      - name: Test registry-discovery suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/registry-discovery.tests.sh
+
+      - name: Test registry-discovery suite (pwsh)
+        shell: pwsh
+        run: ./tests/registry-discovery.tests.ps1
+
+      - name: Test validate-capability-registry suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/validate-capability-registry.tests.sh
+
+      - name: Test validate-capability-registry suite (pwsh)
+        shell: pwsh
+        run: ./tests/validate-capability-registry.tests.ps1
+
+      - name: Test generate-registry-digest suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-registry-digest.tests.sh
+
+      - name: Test generate-registry-digest suite (pwsh)
+        shell: pwsh
+        run: ./tests/generate-registry-digest.tests.ps1
+
+      - name: Test generate-gate-capabilities suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-gate-capabilities.tests.sh
+
+      - name: Test generate-gate-capabilities suite (pwsh)
+        shell: pwsh
+        run: ./tests/generate-gate-capabilities.tests.ps1
+
+      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+      # cross-script parity and installed-layout invocation harness. Appended
+      # last, closing this feature's suite registration chain in task order.
+      # It shells out to bash, pwsh and node from either entry point, so both
+      # steps carry the same runtime expectations as the suites above.
+      - name: Test capability-registry-parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/capability-registry-parity.tests.sh
+
+      - name: Test capability-registry-parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/capability-registry-parity.tests.ps1
+
+      # epic-191-a3-path-ownership T-001/T-002/T-003/T-004 (CI-staging
+      # registration). All four suites are registered in the live
+      # tests/run-all.{sh,ps1}; this staged candidate supplies their
+      # previously missing direct CI steps. All four are
+      # deterministic: no LLM, no network, no `gh`, and no live sudo
+      # grant. Ordered as in run-all: T-001's resolver suite, then
+      # T-002's diff-basis suite, T-003's ownership-digest suite, then
+      # T-004's component-coverage suite.
+
+      - name: Test component-path-resolver suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/component-path-resolver.tests.sh
+
+      - name: Test component-path-resolver suite (pwsh)
+        shell: pwsh
+        run: ./tests/component-path-resolver.tests.ps1
+
+      - name: Test component-path-diff-basis suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/component-path-diff-basis.tests.sh
+
+      - name: Test component-path-diff-basis suite (pwsh)
+        shell: pwsh
+        run: ./tests/component-path-diff-basis.tests.ps1
+
+      - name: Test ownership-digest suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/ownership-digest.tests.sh
+
+      - name: Test ownership-digest suite (pwsh)
+        shell: pwsh
+        run: ./tests/ownership-digest.tests.ps1
+
+      - name: Test check-component-coverage suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-component-coverage.tests.sh
+
+      - name: Test check-component-coverage suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-component-coverage.tests.ps1
+
+      - name: Test component-path-ownership parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/component-path-ownership-parity.tests.sh
+
+      - name: Test component-path-ownership parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/component-path-ownership-parity.tests.ps1
+
+      # epic-194-a6-lite-integration (issue #194): T-001..T-004 CI-staging
+      # registration, ordered T-001 -> T-002 -> T-003 -> T-004 as tasks.md's
+      # Global Constraints require. All eleven suites are already registered
+      # in the live tests/run-all.{sh,ps1}; this staged candidate supplies
+      # their previously missing direct CI steps. Staged here under
+      # specs/epic-194-a6-lite-integration/human-copy/.github/workflows/
+      # test.yml pending human application to this live file.
+
+      - name: Test human-copy-runner-contract suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        # The runner under test is PowerShell-native only (tasks.md T-001
+        # Planned Files); this suite shells out to pwsh internally.
+        run: bash ./tests/human-copy-runner-contract.tests.sh
+
+      - name: Test human-copy-runner-contract suite (pwsh)
+        shell: pwsh
+        run: ./tests/human-copy-runner-contract.tests.ps1
+
+      - name: Test check-risk-upgrade-byte-identical suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
+
+      - name: Test check-risk-upgrade-byte-identical suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
+
+      - name: Test check-risk-upgrade-capability-merge suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
+
+      - name: Test check-risk-upgrade-capability-merge suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
+
+      - name: Test lite-spec-capability-block suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-spec-capability-block.tests.sh
+
+      - name: Test lite-spec-capability-block suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-spec-capability-block.tests.ps1
+
+      - name: Test lite-gate-summary-consumption suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-consumption.tests.sh
+
+      - name: Test lite-gate-summary-consumption suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-consumption.tests.ps1
+
+      - name: Test lite-gate-summary-absent suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent.tests.sh
+
+      - name: Test lite-gate-summary-absent suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent.tests.ps1
+
+      - name: Test lite-gate-summary-invalid suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-invalid.tests.sh
+
+      - name: Test lite-gate-summary-invalid suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-invalid.tests.ps1
+
+      - name: Test lite-gate-full-upgrade-backstop suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
+
+      - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+
+      # epic-195-a7-compatibility T-011: the six suite pairs not already
+      # registered above complete the gating inventory for T-002..T-010 and
+      # T-013. T-012's live-model refresh remains intentionally non-gating.
+      - name: Test golden-baseline-contract suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/golden-baseline-contract.tests.sh
+
+      - name: Test golden-baseline-contract suite (pwsh)
+        shell: pwsh
+        run: ./tests/golden-baseline-contract.tests.ps1
+
+      - name: Test compatibility-byte-identical suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/compatibility-byte-identical.tests.sh
+
+      - name: Test compatibility-byte-identical suite (pwsh)
+        shell: pwsh
+        run: ./tests/compatibility-byte-identical.tests.ps1
+
+      - name: Test structural-compatibility suite (bash)
         if: runner.os != 'Windows'
         shell: bash
         run: bash ./tests/structural-compatibility.tests.sh
 
-      - name: Test structural compatibility suite (pwsh)
+      - name: Test structural-compatibility suite (pwsh)
         shell: pwsh
         run: ./tests/structural-compatibility.tests.ps1
+
+      - name: Test emit-run-record-feature-scope suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/emit-run-record-feature-scope.tests.sh
+
+      - name: Test emit-run-record-feature-scope suite (pwsh)
+        shell: pwsh
+        run: ./tests/emit-run-record-feature-scope.tests.ps1
+
+      - name: Test skip-allowlist-manifest suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/skip-allowlist-manifest.tests.sh
+
+      - name: Test skip-allowlist-manifest suite (pwsh)
+        shell: pwsh
+        run: ./tests/skip-allowlist-manifest.tests.ps1
+
+      - name: Test promote-golden-baseline-ci-guard suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/promote-golden-baseline-ci-guard.tests.sh
+
+      - name: Test promote-golden-baseline-ci-guard suite (pwsh)
+        shell: pwsh
+        run: ./tests/promote-golden-baseline-ci-guard.tests.ps1
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
@@ -650,7 +1028,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -706,7 +1084,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
@@ -758,7 +1136,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 

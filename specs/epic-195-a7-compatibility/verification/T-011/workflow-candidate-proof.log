@@ -1,0 +1,24 @@
+Protected-file inventory:
+plugins/sdd-quality-loop/references/guard-invariants.json:79:    ".github/workflows/test.yml",
+plugins/sdd-quality-loop/references/guard-invariants.json:236:    ".github/workflows/test.yml",
+protected_status=CONFIRMED
+
+Current live workflow:
+sha256=dc0cc24c18c7edda87c7591f4cc1f0938ea10c5c6788eeb986426c168141d2b0
+lines=1186
+git_diff=NONE
+
+Rebuilt staged candidate:
+sha256=6bdd7676fd9836974e96a8dfe2c4270daa5fded55465a411ccafefcd17193c17
+lines=1243
+diff_from_live=57 added lines, 0 removed lines (45 added nonblank lines)
+yaml_parse=PASS (Ruby Psych)
+
+Manifest verification from human-copy root:
+.github/workflows/test.yml: OK
+
+Safety verification with GOLDEN_WORKFLOW_UNDER_TEST set to the staged candidate:
+Bash: 3 passed, 0 failed
+PowerShell: 3 passed, 0 failed
+The AC-040 guard rejects both exact mutation-capable workflow references; the
+candidate contains suite invocations only, never a baseline promotion command.

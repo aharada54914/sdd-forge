@@ -184,3 +184,22 @@ split moved AC-040/AC-041 and their TEST-040/TEST-041 rows from T-011 to
 T-013 and left AC-015/AC-028 with T-011. T-013 is a new task id and
 therefore carries `Approval: Draft`: it cannot advance past `Planned`
 until a human approves it, and T-011 blocks on it.
+
+## Implementation Status Addendum — T-011 (2026-09-02)
+
+T-011 reached `Implementation Complete` with implementation report
+`reports/implementation/epic-195-a7-compatibility/T-011.md` and evidence under
+`specs/epic-195-a7-compatibility/verification/T-011/`. The dual-runtime AC-015
+RED showed that the aggregate runners already held all eleven unique pairs and
+the current live workflow basis lacked six; GREEN confirms all eleven pairs
+exactly once in both aggregate/runtime paths and the protected staged workflow,
+with T-012's AC-031 live-refresh pair absent from every gating path. The AC-028
+legend confirmation records ASSERT passing evidence, T-010 manifest-backed
+SKIP dependency shapes, and no cases for N/A cells. Because the live workflow
+is R-10 protected, the cumulative candidate and digest are staged at
+`human-copy/.github/workflows/test.yml` and `human-copy/MANIFEST.sha256`;
+human application remains required. REQ-005 remains `In Progress` pending
+that human apply step and T-011's independent quality-gate/cross-model
+verification; this implementation report is a claim, not an independent
+verdict. T-013 independently reached `Implementation Complete` before this
+task, superseding the Phase-2 paragraph's obsolete Planned/Draft description.
