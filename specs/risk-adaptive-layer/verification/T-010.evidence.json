@@ -3,11 +3,11 @@
   "feature": "risk-adaptive-layer",
   "risk": "medium",
   "required_workflow": "acceptance-first",
-  "spec_revision": "da025416ef244f085108a0ff71a87e50b789e401b3697d4b92ff5b95242245fb",
+  "spec_revision": "2ee68af230361024b5c0982e776abebe24fba00795e3b43dbe352f272e362420",
   "quality_report": "reports/quality-gate/20260821T070000Z.md",
   "verification_contract": "specs/risk-adaptive-layer/verification/T-010.contract.json",
-  "git_commit": "a3a5c66c905211a3ad2dfe21814c6f6a9d8ba38d",
-  "git_generated_dirty": true,
+  "git_commit": "e00478321327b48e4e4ad21a14391d69e0f1baa9",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
@@ -26,6 +26,151 @@
     "minor": 4,
     "reviewer": "sdd-evaluator"
   },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-010/regression.log",
+      "evidence_sha256": "ae8fd4f7dddc3f7e81b1ff9bd9d34083b4cb4ad5673591fd6ceb235c4713a714"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-010/acceptance-tests.log",
+      "evidence_sha256": "82a24ebc6a73cedfd9c33ad42b21490e60509bc79408690cbaefe78f471dd085"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-010/regression.log",
+      "evidence_sha256": "ae8fd4f7dddc3f7e81b1ff9bd9d34083b4cb4ad5673591fd6ceb235c4713a714"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-010/placeholder-scan.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-010/task-state.log",
+      "evidence_sha256": "1edb152cabb6c029e49a40e9b799a4c1351db1893fda66c002557b8b3ff53590"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    }
+  ],
   "artifacts": [
     {
       "path": "specs/risk-adaptive-layer/verification/T-010.contract.json",

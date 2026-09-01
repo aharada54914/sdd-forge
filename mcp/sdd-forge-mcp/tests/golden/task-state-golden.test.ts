@@ -19,6 +19,7 @@ import { realpathSync } from "node:fs";
 import { parseTaskState } from "../../src/parsers/tasks.js";
 import type { SddRoot } from "../../src/root.js";
 import {
+  environmentDependentBundleFailures,
   extractOwnFailureMessages,
   findRepoRoot,
   loadRecordedFixture,
@@ -110,6 +111,31 @@ test("live shell comparison: parseTaskState matches check-task-state.sh for ever
     // produce specs\<feature>\tasks.md and be denied).
     const relTasksPath = `specs/${feature}/tasks.md`;
     const parserResult = parseTaskState(root, feature, relTasksPath);
+
+    // Environment-dependent shell failures are reported, never compared. The
+    // shell validates evidence bundles against the checkout's git object graph;
+    // parseTaskState never runs git, so when a bundle's recorded commit has
+    // become unreachable the two sides disagree for a reason that says nothing
+    // about the parser and that flips between machines for the same tree.
+    // Comparing anyway produced a red CI on 2026-08-31 that was green on the
+    // developer machine holding the orphaned object.
+    //
+    // The parser is still required to have produced a usable result, and the
+    // cause is printed so a degraded checkout can never look like a clean run.
+    const environmentCauses = environmentDependentBundleFailures(combinedOutput, ownFailureMessages);
+    if (environmentCauses.length > 0) {
+      assert.equal(
+        parserResult.ok,
+        true,
+        `${feature}: parser must still succeed when the shell fails for environment-only reasons`,
+      );
+      t.diagnostic(
+        `${feature}: verdict comparison skipped — the shell failed only on ` +
+          `checkout-dependent evidence-bundle causes the parser cannot observe: ` +
+          environmentCauses.join("; "),
+      );
+      continue;
+    }
 
     assertParserMatchesShell(feature, parserResult, exitCode, fileNotFound, ownFailureMessages);
   }
