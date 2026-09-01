@@ -288,7 +288,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
   シナリオ追加であり新しい diagnostic-id 行は導入しないので、
   マトリクスは 16 行のまま。round 12 の leaf-symlink scenario を含む
-  T-007 自身の fixture scenario directory 総数は 11 本。
+  T-007 自身の fixture scenario directory 総数は 13 本。
   新しい TEST-010 完全性チェックは**カバレッジ検査**であって
   emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
   `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
@@ -321,7 +321,8 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   **現在の未カバーは 2 件（F と O）**。到達不能とした主張は D・M と
   2 度誤りだったと判明している（D は round 19 の
   `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
-  それぞれ kill した）。15 mutant 中 13 件が被覆済み。この段落自体、
+  それぞれ kill した）。16 mutant 中 14 件が被覆済み（round 24 で staging chain の
+  永続化障壁を mutant P として追加し、専用 fixture で kill）。この段落自体、
   「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
   件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
   際、直下の列挙を 3 件のまま残していた。しかも先頭に挙げていた

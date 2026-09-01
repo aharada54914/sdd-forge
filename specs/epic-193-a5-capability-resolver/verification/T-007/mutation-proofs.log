@@ -81,26 +81,38 @@ RESULT: 389 passed, 2 failed
 mutant M injected: write-side directory fsync disabled
 --- MUTANT M: write-side directory fsync disabled (expect fsync-failure FAIL) ---
 RESULT: 388 passed, 3 failed
-(COVERED as of round 22, and the old note here was wrong for the second
- time in this log: it said the fsync was observable only across a power
- loss. That is true of the DURABILITY the fsync buys, but not of the
- CALL itself -- the fault-injection fixture wraps os.fsync, so removing
- the call makes the injected failure never fire, the publication
- succeeds where the fixture expects a Block, and the mutant dies. It
- was found killable by accident, when this mutant crashed the fixture
- through an unguarded diagnostics[0] index on the success path.)
+(COVERED, and this note has now been wrong TWICE. It first claimed the
+ fsync was observable only across a power loss -- true of the DURABILITY
+ the call buys, false of the CALL itself, which a fault-injection
+ overlay wrapping os.fsync can see directly. Round 24 then exposed the
+ second error: the overlay kept CLOSED directory fd numbers in its
+ watch set, the kernel reused one for a temp file, and the injection was
+ firing on a FILE fsync inside _atomic_write_bytes -- so this mutant
+ died for the wrong reason. A stack-trace probe located the real firing
+ site; the overlay now discards fds on close, and under this mutant the
+ injection provably never fires at all.)
 mutant N injected: live-but-unfsynced rename no longer counted as committed
 --- MUTANT N: count-before-raise reverted (expect fsync-failure case FAIL) ---
 RESULT: 389 passed, 2 failed
 mutant O injected: unlink-side directory fsync removed
 --- MUTANT O: unlink-side fsync removed ---
 RESULT: 391 passed, 0 failed
-(A tally here EQUAL to the clean control run means mutant O is UNCOVERED,
- and it is expected to be: like M, the deletion durability barrier is
- only observable across a power loss between the unlink and the fsync.
- Unlike the write-side counting fix, no in-process injection can make
- the DIFFERENCE visible, because the end state is identical on every
- non-crashing path. Disclosed, not implied covered.)
+(UNCOVERED, with a MEASURED reason rather than an impossibility claim.
+ The note that stood here said no in-process injection could observe
+ this barrier. A round-25 panelist refuted that using the argument that
+ had already killed the same claim for mutant M, and the panelist was
+ right about the principle: an overlay wrapping os.fsync does make the
+ CALL observable. What blocks coverage is narrower and factual --
+ plant_sentinels writes ALL THREE publication artifacts before every
+ fixture runs, so no rollback in this suite reaches _restore_to_pre
+ ABSENT branch at all. Three attempts at a fixture were made and
+ withdrawn: arming on _restore_to_pre alone fired on the NON-ABSENT
+ branch write-side fsync instead; excluding _atomic_write_bytes then
+ never fired; removing a sentinel at overlay-import time did not
+ produce an ABSENT PRE either. Reaching it needs a fixture whose PRE
+ state genuinely omits an artifact. That is open work, not a proof of
+ impossibility -- four such proofs have been offered in this task
+ (C, D, M, O) and all four were wrong.)
 mutant P injected: staging-chain durability barrier removed
 --- MUTANT P: staging-chain fsync removed (expect staging-chain case FAIL) ---
 RESULT: 390 passed, 1 failed

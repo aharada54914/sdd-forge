@@ -30,25 +30,8 @@ _FEATURE_DIR_SUFFIX = os.path.join("specs", "example-feature")
 _real_open = os.open
 _real_fsync = os.fsync
 _real_close = os.close
-_real_replace = os.replace
 _feature_dir_fds = set()
-_renamed = []
 _fired = []
-
-
-def _tracking_replace(src, dst, *args, **kwargs):
-    result = _real_replace(src, dst, *args, **kwargs)
-    # Arm only once a rename has actually landed in the feature directory.
-    # Round 24 added a staging-chain fsync of that same directory BEFORE the
-    # first rename, so an unarmed overlay fired there instead and produced a
-    # zero-rename Block -- correct behaviour, but not the state this case
-    # exists to observe. The arm makes the fixture mean what its name says.
-    try:
-        if os.path.realpath(os.path.dirname(os.fsdecode(dst))).endswith(_FEATURE_DIR_SUFFIX):
-            _renamed.append(dst)
-    except Exception:
-        pass
-    return result
 
 
 def _tracking_open(path, flags, *args, **kwargs):
@@ -88,4 +71,3 @@ def _failing_fsync(fd):
 os.open = _tracking_open
 os.fsync = _failing_fsync
 os.close = _tracking_close
-os.replace = _tracking_replace
