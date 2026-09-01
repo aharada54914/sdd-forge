@@ -1,0 +1,20 @@
+diff --git a/plugins/sdd-review-loop/references/reviewer-calibration.md b/plugins/sdd-review-loop/references/reviewer-calibration.md
+index 7025f46e..00000000 100644
+--- a/plugins/sdd-review-loop/references/reviewer-calibration.md
++++ b/plugins/sdd-review-loop/references/reviewer-calibration.md
+@@ -144,7 +144,15 @@ amendment commit hashes, per-document SHA-256 as of each amendment commit, a
+ verbatim dated quotation of the human's approval statement, and a commit or
+ SHA-256 reference (never a bare path) for every later-phase artifact
+ mentioned. The entry must cover the whole completion chain -- an amendment
+ that grew across several commits lists every one. If any element is missing,
+ abbreviated, paraphrased, or given as a bare path, the declaration does not
+ apply and the default calibration stands with no benefit of the doubt.
++
++Keep this evidence record append-only. When a later amendment supersedes a
++document fingerprint, append a new fingerprint block at the tail of the
++`## Amendment Re-Review Context` section and name the earlier fingerprint it
++supersedes. Never rewrite or delete the earlier block, and never splice the
++replacement into the middle of the section. The workflow-state growth
++predicate requires the bytes pinned by the earlier stage to remain an exact
++prefix of that section; deletion-free editing alone is not sufficient.
+ 

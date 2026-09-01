@@ -1,0 +1,178 @@
+Subject: feat(wfi): implement WFI-060 round-advance investigation hash
+
+Apply from the repository root after human review:
+
+    git apply --check docs/ci-staging/WFI-060.patch
+    git apply docs/ci-staging/WFI-060.patch
+
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -341,8 +341,29 @@ if [[ "$round" -gt 1 ]]; then
+   validate_contract "$prior_contract" "$attempt" "$((round - 1))" "NEEDS_WORK" "${prior_dir}/precheck-result.json" \
+     || fail "prior round contract is malformed or does not require work"
+   prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
+   prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
+-  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
++  investigation_rel="specs/${feature}/investigation.md"
++  prior_investigation_values="$(jq -c --arg rel "$investigation_rel" '
++    [.reviewers[].allowed_input_manifest[]?
++      | select(.path == $rel or (.path | endswith("/" + $rel)))
++      | .sha256]
++    | unique
++  ' "$prior_contract")"
++  prior_investigation_count="$(jq -r 'length' <<<"$prior_investigation_values")"
++  prior_investigation_sha=""
++  investigation_sha=""
++  if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
++    [[ "$prior_investigation_count" == 1 ]] \
++      || fail "prior round contract must pin exactly one investigation.md hash"
++    prior_investigation_sha="$(jq -r '.[0]' <<<"$prior_investigation_values")"
++    [[ "$prior_investigation_sha" =~ ^[0-9a-f]{64}$ ]] \
++      || fail "prior round contract investigation.md hash is malformed"
++    investigation_sha="$(sha256 "${spec_dir}/investigation.md")"
++  else
++    [[ "$prior_investigation_count" == 0 ]] \
++      || fail "prior round contract pins a missing investigation.md"
++  fi
++  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" || "$investigation_sha" != "$prior_investigation_sha" ]] \
+     || fail "reviewed inputs are unchanged from the prior round"
+ fi
+ 
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+@@ -486,8 +486,36 @@ if ($roundInt -gt 1) {
+   }
+   $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json
+   $priorRequirementsSha = [string]$priorData.requirements_sha256
+   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
+-  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {
++  $investigationRelative = "specs/$Feature/investigation.md"
++  $investigationSuffix = "/$investigationRelative"
++  $priorInvestigationHashes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
++  foreach ($reviewer in @($priorData.reviewers)) {
++    foreach ($entry in @($reviewer.allowed_input_manifest)) {
++      $entryPath = [string]$entry.path
++      if ((Test-OrdinalEqual $entryPath $investigationRelative) -or $entryPath.EndsWith($investigationSuffix, [System.StringComparison]::Ordinal)) {
++        [void]$priorInvestigationHashes.Add([string]$entry.sha256)
++      }
++    }
++  }
++  $investigationPath = Join-Path $specDir 'investigation.md'
++  $priorInvestigationSha = ''
++  $investigationSha = ''
++  if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Get-Item -LiteralPath $investigationPath).LinkType) {
++    if ($priorInvestigationHashes.Count -cne 1) {
++      Fail 'prior round contract must pin exactly one investigation.md hash'
++    }
++    $priorInvestigationSha = [string]@($priorInvestigationHashes)[0]
++    if ($priorInvestigationSha -cnotmatch '^[0-9a-f]{64}$') {
++      Fail 'prior round contract investigation.md hash is malformed'
++    }
++    $investigationSha = (Get-FileHash -LiteralPath $investigationPath -Algorithm SHA256).Hash.ToLowerInvariant()
++  } elseif ($priorInvestigationHashes.Count -cne 0) {
++    Fail 'prior round contract pins a missing investigation.md'
++  }
++  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and
++      (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha) -and
++      (Test-OrdinalEqual $investigationSha $priorInvestigationSha)) {
+     Fail 'reviewed inputs are unchanged from the prior round'
+   }
+ }
+--- a/tests/spec-review-loop.tests.sh
++++ b/tests/spec-review-loop.tests.sh
+@@ -4,6 +4,7 @@ set -euo pipefail
+ 
+ ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+ PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
++PS_PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+ IMPL_PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
+ FEATURE="spec-review-fixture-$RANDOM-$$"
+ SPEC_DIR="${ROOT}/specs/${FEATURE}"
+@@ -378,6 +378,87 @@ pin_investigation "${SEALED}"
+   "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
+ mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
+ expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
++
++# WFI-060: round advance compares all three reviewed feature inputs against
++# the prior sealed contract. The investigation-only case is the regression
++# that deadlocked epic-196 attempt 4 after its approved amendment record grew.
++cleanup
++mkdir -p "${SPEC_DIR}"
++printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
++printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
++printf '# Investigation\n\n- Prior evidence.\n' > "${SPEC_DIR}/investigation.md"
++"${PRECHECK}" "${FEATURE}" 1 1
++SEALED="${REPORT_ROOT}/attempt-1/round-1"
++write_contract "${SEALED}" NEEDS_WORK Major
++pin_investigation "${SEALED}"
++expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='no reviewed input changed'
++if command -v pwsh >/dev/null 2>&1 && pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'no reviewed input changed' >/dev/null 2>&1; then
++  fail "PowerShell admitted an unchanged reviewed-input triad"
++fi
++printf '\n- Approved amendment evidence.\n' >> "${SPEC_DIR}/investigation.md"
++if command -v pwsh >/dev/null 2>&1; then
++  pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'investigation.md amendment evidence changed' || fail "PowerShell refused an investigation-only change"
++  rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++fi
++"${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='investigation.md amendment evidence changed' ||
++  fail "an investigation-only change must admit the next round"
++rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++printf '# Investigation\n\n- Prior evidence.\n' > "${SPEC_DIR}/investigation.md"
++printf '# Requirements changed\nSpec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
++if command -v pwsh >/dev/null 2>&1; then
++  pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'requirements.md changed' || fail "PowerShell refused a requirements-only change"
++  rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++fi
++"${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='requirements.md changed' ||
++  fail "a requirements-only change must admit the next round"
++rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
++printf '# Acceptance changed\n' > "${SPEC_DIR}/acceptance-tests.md"
++if command -v pwsh >/dev/null 2>&1; then
++  pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'acceptance-tests.md changed' || fail "PowerShell refused an acceptance-only change"
++  rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++fi
++"${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='acceptance-tests.md changed' ||
++  fail "an acceptance-only change must admit the next round"
++rm -rf "${REPORT_ROOT}/attempt-1/round-2"
++printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
++printf 'unrelated\n' > "${ROOT}/wfi-060-unrelated.tmp"
++expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='only an unrelated file changed'
++if command -v pwsh >/dev/null 2>&1 && pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'only an unrelated file changed' >/dev/null 2>&1; then
++  fail "PowerShell admitted an unrelated-file-only change"
++fi
++rm -f "${ROOT}/wfi-060-unrelated.tmp"
++
++# Missing or conflicting predecessor evidence fails closed.
++for evidence_file in reviewer-a.json reviewer-b.json spec-review-contract.json; do
++  tmp_contract="${SEALED}/${evidence_file}.tmp"
++  if [[ "${evidence_file}" == spec-review-contract.json ]]; then
++    jq '(.reviewers[].allowed_input_manifest) |= map(select(.path | endswith("/investigation.md") | not))' \
++      "${SEALED}/${evidence_file}" > "${tmp_contract}"
++  else
++    jq '.allowed_input_manifest |= map(select(.path | endswith("/investigation.md") | not))' \
++      "${SEALED}/${evidence_file}" > "${tmp_contract}"
++  fi
++  mv "${tmp_contract}" "${SEALED}/${evidence_file}"
++done
++expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='investigation evidence missing'
++if command -v pwsh >/dev/null 2>&1 && pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'investigation evidence missing' >/dev/null 2>&1; then
++  fail "PowerShell admitted missing prior investigation evidence"
++fi
++write_contract "${SEALED}" NEEDS_WORK Major
++pin_investigation "${SEALED}"
++tmp_reviewer="${SEALED}/reviewer-b.tmp"
++jq '.allowed_input_manifest += [{path:"specs/'"${FEATURE}"'/investigation.md",sha256:"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
++  "${SEALED}/reviewer-b.json" > "${tmp_reviewer}"
++mv "${tmp_reviewer}" "${SEALED}/reviewer-b.json"
++tmp_contract="${SEALED}/spec-review-contract.tmp"
++jq '.reviewers[1].allowed_input_manifest += [{path:"specs/'"${FEATURE}"'/investigation.md",sha256:"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
++  "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
++mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
++expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary='investigation evidence ambiguous'
++if command -v pwsh >/dev/null 2>&1 && pwsh -NoProfile -File "${PS_PRECHECK}" -Feature "${FEATURE}" -Attempt 1 -Round 2 -EditSummary 'investigation evidence ambiguous' >/dev/null 2>&1; then
++  fail "PowerShell admitted ambiguous prior investigation evidence"
++fi
+ 
+ cleanup
+ mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
