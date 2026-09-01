@@ -150,7 +150,11 @@ review-pinned package — is the durable, citable approval record.
   `modified`, which covers same-format content drift), with both
   `installed_sha256` and `repo_sha256` populated. This closes T-002's
   blocked attempt, which had correctly declined to invent this semantics
-  itself (`reports/implementation/epic-196-a8-integration/T-002.md`).
+  itself. That later-phase implementation report is cited here commit- and
+  hash-bound, per this section's own all-or-nothing evidence bar:
+  `reports/implementation/epic-196-a8-integration/T-002.md` — SHA-256
+  `ee04ed7549458560433040e9ea60e53f8bf67cb1d511ede6a5155c273f6246bf`, as
+  landed by commit `28a346ae3108665962765555c63096aaae31d220`.
 
 Because these approvals were given in conversation, this committed entry
 is itself the durable record of them; no other citable artifact carries
@@ -504,8 +508,27 @@ either rule, and is the form every later amendment in this package uses.
   machine-checkable enforcement mechanism" requirements.md's own AC-006
   bullet already claimed for this gate before any mechanism existed.
   The tempting alternatives were rejected on evidence, not taste:
-  `specs/epic-196-a8-integration/verification/T-005/` already holds
-  four files while T-005's lifecycle field still reads `Planned`, so
+  `specs/epic-196-a8-integration/verification/T-005/` — cited commit- and
+  hash-bound per this section's all-or-nothing evidence bar, as landed by
+  commit `4f02732c45ce8dfa942bcafafc8801ce9f429936`, whose files are
+  `green-ps1.log`
+  (`3a333d60e7f81c9fbaaef60a1621f70cf2b0fcfb494982b17d9115366dd44f16`),
+  `green-sh.log`
+  (`70315d0255c16faaed81c4471c1b965076bdb8e5c05f1ec78b801e88387be44a`),
+  `permissive-validator.py`
+  (`a117e98edb2cc37b06d61db62df0bbdabe2d3f6e0b53d667554e7239e45fb85e`),
+  `red-evidence.md`
+  (`350478c63fb74dc44605f1b3d3eb9fdb9f3cf3eecb9ea7e35318238f2bffa310`),
+  `review-red.md`
+  (`404b8a85d78359c0832b4023a32fa5901fd83dd1a33f0592828227f1ac8633c0`),
+  `test-yml-live-host-proof-candidate.yml`
+  (`7f8a1a81733c33ba695f40be36b55e3ea8bf6e8f11f8571a76ff413f0e299104`),
+  `traceability.json`
+  (`34caf3c20d8522ce8f9efb67aa9b6d7a81365b98769230b6c35187f2d21ab5f2`)
+  and `traceability.log`
+  (`0d760aa01d09ff745285e12cb961125a3e6cab08e13d14978bf99e14d6d94dc8`) —
+  already held files while T-005's lifecycle field still read `Planned`
+  at the time this passage was written, so
   keying clause (a) to that directory would activate AC-006
   immediately — the exact outcome clause (a) exists to prevent; an
   implementation report is required only at `Implementation Complete`,
