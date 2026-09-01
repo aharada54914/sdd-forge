@@ -18,7 +18,7 @@
 | Tampering | Context changes after approval | content binding + HMAC | TEST-002, TEST-018 |
 | Repudiation | promotion has no evidence identity | promotion record and saved artifacts | TEST-012 |
 | Information disclosure | token/host data enters evidence | synthetic fixtures and redaction | TEST-007, TEST-024 |
-| Denial of service | required mode promoted on noisy Pack | OQ-003 thresholds, advisory phase | TEST-013 |
+| Denial of service | required mode promoted on noisy Pack | OQ-003 thresholds, full advisory release cycle | TEST-013, TEST-027 |
 | Elevation | agent applies protected rollback | human-copy boundary | TEST-002, TEST-018 |
 
 ## Authentication Flow
@@ -56,12 +56,12 @@ regression target.
 
 ## Security Tests
 
-TEST-002, TEST-007, TEST-012–018, and TEST-024 cover the named boundaries.
+TEST-002, TEST-007, TEST-012–018, TEST-024, TEST-027, and TEST-028 cover the named boundaries.
 High-risk implementation tasks must complete AGENTS.md's persisted-field
 mismatch-test preflight before production edits.
 
 ## Open Questions
 
 OQ-004 is security-significant and requires an explicit human ruling. OQ-002 and
-OQ-005 also require security review because path scope and required gates can
-weaken policy.
+OQ-006 also require security review because path scope and required gates can
+weaken policy. OQ-005 selection/order is resolved by Issue #197 line 17.

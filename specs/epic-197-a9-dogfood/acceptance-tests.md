@@ -28,7 +28,15 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-022 | REQ-012 | TEST-022 | parity | applicable shell and PowerShell entry points pass | Planned |
 | AC-023 | REQ-012 | TEST-023 | CI | checks run on three OSes in existing topology | Planned |
 | AC-024 | REQ-012 | TEST-024 | regression | Phase 1/2 preserve three-host install/release behavior | Planned |
+| AC-025 | REQ-013 | TEST-025 | ownership | `specs/` and every approved growing path are cross-cutting from bootstrap | Planned |
+| AC-026 | REQ-014 | TEST-026 | provenance | all A1-A8 dependencies usable; #197 recorded under #187 | Planned |
+| AC-027 | REQ-006 | TEST-027 | operational | every PR in one bounded full release cycle passed advisory Gate | Planned |
+| AC-028 | REQ-008 | TEST-028 | end-to-end | one real post-promotion feature completes under facet-hybrid/required | Planned |
+| AC-029 | REQ-010 | TEST-029 | process | friction WFI references recorded, or literal `none` when zero | Planned |
 
 Coverage note: AC-015 expands both partial-transition branches; AC-018 expands
 all four invalid-sidecar branches; AC-021's oracle covers Registry, guards,
 components, Active Specs, WFI namespace, and protected targets individually.
+AC-027 quantifies over every PR in the named cycle; AC-029 covers both observed
+friction and zero-friction branches and names path ownership, staleness, and
+approval flow individually.

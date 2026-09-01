@@ -12,8 +12,10 @@ Release remains the existing GitHub workflow (`.github/workflows/release.yml:26-
 2. Validate Context, component ownership, Registry, and resolver outputs.
 3. Run Bash/PowerShell parity and existing cross-OS matrices.
 4. In Phase 1, report Pack findings advisory-only.
-5. After separately approved promotion, enforce Pack-required gates.
-6. Keep release publication behind its existing loop gate.
+5. Retain evidence that every PR passed that advisory Gate for one full release cycle.
+6. After separately approved promotion, enforce Pack-required gates and complete
+   at least one real feature end-to-end under `facet-hybrid`.
+7. Keep release publication behind its existing loop gate.
 
 ## Environments
 
@@ -46,8 +48,9 @@ as documented (`README.md:132-144`).
 
 ## Observability
 
-Saved preflight, resolver, promotion, rollback, parity, and regression logs with
-stable run identity and bound revisions/digests.
+Saved preflight, resolver, promotion, rollback, parity, regression, full-cycle
+PR-roster, post-promotion feature, and friction-result logs with stable run
+identity and bound revisions/digests.
 
 ## Cost Estimate
 
@@ -62,4 +65,3 @@ approval (`docs/adr/0019-approval-sidecar-protection.md:83-112`).
 ## Open Questions
 
 OQ-003 fixes evidence thresholds; OQ-004 fixes operational rollback steps.
-
