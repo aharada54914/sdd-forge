@@ -1,0 +1,216 @@
+{
+  "feature": "epic-196-a8-integration",
+  "generated_by": "Derived mechanically from specs/epic-196-a8-integration/traceability.md by scratchpad/derive-e196-traceability.py (RT-20260831-005); evidence paths restricted to files present on disk at derivation time.",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-004",
+        "TEST-005",
+        "TEST-006"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-001/activation-gate-mutation.log",
+        "specs/epic-196-a8-integration/verification/T-001/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-001/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-001/quality-gate-observed.log",
+        "specs/epic-196-a8-integration/verification/T-001/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-001/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-002/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-002/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-002/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-002/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-002/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-002/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-003/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-004/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-006/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-006/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-006/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-006/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-006/reviewer-handoff.json",
+        "specs/epic-196-a8-integration/verification/T-006/static-validation.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010",
+        "AC-011"
+      ],
+      "tests": [
+        "TEST-007",
+        "TEST-008",
+        "TEST-009",
+        "TEST-010",
+        "TEST-011"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-003/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-007/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-008/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-008/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-008/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-008/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-008/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-008/traceability.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-012",
+        "AC-013",
+        "AC-014",
+        "AC-015",
+        "AC-016",
+        "AC-017",
+        "AC-028"
+      ],
+      "tests": [
+        "TEST-012",
+        "TEST-013",
+        "TEST-014",
+        "TEST-015",
+        "TEST-016",
+        "TEST-017",
+        "TEST-028"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-004/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-004/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-008/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-008/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-008/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-008/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-008/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-008/traceability.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-018",
+        "AC-019",
+        "AC-020",
+        "AC-021"
+      ],
+      "tests": [
+        "TEST-018",
+        "TEST-019",
+        "TEST-020",
+        "TEST-021"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-006/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-006/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-006/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-006/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-006/reviewer-handoff.json",
+        "specs/epic-196-a8-integration/verification/T-006/static-validation.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-022",
+        "AC-023",
+        "AC-024"
+      ],
+      "tests": [
+        "TEST-022",
+        "TEST-023",
+        "TEST-024"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-002/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-002/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-002/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-002/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-002/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-002/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-003/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-003/red-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-025",
+        "AC-026",
+        "AC-027"
+      ],
+      "tests": [
+        "TEST-025",
+        "TEST-026",
+        "TEST-027"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-005/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-005/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.json",
+        "specs/epic-196-a8-integration/verification/T-005/traceability.log",
+        "specs/epic-196-a8-integration/verification/T-007/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": [
+        "AC-029",
+        "AC-030"
+      ],
+      "tests": [
+        "TEST-029",
+        "TEST-030"
+      ],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-007/green-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/green-sh.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-ps1.log",
+        "specs/epic-196-a8-integration/verification/T-007/red-sh.log"
+      ]
+    }
+  ]
+}
