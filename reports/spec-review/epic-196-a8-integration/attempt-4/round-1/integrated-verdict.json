@@ -1,0 +1,14 @@
+{
+  "schema":"spec-review-integrated-verdict/v1",
+  "stage":"spec",
+  "feature":"epic-196-a8-integration",
+  "attempt":4,
+  "round":1,
+  "reviewer_a_run_id":"RUN-epic-196-a8-integration-spec-reviewer-a-a4r1-seq901",
+  "reviewer_b_run_id":"RUN-epic-196-a8-integration-spec-reviewer-b-a4r1-seq902",
+  "reviewer_a_host_session_id":"SESS-spec-a-epic-196-a8-integration-a4r1-seq901",
+  "reviewer_b_host_session_id":"SESS-spec-b-epic-196-a8-integration-a4r1-seq902",
+  "finding_counts":{"critical":1,"major":0,"minor":0},
+  "verdict":"NEEDS_WORK",
+  "warningCount":0
+}

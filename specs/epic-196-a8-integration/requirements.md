@@ -1,6 +1,6 @@
 # Requirements: epic-196-a8-integration
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/196 (Epic A8,
 tracked under #187 / Epic A0 #188)
 
