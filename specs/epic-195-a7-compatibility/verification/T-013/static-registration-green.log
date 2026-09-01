@@ -1,0 +1,8 @@
+Bash parse OK
+PowerShell parse OK
+registration OK: tests/run-all.sh line 119
+registration OK: tests/run-all.ps1 line 71
+detection-source self-scan OK: neither contiguous forbidden token occurs in either suite source
+registration negative mismatch check OK: deleting either exact entry from a temporary runner copy makes its required-entry assertion fail
+case-sensitivity sweep OK: Bash grep -F/== and PowerShell StringComparison.Ordinal/-ceq are case-sensitive; both suites accept an uppercase negative fixture
+exit_code=0

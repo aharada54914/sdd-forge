@@ -1,0 +1,5 @@
+ok: AC-040 rejects both exact mutation-capable workflow references
+ok: AC-041 refuses non-empty CI before candidate or canonical file I/O
+ok: AC-041 refuses omitted or empty approval without canonical write
+3 passed, 0 failed
+exit_code=0
