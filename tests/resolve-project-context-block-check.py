@@ -4271,6 +4271,29 @@ def run_block_matrix_completeness_check(counts):
         "TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows",
         repr(enum_ids),
     )
+    # TEST-014 is scoped by the requirement to EVERY diagnostic line the
+    # Resolver emits, not only the ones this suite's fixtures happen to
+    # reach. Round 27's OpenAI Major was exactly that gap: a success-path
+    # `capability-resolver: warning: ...` line, emitted on a cleanup failure
+    # no fixture drives, used a token absent from the closed enum and the
+    # runtime assertion below could never see it. This reads the shipped
+    # source and checks every LITERAL diagnostic prefix it writes, so the
+    # class is caught whether or not a fixture reaches the line.
+    resolver_source = (STAGED / "resolve-project-context.py").read_text(encoding="utf-8")
+    emitted_prefixes = set()
+    for line in resolver_source.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue  # a comment quoting a rejected line is not an emission
+        for m in re.finditer(r'"capability-resolver: ([a-z][a-z0-9-]*): ', line):
+            emitted_prefixes.add(m.group(1))
+    counts.check(
+        emitted_prefixes <= set(enum_ids),
+        "TEST-014: every literal diagnostic prefix in the SHIPPED SOURCE uses a check-id from the "
+        "closed enum -- a line no fixture reaches is still bound by AC-014",
+        f"non-enum prefixes: {sorted(emitted_prefixes - set(enum_ids))}",
+    )
+
     observed = counts.observed_diagnostic_ids
     counts.check(
         observed <= set(enum_ids),

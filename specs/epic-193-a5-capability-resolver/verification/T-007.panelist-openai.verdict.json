@@ -2,7 +2,7 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "2eaecf9520ea843a4b77568cae0a3335ebd933a2c01245f7359c41afd68be4fc",
+  "input_digest": "287f44e00350d2747ad9e550d4d930472355d2df5082d4fda31e7769fe8b6f57",
   "vendor": "openai",
   "model": "gpt-5",
   "consent": {
@@ -13,8 +13,8 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2280",
-      "note": "`_write_evidence` catches `_ReplacedButNotDurable`\u2014which explicitly means the Evidence rename's parent-directory durability barrier failed\u2014and nevertheless returns normally. `_block_reporting` consequently reports `wrote_evidence=True`, allowing all three rollback callers at lines 3440, 3470, and 3501 to discard the transaction journal. A crash can therefore persist the journal deletion while losing the Block-record rename, leaving the publication artifacts rolled back but the prior success-form Evidence (or no Evidence) live with no journal remaining to expose or recover the inconsistency. This contradicts the implementation's stated requirement that the journal outlive the rollback until the Block record is durable; the bundle's mutant F is equal to the clean tally and does not cover this directory-fsync failure path."
+      "ref": "plugins/sdd-quality-loop/scripts/resolve-project-context.py:3531",
+      "note": "When successful publication is followed by `_discard_batch` failure, the Resolver emits `capability-resolver: warning: ...`. This is a reachable Resolver-owned diagnostic line, but `warning` is not one of REQ-002's closed sixteen diagnostic IDs, directly violating AC-014's requirement that every emitted diagnostic use `capability-resolver: <check-id>: <detail>` with `<check-id>` drawn only from that enum. The captured tests only validate IDs emitted by their registered Block fixtures and do not exercise this cleanup-failure line."
     }
   ]
 }

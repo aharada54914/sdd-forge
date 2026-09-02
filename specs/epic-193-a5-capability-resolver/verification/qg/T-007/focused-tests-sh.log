@@ -375,6 +375,7 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
 PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
+PASS: TEST-014: every literal diagnostic prefix in the SHIPPED SOURCE uses a check-id from the closed enum -- a line no fixture reaches is still bound by AC-014
 PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
 PASS: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete)
 PASS: TEST-059: the live Resolver family is either wholly applied or wholly unapplied -- a partial application would leave an unscanned live twin
@@ -390,4 +391,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 391 passed, 0 failed
+RESULT: 392 passed, 0 failed

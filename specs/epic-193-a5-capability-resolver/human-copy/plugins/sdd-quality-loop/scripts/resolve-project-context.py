@@ -3518,20 +3518,22 @@ def main(argv=None):
     # Complete (design.md step 5): every rename succeeded AND the
     # post-publication verification passed -- delete the journal. This is
     # this invocation's own success path, exit 0.
-    if not _discard_batch(transaction.batch_dir):
-        # The publication itself succeeded and every artifact is live, so
-        # this stays exit 0 -- but a run that claims Complete while its
-        # journal survived must say so (openai panel slot, round 21 Major:
-        # the old code swallowed the unlink failure and exited silently).
-        # The retained all-POST journal is exactly what the next
-        # invocation's step-0.5 scan converges, and that scan runs BEFORE
-        # any new publication in that invocation, so the retry precedes the
-        # only interleaving that could make this journal unrecoverable.
-        sys.stderr.write(
-            "capability-resolver: warning: publication completed but its "
-            "journal could not be removed; the next invocation's "
-            "crash-recovery scan will retry the cleanup\n"
-        )
+    # The discard's RESULT is deliberately NOT reported on stderr here
+    # (openai panel slot, round 27 Major). Round 21 added a
+    # `capability-resolver: warning: ...` line at this point, and `warning`
+    # is not one of REQ-002's sixteen diagnostic ids -- AC-014 locks the
+    # format of EVERY diagnostic line this Resolver emits, not only the ones
+    # TEST-010's fixtures happen to produce, which is why the suite did not
+    # catch it. Silence is correct here rather than merely permitted: the
+    # publication succeeded and every artifact is live, so this run's own
+    # contract is met, and a retained all-POST journal is exactly what the
+    # next invocation's step-0.5 scan converges -- that scan runs BEFORE any
+    # new publication, so the retry precedes the only interleaving that could
+    # make the journal unrecoverable. Round 21's substantive fix was the
+    # return VALUE, which the two recovery-scan callers check and halt on;
+    # the stderr line was an addition beyond it and is not needed to keep
+    # that guarantee.
+    _discard_batch(transaction.batch_dir)
     return 0
 
 
