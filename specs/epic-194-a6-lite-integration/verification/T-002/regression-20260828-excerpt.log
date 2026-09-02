@@ -1,37 +1,36 @@
-# derived-excerpt-of: specs/epic-194-a6-lite-integration/verification/qg/shared/regression-20260828b.log
-# full-log-sha256: b3e7d6677b104c0b50903e52b1b50e480a5c4c886c98b90383b8e7099dd6d3fc
-# derived-utc: 2026-08-28T12:22:18Z
+# derived-excerpt-of: specs/epic-194-a6-lite-integration/verification/qg/shared/regression-20260828c.log
+# full-log-sha256: 2b5c99792ad3374fcc471c5ff42dcc664487560b5cbc3bddcbbbd7e1f10e2174
+# derived-utc: 2026-08-28T14:15:01Z
 # derivation: mechanical extraction of (a) this task's own suite result
-#   block(s) and (b) the authoritative tail listing of failing suites,
-#   from the provenance-headed full run-all capture named above. The
-#   full log (495,597 bytes) cannot fit the sanitized panel bundle's
-#   1 MiB vendor cap on top of an ~900 KiB bundle, so the bundle
-#   carries this excerpt; the full log remains in-repo at the path
-#   above, sha256-pinned by the cycle-2 pre-gate declarations.
-# authority: the tail listing below names EVERY failing suite of the
-#   run; the two listed are the documented designed-red baseline.
+#   block(s) plus the human-copy-mirror-freshness block, and (b) the
+#   authoritative tail listing of failing suites, from the provenance-
+#   headed full run-all capture named above (which exceeds the sanitized
+#   panel bundle's 1 MiB vendor cap). The full log remains in-repo.
+# authority: the tail listing names EVERY failing suite of the run; the
+#   two listed are the documented designed-red baseline.
 
 
 ===== suite block: check-risk-upgrade-byte-identical =====
 ==> tests/check-risk-upgrade-byte-identical.tests.sh
+ok: TEST-007-baseline-hash: frozen baseline sha256 matches the pinned value
 ok: TEST-007-clean: exit code identical (0)
-ok: TEST-007-clean: stdout byte-identical
+ok: TEST-007-clean: output byte-identical
 ok: TEST-007-auth: exit code identical (10)
-ok: TEST-007-auth: stdout byte-identical
+ok: TEST-007-auth: output byte-identical
 ok: TEST-007-token: exit code identical (10)
-ok: TEST-007-token: stdout byte-identical
+ok: TEST-007-token: output byte-identical
 ok: TEST-007-mcp: exit code identical (10)
-ok: TEST-007-mcp: stdout byte-identical
+ok: TEST-007-mcp: output byte-identical
 ok: TEST-007-api: exit code identical (10)
-ok: TEST-007-api: stdout byte-identical
+ok: TEST-007-api: output byte-identical
 ok: TEST-007-secret: exit code identical (10)
-ok: TEST-007-secret: stdout byte-identical
+ok: TEST-007-secret: output byte-identical
 ok: TEST-007-github-actions: exit code identical (10)
-ok: TEST-007-github-actions: stdout byte-identical
+ok: TEST-007-github-actions: output byte-identical
 ok: TEST-007-unavailable: exit code identical (2)
-ok: TEST-007-unavailable: stdout byte-identical
+ok: TEST-007-unavailable: output byte-identical
 
-Results: 16 passed, 0 failed
+Results: 17 passed, 0 failed
 
 ===== suite block: check-risk-upgrade-capability-merge =====
 ==> tests/check-risk-upgrade-capability-merge.tests.sh
@@ -217,8 +216,8 @@ SKIP: powershell.exe and cygpath are required for the cross-runtime risk corpus
 ==> tests/phase2-sudo-signature-static.tests.sh
 ok: candidate is ASCII/no-BOM and uses the PS5.1 64-hex full-XOR comparator
 ==> tests/self-improvement-guard.tests.sh
-TARGET_YML=/Users/jrmag/Projects/active/sdd-forge-wt-e194done/.github/workflows/self-improvement.yml
-GUARD_SH=/Users/jrmag/Projects/active/sdd-forge-wt-e194done/.github/scripts/self-improvement-pr-guard.sh
+TARGET_YML=/Users/jrmag/Projects/active/sdd-forge/.github/workflows/self-improvement.yml
+GUARD_SH=/Users/jrmag/Projects/active/sdd-forge/.github/scripts/self-improvement-pr-guard.sh
 
 ok: TEST-010: id-token: write absent from permissions (OIDC not used by the pinned action) -- AC-010
 ok: TEST-010: retains used permission 'contents: write'
@@ -286,15 +285,15 @@ deterministic-lane-selfcheck.tests.sh: 25 passed, 0 failed, 4 designed-red (pre-
 FAILED: tests/deterministic-lane-selfcheck.tests.sh
 ==> tests/guard-ps1-ascii.tests.sh
 guard-ps1-ascii.tests.sh
-  target: /Users/jrmag/Projects/active/sdd-forge-wt-e194done/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
 ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
 ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
-  target: /Users/jrmag/Projects/active/sdd-forge-wt-e194done/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
 ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
 ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
 ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
-  target: /Users/jrmag/Projects/active/sdd-forge-wt-e194done/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
 ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
 ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
 ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
@@ -415,7 +414,7 @@ ok: non-vacuity: a mutated engine copy is reported as diverged
 schema-engine-identity.tests.sh: 8 passed, 0 failed
 ==> tests/loop-inventory.tests.sh
 === TEST-001: inventory schema + registration forcing ===
-ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge-wt-e194done/tests/loops/loop-inventory.json
+ok: TEST-001.0: loop-inventory.json exists at /Users/jrmag/Projects/active/sdd-forge/tests/loops/loop-inventory.json
 ok: TEST-001.1: schema field is loop-inventory/v1
 ok: TEST-001.2: inventory carries exactly eight loop entries
 ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
@@ -473,7 +472,7 @@ loop-inventory.tests.sh: 49 passed, 0 failed, 0s elapsed
 ==> tests/loop-driver.tests.sh
 === TEST-005: loop_fixture_init (greenfield + brownfield) ===
 ok: TEST-005.1: loop_fixture_init greenfield succeeds
-ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.sVQAmb) lies outside the repository working tree
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.fXzoyk) lies outside the repository working tree
 ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
 ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
 ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
@@ -532,13 +531,13 @@ ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional inva
 ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
 ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
 ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
-REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-89254/requirements.md
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-64718/requirements.md
 ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
 === TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
 ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
 ok: TEST-017.2: suite completed within the 300s runtime budget
 
-loop-consistency.tests.sh: 27 passed, 0 failed, 20s elapsed
+loop-consistency.tests.sh: 27 passed, 0 failed, 15s elapsed
 ==> tests/review-prompt-calibration.tests.sh
 ok: review prompt calibration inventory is synchronized
 ==> tests/review-context-boundary.tests.sh

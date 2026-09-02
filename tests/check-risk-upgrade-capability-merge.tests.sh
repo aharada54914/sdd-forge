@@ -16,7 +16,9 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
+# SUT repointed 2026-08-28 (post-apply hardening): the shipped live script
+# is the SUT; staged==live is held by human-copy-mirror-freshness.
+SUT="${REPO_ROOT}/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 PASS=0
 FAIL=0
 

@@ -6,7 +6,7 @@
   "spec_revision": "3500fe3b5230354a743fe45f52c117716eaeddcbbc35bddf61ba48231a22f0a3",
   "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-002.md",
   "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-002.contract.json",
-  "git_commit": "8d0d028162b5bc075d49f6a39c999554fbffd376",
+  "git_commit": "92078e7170a170beb627099f288f0f04f2cad99a",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -57,8 +57,8 @@
       "exit_code": null,
       "started_at": null,
       "finished_at": null,
-      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
-      "evidence_sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green-20260828.log",
+      "evidence_sha256": "2b2bc049b2c1dc2c2a10fcb772930eac6f1420552e698b02911b7157d36eac8c"
     },
     {
       "id": "integration-tests",
@@ -79,8 +79,8 @@
       "exit_code": null,
       "started_at": null,
       "finished_at": null,
-      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
-      "evidence_sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green-20260828.log",
+      "evidence_sha256": "2b2bc049b2c1dc2c2a10fcb772930eac6f1420552e698b02911b7157d36eac8c"
     },
     {
       "id": "regression",
@@ -91,7 +91,7 @@
       "started_at": null,
       "finished_at": null,
       "evidence": "specs/epic-194-a6-lite-integration/verification/T-002/regression-20260828-excerpt.log",
-      "evidence_sha256": "7e5d4b007517fd3156378354427eafeff7977e2c1f7c55fc894ce9d83b6818aa"
+      "evidence_sha256": "9f8145a316cd8213bdd29a1b993d954035f9db14ae2c99c673e775a90089e3f6"
     },
     {
       "id": "build",
@@ -123,8 +123,8 @@
       "exit_code": null,
       "started_at": null,
       "finished_at": null,
-      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
-      "evidence_sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check-20260828.log",
+      "evidence_sha256": "633dc5a78ceadde435442827f2452e53b29ee4ba6c6b3d8cabc7716c3f4fe1b3"
     },
     {
       "id": "smoke-run",
@@ -185,7 +185,7 @@
   "artifacts": [
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-002.contract.json",
-      "sha256": "45bdda02f1d04903d3b9100d0f4e8a9b94ace1dcec9d76313f94dc45d5c7bc82"
+      "sha256": "e342a9db25d93024f23746907544df2454872c367605249293dc3518acd67fe8"
     },
     {
       "path": "reports/quality-gate/epic-194-a6-lite-integration/T-002.md",
@@ -197,15 +197,15 @@
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-002/regression-20260828-excerpt.log",
-      "sha256": "7e5d4b007517fd3156378354427eafeff7977e2c1f7c55fc894ce9d83b6818aa"
+      "sha256": "9f8145a316cd8213bdd29a1b993d954035f9db14ae2c99c673e775a90089e3f6"
     },
     {
-      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
-      "sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green-20260828.log",
+      "sha256": "2b2bc049b2c1dc2c2a10fcb772930eac6f1420552e698b02911b7157d36eac8c"
     },
     {
-      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
-      "sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check-20260828.log",
+      "sha256": "633dc5a78ceadde435442827f2452e53b29ee4ba6c6b3d8cabc7716c3f4fe1b3"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/traceability-check.log",
