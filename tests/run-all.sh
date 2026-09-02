@@ -15,6 +15,8 @@ tests=(
   tests/gates.tests.sh
   tests/check-placeholders.tests.sh
   tests/prepare-panelist.tests.sh
+  tests/wfi-058-outputs-anchor.tests.sh
+  tests/wfi-059-evidence-path-base.tests.sh
   tests/review-contract-foundation.tests.sh
   tests/review-contract-foundation-parity.tests.sh
   tests/spec-review-loop.tests.sh

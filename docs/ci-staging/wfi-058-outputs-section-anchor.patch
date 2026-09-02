@@ -1,0 +1,121 @@
+Subject: fix(cross-model): anchor the declared-outputs fallback to the last ## Outputs change (WFI-058)
+
+prepare-panelist-input verifies each declared-outputs row against the working
+tree and, for rows that legitimately drifted, falls back to verifying the
+declared hash against the tree as of the "declaration commit". That commit was
+defined as the last commit touching the implementation report FILE. The two
+events coincide only until the report is edited for an unrelated reason after
+its outputs have drifted.
+
+Measured on epic-194 (2026-08-31): commit 8456b861 added machine-readable
+`- Task ID:` header lines to three reports whose Outputs rows had already
+drifted through the owner-approved apply chain. That two-line mechanical edit
+moved the anchor past the drift, and the next bundle build fail-closed with
+nine `declared output hash mismatch` lines on a tree that had produced valid
+bundles the day before. The field workaround was to rewrite the frozen
+reports' hash cells -- exactly the pressure the gate_report_declaration
+channel exists to avoid at the evaluator layer.
+
+This re-anchors the fallback to the last commit at which the report's
+`## Outputs` SECTION itself changed, found by walking the report's history
+newest-first while the section still fingerprints equal to the current one.
+Row extraction is reused verbatim, so prose edits and header additions no
+longer move the anchor while a real table edit still does. When no commit
+carries the current section (the table itself is edited but uncommitted) the
+historical file anchor is kept, so this can never lose the fallback entirely.
+The stderr notice now names the anchor it chose.
+
+Admits nothing new: every row is still re-hashed against the anchor commit's
+tree, and a row that matches at neither the worktree nor the anchor still
+fails.
+
+Apply from the repository root:
+
+    git apply --check docs/ci-staging/wfi-058-outputs-section-anchor.patch
+    git apply docs/ci-staging/wfi-058-outputs-section-anchor.patch
+
+---
+--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-02 07:43:32
++++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-02 07:43:32
+@@ -859,6 +859,9 @@
+ # when a commit was found.
+ _ppi_decl_commit_checked=0
+ _ppi_decl_commit=""
++# Absolute path of the implementation report, read by the WFI-058 anchor scan
++# below (which fingerprints the report's own ## Outputs section).
++_ppi_decl_report_abs="${project_root}/reports/implementation/${feature}/${task_id}.md"
+ 
+ _ppi_declaration_commit() {
+     if [ "$_ppi_decl_commit_checked" = "1" ]; then
+@@ -866,12 +869,58 @@
+         return
+     fi
+     _ppi_decl_commit_checked=1
+-    if command -v git >/dev/null 2>&1 && \
+-       git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+-        _ppi_decl_commit="$(git -C "$project_root" log -1 --format='%H' -- \
+-            "reports/implementation/${feature}/${task_id}.md" 2>/dev/null)"
++    command -v git >/dev/null 2>&1 || return 1
++    git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
++
++    _dc_report="reports/implementation/${feature}/${task_id}.md"
++
++    # WFI-058: anchor to the last commit that changed the report's ## Outputs
++    # SECTION, not the last commit that touched the report FILE. The two are
++    # the same event only until something edits the report for an unrelated
++    # reason -- a machine-readable header line, an addendum, a status word --
++    # after the declared outputs have legitimately drifted. When that happens
++    # the file-anchored lookup lands PAST the drift, every previously
++    # tolerated row stops verifying, and bundle preparation fail-closes on a
++    # tree that was fine the day before. Measured on epic-194: commit
++    # 8456b861 added `- Task ID:` header lines to three reports whose Outputs
++    # rows had already drifted through the owner-approved apply chain, and
++    # the next bundle build refused with nine hash mismatches.
++    #
++    # Walk the report's own history newest-first and keep the OLDEST
++    # consecutive commit whose Outputs section still equals the current one:
++    # that is where this section's content was introduced, and it is the tree
++    # state the declared hashes were written against.
++    _dc_current_fp="$(_ppi_outputs_fingerprint "$_ppi_decl_report_abs")" || return 1
++    _dc_anchor=''
++    for _dc_commit in $(git -C "$project_root" log --format='%H' -- "$_dc_report" 2>/dev/null); do
++        _dc_blob="${TMPDIR:-/tmp}/ppi-decl-scan-$$"
++        if ! git -C "$project_root" show "${_dc_commit}:${_dc_report}" >"$_dc_blob" 2>/dev/null; then
++            rm -f "$_dc_blob"
++            break
++        fi
++        _dc_fp="$(_ppi_outputs_fingerprint "$_dc_blob")"
++        rm -f "$_dc_blob"
++        [ "$_dc_fp" = "$_dc_current_fp" ] || break
++        _dc_anchor="$_dc_commit"
++    done
++
++    # No commit carries the current section (the table itself is edited but
++    # uncommitted): keep the historical file anchor rather than losing the
++    # fallback entirely. A wrong anchor still cannot admit anything -- the row
++    # is re-hashed against that commit's tree either way.
++    if [ -z "$_dc_anchor" ]; then
++        _dc_anchor="$(git -C "$project_root" log -1 --format='%H' -- "$_dc_report" 2>/dev/null)"
+     fi
++    _ppi_decl_commit="$_dc_anchor"
+     [ -n "$_ppi_decl_commit" ]
++}
++
++# Fingerprint of a report's ## Outputs section, used to decide WHEN that
++# section last changed. Row extraction is reused verbatim so the fingerprint
++# tracks exactly the rows the authorization boundary reads -- reflowed prose
++# or an edited heading elsewhere in the report does not move the anchor.
++_ppi_outputs_fingerprint() {
++    _ppi_extract_declared_output_rows "$1" | _ppi_sha256_stream
+ }
+ 
+ # Verify a declared-outputs row against the tree AS OF the declaration
+@@ -909,7 +958,7 @@
+     rm -f "$_vdc_blob"
+     [ "$_vdc_hash" = "$_vdc_row_hash" ] || return 1
+ 
+-    printf 'prepare-panelist-input: declared output verified at declaration commit %s: %s (drifted since)\n' \
++    printf 'prepare-panelist-input: declared output verified at declaration commit %s (last ## Outputs change): %s (drifted since)\n' \
+         "$(printf '%s' "$_ppi_decl_commit" | cut -c1-7)" "$_vdc_row_path" >&2
+     return 0
+ }
