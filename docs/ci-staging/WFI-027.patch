@@ -1,0 +1,39 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 697397a3..ca297220 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -39,6 +39,8 @@ open; once the fix lands, the automated precheck path is again mandatory.
+ - `traceability.md`: requirements, design, contracts, code, tests, and final status
+ - `docs/review-tickets/*.yml`: unresolved quality findings
+ 
++When a spec or design clause depends on another epic's cross-epic merge state, the review lane must evaluate that condition against the current tree at review time and record whether it contradicts the task plan being approved.
++
+ ### Post-review artifact freeze
+ 
+ Once a review gate passes, its hash-bound artifacts are content-frozen except
+diff --git a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md
+index dcdbb2e5..0d40b67e 100644
+--- a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md
++++ b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md
+@@ -47,6 +47,8 @@ custom`); otherwise record exactly `N/A — ds_profile: none`.
+ | ux-spec.md | frontend-spec.md | {{view_state_component_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
+ | security-spec.md | infra-spec.md | {{control_and_runtime_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
+ 
++Activation or gate clauses should key off workflow position, not repository state. If repository state is the real trigger, name the owning task.
++
+ ## ADR Change Log
+ 
+ | ADR | Decision | Status | Layer Impact | Supersedes | Date |
+diff --git a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md
+index 91a9d637..38bbe7e2 100644
+--- a/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md
++++ b/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md
+@@ -55,6 +55,8 @@ Breaking API: {{breaking_api}}
+ - [ ] (high/critical) Independent review verdict recorded
+ - [ ] (critical) Second approver recorded and evidence bundle signed
+ 
++If a Done When item depends on a case staying unchanged and a design clause can change that case from outside the task, name the design clause in the task plan so the contradiction is visible at review time.
++
+ ### Out of Scope
+ {{out_of_scope}}
+ 
