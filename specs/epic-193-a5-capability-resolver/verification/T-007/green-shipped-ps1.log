@@ -325,6 +325,9 @@ PASS: publication-journal-target-escape[in-set-non-bundle]: the rejected journal
 PASS: publication-journal-target-escape[nonce-names-another-batch]: precondition -- plant_journal records the batch's own nonce, so the mismatch below is the only difference from a well-formed journal
 PASS: publication-journal-target-escape[nonce-names-another-batch]: a journal whose nonce names another batch is refused -- without the binding this all-PRE journal classifies as SAFE abandonment and the run exits 0, which is exactly what this assertion catches
 PASS: publication-journal-target-escape[nonce-names-another-batch]: the refused journal is retained for manual operator intervention rather than discarded as an abandoned batch
+PASS: clean-full-track-publication[post-block-journal]: precondition -- a journal survives beside artifacts at PRE and an Evidence file matching neither of its recorded generations
+PASS: clean-full-track-publication[post-block-journal]: the scan CONVERGES this journal instead of declaring it unrecoverable -- this is the assertion mutant S fails, and the defect it encodes turned a transient unlink failure into a permanently Blocked batch
+PASS: clean-full-track-publication[post-block-journal]: the converged journal is discarded, so the retry the contract promises actually happens
 PASS: publication-fsync-failure: a failed durability barrier on an already-live rename Blocks artifact-publication-failed with a ONE-rename rollback clause -- the live-but-unfsynced entry was counted, so the rollback included it
 PASS: publication-fsync-failure: facet-manifest is back at its PRE bytes -- this is the assertion mutant N fails, because an uncounted-but-live rename is skipped by the rollback and its POST bytes stay published
 PASS: publication-fsync-failure: the Block record reached Evidence -- the injection is single-shot, so the direct Evidence write's own barrier succeeded
@@ -391,4 +394,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 392 passed, 0 failed
+RESULT: 395 passed, 0 failed

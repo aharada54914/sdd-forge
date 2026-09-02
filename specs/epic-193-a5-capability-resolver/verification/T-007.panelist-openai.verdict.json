@@ -2,7 +2,7 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "287f44e00350d2747ad9e550d4d930472355d2df5082d4fda31e7769fe8b6f57",
+  "input_digest": "8913cecb85d3bebcad93203348f28a5f2d4cd59bab387673054e10d0ea1a6bd6",
   "vendor": "openai",
   "model": "gpt-5",
   "consent": {
@@ -13,8 +13,8 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "plugins/sdd-quality-loop/scripts/resolve-project-context.py:3531",
-      "note": "When successful publication is followed by `_discard_batch` failure, the Resolver emits `capability-resolver: warning: ...`. This is a reachable Resolver-owned diagnostic line, but `warning` is not one of REQ-002's closed sixteen diagnostic IDs, directly violating AC-014's requirement that every emitted diagnostic use `capability-resolver: <check-id>: <detail>` with `<check-id>` drawn only from that enum. The captured tests only validate IDs emitted by their registered Block fixtures and do not exercise this cleanup-failure line."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:3454",
+      "note": "All three Block-after-rollback paths ignore `_discard_batch` returning false (lines 3454, 3484, and 3515). If the journal unlink fails after a completed rollback and durable Block Evidence write, `_discard_batch` has already removed `pre/`, the publication artifacts are at PRE, and Evidence contains the new Block record, which normally matches neither the journal's PRE nor POST hash. The next mandatory recovery scan therefore does not retry the discard as the implementation report claims; it classifies Evidence as a third state, emits `publication-journal-recovery`, and retains the journal for manual intervention. Thus an ordinary transient cleanup failure converts an otherwise completed, recoverable rollback into a permanently unrecoverable batch, contrary to the transactional completion/recovery contract. This is not attacker-controlled journal manipulation and falls outside owner ruling (c)."
     }
   ]
 }

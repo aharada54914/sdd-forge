@@ -4,26 +4,31 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Critical",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 line 2 (bundle line 27965) vs reports/implementation/epic-193-a5-capability-resolver/T-007.md Outputs (bundle line 22363) and verification/T-007/mutation-proofs.log (bundle line 16666)",
-      "note": "The staged manifest's row for the Resolver Python master records 464d57e3c21d0e437b77155118a2790b92fa98bc67636c55268bf8a1f136c6f3, but the same report's Outputs table declares that staged file as 45bbbcc16d6c1b1cecb32d1cf274fdf7f5f7422c95d19ab90ed5a2184f1e8443, and mutation-proofs.log independently measures the restored shipped file at the identical 45bbbcc16d value. I verified the manifest bytes carried in this bundle are the shipped bytes: sha256 of bundle lines 27964-27967 is 8b76a4d0d9a9d9f1a7e2095d15df2f1956701f65ffe640b9a9daa478ebf1137d, exactly the value the Outputs table declares for the manifest itself, so both artifacts are current and the contradiction is internal to one snapshot. Consequences: (1) shasum -a 256 -c against this manifest cannot be 4/4 OK exit 0 as the report's Files Changed bullet (bundle line 22267), the round-4 verification note (bundle line 23113) and the T-007 CHANGELOG entry (bundle line 24737) all assert; it would report one FAILED row and a nonzero exit. That is a stated verification result that is false at the shipped bytes. (2) tasks.md T-007 Planned Files requires the manifest to carry updated SHA-256 entries for the updated staged candidates; the Resolver row is stale, so the hash binding that gates the human apply-human-copy route is broken and the task's only deliverable cannot be applied as staged. The alternative reading is worse rather than better: if the manifest row were the current one, then the Outputs table misdeclares the shipped file AND the seventeen mutation proofs plus the 391/0 focused captures were not taken against the shipped bytes, contradicting the contract comment's claim that every mutant ran against them. Either branch blocks. Note the sibling .sh and .ps1 rows could not be checked from the bundle (those files are not carried), so the manifest may be stale in more than one row."
-    },
-    {
-      "severity": "Major",
-      "ref": "CHANGELOG.md, T-007 Unreleased entry (bundle lines 24709-24726)",
-      "note": "Count drift in a declared output, the same class the round-25 and round-26 remediations name. Line 24709 correctly states the uncovered mutants as three, F, O and Q, and line 24712 correctly states 17 mutants with 14 covered (both agree with mutation-proofs.log, which I enumerated by hand: mutants A through Q is seventeen, and exactly F at bundle line 16583, O at 16636 and Q at 16658 sit at the 391/0 control tally). But line 24725 then reads: the remaining three items (F and O) sit on the rollback / Evidence / journal path. A count of three attached to an enumeration of two, with Q dropped. Worse, the sentence immediately above it (lines 24720-24724) says what now remains is the change that reverts complete-and-wrote to complete alone, i.e. mutant F only, and gives F's unconstructability argument as if it were the whole residual. So the paragraph states the residual set three different ways in seventeen lines. Separately, line 24709-24711 says the unreachability claims were shown wrong twice, naming D and M, while both mutation-proofs.log (line 16651) and the contract comment say four such proofs were offered (C, D, M, O) and all four were wrong. This entry is the public governance record for AC-033 and it understates coverage disclosure while contradicting itself on the exact figure a reader would rely on."
+      "severity": "Minor",
+      "ref": "verification/T-007.contract.json (comment) vs verification/T-007/red-panel6-sh.log",
+      "note": "The contract comment calls the round-6 RED captures (341 passed, 4 failed; 345 assertions total, both runtimes) 'the red that matches the shipped, post-remediation code'. Measured from the captures themselves, those logs contain zero TEST-059 assertions and no TEST-014 source-scan assertion, while the declared green captures contain 11 and 1 respectively and total 392 assertions. The RED and GREEN sides of the declared TDD pair are therefore different revisions of the suite, roughly 47 assertions apart. The implementation report states this accurately ('these are the historical round-6 capture pair ... which genuinely hold those tallies'), and non-vacuity for the later additions is carried by the 18-mutant log against shipped bytes, so this is a self-description defect in the contract rather than missing evidence."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Tests Added Or Updated (bundle lines 22292-22300)",
-      "note": "The narrative accounts for the thirteen fixture scenario directories as six original plus four containment regression fixtures added in rounds 2-5 plus one leaf-symlink scenario, which reaches ten directories, not thirteen. The stated total of thirteen is correct (I counted thirteen distinct directories under resolve-project-context-block in the Outputs table), and the three unmentioned directories are post-publication-crash-before-evidence, publication-fsync-failure and publication-staging-chain-fsync-failure. The provenance paragraph simply was not swept when rounds 15, 22 and 24 added them. Non-blocking, but it is the identical leave-the-sibling-behind pattern as the Major above."
+      "ref": "block suite driver, run_block_matrix_completeness_check (TEST-014 shipped-source scan)",
+      "note": "The round-27 remediation that closes the 'a diagnostic line no fixture reaches is still bound by AC-014' class reads exactly one file, the staged Python master, and matches the literal pattern for a quoted capability-resolver prefix. The task's own sibling scan, TEST-059, treats the Resolver as all three of py, sh and ps1 and asserts each exists before scanning. A literal non-enum diagnostic prefix emitted by one of the two twins on a path no fixture reaches would therefore not be caught by the scan added to close that class. Runtime coverage is real in both runtimes (every fixture asserts exact stderr equality through both launchers, 392/0 each), so the residual gap is narrow, and the twins are not in the bundle so their content cannot be checked here either way."
+    },
+    {
+      "severity": "Minor",
+      "ref": "staged Resolver master, main() step 14 Complete branch",
+      "note": "Both crash-recovery-scan call sites check the boolean that _discard_batch returns and raise PublicationJournalUnrecoverable when it is False, but the success-path Complete calls it for effect only. A run whose publication fully succeeded and whose journal deletion then failed exits 0 with no signal of any kind (round 27 removed the stderr line that used to report it, correctly, since its token is absent from the closed sixteen-value enum). The behaviour is fail-closed downstream, because the next invocation's step-0.5 scan sees an all-POST journal and converges or Blocks before any new publication, and the in-code comment states the reasoning; the asymmetry between the three call sites is simply not disclosed in the contract's own statement of where its evidence stops."
+    },
+    {
+      "severity": "Minor",
+      "ref": "staged Resolver master, main() except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) branch",
+      "note": "This branch performs a full journal-based rollback and then discards both returned values into throwaway names, so its detail text names the post-publication window (correctly, and with an id drawn from the closed enum) but never records that a publication was rolled back, unlike the two sibling post-commit Blocks whose rollback clause AC-039 and AC-049 require. No acceptance criterion names this branch, and the report's zero-coverage inventory discloses that no fixture reaches it, so this is an operator-facing observability gap rather than an untested criterion."
     }
   ],
   "blind": true,
-  "input_digest": "287f44e00350d2747ad9e550d4d930472355d2df5082d4fda31e7769fe8b6f57",
+  "input_digest": "8913cecb85d3bebcad93203348f28a5f2d4cd59bab387673054e10d0ea1a6bd6",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-02"

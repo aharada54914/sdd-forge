@@ -2085,6 +2085,7 @@ def _recover_journal(repo_root, feature, journal_path):
         )
 
     states = []
+    evidence_differs = False
     for entry in entries:
         try:
             current = _live_digest(_journal_target_path(repo_root, entry["live_path"]))
@@ -2094,12 +2095,36 @@ def _recover_journal(repo_root, feature, journal_path):
             states.append("post")
         elif current == entry["pre_hash"]:
             states.append("pre")
+        elif Path(entry["live_path"]).name == "resolver-evidence.yaml":
+            # Evidence, and ONLY Evidence, has a legitimate third value
+            # (openai panel slot, round 28 Major). A Block that FOLLOWS a
+            # completed rollback leaves every artifact at PRE and Evidence
+            # holding the BLOCK RECORD, which is by construction neither the
+            # PRE bytes nor the POST bytes this journal recorded -- REQ-001
+            # step (m) makes Evidence the explicit non-subject of the
+            # rollback precisely so that record survives it. Classifying it
+            # as the unrecoverable third state meant a transient
+            # journal-unlink failure at that exact point converted a
+            # correct, completed rollback into a batch every future scan
+            # would Block on forever: an ordinary cleanup hiccup made
+            # permanent. Recorded here, judged below -- it is explicable
+            # only alongside an all-PRE artifact set.
+            evidence_differs = True
+            states.append("pre")
         else:
             # The unrecoverable third state: neither generation, so no
             # automatic recovery can know what the operator intended.
             raise PublicationJournalUnrecoverable(
                 "a journal-listed target matches neither its PRE nor its POST hash"
             )
+    if evidence_differs and not all(state == "pre" for state in states):
+        # A completed rollback is the ONLY thing that explains Evidence's
+        # third value, and it leaves every artifact at PRE. Mixed with any
+        # POST artifact the state is unexplained again, and fails closed on
+        # the same diagnostic.
+        raise PublicationJournalUnrecoverable(
+            "a journal-listed target matches neither its PRE nor its POST hash"
+        )
     if all(state == "post" for state in states) or all(state == "pre" for state in states):
         # SAFE completion / SAFE abandonment: the transaction had in fact
         # fully committed (crash between the last rename and the journal

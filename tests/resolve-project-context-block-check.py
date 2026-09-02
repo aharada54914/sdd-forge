@@ -3708,6 +3708,83 @@ def plant_journal(feature_dir, entries, pre_images):
     return journal
 
 
+def run_t007_post_block_journal_recovery_case(kind, counts):
+    """A journal left behind by a Block that FOLLOWED a completed rollback
+    must still be recoverable.
+
+    Round 28's OpenAI Major: after such a Block the artifacts are back at
+    PRE and Evidence holds the BLOCK RECORD, which is by construction
+    neither the PRE nor the POST bytes the journal recorded -- REQ-001 step
+    (m) makes Evidence the non-subject of the rollback precisely so that
+    record survives. The scan classified Evidence as the unrecoverable third
+    state, so if the journal's unlink had failed at that instant (a
+    transient error), every future invocation would Block forever on a batch
+    whose rollback had in fact completed correctly: an ordinary cleanup
+    hiccup made permanent.
+
+    This plants exactly that shape -- both publication artifacts at their
+    PRE bytes, Evidence carrying content that is neither of its recorded
+    generations. Expected: the scan converges it, no Block, journal gone.
+    Mutant S (the Evidence branch removed) turns this back into a Block."""
+    case_name = "clean-full-track-publication"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (feature_dir / "resolver-evidence.yaml").write_bytes(
+            b"block-record-from-the-rolled-back-run\n")
+        entries = [
+            {   # at its PRE bytes: the rollback restored it
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": hashlib.sha256(PRE_FACET_MANIFEST).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-survived\n").hexdigest(),
+            },
+            {   # likewise
+                "live_path": "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json",
+                "pre_hash": hashlib.sha256(PRE_CONTEXT_PROJECTION).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-survived\n").hexdigest(),
+            },
+            {   # the Block record: NEITHER generation, and legitimately so
+                "live_path": "specs/example-feature/resolver-evidence.yaml",
+                "pre_hash": hashlib.sha256(b"evidence-before\n").hexdigest(),
+                "post_hash": hashlib.sha256(b"evidence-success-form\n").hexdigest(),
+            },
+        ]
+        journal = plant_journal(feature_dir, entries, {})
+        counts.check(
+            journal.exists()
+            and read_or_missing(feature_dir / "resolver-evidence.yaml")
+            == b"block-record-from-the-rolled-back-run\n",
+            f"{case_name}[post-block-journal]: precondition -- a journal survives beside artifacts at "
+            f"PRE and an Evidence file matching neither of its recorded generations",
+            repr(read_or_missing(feature_dir / "resolver-evidence.yaml")[:50]),
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stderr = result.stderr.decode("utf-8", errors="replace")
+
+        counts.check(
+            "publication-journal-recovery" not in stderr,
+            f"{case_name}[post-block-journal]: the scan CONVERGES this journal instead of declaring it "
+            f"unrecoverable -- this is the assertion mutant S fails, and the defect it encodes turned a "
+            f"transient unlink failure into a permanently Blocked batch",
+            f"stderr={stderr!r}",
+        )
+        counts.check(
+            not journal.exists(),
+            f"{case_name}[post-block-journal]: the converged journal is discarded, so the retry the "
+            f"contract promises actually happens",
+            f"journal still present: {journal.exists()}",
+        )
+
+
 def run_t007_journal_target_escape_case(kind, counts):
     """Panel round 1, MAJOR 1 (security containment). The step-0.5 scan acts
     on paths it reads out of `TRANSACTION.json`, and that journal lives in an
@@ -4279,7 +4356,15 @@ def run_block_matrix_completeness_check(counts):
     # runtime assertion below could never see it. This reads the shipped
     # source and checks every LITERAL diagnostic prefix it writes, so the
     # class is caught whether or not a fixture reaches the line.
-    resolver_source = (STAGED / "resolve-project-context.py").read_text(encoding="utf-8")
+    # ALL THREE runtimes, not just the Python master (anthropic panel slot,
+    # round 28 Minor). TEST-059's sibling scan already treats the Resolver as
+    # py+sh+ps1; this one read one file of the three, so the class it closes
+    # was closed for a third of the surface.
+    resolver_source = "\n".join(
+        (STAGED / f"resolve-project-context.{ext}").read_text(encoding="utf-8")
+        for ext in ("py", "sh", "ps1")
+        if (STAGED / f"resolve-project-context.{ext}").is_file()
+    )
     emitted_prefixes = set()
     for line in resolver_source.split("\n"):
         stripped = line.strip()
@@ -4501,6 +4586,7 @@ def main():
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_journal_bundle_shape_case(args.launcher, counts)
         run_t007_journal_nonce_mismatch_case(args.launcher, counts)
+        run_t007_post_block_journal_recovery_case(args.launcher, counts)
         run_t007_fsync_failure_case(args.launcher, counts)
         run_t007_staging_chain_fsync_failure_case(args.launcher, counts)
         run_t007_crash_before_evidence_case(args.launcher, counts)
