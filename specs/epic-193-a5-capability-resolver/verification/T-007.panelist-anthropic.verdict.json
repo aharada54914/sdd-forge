@@ -4,31 +4,41 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "verification/T-007.contract.json (comment) vs verification/T-007/red-panel6-sh.log",
-      "note": "The contract comment calls the round-6 RED captures (341 passed, 4 failed; 345 assertions total, both runtimes) 'the red that matches the shipped, post-remediation code'. Measured from the captures themselves, those logs contain zero TEST-059 assertions and no TEST-014 source-scan assertion, while the declared green captures contain 11 and 1 respectively and total 392 assertions. The RED and GREEN sides of the declared TDD pair are therefore different revisions of the suite, roughly 47 assertions apart. The implementation report states this accurately ('these are the historical round-6 capture pair ... which genuinely hold those tallies'), and non-vacuity for the later additions is carried by the 18-mutant log against shipped bytes, so this is a self-description defect in the contract rather than missing evidence."
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: ## Test Evidence, Test Result field",
+      "note": "The headline verification claim is stale by two rounds. The field reads PASS (391 passed / 0 failed, both runtimes, exit 0) and names green-shipped-sh.log and green-shipped-ps1.log as the captures taken at the shipped bytes. I measured both captures in this bundle: each ends RESULT: 395 passed, 0 failed, and each carries 395 PASS lines and 0 FAIL lines. The qg focused-tests captures the contract declares as green_evidence agree at 395/0. The delta is exactly the round-27 source-level diagnostic-prefix assertion (+1) and the round-28 post-block-journal fixture (+3), so the field was accurate at round 26 and was not re-derived when rounds 27 and 28 changed the suite. This is the same field the report itself records as having been corrected at round 13 for the identical class, and the report calls it the one field a reader checks first."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: ## Regression Tests Run table, resolve-project-context-block row",
+      "note": "The live regression table records 391 passed / 0 failed for this task's own suite in both runtimes. Measured from the bundle, that suite is at 395/0 in both runtimes. The other eight rows I could check against the qg regression capture are correct (match 125, cli 13, discovery 24, lite 18, resolver-evidence-schema 20), and the nine sibling suites in that capture sum to 631 passing / 0 failing exactly as the contract states, so the defect is confined to this one row - but it is the row describing the task's own deliverable and it disagrees with every capture the package ships."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: ## Files Changed, the Counts corrected 2026-08-29 (round 19) bullet",
+      "note": "A framed measurement is false at the shipped bytes. The bullet states that at the shipped bytes a grep count of run_t007_ definitions reports seventeen, and declares that sentence to be the ONLY live statement of that count. Counting the definitions in this bundle's own copy of the shared block-suite driver gives eighteen, and all eighteen are wired into the driver's run list, so nothing is dead. The report's own Files Changed bullet twenty lines earlier says eighteen, which both contradicts the seventeen and falsifies the only-live-statement claim. Round 28 added the post-block-journal case and the count was not re-measured. This is a recurrence of the finding the report records as round 25's Major (the same sentence then read sixteen against a true seventeen), and the count verifier written in response to that round did not catch the recurrence. The number understates coverage, so this is staleness rather than fabrication, but the report itself draws the distinction that a stale value framed as a MEASUREMENT is the more serious form."
     },
     {
       "severity": "Minor",
-      "ref": "block suite driver, run_block_matrix_completeness_check (TEST-014 shipped-source scan)",
-      "note": "The round-27 remediation that closes the 'a diagnostic line no fixture reaches is still bound by AC-014' class reads exactly one file, the staged Python master, and matches the literal pattern for a quoted capability-resolver prefix. The task's own sibling scan, TEST-059, treats the Resolver as all three of py, sh and ps1 and asserts each exists before scanning. A literal non-enum diagnostic prefix emitted by one of the two twins on a path no fixture reaches would therefore not be caught by the scan added to close that class. Runtime coverage is real in both runtimes (every fixture asserts exact stderr equality through both launchers, 392/0 each), so the residual gap is narrow, and the twins are not in the bundle so their content cannot be checked here either way."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md :: Round 27 narrative, mutant R sentence",
+      "note": "The narrative says mutant R dies at 391/1. The mutation capture records MUTANT R at RESULT: 394 passed, 1 failed against a 395/0 clean control. The mutation log itself is internally sound - I counted nineteen mutants A through S, a clean control at 395/0 at the top, F, O and Q sitting at the control tally and labelled UNCOVERED with their arguments stated, and every other mutant strictly below the control - so only the prose figure is wrong."
     },
     {
       "severity": "Minor",
-      "ref": "staged Resolver master, main() step 14 Complete branch",
-      "note": "Both crash-recovery-scan call sites check the boolean that _discard_batch returns and raise PublicationJournalUnrecoverable when it is False, but the success-path Complete calls it for effect only. A run whose publication fully succeeded and whose journal deletion then failed exits 0 with no signal of any kind (round 27 removed the stderr line that used to report it, correctly, since its token is absent from the closed sixteen-value enum). The behaviour is fail-closed downstream, because the next invocation's step-0.5 scan sees an all-POST journal and converges or Blocks before any new publication, and the in-code comment states the reasoning; the asymmetry between the three call sites is simply not disclosed in the contract's own statement of where its evidence stops."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json :: comment, red_evidence characterisation",
+      "note": "The comment describes the panel-round-6 RED captures as the red that matches the shipped, post-remediation code. Measured, those captures carry 345 assertions (341 passing, 4 failing) while the shipped suite carries 395, so they cannot be the red of the shipped driver; they are the red of the round-6 driver, and their four failures are confined to one fixture. The task's own acceptance-first RED does exist in the bundle at 272 passing / 23 failing in both runtimes and is not what red_evidence points at. The substitute non-vacuity evidence for rounds 7 to 28 is the mutation log, which is present and adequate, so this is a characterisation defect rather than missing evidence."
     },
     {
       "severity": "Minor",
-      "ref": "staged Resolver master, main() except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) branch",
-      "note": "This branch performs a full journal-based rollback and then discards both returned values into throwaway names, so its detail text names the post-publication window (correctly, and with an id drawn from the closed enum) but never records that a publication was rolled back, unlike the two sibling post-commit Blocks whose rollback clause AC-039 and AC-049 require. No acceptance criterion names this branch, and the report's zero-coverage inventory discloses that no fixture reaches it, so this is an operator-facing observability gap rather than an untested criterion."
+      "ref": "specs/epic-193-a5-capability-resolver/tasks.md :: T-007 header fields vs T-007.contract.json",
+      "note": "The frozen task entry carries Cross-Model: not enabled while the verification contract sets cross_model to required. The contract states a coherent reason (Security-Sensitive: true makes the ship step treat cross-model as a hard pre-gate) and the check is correctly left DEFAULT-FAIL at passes:false, so the two are reconcilable, but the frozen record and the contract literally disagree on the same field."
     }
   ],
   "blind": true,
-  "input_digest": "8913cecb85d3bebcad93203348f28a5f2d4cd59bab387673054e10d0ea1a6bd6",
+  "input_digest": "ff77113641011e0dcee6ba36a251133582d9b781a026d8a524a7490e702ca2de",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-02"

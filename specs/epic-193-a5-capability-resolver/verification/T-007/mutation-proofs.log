@@ -131,5 +131,14 @@ RESULT: 394 passed, 1 failed
 mutant S injected: Evidence third-state branch removed
 --- MUTANT S: post-Block Evidence branch removed (expect post-block-journal FAIL) ---
 RESULT: 393 passed, 2 failed
+mutant T injected: Evidence durability not re-established before discard
+--- MUTANT T: recovery discards without re-establishing Evidence durability ---
+RESULT: 395 passed, 0 failed
+(A tally EQUAL to the control means UNCOVERED. Observing this needs the
+ Evidence directory fsync to FAIL during a recovery scan that is already
+ converging a retained journal -- two fault conditions in one run, and
+ the overlays are single-shot. Measured obstacle, not impossibility:
+ four impossibility proofs (C, D, M, O) were offered here and all four
+ were wrong.)
 --- restoring ---
-restored sha256: f9ab7efaae15f1d041fb791c43979c65437302d310c5a9bd7a58a304123a42d8
+restored sha256: b1d631442680ae8f6206bccff5a14c7c9acf32cdc3c884befef46b93976fbcc5

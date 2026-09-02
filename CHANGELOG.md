@@ -318,10 +318,10 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
   実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
   検査を外す mutation が 4 アサーションで死ぬ）。
-  **現在の未カバーは 3 件（F・O・Q）**。到達不能とした主張は D・M と
+  **現在の未カバーは 4 件（F・O・Q・T）**。到達不能とした主張は D・M と
   2 度誤りだったと判明している（D は round 19 の
   `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
-  それぞれ kill した）。19 mutant 中 16 件が被覆済み（round 24 で staging chain の
+  それぞれ kill した）。20 mutant 中 16 件が被覆済み（round 24 で staging chain の
   永続化障壁を mutant P として追加し、専用 fixture で kill）。この段落自体、
   「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
   件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
@@ -334,7 +334,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
   commit 前に publish が拒否されるため、fixture では作れない）。
-  **残る 3 件（F と O）は rollback / Evidence / journal 経路にあり、この領域の
+  **残る 4 件（F と O）は rollback / Evidence / journal 経路にあり、この領域の
   正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。

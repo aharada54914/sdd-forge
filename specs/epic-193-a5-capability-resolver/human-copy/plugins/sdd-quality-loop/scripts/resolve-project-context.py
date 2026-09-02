@@ -2125,6 +2125,29 @@ def _recover_journal(repo_root, feature, journal_path):
         raise PublicationJournalUnrecoverable(
             "a journal-listed target matches neither its PRE nor its POST hash"
         )
+    if evidence_differs:
+        # The journal that reached this point was very likely RETAINED on
+        # purpose: round 26 makes a Block whose Evidence rename succeeded but
+        # whose directory barrier failed report wrote=False precisely so the
+        # journal survives as that record's backstop. Round 28 then taught
+        # this scan to converge such a batch -- and discarding here without
+        # first making the Evidence directory entry durable would delete the
+        # backstop while the thing it protects is still only maybe-on-disk
+        # (openai panel slot, round 29 Major). So the barrier is retried here,
+        # and a failure keeps the journal for the next invocation rather than
+        # trading a durable record for a tidy staging area.
+        try:
+            _fsync_directory(
+                _journal_target_path(repo_root, next(
+                    entry["live_path"] for entry in entries
+                    if Path(entry["live_path"]).name == "resolver-evidence.yaml"
+                )).parent
+            )
+        except OSError as exc:
+            raise PublicationJournalUnrecoverable(
+                "this feature's own resolver-evidence.yaml could not be made durable before "
+                "the journal protecting it was discarded"
+            ) from exc
     if all(state == "post" for state in states) or all(state == "pre" for state in states):
         # SAFE completion / SAFE abandonment: the transaction had in fact
         # fully committed (crash between the last rename and the journal
