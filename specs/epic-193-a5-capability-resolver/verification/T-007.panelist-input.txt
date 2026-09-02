@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f
+# input_digest: ab0b97a651cc47a05e4d4faf66c7e3325c4d983a83df630602056012773c1f2b
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -10227,6 +10227,60 @@ referent is byte-untouched. The suite is 361/0 in both runtimes, and mutant E
 |---|---|
 | `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `46d3143eded2fb771226a1d691613f62c09e72f0d4ae5852825e76b6c920c37c` |
 | `tests/resolve-project-context-block-check.py` | `3f4308c8f1c9fc4562d62595502483eca32ee58446c2b61d57529ad60bc5cbfe` |
+
+### Ruling (B) — directory-fsync hardening is POSIX-only; Windows retains the file-fsync + journal discipline as a disclosed limitation
+
+**Date**: 2026-09-03. **Context**: cross-model panel round 32 (the second
+Codex run on digest `dee00fdc…`, after the first run's PASS was invalidated
+by a missing `blind` attestation in the runner template — a tooling defect,
+not a content judgment). That run returned one Major: `_fsync_directory`
+returns immediately when `os.name != "posix"`, so on Windows the journal
+rename, staging-chain creation, publication renames, rollback unlinks and
+pre-discard recovery barriers all proceed without directory-entry
+durability, while AC-047's recovery guarantee is stated without a platform
+qualifier. The same bytes had drawn PASS from the same vendor slot one run
+earlier, and the POSIX-only nature of every one of these barriers has been
+disclosed in the shipped code and the report since round 24.
+
+**Options put to the owner** (2026-09-03):
+
+1. **裁定で閉じる（推奨）** — 「directory-fsync 硬化は POSIX 限定、Windows は
+   file-fsync + journal 規律（round-19 以前の全プラットフォーム posture）を
+   開示済み限定として受理」とオーナー裁定し、investigation.md に逐語記録して
+   round 32 を回す。Python に移植可能な代替が無く、ctypes 機構はここでは
+   未テスト出荷になるため。
+2. **Windows 実装を書く** — ctypes で FlushFileBuffers +
+   FILE_FLAG_BACKUP_SEMANTICS のディレクトリ同期を実装する。この環境に
+   Windows が無く実行検証不能のまま出荷となり、新たなラウンドを誘発する
+   リスクが高い。
+3. **もう一度だけ再実行** — verdict shopping に近づくため非推奨。
+
+**The owner's verbatim answer**: 「裁定で閉じる（推奨）」
+
+**Scope of this ruling.** The directory-entry durability barriers introduced
+on rounds 19 through 30 (`_fsync_directory` and every call site: the
+write-side barrier in `_atomic_write_bytes`, the ABSENT-restore unlink
+barrier, the staging-chain barrier in `_publish_bundle`, and the pre-discard
+barrier in `_recover_journal`) are POSIX-only by design. On Windows the
+Resolver retains what every platform had before round 19: per-file
+`os.fsync` before every rename, the journal-before-first-rename ordering,
+and the full crash-recovery scan — the posture the panel repeatedly accepted
+as satisfying AC-047 before the directory-barrier hardening existed. Python
+offers no portable directory-synchronization primitive on Windows; a ctypes
+`FlushFileBuffers` mechanism over `FILE_FLAG_BACKUP_SEMANTICS` handles would
+ship untested from this environment, and NTFS's own metadata journaling
+provides a different (and partially overlapping) guarantee model. The
+limitation is DISCLOSED, not silent: the `_fsync_directory` docstring states
+it, the implementation report states it, and this ruling records the owner's
+acceptance. A future task MAY add a tested Windows barrier; its absence is
+not a defect of this task.
+
+**Counter-argument, stated rather than buried.** A hard crash on Windows
+between a live rename and the (absent) directory barrier can lose the
+journal's directory entry while keeping the rename — the undetected mixed
+generation AC-047 targets. That exposure is real, platform-scoped, equal to
+the pre-round-19 exposure everywhere, and accepted by this ruling on the
+grounds that the only available in-repo remedy is an untestable one.
 # ---- specs/epic-193-a5-capability-resolver/ux-spec.md ----
 # UX Specification: epic-193-a5-capability-resolver
 
@@ -22392,8 +22446,8 @@ Cross-cutting checks extended per the Done When bullets:
 | Path | SHA-256 |
 |---|---|
 | `CHANGELOG.md` | `cd14d4cb9d5e9fa2a8052ed671cd09019a2a0908bbbeadc4e904ca25dad319e8` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `63ed45bc8461d3b17cef10c819543eef3ee5de17bace3f00dedc89c91264cba8` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `dca0c6d390422a8cf13a7ac0701f65addda6d6211ff108c0ff092fc6d4e34032` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22446,6 +22500,31 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
 | `tests/resolve-project-context-block-check.py` | `c477b833c088575253804e4155b5a0d48b5233894b5a9fa764e291170f034dc6` |
+
+**Rounds 31-32 (2026-09-02/03) — consensus reached, invalidated by my own
+template, and the Windows question settled by ruling.** Round 31 produced
+the first simultaneous PASS in this panel's history: Anthropic PASS (two
+Minors, both already-disclosed open work) and Codex PASS (three Minors) on
+one digest. The aggregation then rejected the Codex verdict: my
+reconstructed runner template had omitted the `blind: true` attestation the
+aggregator requires. I did not add the field to the panelist's verdict
+myself — editing panel evidence post-hoc is not mine to do — and re-ran the
+Codex slot on the SAME digest with the corrected template.
+
+The re-run returned NEEDS_WORK with a Major the previous run had not raised:
+`_fsync_directory` is POSIX-only, so Windows lacks every directory-entry
+durability barrier while AC-047 carries no platform qualifier. Identical
+bytes, same vendor, PASS then Major — the WFI-060 nondeterminism, now
+demonstrated within one slot. The finding itself is factually right and has
+been disclosed since round 24; Python has no portable Windows
+directory-synchronization primitive, and a ctypes mechanism would ship
+untested from this environment. Put to the owner with three options; the
+owner ruled 「裁定で閉じる（推奨）」 (2026-09-03). Ruling (B) in
+investigation.md records the scope verbatim: the barriers are POSIX-only by
+design, Windows retains the pre-round-19 posture every platform once had,
+the exposure is stated rather than buried, and a tested Windows barrier is
+future work, not a defect of this task. The `_fsync_directory` docstring
+cites the ruling so the panel sees the adjudication in the code it reviews.
 
 **Round 30 (2026-09-02) — the barrier generalized to the principle, and the
 enumeration my own count bump left behind.**
@@ -28119,7 +28198,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -29560,9 +29639,14 @@ def _fsync_directory(path):
     creation in `_publish_bundle`), so it is one function rather than three
     copies.
 
-    POSIX only: Windows has no directory handle to fsync, so the honest
-    statement is that this hardening is POSIX-only rather than a silent
-    no-op everywhere.
+    POSIX only: Windows has no portable directory-synchronization primitive
+    in Python, so the honest statement is that this hardening is POSIX-only
+    rather than a silent no-op everywhere. Owner ruling (B) (2026-09-03,
+    investigation.md) accepts this as a disclosed platform limitation: on
+    Windows the Resolver retains per-file fsync, journal-before-first-rename
+    ordering, and the full recovery scan -- the posture every platform had
+    before round 19 -- and a tested Windows barrier is future work, not a
+    defect of this task.
     """
     if os.name != "posix":
         return

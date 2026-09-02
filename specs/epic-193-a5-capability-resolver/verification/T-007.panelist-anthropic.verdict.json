@@ -4,23 +4,18 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "verification/T-007/mutation-proofs.log (mutants F, O, Q, T)",
-      "note": "Four mutants on the rollback/Evidence/journal fault path remain UNCOVERED at control-equal tallies (395/0). Each is disclosed in the log and in the contract comment with a measured obstacle or a panel-verified impossibility argument (F), and the contract states explicitly that correctness there rests on review rather than regression tests. Non-blocking: this is honest open work on double-fault windows the single-shot overlays cannot reach, not faked verification. O, Q and T remain worth fixtures if the overlay gains multi-shot arming."
-    },
-    {
-      "severity": "Minor",
-      "ref": "human-copy resolve-project-context.py, _fsync_directory (capture line ~29553)",
-      "note": "All directory-durability barriers (rename durability, staging-chain fsync, the round-30 pre-discard parent barrier) are POSIX-only and return without acting on Windows. This is disclosed in the docstring and in _atomic_write_bytes as a platform necessity, so it is a documented limitation rather than a defect, but it means the crash-durability half of REQ-001 is unenforced on the ps1 twin's native platform; worth one line in design.md/infra-spec.md if not already stated there."
+      "severity": "Major",
+      "ref": "verification/T-007/mutation-proofs.log (final restored-sha line) vs human-copy/MANIFEST.sha256 row 2 and report Outputs row for resolve-project-context.py",
+      "note": "The mutation evidence does not bind to the shipped bytes. mutation-proofs.log ends with restored sha256 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894, while MANIFEST.sha256 and the report Outputs table both declare the shipped resolve-project-context.py as eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287; the bundled py provably postdates the mutation capture because its _fsync_directory docstring cites owner ruling (B) of 2026-09-03. At most one of the two hashes can describe the shipped file, so T-007.contract.json's live claims that the mutation log carries twenty mutants all against the shipped bytes and restores the file to its exact shipped sha256 are false at these bytes. This is the same binding class the package itself filed as Critical on round 27 and remediated with a script said to run inside every recapture; that discipline demonstrably did not run for the ruling-B remediation, and unlike the 2026-08-27 docstring-only precedent (which re-ran the suite, confirmed the edit comment-only at 321/0, and published superseding hashes), the bundle contains no reconciliation, no superseding-hash table, and no disclosure that the mutation pass was not recaptured. Nothing in the bundle verifies that the delta between the 457b2155 bytes and the eac8f1d6 bytes is the ruling-B docstring citation alone, and the same absence of any per-capture byte binding leaves it undecidable whether green-shipped and QG focused captures were taken at the shipped bytes either. On a high-risk Security-Sensitive task whose mutation log is the sole non-vacuity proof for TEST-059 and for the rollback/journal guards, the fix is mechanical: re-run the mutation pass (and green captures) at the shipped bytes so the restored sha matches the manifest row, or publish the superseding reconciliation the package's own precedent requires. This finding is about the evidence chain of the round-32 remediation and sits outside the stated scope of rulings (a), (b), (c), (A), and (B); it does not re-litigate the POSIX-only limitation ruling (B) accepts."
     }
   ],
   "blind": true,
-  "input_digest": "dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f",
+  "input_digest": "ab0b97a651cc47a05e4d4faf66c7e3325c4d983a83df630602056012773c1f2b",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo flag file at repository root, human-reissued 2026-09-02"
+    "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
   }
 }

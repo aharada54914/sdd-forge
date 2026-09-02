@@ -2,25 +2,20 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f",
+  "input_digest": "ab0b97a651cc47a05e4d4faf66c7e3325c4d983a83df630602056012773c1f2b",
   "vendor": "openai",
   "model": "gpt-5",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo flag file at repository root, human-reissued 2026-09-02"
+    "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
   },
   "blind": true,
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1428",
-      "note": "The transactional crash-safety invariant is not implemented on a supported platform: `_fsync_directory` immediately returns whenever `os.name != \"posix\"`, and the adjacent implementation text explicitly characterizes rename/unlink durability hardening as POSIX-only. The bundle also states that the `.ps1` twin runs on Windows CI, yet contains no Windows-specific durability primitive or evidence establishing equivalent ordering there. Consequently, on Windows the journal rename, staging-chain creation, publication renames, rollback unlinks, and pre-discard recovery state can proceed without the directory durability barriers that the implementation itself says prevent a hard crash from leaving an undetected mixed generation, so AC-047's platform-unqualified recovery guarantee is not met."
-    },
-    {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log:100",
-      "note": "The captured mutation proof shows mutant O, which removes the directory fsync after restoring an `ABSENT` PRE state by unlinking, still passing at the clean-control tally of 395/0. The capture attributes this to `plant_sentinels` making every publication artifact pre-exist and explicitly labels the necessary omitted-PRE fixture as open work. Thus the POSIX implementation contains the intended barrier, but the security-sensitive regression suite cannot detect its removal on this rollback branch."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log:146",
+      "note": "The mutation capture reports a restored resolver SHA-256 of 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894, while the captured current MANIFEST.sha256 row and implementation-report Outputs declaration both identify the shipped resolver as eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287. This makes the repeated claim that the mutations ran against and restored the exact shipped bytes unverifiable. The captured implementation and current 395/0 focused test evidence otherwise support the acceptance criteria, so this is evidence-freshness drift rather than a demonstrated transactional correctness defect."
     }
   ]
 }
