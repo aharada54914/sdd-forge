@@ -2278,16 +2278,21 @@ def _write_evidence(
     try:
         _atomic_write_bytes(evidence_target, _canonical_payload(evidence))
     except _ReplacedButNotDurable:
-        # The Block record IS at its live path, byte-verified by the round
-        # trip; only its durability barrier failed. Reporting that as "no
-        # live rename had yet been committed" was untrue of the state on
-        # disk (anthropic panel slot, round 21 Minor), and failing the write
-        # outright would be WORSE than every pre-round-19 revision, none of
-        # which had a directory fsync at all. The record is accepted as
-        # written; a crash before the directory entry becomes durable loses
-        # it, which is exactly the exposure every earlier revision always
-        # had on this path.
-        pass
+        # PROPAGATES, deliberately (openai panel slot, round 26 Major). The
+        # Block record IS at its live path, byte-verified by the round trip,
+        # so reporting "no live rename had yet been committed" would be
+        # untrue of the state on disk (anthropic panel slot, round 21 Minor)
+        # -- but swallowing it here, as round 21 did, made `wrote_evidence`
+        # True while the record's durability was unconfirmed, and `wrote` is
+        # precisely what the three Block-after-rollback callers consult
+        # before discarding the journal. That let a crash persist the
+        # journal's deletion while losing the Block record's rename:
+        # artifacts back at PRE, no record, and no journal left to expose it
+        # -- the exact state the round-9 fix introduced this guard to
+        # prevent. The caller now reports the record as
+        # written-but-not-durable and RETAINS the journal, which is strictly
+        # the fail-closed side.
+        raise
     except OSError as exc:
         # Here the direct write genuinely did not rename into place, so the
         # count is 0 and the canonical no-rollback-needed clause is the
@@ -2335,6 +2340,14 @@ def _block_reporting(
             capability_evaluations, warn_diagnostics,
             context_binding, resolver_block,
         )
+    except _ReplacedButNotDurable:
+        # The record is live -- emit the canonical line exactly as the
+        # success path does -- but report it as NOT durably written, so the
+        # caller keeps the journal for the next invocation's recovery scan.
+        # This is the one branch where the Block is fully reported and
+        # `wrote` is still False.
+        sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
+        return EXIT_BLOCK, False
     except EvidenceTargetUncontained:
         # Panel round 5: this feature's own Evidence artifact has no valid
         # location -- `specs/<feature>/resolver-evidence.yaml` does not

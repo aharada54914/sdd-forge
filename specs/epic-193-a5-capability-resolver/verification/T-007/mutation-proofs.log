@@ -116,5 +116,14 @@ RESULT: 391 passed, 0 failed
 mutant P injected: staging-chain durability barrier removed
 --- MUTANT P: staging-chain fsync removed (expect staging-chain case FAIL) ---
 RESULT: 390 passed, 1 failed
+mutant Q injected: Evidence durability failure swallowed again
+--- MUTANT Q: Evidence durability failure swallowed (round 26 revert) ---
+RESULT: 391 passed, 0 failed
+(A tally EQUAL to the control means UNCOVERED. Reaching it needs the
+ Evidence write directory fsync to FAIL, which the round-22 overlay can
+ inject -- but only in a run that is already Blocking, and the existing
+ fsync fixtures are single-shot and fire earlier. Stated as the measured
+ obstacle, not as impossibility: this task has offered four impossibility
+ proofs (C, D, M, O) and all four were wrong.)
 --- restoring ---
-restored sha256: 464d57e3c21d0e437b77155118a2790b92fa98bc67636c55268bf8a1f136c6f3
+restored sha256: 45bbbcc16d6c1b1cecb32d1cf274fdf7f5f7422c95d19ab90ed5a2184f1e8443

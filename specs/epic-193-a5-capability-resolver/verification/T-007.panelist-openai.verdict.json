@@ -2,20 +2,19 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
+  "input_digest": "2eaecf9520ea843a4b77568cae0a3335ebd933a2c01245f7359c41afd68be4fc",
   "vendor": "openai",
-  "model": "gpt-5.4",
+  "model": "gpt-5",
+  "consent": {
+    "kind": "sudo",
+    "ref": "sudo flag file at repository root, human-reissued 2026-09-02"
+  },
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1887",
-      "note": "The transaction creates `.resolver-staging/<nonce>` and fsyncs files and the nonce directory, but never fsyncs `.resolver-staging` after creating the nonce directory. A power loss can therefore preserve fsynced live-target renames while losing the nonce-directory entry and its journal, leaving an undetectable partial publication. This violates the crash-recovery and mixed-generation guarantees of REQ-001/AC-047."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2280",
+      "note": "`_write_evidence` catches `_ReplacedButNotDurable`\u2014which explicitly means the Evidence rename's parent-directory durability barrier failed\u2014and nevertheless returns normally. `_block_reporting` consequently reports `wrote_evidence=True`, allowing all three rollback callers at lines 3440, 3470, and 3501 to discard the transaction journal. A crash can therefore persist the journal deletion while losing the Block-record rename, leaving the publication artifacts rolled back but the prior success-form Evidence (or no Evidence) live with no journal remaining to expose or recover the inconsistency. This contradicts the implementation's stated requirement that the journal outlive the rollback until the Block record is durable; the bundle's mutant F is equal to the clean tally and does not cover this directory-fsync failure path."
     }
-  ],
-  "blind": true,
-  "input_digest": "fb3712bb87141f9e86515a144571726c4d7a9d4deff6a9c57b9e2f481eab967c",
-  "consent": {
-    "kind": "sudo",
-    "ref": "tasks.md:T-007 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
-  }
+  ]
 }
