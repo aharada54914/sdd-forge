@@ -96,6 +96,8 @@ bash_payload() {
     printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' "$1"
 }
 
+REPORT_QUOTE_PAYLOAD='{"tool_name":"Write","tool_input":{"file_path":"reports/impl-review/wfi-053/reviewer-a.json","content":"finding: tests/foo.tests.sh must retain true-positive write denial"}}'
+
 # Bug-2 reproduction shapes (verbatim class of the live incident): a commit
 # whose MESSAGE mentions a protected path in prose, plus a write-verb word
 # and unmodeled characters that made the old analysis fail closed.
@@ -129,6 +131,7 @@ else
     expect_code "fix: bash cp into human-copy staging allowed" 0 "$(bash_payload "cp tests/new-suite.tests.sh ${STAGING_TESTYML}")"
     expect_code "fix: commit message prose mention (heredoc) allowed" 0 "$(bash_payload "$HEREDOC_COMMIT_CMD")"
     expect_code "fix: commit message prose mention (backtick) allowed" 0 "$(bash_payload "$BACKTICK_COMMIT_CMD")"
+    expect_code "wfi-053: reviewer report quoting a protected test path allowed" 0 "$REPORT_QUOTE_PAYLOAD"
 fi
 
 # --- Result ---------------------------------------------------------------

@@ -487,7 +487,35 @@ if ($roundInt -gt 1) {
   $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json
   $priorRequirementsSha = [string]$priorData.requirements_sha256
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
-  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {
+  $investigationRelative = "specs/$Feature/investigation.md"
+  $investigationSuffix = "/$investigationRelative"
+  $priorInvestigationHashes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+  foreach ($reviewer in @($priorData.reviewers)) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      $entryPath = [string]$entry.path
+      if ((Test-OrdinalEqual $entryPath $investigationRelative) -or $entryPath.EndsWith($investigationSuffix, [System.StringComparison]::Ordinal)) {
+        [void]$priorInvestigationHashes.Add([string]$entry.sha256)
+      }
+    }
+  }
+  $investigationPath = Join-Path $specDir 'investigation.md'
+  $priorInvestigationSha = ''
+  $investigationSha = ''
+  if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Get-Item -LiteralPath $investigationPath).LinkType) {
+    if ($priorInvestigationHashes.Count -cne 1) {
+      Fail 'prior round contract must pin exactly one investigation.md hash'
+    }
+    $priorInvestigationSha = [string]@($priorInvestigationHashes)[0]
+    if ($priorInvestigationSha -cnotmatch '^[0-9a-f]{64}$') {
+      Fail 'prior round contract investigation.md hash is malformed'
+    }
+    $investigationSha = (Get-FileHash -LiteralPath $investigationPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  } elseif ($priorInvestigationHashes.Count -cne 0) {
+    Fail 'prior round contract pins a missing investigation.md'
+  }
+  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and
+      (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha) -and
+      (Test-OrdinalEqual $investigationSha $priorInvestigationSha)) {
     Fail 'reviewed inputs are unchanged from the prior round'
   }
 }

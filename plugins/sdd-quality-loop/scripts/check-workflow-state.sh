@@ -100,16 +100,35 @@ plugins_git_history_available() {
 # cannot justify still fails there.
 plugins_hash_matches() {
   local plugins_file="$1" expected="$2" evidence_file="$3" plugins_relative pin historical
-  [[ -f "$plugins_file" && ! -L "$plugins_file" ]] || return 1
+  # WFI-051: on failure, record WHICH condition fired so the caller's
+  # diagnostic can distinguish "no provenance to check" from "pinned
+  # content unavailable" from a genuinely stale recorded hash. Empty on
+  # success and on the not-evaluable acceptance paths.
+  PLUGINS_HASH_MISMATCH_REASON=""
+  [[ -f "$plugins_file" && ! -L "$plugins_file" ]] || {
+    PLUGINS_HASH_MISMATCH_REASON="input file is missing or a symlink"
+    return 1
+  }
   [[ "$(sha256_file "$plugins_file")" == "$expected" ]] && return 0
   plugins_git_history_available || return 0
   case "$plugins_file" in
     "$REPO_ROOT"/*) plugins_relative="${plugins_file#"$REPO_ROOT/"}" ;;
-    *) return 1 ;;
+    *) PLUGINS_HASH_MISMATCH_REASON="input path is outside the repository root"
+       return 1 ;;
   esac
-  pin="$(plugins_pin_commit "$evidence_file")" || return 1
-  historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
-  [[ "$historical" == "$expected" ]]
+  if ! pin="$(plugins_pin_commit "$evidence_file")"; then
+    PLUGINS_HASH_MISMATCH_REASON="evidence has no single committed introducing commit at HEAD (uncommitted evidence -- e.g. a mid-merge tree -- or a path added more than once)"
+    return 1
+  fi
+  if ! historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")"; then
+    PLUGINS_HASH_MISMATCH_REASON="pinned plugins content unavailable at the introducing commit"
+    return 1
+  fi
+  if [[ "$historical" != "$expected" ]]; then
+    PLUGINS_HASH_MISMATCH_REASON="input hash is stale: matches neither the working tree nor the pinned version"
+    return 1
+  fi
+  return 0
 }
 
 # The amendment re-review lane (spec-review's `## Amendment Re-Review
@@ -925,7 +944,7 @@ validate_passed_stage() {
       # all, so a missing declaration can't hide behind this tolerance).
       plugins/*)
         plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract" ||
-          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest ${PLUGINS_HASH_MISMATCH_REASON:-input hash is stale}" ;;
       # Tolerated STANDALONE (no --opening needed): the amendment
       # re-review lane's own oscillation, where a downstream stage's
       # recovery grows this file's `## Amendment Re-Review Context`

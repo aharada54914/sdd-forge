@@ -943,6 +943,9 @@ _INVARIANT_KEYS = {
     "SHELL_REDIRECT_TOKEN_RE", "SHELL_FD_DUP_RE", "SHELL_CD_CMDS",
     "SHELL_SUDO_WRITE_RE", "SHELL_READ_ONLY_START_RE", "SUDO_SIGNATURE_HEX_LENGTH",
     "PHASE2_HUMAN_COPY_TARGETS",
+    # WFI-048: patch-applier vocabulary and the embedded-path boundary class.
+    "SHELL_PATCH_APPLY_CMDS", "SHELL_PATCH_APPLY_GIT_SUBCMDS",
+    "SHELL_PATCH_INSPECT_FLAGS", "SHELL_PATH_BOUNDARY_CHARS",
 }
 
 
@@ -965,6 +968,8 @@ def _load_guard_invariants():
             module.SHELL_PS_WRITE_CMDS, module.SHELL_INDIRECT_CMDS,
             module.SHELL_UNSAFE_TOKEN_CHARS, module.SHELL_CD_CMDS,
             module.PHASE2_HUMAN_COPY_TARGETS,
+            module.SHELL_PATCH_APPLY_CMDS, module.SHELL_PATCH_APPLY_GIT_SUBCMDS,
+            module.SHELL_PATCH_INSPECT_FLAGS, module.SHELL_PATH_BOUNDARY_CHARS,
         )
         regexes = (
             module.SHELL_COMPOUND_RE, module.SHELL_REDIRECT_TOKEN_RE,
@@ -995,6 +1000,10 @@ if _INVARIANT_LOAD_ERROR:
     _SHELL_CD_CMDS = ()
     SHELL_SUDO_WRITE_RE = re.compile(r"$^")
     SHELL_SUDO_READ_ONLY_RE = re.compile(r"$^")
+    _SHELL_PATCH_APPLY_CMDS = ()
+    _SHELL_PATCH_APPLY_GIT_SUBCMDS = ()
+    _SHELL_PATCH_INSPECT_FLAGS = ()
+    _SHELL_PATH_BOUNDARY_CHARS = ()
 else:
     _PROTECTED_GATE_SUFFIXES = _GUARD_INVARIANTS.PROTECTED_GATE_SUFFIXES
     _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = _GUARD_INVARIANTS.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES
@@ -1010,6 +1019,10 @@ else:
     # Both existing twins intentionally matched these two sources case-insensitively.
     SHELL_SUDO_WRITE_RE = re.compile(_GUARD_INVARIANTS.SHELL_SUDO_WRITE_RE, re.IGNORECASE)
     SHELL_SUDO_READ_ONLY_RE = re.compile(_GUARD_INVARIANTS.SHELL_READ_ONLY_START_RE, re.IGNORECASE)
+    _SHELL_PATCH_APPLY_CMDS = _GUARD_INVARIANTS.SHELL_PATCH_APPLY_CMDS
+    _SHELL_PATCH_APPLY_GIT_SUBCMDS = _GUARD_INVARIANTS.SHELL_PATCH_APPLY_GIT_SUBCMDS
+    _SHELL_PATCH_INSPECT_FLAGS = _GUARD_INVARIANTS.SHELL_PATCH_INSPECT_FLAGS
+    _SHELL_PATH_BOUNDARY_CHARS = _GUARD_INVARIANTS.SHELL_PATH_BOUNDARY_CHARS
 
 # REQ-002 (issue #110): basenames of every protected suffix. The
 # working-directory-aware write-target analysis falls back to a basename match
@@ -1381,6 +1394,238 @@ def _shell_cwd_write_hits_protected(cmd):
     return False
 
 
+# WFI-048: characters that may legitimately abut a path inside a larger token.
+# Whitespace is deliberately absent on BOTH sides. A suffix surrounded by
+# spaces is prose -- "fix the tests/gates.tests.sh handling" -- and prose is
+# exactly what the end-anchored test was written to exclude. Measured against
+# the false-positive corpus, a right-edge-only rule (the shape WFI-048's prose
+# proposed) readmits two commit-message forms this repository actually writes:
+# "guard reads <path>; see WFI-048" and "freeze <path>, <path> and the rest".
+# Requiring a delimiter on both edges readmits neither and misses no true
+# positive, so both edges is what ships.
+def _token_embeds_protected_path(token):
+    """R-10 (WFI-048): True when a protected path is embedded in a larger token.
+
+    The recovered slice is handed back to _is_protected_gate_file rather than
+    judged here, so every exemption that predicate implements -- notably
+    specs/<feature>/human-copy/ staging -- keeps applying to embedded paths."""
+    if not token or not _SHELL_PATH_BOUNDARY_CHARS:
+        return False
+    text = token.lower().replace("\\", "/")
+    boundary = frozenset(_SHELL_PATH_BOUNDARY_CHARS)
+    suffixes = [s.lower() for s in _PROTECTED_GATE_SUFFIXES]
+    suffixes += [s.lower().lstrip("/") for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES]
+    for suffix in suffixes:
+        if not suffix:
+            continue
+        start = text.find(suffix)
+        while start != -1:
+            end = start + len(suffix)
+            if end == len(text) or text[end] in boundary:
+                # Walk left over path characters so a directory prefix reaches
+                # _is_protected_gate_file intact (human-copy staging needs it).
+                head = start
+                while head > 0 and text[head - 1] not in boundary and not text[head - 1].isspace():
+                    head -= 1
+                # WFI-048 fixup: a path flanked by backticks on BOTH
+                # edges is the markdown code-span prose convention (e.g. a
+                # commit message quoting a path), not a write target.
+                # Measured true positives reach a path through quote, paren,
+                # or redirect edges, never a backtick pair.
+                backtick_prose = (
+                    head > 0 and end < len(text)
+                    and text[head - 1] == "`" and text[end] == "`"
+                )
+                if (head == 0 or text[head - 1] in boundary) and \
+                        not backtick_prose and \
+                        _is_protected_gate_file(text[head:end]):
+                    return True
+            start = text.find(suffix, start + 1)
+    return False
+
+
+def _patch_declared_targets(patch_path):
+    """WFI-048: every path a unified diff names, plus how many header PAIRS it has.
+
+    Returns (targets, readable, pairs).
+
+    A header is a `--- ` line, a `+++ ` line and an `@@ ` line in that exact
+    order. The pair alone is not enough: a body that removes a line beginning
+    "-- " and adds one beginning "++ " renders as "--- ..." directly above
+    "+++ ...", which reads as a header pair and would deny patches that touch
+    nothing protected. Requiring the hunk header next is sound because a body
+    line can never start with "@@ " -- diff prefixes it with a space, + or -.
+
+    Both sides of the pair are read. A diff that DELETES a protected file names
+    it on the `---` side with /dev/null on the `+++` side, and that deletion
+    must be denied too.
+
+    A header may carry a trailing tab and timestamp (path, TAB, "2026-07-23
+    18:32:43"). The timestamp is not part of the path; leaving it attached makes
+    the endswith test miss the target, which is how two of this repository's own
+    staged patches escaped a naive census."""
+    try:
+        with open(patch_path, "rb") as handle:
+            raw = handle.read()
+    except (OSError, ValueError):
+        return [], False, 0
+    # Split on exactly \r\n, \r and \n -- str.splitlines() would also break
+    # on \x0b, \x0c and U+2028, which the JS and ps1 twins cannot reproduce.
+    lines = re.split(r"\r\n|\r|\n", raw.decode("utf-8", errors="replace"))
+    targets = []
+    pairs = 0
+    for index in range(len(lines) - 2):
+        if not (lines[index].startswith("--- ")
+                and lines[index + 1].startswith("+++ ")
+                and lines[index + 2].startswith("@@ ")):
+            continue
+        pairs += 1
+        for line in (lines[index], lines[index + 1]):
+            rest = line[4:].split("\t", 1)[0].strip()
+            if not rest or rest == "/dev/null":
+                continue
+            if rest[:2] in ("a/", "b/"):
+                rest = rest[2:]
+            targets.append(rest)
+    return targets, True, pairs
+
+
+def _patch_targets_protected(patch_path):
+    """WFI-048: True unless the guard can PROVE the patch leaves protected files
+    alone. Unreadable, or carrying no unified-diff header pair at all, both fail
+    closed -- a patch the guard cannot read is the artifact an evasion builds."""
+    targets, readable, pairs = _patch_declared_targets(patch_path)
+    if not readable or pairs == 0:
+        return True
+    return any(_is_protected_gate_file(target) for target in targets)
+
+
+def _patch_operands(words, git_style):
+    """WFI-048: the patch files a patch-applier segment names.
+
+    An empty result means the patch can only be arriving on stdin (or through a
+    construct the tokenizer did not model), which the caller fails closed on."""
+    redirected = []
+    plain = []
+    index = 0
+    while index < len(words):
+        word = words[index]
+        if word == "<":
+            if index + 1 < len(words):
+                redirected.append(words[index + 1])
+            index += 2
+            continue
+        if len(word) > 1 and word.startswith("<"):
+            redirected.append(word[1:])
+            index += 1
+            continue
+        if word in ("-i", "--input"):
+            if index + 1 < len(words):
+                redirected.append(words[index + 1])
+            index += 2
+            continue
+        if word.startswith("-"):
+            index += 1
+            continue
+        plain.append(word)
+        index += 1
+    if redirected:
+        return redirected
+    if git_style:
+        return plain
+    # `patch [options] [originalfile [patchfile]]`: the patch is the SECOND
+    # operand. With fewer than two, the patch is on stdin and unreadable here.
+    return plain[1:] if len(plain) >= 2 else []
+
+
+def _patch_operand_hits_protected(operand, current_dir, cwd_known):
+    """WFI-048: resolve one patch operand against the tracked working directory
+    and decide it. Anything unresolvable fails closed."""
+    if not cwd_known:
+        return True
+    if any(char in operand for char in _SHELL_UNSAFE_TOKEN_CHARS):
+        return True
+    path = operand
+    if not path.startswith("/") and current_dir:
+        path = current_dir.rstrip("/") + "/" + path
+    return _patch_targets_protected(path)
+
+
+def _shell_patch_apply_hits_protected(cmd):
+    """R-10 (WFI-048): deny a patch applier whose patch names a protected file.
+
+    `git apply <p>`, `git am <p>` and `patch ... <p>` state their targets INSIDE
+    the file they are given, so the token pre-filter never sees them -- and the
+    whole staging convention in docs/ci-staging/README.md rests on those writes
+    being denied. The patch operand itself IS on the command line, so the guard
+    resolves it across cd/pushd exactly as _shell_cwd_write_hits_protected does,
+    reads it, and tests every target the diff declares.
+
+    This runs as its own gate rather than through the write-verb path because
+    `git am` is not in the write vocabulary at all: routing it through
+    SHELL_SUDO_WRITE_RE would leave it allowed.
+
+    Non-writing inspection flags (--check, --stat, --numstat, --summary,
+    --dry-run) are exempt. git and patch modify nothing when those are present,
+    and docs/ci-staging/README.md tells a human to run exactly that before
+    applying. The exemption cannot be used to evade: an evader still needs a
+    second, unexempt segment, and each segment is judged on its own."""
+    if not isinstance(cmd, str):
+        return False
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None:
+        # Unmodeled command: the raw-substring fallback inside
+        # _command_references_protected_path keeps its own fail-closed posture.
+        return False
+    segments = []
+    words = []
+    for kind, text in tokens:
+        if kind == "sep":
+            if words:
+                segments.append(words)
+                words = []
+        else:
+            words.append(text)
+    if words:
+        segments.append(words)
+
+    current_dir = ""
+    cwd_known = True
+    for segment in segments:
+        if not segment:
+            continue
+        verb = _shell_token_basename(segment[0])
+        if verb in _SHELL_CD_CMDS:
+            current_dir, cwd_known = _apply_cd_transition(current_dir, cwd_known, segment)
+            continue
+        if verb == "popd":
+            cwd_known = False
+            continue
+        rest = segment[1:]
+        git_style = False
+        if verb == "git":
+            subcommand = None
+            for position, word in enumerate(rest):
+                if not word.startswith("-"):
+                    subcommand = position
+                    break
+            if subcommand is None or rest[subcommand] not in _SHELL_PATCH_APPLY_GIT_SUBCMDS:
+                continue
+            rest = rest[subcommand + 1:]
+            git_style = True
+        elif verb not in _SHELL_PATCH_APPLY_CMDS:
+            continue
+        if any(word.lower() in _SHELL_PATCH_INSPECT_FLAGS for word in segment):
+            continue
+        operands = _patch_operands(rest, git_style)
+        if not operands:
+            return True
+        for operand in operands:
+            if _patch_operand_hits_protected(operand, current_dir, cwd_known):
+                return True
+    return False
+
+
 def _command_references_protected_path(cmd):
     """R-10 pre-filter: True when a protected path appears as a shell TOKEN
     (a path-shaped word, or a redirect token's target), not merely as a
@@ -1430,6 +1675,12 @@ def _command_references_protected_path(cmd):
                 candidate = m.group(2)
         if _is_protected_gate_file(candidate):
             return True
+        # WFI-048: the end-anchored test above misses a path EMBEDDED in a
+        # larger token -- open('<path>','a') is one token that does not end
+        # with the suffix. This runs only after that test has failed, so it
+        # can add matches and never remove one.
+        if _token_embeds_protected_path(text):
+            return True
     return False
 
 
@@ -1454,6 +1705,10 @@ def _shell_targets_protected_gate_file(cmd):
     # spell the full protected path literally. Read-only segments never hit,
     # so this is checked before the read-only short-circuit below.
     if _shell_cwd_write_hits_protected(cmd):
+        return True
+    # WFI-048: a patch applier names its target inside the file it is given,
+    # so neither the pre-filter nor the write vocabulary can decide it.
+    if _shell_patch_apply_hits_protected(cmd):
         return True
     has_protected_path = _command_references_protected_path(cmd)
     if not has_protected_path:

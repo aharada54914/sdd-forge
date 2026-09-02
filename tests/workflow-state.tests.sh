@@ -1820,4 +1820,78 @@ run_investigation_twin "$inv_task" task-stage-grows
 [[ "$INV_LAST_PS_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md (task stage)"* ]] ||
   fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
 
+
+# ---------------------------------------------------------------------------
+# WFI-051: the plugins_hash_matches failure modes must be DISTINGUISHABLE in
+# the emitted diagnostic, not one shared "input hash is stale" sentence.
+# Mode A (no single introducing commit) is asserted on the two
+# indeterminate-pin fixtures already built above; modes B and C get their
+# own fixtures below. Pairwise-different substrings are the whole claim.
+
+wfi051_mode_a="evidence has no single committed introducing commit at HEAD"
+wfi051_mode_b="pinned plugins content unavailable at the introducing commit"
+wfi051_mode_c="input hash is stale: matches neither the working tree nor the pinned version"
+
+[[ "$pin_uncommitted_sh_output" == *"$wfi051_mode_a"* ]] ||
+  fail "WFI-051 mode A (Shell, uncommitted): expected the no-introducing-commit reason, got: $pin_uncommitted_sh_output"
+[[ "$pin_uncommitted_ps_output" == *"$wfi051_mode_a"* ]] ||
+  fail "WFI-051 mode A (PowerShell, uncommitted): expected the no-introducing-commit reason, got: $pin_uncommitted_ps_output"
+[[ "$pin_multi_add_sh_output" == *"$wfi051_mode_a"* ]] ||
+  fail "WFI-051 mode A (Shell, multi-add): expected the no-introducing-commit reason, got: $pin_multi_add_sh_output"
+[[ "$pin_multi_add_ps_output" == *"$wfi051_mode_a"* ]] ||
+  fail "WFI-051 mode A (PowerShell, multi-add): expected the no-introducing-commit reason, got: $pin_multi_add_ps_output"
+
+# Mode B: the contract's introducing commit predates the plugins reference
+# doc it names, so the pinned lookup finds nothing to read; the live doc is
+# then drifted so the pinned path must actually run.
+wfi051_absent="$(make_git_fixture wfi051-plugins-doc-absent-at-pin)"
+git -C "$wfi051_absent" add -A
+git -C "$wfi051_absent" reset -q -- "$PIN_MATRIX_REL"
+git -C "$wfi051_absent" commit -q -m "baseline without the matrix reference doc"
+git -C "$wfi051_absent" add -A
+git -C "$wfi051_absent" commit -q -m "add the matrix reference doc afterwards"
+printf '\n<!-- fixture drift -->\n' >> "$wfi051_absent/$PIN_MATRIX_REL"
+set +e
+wfi051_absent_sh_output="$(bash "$wfi051_absent/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$wfi051_absent/specs/workflow-state-registry.json" 2>&1)"
+wfi051_absent_sh_status=$?
+wfi051_absent_ps_output="$(pwsh -NoProfile -File "$wfi051_absent/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$wfi051_absent/specs/workflow-state-registry.json" 2>&1)"
+wfi051_absent_ps_status=$?
+set -e
+[[ $wfi051_absent_sh_status -ne 0 ]] || fail "WFI-051 mode B Shell fixture unexpectedly passed"
+[[ $wfi051_absent_ps_status -ne 0 ]] || fail "WFI-051 mode B PowerShell fixture unexpectedly passed"
+[[ "$wfi051_absent_sh_output" == *"$wfi051_mode_b"* ]] ||
+  fail "WFI-051 mode B (Shell): expected the pinned-content-unavailable reason, got: $wfi051_absent_sh_output"
+[[ "$wfi051_absent_ps_output" == *"$wfi051_mode_b"* ]] ||
+  fail "WFI-051 mode B (PowerShell): expected the pinned-content-unavailable reason, got: $wfi051_absent_ps_output"
+
+# Mode C: the recorded hash is corrupted to a value matching neither the
+# working tree nor the pinned version -- the only genuinely stale case.
+wfi051_stale="$(make_git_fixture wfi051-plugins-genuinely-stale)"
+wfi051_fake="0000000000000000000000000000000000000000000000000000000000000000"
+wfi051_recorded="$(shasum -a 256 "$wfi051_stale/$PIN_MATRIX_REL" | awk '{print $1}')"
+grep -q "$wfi051_recorded" "$wfi051_stale/$PIN_CONTRACT_REL" ||
+  fail "WFI-051 mode C precondition not met: recorded hash for the matrix doc not found in the contract"
+sed "s/${wfi051_recorded}/${wfi051_fake}/g" "$wfi051_stale/$PIN_CONTRACT_REL" > "$wfi051_stale/$PIN_CONTRACT_REL.tmp"
+mv "$wfi051_stale/$PIN_CONTRACT_REL.tmp" "$wfi051_stale/$PIN_CONTRACT_REL"
+grep -q "$wfi051_fake" "$wfi051_stale/$PIN_CONTRACT_REL" ||
+  fail "WFI-051 mode C precondition not met: fake hash was not injected"
+git -C "$wfi051_stale" add -A
+git -C "$wfi051_stale" commit -q -m "baseline with a corrupted recorded hash"
+set +e
+wfi051_stale_sh_output="$(bash "$wfi051_stale/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$wfi051_stale/specs/workflow-state-registry.json" 2>&1)"
+wfi051_stale_sh_status=$?
+wfi051_stale_ps_output="$(pwsh -NoProfile -File "$wfi051_stale/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$wfi051_stale/specs/workflow-state-registry.json" 2>&1)"
+wfi051_stale_ps_status=$?
+set -e
+[[ $wfi051_stale_sh_status -ne 0 ]] || fail "WFI-051 mode C Shell fixture unexpectedly passed"
+[[ $wfi051_stale_ps_status -ne 0 ]] || fail "WFI-051 mode C PowerShell fixture unexpectedly passed"
+[[ "$wfi051_stale_sh_output" == *"$wfi051_mode_c"* ]] ||
+  fail "WFI-051 mode C (Shell): expected the genuinely-stale reason, got: $wfi051_stale_sh_output"
+[[ "$wfi051_stale_ps_output" == *"$wfi051_mode_c"* ]] ||
+  fail "WFI-051 mode C (PowerShell): expected the genuinely-stale reason, got: $wfi051_stale_ps_output"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'

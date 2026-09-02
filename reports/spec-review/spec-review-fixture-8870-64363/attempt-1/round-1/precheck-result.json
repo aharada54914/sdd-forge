@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "spec-review-fixture-8870-64363",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "45128ded79999a04299ae05657ba513b28458fab1661bf5c17ed46f4457639f0",
+  "acceptance_sha256": "7964cc613533af9b48d28a1934002f68e14aad5de37fb0ddc2686b47450099b6",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "9856f9ea7629120228520b12635819467fafa8ccabaa5f65e02703a0ff18bd9d",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-09-02T13:50:31Z"
+}

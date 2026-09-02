@@ -148,6 +148,14 @@ that grew across several commits lists every one. If any element is missing,
 abbreviated, paraphrased, or given as a bare path, the declaration does not
 apply and the default calibration stands with no benefit of the doubt.
 
+Keep this evidence record append-only. When a later amendment supersedes a
+document fingerprint, append a new fingerprint block at the tail of the
+`## Amendment Re-Review Context` section and name the earlier fingerprint it
+supersedes. Never rewrite or delete the earlier block, and never splice the
+replacement into the middle of the section. The workflow-state growth
+predicate requires the bytes pinned by the earlier stage to remain an exact
+prefix of that section; deletion-free editing alone is not sufficient.
+
 ### What the declaration suppresses
 
 When, and only when, a conforming entry is present, do not emit a finding

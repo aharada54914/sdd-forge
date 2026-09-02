@@ -48,8 +48,6 @@ For each task derive:
 - **QG Cycles** — count of quality-gate reports for that task
 - **Task Attempts — read `Task Attempt Count`** from the latest
   current-schema implementation report for the task.
-- **Review Rounds — count independent review rounds** recorded for the task
-  across its implementation and review evidence.
 - **Quality-Gate Runs — count quality-gate reports** for the task, including
   failed and blocked runs rather than only the final passing run.
 - **Model Escalations — count complete escalation transitions** whose prior
@@ -80,13 +78,7 @@ requested feature and task:
    canonical path. The selected report supplies the cumulative Task Attempts
    value. Schema-less legacy candidates sort below current-schema candidates
    and contribute `N/A` only when no current-schema candidate remains.
-2. **Independent review rounds.** The authoritative artifacts are
-   `reports/implementation/<feature>/T-NNN-review-<positive integer>.md`.
-   Associate by the path task ID and require the report's `Task` identity to
-   match. The suffix is the round number. De-duplicate on
-   `(task ID, round number)` by retaining the lexicographically smallest
-   canonical path, then count the retained rounds in numeric round order.
-3. **Quality-gate runs.** The authoritative artifacts are Markdown files under
+2. **Quality-gate runs.** The authoritative artifacts are Markdown files under
    `reports/quality-gate/` with exactly one task-identity line — the
    canonical `Task ID: T-NNN` (quality-report template, WFI-020), or the
    legacy `Task: T-NNN` form in reports that predate it — and one non-empty
@@ -94,7 +86,7 @@ requested feature and task:
    De-duplicate on `(task ID, Run ID)` by retaining the lexicographically
    smallest canonical path. Count retained reports, including PASS, FAIL, and
    BLOCKED, ordered by `Run ID` and then canonical path.
-4. **Model escalations.** Read complete transition records from the retained
+3. **Model escalations.** Read complete transition records from the retained
    implementation, independent-review, and quality-gate artifacts. Associate
    each record with the artifact's validated task identity. De-duplicate the
    same transition across evidence sources on
@@ -103,7 +95,7 @@ requested feature and task:
    order by numeric escalation attempt, prior tier, next tier, failure class,
    then path. Conflicting reasons for one de-duplication key make Data
    Completeness `Blocked`; do not choose or count either conflicting record.
-5. **Invalid or ambiguous evidence.** A candidate with a mismatched identity,
+4. **Invalid or ambiguous evidence.** A candidate with a mismatched identity,
    malformed positive integer, duplicate identity with conflicting metric
    values, or missing required association field is excluded and recorded in
    the report's data-completeness explanation. Such evidence must never be
@@ -116,7 +108,11 @@ Also derive dataset quality indicators:
   review tickets used.
 - **Data Completeness** — Complete when all expected report roots exist for the
   feature; Partial when an optional source is missing; Blocked when required task
-  or quality-gate evidence is absent.
+  or quality-gate evidence is absent. Whenever a metric's source root is absent,
+  render that metric as `N/A` and name the absent root in the data-completeness
+  explanation; never render an absent source as numeric zero. In particular, an
+  absent required `reports/quality-gate/` root makes Data Completeness `Blocked`
+  and Quality-Gate Runs `N/A`.
 - **Confidence** — High for recurring patterns across at least three tasks or
   two independent evidence types; Medium for recurring patterns across two
   tasks; Low for single-task observations. Low-confidence observations may be
@@ -250,10 +246,10 @@ Fill every section; do not leave any `{{}}` field blank.
 
 ## Metrics
 
-| Task | Task Attempts | Review Rounds | Quality-Gate Runs | Model Escalations | Blocked Count | Tickets (C/M/Min) | Outcome |
-|---|---|---|---|---|---|---|---|
-| {{task_id}} | {{task_attempts}} | {{review_rounds}} | {{quality_gate_runs}} | {{model_escalations}} | {{blocked_count}} | {{critical}}/{{major}}/{{minor}} | {{outcome}} |
-| **Total** | | | | | | | |
+| Task | Task Attempts | Quality-Gate Runs | Model Escalations | Blocked Count | Tickets (C/M/Min) | Outcome |
+|---|---|---|---|---|---|---|
+| {{task_id}} | {{task_attempts}} | {{quality_gate_runs}} | {{model_escalations}} | {{blocked_count}} | {{critical}}/{{major}}/{{minor}} | {{outcome}} |
+| **Total** | | | | | | |
 
 _C = Critical, M = Major, Min = Minor_
 
@@ -310,7 +306,6 @@ Patterns observed across two or more tasks in this period.
 |---|---|---|---|
 | Avg QG Cycles per Task | {{prev_avg_qg}} | {{curr_avg_qg}} | {{trend}} |
 | Avg Task Attempts | {{prev_task_attempts}} | {{curr_task_attempts}} | {{trend}} |
-| Avg Review Rounds | {{prev_review_rounds}} | {{curr_review_rounds}} | {{trend}} |
 | Avg Quality-Gate Runs | {{prev_quality_gate_runs}} | {{curr_quality_gate_runs}} | {{trend}} |
 | Total Model Escalations | {{prev_model_escalations}} | {{curr_model_escalations}} | {{trend}} |
 | Total Blocked Count | {{prev_blocked}} | {{curr_blocked}} | {{trend}} |

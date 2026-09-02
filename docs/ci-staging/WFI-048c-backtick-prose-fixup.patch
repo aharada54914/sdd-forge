@@ -1,0 +1,57 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -1427,7 +1427,17 @@
+                 head = start
+                 while head > 0 and text[head - 1] not in boundary and not text[head - 1].isspace():
+                     head -= 1
++                # WFI-048 fixup: a path flanked by backticks on BOTH
++                # edges is the markdown code-span prose convention (e.g. a
++                # commit message quoting a path), not a write target.
++                # Measured true positives reach a path through quote, paren,
++                # or redirect edges, never a backtick pair.
++                backtick_prose = (
++                    head > 0 and end < len(text)
++                    and text[head - 1] == "`" and text[end] == "`"
++                )
+                 if (head == 0 or text[head - 1] in boundary) and \
++                        not backtick_prose and \
+                         _is_protected_gate_file(text[head:end]):
+                     return True
+             start = text.find(suffix, start + 1)
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -580,7 +580,16 @@
+         // isProtectedGateFile intact (human-copy staging needs it).
+         let head = start;
+         while (head > 0 && !boundary.has(text[head - 1]) && !/\s/.test(text[head - 1])) head -= 1;
++        // WFI-048 fixup: a path flanked by backticks on BOTH edges is
++        // the markdown code-span prose convention (a commit message
++        // quoting a path), not a write target. Measured true positives
++        // reach a path through quote, paren, or redirect edges, never a
++        // backtick pair.
++        const backtickProse =
++          head > 0 && end < text.length &&
++          text[head - 1] === '`' && text[end] === '`';
+         if ((head === 0 || boundary.has(text[head - 1])) &&
++            !backtickProse &&
+             isProtectedGateFile(text.slice(head, end))) {
+           return true;
+         }
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+@@ -934,7 +934,14 @@
+                     $head -= 1
+                 }
+                 $leftOk = ($head -eq 0) -or ($ShellPathBoundaryChars -contains ([string]$text[$head - 1]))
+-                if ($leftOk -and (Test-IsProtectedGateFile $text.Substring($head, $end - $head))) {
++                # WFI-048 fixup: a path flanked by backticks on BOTH edges is
++                # the markdown code-span prose convention (a commit message
++                # quoting a path), not a write target. Measured true positives
++                # reach a path through quote, paren, or redirect edges, never
++                # a backtick pair.
++                $backtickProse = ($head -gt 0) -and ($end -lt $text.Length) -and
++                    (([string]$text[$head - 1]) -eq '`') -and (([string]$text[$end]) -eq '`')
++                if ($leftOk -and (-not $backtickProse) -and (Test-IsProtectedGateFile $text.Substring($head, $end - $head))) {
+                     return $true
+                 }
+             }

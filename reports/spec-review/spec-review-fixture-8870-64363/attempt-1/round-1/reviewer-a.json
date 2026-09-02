@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "fixture-a",
+  "host_session_id": "session-a",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/spec-review-fixture-8870-64363/requirements.md",
+      "sha256": "45128ded79999a04299ae05657ba513b28458fab1661bf5c17ed46f4457639f0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/spec-review-fixture-8870-64363/acceptance-tests.md",
+      "sha256": "7964cc613533af9b48d28a1934002f68e14aad5de37fb0ddc2686b47450099b6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/spec-review/spec-review-fixture-8870-64363/attempt-1/round-1/precheck-result.json",
+      "sha256": "8780c8873465bea89665697a72f2a1605688a1c85ed59254c767bf6ac4eb7b0c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "fixture finding"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found."
+    }
+  ]
+}

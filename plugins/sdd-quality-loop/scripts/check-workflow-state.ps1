@@ -97,18 +97,38 @@ function Test-PluginsGitHistoryAvailable() {
 # where a stale or forged hash is actually checkable, and a mismatch the pin
 # cannot justify still fails there.
 function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [string]$EvidenceFile) {
+    # WFI-051: on failure, record WHICH condition fired (parity with the
+    # Bash twin's PLUGINS_HASH_MISMATCH_REASON). Empty on success and on
+    # the not-evaluable acceptance paths.
+    $script:PluginsHashMismatchReason = ""
     if (-not (Test-Path -LiteralPath $PluginsFile -PathType Leaf) -or
-        (Get-Item -LiteralPath $PluginsFile -Force).LinkType) { return $false }
+        (Get-Item -LiteralPath $PluginsFile -Force).LinkType) {
+        $script:PluginsHashMismatchReason = "input file is missing or a symlink"
+        return $false
+    }
     if ((Get-Sha256 $PluginsFile) -eq $Expected) { return $true }
     if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    if (-not $PluginsFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
+    if (-not $PluginsFile.StartsWith($prefix, [StringComparison]::Ordinal)) {
+        $script:PluginsHashMismatchReason = "input path is outside the repository root"
+        return $false
+    }
     $pluginsRelative = $PluginsFile.Substring($prefix.Length).Replace("\", "/")
     $pin = Get-PluginsPinCommit $EvidenceFile
-    if (-not $pin) { return $false }
+    if (-not $pin) {
+        $script:PluginsHashMismatchReason = "evidence has no single committed introducing commit at HEAD (uncommitted evidence -- e.g. a mid-merge tree -- or a path added more than once)"
+        return $false
+    }
     $historical = Get-PluginsHashAtPin $pin $pluginsRelative
-    if (-not $historical) { return $false }
-    return $historical -eq $Expected
+    if (-not $historical) {
+        $script:PluginsHashMismatchReason = "pinned plugins content unavailable at the introducing commit"
+        return $false
+    }
+    if ($historical -ne $Expected) {
+        $script:PluginsHashMismatchReason = "input hash is stale: matches neither the working tree nor the pinned version"
+        return $false
+    }
+    return $true
 }
 
 # The amendment re-review lane (spec-review's own "## Amendment Re-Review
@@ -1111,7 +1131,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             # hide behind this tolerance).
             if ($manifestRelative -like "plugins/*") {
                 if (-not (Test-PluginsHashMatches $manifestFile ([string]$item.sha256) $contractPath)) {
-                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                    $pluginsReason = if ($script:PluginsHashMismatchReason) { $script:PluginsHashMismatchReason } else { "input hash is stale" }
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest $pluginsReason"
                 }
             } elseif ($manifestRelative -eq "specs/$Feature/investigation.md") {
                 # Tolerated STANDALONE (no --opening needed): the amendment
