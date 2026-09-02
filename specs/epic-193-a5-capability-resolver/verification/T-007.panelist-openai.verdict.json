@@ -2,19 +2,25 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "017d9c77b83a6d9dc7977467d50f20ee62249a8040b94d54933ef39762fe44e4",
+  "input_digest": "dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f",
   "vendor": "openai",
-  "model": "gpt-5.6",
+  "model": "gpt-5",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-02"
   },
+  "blind": true,
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2096",
-      "note": "Recovery treats a target whose current hash equals PRE as safely restored and may delete the journal at line 2151 without re-establishing durability for that target's parent directory. If an earlier rollback replacement or ABSENT-state unlink succeeded but its parent-directory fsync failed, the journal is correctly retained while the live view already appears PRE; on the next invocation this branch accepts that volatile PRE state, and the round-29 barrier fsyncs only resolver-evidence.yaml's parent. In a Full transaction the Context Projection has a different parent, so journal deletion can become durable while a later crash loses the unconfirmed rollback and resurrects its POST entry, leaving a published artifact with no recovery journal. This is outside ruling (c) because it requires no attacker-authored journal, and the bundle's mutation capture explicitly leaves the related unlink-side durability mutant O uncovered."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1428",
+      "note": "The transactional crash-safety invariant is not implemented on a supported platform: `_fsync_directory` immediately returns whenever `os.name != \"posix\"`, and the adjacent implementation text explicitly characterizes rename/unlink durability hardening as POSIX-only. The bundle also states that the `.ps1` twin runs on Windows CI, yet contains no Windows-specific durability primitive or evidence establishing equivalent ordering there. Consequently, on Windows the journal rename, staging-chain creation, publication renames, rollback unlinks, and pre-discard recovery state can proceed without the directory durability barriers that the implementation itself says prevent a hard crash from leaving an undetected mixed generation, so AC-047's platform-unqualified recovery guarantee is not met."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log:100",
+      "note": "The captured mutation proof shows mutant O, which removes the directory fsync after restoring an `ABSENT` PRE state by unlinking, still passing at the clean-control tally of 395/0. The capture attributes this to `plant_sentinels` making every publication artifact pre-exist and explicitly labels the necessary omitted-PRE fixture as open work. Thus the POSIX implementation contains the intended barrier, but the security-sensitive regression suite cannot detect its removal on this rollback branch."
     }
   ]
 }

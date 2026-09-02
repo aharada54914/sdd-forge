@@ -2719,3 +2719,57 @@ referent is byte-untouched. The suite is 361/0 in both runtimes, and mutant E
 |---|---|
 | `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `46d3143eded2fb771226a1d691613f62c09e72f0d4ae5852825e76b6c920c37c` |
 | `tests/resolve-project-context-block-check.py` | `3f4308c8f1c9fc4562d62595502483eca32ee58446c2b61d57529ad60bc5cbfe` |
+
+### Ruling (B) — directory-fsync hardening is POSIX-only; Windows retains the file-fsync + journal discipline as a disclosed limitation
+
+**Date**: 2026-09-03. **Context**: cross-model panel round 32 (the second
+Codex run on digest `dee00fdc…`, after the first run's PASS was invalidated
+by a missing `blind` attestation in the runner template — a tooling defect,
+not a content judgment). That run returned one Major: `_fsync_directory`
+returns immediately when `os.name != "posix"`, so on Windows the journal
+rename, staging-chain creation, publication renames, rollback unlinks and
+pre-discard recovery barriers all proceed without directory-entry
+durability, while AC-047's recovery guarantee is stated without a platform
+qualifier. The same bytes had drawn PASS from the same vendor slot one run
+earlier, and the POSIX-only nature of every one of these barriers has been
+disclosed in the shipped code and the report since round 24.
+
+**Options put to the owner** (2026-09-03):
+
+1. **裁定で閉じる（推奨）** — 「directory-fsync 硬化は POSIX 限定、Windows は
+   file-fsync + journal 規律（round-19 以前の全プラットフォーム posture）を
+   開示済み限定として受理」とオーナー裁定し、investigation.md に逐語記録して
+   round 32 を回す。Python に移植可能な代替が無く、ctypes 機構はここでは
+   未テスト出荷になるため。
+2. **Windows 実装を書く** — ctypes で FlushFileBuffers +
+   FILE_FLAG_BACKUP_SEMANTICS のディレクトリ同期を実装する。この環境に
+   Windows が無く実行検証不能のまま出荷となり、新たなラウンドを誘発する
+   リスクが高い。
+3. **もう一度だけ再実行** — verdict shopping に近づくため非推奨。
+
+**The owner's verbatim answer**: 「裁定で閉じる（推奨）」
+
+**Scope of this ruling.** The directory-entry durability barriers introduced
+on rounds 19 through 30 (`_fsync_directory` and every call site: the
+write-side barrier in `_atomic_write_bytes`, the ABSENT-restore unlink
+barrier, the staging-chain barrier in `_publish_bundle`, and the pre-discard
+barrier in `_recover_journal`) are POSIX-only by design. On Windows the
+Resolver retains what every platform had before round 19: per-file
+`os.fsync` before every rename, the journal-before-first-rename ordering,
+and the full crash-recovery scan — the posture the panel repeatedly accepted
+as satisfying AC-047 before the directory-barrier hardening existed. Python
+offers no portable directory-synchronization primitive on Windows; a ctypes
+`FlushFileBuffers` mechanism over `FILE_FLAG_BACKUP_SEMANTICS` handles would
+ship untested from this environment, and NTFS's own metadata journaling
+provides a different (and partially overlapping) guarantee model. The
+limitation is DISCLOSED, not silent: the `_fsync_directory` docstring states
+it, the implementation report states it, and this ruling records the owner's
+acceptance. A future task MAY add a tested Windows barrier; its absence is
+not a defect of this task.
+
+**Counter-argument, stated rather than buried.** A hard crash on Windows
+between a live rename and the (absent) directory barrier can lose the
+journal's directory entry while keeping the rename — the undetected mixed
+generation AC-047 targets. That exposure is real, platform-scoped, equal to
+the pre-round-19 exposure everywhere, and accepted by this ruling on the
+grounds that the only available in-repo remedy is an untestable one.

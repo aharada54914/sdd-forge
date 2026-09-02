@@ -4,26 +4,21 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "CHANGELOG.md (T-007 Unreleased entry, uncovered-mutant passage)",
-      "note": "Uncovered-mutant enumeration drift in a declared output. The passage correctly states 現在の未カバーは 4 件（F・O・Q・T） and 20 mutant 中 16 件が被覆済み, but two sentences later the same live text asserts 残る 4 件（F と O）は rollback / Evidence / journal 経路にあり… — a count of four with only two mutants named — and the adjacent sentence 現在残るのは、上記の complete and wrote を complete だけに戻す変更 describes mutant F alone as what remains. When Q (round 26) and T (round 29) joined the uncovered set the numeral was bumped 2 to 4 while the sibling enumeration was left at the F-and-O era. This is the exact heading-versus-enumeration defect the very same passage narrates having fixed on 2026-08-29, recurring in the fix site, and it understates where test evidence stops on a Security-Sensitive high task. Rounds 25, 26 and 29 of this package graded this class Major; the round-30 count verifier scans only the report, so the CHANGELOG sits outside its scope and the class recurred there."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json (comment)",
-      "note": "The verification contract comment states: Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests. The same comment earlier declares every mutant except F, O, Q and T killed, and its own appended Q and T paragraphs describe two further uncovered guards. The word Both dates from the pre-round-26 state when F and O were the only uncovered pair; four uncovered guards now sit on that path. Because this sentence is the contract's own authoritative statement of where its evidence stops, the stale two-guard framing materially understates the review-only surface. Measured ground truth from mutation-proofs.log: control 395/0, twenty mutants, sixteen killed, F/O/Q/T at control tally. Same drift event as the CHANGELOG finding; per this package's own precedent (round 29: three Majors, all count drift, one per site) it is recorded per artifact."
+      "severity": "Minor",
+      "ref": "verification/T-007/mutation-proofs.log (mutants F, O, Q, T)",
+      "note": "Four mutants on the rollback/Evidence/journal fault path remain UNCOVERED at control-equal tallies (395/0). Each is disclosed in the log and in the contract comment with a measured obstacle or a panel-verified impossibility argument (F), and the contract states explicitly that correctness there rests on review rather than regression tests. Non-blocking: this is honest open work on double-fault windows the single-shot overlays cannot reach, not faked verification. O, Q and T remain worth fixtures if the overlay gains multi-shot arming."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/.../T-007.md round history + verification/T-007/mutation-proofs.log (mutant F note)",
-      "note": "Present-tense uncovered-set claims without the same-line historical markers the round-29 remediation itself established: the report asserts the current uncovered total is one, F (two sites, no marker on the claim line) and F and O are the uncovered pair; the mutation log's F note says F and O are the pair that remain, contradicted by the same log's own Q and T UNCOVERED entries below it. Era-inferable from surrounding round narrative, so Minor rather than Major, but the report's own convention says a marker only exempts the number it sits with, and these numbers carry none. That F note has already been through one staleness correction (round 22, an Anthropic Minor) and is stale again."
+      "ref": "human-copy resolve-project-context.py, _fsync_directory (capture line ~29553)",
+      "note": "All directory-durability barriers (rename durability, staging-chain fsync, the round-30 pre-discard parent barrier) are POSIX-only and return without acting on Windows. This is disclosed in the docstring and in _atomic_write_bytes as a platform necessity, so it is a documented limitation rather than a defect, but it means the crash-durability half of REQ-001 is unenforced on the ps1 twin's native platform; worth one line in design.md/infra-spec.md if not already stated there."
     }
   ],
   "blind": true,
-  "input_digest": "017d9c77b83a6d9dc7977467d50f20ee62249a8040b94d54933ef39762fe44e4",
+  "input_digest": "dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-02"

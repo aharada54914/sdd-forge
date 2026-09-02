@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 017d9c77b83a6d9dc7977467d50f20ee62249a8040b94d54933ef39762fe44e4
+# input_digest: dee00fdc3a140c53f696dcf3ec99249f2198cea992dcb1fca4ff9f9c553cf24f
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -11070,7 +11070,7 @@ REQ-004.
       "green_evidence": ""
     }
   ],
-  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (395/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries twenty mutants, all against the shipped bytes, with a clean control run at the top: every mutant except F, O, Q and T is killed; F, O, Q and T stay at the control tally and are labelled UNCOVERED in the log itself, each with its argument stated there. F is the Evidence-write-fails-after-completed-rollback combination a panelist has verified as unconstructable. O is the unlink-side directory fsync, and its UNCOVERED reason is now a measured obstacle rather than an impossibility claim: plant_sentinels writes all three publication artifacts before every fixture, so no rollback in this suite reaches the ABSENT branch that carries the barrier, and three fixture attempts on round 25 were withdrawn. Reaching it needs a fixture whose PRE state omits an artifact -- open work, not a proof. M -- which this comment once placed in that category -- was disproved on round 22, the third false-unreachability claim in this task, and its kill was then found on round 24 to have been happening for the WRONG REASON (the overlay retained closed directory descriptor numbers, the kernel reused one for a temp file, and the injection was firing on a file fsync; a stack-trace probe located it and the overlay now discards descriptors on close, after which the injection provably never fires under M at all): the round-22 fault-injection fixture (publication-fsync-failure, an os.open/os.fsync overlay failing the feature directory's first barrier exactly once) makes the fsync CALL observable even though its durability effect is not, and both M and the round-20 counting fix (mutant N) now die against it. The same round fixed an unguarded diagnostics[0] index in that fixture which mutant M had exposed by crashing the driver. D's coverage arrived on round 19, after a panelist disproved the claim that no fixture could graft a journal across batch directories -- the second of this task's own unreachability claims shown wrong by the panel (C was the first). F's impossibility argument is the one a panelist has verified and endorsed: every route to a failed Evidence write fails during Prepare, so committed==0 and the guarded branch cannot be entered. H, I and J are the report's own mutations (a), (b) and (c), re-run under the current harness after round 16 found the report citing them with no capture behind them anywhere in the bundle; (d) is labelled not-re-verified rather than restated. K covers the round-17 read-containment fix. Both remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash. Q is the round-26 revert of the Evidence-durability propagation: reaching it needs the Evidence write's own directory fsync to fail inside a run that is already Blocking, and the existing fault-injection overlays are single-shot and fire earlier. That is the measured obstacle, recorded as open work -- this task has offered four impossibility proofs (C, D, M, O) and all four were wrong. R is the round-27 revert of the AC-014 fix -- it reinstates a `capability-resolver: warning:` line whose token is absent from REQ-002's closed sixteen-value enum -- and it is KILLED by a source-level assertion that scans the shipped resolver for every literal diagnostic prefix it writes, so a line no fixture reaches is still bound by AC-014. S is the round-28 revert of the post-Block Evidence classification: without it a journal left behind by a Block that FOLLOWED a completed rollback is read as the unrecoverable third state, because Evidence legitimately holds the Block record rather than either recorded generation, and a transient unlink failure at that instant would Block every future invocation forever. It dies against a planted-journal fixture that asserts the scan converges and discards. T is the round-29 revert of the pre-discard Evidence durability barrier: observing it needs that fsync to fail during a recovery scan already converging a retained journal -- two fault conditions in one run, beyond the single-shot overlays. Measured obstacle, open work."
+  "comment": "Verification contract for T-007 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the panel-round-6 RED captures, 341/4 in both runtimes against the pre-fix resolver -- the red that matches the shipped, post-remediation code) and green_evidence (395/0 in both runtimes -- the ONE statement of this tally in this comment); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. That single statement is deliberate, and it is deliberate because stating it twice has now failed twice: round 11 left this contract at 355 while its captures said 356, and round 15 left it at a number its own captures had already moved past -- three times over, inside the very sentence that claimed the number was stated once. The tally is not restated below; read it from the declared green_evidence captures. Round 7 closed the Anthropic panelist's Major: AC-059/TEST-059 (ruling E, 2026-08-28) had been written into requirements.md, acceptance-tests.md, traceability.md and this task's Done When, but never implemented -- a repository grep for AC-059, TEST-059 and the three approval-surface path literals returned zero hits outside the spec documents. TEST-059 now exists in this task's own suite as the registration-time deny-list grep AC-059 specifies (scanned set: the Resolver alone, all three of resolve-project-context.{py,sh,ps1}, plus every live twin that exists -- none do yet, this package is staged for a human to apply), contributing eleven assertions, counted from the log rather than from memory. Its non-vacuity is proved by mutation rather than by a suite-level RED, because a test-only addition has no failing production state to capture: verification/T-007/mutation-proofs.log injects one mention of each of the three surfaces into the staged Resolver, records TEST-059 failing with all three categories named, and restores the file to its exact shipped sha256. Round 8 then closed the OpenAI panelist's Critical: _rollback_transaction rolled resolver-evidence.yaml back along with the publication artifacts on the post-publication-mismatch path (Evidence commits last, and the rollback set was entries[:count]), against REQ-001 step (m)'s explicit rule that the subject is the three publication artifacts and never resolver-evidence.yaml. Evidence is now excluded from the rollback set and from the count the diagnostic reports; the same mutation log carries that second mutant, which the post-publication case kills. Rounds 9 to 12 then closed a second OpenAI Critical (the journal was deleted before the Block record was durable), the owner's rulings (a) and (b), and a third OpenAI Major that ruling (b) itself exposed: with a leaf symlink now acceptable, _repo_relative resolved the whole path and the journal recorded the symlink's referent while the commit replaced the lexical entry, so a rollback restored the referent and left the published bytes standing. _repo_relative_target records the lexical entry, by the same parent-resolve rule the containment check uses, and round 12 added the leaf-symlink fixture that had been missing -- five assertions, and mutant E kills it. Round 13 then closed a further OpenAI Major: the round-9 deferral guarded the journal's deletion on whether the ROLLBACK completed, not on whether the Block record became durable, so the journal was discarded even when the Evidence write had failed; _block_reporting now returns (exit_code, wrote_evidence) and both post-publication branches discard only when complete and wrote, with _block kept as a thin wrapper so its forty call sites are unchanged. Round 15 then closed both remaining panel findings with fixtures rather than disclosures. The OpenAI Major was a live defect: _recover_journal validated each journal entry's path and uniqueness but never that the SET was a bundle this Resolver could have written, so an attacker-committed journal naming two genuinely in-set targets could classify a live artifact as committed and have the MIX rollback unlink it; _legitimate_journal_bundles now requires the Full track's three targets or the Lite track's two, and mutant G kills the new fixture on four assertions. The Anthropic Minor was a correction of this task's own disclosure: mutant C was reachable after all, using the kill hook the suite already ships, and the fixture now exists. The mutation log carries twenty mutants, all against the shipped bytes, with a clean control run at the top: every mutant except F, O, Q and T is killed; F, O, Q and T stay at the control tally and are labelled UNCOVERED in the log itself, each with its argument stated there. F is the Evidence-write-fails-after-completed-rollback combination a panelist has verified as unconstructable. O is the unlink-side directory fsync, and its UNCOVERED reason is now a measured obstacle rather than an impossibility claim: plant_sentinels writes all three publication artifacts before every fixture, so no rollback in this suite reaches the ABSENT branch that carries the barrier, and three fixture attempts on round 25 were withdrawn. Reaching it needs a fixture whose PRE state omits an artifact -- open work, not a proof. M -- which this comment once placed in that category -- was disproved on round 22, the third false-unreachability claim in this task, and its kill was then found on round 24 to have been happening for the WRONG REASON (the overlay retained closed directory descriptor numbers, the kernel reused one for a temp file, and the injection was firing on a file fsync; a stack-trace probe located it and the overlay now discards descriptors on close, after which the injection provably never fires under M at all): the round-22 fault-injection fixture (publication-fsync-failure, an os.open/os.fsync overlay failing the feature directory's first barrier exactly once) makes the fsync CALL observable even though its durability effect is not, and both M and the round-20 counting fix (mutant N) now die against it. The same round fixed an unguarded diagnostics[0] index in that fixture which mutant M had exposed by crashing the driver. D's coverage arrived on round 19, after a panelist disproved the claim that no fixture could graft a journal across batch directories -- the second of this task's own unreachability claims shown wrong by the panel (C was the first). F's impossibility argument is the one a panelist has verified and endorsed: every route to a failed Evidence write fails during Prepare, so committed==0 and the guarded branch cannot be entered. H, I and J are the report's own mutations (a), (b) and (c), re-run under the current harness after round 16 found the report citing them with no capture behind them anywhere in the bundle; (d) is labelled not-re-verified rather than restated. K covers the round-17 read-containment fix. All four remaining uncovered guards sit on the rollback/Evidence/journal path, whose correctness there rests on review rather than on regression tests -- stated because a contract that declares required checks passed should also say where its evidence stops. The nine sibling regression suites were re-run at these bytes (631 passing, 0 failing). regression covers the nine sibling suites at the shipped state: resolver-evidence-schema 20/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, validate-resolver-evidence 138/0, parity 70/0, metamorphic 150/0, component-path-resolver 73/0 (631 passing, 0 failing). requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). check-component-coverage is not carried as a contract check: this repository has no sdd/project-context.yaml, so the gate is in disabled-legacy state and check-contract's CAPABILITY_STATE_GATED_IDS predicate does not activate the tier-minimum requirement (its verdict record was still captured for the record at verification/qg/T-007/component-coverage.log, state 'not-applicable (disabled-legacy)', exit 0); this matches sibling tasks T-008/T-009/T-010. cross_model is 'required' rather than omitted because this task's tasks.md entry carries Security-Sensitive: true, which sdd-ship Step 4 makes a hard pre-gate requirement; the cross-model-verification check is DEFAULT-FAIL here and stays passes:false until a fresh panel round has run against the shipped bytes and check-cross-model has written the aggregate at verification/T-007.cross-model.json. spec_revision is the current requirements+design+acceptance-tests concatenation hash. Q is the round-26 revert of the Evidence-durability propagation: reaching it needs the Evidence write's own directory fsync to fail inside a run that is already Blocking, and the existing fault-injection overlays are single-shot and fire earlier. That is the measured obstacle, recorded as open work -- this task has offered four impossibility proofs (C, D, M, O) and all four were wrong. R is the round-27 revert of the AC-014 fix -- it reinstates a `capability-resolver: warning:` line whose token is absent from REQ-002's closed sixteen-value enum -- and it is KILLED by a source-level assertion that scans the shipped resolver for every literal diagnostic prefix it writes, so a line no fixture reaches is still bound by AC-014. S is the round-28 revert of the post-Block Evidence classification: without it a journal left behind by a Block that FOLLOWED a completed rollback is read as the unrecoverable third state, because Evidence legitimately holds the Block record rather than either recorded generation, and a transient unlink failure at that instant would Block every future invocation forever. It dies against a planted-journal fixture that asserts the scan converges and discards. T is the round-29 revert of the pre-discard Evidence durability barrier: observing it needs that fsync to fail during a recovery scan already converging a retained journal -- two fault conditions in one run, beyond the single-shot overlays. Measured obstacle, open work."
 }
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log ----
 # runner: pwsh
@@ -16594,8 +16594,10 @@ RESULT: 395 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutants C, D and M all covered since rounds 15, 19 and 22, F and O are
- the pair that remain. F is the Evidence-write-fails-after-completed-
+ mutants C, D and M all covered since rounds 15, 19 and 22, the
+ uncovered set is whatever this log ends with -- F plus the fsync-fault
+ family (O, Q, T at this writing; a fixed list here went stale twice).
+ F is the Evidence-write-fails-after-completed-
  rollback combination a panelist verified as unconstructable; O is the
  unlink-side fsync, whose end state is identical on every non-crashing
  path. The promised fault-injection fixture exists as of round 22 and
@@ -16676,7 +16678,7 @@ RESULT: 394 passed, 1 failed
 mutant S injected: Evidence third-state branch removed
 --- MUTANT S: post-Block Evidence branch removed (expect post-block-journal FAIL) ---
 RESULT: 393 passed, 2 failed
-mutant T injected: Evidence durability not re-established before discard
+mutant T injected: pre-discard parent-directory barrier disabled
 --- MUTANT T: recovery discards without re-establishing Evidence durability ---
 RESULT: 395 passed, 0 failed
 (A tally EQUAL to the control means UNCOVERED. Observing this needs the
@@ -16686,7 +16688,7 @@ RESULT: 395 passed, 0 failed
  four impossibility proofs (C, D, M, O) were offered here and all four
  were wrong.)
 --- restoring ---
-restored sha256: b1d631442680ae8f6206bccff5a14c7c9acf32cdc3c884befef46b93976fbcc5
+restored sha256: 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -22389,9 +22391,9 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `e333b493ec06c79d3a4e29d39bc3dfe43d23be2b93962f535d1559133ada7a25` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `ffaf9d0d9e6a4701d9f5228b8e036f34b89815518fe065e808073a2140cf76ed` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `b1d631442680ae8f6206bccff5a14c7c9acf32cdc3c884befef46b93976fbcc5` |
+| `CHANGELOG.md` | `cd14d4cb9d5e9fa2a8052ed671cd09019a2a0908bbbeadc4e904ca25dad319e8` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `63ed45bc8461d3b17cef10c819543eef3ee5de17bace3f00dedc89c91264cba8` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log` | `b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log` | `8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48` |
@@ -22408,7 +22410,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `864cbb6bd55aefed96f00a19091d2f2f909030aa7bd17ca82151bea4ff24f514` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `47a8be846a60184a1970c50e5bf12f087a9e4a7c648eb9c239e5ea43ca2d40eb` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `f12dd3e48a3cb53d66f2f4a428cd5e3e4e3355ed7aac8854d2b1d14c74283fe2` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `e850929eb631fa9e70c9263d736a523523dc3cb86267bc83e6a7ba3661102b9c` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22444,6 +22446,34 @@ Cross-cutting checks extended per the Done When bullets:
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml` | `705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py` | `868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc` |
 | `tests/resolve-project-context-block-check.py` | `c477b833c088575253804e4155b5a0d48b5233894b5a9fa764e291170f034dc6` |
+
+**Round 30 (2026-09-02) — the barrier generalized to the principle, and the
+enumeration my own count bump left behind.**
+
+The OpenAI Major generalized its own round-29 finding one step further, and
+rightly: the round-29 barrier fsynced only resolver-evidence.yaml's parent
+before a recovery discard, and the Context Projection lives under a
+DIFFERENT parent — so a rollback restore whose own barrier had failed could
+still present a volatile PRE, be accepted, and have its journal durably
+deleted; a later crash would resurrect the POST entry with no journal left.
+The scan now fsyncs EVERY distinct parent named by the journal before ANY
+discard it performs, failing closed on the existing diagnostic. That is the
+principle itself rather than another special case, which is what closes this
+axis: rounds 26, 29 and 30 were each the same lesson at wider scope, and
+there is no wider scope left than "every entry".
+
+The Anthropic Majors were the enumeration class again, in its purest form:
+my round-29 edit bumped 「残る 3 件」 to 「残る 4 件」 and left the
+parenthetical at （F と O） — four claimed, two named, in the very passage
+that narrates fixing this class. The contract's comment likewise still said
+"Both remaining uncovered guards". Where a list can be replaced by a
+pointer to the authority it now is ("whatever this log ends with"), it was;
+where a list must stand, it names all four.
+
+Mutant T's anchor died in the generalization (the uniqueness assert caught
+it before a silent no-op, again) and is rebound to the parent-directory
+loop; S still kills at 393/2, T remains uncovered with its two-fault
+obstacle stated.
 
 **Round 29 (2026-09-02) — my round-26 insurance, cancelled by my round-28
 convergence; and the verifier's blind spots, mapped by both slots at once.**
@@ -23186,7 +23216,7 @@ The historical round-17 twelve-mutant set ran beneath a clean control of
 J 369/11, K 377/3, L 378/2 were killed; D and F sat at the control tally and
 were labelled UNCOVERED. The stronger claim that D was unreachable was wrong:
 at the then-current **383/0** control (historical; the shipped control and kill counts are the mutation log's own), **eleven of twelve** then-existing mutants were killed
-(A, B, C, D, E, G, H, I, J, K, L, M, N), and **F and O are uncovered** (O being the unlink-side fsync, whose end state is identical on every non-crashing path; M's claimed power-loss-only observability was DISPROVED on round 22 — the third false-unreachability claim in this task — because the fault-injection overlay makes the fsync CALL itself observable); D is killed by
+(A, B, C, D, E, G, H, I, J, K, L, M, N), and **F and O are uncovered** (O being the unlink-side fsync, whose end state is identical on every non-crashing path; M's claimed power-loss-only observability was DISPROVED on round 22 — the third false-unreachability claim in this task — because the fault-injection overlay makes the fsync CALL itself observable); D is killed by  <!-- historical: the round-22 tally; the log's current uncovered set has since grown -->
 the round-19 `nonce-names-another-batch` fixture. K is
 ruling (A)'s own guard — `_live_bytes` mutated back to following a leaf
 symlink — and L is the PRE-image backup read containment added in round 18.
@@ -24843,11 +24873,13 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
   観測できない」という主張を保持していた。見出しだけ直して兄弟記述を
   取り残す欠陥が、まさにその欠陥を直す行で再発したもの） —
-  現在残るのは、上記の `complete and wrote` を `complete` だけに戻す変更
+  F はその代表で、上記の `complete and wrote` を `complete` だけに戻す変更
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
-  commit 前に publish が拒否されるため、fixture では作れない）。
-  **残る 4 件（F と O）は rollback / Evidence / journal 経路にあり、この領域の
+  commit 前に publish が拒否されるため、fixture では作れない — panelist
+  検証済みの論証）。O・Q・T は fsync 故障の重ね合わせが要る同族で、いずれも
+  実測障害つきで mutation ログに開示している。
+  **残る 4 件（F・O・Q・T）は rollback / Evidence / journal 経路にあり、この領域の
   正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
@@ -28087,7 +28119,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-b1d631442680ae8f6206bccff5a14c7c9acf32cdc3c884befef46b93976fbcc5  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -30218,27 +30250,30 @@ def _recover_journal(repo_root, feature, journal_path):
         raise PublicationJournalUnrecoverable(
             "a journal-listed target matches neither its PRE nor its POST hash"
         )
-    if evidence_differs:
-        # The journal that reached this point was very likely RETAINED on
-        # purpose: round 26 makes a Block whose Evidence rename succeeded but
-        # whose directory barrier failed report wrote=False precisely so the
-        # journal survives as that record's backstop. Round 28 then taught
-        # this scan to converge such a batch -- and discarding here without
-        # first making the Evidence directory entry durable would delete the
-        # backstop while the thing it protects is still only maybe-on-disk
-        # (openai panel slot, round 29 Major). So the barrier is retried here,
-        # and a failure keeps the journal for the next invocation rather than
-        # trading a durable record for a tidy staging area.
+    # EVERY entry's parent, not only Evidence's (openai panel slot, round 30
+    # Major, generalizing its round 29 Major). Any state this scan is about
+    # to accept -- a restored PRE, an ABSENT unlink, a Block record -- may be
+    # sitting in a directory whose own barrier failed when that state was
+    # produced; that is precisely why the journal survived to be scanned.
+    # Round 29 retried the barrier for resolver-evidence.yaml alone, and the
+    # Context Projection lives under a DIFFERENT parent, so a volatile
+    # restored artifact could still be accepted, the journal durably
+    # deleted, and a later crash would resurrect the POST entry with no
+    # journal left to expose it. The barrier now covers every distinct
+    # parent in the journal, before ANY discard this function performs, and
+    # a failure keeps the journal on the existing diagnostic rather than
+    # trading unconfirmed state for a tidy staging area.
+    parent_dirs = []
+    for entry in entries:
+        parent = _journal_target_path(repo_root, entry["live_path"]).parent
+        if parent not in parent_dirs:
+            parent_dirs.append(parent)
+    for parent in parent_dirs:
         try:
-            _fsync_directory(
-                _journal_target_path(repo_root, next(
-                    entry["live_path"] for entry in entries
-                    if Path(entry["live_path"]).name == "resolver-evidence.yaml"
-                )).parent
-            )
+            _fsync_directory(parent)
         except OSError as exc:
             raise PublicationJournalUnrecoverable(
-                "this feature's own resolver-evidence.yaml could not be made durable before "
+                "a journal-listed target's directory could not be made durable before "
                 "the journal protecting it was discarded"
             ) from exc
     if all(state == "post" for state in states) or all(state == "pre" for state in states):

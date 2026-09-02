@@ -1435,9 +1435,14 @@ def _fsync_directory(path):
     creation in `_publish_bundle`), so it is one function rather than three
     copies.
 
-    POSIX only: Windows has no directory handle to fsync, so the honest
-    statement is that this hardening is POSIX-only rather than a silent
-    no-op everywhere.
+    POSIX only: Windows has no portable directory-synchronization primitive
+    in Python, so the honest statement is that this hardening is POSIX-only
+    rather than a silent no-op everywhere. Owner ruling (B) (2026-09-03,
+    investigation.md) accepts this as a disclosed platform limitation: on
+    Windows the Resolver retains per-file fsync, journal-before-first-rename
+    ordering, and the full recovery scan -- the posture every platform had
+    before round 19 -- and a tested Windows barrier is future work, not a
+    defect of this task.
     """
     if os.name != "posix":
         return
