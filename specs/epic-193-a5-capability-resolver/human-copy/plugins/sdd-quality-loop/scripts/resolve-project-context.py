@@ -2125,27 +2125,30 @@ def _recover_journal(repo_root, feature, journal_path):
         raise PublicationJournalUnrecoverable(
             "a journal-listed target matches neither its PRE nor its POST hash"
         )
-    if evidence_differs:
-        # The journal that reached this point was very likely RETAINED on
-        # purpose: round 26 makes a Block whose Evidence rename succeeded but
-        # whose directory barrier failed report wrote=False precisely so the
-        # journal survives as that record's backstop. Round 28 then taught
-        # this scan to converge such a batch -- and discarding here without
-        # first making the Evidence directory entry durable would delete the
-        # backstop while the thing it protects is still only maybe-on-disk
-        # (openai panel slot, round 29 Major). So the barrier is retried here,
-        # and a failure keeps the journal for the next invocation rather than
-        # trading a durable record for a tidy staging area.
+    # EVERY entry's parent, not only Evidence's (openai panel slot, round 30
+    # Major, generalizing its round 29 Major). Any state this scan is about
+    # to accept -- a restored PRE, an ABSENT unlink, a Block record -- may be
+    # sitting in a directory whose own barrier failed when that state was
+    # produced; that is precisely why the journal survived to be scanned.
+    # Round 29 retried the barrier for resolver-evidence.yaml alone, and the
+    # Context Projection lives under a DIFFERENT parent, so a volatile
+    # restored artifact could still be accepted, the journal durably
+    # deleted, and a later crash would resurrect the POST entry with no
+    # journal left to expose it. The barrier now covers every distinct
+    # parent in the journal, before ANY discard this function performs, and
+    # a failure keeps the journal on the existing diagnostic rather than
+    # trading unconfirmed state for a tidy staging area.
+    parent_dirs = []
+    for entry in entries:
+        parent = _journal_target_path(repo_root, entry["live_path"]).parent
+        if parent not in parent_dirs:
+            parent_dirs.append(parent)
+    for parent in parent_dirs:
         try:
-            _fsync_directory(
-                _journal_target_path(repo_root, next(
-                    entry["live_path"] for entry in entries
-                    if Path(entry["live_path"]).name == "resolver-evidence.yaml"
-                )).parent
-            )
+            _fsync_directory(parent)
         except OSError as exc:
             raise PublicationJournalUnrecoverable(
-                "this feature's own resolver-evidence.yaml could not be made durable before "
+                "a journal-listed target's directory could not be made durable before "
                 "the journal protecting it was discarded"
             ) from exc
     if all(state == "post" for state in states) or all(state == "pre" for state in states):

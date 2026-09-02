@@ -2,9 +2,9 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "ff77113641011e0dcee6ba36a251133582d9b781a026d8a524a7490e702ca2de",
+  "input_digest": "017d9c77b83a6d9dc7977467d50f20ee62249a8040b94d54933ef39762fe44e4",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-02"
@@ -13,13 +13,8 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2128",
-      "note": "When an Evidence-only Block write completes its rename but the parent-directory fsync fails, `_block_reporting` returns `wrote=False` specifically so the transaction journal remains as a durability backstop (lines 2368-2375). On the next invocation, however, recovery classifies the resulting third-value Evidence as PRE when all publication artifacts are PRE and deletes the journal (lines 2098-2148) without first retrying or otherwise establishing durability for the Evidence directory entry. A crash after this cleanup can therefore lose the not-yet-durable Block record while the journal that was retained to protect it is gone, contradicting the direct `temp file + fsync + rename` durability contract and re-entrant crash-recovery guarantee. This is a non-attacker filesystem-failure path and is outside ruling (c)."
-    },
-    {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md:896",
-      "note": "The implementation report's verification counts do not match the bundle captures: it reports 391 passed per runtime, later retains malformed historical text saying 383 passed, and claims `grep -c '^def run_t007_'` yields seventeen, while the captured shipped logs each show 395 passed / 0 failed and the captured test driver contains eighteen `run_t007_` definitions. The executable evidence is green, but the report's claimed inventory and tally are internally unreliable."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2096",
+      "note": "Recovery treats a target whose current hash equals PRE as safely restored and may delete the journal at line 2151 without re-establishing durability for that target's parent directory. If an earlier rollback replacement or ABSENT-state unlink succeeded but its parent-directory fsync failed, the journal is correctly retained while the live view already appears PRE; on the next invocation this branch accepts that volatile PRE state, and the round-29 barrier fsyncs only resolver-evidence.yaml's parent. In a Full transaction the Context Projection has a different parent, so journal deletion can become durable while a later crash loses the unconfirmed rollback and resurrects its POST entry, leaving a published artifact with no recovery journal. This is outside ruling (c) because it requires no attacker-authored journal, and the bundle's mutation capture explicitly leaves the related unlink-side durability mutant O uncovered."
     }
   ]
 }

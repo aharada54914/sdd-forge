@@ -330,11 +330,13 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
   観測できない」という主張を保持していた。見出しだけ直して兄弟記述を
   取り残す欠陥が、まさにその欠陥を直す行で再発したもの） —
-  現在残るのは、上記の `complete and wrote` を `complete` だけに戻す変更
+  F はその代表で、上記の `complete and wrote` を `complete` だけに戻す変更
   （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
   feature ディレクトリを不正にすれば publication targets も不正になり
-  commit 前に publish が拒否されるため、fixture では作れない）。
-  **残る 4 件（F と O）は rollback / Evidence / journal 経路にあり、この領域の
+  commit 前に publish が拒否されるため、fixture では作れない — panelist
+  検証済みの論証）。O・Q・T は fsync 故障の重ね合わせが要る同族で、いずれも
+  実測障害つきで mutation ログに開示している。
+  **残る 4 件（F・O・Q・T）は rollback / Evidence / journal 経路にあり、この領域の
   正しさはその範囲でテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。

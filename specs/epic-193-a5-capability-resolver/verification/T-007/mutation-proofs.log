@@ -49,8 +49,10 @@ RESULT: 395 passed, 0 failed
  and no fixture can produce that combination: a feature directory that
  makes the Evidence target uncontained also makes the publication targets
  uncontained, so the publish is refused before any commit happens. With
- mutants C, D and M all covered since rounds 15, 19 and 22, F and O are
- the pair that remain. F is the Evidence-write-fails-after-completed-
+ mutants C, D and M all covered since rounds 15, 19 and 22, the
+ uncovered set is whatever this log ends with -- F plus the fsync-fault
+ family (O, Q, T at this writing; a fixed list here went stale twice).
+ F is the Evidence-write-fails-after-completed-
  rollback combination a panelist verified as unconstructable; O is the
  unlink-side fsync, whose end state is identical on every non-crashing
  path. The promised fault-injection fixture exists as of round 22 and
@@ -131,7 +133,7 @@ RESULT: 394 passed, 1 failed
 mutant S injected: Evidence third-state branch removed
 --- MUTANT S: post-Block Evidence branch removed (expect post-block-journal FAIL) ---
 RESULT: 393 passed, 2 failed
-mutant T injected: Evidence durability not re-established before discard
+mutant T injected: pre-discard parent-directory barrier disabled
 --- MUTANT T: recovery discards without re-establishing Evidence durability ---
 RESULT: 395 passed, 0 failed
 (A tally EQUAL to the control means UNCOVERED. Observing this needs the
@@ -141,4 +143,4 @@ RESULT: 395 passed, 0 failed
  four impossibility proofs (C, D, M, O) were offered here and all four
  were wrong.)
 --- restoring ---
-restored sha256: b1d631442680ae8f6206bccff5a14c7c9acf32cdc3c884befef46b93976fbcc5
+restored sha256: 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894
