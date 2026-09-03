@@ -1,6 +1,6 @@
 # Requirements: epic-193-a5-capability-resolver
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/193,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (AI-DLC
@@ -384,7 +384,14 @@ document v2 §7/§18.4).
   `generated/project-context.resolved.json` — and never
   `resolver-evidence.yaml`. Evidence is excluded by construction rather than
   by exception: AC-012's always-emitted rule excepts exactly two diagnostic
-  ids, so on every other Block this invocation leaves its own Block record
+  ids **plus one non-diagnostic no-write condition** (amended 2026-09-03,
+  human-approved, mirroring ruling (a), investigation.md: when this feature's
+  own `resolver-evidence.yaml` does not resolve inside its own
+  `specs/<feature>` directory, nothing is written and the ORIGINAL
+  diagnostic id is preserved on stderr — writing there would be the very
+  escape every containment rule closes; the closed sixteen-row diagnostic
+  enum is unchanged by this condition), so on every other Block this
+  invocation leaves its own Block record
   standing at Evidence's live path, written directly per this step, **after**
   any rollback of the publication artifacts has completed. Rolling Evidence
   back would destroy the only record that the rolled-back publication was
@@ -437,7 +444,9 @@ document v2 §7/§18.4).
   ordering, above, is what makes this structurally true rather than a
   per-step promise this feature's own implementation could violate,
   adversarial review "B1 atomicity"). Resolver Evidence (REQ-004) is still
-  written on every Block, with **two** named exceptions: `disabled-legacy-
+  written on every Block, with **two** named diagnostic-id exceptions plus
+  ruling (a)'s non-diagnostic containment refusal (amended 2026-09-03,
+  human-approved, ruling (F)): `disabled-legacy-
   invocation` (whose own Evidence record is minimal by construction,
   recording only the fact of the out-of-contract invocation itself) and
   the self-referential `output-schema-validation-failed` case immediately
@@ -636,7 +645,9 @@ document v2 §7/§18.4).
   discipline (investigation.md INV-006). (This "sole exception" and
   REQ-002's "two named exceptions" above are not in conflict and never
   were: this sentence enumerates the exceptions to writing an Evidence
-  record **at all**, of which B3 is the only one, while REQ-002 enumerates
+  record **at all** — B3, and since ruling (a) (2026-08-28, mirrored here
+  2026-09-03 under ruling (F)) the uncontained-Evidence-target refusal,
+  which likewise writes nothing at all — while REQ-002 enumerates
   the exceptions to writing the **full** form, of which
   `disabled-legacy-invocation` — which writes a minimal record rather than
   none — is the second. AC-012 states both scopes in one row.)
@@ -914,6 +925,30 @@ document v2 §7/§18.4).
 
 ## Acceptance Criteria
 
+**Ruling Annotations (amended 2026-09-03, human-approved, ruling (F)).**
+Every criterion and narrative sentence in this document that states (i) a
+two-exception count for the Evidence always-emitted rule, (ii) a
+byte-identical-to-PRE restoration guarantee, (iii) a "never a bare
+`unlink`" rollback rule, or (iv) an unqualified crash-recovery durability
+guarantee is read subject to three owner rulings recorded verbatim in
+investigation.md and mirrored in acceptance-tests.md (its own Ruling
+Annotations rule and its marked rows):
+ruling (a) (2026-08-28) — a third, NON-diagnostic no-write condition
+exists: an Evidence target that does not resolve inside its own
+`specs/<feature>` directory Blocks on the ORIGINAL diagnostic with no
+record written, the containment refusal itself, leaving the sixteen-row
+diagnostic enum unchanged; ruling (A) (2026-08-29) — a SYMLINKED
+publication target's PRE state is `ABSENT`: the referent is never read,
+and rollback restores `ABSENT` by unlinking the leaf, which is that
+target's own PRE state, not a bare-unlink violation; ruling (B)
+(2026-09-03) — the directory-entry durability barriers are POSIX-only,
+Windows retaining per-file fsync, journal-before-first-rename ordering and
+the full recovery scan, with the residual crash window an owner-accepted
+disclosed limitation. Individual rows below carry short markers; this rule
+is the authoritative statement, so a row without a marker is still bounded
+by it.
+
+
 | Acceptance Criterion | Requirement | Description |
 |---|---|---|
 | AC-001 | REQ-001 | `resolve-project-context.{py,sh,ps1}` CLI rejects an invocation missing `--config`, `--target-rev`, or `--feature` as a usage error, before any resolution logic runs; `--source-rev` defaults to `HEAD` when omitted, matching `resolve-component-paths`'s own default |
@@ -926,8 +961,8 @@ document v2 §7/§18.4).
 | AC-008 | REQ-001 | The written `facet-manifest.yaml` validates successfully against `contracts/facet-manifest.schema.json` (Epic A4) for a representative multi-Capability, multi-affected-component fixture |
 | AC-009 | REQ-001 | On the Lite track (`workflow.spec_profile == lite`), across each of the three non-Blocking `required_lite_checks`-sourcing states the cross-epic addendum (Epic A6 adversarial verification finding B5) defines — **advisory-missing** (`capability_enforcement == advisory`, a matched Capability's key absent, contributing `[]`), **required-present-empty** (`capability_enforcement == required`, a matched Capability's key present with an empty array), and **zero-match** (no matched Capability, either enforcement state) — the written `capability-summary.yaml` validates successfully against `contracts/capability-summary.schema.json` (Epic A4), and this same invocation writes neither `facet-manifest.yaml` nor `project-context.resolved.json` (track-exclusive output set, B4). **Fixtured for the advisory-missing and zero-match states only** (scoped 2026-08-27, human-approved, ruling D(2)): required-present-empty is unreachable by any schema-conformant Registry today, because Epic A2's frozen `lite_policy` schema is `additionalProperties: false` with sub-keys `{eligible, upgrade_reasons}` and admits no `required_lite_checks` key at all, so a fixture exercising it would itself fail `validate-capability-registry` — and TEST-009 forbids a synthetic-Registry-extension fixture for any of the three. That state's criterion is discharged when the Epic A2 schema revision Dependencies names as an owned prerequisite lands, not by this package; the package's own convention for an untestable branch is the same one AC-016 and AC-026 use |
 | AC-010 | REQ-002 | Each of the **sixteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture — for `lite-check-source-undefined` specifically, the **required-missing** state only (`capability_enforcement == required` and a matched Capability's `lite_policy.required_lite_checks` key absent), per the cross-epic addendum narrowing that row's own trigger (REQ-002, above; AC-009 covers this diagnostic's three sibling non-Blocking states) — no other condition produces a Block (exit `1`) — a closed enumeration of Block causes only, distinct from the CLI usage-error exit path (exit `2`) AC-013 separately fixes (spec-review round-2 remedy, closing a CONTRADICTION finding) |
-| AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/journaled-transactional-publication ordering, B1), and including `post-publication-generation-mismatch`, whose own journal-based rollback restores this same unchanged-from-pre-invocation state even though a rename briefly succeeded (B8) |
-| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form) and except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3) |
+| AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/journaled-transactional-publication ordering, B1), and including `post-publication-generation-mismatch`, whose own journal-based rollback restores this same unchanged-from-pre-invocation state even though a rename briefly succeeded (B8) — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
+| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form) and except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3) — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-013 | REQ-002 | Exit code contract: `0` on success, `1` on any REQ-002 Block, `2` on a CLI usage error (AC-001) — fixed, tested per value |
 | AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own sixteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
 | AC-015 | REQ-003 | `disabled-legacy` (absent `--config` target, or the AGENTS.md-marker/default fallback deriving it) produces `disabled-legacy-invocation` before any Registry/ownership/Context-Projection work is attempted (a fixture confirms no `resolve-component-paths`/Registry-discovery subprocess is ever invoked in this branch) |
@@ -954,7 +989,7 @@ document v2 §7/§18.4).
 | AC-036 (Global) | — | `check-sdd-structure.sh` (no feature argument) exits 0 after this package's registration commit, run as `sh scripts/check-sdd-structure.sh .` |
 | AC-037 (Global) | — | `specs/workflow-state-registry.json`'s new entry is exactly `{"feature": "epic-193-a5-capability-resolver", "profile": "full"}`, no additional keys, appended to this worktree's own `entries` array |
 | AC-038 | REQ-001/REQ-002 | Staged-generation/journaled-transactional-publication lock (B1): a fixture that reaches a Block only after this invocation has already staged the Context Projection and/or Facet Manifest/Capability Summary in memory (e.g. `lite-check-source-undefined`, `output-schema-validation-failed`, `snapshot-generation-mismatch`) confirms no earlier-staged **publication artifact** ever reached a live path (REQ-001 step (m)'s rollback-and-no-write scope rule: the subject is the three publication artifacts, never `resolver-evidence.yaml`, which is itself staged at step (j) and **is** written on the `lite-check-source-undefined` and `snapshot-generation-mismatch` fixtures and on `output-schema-validation-failed`'s **non-Evidence sub-case (AC-055(b)) only** — its Evidence-itself-fails sub-case, AC-055(a), is one of AC-012's two exceptions and writes nothing at all, so this row's fixture for that id is AC-055(b)'s — scoped 2026-08-27, human-approved, ruling D(2), replacing an unscoped "artifact" that read against AC-012/AC-040/AC-055, with the sub-case split named because the first replacement wording over-generalised across it) — this criterion is additive to AC-011's own "no partial artifact" statement, over the same three artifacts, differing in that it holds for Blocks reached only after staging rather than for Blocks generally |
-| AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3, revised): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename **of a publication artifact** in the same commit sub-sequence confirms that target is rolled back to its own PRE-transaction live bytes via the transaction's own journal — **never** a bare `unlink` with no restore path (B1, closing the "existing bytes destroyed" gap) — while `resolver-evidence.yaml` is not rolled back and instead carries this Block's own record (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) — and the rollback attempt is itself recorded in this diagnostic's own `detail` |
+| AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3, revised): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename **of a publication artifact** in the same commit sub-sequence confirms that target is rolled back to its own PRE-transaction live bytes via the transaction's own journal — **never** a bare `unlink` with no restore path (B1, closing the "existing bytes destroyed" gap) — while `resolver-evidence.yaml` is not rolled back and instead carries this Block's own record (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) — and the rollback attempt is itself recorded in this diagnostic's own `detail` — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-040 | REQ-002 | `snapshot-generation-mismatch` lock (B8 TOCTOU, revised): a fixture that mutates the Project Context, ownership-source declarations, or Registry between this invocation's own invocation-start snapshot and its pre-publication recheck Blocks with this diagnostic id, and no **publication artifact** — `facet-manifest.yaml`, `capability-summary.yaml`, or `generated/project-context.resolved.json` — reaches a live path, while `resolver-evidence.yaml` itself **is** written recording this diagnostic (scoped 2026-08-27, human-approved, ruling D(2): the earlier unscoped "no artifact" wording contradicted AC-012's own always-emitted rule, which excepts two ids and not this one; AC-011 already used this scoped form); a **second** fixture leaves every digest (including `ownership_digest`) byte-identical but mutates only the worktree/index/untracked state so the re-derived `affected_components` set itself differs, confirming the Block fires on the set difference alone (B8 correction — `ownership_digest` parity is not by itself sufficient) |
 | AC-041 | REQ-002 | `workflow-combination-invalid` lock (M3): one independently-triggerable fixture per decision document v2 §6's own two explicitly-invalid combination rows (`lite` × non-`lite-three-file`, `full` × `lite-three-file`), each Blocking before any Registry/ownership/projection work begins |
 | AC-042 | REQ-003/REQ-007 | CLI-misuse framing lock (M4): a spy-harness fixture on `sdd-bootstrap-interviewer`'s own capability interview phase (REQ-007) confirms it never invokes `resolve-project-context`'s own subprocess at all while a Project Context is absent or derives `disabled-legacy` — distinct from, and in addition to, AC-015's own narrower "the Resolver itself invokes no further subprocess in this branch" check. **Discharged by the deferred suite** `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` (design.md Test Strategy item 10), which this package specifies at contract level but does not schedule (`tasks.md` "Deferred, not scheduled"), so this criterion is not closed by this package's own tasks — noted 2026-08-27, human-approved, ruling D(2), matching AC-026/AC-027's scoping. AC-042's entire content is that deferred spy harness, so this row has no separately closable half here; AC-015 is a distinct, non-deferred row that this deferral does not touch (corrected 2026-08-28 under the same ruling D(2), closing the attempt-8 round-3 `SCOPE-BOUNDARY` finding — the removed clause asserted a closable half that AC-042 does not have) |
@@ -962,9 +997,9 @@ document v2 §7/§18.4).
 | AC-044 | REQ-004 | Provenance canonicalization lock (B9): a fixture confirms `dependency_pointers[]` is exactly `/workflow` plus one RFC-6901-escaped `/components/<id>` pointer per affected component, stable-sorted and de-duplicated (including a component `id` containing `/`/`~` to exercise escaping); `resolver.version`/`resolver.rule_set_revision` are identical across repeated invocations and across `.py`/`.sh`/`.ps1` of the same Resolver revision, and change only when that revision's own `RESOLVER_VERSION`/rule-set constant is bumped (`scripts/bump-version.sh`) |
 | AC-045 | REQ-005/REQ-006 | Metamorphic completeness lock (M10): all four true/false combinations of a 2-affected-component `trigger` result; output invariance under affected-component input-order permutation; a >1-true-component fixture recording the matched Capability exactly once; and a nested-array-completeness fixture confirming every level of Resolver Evidence's own nesting carries exactly its governing set's cardinality (design.md Test Strategy item 9) |
 | AC-046 | REQ-007 | Live-caller-contract lock (M6, revised): a contract-test suite against the live `sdd-bootstrap-interviewer/SKILL.md` confirms (a) no `resolve-project-context` invocation while Context-absent, (b) exactly one invocation per capability interview phase run, (c) a REQ-002 Block surfaces to the interview session rather than silently degrading, and (d) an **anchor-fingerprint** drift check (AC-053, below, gives the fingerprint mechanism) fails loudly if this package's own cited anchor no longer matches the live file, superseding an earlier revision's bare heading-text-existence check. **Discharged by the deferred suite** `tests/resolve-project-context-caller-contract.tests.sh`/`.ps1` (design.md Test Strategy item 10), specified here at contract level but not scheduled by this package's `tasks.md` ("Deferred, not scheduled"), so this criterion is not closed by this package's own tasks (noted 2026-08-27, human-approved, ruling D(2), matching AC-026/AC-027's scoping) |
-| AC-047 | REQ-002 | Journal-based crash recovery lock (B1, NEW): a fixture simulates a hard crash between two renames of a multi-target publication transaction (test-harness-only kill hook) and confirms the **next** invocation's own mandatory crash-recovery scan converges every target back to its own PRE-transaction bytes before proceeding with its own, separate resolve; a companion fixture corrupts the journal's own recorded pre-image backup (an unrecoverable state) and confirms the next invocation Blocks, `publication-journal-recovery`, before any Registry/ownership/Context-Projection work begins — **asserting both halves of that Block's live-state obligation** (mirrored here 2026-08-27, human-approved, ruling D(2), from TEST-047's own amended row, which the earlier scoping had reached while this row still stated the Block id and timing alone): every interrupted target other than `resolver-evidence.yaml` byte-identical to its pre-invocation state, no partial rollback and no repair attempted once the journal is declared unconvergeable, **and** `resolver-evidence.yaml` itself carrying this invocation's own schema-valid Block record for that diagnostic. Asserting only the first would contradict AC-012; asserting only the second would lose the no-partial-rollback guarantee |
+| AC-047 | REQ-002 | Journal-based crash recovery lock (B1, NEW): a fixture simulates a hard crash between two renames of a multi-target publication transaction (test-harness-only kill hook) and confirms the **next** invocation's own mandatory crash-recovery scan converges every target back to its own PRE-transaction bytes before proceeding with its own, separate resolve; a companion fixture corrupts the journal's own recorded pre-image backup (an unrecoverable state) and confirms the next invocation Blocks, `publication-journal-recovery`, before any Registry/ownership/Context-Projection work begins — **asserting both halves of that Block's live-state obligation** (mirrored here 2026-08-27, human-approved, ruling D(2), from TEST-047's own amended row, which the earlier scoping had reached while this row still stated the Block id and timing alone): every interrupted target other than `resolver-evidence.yaml` byte-identical to its pre-invocation state, no partial rollback and no repair attempted once the journal is declared unconvergeable, **and** `resolver-evidence.yaml` itself carrying this invocation's own schema-valid Block record for that diagnostic. Asserting only the first would contradict AC-012; asserting only the second would lose the no-partial-rollback guarantee — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-048 | REQ-002 | Pre-publication `affected_components` re-derivation lock (B8, NEW): a fixture mutates only the worktree/index/untracked state (no ownership-config edit) between this invocation's own step-4 snapshot and its step-13 recheck, confirming `snapshot-generation-mismatch` fires on the `affected_components` set difference even though `ownership_digest` itself stays byte-identical |
-| AC-049 | REQ-002 | Post-publication verification / race lock (B8, NEW): a fixture injects the identical class of source mutation *after* the pre-publication recheck has already passed but *before* the publication transaction's own last rename completes, confirming (a) `post-publication-generation-mismatch` fires only after every rename in the transaction has already, briefly, succeeded, (b) every one of those renames **of a publication artifact** is rolled back to its own PRE-transaction state via the journal before this invocation exits, while `resolver-evidence.yaml` is **not** rolled back and instead carries this Block's own record at exit — both halves are required of this one fixture, exactly as AC-047's own row requires of its own: asserting only the first would contradict AC-012, which excepts two diagnostic ids and not this one, and asserting only the second would lose the rollback guarantee (REQ-001 step (m)'s rollback-and-no-write scope rule; scoped 2026-08-27, human-approved, ruling D(2)) — and (c) the rollback is journal-based, never a bare `unlink` |
+| AC-049 | REQ-002 | Post-publication verification / race lock (B8, NEW): a fixture injects the identical class of source mutation *after* the pre-publication recheck has already passed but *before* the publication transaction's own last rename completes, confirming (a) `post-publication-generation-mismatch` fires only after every rename in the transaction has already, briefly, succeeded, (b) every one of those renames **of a publication artifact** is rolled back to its own PRE-transaction state via the journal before this invocation exits, while `resolver-evidence.yaml` is **not** rolled back and instead carries this Block's own record at exit — both halves are required of this one fixture, exactly as AC-047's own row requires of its own: asserting only the first would contradict AC-012, which excepts two diagnostic ids and not this one, and asserting only the second would lose the rollback guarantee (REQ-001 step (m)'s rollback-and-no-write scope rule; scoped 2026-08-27, human-approved, ruling D(2)) — and (c) the rollback is journal-based, never a bare `unlink` — bounded by rulings (a)/(A)/(B) per the Ruling Annotations rule above (ruling (F)) |
 | AC-050 | REQ-004 | `validate-resolver-evidence` Registry provenance-binding lock (B6, NEW): a fixture supplies a `--registry` override whose own `generate-registry-digest --whole` value does not equal the Evidence instance's own `context_binding.registry_digest`, confirming `registry-digest-unbound` fires before any `capability-set-mismatch` check runs; a companion fixture confirms the default (no `--registry`) self-discovery path performs the identical binding check against the ADR-0025-discovered Registry, never trusting an unverified caller-supplied path |
 | AC-051 | REQ-004 | `validate-resolver-evidence` affected-component provenance-binding lock (B6, NEW): a fixture pairs an Evidence instance with a co-located Facet Manifest whose own `dependency_pointers[]` names a different affected-component set than the Evidence instance's own, confirming `affected-component-provenance-mismatch` fires without needing any `--affected-components` CLI argument at all; a companion fixture supplies an explicit `--affected-components` override that contradicts both sibling artifacts' own `dependency_pointers[]`, confirming the identical check-id fires for the override case too |
 | AC-052 | REQ-001 | Same-Capability duplicate-facet predicate-instance lock (B7, NEW): a fixture where a single Registry Capability declares the identical `facet` name at two different `conditional_facets[]` array positions with two different `when` predicates confirms Resolver Evidence records two independent `conditional_facet_evaluations[]` entries (one per `declaration_index`, never collapsed by `facet` name), and the Facet Manifest's own single, facet-name-unique output entry aggregates both declaration indices' own contributions by the identical `(capability_id, declaration_index, component_id)`-keyed rule the cross-Capability case (AC-043) uses |
@@ -1017,7 +1052,9 @@ document v2 §7/§18.4).
   `artifact-publication-failed` as necessarily pre-publication and omit
   its journal rollback, against its own REQ-002 row and AC-039) — this
   invocation itself rolls the transaction's own **publication artifacts**
-  back to their PRE-transaction state before returning the Block — never
+  back to their PRE-transaction state (per ruling (A), a symlinked
+  target's PRE is `ABSENT`, restored by unlinking; ruling (F)) before
+  returning the Block — never
   `resolver-evidence.yaml`, which instead carries that Block's own record
   (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012) — so the
   *net* effect converges to the
@@ -1251,6 +1288,7 @@ document v2 §7/§18.4).
   invocation itself rolls every already-committed rename **of a
   publication artifact** back to its own
   PRE-transaction state via the publication transaction's own journal
+  (bounded by rulings (A)/(B) per the Ruling Annotations rule; ruling (F))
   before returning that exit code, while `resolver-evidence.yaml` is not
   rolled back and instead carries that Block's own record (REQ-001 step
   (m)'s rollback-and-no-write scope rule, AC-012/AC-049) — one of the **two** Edge
@@ -1343,7 +1381,9 @@ document v2 §7/§18.4).
   post-publication-verification mismatch each leave every live path this
   feature's Resolver could write either fully absent, fully unchanged
   (converged there by the crash-recovery scan or an in-process rollback,
-  both journal-based, never a bare `unlink` with no restore), or —
+  both journal-based, never a bare `unlink` with no restore — where per
+  ruling (A) a symlinked target's PRE is `ABSENT` and the unlink IS its
+  restore; ruling (F)), or —
   Resolver Evidence only, on any Block except the two REQ-002 names —
   fully written, at whichever step that Block is reached, the step-(m)
   Blocks `artifact-publication-failed` and
@@ -1355,7 +1395,8 @@ document v2 §7/§18.4).
   crash-recovery scan either converges it away before this invocation's
   own work begins, or — when the journal is unconvergeable — leaves
   **every interrupted target other than `resolver-evidence.yaml`**
-  exactly as found, that one target receiving the Block's own record per
+  exactly as found (bounded by rulings (A)/(B); ruling (F)), that one
+  target receiving the Block's own record per
   AC-012 and AC-047 (scoped 2026-08-27: the unqualified "leaves it"
   contradicted this same bullet's own "Resolver Evidence … fully written"
   clause), and fails this invocation closed with
