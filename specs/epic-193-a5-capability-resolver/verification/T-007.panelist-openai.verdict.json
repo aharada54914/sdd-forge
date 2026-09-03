@@ -2,20 +2,14 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "1361cf9ad0254048b2bb980c407509d45788f19b7bf8ca40a3ca0e7214f92dc8",
+  "input_digest": "e0847cbdd29b2ef6cab32f9497d810f28d78a0db0a300b03b589f4751d826ce4",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6-sol",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
   },
   "blind": true,
-  "verdict": "NEEDS_WORK",
-  "findings": [
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2167",
-      "note": "Recovery unconditionally calls `_fsync_directory` for every journal-listed target parent before distinguishing all-PRE, all-POST, or MIX states. On an ordinary first Full-track publication, `generated/` may legitimately be absent\u2014the implementation itself creates it only when committing the Context Projection. A crash after the durable journal is written but before that target is committed therefore leaves its recorded PRE state as `ABSENT` and its parent nonexistent; recovery attempts to open that nonexistent parent, converts ENOENT into `PublicationJournalUnrecoverable`, and Blocks instead of safely abandoning an all-PRE transaction or rolling back a recoverable MIX after the earlier Facet Manifest rename. This violates AC-047 and the mandatory recovery contract because an expected ABSENT PRE state is treated as unrecoverable and can leave the mixed generation standing. The captured tests do not exercise this case: `tests/resolve-project-context-block-check.py:1521` plants all three publication artifacts and creates every parent before each relevant fixture, a masking gap also corroborated by the bundle's UNCOVERED mutant O disclosure."
-    }
-  ]
+  "verdict": "PASS",
+  "findings": []
 }

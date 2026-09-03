@@ -4,21 +4,21 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "staged resolver Python master (human-copy candidate), _atomic_write_bytes directory-fsync comment, lines 1521-1526; vs verification/T-007/mutation-proofs.log MUTANT M; vs implementation report Rounds 33-35 entry",
-      "note": "The report's Rounds 33-35 entry states: 'The stale in-process-unobservability comment mutant M's kill had disproved is corrected in place.' It is not corrected in the shipped bytes. The only unobservability comment in the resolver, at mutant M's own anchor site in _atomic_write_bytes, still reads 'Not observable by any in-process fixture ... so this hardening is disclosed as uncovered in the mutation log rather than implied to be tested', while the declared mutation log at the same declared sha256 (c26c968c...) kills mutant M at 395 passed / 3 failed and its own note says COVERED, the CALL being observable via the fault-injection overlay. This is a live contradiction between two declared outputs about what the evidence covers, and the current round entry affirmatively claims a remediation that is absent from the artifact it declares. The resolver bytes in the bundle postdate round 35 (they carry the round-35 staging-chain comment and the removed explicit fsync pair), so this is not a stale-copy artifact of bundling. Behavior is unaffected and the coverage error runs in the conservative direction, but a false corrected-in-place claim in the newest verification narrative is the amendment-propagation class this package has repeatedly had graded Major, and it means the round-35 self-description was not re-verified against the shipped bytes."
+      "severity": "Minor",
+      "ref": "verification/T-007/mutation-proofs.log (mutants F, O, Q, T)",
+      "note": "Four mutants on the rollback/Evidence-durability/journal path remain UNCOVERED at the shipped bytes (each at the 398/0 control tally, each with its obstacle stated in the log as measured open work rather than an impossibility claim; F carries a panel-endorsed unconstructability argument). All contract-required checks pass without them and no acceptance criterion depends on them, but correctness of those guards rests on review, as the contract itself discloses. Non-blocking; recorded so the open-work status stays visible."
     },
     {
       "severity": "Minor",
-      "ref": "implementation report Rounds 33-35 entry ('Mutant U reverts it and dies at 396/2') vs verification/T-007/mutation-proofs.log MUTANT U",
-      "note": "The declared mutation log records MUTANT U at RESULT: 395 passed, 3 failed against the 398/0 control; the round entry says 396/2. The value carries no same-line historical marker, so by the package's own convention it is a live claim, and it disagrees with the log the report names as the authority. Coverage direction is unaffected (U dies either way), so Minor, but it is the count-in-prose class the package's own verifier exists to catch, sitting in the same round entry as the Major above."
+      "ref": "T-007.contract.json red_evidence (red-panel6-sh.log / red-panel6-ps1.log)",
+      "note": "The declared TDD RED captures are the panel-round-6 runs (341 passed / 4 failed in both runtimes) while the shipped suite is 398 assertions; the 57 remediation-era additions have no suite-level RED and rely on the 21-mutant log (17 killed, clean control on the page) for non-vacuity. This is disclosed in the contract comment and the mutation evidence is real and three-way-bound, so it is a form note, not a gap."
     }
   ],
   "blind": true,
-  "input_digest": "1361cf9ad0254048b2bb980c407509d45788f19b7bf8ca40a3ca0e7214f92dc8",
+  "input_digest": "e0847cbdd29b2ef6cab32f9497d810f28d78a0db0a300b03b589f4751d826ce4",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
