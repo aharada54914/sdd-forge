@@ -342,7 +342,28 @@ if [[ "$round" -gt 1 ]]; then
     || fail "prior round contract is malformed or does not require work"
   prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
   prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
-  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
+  investigation_rel="specs/${feature}/investigation.md"
+  prior_investigation_values="$(jq -c --arg rel "$investigation_rel" '
+    [.reviewers[].allowed_input_manifest[]?
+      | select(.path == $rel or (.path | endswith("/" + $rel)))
+      | .sha256]
+    | unique
+  ' "$prior_contract")"
+  prior_investigation_count="$(jq -r 'length' <<<"$prior_investigation_values")"
+  prior_investigation_sha=""
+  investigation_sha=""
+  if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
+    [[ "$prior_investigation_count" == 1 ]] \
+      || fail "prior round contract must pin exactly one investigation.md hash"
+    prior_investigation_sha="$(jq -r '.[0]' <<<"$prior_investigation_values")"
+    [[ "$prior_investigation_sha" =~ ^[0-9a-f]{64}$ ]] \
+      || fail "prior round contract investigation.md hash is malformed"
+    investigation_sha="$(sha256 "${spec_dir}/investigation.md")"
+  else
+    [[ "$prior_investigation_count" == 0 ]] \
+      || fail "prior round contract pins a missing investigation.md"
+  fi
+  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" || "$investigation_sha" != "$prior_investigation_sha" ]] \
     || fail "reviewed inputs are unchanged from the prior round"
 fi
 

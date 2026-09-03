@@ -1,0 +1,30 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -1714,7 +1714,11 @@
+     if not has_protected_path:
+         return False
+     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
+-    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
++    # WFI-046 (owner decision A, 2026-09-03): executing syntax disqualifies
++    # this read-only short-circuit exactly as it already does the WFI-022
++    # exemption -- an embedded command is invisible to the write vocabulary.
++    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write \
++            and not WFI_EXEMPTION_UNSAFE_RE.search(cmd):
+         return False
+     if not has_write:
+         return False
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -841,7 +841,11 @@
+   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
+   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
+   const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
+-  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
++  // WFI-046 (owner decision A, 2026-09-03): executing syntax disqualifies
++  // this read-only short-circuit exactly as it already does the WFI-022
++  // exemption -- an embedded command is invisible to the write vocabulary.
++  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite &&
++      !WFI_EXEMPTION_UNSAFE_RE.test(cmd)) return false;
+   if (!hasWrite) return false;
+   // Issue #62: deny only when a write target is (or cannot be proven not to
+   // be) a protected gate file — fail-close on anything unmodeled.
