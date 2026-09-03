@@ -3,21 +3,21 @@
  on the page those verdicts are unverifiable, which is exactly what the
  anthropic panel slot found on round 13: the notes cited a control run
  that this log did not contain.)
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed
 mutant injected
 --- MUTANT A: approval-surface mention injected (expect TEST-059 FAIL) ---
 FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
-RESULT: 394 passed, 1 failed
+RESULT: 397 passed, 1 failed
 mutant B injected: Evidence back inside the rollback set
 --- MUTANT B: Evidence rolled back again (expect post-publication case FAIL) ---
 FAIL: post-publication-generation-mismatch: canonical diagnostic only (AC-014): stdout='' stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
 FAIL: post-publication-generation-mismatch: exact Resolver Evidence (AC-012): {'capability_evaluations': [], 'context_binding': {'dependency_pointers': ['/components/comp-a', '/workflow'], 'full_context_revision': 'sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e', 'ownership_digest': 'sha256:0000000000000000000000000000000000000000000000000000000000000000', 'projection_sha256': 'sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82', 'registry_digest': 'sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0'}, 'diagnostics': [{'detail': "a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal", 'id': 'post-publication-generation-mismatch', 'severity': 'block'}], 'feature': 'example-feature', 'resolver': {'rule_set_revision': 'sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b', 'version': '1.0.0'}, 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b)): rc=1 stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; 3 already-committed live renames were rolled back to their own PRE-transaction state via this transaction's own journal\n"
-RESULT: 392 passed, 3 failed
+RESULT: 395 passed, 3 failed
 mutant C injected: journal discarded BEFORE the Block Evidence write
 --- MUTANT C: journal deleted before Evidence (crash-window regression) ---
 FAIL: post-publication-crash-before-evidence: the journal is STILL STANDING after a crash between the rollback and the Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it deleted the journal before that write: []
-RESULT: 394 passed, 1 failed
+RESULT: 397 passed, 1 failed
 (This mutant is COVERED as of round 15. The note that used to sit here
  said the crash window could not be observed "without a new test-harness
  kill hook between the rollback and the Evidence write"; a panel slot
@@ -29,7 +29,7 @@ mutant D injected: journal nonce no longer bound to its batch directory
 --- MUTANT D: nonce/batch-directory binding removed (expect nonce-mismatch FAIL) ---
 FAIL: publication-journal-target-escape[nonce-names-another-batch]: a journal whose nonce names another batch is refused -- without the binding this all-PRE journal classifies as SAFE abandonment and the run exits 0, which is exactly what this assertion catches: rc=0 stdout='' stderr=''
 FAIL: publication-journal-target-escape[nonce-names-another-batch]: the refused journal is retained for manual operator intervention rather than discarded as an abandoned batch
-RESULT: 393 passed, 2 failed
+RESULT: 396 passed, 2 failed
 (COVERED as of round 19. The note that used to sit here said no fixture
  grafts a journal across batch directories; a panel slot answered that
  plant_journal already exists and a mismatched-nonce all-PRE journal
@@ -40,10 +40,10 @@ mutant E injected: journal records the symlink referent, not the lexical entry
 --- MUTANT E: journal path resolves the leaf again (expect leaf-symlinked FAIL) ---
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: after rollback the target is ABSENT -- ruling (A) makes a symlinked target's PRE state ABSENT (the referent's bytes are not this artifact's own content and are never read), so the rollback restores ABSENT by unlinking rather than putting the link back: exists=True is_symlink=False bytes=b'{"affected_components":["comp-a"],"capabilities":[],"conditi'
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: the symlink's referent is byte-untouched -- nothing was written THROUGH the symlink, and under ruling (A) nothing was READ through it either: b'<MISSING>'
-RESULT: 393 passed, 2 failed
+RESULT: 396 passed, 2 failed
 mutant F injected: journal discarded even when the Evidence write failed
 --- MUTANT F: discard guarded on rollback only, not on Evidence durability ---
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed
 (A tally here EQUAL to the clean control run means mutant F is UNCOVERED.
  Reaching it needs the Evidence write to fail AFTER a completed rollback,
  and no fixture can produce that combination: a feature directory that
@@ -64,25 +64,25 @@ FAIL: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bu
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the live artifact the fabricated journal marked ABSENT-at-PRE is STILL THERE -- this is the assertion the defect fails, because a MIX rollback would unlink it: b'{"affected_components":[],"capabilities":[],"conditional_facets":[],"context_binding":{"dependency_pointers":["/workflow"],"full_context_revision":"sha256:1e4d16d9b451b4bfc06c69f32dcb3eb85c494b6491c684a144d102c7eef4ab3e","ownership_digest":"sha256:b1b527049a796f49f35e8ffc4cf30860caf1be83de8ec9b73baa9f2761d7ab63","projection_sha256":"sha256:f314c04fb5ab56949a819d573893ba6cd043a62ad9539487f861bb40a72a6a82","registry_digest":"sha256:416eedb2ea74d1a102ed1d7234c18095ae93c2372122195a398276601a55d1c0"},"feature":"example-feature","lite_eligibility":{"eligible":true,"upgrade_reasons":[]},"required_facets":[],"resolved_gates":[],"resolver":{"rule_set_revision":"sha256:4b39beb045953dfe6d3c39a54933505b69956ab7020d501224a2aee68c06e37b","version":"1.0.0"},"schema":"sdd-facet-manifest/v1"}\n'
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the other in-set targets are untouched too -- the refusal happens BEFORE any recovery write
 FAIL: publication-journal-target-escape[in-set-non-bundle]: the rejected journal is retained for manual operator intervention
-RESULT: 391 passed, 4 failed
+RESULT: 394 passed, 4 failed
 mutant H injected: _restore_to_pre reverted to a bare unlink
 --- MUTANT H: rollback reverted to a bare unlink (report mutation (a)) ---
-RESULT: 373 passed, 22 failed
+RESULT: 373 passed, 25 failed
 mutant I injected: no journal before the first rename
 --- MUTANT I: journal write skipped (report mutation (b)) ---
-RESULT: 377 passed, 7 failed
+RESULT: 380 passed, 7 failed
 mutant J injected: step 14 post-publication recheck skipped
 --- MUTANT J: post-publication recheck skipped (report mutation (c)) ---
-RESULT: 384 passed, 11 failed
+RESULT: 387 passed, 11 failed
 mutant K injected: _live_bytes follows a leaf symlink again (pre-ruling-(A) read)
 --- MUTANT K: read containment removed (expect leaf-symlink-escapes-repo FAIL) ---
-RESULT: 392 passed, 3 failed
+RESULT: 395 passed, 3 failed
 mutant L injected: pre-image backup read containment removed
 --- MUTANT L: backup read containment removed (expect pre-image-symlink FAIL) ---
-RESULT: 393 passed, 2 failed
+RESULT: 396 passed, 2 failed
 mutant M injected: write-side directory fsync disabled
 --- MUTANT M: write-side directory fsync disabled (expect fsync-failure FAIL) ---
-RESULT: 392 passed, 3 failed
+RESULT: 395 passed, 3 failed
 (COVERED, and this note has now been wrong TWICE. It first claimed the
  fsync was observable only across a power loss -- true of the DURABILITY
  the call buys, false of the CALL itself, which a fault-injection
@@ -95,10 +95,10 @@ RESULT: 392 passed, 3 failed
  injection provably never fires at all.)
 mutant N injected: live-but-unfsynced rename no longer counted as committed
 --- MUTANT N: count-before-raise reverted (expect fsync-failure case FAIL) ---
-RESULT: 393 passed, 2 failed
+RESULT: 396 passed, 2 failed
 mutant O injected: unlink-side directory fsync removed
 --- MUTANT O: unlink-side fsync removed ---
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed
 (UNCOVERED, with a MEASURED reason rather than an impossibility claim.
  The note that stood here said no in-process injection could observe
  this barrier. A round-25 panelist refuted that using the argument that
@@ -115,12 +115,12 @@ RESULT: 395 passed, 0 failed
  state genuinely omits an artifact. That is open work, not a proof of
  impossibility -- four such proofs have been offered in this task
  (C, D, M, O) and all four were wrong.)
-mutant P injected: staging-chain durability barrier removed
---- MUTANT P: staging-chain fsync removed (expect staging-chain case FAIL) ---
-RESULT: 394 passed, 1 failed
+mutant P injected: staging chain created without durability barriers
+--- MUTANT P: staging mkdir loses its created-ancestor barriers (expect staging-chain FAIL) ---
+RESULT: 397 passed, 1 failed
 mutant Q injected: Evidence durability failure swallowed again
 --- MUTANT Q: Evidence durability failure swallowed (round 26 revert) ---
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed
 (A tally EQUAL to the control means UNCOVERED. Reaching it needs the
  Evidence write directory fsync to FAIL, which the round-22 overlay can
  inject -- but only in a run that is already Blocking, and the existing
@@ -129,18 +129,21 @@ RESULT: 395 passed, 0 failed
  proofs (C, D, M, O) and all four were wrong.)
 mutant R injected: non-enum diagnostic prefix reinstated
 --- MUTANT R: non-enum diagnostic prefix reinstated (expect source-scan FAIL) ---
-RESULT: 394 passed, 1 failed
+RESULT: 397 passed, 1 failed
 mutant S injected: Evidence third-state branch removed
 --- MUTANT S: post-Block Evidence branch removed (expect post-block-journal FAIL) ---
-RESULT: 393 passed, 2 failed
+RESULT: 396 passed, 2 failed
 mutant T injected: pre-discard parent-directory barrier disabled
 --- MUTANT T: recovery discards without re-establishing Evidence durability ---
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed
 (A tally EQUAL to the control means UNCOVERED. Observing this needs the
  Evidence directory fsync to FAIL during a recovery scan that is already
  converging a retained journal -- two fault conditions in one run, and
  the overlays are single-shot. Measured obstacle, not impossibility:
  four impossibility proofs (C, D, M, O) were offered here and all four
  were wrong.)
+mutant U injected: created-ancestor barriers removed (plain mkdir)
+--- MUTANT U: _mkdir_durable reverted to plain mkdir (expect created-dir FAIL) ---
+RESULT: 395 passed, 3 failed
 --- restoring ---
-restored sha256: eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287
+restored sha256: c26c968ce6e9d0e7372b817e3292756ca9d3fb61ef911c01ceed7ddd1db62afe

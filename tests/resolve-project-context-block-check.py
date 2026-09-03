@@ -414,6 +414,7 @@ ALL_CASE_NAMES = (
         "post-publication-crash-before-evidence",
         "publication-fsync-failure",
         "publication-staging-chain-fsync-failure",
+        "publication-created-dir-fsync-failure",
     ]
 )
 
@@ -3785,6 +3786,59 @@ def run_t007_post_block_journal_recovery_case(kind, counts):
         )
 
 
+def run_t007_created_dir_fsync_failure_case(kind, counts):
+    """The round-34 fix, tested rather than asserted: a barrier failure on a
+    NEWLY CREATED directory's parent must fail the publication closed.
+
+    The overlay deletes generated/ at import (so the publication must create
+    it, and the Projection's PRE is legitimately ABSENT) and fails, once, the
+    first fsync of a directory named scripts -- the barrier _mkdir_durable
+    runs for the created generated/ entry. Expected: the commit loop's
+    OSError path Blocks with a ONE-rename rollback clause, because the facet
+    manifest was already live when the Projection's mkdir barrier failed.
+    Mutant U reverts _mkdir_durable to a plain mkdir: no such fsync ever
+    happens, the injection never fires, the publication succeeds, and this
+    case fails -- which is what makes it non-vacuous."""
+    case_name = "publication-created-dir-fsync-failure"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("artifact-publication-failed")
+
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {rolled_back_clause(1)}"
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: artifact-publication-failed: {expected_detail}\n",
+            f"{case_name}: a failed barrier on the created directory's parent Blocks with a ONE-rename "
+            f"rollback clause -- the facet manifest was live, the Projection's mkdir barrier failed, "
+            f"and this is the assertion mutant U fails because a plain mkdir never runs that fsync",
+            f"rc={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{case_name}: the already-live facet manifest is rolled back to its PRE bytes",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:60]),
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: the journal is gone once the Block record is durable, and no staging "
+            f"litter survives",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_t007_journal_target_escape_case(kind, counts):
     """Panel round 1, MAJOR 1 (security containment). The step-0.5 scan acts
     on paths it reads out of `TRANSACTION.json`, and that journal lives in an
@@ -4587,6 +4641,7 @@ def main():
         run_t007_journal_bundle_shape_case(args.launcher, counts)
         run_t007_journal_nonce_mismatch_case(args.launcher, counts)
         run_t007_post_block_journal_recovery_case(args.launcher, counts)
+        run_t007_created_dir_fsync_failure_case(args.launcher, counts)
         run_t007_fsync_failure_case(args.launcher, counts)
         run_t007_staging_chain_fsync_failure_case(args.launcher, counts)
         run_t007_crash_before_evidence_case(args.launcher, counts)

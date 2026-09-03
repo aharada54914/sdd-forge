@@ -1453,6 +1453,28 @@ def _fsync_directory(path):
         os.close(dir_fd)
 
 
+def _mkdir_durable(path):
+    """`mkdir -p`, plus a directory barrier for every entry the mkdir
+    CREATED (openai panel slot, round 34 Major). A newly created
+    directory's own entry lives in ITS parent's data, exactly like a
+    rename -- and every barrier from rounds 19-30 fsynced only directories
+    that already existed. On a first Full-track publication `generated/`
+    is created here, its entry in `scripts/` was never fsynced, and a
+    power loss after verification and journal removal could keep the
+    manifest and Evidence while losing the whole directory and the
+    Projection inside it: a mixed generation with no journal left. The
+    created set is measured BEFORE the mkdir, then each created entry's
+    parent gets the barrier, deepest last. POSIX-only per ruling (B)."""
+    missing = []
+    probe = path
+    while not probe.exists():
+        missing.append(probe)
+        probe = probe.parent
+    path.mkdir(parents=True, exist_ok=True)
+    for created in reversed(missing):
+        _fsync_directory(created.parent)
+
+
 class _ReplacedButNotDurable(OSError):
     """`os.replace` succeeded -- the target IS live -- and the parent
     directory fsync afterwards failed, so durability is unconfirmed. Distinct
@@ -1474,7 +1496,7 @@ def _atomic_write_bytes(target, payload):
     discipline is new") -- plus the temp-then-REHASH round trip design.md's
     own Journal step names, so a torn temp file can never be renamed into
     place."""
-    target.parent.mkdir(parents=True, exist_ok=True)
+    _mkdir_durable(target.parent)
     fd, temp_name = tempfile.mkstemp(prefix=".resolver-publish-", dir=str(target.parent))
     try:
         with os.fdopen(fd, "wb") as handle:
@@ -1934,21 +1956,13 @@ def _publish_bundle(repo_root, feature, targets):
     # "refused" and "cleaned up" structurally disjoint.
     _validate_publication_preconditions(repo_root, feature, batch_dir, targets)
     try:
-        (batch_dir / PRE_IMAGE_DIRNAME).mkdir(parents=True, exist_ok=True)
-        # Make the STAGING CHAIN durable before any live rename (openai panel
-        # slot, round 24 Major). Rounds 19-20 fsynced the directories the
-        # published FILES live in, but the batch directory's own entry lives
-        # in the staging root, and the staging root's entry lives in
-        # specs/<feature>. Neither was fsynced, so a power loss could keep a
-        # fsynced live-target rename and lose the nonce directory carrying
-        # the journal -- an undetectable partial publication, the precise
-        # shape REQ-001/AC-047 exist to forbid. Both links in that chain are
-        # fsynced here, before the journal is written and therefore before
-        # the first live rename. Everything INSIDE the batch directory is
-        # covered separately: the journal write fsyncs the batch directory,
-        # making its own entry and the pre/ entry durable together.
-        _fsync_directory(batch_dir.parent)
-        _fsync_directory(batch_dir.parent.parent)
+        _mkdir_durable(batch_dir / PRE_IMAGE_DIRNAME)
+        # The staging chain's durability is _mkdir_durable's job now
+        # (round 35): it fsyncs the parent of every directory it CREATES,
+        # which is exactly the chain round 24 fsynced explicitly here --
+        # and a link that already existed needs no barrier. The explicit
+        # pair was removed when mutant P proved it dead code: deleting it
+        # no longer changed behaviour.
         for target, payload in targets:
             pre_bytes = _live_bytes(target)
             pre_hash = ABSENT if pre_bytes is None else _digest(pre_bytes)

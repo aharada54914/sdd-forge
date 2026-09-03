@@ -288,7 +288,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
   シナリオ追加であり新しい diagnostic-id 行は導入しないので、
   マトリクスは 16 行のまま。round 12 の leaf-symlink scenario を含む
-  T-007 自身の fixture scenario directory 総数は 13 本。
+  T-007 自身の fixture scenario directory 総数は 14 本。
   新しい TEST-010 完全性チェックは**カバレッジ検査**であって
   emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
   `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
@@ -301,7 +301,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
   いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
   TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
-  sh/ps1 とも 395 passed / 0 failed（TDD RED は同一ドライバで
+  sh/ps1 とも 398 passed / 0 failed（TDD RED は同一ドライバで
   341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
   step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
@@ -321,7 +321,7 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   **現在の未カバーは 4 件（F・O・Q・T）**。到達不能とした主張は D・M と
   2 度誤りだったと判明している（D は round 19 の
   `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
-  それぞれ kill した）。20 mutant 中 16 件が被覆済み（round 24 で staging chain の
+  それぞれ kill した）。21 mutant 中 17 件が被覆済み（round 24 で staging chain の
   永続化障壁を mutant P として追加し、専用 fixture で kill）。この段落自体、
   「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
   件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した

@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: ab0b97a651cc47a05e4d4faf66c7e3325c4d983a83df630602056012773c1f2b
+# input_digest: 573f022d51709b3a3016c8c077107b9042ef2cbb3fd39b5592f13ae1e0014f84
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -16742,7 +16742,7 @@ RESULT: 395 passed, 0 failed
  four impossibility proofs (C, D, M, O) were offered here and all four
  were wrong.)
 --- restoring ---
-restored sha256: 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894
+restored sha256: eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -22464,7 +22464,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `864cbb6bd55aefed96f00a19091d2f2f909030aa7bd17ca82151bea4ff24f514` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `47a8be846a60184a1970c50e5bf12f087a9e4a7c648eb9c239e5ea43ca2d40eb` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `e850929eb631fa9e70c9263d736a523523dc3cb86267bc83e6a7ba3661102b9c` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `61866ec27f240cf08c4f41ca452e614de50e4c69b97dd109d6420d2fb6a476ec` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |

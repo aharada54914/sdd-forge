@@ -328,6 +328,9 @@ PASS: publication-journal-target-escape[nonce-names-another-batch]: the refused 
 PASS: clean-full-track-publication[post-block-journal]: precondition -- a journal survives beside artifacts at PRE and an Evidence file matching neither of its recorded generations
 PASS: clean-full-track-publication[post-block-journal]: the scan CONVERGES this journal instead of declaring it unrecoverable -- this is the assertion mutant S fails, and the defect it encodes turned a transient unlink failure into a permanently Blocked batch
 PASS: clean-full-track-publication[post-block-journal]: the converged journal is discarded, so the retry the contract promises actually happens
+PASS: publication-created-dir-fsync-failure: a failed barrier on the created directory's parent Blocks with a ONE-rename rollback clause -- the facet manifest was live, the Projection's mkdir barrier failed, and this is the assertion mutant U fails because a plain mkdir never runs that fsync
+PASS: publication-created-dir-fsync-failure: the already-live facet manifest is rolled back to its PRE bytes
+PASS: publication-created-dir-fsync-failure: the journal is gone once the Block record is durable, and no staging litter survives
 PASS: publication-fsync-failure: a failed durability barrier on an already-live rename Blocks artifact-publication-failed with a ONE-rename rollback clause -- the live-but-unfsynced entry was counted, so the rollback included it
 PASS: publication-fsync-failure: facet-manifest is back at its PRE bytes -- this is the assertion mutant N fails, because an uncounted-but-live rename is skipped by the rollback and its POST bytes stay published
 PASS: publication-fsync-failure: the Block record reached Evidence -- the injection is single-shot, so the direct Evidence write's own barrier succeeded
@@ -394,4 +397,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 395 passed, 0 failed
+RESULT: 398 passed, 0 failed

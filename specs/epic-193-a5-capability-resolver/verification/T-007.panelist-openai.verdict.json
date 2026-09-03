@@ -2,7 +2,7 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "ab0b97a651cc47a05e4d4faf66c7e3325c4d983a83df630602056012773c1f2b",
+  "input_digest": "573f022d51709b3a3016c8c077107b9042ef2cbb3fd39b5592f13ae1e0014f84",
   "vendor": "openai",
   "model": "gpt-5",
   "consent": {
@@ -10,12 +10,12 @@
     "ref": "sudo flag file at repository root, human-reissued 2026-09-03"
   },
   "blind": true,
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log:146",
-      "note": "The mutation capture reports a restored resolver SHA-256 of 457b21559a6fbc02abdae0bf1c9bd1c4f672c1637ade4f3ad424f5fb9c329894, while the captured current MANIFEST.sha256 row and implementation-report Outputs declaration both identify the shipped resolver as eac8f1d6cc410208e5929c61d8f58c6bd55f48494696c5dceaa6f97194f00287. This makes the repeated claim that the mutations ran against and restored the exact shipped bytes unverifiable. The captured implementation and current 395/0 focused test evidence otherwise support the acceptance criteria, so this is evidence-freshness drift rather than a demonstrated transactional correctness defect."
+      "severity": "Major",
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1477",
+      "note": "_atomic_write_bytes() recursively creates target.parent and later fsyncs only that directory; it never fsyncs the ancestor containing a newly created parent entry. Thus, on a first Full-track publication where the generated/ parent is absent, a power loss after successful verification and journal removal can preserve the facet manifest and Evidence while losing the generated/ directory entry and Context Projection, leaving a mixed generation without a recoverable journal. _publish_bundle() has the analogous gap when its staging mkdir creates specs/<feature>: it fsyncs the new feature directory and staging ancestors but not specs/, whose entry makes that directory durable. The captured focused tests pre-create the relevant live parents through sentinel setup, so their 395/0 result does not exercise this case. This violates the crash-safe publication guarantee and AC-047; every newly created directory entry must have its containing directory fsynced before the journal can be discarded, or publication must require verified, durably pre-existing target parents."
     }
   ]
 }
