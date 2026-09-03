@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 15,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a15r1-seq0884",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a15r1-0884",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "ed1d467d951e2195cd68f244d107bfd1b12049632cee218783732ec7316ab48d"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "10746f255df1571cf718c811f6ad4eb1d689486197ce9ba5a8d044b4fb85711b"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "0509e3c8c8534f6e637c62f28509b75f07e39cbc9d8ee228540ba3ca19edef1a"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-15/round-1/precheck-result.json", "sha256": "4032a34373a4686936f0b5fd859cc1695e074a750c20d51efa6da2340d10bd7b"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-15/round-1/integrated-summary.json", "sha256": "dc17fde2a414834e6c12a97c3375411f7ecc57ce5b3c3b63aa315395db04fde0"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied. tasks.md (sha256 10746f25...) is byte-for-byte identical to attempt-14/round-1's own PASS-bound tasks.md (same sha256). This round's amendment touched only requirements.md (Ruling Annotations mirror enumeration completion, Spec-Review-Status header cycle) and investigation.md (citation pins) - citation/record-keeping only, no AC/scope change. Risk tiers unchanged: T-002/T-003/T-004/T-007/T-008 = high (core evaluation engine, publication transaction, provenance validator); T-001/T-005/T-006/T-009/T-010 = medium; no Risk: critical task. No task is over- or under-classified. Advisory, prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D, evaluated fresh against current bytes (not subject to convergence). Grep-verified directly against current tasks.md: all five Risk: high tasks (T-002 line 499 / TDD-evidence item line 715; T-003 line 762 / line 1000; T-004 line 1040 / line 1260; T-007 line 1696 / line 1968; T-008 line 1999 / line 2170) each carry a 'TDD evidence' Done When item requiring RED then GREEN, each followed immediately by 'An independent quality-gate verdict records PASS' (a named, non-implementing-agent reviewer per this SDD workflow) - identical line numbers and content to attempt-14's own fresh grep. No task declares Risk: critical, so the second-approver/signed-bundle bar does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md content is byte-identical to attempt-14's own PASS-bound version (no status/approval/pointer-line delta this round either). Advisory carried forward: T-007's Done When has 8 top-level checkbox items (at, not over, the ceiling); all other tasks range 4-7 items; no task spans more than three implementation areas per its own Scope section, and no task is a single-function/single-file fragment - the four-remedy-pass decomposition history recorded in tasks.md Global Constraints and traceability.md Task Mapping documents this was already driven to convergence. Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md is byte-identical to attempt-14's own PASS-bound version, and acceptance-tests.md (sha256 unchanged from attempt-14) added no new AC rows against which tasks.md would need re-checking. Advisory carried forward: REQ-002's 16-row Block/diagnostic-id taxonomy (AC-010) is fully partitioned 5(T-002)+5(T-003)+3(T-004)+3(T-007)=16; race/TOCTOU edge cases (AC-040/048/049/057) and fail-closed absent-component handling (AC-058) each bind to a dedicated fixture and task; no functional task is happy-path-only. Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md is byte-identical to attempt-14's own PASS-bound version; acceptance-tests.md is unchanged (same sha256) and reuses the same nine scheduled suites. Advisory carried forward: every TEST-NNN maps 1:1 to an AC-NNN in acceptance-tests.md; non-acceptance suites are consistently scoped as multi-component integration tests matching this Epic set's shell/CLI-orchestration architecture; no test task mislabels its own scope. Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md is byte-identical to attempt-14's own PASS-bound version. Advisory carried forward: every task, including all Risk: high tasks, carries an explicit `Rollback:` header field (e.g. T-007's own transactional rollback content, independently backed by infra-spec.md's journal-based rollback and post-rollback re-verification section). Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md is byte-identical to attempt-14's own PASS-bound version. Advisory carried forward, re-verified by direct grep of Blockers fields: the shared `resolve-project-context.{py,sh,ps1}` file is touched by T-002/T-003/T-004/T-007 under a strict linear Blockers chain (T-002<-T-001; T-003<-T-002; T-004<-T-001,T-003; T-007<-T-004,T-005); `MANIFEST.sha256`/the shared block-suite test file are similarly touched only by ordered, blocked tasks; `CHANGELOG.md`'s per-task `## Unreleased` entries are additive and non-conflicting. No uncoordinated overlap exists. Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence rule applied: tasks.md is byte-identical to attempt-14's own PASS-bound version. Advisory carried forward, re-verified by direct grep of Blockers fields (T-001: None; T-002: T-001; T-003: T-002; T-004: T-001,T-003; T-005: T-002,T-004; T-006: T-004,T-005; T-007: T-004; T-008: T-001,T-006,T-007; T-009: T-002..T-008; T-010: T-004,T-007,T-008,T-009): the Blockers graph remains linear/coherent with each edge justified inline in the owning task's own Depends On text. Prior PASS evidence: reports/task-review/epic-193-a5-capability-resolver/attempt-14/round-1/reviewer-b.json."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001..T-010) are new-feature authoring tasks for the Capability Resolver; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation. Consistent with attempt-14/round-1's own SKIP on this check (TYPE-H convergence rule applies)."
+    }
+  ],
+  "findings": []
+}
