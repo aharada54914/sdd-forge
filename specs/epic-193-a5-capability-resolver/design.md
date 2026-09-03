@@ -1210,9 +1210,13 @@ any individual combination's own result):
     that journaled transaction — Resolver Evidence is a member of
     **both** track sets, so a fully successful run publishes it exactly
     as every Block does; it is never conditionally omitted on success
-    (AC-020, REQ-004's own always-emit rule, whose only two exceptions
-    are step 1's minimal `disabled-legacy-invocation` record and step
-    12's Evidence-itself-fails no-write case, both above) — never via a
+    (AC-020, REQ-004's own always-emit rule, whose two named
+    diagnostic-id exceptions are step 1's minimal
+    `disabled-legacy-invocation` record and step 12's
+    Evidence-itself-fails no-write case, both above — a count bounded by
+    ruling (a)'s non-diagnostic containment refusal per requirements.md's
+    Ruling Annotations rule; annotated 2026-09-03, human-approved,
+    ruling (G)) — never via a
     bare per-file `rename()`
     with no cross-file atomicity and no crash-safe rollback (the exact
     gap adversarial review "B1" found in an earlier revision of this
@@ -1852,7 +1856,12 @@ independently invocable (AC-027):
    sentence, never the upstream dependency's own raw stderr text (M8,
    AC-014), (c) no `facet-manifest.yaml`/`capability-summary.yaml`/
    `project-context.resolved.json` written or changed (AC-011), (d) the
-   correct Resolver Evidence content (AC-010..AC-012); plus one `workflow-
+   correct Resolver Evidence content (AC-010..AC-012); a further shipped
+   fixture in this same suite, `publication-staging-parent-symlink
+   [feature-dir-symlinked]`, verifies ruling (a)'s non-diagnostic
+   containment refusal — a `specs/<feature>` directory that is itself a
+   symlink Blocks on the original diagnostic with NO Evidence record
+   written (annotated 2026-09-03, human-approved, ruling (G)); plus one `workflow-
    combination-invalid` fixture per invalid row of decision document v2
    §6's own combination matrix (both named invalid rows — `lite` ×
    {`legacy-seven-layer`,`facet-hybrid`,`facet-native`}, and `full` ×
@@ -2430,7 +2439,11 @@ still leaves no earlier-staged **publication artifact** at any live path
 at all — never `resolver-evidence.yaml`, which is itself staged earlier
 and IS written on each of those Blocks per AC-012 — except
 `output-schema-validation-failed`'s Evidence-itself-fails sub-case
-(AC-055(a)), one of AC-012's two exceptions, which writes nothing at all,
+(AC-055(a)), one of AC-012's two named diagnostic-id exceptions — a
+count bounded by rulings (a)/(A)/(B) per requirements.md's own Ruling
+Annotations rule: ruling (a) (2026-08-28) adds a third, NON-diagnostic
+no-write condition, the Evidence-target containment refusal (amended here
+2026-09-03, human-approved, ruling (G)) — which writes nothing at all,
 so the fixture for that id here is AC-055(b)'s — (REQ-001 step (m)'s
 rollback-and-no-write scope rule; scoped 2026-08-27, human-approved,
 ruling D(2), matching AC-038/TEST-038's own amended wording); this
@@ -2867,7 +2880,10 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   unchanged from its pre-invocation state (converged there by the
   crash-recovery scan or the in-process rollback, never by a bare
   `unlink` with no restore), or — Resolver Evidence only, on any Block
-  except the two REQ-002 names — fully written, at whichever step that
+  except the two REQ-002 names and, per ruling (a) (2026-08-28, mirrored
+  here 2026-09-03 under ruling (G)), the non-diagnostic Evidence-target
+  containment refusal, which likewise writes nothing — fully written, at
+  whichever step that
   Block is reached, the step-14 Blocks `artifact-publication-failed` and
   `post-publication-generation-mismatch` included (widened 2026-08-27 from
   an "any step before publication" clause that did not cover those two,
@@ -3009,6 +3025,20 @@ that future task is only the mechanical choice of direct-edit-vs.-human-
 copy, gated on that file's then-current protection status
 (investigation.md INV-017, requirements.md Assumptions), not the
 insertion point itself.
+
+Template fields for the two restated-open entries (added 2026-09-03,
+human-approved, ruling (G); no behavioral change):
+
+- OQ-001 — Owner: the future cadence-caller's own specification author
+  (the Epic A6/A8 planning role). Blocks Implementation: no — this
+  package's Resolver is invocation-scoped and complete with no cadence
+  decision. Resolution Path: resolved by the first epic that schedules
+  Resolver invocations, in that epic's own requirements.md.
+- OQ-002 — Owner: the Epic A6/A8 planning role that owns
+  `compare-facet-manifest-staleness`'s caller. Blocks Implementation:
+  no — the comparison script ships in this package; naming its caller is
+  an explicit Non-goal here. Resolution Path: the caller and its cadence
+  are fixed in that future epic's own requirements.md.
 
 ## Risks
 
