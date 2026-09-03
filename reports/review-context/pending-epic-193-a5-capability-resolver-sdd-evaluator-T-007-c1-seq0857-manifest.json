@@ -1,0 +1,330 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "epic-193-a5-capability-resolver",
+ "task_id": "T-007",
+ "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-007-c1-seq0857",
+ "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-007-c1-0857",
+ "sequence": 857,
+ "previous_record_sha256": "9e20aa28b404cce1b338b3c066047e52069771878212c49b5e66b57a8c465272",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "e8d6770ab613e7edce5fdaf6de06e34200525b3619e3859c0ed3dfa39efd8627",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+   "sha256": "35dc2737b968a9e11ea6e9b054eb987fa1f146e89dd5005582d0a1331f601b11"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/design.md",
+   "sha256": "f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+   "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+   "sha256": "ed3f391a9fe37ec4a1383ac8036a0b4ca22cc16e4520bff0861e154e69f8dacd"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+   "sha256": "0509e3c8c8534f6e637c62f28509b75f07e39cbc9d8ee228540ba3ca19edef1a"
+  },
+  {
+   "path": "reports/implementation/epic-193-a5-capability-resolver/T-007.md",
+   "sha256": "112497c637d5a337894e81d64be8f8b506b5ef7c7ea65cd67bb1888b7ba5f7ed"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "CHANGELOG.md",
+   "sha256": "a755dd53e1cf039c795375a9bda81da8092f1b5004f31f381b4581c12d957a1c"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+   "sha256": "33c78b3c18fe27dafeba9b542a307b7b3b41a26823b100f98707c9e2bdabdd04"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+   "sha256": "26a1f3e547ee3bdcaf2bd330f5c06922603facb3f2164c45095c4327929035c7"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json",
+   "sha256": "465d4982e8f0d63537b895213b8e72ebf61fc409dc2ebff4a1292daea6f8c59d"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007.cross-model.json",
+   "sha256": "174d6025da5d77cd3696d0b053139ba823d0ced04351084857c967bfe3f72c14"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007.panelist-anthropic.verdict.json",
+   "sha256": "a65c5bf74345387349c7e6f4049d89cf3b2ae103a68e2fcf301c9e20a791aa5c"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007.panelist-openai.verdict.json",
+   "sha256": "a43e86208a01450f1c5170abef5614bfd2ef499b40e75d3c2cb8c559eec1d4b9"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log",
+   "sha256": "485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-sh.log",
+   "sha256": "b9d676239453546bd72f4c3dfe870886d874d9a04c354498642bb95b407e4b15"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-ps1.log",
+   "sha256": "8589d0a02c4d56ceb86cf545b85259c5a2ea5bab03443062ef8feeed71f6ab48"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel2-sh.log",
+   "sha256": "2d9f6e4768113e2a9e2c6e0dbb0213c1e0345de9622347fce0324b7aab6e4fba"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel3-ps1.log",
+   "sha256": "3411be48b1156e4b42c3ab302638c55e174e521c66c70085bd573b7e622fcbfc"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel3-sh.log",
+   "sha256": "5aff1a3767f1e482e7bfb40d41b40f2ac439a874c8e6b1d56c9daff5515a5290"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel4-ps1.log",
+   "sha256": "97d60f95ca1a6c26577e8881bec32e0305c6cc341d24dfae53274440bebc3b35"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel4-sh.log",
+   "sha256": "4e10359be14fa4c7d4e1811220d47f9c0782fa4506df4bdfdb32fec2c6cc5233"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel5-ps1.log",
+   "sha256": "26f7c8102bcde64b2b09f3495f4d8e53d0debe46621cd9adee2ed83c9fc9ad79"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel5-sh.log",
+   "sha256": "2dbd97b8653fa5a59174618e7cfcdd7ab09d684b3462eeefd27e92a0860ed098"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-ps1.log",
+   "sha256": "13d517b03c4be5ebb9f1cdc060414626fbaaf188c59ee15959c0caadead3a9d3"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel6-sh.log",
+   "sha256": "99d0373e460efe7fc44b59cf92db7eba13be48e605ab401886817527b316fa9d"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-ps1.log",
+   "sha256": "86fcc1b0e0f312952d4344280fcd28deb73a239a80737a3f941a51905a7833a5"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log",
+   "sha256": "5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log",
+   "sha256": "193476ec00d87c621c24de8ad1d21283b12c6fff1391121489c7d21b95def9a8"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log",
+   "sha256": "739c528d4cd96ff8110badc30ea7d80915a4eedc61f6d67fc07f77a3f6e29482"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log",
+   "sha256": "dfec9dd6c458b5ef29c5689af4fd4b78bd348a0f1f3f79cd71b4d523c538ca16"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log",
+   "sha256": "b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log",
+   "sha256": "4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log",
+   "sha256": "cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel3-ps1.log",
+   "sha256": "f8acb148fcc8270a02a92d426cdcd4808f670e2577fae87be8d433670a838728"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel3-sh.log",
+   "sha256": "2ba42475737eaeb1c03bee21719dcd04433bfddb58a265b7ffb67de4a1adb3ba"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel4-ps1.log",
+   "sha256": "6f1772550f4a52055697d833738b327b03b38fb3f37ffb983cd5dbfe9f4876ef"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel4-sh.log",
+   "sha256": "483a59094be9b7d8e40e749ea13f050cdb5fef4134fc6c4ccb59d6c179e310f7"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel5-sh.log",
+   "sha256": "1c0025e75d88656d25a4d9c11736678ee871a7bc8641b07cac74994404f0d6af"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel6-ps1.log",
+   "sha256": "38fd79ceb94c8cc92881c54f950261e5be2eeb67e4483217835f695c905b1f75"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-panel6-sh.log",
+   "sha256": "90b280fce3b43eb63c285a44154b9ba27a08c347de4b4d09bcbed2e5964c64f4"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-ps1.log",
+   "sha256": "a5d60c88f040fb1a027aaafd7a5c47049f025d71b5688c51cde6f46f09ece059"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/T-007/red-sh.log",
+   "sha256": "fb332f8235e850af497bff8afff08fe9ab13ab2d8591bcbc092257e9730be1c6"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/component-coverage.log",
+   "sha256": "c1610e14de10d3abd80895eae5cd0d67054a337b14fd2e9471b51fe3a1c54e9f"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/focused-tests-ps1.log",
+   "sha256": "193476ec00d87c621c24de8ad1d21283b12c6fff1391121489c7d21b95def9a8"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/focused-tests-sh.log",
+   "sha256": "739c528d4cd96ff8110badc30ea7d80915a4eedc61f6d67fc07f77a3f6e29482"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/placeholder-scan.log",
+   "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/regression.log",
+   "sha256": "79d8854f2fbbe387eef0ed5bdcdd35d0f1a7bf30e83d69287be451b28bd0811b"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/risk.log",
+   "sha256": "3a4cc42f3f5edbcd6e7e160b9ec93c805d31009b87de8a73feaf851f310b56b1"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/task-state.log",
+   "sha256": "c5b12826e008c1124dff463ee29abaaf059f11a0f6826977daab9009885df7b0"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/traceability.log",
+   "sha256": "8230a6e6d4f16ffede4d10b20ecc65e4b8055eb7241d145a72fd38780e6bca65"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/workflow-state-feature.log",
+   "sha256": "524e83cd94d1542b359b5f7c5d913e55f710ac99a4e24da59f4a8a7b5ba7a25d"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-007/workflow-state.log",
+   "sha256": "0e56e8ffa4db2e655d51f30e6b7e622b7692d3d01dd46825b29b0b0e219e9f84"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/artifact-publication-failed/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-full-track-publication/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/registry_discovery.py",
+   "sha256": "20003aacda80503ddcee72c3fa94f7af9a3cbb28ef8acfbc5e3c244fecf073d1"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/resolve-component-paths.py",
+   "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/resolve-component-paths.py",
+   "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/registry_discovery.py",
+   "sha256": "6a1fd82067858648657f1a17121d934a9c716c297641ca10b6f66a1001ed63ca"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+   "sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/registry_discovery.py",
+   "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/registry_discovery.py",
+   "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/registry_discovery.py",
+   "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-target-escape/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+   "sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-parent-symlink/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml",
+   "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml",
+   "sha256": "705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5"
+  },
+  {
+   "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py",
+   "sha256": "868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc"
+  },
+  {
+   "path": "tests/resolve-project-context-block-check.py",
+   "sha256": "8b1c3c836df7f94a98c95498eb799e9670785c9fa84d11ec8106d53e50eb4e67"
+  }
+ ]
+}
