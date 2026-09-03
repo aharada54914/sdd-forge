@@ -380,3 +380,27 @@ decomposability when later Packs arrive.
 - Pack semantics may duplicate rather than compose existing Registry entries.
 - Rollback governance may be unusable if it does not explicitly model registry
   cardinality and time-bound approval.
+
+## Transferred Backlog — approval-attestation primitive (from WFI-047)
+
+Owner ruling, recorded verbatim (2026-09-03):
+「47についてはA9 dogfoodに追記してクローズで良い」
+
+WFI-047 (Approved 2026-09-02, closed by transfer into this epic) proposed a
+durable, statement-scoped human approval attestation: a small signed record
+(statement text, date, scope) using the same out-of-repo key machinery the
+sudo token already uses, verifiable by review prechecks, replacing the
+prose-based Amendment Re-Review Context evidence and eventually the impl
+stage's `legacy_design` relaxation. Its own Implementation Disposition
+already named this epic as the natural first advisory-mode candidate.
+
+Standing in this epic: a **future work item carried by the dogfood lane, not
+part of this epic's REQ/AC set**. It shall be treated as a candidate advisory
+finding during Phase 1 dogfood (the friction it addresses — unverifiable
+prose approval claims — is precisely the class REQ-010 captures), and its
+implementation, if promoted, is its own SDD feature cycle whose spec inherits
+WFI-047's recorded human approval as authorization. The open design contract
+WFI-047's Result enumerates (record path, schema/version, signing payload
+canonicalization, algorithm/encoding, scope-matching grammar, key rotation,
+issuance command, `legacy_design` migration) remains human-authored input to
+that future cycle.
