@@ -7884,6 +7884,42 @@
       "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a14r1-0876",
       "previous_record_sha256": "97711cf0e23c056ecd9b7c5591a34426389296035ba1d3b2eef8a26d364e9fd3",
       "record_sha256": "e1ab2bfb54b1f67ceab29e1cabe8a3f4568daeac103ebd6300890f8fae9baff2"
+    },
+    {
+      "sequence": 877,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a14r1-seq0877",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a14r1-0877",
+      "previous_record_sha256": "e1ab2bfb54b1f67ceab29e1cabe8a3f4568daeac103ebd6300890f8fae9baff2",
+      "record_sha256": "e3310963a54b67d759c868caeb4e0fb53f60121b011f87953c5cd1b2f387390b"
+    },
+    {
+      "sequence": 878,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a14r1-seq0878",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a14r1-0878",
+      "previous_record_sha256": "e3310963a54b67d759c868caeb4e0fb53f60121b011f87953c5cd1b2f387390b",
+      "record_sha256": "0a8ee8678dfb4a52484041d5f69c2557b1ff9b58c5032e52499287523c1c944f"
+    },
+    {
+      "sequence": 879,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a14r2-seq0879",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a14r2-0879",
+      "previous_record_sha256": "0a8ee8678dfb4a52484041d5f69c2557b1ff9b58c5032e52499287523c1c944f",
+      "record_sha256": "9aae44ad3e673cc0a313b7f9b339861ec0c7f656be154ba3a98cfd919b1bf007"
+    },
+    {
+      "sequence": 880,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a14r2-seq0880",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a14r2-0880",
+      "previous_record_sha256": "9aae44ad3e673cc0a313b7f9b339861ec0c7f656be154ba3a98cfd919b1bf007",
+      "record_sha256": "7734105a342a64b4121fdc02d1f1cba06242c899441cb4e765fee0fecb690b37"
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a14r1-seq0878",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a14r1-0878",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "6f99607959b0d40e290c6526254d6a9e4e3a4b5c67fab11ef419a97a8c3a24ae"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4996be25cbd5324cc7b3f2915c4f1e597178cfa433cdbf27dbd38e11d886993c"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-1/precheck-result.json", "sha256": "f1232b2957a308ac9044b62f7c8cd87ce641e8c9b7b2fba27c10a0c57e27b030"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-14/round-1/integrated-summary.json", "sha256": "0fea5ad4f75bb3573c4fca10d6bc8c3b2add9e99aa6bc8ea2449011140c130fb"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "Terms/states/inputs/outputs are defined with closed enums, Field Definitions, and explicit cross-references throughout requirements.md; no residual ambiguity found that would let two implementers diverge on behavior. The document-wide Ruling Annotations clause (requirements.md:928-949, acceptance-tests.md:63-84) applies to a closed, four-item predicate ((i)-(iv)) and states explicitly that no behavioral requirement changes, so it does not introduce implementation-facing ambiguity."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "No direct conflict found among requirements/acceptance criteria/constraints. The apparent tension between REQ-002's 'two named diagnostic-id exceptions' and REQ-004's 'sole exception' framing is explicitly reconciled in-document (requirements.md:645-653). References to later-phase artifacts (design.md, implementation, verification logs) throughout investigation.md would ordinarily be a phase-sequencing CONTRADICTION/workflow-boundary issue, but investigation.md:792 carries a conforming '## Amendment Re-Review Context' entry meeting the calibration's full evidence bar (full commit hashes, per-document SHA-256 pins, verbatim dated owner approvals, cited later-phase artifact commits/hashes for rulings through (G)), so that class of finding is suppressed per calibration; no other, non-phase-sequencing contradiction was found."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "acceptance-tests.md's fixture matrix (AC-006/009/010/018/038-058) and requirements.md's Edge Cases section cover zero-affected-components, WARN any-branch scenarios, TOCTOU pre/post-publication races, crash recovery/unconvergeable-journal, disabled-legacy CLI misuse, symlinked-target rollback, and dual-artifact schema-failure scoping. Negative/boundary/failure paths implied by REQ-002's sixteen-row taxonomy each carry an independently-triggerable fixture (AC-010)."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "requirements.md's Assumptions section (three items) each states a concrete re-verification trigger for a future implementation task rather than leaving an open decision undecided; Open Questions OQ-001/OQ-002 are explicitly scoped as deferred to a future epic/caller with no blocking effect on this package's own design/task decomposition, and OQ-003 is resolved in this revision (INV-020)."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "A governance/write-scope boundary is in scope (Security Boundaries bullet 2: never writes to *.approval.json/sdd/.approved-context//guard-invariants.json) and is testable via AC-059/TEST-059's repository-wide grep self-check plus AC-015/TEST-015's disabled-legacy CLI-misuse-guard lock; the boundary is fail-closed and independently verifiable at registration time."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "REQ-001's processing steps (a)-(m), REQ-002's closed sixteen-row Block taxonomy, REQ-004's Evidence field rules, and REQ-005/006's determinism/test obligations give a design reviewer a fully normative procedure with no missing product-behavior decision left implicit; Dependencies section pins every upstream contract this package reuses."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": "No domain/ directory exists in this repository (confirmed via glob for domain/context-map.md and domain/domain-contract.json — no matches), so the check's own skip condition applies."}
+  ]
+}
