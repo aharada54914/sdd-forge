@@ -146,4 +146,4 @@ mutant U injected: created-ancestor barriers removed (plain mkdir)
 --- MUTANT U: _mkdir_durable reverted to plain mkdir (expect created-dir FAIL) ---
 RESULT: 395 passed, 3 failed
 --- restoring ---
-restored sha256: c26c968ce6e9d0e7372b817e3292756ca9d3fb61ef911c01ceed7ddd1db62afe
+restored sha256: 26a1f3e547ee3bdcaf2bd330f5c06922603facb3f2164c45095c4327929035c7

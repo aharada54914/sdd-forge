@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: dd994409be54dfd8dd47046a3979ebd81e70ef41b86f06b37fa947dc822cf3e5
+# input_digest: 1361cf9ad0254048b2bb980c407509d45788f19b7bf8ca40a3ca0e7214f92dc8
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -22371,7 +22371,7 @@ it on round 8; all four sites are corrected together here.
   7; `Counts.observed_diagnostic_ids` + `record_diagnostic_id` (wired at all
   four pre-existing canonical-line assertion sites); crash-proof
   `read_or_missing`/`sentinels_unchanged`/`sentinel_report` helpers; the
-  T-007 section (eighteen `run_t007_*` functions plus
+  T-007 section (nineteen `run_t007_*` functions plus
   `run_block_matrix_completeness_check` and `run_test_059`); new names in
   `ALL_CASE_NAMES` and matching call sites in `main()`;
   `projection-two-components`'s two staged-only assertions widened to the
@@ -22384,8 +22384,8 @@ it on round 8; all four sites are corrected together here.
   "ten", and both were wrong by the time they were written; every recount
   since was re-invalidated by the next round's additions, and this sentence
   alone has carried four different values (historical, all superseded).
-  At the shipped bytes, `grep -c '^def run_t007_'` reports **eighteen**, and
-  this task owns **thirteen** fixture scenario directories -- and those are
+  At the shipped bytes, `grep -c '^def run_t007_'` reports **nineteen**, and
+  this task owns **fourteen** fixture scenario directories -- and those are
   now the ONLY live statements of those two counts in this report, because
   restating a number in three phrasings is what produced the round-25 finding
   (a verifier can be taught one phrasing at a time; it cannot be taught all

@@ -4,21 +4,21 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "PASS",
+  "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md - Test Evidence, Mutation proofs (historical round-22 paragraph)",
-      "note": "The historical paragraph reads 'eleven of twelve then-existing mutants were killed (A, B, C, D, E, G, H, I, J, K, L, M, N)' - thirteen letters enumerated against a claim of eleven of twelve, and thirteen killed plus F and O uncovered sums to fifteen, so the sentence was self-contradictory even when written. It sits in an explicitly superseded passage that defers to the mutation log as authority, and the log itself is consistent (I verified control 395/0, 16 of 20 mutants killed, F/O/Q/T uncovered with stated reasons, restored sha256 eac8f1d6... equal to both the MANIFEST row and the Outputs row), so this is the enumeration-drift class recurring in a non-load-bearing historical record, not in the authority chain."
+      "severity": "Major",
+      "ref": "staged resolver Python master (human-copy candidate), _atomic_write_bytes directory-fsync comment, lines 1521-1526; vs verification/T-007/mutation-proofs.log MUTANT M; vs implementation report Rounds 33-35 entry",
+      "note": "The report's Rounds 33-35 entry states: 'The stale in-process-unobservability comment mutant M's kill had disproved is corrected in place.' It is not corrected in the shipped bytes. The only unobservability comment in the resolver, at mutant M's own anchor site in _atomic_write_bytes, still reads 'Not observable by any in-process fixture ... so this hardening is disclosed as uncovered in the mutation log rather than implied to be tested', while the declared mutation log at the same declared sha256 (c26c968c...) kills mutant M at 395 passed / 3 failed and its own note says COVERED, the CALL being observable via the fault-injection overlay. This is a live contradiction between two declared outputs about what the evidence covers, and the current round entry affirmatively claims a remediation that is absent from the artifact it declares. The resolver bytes in the bundle postdate round 35 (they carry the round-35 staging-chain comment and the removed explicit fsync pair), so this is not a stale-copy artifact of bundling. Behavior is unaffected and the coverage error runs in the conservative direction, but a false corrected-in-place claim in the newest verification narrative is the amendment-propagation class this package has repeatedly had graded Major, and it means the round-35 self-description was not re-verified against the shipped bytes."
     },
     {
       "severity": "Minor",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py - _atomic_write_bytes directory-fsync comment",
-      "note": "The comment still states the write-side directory fsync is 'not observable by any in-process fixture' and 'disclosed as uncovered in the mutation log', but the shipped mutation log kills mutant M at 392/3 via the round-22/24 fault-injection overlay, and the log's own note records that this exact claim was wrong twice. Stale in-code disclosure contradicting the corrected evidence; the behavior itself is covered."
+      "ref": "implementation report Rounds 33-35 entry ('Mutant U reverts it and dies at 396/2') vs verification/T-007/mutation-proofs.log MUTANT U",
+      "note": "The declared mutation log records MUTANT U at RESULT: 395 passed, 3 failed against the 398/0 control; the round entry says 396/2. The value carries no same-line historical marker, so by the package's own convention it is a live claim, and it disagrees with the log the report names as the authority. Coverage direction is unaffected (U dies either way), so Minor, but it is the count-in-prose class the package's own verifier exists to catch, sitting in the same round entry as the Major above."
     }
   ],
   "blind": true,
-  "input_digest": "573f022d51709b3a3016c8c077107b9042ef2cbb3fd39b5592f13ae1e0014f84",
+  "input_digest": "1361cf9ad0254048b2bb980c407509d45788f19b7bf8ca40a3ca0e7214f92dc8",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-reissued 2026-09-03"

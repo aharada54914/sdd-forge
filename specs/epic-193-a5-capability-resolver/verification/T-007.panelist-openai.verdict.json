@@ -2,7 +2,7 @@
   "schema": "cross-model-verdict/v1",
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
-  "input_digest": "573f022d51709b3a3016c8c077107b9042ef2cbb3fd39b5592f13ae1e0014f84",
+  "input_digest": "1361cf9ad0254048b2bb980c407509d45788f19b7bf8ca40a3ca0e7214f92dc8",
   "vendor": "openai",
   "model": "gpt-5",
   "consent": {
@@ -14,8 +14,8 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1477",
-      "note": "_atomic_write_bytes() recursively creates target.parent and later fsyncs only that directory; it never fsyncs the ancestor containing a newly created parent entry. Thus, on a first Full-track publication where the generated/ parent is absent, a power loss after successful verification and journal removal can preserve the facet manifest and Evidence while losing the generated/ directory entry and Context Projection, leaving a mixed generation without a recoverable journal. _publish_bundle() has the analogous gap when its staging mkdir creates specs/<feature>: it fsyncs the new feature directory and staging ancestors but not specs/, whose entry makes that directory durable. The captured focused tests pre-create the relevant live parents through sentinel setup, so their 395/0 result does not exercise this case. This violates the crash-safe publication guarantee and AC-047; every newly created directory entry must have its containing directory fsynced before the journal can be discarded, or publication must require verified, durably pre-existing target parents."
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:2167",
+      "note": "Recovery unconditionally calls `_fsync_directory` for every journal-listed target parent before distinguishing all-PRE, all-POST, or MIX states. On an ordinary first Full-track publication, `generated/` may legitimately be absent\u2014the implementation itself creates it only when committing the Context Projection. A crash after the durable journal is written but before that target is committed therefore leaves its recorded PRE state as `ABSENT` and its parent nonexistent; recovery attempts to open that nonexistent parent, converts ENOENT into `PublicationJournalUnrecoverable`, and Blocks instead of safely abandoning an all-PRE transaction or rolling back a recoverable MIX after the earlier Facet Manifest rename. This violates AC-047 and the mandatory recovery contract because an expected ABSENT PRE state is treated as unrecoverable and can leave the mixed generation standing. The captured tests do not exercise this case: `tests/resolve-project-context-block-check.py:1521` plants all three publication artifacts and creates every parent before each relevant fixture, a masking gap also corroborated by the bundle's UNCOVERED mutant O disclosure."
     }
   ]
 }

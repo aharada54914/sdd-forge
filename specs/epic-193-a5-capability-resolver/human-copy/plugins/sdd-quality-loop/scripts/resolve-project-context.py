@@ -1518,11 +1518,12 @@ def _atomic_write_bytes(target, payload):
         # prevent. Windows has no directory handle to fsync and `os.open` on
         # a directory raises there; rename durability is the filesystem's
         # concern on that platform, so this is POSIX-only by necessity, not
-        # by choice. Not observable by any in-process fixture -- a hard
-        # crash between the rename and this fsync cannot be simulated
-        # without kernel-level fault injection -- so this hardening is
-        # disclosed as uncovered in the mutation log rather than implied to
-        # be tested.
+        # by choice. The DURABILITY effect is only observable across a hard
+        # crash -- but the CALL is observable in-process, which mutant M's
+        # kill via the fault-injection overlay proved after an earlier
+        # version of this comment claimed otherwise (the third of this
+        # task's four disproved unreachability claims). The barrier is
+        # covered, not merely disclosed.
         try:
             _fsync_directory(target.parent)
         except OSError as exc:
@@ -2163,6 +2164,19 @@ def _recover_journal(repo_root, feature, journal_path):
         if parent not in parent_dirs:
             parent_dirs.append(parent)
     for parent in parent_dirs:
+        # A parent that does not exist is SKIPPED, not failed (openai panel
+        # slot, round 36 Major). On a first Full-track publication
+        # generated/ exists only once the Projection commits, so a crash
+        # before that leaves the journal's Projection entry at PRE=ABSENT
+        # with a nonexistent parent -- a perfectly recoverable all-PRE
+        # abandonment. The round-30 barrier opened that parent
+        # unconditionally, and the ENOENT became
+        # PublicationJournalUnrecoverable: an ordinary crash timing turned
+        # into a permanent Block. A missing directory has no entries to
+        # make durable, and the state classification above already judged
+        # every target inside it ABSENT.
+        if not parent.is_dir():
+            continue
         try:
             _fsync_directory(parent)
         except OSError as exc:

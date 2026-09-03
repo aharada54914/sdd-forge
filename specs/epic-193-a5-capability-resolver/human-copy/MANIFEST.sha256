@@ -1,4 +1,4 @@
 eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d  .github/workflows/test.yml
-c26c968ce6e9d0e7372b817e3292756ca9d3fb61ef911c01ceed7ddd1db62afe  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+26a1f3e547ee3bdcaf2bd330f5c06922603facb3f2164c45095c4327929035c7  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
