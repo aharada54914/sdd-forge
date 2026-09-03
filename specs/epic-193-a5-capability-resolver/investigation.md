@@ -2773,3 +2773,66 @@ journal's directory entry while keeping the rename — the undetected mixed
 generation AC-047 targets. That exposure is real, platform-scoped, equal to
 the pre-round-19 exposure everywhere, and accepted by this ruling on the
 grounds that the only available in-repo remedy is an untestable one.
+
+### Ruling (F) — the frozen criteria text is amended to mirror rulings (a), (A) and (B)
+
+**Date**: 2026-09-03. **Context**: spec-review attempt 12 (the post-Done
+re-binding attempt). Both blind reviewers independently raised the same
+Critical: the frozen AC-012/AC-047 text contradicts the owner-ruled reality
+this file records — rulings (a) (a third, non-diagnostic no-write condition),
+(A) (a symlinked target's PRE is ABSENT) and (B) (POSIX-only directory
+barriers) were each accepted WITHOUT amending the frozen text, a choice those
+rulings made explicitly to avoid re-staling the then-green review gates.
+Reviewer A: "AC-012 and AC-047, read literally, are impossible for the
+disclosed, owner-approved implementation to satisfy." Reviewer B: "a future
+caller would build against a promise the owner has already, on the record,
+accepted as false."
+
+**Options put to the owner** (2026-09-03): (1) archive attempt 12 and record
+the CI red as a documented known-issue, keeping the wording debt; (2)
+authorize amending the frozen criteria text with ruling annotations and
+re-run the spec→impl→task chain; (3) rule the wording debt permanently
+accepted and complete attempt 12 as BLOCKED.
+
+**The owner's verbatim answer**: 「凍結文書の修正を承認」
+
+**Scope of this ruling.** requirements.md's REQ-002 exception-count sentence
+and acceptance-tests.md's AC-012 and AC-047 rows are amended — in the
+document's own established annotation style (cf. ruling D(2)) — to mirror
+rulings (a), (A) and (B) verbatim by reference, changing no behavioral
+requirement: the third no-write condition is stated where the count was
+stated; AC-047 carries the symlink-PRE and POSIX-only qualifiers those
+rulings already fixed. The spec→impl→task re-review chain runs on the
+amended text. The earlier rulings' choice not to amend was correct FOR ITS
+TIME (the implementation phase, where a re-staled chain would have blocked
+every task); at feature completion the calculus inverts, and the chain is
+being re-bound anyway.
+
+**Executed amendment (evidence).** The scope above was the ruling-time
+plan; executing it surfaced the amendment-propagation defect class inside
+the amendment itself, twice (attempt-12 round 2: both reviewers' Criticals
+enumerated the unamended sibling sites in requirements.md; round 3:
+reviewer B's Critical named acceptance-tests.md's unamended AC-011/AC-039/
+AC-049 rows). The final, comprehensive amendment therefore covers, under
+this same authorization: in requirements.md, a document-wide Ruling
+Annotations reading rule before the Acceptance Criteria table plus inline
+markers at the AC-011/AC-012/AC-039/AC-047/AC-049 rows, the REQ-002
+closing paragraph, the REQ-004 reconciliation footnote, the Field
+Definitions "Block" entry, Edge Cases, and both Security Boundaries
+sentences; in acceptance-tests.md, its own document-scoped Ruling
+Annotations rule plus inline markers at the AC-011/AC-012/AC-039/AC-040/
+AC-047/AC-049 rows. The authoritative site enumeration is mechanical, not
+prose: every line carrying the literal marker `ruling (F)` in either
+document as of the amendment commit (12 such lines in requirements.md, 5
+in acceptance-tests.md), plus the two rows amended in round 2 under this
+ruling before the marker convention existed (acceptance-tests.md's AC-012
+and AC-047 rows, whose annotations cite the mirrored rulings directly).
+Amendment commit: `45dbe5f1e92c299a3523fff5051ab984e520bd16`
+(docs(epic-193-a5-capability-resolver): comprehensive ruling-(F) amendment
+of the frozen spec pair). SHA-256 as of that commit:
+`specs/epic-193-a5-capability-resolver/requirements.md` =
+`6f99607959b0d40e290c6526254d6a9e4e3a4b5c67fab11ef419a97a8c3a24ae`;
+`specs/epic-193-a5-capability-resolver/acceptance-tests.md` =
+`709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8`.
+No behavioral requirement changed at any site: each annotation states, by
+reference, what rulings (a)/(A)/(B) already fixed on the record.
