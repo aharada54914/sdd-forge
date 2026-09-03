@@ -2862,8 +2862,13 @@ attempt 9; (2) annotations only, accepting the two Majors may recur;
 REQ-004 always-emit parenthetical at design.md:1213 and the widened
 Security-Boundaries sentence carry the same count), Test Strategy item 2
 now names `publication-staging-parent-symlink[feature-dir-symlinked]`
-(shipped in tests/resolve-project-context-block.tests.sh; its PASS lines
-are in verification/T-007/green-shipped-sh.log:365) as ruling (a)'s
+(shipped in `tests/resolve-project-context-block.tests.sh`, sha256
+`a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890`; its PASS
+lines are in
+`specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log:365`,
+sha256
+`739c528d4cd96ff8110badc30ea7d80915a4eedc61f6d67fc07f77a3f6e29482`,
+both as of commit `fa59914ef6957a21fe3de8b9fc8d9edaee35f1e1`) as ruling (a)'s
 verification path, and OQ-001/OQ-002 carry the template fields with
 `Blocks Implementation: no` and Epic A6/A8 planning-role owners. The
 authoritative site enumeration is mechanical: every line carrying the
