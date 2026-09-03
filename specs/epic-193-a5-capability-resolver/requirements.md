@@ -1,6 +1,6 @@
 # Requirements: epic-193-a5-capability-resolver
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/193,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (AI-DLC
@@ -932,7 +932,8 @@ byte-identical-to-PRE restoration guarantee, (iii) a "never a bare
 `unlink`" rollback rule, or (iv) an unqualified crash-recovery durability
 guarantee is read subject to three owner rulings recorded verbatim in
 investigation.md and mirrored in acceptance-tests.md (its own Ruling
-Annotations rule and its marked rows):
+Annotations rule and its marked rows) and, since ruling (G) (2026-09-03),
+in design.md's own annotated sites:
 ruling (a) (2026-08-28) — a third, NON-diagnostic no-write condition
 exists: an Evidence target that does not resolve inside its own
 `specs/<feature>` directory Blocks on the ORIGINAL diagnostic with no
