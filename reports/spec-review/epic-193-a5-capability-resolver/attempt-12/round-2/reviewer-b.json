@@ -1,0 +1,60 @@
+{
+ "schema": "spec-reviewer-b/v1",
+ "stage": "spec",
+ "role": "spec-reviewer-b",
+ "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a12r2-seq0866",
+ "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a12r2-0866",
+ "allowed_input_manifest": [
+  {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "a2d14f7fd832ae90b08bf8f12dceee08d2338607b99af9c561aaad8a669a19ca"},
+  {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b"},
+  {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "6efd627c45119f7aaacbb1959020732f734cd8883fa20061738e34f90bc6901e"},
+  {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+  {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-2/precheck-result.json", "sha256": "80b9b2b9b7ad5493bb95af124531b844f87850420ae00d077238af34ecef9840"},
+  {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-2/integrated-summary.json", "sha256": "cf63bf35b9e83b357200ca76b6a3dfe6ed016becbec538199c7fb40eec787a65"}
+ ],
+ "verdict": "NEEDS_WORK",
+ "checks": [
+  {
+   "id": "AMBIGUITY",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Terms, states, and diagnostic ids are defined with unusual precision throughout requirements.md/acceptance-tests.md; the one genuine defect found in this round (the exception-count conflict) is a direct textual contradiction, not an underspecified term, so it is reported under CONTRADICTION rather than here."
+  },
+  {
+   "id": "CONTRADICTION",
+   "result": "FAIL",
+   "severity": "Critical",
+   "finding": "The round-2 amendment (ruling (F)) corrected requirements.md:386-393 to state AC-012's rule 'excepts exactly two diagnostic ids plus one non-diagnostic no-write condition' (mirroring ruling (a)'s EvidenceTargetUncontained case), but left two sibling restatements of the identical fact uncorrected in the same document: requirements.md:446-449 ('Resolver Evidence ... is still written on every Block, with two named exceptions', unqualified) and requirements.md:643-649 ('REQ-002's \"two named exceptions\" above ... of which B3 is the only one' [exception to writing at all]) -- the latter is now factually false given the amended text two paragraphs above it makes EvidenceTargetUncontained a second all-writes-suppressed scenario. A reader consulting REQ-002's own closing summary or the REQ-004 reconciliation footnote (rather than the REQ-001 step-(m) narrative where the fix landed) would build Evidence-write logic against only two exceptions, omitting the newly-ruled third (feature-directory-containment) case and regressing the security-containment behavior ruling (a) accepted. investigation.md's rulings (a)/(A)/(B)/(F) (lines 2555-2810) and the '## Amendment Re-Review Context' section meet the calibration's full evidence bar, so phase-sequencing findings are suppressed, but this defect stands independently of phase-sequencing (calibration's 'NOT suppressed example (other defect)') -- it is the same class of internal-conflict defect round 1 raised, now recurring in a different pair of sentences after only one of three sibling sites was repaired."
+  },
+  {
+   "id": "EDGE-CASE-COVERAGE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "The sixteen-row Block taxonomy (requirements.md REQ-002) and its TEST-010/012/038/039/040/047/055/057/058 fixtures in acceptance-tests.md cover negative, boundary, and failure-mode paths in depth (crash-recovery, TOCTOU, journal rollback, self-referential schema failure, absent-affected-component). The new EvidenceTargetUncontained no-write condition amended into AC-012/AC-047 documents already-implemented, already-tested behavior per investigation.md's rulings (a)/(b) (356-361 passing fixtures cited) rather than introducing new unspecified behavior, so no new dedicated TEST-id gap was found."
+  },
+  {
+   "id": "ASSUMPTIONS-RESOLVABLE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "investigation.md resolves every open question (OQ-001-003) and records each amendment-driving finding (INV-020/021, rulings A/B/C/D/E/F) with explicit owner decisions and dated verbatim approvals; no unresolved assumption was found affecting this round's amendment scope."
+  },
+  {
+   "id": "APPROVAL-BOUNDARY",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "AC-059/TEST-059 locks the Resolver's write-scope boundary (no write to *.approval.json, sdd/.approved-context/, or guard-invariants.json) per requirements.md's Security Boundaries bullet 2, and the amendment itself was gated on an explicit, verbatim, dated human ruling ('凍結文書の修正を承認', investigation.md ruling (F)) before being applied to the frozen text, consistent with this package's established governance discipline."
+  },
+  {
+   "id": "DOWNSTREAM-READINESS",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Apart from the exception-count contradiction already reported under CONTRADICTION, the package's API/procedure narrative, field definitions, and acceptance criteria are detailed enough that an implementation-policy reviewer would not need to invent missing product behavior; the identified defect is a textual conflict between existing sentences, not an absence requiring invention, so it is scored once, under CONTRADICTION."
+  },
+  {
+   "id": "DOMAIN-CONFORMANCE",
+   "result": "SKIP",
+   "severity": "Major",
+   "finding": "No domain/ directory exists in this repository (domain/context-map.md not found), so this check is out of scope per its own skip condition."
+  }
+ ]
+}

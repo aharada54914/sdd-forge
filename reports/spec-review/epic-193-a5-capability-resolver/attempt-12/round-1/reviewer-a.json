@@ -1,0 +1,74 @@
+{
+ "schema": "spec-reviewer-a/v1",
+ "stage": "spec",
+ "role": "spec-reviewer-a",
+ "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a12r1-seq0862",
+ "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a12r1-0862",
+ "allowed_input_manifest": [
+  {
+   "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+   "sha256": "f2247851e7f6f7f9876bf7cf6d80b44234ef4b0c141499b965dba177c9e2fe22"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+   "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"
+  },
+  {
+   "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+   "sha256": "8c0085d8f5f782d43294d7b15dd2ecaece97bacab419d12083138951f20c9d7a"
+  },
+  {
+   "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+   "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+  },
+  {
+   "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-1/precheck-result.json",
+   "sha256": "95783f8cfe61c0e628017fb10379385a7f9a1237bbabaf14475cebcb9a0916c8"
+  }
+ ],
+ "verdict": "NEEDS_WORK",
+ "checks": [
+  {
+   "id": "REQ-TESTABILITY",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "REQ-001..REQ-008 fix concrete CLI flags, a closed 16-row diagnostic taxonomy, exact schema field rules, and byte-identity/stable-sort obligations; each is observable/measurable. No in-scope requirement lacks a validation path."
+  },
+  {
+   "id": "GOAL-AC-TRACE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md's Acceptance Criteria table (AC-001..AC-059) traces every REQ-001..REQ-008 goal to at least one AC row; acceptance-tests.md mirrors the same 1:1 mapping with the documented AC-035/036/037 registration-commit exception."
+  },
+  {
+   "id": "AC-OBSERVABLE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Acceptance criteria are concretely observable (byte-identity fixture pairs, schema validation, exit-code contracts, grep self-checks) rather than vague intent statements."
+  },
+  {
+   "id": "SCOPE-BOUNDARY",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md's Non-goals section explicitly excludes implementation, contract edits to sibling epics' schemas, ADR authorship, and plugins/** edits, with citations."
+  },
+  {
+   "id": "CONSTRAINTS-EXPLICIT",
+   "result": "FAIL",
+   "severity": "Critical",
+   "finding": "requirements.md:386 (REQ-002's Evidence-always-emitted sentence) and acceptance-tests.md's AC-012 row state the no-write exception set is closed at exactly two diagnostic ids ('excepts exactly two diagnostic ids'). investigation.md's '### Rulings (a) and (b)' (~L2662-2678, owner-ruled 2026-08-28, verbatim '(a) 受容 / (b) 承認') discloses a THIRD, owner-accepted no-write condition (`EvidenceTargetUncontained`) and states explicitly that the frozen text was deliberately left unamended: 'The owner accepted the deviation rather than authorizing an amendment to the frozen text ... Amending requirements.md would have invalidated all three currently-green review gates.' Separately, acceptance-tests.md's AC-047 and requirements.md's mirrored rollback text assert an unqualified byte-identical-to-PRE restoration guarantee for every interrupted publication target; investigation.md's '### Ruling (A)' (~L2555-2598, human-approved 2026-08-29) discloses a symlinked-target deviation (rolled back to ABSENT, not restored) and states 'AC-047's wording expects a rolled-back target restored to byte-identical PRE' as the very thing this ruling deviates from; '### Ruling (B)' (~L2723-2775, human-approved 2026-09-03) discloses the underlying directory-fsync durability is POSIX-only, stating 'AC-047's recovery guarantee is stated without a platform qualifier,' and accepts the Windows exposure window as a disclosed limitation with no corresponding edit to AC-047's own text. Downstream failure mode: a future task author, verifier, or quality-gate auditor checking an implementation against AC-012/AC-047's own frozen wording -- this gate's own subject matter -- will either file a false regression against owner-authorized behavior, or, once warned the wording is stale, lose the ability to detect a genuine future regression on this same security-sensitive surface (Evidence write-scope integrity, crash-recovery durability), since the criteria's true current scope is recoverable only by reading roughly 2,000 lines of investigation.md rulings dated after the criteria were last frozen. This belongs to spec review, not impl/task/quality-gate review, because the defect is in the accuracy of the frozen Phase 1 acceptance-criteria text itself, and the owner's explicit choice not to amend requirements.md/acceptance-tests.md means no later stage will ever correct it -- each later gate checks code against these frozen words, not the words against reality. This is not a phase-sequencing finding (the calibration's suppression does not apply): it is a genuine, admitted contradiction between frozen acceptance-criteria text and disclosed, owner-approved system behavior, matching the calibration's own non-suppressed 'other defect' category. Severity Critical per this role's instruction to classify contradictions as Critical, and per the calibration's 'impossible acceptance criteria' bar -- AC-012 and AC-047, read literally, are impossible for the disclosed, owner-approved implementation to satisfy."
+  },
+  {
+   "id": "RISK-VALIDATION-SURFACE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md's Risks section names each high-risk claim (Lite-track Epic A2 registry gap, multi-component matching/facet-aggregation as new orchestration decisions, transactional-publication complexity, protected-suffix reservation timing, anchor-fingerprint drift) with an explicit validation or mitigation path (AC-009/AC-010 fixtures, design.md Design Decisions review, AC-053's deferred fixture, re-verification steps)."
+  },
+  {
+   "id": "DOMAIN-CONFORMANCE",
+   "result": "SKIP",
+   "severity": "Major",
+   "finding": "No domain/ directory exists at the project root (checked via Glob on domain/context-map.md, the sole permitted out-of-manifest check), so this check is inapplicable and recorded as skipped."
+  }
+ ]
+}

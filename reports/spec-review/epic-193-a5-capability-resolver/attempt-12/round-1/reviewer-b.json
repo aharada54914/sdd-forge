@@ -1,0 +1,60 @@
+{
+ "schema": "spec-reviewer-b/v1",
+ "stage": "spec",
+ "role": "spec-reviewer-b",
+ "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a12r1-seq0864",
+ "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a12r1-0864",
+ "allowed_input_manifest": [
+  {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "f2247851e7f6f7f9876bf7cf6d80b44234ef4b0c141499b965dba177c9e2fe22"},
+  {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"},
+  {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "8c0085d8f5f782d43294d7b15dd2ecaece97bacab419d12083138951f20c9d7a"},
+  {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+  {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-1/precheck-result.json", "sha256": "95783f8cfe61c0e628017fb10379385a7f9a1237bbabaf14475cebcb9a0916c8"},
+  {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-1/integrated-summary.json", "sha256": "c18fa600f6cc5abfea4d678e37d299a390980f4bb090430d450906a2ffab5371"}
+ ],
+ "verdict": "PASS",
+ "checks": [
+  {
+   "id": "AMBIGUITY",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Field Definitions (requirements.md ~L979-1044) fix Resolver, Affected component, Matched Capability, capability_minimum_enforcement and Block precisely, and REQ-001's lettered processing sequence (0, a-m) plus REQ-002's 16-row diagnostic table give an exhaustive, unambiguous trigger condition for every Block; no term, actor, state, input, or output was found where two implementers would reasonably diverge."
+  },
+  {
+   "id": "CONTRADICTION",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "Checked the sites that took multiple prior rounds to reconcile (REQ-001 step (m)'s rollback-and-no-write scope rule vs REQ-002's artifact-publication-failed/post-publication-generation-mismatch rows vs AC-012/AC-039/AC-047/AC-049 vs Edge Cases vs Security Boundaries) and found them uniformly stating the same publication-artifacts-only/never-resolver-evidence.yaml scope in the current text; REQ-003's advisory/required byte-identity exception set (state; context_binding.full_context_revision/projection_sha256 wherever they occur; resolved.json's workflow block/source_sha256) matches AC-016 verbatim in both requirements.md and acceptance-tests.md. No direct conflict found between requirements, acceptance criteria, constraints, or non-goals."
+  },
+  {
+   "id": "EDGE-CASE-COVERAGE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "acceptance-tests.md's TEST-010 covers all 16 REQ-002 Block diagnostic ids plus a clean-fixture negative; zero-affected-component is covered by TEST-018/Edge Cases; every any-branch WARN case by TEST-027/AC-056 (including the abort-exception shape); both TOCTOU windows by TEST-040/TEST-049; crash recovery by TEST-047; dual-runtime/idempotency by TEST-022/TEST-023. No material negative path implied by requirements.md's REQ-002 table lacks a corresponding AC/TEST row."
+  },
+  {
+   "id": "ASSUMPTIONS-RESOLVABLE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md's three Assumptions (sibling-contract stability of A1/A2/A3; the protected-suffix reservation's liveness at Phase-2 start; SKILL.md's unprotected status as a live-repository snapshot) each state a concrete fallback/re-verification action for the future implementer rather than being left as open decisions."
+  },
+  {
+   "id": "APPROVAL-BOUNDARY",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "Security Boundaries bullet 2 (never writes to a *.approval.json sidecar, sdd/.approved-context/, or guard-invariants.json) is now locked by AC-059/TEST-059 (requirements.md AC table; acceptance-tests.md row, added under ruling E) -- a repository-wide grep self-check scoped to the Resolver's own three scripts, mirroring AC-025/TEST-025's mechanism. The boundary is testable."
+  },
+  {
+   "id": "DOWNSTREAM-READINESS",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "REQ-001's lettered processing sequence, REQ-002's closed 16-row diagnostic table, REQ-004's field-by-field Resolver Evidence contract, and Main Workflows 1-5 give an implementation-policy reviewer a concrete procedure and output shape; no missing product behavior was found that a design reviewer would have to invent."
+  },
+  {
+   "id": "DOMAIN-CONFORMANCE",
+   "result": "SKIP",
+   "severity": "Major",
+   "finding": "No domain/ directory exists in this repository (glob for domain/context-map.md and domain/domain-contract.json both returned no matches), so the check's skip condition applies."
+  }
+ ]
+}
