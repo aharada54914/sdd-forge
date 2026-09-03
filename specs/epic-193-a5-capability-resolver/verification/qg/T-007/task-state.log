@@ -1,4 +1,3 @@
-Task state check FAILED:
 Verification contract passed for task T-001.
 WARNING: evidence bundle for task T-001 was generated with a dirty working tree
 Evidence bundle passed for task T-001.
@@ -12,15 +11,12 @@ Verification contract passed for task T-005.
 Evidence bundle passed for task T-005.
 Verification contract passed for task T-006.
 Evidence bundle passed for task T-006.
-Verification contract FAILED for task T-007:
- - check 'task-state-check' evidence file is empty: specs/epic-193-a5-capability-resolver/verification/qg/T-007/task-state.log
-Evidence bundle FAILED for task T-007:
- - verification_contract failed check-contract validation: specs/epic-193-a5-capability-resolver/verification/T-007.contract.json
- - artifact sha256 mismatch for specs/epic-193-a5-capability-resolver/verification/qg/T-007/task-state.log
- - T-007 evidence bundle failed validation: specs/epic-193-a5-capability-resolver/verification/T-007.evidence.json
+Verification contract passed for task T-007.
+Evidence bundle passed for task T-007.
 Verification contract passed for task T-008.
 Evidence bundle passed for task T-008.
 Verification contract passed for task T-009.
 Evidence bundle passed for task T-009.
 Verification contract passed for task T-010.
 Evidence bundle passed for task T-010.
+Task state check passed for 10 task(s).
