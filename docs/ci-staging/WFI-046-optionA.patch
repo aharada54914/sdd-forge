@@ -1,30 +1,206 @@
 --- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
 +++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
-@@ -1714,7 +1714,11 @@
+@@ -1714,9 +1714,18 @@
      if not has_protected_path:
          return False
      has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
 -    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
-+    # WFI-046 (owner decision A, 2026-09-03): executing syntax disqualifies
-+    # this read-only short-circuit exactly as it already does the WFI-022
-+    # exemption -- an embedded command is invisible to the write vocabulary.
+-        return False
+-    if not has_write:
++    # WFI-046 (owner decision A, 2026-09-03): executing syntax -- command or
++    # process substitution, backticks, backgrounding, a physical line break --
++    # disqualifies BOTH early returns below, exactly as it already
++    # disqualifies the WFI-022 approval exemption: the embedded command is
++    # invisible to the write vocabulary, so a reader-shaped outer verb can
++    # smuggle an unmodelled writer. A disqualified command falls through to
++    # the fail-closed write-target analysis instead of being exempted.
++    unsafe_exec = bool(WFI_EXEMPTION_UNSAFE_RE.search(cmd))
 +    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write \
-+            and not WFI_EXEMPTION_UNSAFE_RE.search(cmd):
++            and not unsafe_exec:
++        return False
++    if not has_write and not unsafe_exec:
          return False
-     if not has_write:
-         return False
+     return not _shell_write_targets_are_safe(cmd)
+ 
 --- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
 +++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
-@@ -841,7 +841,11 @@
+@@ -841,8 +841,16 @@
    // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
    // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
    const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
 -  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
-+  // WFI-046 (owner decision A, 2026-09-03): executing syntax disqualifies
-+  // this read-only short-circuit exactly as it already does the WFI-022
-+  // exemption -- an embedded command is invisible to the write vocabulary.
-+  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite &&
-+      !WFI_EXEMPTION_UNSAFE_RE.test(cmd)) return false;
-   if (!hasWrite) return false;
+-  if (!hasWrite) return false;
++  // WFI-046 (owner decision A, 2026-09-03): executing syntax -- command or
++  // process substitution, backticks, backgrounding, a physical line break --
++  // disqualifies BOTH early returns below, exactly as it already
++  // disqualifies the WFI-022 approval exemption: the embedded command is
++  // invisible to the write vocabulary, so a reader-shaped outer verb can
++  // smuggle an unmodelled writer. A disqualified command falls through to
++  // the fail-closed write-target analysis instead of being exempted.
++  const unsafeExec = WFI_EXEMPTION_UNSAFE_RE.test(cmd);
++  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite && !unsafeExec) return false;
++  if (!hasWrite && !unsafeExec) return false;
    // Issue #62: deny only when a write target is (or cannot be proven not to
    // be) a protected gate file — fail-close on anything unmodeled.
+   return !shellWriteTargetsAreSafe(cmd);
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+@@ -167,6 +167,11 @@
+ $ShellCompoundRe       = '&&|\|\||;|\|'
+ $ShellSudoWriteRe      = "(?:>|>>|\btee\b|\btouch\b|\bcp\b|\bmv\b|\brm\b|\bSet-Content\b|\bOut-File\b|\bNew-Item\b|\bRemove-Item\b)"
+ $ShellReadOnlyStartRe  = '^\s*(?:cat|ls|test|grep|stat|head|tail|rg)\b'
++# WFI-046: shared executing-syntax disqualifier -- the named ps1 twin of
++# WFI_EXEMPTION_UNSAFE_RE in the .py/.js runtimes. Deliberately NOT
++# sourced from guard-invariants.json, matching the twins' inline
++# definitions.
++$WfiExemptionUnsafeRe  = '\$\(|`|<\(|>\(|&|\n|\r'
+ # WFI-048: empty until the generated module binds them, which is fail-closed
+ # in the same direction as the .py/.js twins' empty-tuple fallbacks.
+ $ShellPatchApplyCmds       = @()
+@@ -1227,8 +1232,14 @@
+     $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+     $hasCompound = [regex]::IsMatch($Cmd, $ShellCompoundRe)
+     $isReadOnlyStart = [regex]::IsMatch($Cmd, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+-    if ((-not $hasCompound) -and $isReadOnlyStart -and (-not $hasWrite)) { return $false }
+-    if (-not $hasWrite) { return $false }
++    # WFI-046 (owner decision A, 2026-09-03): executing syntax disqualifies
++    # BOTH early returns below, exactly as it already disqualifies the
++    # WFI-022 approval exemption -- the embedded command is invisible to the
++    # write vocabulary, so a disqualified command falls through to the
++    # fail-closed write-target analysis instead of being exempted.
++    $unsafeExec = [regex]::IsMatch($Cmd, $WfiExemptionUnsafeRe)
++    if ((-not $hasCompound) -and $isReadOnlyStart -and (-not $hasWrite) -and (-not $unsafeExec)) { return $false }
++    if ((-not $hasWrite) -and (-not $unsafeExec)) { return $false }
+     return (-not (Test-ShellWriteTargetsAreSafe $Cmd))
+ }
+ 
+@@ -1491,7 +1502,7 @@
+             # backticks, backgrounding, or a physical line break --
+             # disqualifies the exemption; the embedded command is invisible
+             # to the write vocabulary. Fail closed back to the broad match.
+-            $hasUnsafeSyntax = [regex]::IsMatch($command, '\$\(|`|<\(|>\(|&|\n|\r')
++            $hasUnsafeSyntax = [regex]::IsMatch($command, $WfiExemptionUnsafeRe)
+             if (-not $hasCompound -and $isReadOnlyStart -and -not $hasWrite -and -not $hasUnsafeSyntax) { return $false }
+             return $true
+         }
+--- a/tests/guard-parity.tests.sh
++++ b/tests/guard-parity.tests.sh
+@@ -268,6 +268,76 @@
+     '{"tool_name":"bash","tool_input":{"command":"grep -H Status: Approved docs/workflow-improvements/WFI-001.md\ntar -xf /tmp/approved.tar -C ."}}'
+ parity_check "wfi-022: backgrounded second command not exempt" 2 \
+     '{"tool_name":"bash","tool_input":{"command":"cat docs/workflow-improvements/WFI-001.md Status: Approved & tar -xf /tmp/approved.tar -C ."}}'
++
++# ---------------------------------------------------------------------------
++# Scenario 5c (WFI-046, owner decision A recorded 2026-09-03): executing
++# syntax disqualifies the protected-file read-only short-circuit AND the
++# no-write-verb fall-through, exactly as it already disqualifies the WFI-022
++# approval exemption in 5b(7). The first two must-refuse probes replay the
++# literal bypass commands measured in WFI-046 Problem Evidence (pre-change:
++# both exit 0 on both runtimes, measured 2026-08-23).
++# ---------------------------------------------------------------------------
++parity_check "wfi-046: command substitution over protected dir refused" 2 \
++    '{"tool_name":"bash","tool_input":{"command":"cat \"$(tar -xf /tmp/x.tar -C plugins/sdd-quality-loop/scripts)\" plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++parity_check "wfi-046: backtick substitution over protected dir refused" 2 \
++    '{"tool_name":"bash","tool_input":{"command":"cat `tar -xf /tmp/x.tar -C plugins/sdd-quality-loop/scripts` plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++parity_check "wfi-046: process substitution refused" 2 \
++    '{"tool_name":"bash","tool_input":{"command":"cat <(tar -xf /tmp/x.tar -C plugins/sdd-quality-loop/scripts) plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++
++# The behaviour the short-circuit exists for (issue #62) is preserved: a
++# genuine read with no executing syntax stays allowed, and plain $VAR
++# expansion stays exempt-eligible (it expands to words, not to a command).
++parity_check "wfi-046: plain read of protected file still allowed" 0 \
++    '{"tool_name":"bash","tool_input":{"command":"cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++parity_check "wfi-046: plain variable expansion still allowed" 0 \
++    '{"tool_name":"bash","tool_input":{"command":"cat $ROOT/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++
++# Residuals recorded per WFI-046 Verification Plan item 2 rather than assumed
++# closed: bare backgrounding and a physical line break introduce no
++# write-target token, so the fail-closed analysis they now reach still
++# allows them. Closing these needs a write-target-analysis change (out of
++# scope, stated residual).
++parity_check "wfi-046: bare backgrounding still allowed (recorded residual)" 0 \
++    '{"tool_name":"bash","tool_input":{"command":"cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py & tar -xf /tmp/x.tar"}}'
++parity_check "wfi-046: newline-joined writer still allowed (recorded residual)" 0 \
++    '{"tool_name":"bash","tool_input":{"command":"cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\ntar -xf /tmp/x.tar"}}'
++
++# Drift invariant, behavioural half (WFI-046 Proposed Change): one
++# must-refuse case per gate, asserted against that gate's OWN denial message.
++# The guard emits a single verdict per payload (approval gate first), so exit
++# codes alone cannot show WHICH gate refused.
++parity_check_msg() {
++    local scenario="$1"
++    local needle="$2"
++    local payload="$3"
++    local js_code=0
++    local py_code=0
++    local js_err py_err
++    js_err="$(printf '%s' "$payload" \
++        | CLAUDE_PROJECT_DIR="$WORK" node "${SCRIPTS_DIR}/sdd-hook-guard.js" --emit exit 2>&1 >/dev/null)" || js_code=$?
++    py_err="$(printf '%s' "$payload" \
++        | CLAUDE_PROJECT_DIR="$WORK" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit exit 2>&1 >/dev/null)" || py_code=$?
++    if [ "$js_code" != 2 ] || [ "$py_code" != 2 ]; then
++        fail "parity-msg [$scenario]: JS=$js_code PY=$py_code — expected both exit 2"
++        return
++    fi
++    case "$js_err" in
++        *"$needle"*) : ;;
++        *) fail "parity-msg [$scenario]: JS denial message lacks: $needle"; return ;;
++    esac
++    case "$py_err" in
++        *"$needle"*) : ;;
++        *) fail "parity-msg [$scenario]: PY denial message lacks: $needle"; return ;;
++    esac
++    ok "parity-msg [$scenario]: both refused with the gate's own message"
++}
++
++parity_check_msg "wfi-046: write-protection gate refuses with its own message" \
++    "must not modify gate scripts" \
++    '{"tool_name":"bash","tool_input":{"command":"cat \"$(tar -xf /tmp/x.tar -C plugins/sdd-quality-loop/scripts)\" plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
++parity_check_msg "wfi-046: approval gate refuses with its own message" \
++    "may approve a Workflow Improvement" \
++    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"sed -i '' 's/Status: Draft/Status: Approved/' ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+ 
+ # ---------------------------------------------------------------------------
+ # Scenario 6: Second Approval guard — Write adding Second Approval: Approved (deny — exit 2)
+--- a/tests/constant-parity.tests.sh
++++ b/tests/constant-parity.tests.sh
+@@ -183,6 +183,39 @@
+ fi
+ 
+ # ---------------------------------------------------------------------------
++# Check 3 (WFI-046): executing-syntax disqualifier drift invariant.
++# The guard grants two read-only-shaped exemptions (the WFI-022 approval
++# exemption and the protected-file short-circuit). Both must reference the
++# SAME named disqualifier constant in each guard runtime, and the raw
++# pattern literal must appear exactly once per runtime (the named
++# definition), so the two gates cannot silently drift apart again — which is
++# how the WFI-046 bypass arose. Source-level by design: the guard emits one
++# verdict per payload, so behaviour alone cannot show both gates carry it.
++# ---------------------------------------------------------------------------
++GUARD_PY="${SCRIPTS_DIR}/sdd-hook-guard.py"
++GUARD_JS="${SCRIPTS_DIR}/sdd-hook-guard.js"
++GUARD_PS1="${SCRIPTS_DIR}/sdd-hook-guard.ps1"
++
++check_disqualifier() {
++    local label="$1" file="$2" name="$3" min_refs="$4"
++    local raw_literal='<\(|>\('
++    local refs=0 defs=0
++    refs="$(grep -c -- "$name" "$file" || true)"
++    defs="$(grep -cF -- "$raw_literal" "$file" || true)"
++    if [ "${refs:-0}" -lt "$min_refs" ]; then
++        fail "disqualifier [$label]: $name referenced on $refs line(s), expected >= $min_refs (definition + both exemption sites)"
++    elif [ "${defs:-0}" -ne 1 ]; then
++        fail "disqualifier [$label]: raw pattern literal on $defs line(s), expected exactly 1 (the named definition)"
++    else
++        ok "disqualifier [$label]: $name shared by both exemption sites; single raw definition"
++    fi
++}
++
++check_disqualifier "py"  "$GUARD_PY"  "WFI_EXEMPTION_UNSAFE_RE" 3
++check_disqualifier "js"  "$GUARD_JS"  "WFI_EXEMPTION_UNSAFE_RE" 3
++check_disqualifier "ps1" "$GUARD_PS1" "WfiExemptionUnsafeRe" 3
++
++# ---------------------------------------------------------------------------
+ # Summary
+ # ---------------------------------------------------------------------------
+ echo ""
