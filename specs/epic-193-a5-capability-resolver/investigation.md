@@ -2836,3 +2836,43 @@ of the frozen spec pair). SHA-256 as of that commit:
 `709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8`.
 No behavioral requirement changed at any site: each annotation states, by
 reference, what rulings (a)/(A)/(B) already fixed on the record.
+
+### Ruling (G) — the ruling-(F) amendment is extended to design.md
+
+**Date**: 2026-09-03. **Context**: impl-review attempt 8 (the post-Done
+provenance re-bind, run on the ruling-(F)-amended requirements.md).
+Reviewer B's Critical: design.md — byte-identical to attempt 7's clean
+PASS — asserted AC-012's "two exceptions" absolutely at two sites
+(design.md:2433, :2870), which the amended requirements.md no longer
+asserts unconditionally; the ruling-(F) amendment had reached its third
+document. Two Majors rode with it: no named verification path for the
+containment refusal in Test Strategy, and OQ-001/OQ-002 missing the
+template's Owner / Blocks Implementation / Resolution Path fields.
+
+**Options put to the owner** (2026-09-03): (1) extend ruling (F) to
+design.md — annotate the assertions, name the shipped containment
+fixture in Test Strategy, supply the OQ template fields, then re-run as
+attempt 9; (2) annotations only, accepting the two Majors may recur;
+(3) accept the BLOCKED verdict and stop the impl re-bind.
+
+**The owner's verbatim answer**: 「裁定(F)をdesign.mdへ拡張（推奨）」
+
+**Executed amendment (evidence).** Five exception-count sites annotated
+(the two the reviewer named plus three siblings the sweep found: the
+REQ-004 always-emit parenthetical at design.md:1213 and the widened
+Security-Boundaries sentence carry the same count), Test Strategy item 2
+now names `publication-staging-parent-symlink[feature-dir-symlinked]`
+(shipped in tests/resolve-project-context-block.tests.sh; its PASS lines
+are in verification/T-007/green-shipped-sh.log:365) as ruling (a)'s
+verification path, and OQ-001/OQ-002 carry the template fields with
+`Blocks Implementation: no` and Epic A6/A8 planning-role owners. The
+authoritative site enumeration is mechanical: every line carrying the
+literal marker `ruling (G)` in design.md as of the amendment commit.
+Amendment commit: `fa59914ef6957a21fe3de8b9fc8d9edaee35f1e1`
+(docs(epic-193-a5-capability-resolver): ruling (G) — extend the
+ruling-(F) annotation amendment to frozen design.md). SHA-256 as of that
+commit: `specs/epic-193-a5-capability-resolver/design.md` =
+`ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0`.
+No behavioral requirement changed: each annotation states, by reference,
+what rulings (a)/(A)/(B) already fixed on the record, and the OQ fields
+record ownership decisions the surrounding prose already implied.
