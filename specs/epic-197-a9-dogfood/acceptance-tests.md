@@ -11,9 +11,9 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-005 | REQ-003 | TEST-005 | ownership | zero unexplained overlaps | Planned |
 | AC-006 | REQ-003 | TEST-006 | ownership | zero unexplained unowned paths; shared rules verified | Planned |
 | AC-007 | REQ-004 | TEST-007 | contract | plugin/MCP/installer/CI/release characteristics remain distinct | Planned |
-| AC-008 | REQ-005 | TEST-008 | resolver | approved Pack validates and resolves against the representative change (full-track plugin-code, never docs-only) | Planned |
+| AC-008 | REQ-005 | TEST-008 | resolver | approved Pack validates and triggers representative component | Planned |
 | AC-009 | REQ-005 | TEST-009 | scope | no desktop/cloud-service/new durable-workflow Pack added | Planned |
-| AC-010 | REQ-006 | TEST-010 | integration | advisory run over the representative change (full-track plugin-code, never docs-only) emits bound outputs/evidence | Planned |
+| AC-010 | REQ-006 | TEST-010 | integration | representative advisory run emits bound outputs/evidence | Planned |
 | AC-011 | REQ-006 | TEST-011 | integration | Pack finding non-blocking; existing blockers unchanged | Planned |
 | AC-012 | REQ-007 | TEST-012 | evidence | promotion record has every REQ-007 field and link | Planned |
 | AC-013 | REQ-007 | TEST-013 | negative | unmet threshold and stale evidence each reject promotion | Planned |
@@ -33,19 +33,10 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-027 | REQ-006 | TEST-027 | operational | every PR in one bounded full release cycle passed advisory Gate | Planned |
 | AC-028 | REQ-008 | TEST-028 | end-to-end | one real post-promotion feature completes under facet-hybrid/required | Planned |
 | AC-029 | REQ-010 | TEST-029 | process | friction WFI references recorded, or literal `none` when zero | Planned |
-| AC-030 | REQ-004 | TEST-030 | contract | exactly the two approved overrides present (ci-mcp credential-bearing; release-automation release-write) and read by characteristic tests | Planned |
-| AC-031 | REQ-004 | TEST-031 | negative | unknown-characteristic, out-of-scope, and no-op overrides each reject | Planned |
-| AC-032 | REQ-003 | TEST-032 | ownership | reverse-coverage and ownership-digest checks both pass for the approved map | Planned |
-| AC-033 | REQ-008 | TEST-033 | negative | required-enforcement activation without Pack and resolver evidence rejects | Planned |
-| AC-034 | REQ-009 | TEST-034 | security | registry-cardinality change mid-cooldown re-evaluates the branch with the current registry | Planned |
 
 Coverage note: AC-015 expands both partial-transition branches; AC-018 expands
 all four invalid-sidecar branches; AC-021's oracle covers Registry, guards,
 components, Active Specs, WFI namespace, and protected targets individually.
 AC-027 quantifies over every PR in the named cycle; AC-029 covers both observed
 friction and zero-friction branches and names path ownership, staleness, and
-approval flow individually. AC-005/AC-006 cover the overlap and unowned-path/
-shared-rule checks; AC-032 covers REQ-003's remaining two named checks
-(reverse-coverage, ownership-digest). AC-015 covers REQ-008's mixed-transition
-clause; AC-033 covers its premature-required-enforcement clause. AC-031
-expands all three invalid-override branches.
+approval flow individually.
