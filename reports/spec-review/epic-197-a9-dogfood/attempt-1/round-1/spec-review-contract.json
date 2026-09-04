@@ -1,20 +1,21 @@
 {
-  "schema": "spec-review-contract/v1",
-  "stage": "spec",
-  "feature": "epic-197-a9-dogfood",
-  "attempt": 1,
-  "round": 1,
-  "requirements_sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e",
   "acceptance_sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7",
+  "attempt": 1,
+  "feature": "epic-197-a9-dogfood",
+  "requirements_sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e",
   "reviewers": [
     {
       "role": "spec-reviewer-a",
-      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a-seq0960",
-      "host_session_id": "SESS-spec-a1r1-a-epic-197-a9-dogfood-0960",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a2-seq0964",
+      "host_session_id": "SESS-spec-a1r1-a2-epic-197-a9-dogfood-0964",
       "allowed_input_manifest": [
         {
-          "path": "specs/epic-197-a9-dogfood/requirements.md",
-          "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
+          "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
         },
         {
           "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
@@ -25,23 +26,27 @@
           "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
         },
         {
-          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
-          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
-        },
-        {
-          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
-          "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
+          "path": "specs/epic-197-a9-dogfood/requirements.md",
+          "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
         }
       ]
     },
     {
       "role": "spec-reviewer-b",
-      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b2-seq0962",
-      "host_session_id": "SESS-spec-a1r1-b2-epic-197-a9-dogfood-0962",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b4-seq0965",
+      "host_session_id": "SESS-spec-a1r1-b4-epic-197-a9-dogfood-0965",
       "allowed_input_manifest": [
         {
-          "path": "specs/epic-197-a9-dogfood/requirements.md",
-          "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json",
+          "sha256": "add84a61fd62d3ffcf918d48c73f45bf7d920be14814d468e566790db5ca16f4"
+        },
+        {
+          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
+          "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
         },
         {
           "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
@@ -52,21 +57,16 @@
           "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
         },
         {
-          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
-          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
-        },
-        {
-          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
-          "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
-        },
-        {
-          "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json",
-          "sha256": "8339314fca2fee749cedb361d942d8e92e20a78a4a3d6d0fc72d0ed8ccf39f83"
+          "path": "specs/epic-197-a9-dogfood/requirements.md",
+          "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
         }
       ]
     }
   ],
-  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-orchestrator-seq0960-0962",
+  "round": 1,
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-orchestrator",
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
   "verdict": "NEEDS_WORK",
   "warningCount": 0
 }
