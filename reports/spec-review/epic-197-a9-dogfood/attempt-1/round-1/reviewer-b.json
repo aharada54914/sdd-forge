@@ -2,33 +2,15 @@
   "schema": "spec-reviewer-b/v1",
   "stage": "spec",
   "role": "spec-reviewer-b",
-  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b2-seq0962",
-  "host_session_id": "SESS-spec-a1r1-b2-epic-197-a9-dogfood-0962",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b4-seq0965",
+  "host_session_id": "SESS-spec-a1r1-b4-epic-197-a9-dogfood-0965",
   "allowed_input_manifest": [
-    {
-      "path": "specs/epic-197-a9-dogfood/requirements.md",
-      "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
-    },
-    {
-      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
-      "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"
-    },
-    {
-      "path": "specs/epic-197-a9-dogfood/investigation.md",
-      "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
-    },
-    {
-      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
-      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
-    },
-    {
-      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
-      "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
-    },
-    {
-      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json",
-      "sha256": "8339314fca2fee749cedb361d942d8e92e20a78a4a3d6d0fc72d0ed8ccf39f83"
-    }
+    {"path": "specs/epic-197-a9-dogfood/requirements.md", "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"},
+    {"path": "specs/epic-197-a9-dogfood/acceptance-tests.md", "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"},
+    {"path": "specs/epic-197-a9-dogfood/investigation.md", "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json", "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"},
+    {"path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json", "sha256": "add84a61fd62d3ffcf918d48c73f45bf7d920be14814d468e566790db5ca16f4"}
   ],
   "verdict": "NEEDS_WORK",
   "checks": [
@@ -36,43 +18,43 @@
       "id": "AMBIGUITY",
       "result": "FAIL",
       "severity": "Major",
-      "finding": "AC-008 (requirements.md:186) and AC-010 (requirements.md:188) both key their oracle to an undefined 'representative' sdd-forge component / plugin change, while OQ-006's resolution (requirements.md:368-370) fixes a Lite-vs-full track split ('the lite track is admissible for docs-only changes; everything else takes the full track'). Neither requirements.md nor acceptance-tests.md (TEST-008, TEST-010) states which component or change qualifies as representative, or that it must exercise the full track. Two implementers could each pick a different 'representative' change -- one docs-only (Lite track) and one plugin-code (full track) -- producing materially different fixtures; the docs-only choice would never exercise the developer-tooling/cli-library Pack's predicate/facet/gate machinery that REQ-006's advisory dogfood evidence exists to validate. This is a testability/observability gap in the Phase-1 acceptance criteria themselves, not an implementation detail, so it belongs to spec review. Major per calibration's 'missing observable acceptance criterion ... high-risk claim with no planned validation surface' bucket: it does not conflict with another requirement (not Critical) and it materially changes what gets validated (not Minor)."
+      "finding": "REQ-013 introduces 'growing paths such as `specs/`' and AC-025/TEST-025 require 'every approved growing path' to be cross-cutting from bootstrap, but no Field Definitions entry or enumerated list states which repository paths beyond the single example qualify as a 'growing path'. OQ-002's cross-cutting list (specs/**, tests/**, contracts/**, docs/**, reports/**, marketplaces/**, .github/**, release/root metadata) mixes accumulating directories with fixed metadata files, so two implementers could reasonably scope AC-025's test to specs/ only versus the full eight-entry cross-cutting set. This belongs to spec review because AC-025 is the acceptance criterion whose test boundary the term controls, and it is Major because it is a missing/ambiguous acceptance-criterion scope rather than a best-practice omission."
     },
     {
       "id": "CONTRADICTION",
       "result": "FAIL",
       "severity": "Critical",
-      "finding": "REQ-004 (requirements.md:62-68) requires the component inventory to preserve a distinguishable, non-blanket credential/write characteristic for 'credential-bearing CI MCP' specifically versus the read-only local MCP services; AC-007 (requirements.md:185) makes this an oracle: 'Characteristic tests distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases.' But OQ-001's resolved decomposition (requirements.md:274-284) merges every MCP service into one single `mcp` component ('the MCP service group under mcp/'), and OQ-002's resolved ownership map (requirements.md:295-306) places release automation and metadata (`.github/**`, CHANGELOG.md, AGENTS.md, README.md, package.json) into the cross-cutting/shared classification rather than any owned component. Per the schema surface this package itself relies on (investigation.md:41, INV-005: 'Component records can carry ... seven boolean characteristics'), only owned components carry characteristic fields; a single merged `mcp` component can hold only one set of those booleans, not a distinct one for the credential-bearing ci-mcp sub-service noted separately at investigation.md:47 (INV-011: 'ci-mcp alone consumes a read-only GitHub token' among three otherwise read-only MCP servers). An implementer building AC-007 has no component in the human-approved OQ-001/OQ-002 model that can hold a distinct CI-MCP or release-write characteristic without either violating the fixed eight-component decomposition or inventing an undocumented sub-component/override mechanism. This is a direct requirement-level conflict discoverable purely inside requirements.md, not an implementation detail, so it belongs to spec review. Critical because it makes AC-007 impossible to satisfy under the human-approved, 'implement as-is' OQ-001/OQ-002 resolutions without a new human ruling -- an impossible acceptance criterion under the fixed decomposition."
+      "finding": "investigation.md INV-012 (evidence README.md:250-259) records seven top-level plugin packages: bootstrap, domain, implementation, lite, quality-loop, review-loop, and ship. requirements.md's OQ-001 resolution (human-approved 2026-09-02, closed) fixes the final eight-component decomposition as six named plugins (sdd-bootstrap, sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-ship, sdd-lite) plus mcp and installer -- omitting the domain plugin that INV-012 itself found. OQ-002's ownership rule ('plugins/<name>/** -> its plugin component') presumes every plugin maps to an approved component, and plugins/domain/** is not in OQ-002's cross-cutting list either. Under the current, closed resolutions, plugins/domain/** is neither an owned component path nor a declared cross-cutting path, making AC-005/AC-006's 'zero unexplained overlaps' / 'zero unexplained unowned tracked paths' criteria unsatisfiable as specified without reopening a Resolved OQ. This is spec review's responsibility because the contradiction is between two Phase-1 artifacts (investigation.md's own finding and requirements.md's resolved decision) and cannot be closed by an implementer without a new human ruling. Severity is Critical because it produces an acceptance criterion (AC-006) that cannot pass under the current spec content -- an impossible acceptance criterion per calibration."
     },
     {
       "id": "EDGE-CASE-COVERAGE",
       "result": "FAIL",
       "severity": "Major",
-      "finding": "requirements.md's Edge Cases section (line 244) states: 'Approver registry changes between rollback request and effective time: re-run approval validation with the current registry,' and OQ-004's resolution (requirements.md:335-339) makes this a named mechanism: 'A registry-membership change is itself a recorded registry update and re-evaluates the branch.' None of the REQ-009 acceptance rows -- AC-016/TEST-016 (multi-identity), AC-017/TEST-017 (solo timing), AC-018/TEST-018 (unsigned/self-approved/duplicate/unbound) -- test a registry-cardinality change occurring between rollback request and effective time (e.g., a second identity being registered during a solo-branch's 24-hour cooldown, forcing a branch re-evaluation to two-party). A task author decomposing REQ-009 into tests has no acceptance row instructing them to build this fixture, and an implementer could ship rollback logic that reads the approver registry once at request time rather than re-validating at effective time, silently violating the named edge case. This is an acceptance-tests.md coverage gap for a requirements.md-named edge case in a governance/security boundary (rollback), squarely spec review's scope. Major per calibration: not Critical because the base rollback boundary is otherwise tested; not Minor because it is a named governance edge case, not a mere clarification."
+      "finding": "requirements.md's Edge Cases section lists five scenarios; acceptance-tests.md maps a direct AC/TEST row to only two (stale evidence -> AC-013; zero friction -> AC-029). The other three -- 'a tracked path matches no component and no shared rule: block Phase 1', 'a path matches multiple components without an approved shared rule: block', and 'approver registry changes between rollback request and effective time: re-run approval validation with the current registry' -- have no corresponding negative/boundary AC. AC-005/AC-006 only assert the currently-approved map has zero overlaps/unowned paths (a state check on the golden map), not that the system detects and blocks a newly introduced overlap or unowned path (the failure-mode behavior the Edge Cases section names), and none of AC-016/017/018 test a registry-membership change occurring between rollback request and effective time. This belongs to spec review because acceptance-tests.md is the artifact under review for AC-to-edge-case coverage, and it is Major because it is a missing observable acceptance criterion for failure modes the requirements themselves name."
     },
     {
       "id": "ASSUMPTIONS-RESOLVABLE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "The Assumptions section (requirements.md:257-265) lists four assumptions; each is either resolved (issue #197/#187 bodies reconciled, per investigation.md's Issue-Reconciliation Result, lines 81-87) or explicitly flagged as a decision/verification step required before further work rather than silently assumed -- e.g., 'A1-A8 availability is mutable shared state and must be re-verified at spec review and implementation, never assumed from this draft' (requirements.md:261-262), which investigation.md INV-018 (line 54) independently substantiates by showing A5 exists only on a feature branch outside this branch's Active Spec list. No assumption in this section is left silently unresolved."
+      "finding": "All four Assumptions entries state an explicit resolution mechanism (issue bodies reconciled and recorded in investigation.md; A1-A8 availability to be re-verified rather than assumed; REQ-013/AC-025 verify rather than assume the specs/ cross-cutting claim; WFI numbering deferred to record-creation time), and all six Open Questions (OQ-001 through OQ-006) are marked Resolved with a dated, verbatim human-approval quotation. No assumption is left unresolved or unmarked as a decision needed. The OQ-001 domain-plugin gap is a contradiction within a resolved decision, not an unresolved assumption, and is captured under CONTRADICTION instead of here."
     },
     {
       "id": "APPROVAL-BOUNDARY",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "REQ-001 (requirements.md:37-44) requires the protected approval publication workflow and forbids an unsigned or agent-approved sidecar, tested by AC-002 (requirements.md:180: 'Publication tests reject missing/invalid approval binding and demonstrate the human-copy boundary'). REQ-009 (requirements.md:108-116) and OQ-004's resolution (requirements.md:335-346) fix a mechanically-selected two-party/solo-plus-cooldown rollback boundary reusing signed Ed25519 evidence, tested by AC-016/017/018 (requirements.md:194-196). These approval/governance boundaries are testable as stated; the check is in scope (not SKIP) because REQ-001, REQ-008, and REQ-009 all imply a human-approval or irreversible-change boundary."
+      "finding": "REQ-001/AC-002 require the protected approval publication workflow and reject unsigned/agent-approved sidecars; REQ-007/AC-012/AC-013 gate promotion on human-approved OQ-003 criteria and saved evidence with an explicit rejection test for unmet/stale evidence; REQ-008/AC-014/AC-015 require atomic protected-workflow promotion and reject partial transitions; REQ-009/AC-016-018 test both two-party and solo-with-cooldown rollback branches plus rejection of unsigned/self-approved/duplicate-identity/non-bound sidecars; REQ-010/AC-019 requires WFI records to never reach the approved status via agent action. Every governance/irreversible-change boundary named in requirements.md has a corresponding testable, observable acceptance criterion."
     },
     {
       "id": "DOWNSTREAM-READINESS",
       "result": "FAIL",
       "severity": "Major",
-      "finding": "Because OQ-001's fixed, human-approved eight-component decomposition (requirements.md:274-284) cannot represent the distinct CI-MCP credential characteristic REQ-004/AC-007 requires (requirements.md:62-68, 185; see the CONTRADICTION finding above), a design reviewer inheriting this package would have to invent -- without a human ruling -- either a new sub-component boundary inside the fixed 'eight components' resolution or an undocumented characteristic-override mechanism for cross-cutting paths. Choosing between those is a product/architecture decision that belongs to spec review's OQ process (OQ-001 was already run for exactly this purpose), not to implementation-policy review. This is a downstream-readiness gap distinct from the contradiction itself: even if a reviewer worked around the conflict, they would be inventing missing product behavior this gate exists to catch before handoff. Major per calibration's 'missing constraint' framing; not Critical because the readiness gap is a consequence of, not identical to, the underlying contradiction already reported at Critical severity."
+      "finding": "Because OQ-001's approved component list omits the domain plugin that investigation.md's own INV-012 found, and because AC-025's 'growing path' scope is undefined, a design reviewer or implementer inheriting this package would have to invent whether plugins/domain/** is a ninth component, folded into an existing component, or added to the cross-cutting list, and would have to invent which paths besides specs/ count as 'growing paths' for AC-025 -- both are product decisions the human OQ process was intended to close, not decisions delegable to design. This belongs to spec review because DOWNSTREAM-READINESS gates exactly this handoff; it is Major (distinct from the CONTRADICTION finding's Critical impossible-AC framing) because it forces invented product behavior rather than making the package unreviewable outright."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "No `domain/` directory exists at the project root (confirmed by the permitted domain/-existence check and corroborated by investigation.md's own note: 'Domain-Sync: domain-sync skipped: no domain/ directory', investigation.md:31), so the DOMAIN-CONFORMANCE scoped surface is absent and the check is recorded as skipped per its explicit skip condition."
+      "finding": "Skipped: no domain/ directory exists at the project root (verified via the single permitted existence check: domain/context-map.md and domain/* both return no matches), so domain/context-map.md and an approved-status context map cannot exist. investigation.md's own 'Domain-Sync: domain-sync skipped: no domain/ directory' note corroborates this; the check does not apply."
     }
   ]
 }

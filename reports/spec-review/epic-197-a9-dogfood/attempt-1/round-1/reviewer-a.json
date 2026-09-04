@@ -2,73 +2,58 @@
   "schema": "spec-reviewer-a/v1",
   "stage": "spec",
   "role": "spec-reviewer-a",
-  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a-seq0960",
-  "host_session_id": "SESS-spec-a1r1-a-epic-197-a9-dogfood-0960",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a2-seq0964",
+  "host_session_id": "SESS-spec-a1r1-a2-epic-197-a9-dogfood-0964",
   "allowed_input_manifest": [
-    {
-      "path": "specs/epic-197-a9-dogfood/requirements.md",
-      "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
-    },
-    {
-      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
-      "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"
-    },
-    {
-      "path": "specs/epic-197-a9-dogfood/investigation.md",
-      "sha256": "not computed by this role (no hashing tool available; content read and reviewed directly)"
-    },
-    {
-      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
-      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
-    },
-    {
-      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
-      "sha256": "not computed by this role (no hashing tool available; content read and reviewed directly)"
-    }
+    {"path": "specs/epic-197-a9-dogfood/requirements.md", "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"},
+    {"path": "specs/epic-197-a9-dogfood/acceptance-tests.md", "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"},
+    {"path": "specs/epic-197-a9-dogfood/investigation.md", "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json", "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"}
   ],
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "checks": [
     {
       "id": "REQ-TESTABILITY",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "All fourteen REQ-001..014 entries state observable, file/line-anchored obligations (schema fields, ownership digests, promotion evidence fields, rollback approval arithmetic, CI/OS matrix) that a fixture or resolver can measure. No requirement is stated only as intent."
+      "finding": "All 14 in-scope requirements (REQ-001..REQ-014, requirements.md:35-156) resolve to concrete, measurable acceptance criteria. Every prior Open Question (OQ-001..OQ-006) carries a dated human resolution with specific values (e.g. OQ-001 names eight components verbatim at requirements.md:274-284; OQ-002 gives a concrete owned/cross-cutting path map at requirements.md:295-306; OQ-003 fixes four mechanically-checked promotion criteria at requirements.md:316-325; OQ-004 fixes a mechanical cardinality branch at requirements.md:335-346), so downstream implementers and verifiers have concrete targets rather than open judgment calls. No requirement relies on unquantified terms without a paired measurable AC."
     },
     {
       "id": "GOAL-AC-TRACE",
-      "result": "FAIL",
+      "result": "PASS",
       "severity": "Major",
-      "finding": "REQ-003 (requirements.md:56-58) names four distinct A3-supplied checks the Context must pass: 'overlap, unowned-path, reverse-coverage, and ownership-digest checks'. AC-005/AC-006 (requirements.md:183-184; acceptance-tests.md:11-12) only name 'overlap' and 'unowned tracked paths ... shared-path rule' -- 'reverse-coverage' and 'ownership-digest' checks have no matching acceptance criterion anywhere in acceptance-tests.md, and unlike other compound ACs (AC-015, AC-018, AC-021, AC-027, AC-029) the table's Coverage note does not expand AC-005/AC-006 to name these two branches. Separately, REQ-008 (requirements.md:98-106) states verification 'shall reject a mixed transition ... or where required enforcement is activated before the selected Pack and resolver evidence are available'; AC-015 (acceptance-tests.md:21) covers only the first clause ('layout-only and enforcement-only'), leaving the second rejection condition (premature required-enforcement activation absent Pack/resolver evidence) without a matching AC. A task author implementing TEST-005/TEST-006 or TEST-014/TEST-015 from the AC table alone would not know these four named sub-checks/branches need independent test coverage, risking they ship unverified. This is a Phase-1 AC-completeness gap, squarely this gate's traceability duty, not a design or implementation choice; it is Major because it is a missing observable acceptance criterion for named requirement sub-clauses rather than a contradiction or missing safety/approval boundary."
+      "finding": "Every REQ-001..REQ-014 has at least one matching row in the Acceptance Criteria table (requirements.md:177-207): REQ-001->AC-001/002, REQ-002->AC-003/004, REQ-003->AC-005/006, REQ-004->AC-007, REQ-005->AC-008/009, REQ-006->AC-010/011/027, REQ-007->AC-012/013, REQ-008->AC-014/015/028, REQ-009->AC-016/017/018, REQ-010->AC-019/029, REQ-011->AC-020/021, REQ-012->AC-022/023/024, REQ-013->AC-025, REQ-014->AC-026. acceptance-tests.md:7-35 mirrors the same 29 AC/REQ pairs with no drift."
     },
     {
       "id": "AC-OBSERVABLE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Every row in acceptance-tests.md states an external, checkable oracle (schema acceptance of an exact tuple, fixture equality against a dated OQ ruling, zero-count ownership assertions, presence of named evidence fields, CI matrix execution) rather than unmeasured intent."
+      "finding": "acceptance-tests.md:7-35 states an externally checkable assertion/oracle for each AC (e.g. AC-005 'zero unexplained overlaps', AC-014 'schema/resolver accept exact Phase-2 tuple', AC-018 'unsigned, self-approved, duplicate, unbound sidecars each reject'), each tied to a fixture, schema test, or evidence artifact rather than an intent statement."
     },
     {
       "id": "SCOPE-BOUNDARY",
       "result": "PASS",
       "severity": "Major",
-      "finding": "requirements.md:158-164 lists five explicit non-goals (no live sdd/ file during bootstrap, no later Packs, no Registry/resolver/Manifest/approval-model replacement, no new UI/CI, no self-approval of the spec/task/sidecar/WFI). The Transferred Backlog section (requirements.md:384-406) explicitly disclaims membership in this epic's REQ/AC set, reinforcing rather than eroding the boundary."
+      "finding": "requirements.md:158-164 explicitly excludes creating any live sdd/ file during bootstrap, implementing later Packs (desktop/cloud-service/durable-workflow), replacing Registry/resolver/Manifest/approval model, adding UI/cloud/new CI workflow, and approving the spec/tasks/sidecar/WFI. REQ-005 (requirements.md:70-79) and AC-009 (requirements.md:187) additionally bound Pack scope with a negative proof requirement."
     },
     {
       "id": "CONSTRAINTS-EXPLICIT",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Security Boundaries (requirements.md:249-255), the ADR-0019-grounded approval/HMAC constraints in REQ-001/REQ-009/OQ-004, the atomic-migration constraint in REQ-008, and the cross-platform/CI-preservation constraint in REQ-012/AC-022-024 make data, compatibility, security, migration, and approval boundaries explicit and file-anchored."
+      "finding": "Security Boundaries (requirements.md:249-255) states the HMAC-bound protected-record constraint, the release-publication write/OIDC/attestation boundary, and the CI-MCP no-persist/no-disclose constraint. Approval boundaries are explicit throughout: REQ-001's protected publication workflow (requirements.md:37-44), REQ-009/OQ-004's two-party vs. solo-cooldown branch with signed evidence (requirements.md:108-116, 335-346), and REQ-008's atomic dual-axis promotion rejection rule (requirements.md:98-106). Data classification and compatibility constraints appear in REQ-002 (requirements.md:46-52) and REQ-012 (requirements.md:137-142)."
     },
     {
       "id": "RISK-VALIDATION-SURFACE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Each of the four Risks (requirements.md:377-382) maps to a concrete validation surface: over-broad ownership -> AC-005/AC-006; premature required-enforcement deadlock -> the OQ-003 promotion criteria feeding AC-012/AC-013; Pack duplication -> AC-009 plus OQ-006's composition-by-reference design; unusable rollback governance -> OQ-004's cardinality rule feeding AC-016/AC-017/AC-018."
+      "finding": "All four listed risks (requirements.md:376-382) have a paired validation surface: over-broad ownership hiding boundaries is checked by the ownership overlap/unowned tests (AC-005/AC-006, requirements.md:183-184) and grounded in the OQ-002 rationale (requirements.md:301-306); premature required-enforcement deadlock risk is gated by OQ-003's four mechanical promotion criteria (requirements.md:316-325, AC-012/013); Pack duplication risk is addressed by OQ-006's composition-by-reference resolution (requirements.md:363-373) and validated by AC-008/009; rollback-governance-unusable risk is addressed by OQ-004's cardinality-branch resolution (requirements.md:335-346) and validated by AC-016/017/018."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "investigation.md:31 records 'Domain-Sync: domain-sync skipped: no domain/ directory'; no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json exist, so the Bounded-Context/canonical-terms check does not apply and is skipped per the calibration's explicit skip condition."
+      "finding": "No `domain/` directory exists at the project root (confirmed: `domain/context-map.md` glob returned no matches), consistent with investigation.md:31's 'domain-sync skipped: no domain/ directory'. Per calibration this check is recorded as skipped and does not apply."
     }
   ]
 }
