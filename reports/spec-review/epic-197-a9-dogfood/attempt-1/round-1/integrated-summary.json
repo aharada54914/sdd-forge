@@ -1,0 +1,55 @@
+{
+  "schema": "spec-review-integrated-summary/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major"
+    }
+  ],
+  "counts": {
+    "PASS": 5,
+    "FAIL": 1,
+    "SKIP": 1,
+    "fail_by_severity": {
+      "Critical": 0,
+      "Major": 1,
+      "Minor": 0
+    }
+  }
+}
