@@ -25,6 +25,11 @@ carries the current section (the table itself is edited but uncommitted) the
 historical file anchor is kept, so this can never lose the fallback entirely.
 The stderr notice now names the anchor it chose.
 
+Both runtimes change together. On the PowerShell side the report parser --
+previously inlined in Invoke-DeclaredOutputsCompletenessCheck -- is lifted into
+Get-PpiDeclaredOutputRows and shared with the new fingerprint, so the anchor
+can never track a different row set than the authorization boundary reads.
+
 Admits nothing new: every row is still re-hashed against the anchor commit's
 tree, and a row that matches at neither the worktree nor the anchor still
 fails.
@@ -35,8 +40,8 @@ Apply from the repository root:
     git apply docs/ci-staging/wfi-058-outputs-section-anchor.patch
 
 ---
---- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-02 07:43:32
-+++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-02 07:43:32
+--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-04 11:21:53
++++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-04 11:21:53
 @@ -859,6 +859,9 @@
  # when a commit was found.
  _ppi_decl_commit_checked=0
@@ -119,3 +124,213 @@ Apply from the repository root:
          "$(printf '%s' "$_ppi_decl_commit" | cut -c1-7)" "$_vdc_row_path" >&2
      return 0
  }
+--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1	2026-09-04 11:21:53
++++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1	2026-09-04 11:21:53
+@@ -727,7 +727,83 @@
+ 
+ $script:PpiDeclCommitChecked = $false
+ $script:PpiDeclCommit = $null
++
++# Parse a report's ## Outputs section into the same record shape the sh twin's
++# _ppi_extract_declared_output_rows emits: "ROW<TAB>path<TAB>hash" for a data
++# row, "UNPARSEABLE<TAB>line" for a line that begins like one and is not.
++#
++# One parser, two consumers: the completeness check below and the WFI-058
++# anchor scan. Keeping them on one function is the point -- an anchor computed
++# from a different row set than the authorization boundary reads would drift
++# silently the first time either copy of the regex was touched.
++function Get-PpiDeclaredOutputRows {
++    param([string[]]$Lines)
++
++    $records = New-Object System.Collections.Generic.List[string]
++    $inOutputs = $false
++    foreach ($rawLine in $Lines) {
++        $line = ([string]$rawLine).TrimEnd("`r")
++        if ($line -eq "## Outputs") { $inOutputs = $true; continue }
++        if ($line -match "^## ") {
++            if ($inOutputs) { break }
++            continue
++        }
++        if (-not $inOutputs) { continue }
++
++        # Neither cell boundary is anchored tight against the backtick that
++        # closes it: real annotated rows put the free text in either
++        # position -- AFTER the hash, still inside that same cell, e.g.
++        # "| `path` | `hash` (drifted -- extended by `sha1` ...) |"
++        # (epic-193 T-004, caught by a panelist), or BETWEEN the path and
++        # the column separator, e.g. "| `path` (added) | `hash` |"
++        # (epic-195 T-005, found by running this exact fix against all
++        # seven real corpus bundles, not reasoning from the shape in
++        # isolation). "[^|]*" between the two captures tolerates the
++        # second case; requiring a full "\|\s*$" at either boundary -- the
++        # sh twin's old exact-backtick-count parser's, and this regex's own
++        # first draft -- rejected one or the other for the same reason: an
++        # annotation breaking a strict "nothing else in this cell"
++        # assumption.
++        $m = [regex]::Match($line, '^\| `([^`]*)`[^|]*\| `([^`]*)`')
++        if (-not $m.Success) {
++            # A line that begins like a data row ("| `") but does not fully
++            # match is never silently dropped -- the header row, the `---`
++            # separator row, blank lines, and stray prose never begin that
++            # way, so this cannot mistake ordinary table furniture for a
++            # failed parse. Nothing about this row's declared path/hash is
++            # known, so there is nothing to check completeness against --
++            # unlike a verified-absent row (declaration-commit fallback
++            # below), NOTHING was checked here at all, which this project
++            # treats as a strictly worse gap, not a milder one. Fails the
++            # build exactly like every other gap kind -- never silently
++            # skipped.
++            if ($line -match '^\| `') {
++                $records.Add("UNPARSEABLE`t" + ($line -replace "`t", " "))
++            }
++            continue
++        }
++        $records.Add("ROW`t" + $m.Groups[1].Value + "`t" + $m.Groups[2].Value)
++    }
++    return $records.ToArray()
++}
+ 
++# Fingerprint of a report's ## Outputs section, used to decide WHEN that
++# section last changed. Row extraction is reused verbatim so the fingerprint
++# tracks exactly the rows the authorization boundary reads -- reflowed prose
++# or an edited heading elsewhere in the report does not move the anchor.
++function Get-PpiOutputsFingerprint {
++    param([string[]]$Lines)
++
++    $joined = (@(Get-PpiDeclaredOutputRows -Lines $Lines) -join "`n")
++    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($joined)
++    $sha = [Security.Cryptography.SHA256]::Create()
++    try {
++        return ([BitConverter]::ToString($sha.ComputeHash($bytes)) -replace '-', '').ToLower()
++    } finally {
++        $sha.Dispose()
++    }
++}
++
+ # Lazily derive & cache the declaration commit. Computed at most once per
+ # invocation (a report with no git history, or no git binary at all, still
+ # only pays for one failed lookup, not one per row that needs it).
+@@ -743,9 +819,54 @@
+     if ($LASTEXITCODE -ne 0) { return $null }
+ 
+     $reportRelPath = "reports/implementation/$Feature/$TaskId.md"
+-    $result = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
+-    if ($LASTEXITCODE -ne 0 -or -not $result) { return $null }
+-    $script:PpiDeclCommit = [string]$result
++    $reportAbsPath = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
++
++    # WFI-058: anchor to the last commit that changed the report's ## Outputs
++    # SECTION, not the last commit that touched the report FILE. The two are
++    # the same event only until something edits the report for an unrelated
++    # reason -- a machine-readable header line, an addendum, a status word --
++    # after the declared outputs have legitimately drifted. When that happens
++    # the file-anchored lookup lands PAST the drift, every previously
++    # tolerated row stops verifying, and bundle preparation fail-closes on a
++    # tree that was fine the day before. Measured on epic-194: commit
++    # 8456b861 added "- Task ID:" header lines to three reports whose Outputs
++    # rows had already drifted through the owner-approved apply chain, and
++    # the next bundle build refused with nine hash mismatches.
++    #
++    # Walk the report's own history newest-first and keep the OLDEST
++    # consecutive commit whose Outputs section still equals the current one:
++    # that is where this section's content was introduced, and it is the tree
++    # state the declared hashes were written against.
++    #
++    # The historical blob is compared as PARSED ROWS, not as bytes, so the
++    # encoding drift that "git show" through the PowerShell pipeline can
++    # introduce cannot move the anchor. The hash comparison itself still goes
++    # through the byte-exact temp-file path in
++    # Test-DeclaredOutputAtDeclarationCommit below.
++    $anchor = $null
++    if (Test-Path -LiteralPath $reportAbsPath) {
++        $currentFp = Get-PpiOutputsFingerprint -Lines (Get-Content -Encoding Utf8 -LiteralPath $reportAbsPath)
++        foreach ($commit in @(& git -C $ProjectRoot log --format='%H' -- $reportRelPath 2>$null)) {
++            $commitId = ([string]$commit).Trim()
++            if (-not $commitId) { continue }
++            $blob = @(& git -C $ProjectRoot show "${commitId}:${reportRelPath}" 2>$null)
++            if ($LASTEXITCODE -ne 0) { break }
++            if ((Get-PpiOutputsFingerprint -Lines $blob) -ne $currentFp) { break }
++            $anchor = $commitId
++        }
++    }
++
++    # No commit carries the current section (the table itself is edited but
++    # uncommitted): keep the historical file anchor rather than losing the
++    # fallback entirely. A wrong anchor still cannot admit anything -- the row
++    # is re-hashed against that commit's tree either way.
++    if (-not $anchor) {
++        $fallback = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
++        if ($LASTEXITCODE -eq 0 -and $fallback) { $anchor = ([string]$fallback).Trim() }
++    }
++    if (-not $anchor) { return $null }
++
++    $script:PpiDeclCommit = $anchor
+     return $script:PpiDeclCommit
+ }
+ 
+@@ -782,7 +903,7 @@
+     if ($actualHash -ne $RowHash) { return $false }
+ 
+     $shortCommit = $commit.Substring(0, [Math]::Min(7, $commit.Length))
+-    [Console]::Error.WriteLine("prepare-panelist-input: declared output verified at declaration commit ${shortCommit}: ${RowPath} (drifted since)")
++    [Console]::Error.WriteLine("prepare-panelist-input: declared output verified at declaration commit ${shortCommit} (last ## Outputs change): ${RowPath} (drifted since)")
+     return $true
+ }
+ 
+@@ -907,50 +1028,14 @@
+     if (-not (Test-Path -LiteralPath $implReportPath)) { return }
+ 
+     $gaps = New-Object System.Collections.Generic.List[string]
+-    $inOutputs = $false
+-    foreach ($rawLine in (Get-Content -Encoding Utf8 $implReportPath)) {
+-        $line = $rawLine.TrimEnd("`r")
+-        if ($line -eq "## Outputs") { $inOutputs = $true; continue }
+-        if ($line -match "^## ") {
+-            if ($inOutputs) { break }
+-            continue
+-        }
+-        if (-not $inOutputs) { continue }
+-
+-        # Neither cell boundary is anchored tight against the backtick that
+-        # closes it: real annotated rows put the free text in either
+-        # position -- AFTER the hash, still inside that same cell, e.g.
+-        # "| `path` | `hash` (drifted -- extended by `sha1` ...) |"
+-        # (epic-193 T-004, caught by a panelist), or BETWEEN the path and
+-        # the column separator, e.g. "| `path` (added) | `hash` |"
+-        # (epic-195 T-005, found by running this exact fix against all
+-        # seven real corpus bundles, not reasoning from the shape in
+-        # isolation). "[^|]*" between the two captures tolerates the
+-        # second case; requiring a full "\|\s*$" at either boundary -- the
+-        # sh twin's old exact-backtick-count parser's, and this regex's own
+-        # first draft -- rejected one or the other for the same reason: an
+-        # annotation breaking a strict "nothing else in this cell"
+-        # assumption.
+-        $m = [regex]::Match($line, '^\| `([^`]*)`[^|]*\| `([^`]*)`')
+-        if (-not $m.Success) {
+-            # A line that begins like a data row ("| `") but does not fully
+-            # match is never silently dropped -- the header row, the `---`
+-            # separator row, blank lines, and stray prose never begin that
+-            # way, so this cannot mistake ordinary table furniture for a
+-            # failed parse. Nothing about this row's declared path/hash is
+-            # known, so there is nothing to check completeness against --
+-            # unlike a verified-absent row (declaration-commit fallback
+-            # below), NOTHING was checked here at all, which this project
+-            # treats as a strictly worse gap, not a milder one. Fails the
+-            # build exactly like every other gap kind -- never silently
+-            # skipped.
+-            if ($line -match '^\| `') {
+-                $gaps.Add("declared output row could not be parsed: $line")
+-            }
++    foreach ($record in @(Get-PpiDeclaredOutputRows -Lines (Get-Content -Encoding Utf8 $implReportPath))) {
++        $fields = $record -split "`t", 3
++        if ($fields[0] -eq "UNPARSEABLE") {
++            $gaps.Add("declared output row could not be parsed: " + $fields[1])
+             continue
+         }
+-        $rowPath = $m.Groups[1].Value
+-        $rowHash = $m.Groups[2].Value.ToLower()
++        $rowPath = $fields[1]
++        $rowHash = ([string]$fields[2]).ToLower()
+         if ([string]::IsNullOrEmpty($rowPath)) { continue }
+ 
+         if (-not (Test-DeclaredOutputCanonicalPath $rowPath)) {

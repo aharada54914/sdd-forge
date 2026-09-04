@@ -1,0 +1,276 @@
+Subject: fix(gates): resolve contract evidence from the project root, not the caller's base (WFI-059)
+
+The verification contract's `checks[].evidence` field had two resolvers and no
+specified grammar. check-contract resolved it against whatever base the caller
+passed -- often the spec directory -- while prepare-panelist-input always
+resolves project-root-relative. Either form therefore passed one consumer and
+failed the other, with nothing rejecting the ambiguous form at authoring time.
+
+Measured on epic-194's 2026-08-28 re-panel (bundles c1e97647/aac5658a/753117c9):
+all six blind verdicts -- two vendors x three tasks -- returned NEEDS_WORK with
+the same dominant Major, "required checks are recorded passes:true but the
+declared evidence is absent from the bundle", against evidence that existed,
+passed the Done chain, and was merely written in the grammar the other consumer
+accepts. One full panel round was consumed by a path-form disagreement.
+
+This specifies the grammar as project-root-relative and enforces it where the
+fix is one line. check-contract now discovers the project root from the
+contract's own location -- a contract lives at
+<project-root>/specs/<feature>/verification/<task>.contract.json, so the root
+is the nearest ancestor from which the contract path starts with "specs/" --
+and resolves every evidence path from there. When that root differs from the
+base the caller passed, each evidence failure names it:
+
+    check 'lint' evidence file missing: verification/evidence.log
+      (project-root-relative base: /path/to/project)
+
+The note is conditional. A contract outside specs/ has no such ancestor and
+falls back to the caller's base, so fixture trees are untouched; and a caller
+that already passes the project root sees byte-identical messages, which keeps
+the 21 golden fixtures under tests/fixtures/phase2-contract-path-golden/ green.
+
+_pass4_risk_tier deliberately keeps the caller's root: it reads a
+project-posture file, not evidence.
+
+NOT in this patch: WFI-059 item 3, the preparer annotation naming the attempted
+ABSOLUTE path. The bundle sanitizer redacts every /var, /Users, /private and
+/tmp path before a bundle reaches a vendor (prepare-panelist-input.sh:1264), so
+that annotation always renders "no file exists at [PATH_REDACTED]" -- strictly
+less diagnosable than today's wording. Measured, not assumed. The wording needs
+an owner decision; weakening the sanitizer is not on the table, because it is
+what keeps host paths out of third-party vendor input.
+
+Apply from the repository root:
+
+    git apply --check docs/ci-staging/wfi-059-evidence-project-root.patch
+    git apply docs/ci-staging/wfi-059-evidence-project-root.patch
+
+---
+--- a/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 11:29:33
++++ b/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 11:29:33
+@@ -124,7 +124,63 @@
+             seen_ids[cid] = i
+ 
+ 
+-def _pass2_per_check_rules(checks, root, failures):
++def _discover_project_root(contract_path, fallback_root):
++    """WFI-059: resolve evidence against the PROJECT root, not the caller's base.
++
++    `checks[].evidence` had two resolvers and no grammar. This gate resolved it
++    against whatever base the caller passed -- often the spec directory --
++    while prepare-panelist-input always resolves project-root-relative. A
++    contract written spec-relative therefore passed the Done chain and then
++    reached a blind panel with "no file exists there" stamped over evidence
++    that existed. Measured on epic-194's 2026-08-28 re-panel: all six verdicts
++    (two vendors x three tasks) returned NEEDS_WORK on that one disagreement,
++    against evidence that had just produced "Task state check passed for 4
++    task(s)".
++
++    A contract lives at <project-root>/specs/<feature>/verification/<task>.json,
++    so the project root is the nearest ancestor from which the contract's own
++    path starts with "specs/". A contract outside specs/ -- fixtures, ad-hoc
++    trees -- has no such ancestor: fall back to the caller's base, which leaves
++    those callers, and the shipped golden message corpus, exactly as they were.
++    """
++    try:
++        contract_abs = os.path.abspath(contract_path)
++    except Exception:
++        return fallback_root
++
++    current = os.path.dirname(contract_abs)
++    while True:
++        try:
++            rel = os.path.relpath(contract_abs, current)
++        except ValueError:
++            return fallback_root
++        segments = rel.split(os.sep)
++        if len(segments) > 1 and segments[0] == "specs":
++            return current
++        parent = os.path.dirname(current)
++        if parent == current:
++            return fallback_root
++        current = parent
++
++
++def _validate_evidence(label, raw_path, root, failures, base_note):
++    """validate_evidence_path, naming the resolution base when it is NOT the
++    base the caller passed.
++
++    The suffix is conditional on purpose. 21 golden fixtures under
++    tests/fixtures/phase2-contract-path-golden/ assert this gate's exact
++    stdout for every evidence diagnostic; a caller that already passes the
++    project root -- which is every shipped caller -- sees byte-identical
++    messages. Only the ambiguous-base case this WFI is about gains the note.
++    """
++    before = len(failures)
++    validate_evidence_path(label, raw_path, root, failures)
++    if base_note:
++        for i in range(before, len(failures)):
++            failures[i] = f"{failures[i]} ({base_note})"
++
++
++def _pass2_per_check_rules(checks, root, failures, base_note=""):
+     """Per-check type strictness, waiver enforcement, evidence path safety."""
+     for check in checks:
+         cid = check.get("id", "?")
+@@ -157,7 +213,7 @@
+             if not evidence:
+                 failures.append(f"check '{cid}' passes without evidence")
+                 continue
+-            validate_evidence_path(f"check '{cid}' evidence", evidence, root, failures)
++            _validate_evidence(f"check '{cid}' evidence", evidence, root, failures, base_note)
+ 
+ 
+ def _pass3_required_set(checks, failures):
+@@ -235,7 +291,7 @@
+                     break
+ 
+ 
+-def _pass5_tdd_evidence(checks, contract, root, failures):
++def _pass5_tdd_evidence(checks, contract, root, failures, base_note=""):
+     """Red→Green evidence enforcement for required_workflow == 'tdd'."""
+     required_workflow = (contract.get("required_workflow") or "").strip()
+     if required_workflow != "tdd":
+@@ -257,8 +313,8 @@
+             failures.append(f"check '{cid}' required_workflow tdd needs non-empty green_evidence")
+             continue
+ 
+-        validate_evidence_path(f"check '{cid}' red_evidence", red_evidence, root, failures)
+-        validate_evidence_path(f"check '{cid}' green_evidence", green_evidence, root, failures)
++        _validate_evidence(f"check '{cid}' red_evidence", red_evidence, root, failures, base_note)
++        _validate_evidence(f"check '{cid}' green_evidence", green_evidence, root, failures, base_note)
+ 
+ 
+ def _pass5b_risk_workflow(contract, failures):
+@@ -401,14 +457,23 @@
+         failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
+     checks = [c for c in checks_raw if isinstance(c, dict)]
+ 
++    # WFI-059: every evidence path resolves from the project root, never from
++    # whatever base the caller happened to pass. _pass4_risk_tier keeps the
++    # caller's root -- it reads a project-posture file, not evidence, and
++    # repointing it would change an unrelated gate.
++    evidence_root = _discover_project_root(contract_path, root)
++    base_note = ""
++    if os.path.abspath(evidence_root) != os.path.abspath(root):
++        base_note = f"project-root-relative base: {evidence_root}"
++
+     _pass1_duplicate_ids(checks, failures)
+-    _pass2_per_check_rules(checks, root, failures)
++    _pass2_per_check_rules(checks, evidence_root, failures, base_note)
+     _pass3_required_set(checks, failures)
+     _pass4_risk_tier(checks, contract, root, failures)
+-    _pass5_tdd_evidence(checks, contract, root, failures)
++    _pass5_tdd_evidence(checks, contract, evidence_root, failures, base_note)
+     _pass5b_risk_workflow(contract, failures)
+     _pass6_cross_model(checks, contract, failures)
+-    _pass7_producer_digest(checks, root, failures)
++    _pass7_producer_digest(checks, evidence_root, failures)
+ 
+     return contract.get("task_id", "?"), failures
+ 
+--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 11:29:33
++++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 11:29:33
+@@ -95,6 +95,59 @@
+ # Resolve repo root to an absolute path for traversal checks
+ $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+ 
++# WFI-059: resolve evidence against the PROJECT root, not the caller's base.
++# checks[].evidence had two resolvers and no grammar. This gate resolved it
++# against whatever base the caller passed -- often the spec directory -- while
++# prepare-panelist-input always resolves project-root-relative. A contract
++# written spec-relative therefore passed the Done chain and then reached a
++# blind panel with "no file exists there" stamped over evidence that existed.
++# Measured on epic-194's 2026-08-28 re-panel: all six verdicts returned
++# NEEDS_WORK on that one disagreement.
++#
++# A contract lives at <project-root>/specs/<feature>/verification/<task>.json,
++# so the project root is the nearest ancestor from which the contract's own
++# path starts with "specs/". A contract outside specs/ has no such ancestor:
++# fall back to the caller's base, leaving those callers -- and the shipped
++# golden message corpus -- exactly as they were.
++function Get-ContractProjectRoot {
++    param([string]$ContractPath, [string]$FallbackRoot)
++
++    $contractAbs = [System.IO.Path]::GetFullPath($ContractPath)
++    $sep = [System.IO.Path]::DirectorySeparatorChar
++    $current = [System.IO.Path]::GetDirectoryName($contractAbs)
++    while ($current) {
++        $prefix = $current.TrimEnd($sep, '/') + $sep
++        if ($contractAbs.StartsWith($prefix)) {
++            $segments = $contractAbs.Substring($prefix.Length) -split '[\\/]'
++            if ($segments.Length -gt 1 -and $segments[0] -eq 'specs') {
++                return $current.TrimEnd($sep, '/')
++            }
++        }
++        $parent = [System.IO.Path]::GetDirectoryName($current)
++        if (-not $parent -or $parent -eq $current) { break }
++        $current = $parent
++    }
++    return $FallbackRoot
++}
++
++$absEvidenceRoot = (Get-ContractProjectRoot -ContractPath $ContractPath -FallbackRoot $absRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
++
++# The note is conditional on purpose. 21 golden fixtures under
++# tests/fixtures/phase2-contract-path-golden/ assert this gate's exact stdout
++# for every evidence diagnostic; a caller that already passes the project root
++# -- which is every shipped caller -- sees byte-identical messages. Only the
++# ambiguous-base case this WFI is about gains the note.
++$EvidenceBaseNote = ""
++if ($absEvidenceRoot -ne $absRoot) {
++    $EvidenceBaseNote = "project-root-relative base: $absEvidenceRoot"
++}
++
++function Format-EvidenceFailure {
++    param([string]$Failure)
++    if ($EvidenceBaseNote) { return "$Failure ($EvidenceBaseNote)" }
++    return $Failure
++}
++
+ function Test-CapabilityEnforcementDeclared {
+     # True iff this project declares a capability-enforcement posture, i.e.
+     # sdd/project-context.yaml exists relative to the repo root. Mirrors the
+@@ -265,9 +318,9 @@
+             continue
+         }
+ 
+-        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absRoot
++        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absEvidenceRoot
+         if (-not $evidenceResult.IsValid) {
+-            $failures += "check '$id' $($evidenceResult.Failure)"
++            $failures += "check '$id' " + (Format-EvidenceFailure $evidenceResult.Failure)
+             continue
+         }
+     }
+@@ -402,17 +455,17 @@
+                 continue
+             }
+ 
+-            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absRoot
++            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absEvidenceRoot
+             if (-not $redResult.IsValid) {
+-                $failures += "check '$id' $($redResult.Failure)"
++                $failures += "check '$id' " + (Format-EvidenceFailure $redResult.Failure)
+                 if ($redResult.StopsCurrentCheck) {
+                     continue
+                 }
+             }
+ 
+-            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absRoot
++            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absEvidenceRoot
+             if (-not $greenResult.IsValid) {
+-                $failures += "check '$id' $($greenResult.Failure)"
++                $failures += "check '$id' " + (Format-EvidenceFailure $greenResult.Failure)
+             }
+         }
+     }
+@@ -466,7 +519,7 @@
+     if (-not [bool]$check.passes) { continue }
+     $evidence = ([string]($check.evidence)).Trim()
+     if ([string]::IsNullOrWhiteSpace($evidence)) { continue }
+-    $evidencePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $evidence))
++    $evidencePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absEvidenceRoot, $evidence))
+     if (-not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) {
+         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be read for producer-digest verification: $evidence"
+         continue
