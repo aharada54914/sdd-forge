@@ -67,6 +67,25 @@ MCP and release publication shall not inherit a blanket “no credentials/no
 write” characteristic from the read-only local services (`README.md:108-150`;
 `.github/workflows/release.yml:26-50`).
 
+Because the approved OQ-001 decomposition keeps all MCP services in one `mcp`
+component and OQ-002 places release automation under a cross-cutting rule,
+component-level booleans alone cannot express these two distinctions. Per the
+owner ruling of 2026-09-04 (recorded under OQ-001), the Context schema's
+component records shall accept an additive, optional list of scoped
+characteristic-override entries. Each entry names (a) a scope — a sub-service
+path prefix inside the owning component, or an approved cross-cutting rule —
+(b) the single characteristic being overridden, (c) its overridden boolean
+value, and (d) a one-line rationale. The live Context shall carry exactly two
+such overrides in Phase 1: `mcp/ci-mcp` marked credential-bearing on the `mcp`
+component, and the approved release-automation cross-cutting rule marked
+release-write. Validation shall reject an override naming an unknown
+characteristic, a scope outside its owning component or rule, or a value equal
+to the record's own baseline (a no-op override). Characteristic tests (AC-007)
+shall read overrides when distinguishing the CI-MCP credential and
+release-write cases. The extension is additive: a Context with no overrides
+remains valid, and existing consumers that ignore the field keep their
+behavior.
+
 ### REQ-005 — First developer-tooling / cli-library Pack
 
 A9 shall implement the developer-tooling / cli-library Pack as the first Pack
@@ -183,9 +202,9 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-005 | REQ-003 | Ownership validation reports zero unexplained overlaps for the approved map. |
 | AC-006 | REQ-003 | Ownership validation reports zero unexplained unowned tracked paths and verifies every approved shared-path rule. |
 | AC-007 | REQ-004 | Characteristic tests distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases. |
-| AC-008 | REQ-005 | Registry validation accepts the human-approved first Pack and resolves it for a representative sdd-forge component. |
+| AC-008 | REQ-005 | Registry validation accepts the human-approved first Pack and resolves it for the representative change (Field Definitions: full-track plugin-code, never docs-only). |
 | AC-009 | REQ-005 | Registry validation proves desktop, cloud-service, and new durable-workflow Pack entries were not added by A9. |
-| AC-010 | REQ-006 | An advisory run emits Manifest/Summary/Projection/evidence with bound revision and digests for a representative plugin change. |
+| AC-010 | REQ-006 | An advisory run emits Manifest/Summary/Projection/evidence with bound revision and digests for the representative change (Field Definitions: full-track plugin-code, never docs-only). |
 | AC-011 | REQ-006 | An advisory Pack finding is visible and non-blocking while pre-existing blocking gates retain their behavior. |
 | AC-012 | REQ-007 | The promotion record contains every evidence field named in REQ-007 and links each criterion to saved evidence. |
 | AC-013 | REQ-007 | Promotion is rejected when one human-approved OQ-003 threshold is unmet or evidence is stale. |
@@ -205,6 +224,11 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-027 | REQ-006 | Release-cycle evidence identifies explicit start/end releases and proves every PR in that complete cycle passed the advisory capability-mode Gate. |
 | AC-028 | REQ-008 | After required promotion, saved evidence proves at least one real feature completed the full workflow end-to-end under `facet-hybrid`. |
 | AC-029 | REQ-010 | The dogfood cycle records WFI references for observed friction or the literal result `none` when zero, covering path ownership, staleness, and approval flow. |
+| AC-030 | REQ-004 | The live Context carries exactly the two approved characteristic overrides (`mcp/ci-mcp` credential-bearing; release-automation rule release-write), and characteristic tests read them for the AC-007 distinctions. |
+| AC-031 | REQ-004 | Override validation rejects an unknown characteristic name, a scope outside the owning component or rule, and a no-op override equal to the baseline. |
+| AC-032 | REQ-003 | Ownership validation passes the A3 reverse-coverage check (every component's include set matches at least one tracked path) and the ownership-digest check (recomputed digest equals the recorded digest). |
+| AC-033 | REQ-008 | Tests reject a promotion that activates required enforcement before the selected Pack and resolver evidence are available. |
+| AC-034 | REQ-009 | A registry-cardinality change between rollback request and effective time forces branch re-evaluation with the current registry (a solo cooldown in progress becomes two-party when a second identity is registered). |
 
 ## Field Definitions
 
@@ -215,6 +239,8 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | Pack | Human-approved Registry capability set for developer-tooling / cli-library. |
 | Promotion record | Saved, reviewable decision evidence for moving Phase 1 to Phase 2. |
 | Rollback | Policy-weakening `required` to `advisory` transition. |
+| Representative change | The fixture change AC-008/AC-010 run against: a plugin-code change touching at least one owned plugin component (never docs-only), so under the OQ-006 track split it takes the full track and exercises the Pack's predicate/facet/gate machinery. |
+| Characteristic override | An additive, scoped entry on a component record or approved cross-cutting rule that sets one characteristic boolean for a named sub-scope, with rationale (REQ-004). |
 
 ## Roles and Permissions
 
@@ -282,6 +308,15 @@ measured defect class this decision guards against — concurrent epics
 overwriting shared plugin files — occurs exactly at the plugin boundary;
 per-package is finer than any enforcement surface, and capability-group is
 too coarse to detect cross-plugin drift.
+
+Amendment (2026-09-04, spec-review attempt 1 round 1 Critical finding;
+owner ruling verbatim: 「characteristic override 機構を追加」): the
+eight-component decomposition is retained unchanged. The single `mcp`
+component cannot carry a distinct credential characteristic for its
+`ci-mcp` sub-service, and the release-automation cross-cutting rule cannot
+carry a release-write characteristic, so REQ-004 now defines an additive
+scoped characteristic-override mechanism instead of splitting components.
+See REQ-004 for the normative contract and AC-030/AC-031 for its oracles.
 
 ### OQ-002 — Path ownership map — Resolved
 
