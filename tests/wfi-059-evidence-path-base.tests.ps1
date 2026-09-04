@@ -27,7 +27,17 @@ function Invoke-Check([string]$Base) {
 }
 
 function Invoke-Prepare {
-    $text = & pwsh -NoProfile -File $PpiPs1 -TaskId T-001 -Feature wfi-059 -InputDir $script:InputDir -TasksFile $script:Tasks -ProjectRoot $script:Root -SpecRoot $script:Specs -OutputFile $script:Bundle 2>&1 | Out-String
+    # The preparer parses POSIX-style "--task" flags in BOTH runtimes; it has no
+    # PowerShell param block. The earlier "-TaskId/-Feature/-InputDir/..." form
+    # never reached any code under test -- it exited 2 with
+    # "unknown argument: -TaskId", which the assertions below then reported as
+    # an annotation failure.
+    #
+    # --spec-root is deliberately omitted: it is joined against --project-root,
+    # so an ABSOLUTE path resolves to nothing and the preparer emits a bundle
+    # containing only its own header (input_digest e3b0c442..., the sha256 of
+    # the empty string), making every content assertion vacuous.
+    $text = & pwsh -NoProfile -File $PpiPs1 --task T-001 --feature wfi-059 --input $script:InputDir --tasks-file $script:Tasks --project-root $script:Root --out $script:Bundle 2>&1 | Out-String
     $script:PrepareExit = $LASTEXITCODE
     $script:PrepareOutput = $text
 }
@@ -59,10 +69,19 @@ try {
         Fail "spec-relative evidence must be rejected from project root; exit=$CheckExit output=$CheckOutput"
     }
     Invoke-Prepare
-    $Attempted = [IO.Path]::GetFullPath((Join-Path $Root 'verification/evidence.log'))
+    # The annotation names the join as "<project-root>/<path>", NOT as an
+    # absolute path. Measured: the bundle sanitizer redacts every /home, /root,
+    # /Users, /var, /etc, /usr, /opt, /tmp and /private path before a bundle
+    # reaches a vendor, so an absolute form always arrives as "no file exists
+    # at [PATH_REDACTED]" -- strictly less diagnosable than the "there" it
+    # replaces. The placeholder survives sanitization and still carries both
+    # halves of the defect: the relative path the contract wrote, and the base
+    # it was joined against. Owner-approved wording change, 2026-09-04;
+    # recorded in WFI-059.
+    $Attempted = '<project-root>/verification/evidence.log'
     $Marker = "[contract names this evidence path but no file exists at $Attempted]"
     if ($PrepareExit -eq 0 -and (Get-Content -LiteralPath $Bundle -Raw).Contains($Marker)) {
-        Ok 'missing-evidence annotation names the attempted absolute path'
+        Ok 'missing-evidence annotation names the attempted project-root join'
     } else {
         Fail "annotation must name $Attempted; exit=$PrepareExit output=$PrepareOutput"
     }

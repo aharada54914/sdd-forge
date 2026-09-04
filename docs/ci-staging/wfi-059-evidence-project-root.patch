@@ -32,13 +32,23 @@ the 21 golden fixtures under tests/fixtures/phase2-contract-path-golden/ green.
 _pass4_risk_tier deliberately keeps the caller's root: it reads a
 project-posture file, not evidence.
 
-NOT in this patch: WFI-059 item 3, the preparer annotation naming the attempted
-ABSOLUTE path. The bundle sanitizer redacts every /var, /Users, /private and
-/tmp path before a bundle reaches a vendor (prepare-panelist-input.sh:1264), so
-that annotation always renders "no file exists at [PATH_REDACTED]" -- strictly
-less diagnosable than today's wording. Measured, not assumed. The wording needs
-an owner decision; weakening the sanitizer is not on the table, because it is
-what keeps host paths out of third-party vendor input.
+Item 3 -- the preparer's missing-evidence annotation -- names the join that was
+actually attempted, in both runtimes:
+
+    [contract names this evidence path but no file exists at
+     <project-root>/verification/evidence.log]
+
+The base is the literal token <project-root>, NOT the absolute path the WFI
+first proposed. Measured against this script's own sanitizer
+(prepare-panelist-input.sh:1264): every /home, /root, /Users, /var, /etc, /usr,
+/opt, /tmp and /private path is redacted before a bundle reaches a vendor, so
+an absolute form always arrives as "no file exists at [PATH_REDACTED]" --
+strictly LESS diagnosable than the "there" it was meant to improve on. The
+placeholder form survives sanitization (verified) and carries both halves of
+the defect into the bundle: the relative path the contract wrote, and the base
+the preparer joined it against. Owner-approved wording change, 2026-09-04;
+recorded in WFI-059 itself. Weakening the sanitizer was rejected -- it is what
+keeps host paths out of third-party vendor input.
 
 Apply from the repository root:
 
@@ -46,8 +56,8 @@ Apply from the repository root:
     git apply docs/ci-staging/wfi-059-evidence-project-root.patch
 
 ---
---- a/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 11:29:33
-+++ b/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 11:29:33
+--- a/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 15:00:57
++++ b/plugins/sdd-quality-loop/scripts/check-contract.py	2026-09-04 15:00:57
 @@ -124,7 +124,63 @@
              seen_ids[cid] = i
  
@@ -169,8 +179,8 @@ Apply from the repository root:
  
      return contract.get("task_id", "?"), failures
  
---- a/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 11:29:33
-+++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 11:29:33
+--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 15:00:57
++++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1	2026-09-04 15:00:57
 @@ -95,6 +95,59 @@
  # Resolve repo root to an absolute path for traversal checks
  $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
@@ -274,3 +284,36 @@ Apply from the repository root:
      if (-not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) {
          $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be read for producer-digest verification: $evidence"
          continue
+--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-04 15:00:57
++++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh	2026-09-04 15:00:57
+@@ -676,8 +676,13 @@
+                 _ppi_elidable_index="${_ppi_elidable_index}${_ppi_dep_bytes}${_ppi_tab}${_ppi_row_candidate}${_ppi_tab}${_ppi_dep}
+ "
+             else
++                # WFI-059: name the join that was actually attempted, not just
++                # "there". The base is the literal token <project-root>, not an
++                # absolute path: the sanitize step below redacts every absolute
++                # path before this bundle reaches a vendor, so an absolute form
++                # would always reach the reviewer as "[PATH_REDACTED]".
+                 raw_content="${raw_content}# ---- ${_ppi_dep} (contract-declared evidence, not found) ----
+-[contract names this evidence path but no file exists there]
++[contract names this evidence path but no file exists at <project-root>/${_ppi_dep}]
+ "
+             fi
+             _ppi_mark_seen "$_ppi_dep"
+--- a/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1	2026-09-04 15:00:57
++++ b/plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1	2026-09-04 15:00:57
+@@ -594,7 +594,12 @@
+                 $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $depResult.Candidate))
+                 $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $depBytes; AbsPath = $depResult.Candidate; RelPath = $depPath }
+             } else {
+-                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but no file exists there]`n"
++                # WFI-059: name the join that was actually attempted, not just
++                # "there". The base is the literal token <project-root>, not an
++                # absolute path: the sanitize step below redacts every absolute
++                # path before this bundle reaches a vendor, so an absolute form
++                # would always reach the reviewer as "[PATH_REDACTED]".
++                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but no file exists at <project-root>/$depPath]`n"
+             }
+             $script:PpiSeenRelPaths.Add($depPath) | Out-Null
+         }

@@ -48,8 +48,15 @@ run_check() {
 }
 
 run_prepare() {
+  # --spec-root is deliberately omitted. It is joined against --project-root,
+  # so passing an ABSOLUTE "$ROOT/specs" resolves to nothing: the preparer then
+  # finds no contract, writes a bundle with only its own header, and exits 0.
+  # Measured -- an absolute --spec-root yields a 292-byte bundle whose
+  # input_digest is e3b0c442... (the sha256 of the empty string), against 1504
+  # bytes with the default. Every assertion about bundle CONTENT below is
+  # vacuous under that form, which is how it passed review unnoticed.
   PREPARE_EXIT=0
-  PREPARE_OUTPUT="$(bash "$PPI_SH" --task T-001 --feature wfi-059 --input "$ROOT/input" --tasks-file "$ROOT/tasks.md" --project-root "$ROOT" --spec-root "$ROOT/specs" --out "$ROOT/bundle.txt" 2>&1)" || PREPARE_EXIT=$?
+  PREPARE_OUTPUT="$(bash "$PPI_SH" --task T-001 --feature wfi-059 --input "$ROOT/input" --tasks-file "$ROOT/tasks.md" --project-root "$ROOT" --out "$ROOT/bundle.txt" 2>&1)" || PREPARE_EXIT=$?
 }
 
 # Historical ambiguous form: the caller-provided spec directory made this
@@ -62,9 +69,17 @@ else
   fail "spec-relative evidence must be rejected from project root; exit=$CHECK_EXIT output=$CHECK_OUTPUT"
 fi
 run_prepare
-ATTEMPTED="$ROOT/verification/evidence.log"
+# The annotation names the join as "<project-root>/<path>", NOT as an absolute
+# path. Measured: the bundle sanitizer redacts every /home, /root, /Users,
+# /var, /etc, /usr, /opt, /tmp and /private path before a bundle reaches a
+# vendor, so an absolute form always arrives as "no file exists at
+# [PATH_REDACTED]" -- strictly less diagnosable than the "there" it replaces.
+# The placeholder survives sanitization and still carries both halves of the
+# defect: the relative path the contract wrote, and the base it was joined
+# against. Owner-approved wording change, 2026-09-04; recorded in WFI-059.
+ATTEMPTED='<project-root>/verification/evidence.log'
 if [[ "$PREPARE_EXIT" -eq 0 ]] && grep -Fq "[contract names this evidence path but no file exists at $ATTEMPTED]" "$ROOT/bundle.txt"; then
-  ok "missing-evidence annotation names the attempted absolute path"
+  ok "missing-evidence annotation names the attempted project-root join"
 else
   fail "annotation must name $ATTEMPTED; exit=$PREPARE_EXIT output=$PREPARE_OUTPUT"
 fi
