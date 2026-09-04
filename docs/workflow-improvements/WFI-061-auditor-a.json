@@ -1,0 +1,100 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-061",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three load-bearing citations in Problem Evidence were verified against actual repository content: (a) `## Implementation` heading is at plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md:105, matching the WFI's 'line 105'; (b) the guard denial message 'エージェントは SDD_SUDO フラグファイルの作成・編集・削除を行えません' is at sdd-hook-guard.py:101, inside the WFI's cited range 'sdd-hook-guard.py:100-103'; (c) `_shell_targets_sdd_sudo` is defined at sdd-hook-guard.py:1454, matching the WFI's cited range 'sdd-hook-guard.py:1454-1464', and its body (two independent `in`/`.search()` checks with no operand relation) matches the WFI's quoted code verbatim. The predicate bug in defect (2) was also independently reproduced during this audit: a read-only `grep`/`ls` invocation over docs/review-tickets/ containing the literal flag-name substring was itself denied by the live sdd-hook-guard hook mid-session, corroborating the claim mechanically rather than only by citation. Advisory (non-blocking): the '**Observed 2026-09-02.**' incident narrative and the two 'denied in one session' bullets in defect (2) cite no session log, transcript path, or RT-ID — a future auditor without live guard access could not independently verify those two specific denial events, only the underlying code defect that would produce them."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Root Cause Hypothesis section names concrete mechanisms rather than restating the symptom: 'the predicate is a conjunction of two INDEPENDENT string searches over the command, not a check of what the write operator acts on', 'the guard deliberately fails closed when tokenising is hard', 'the flag name is also a NAME PREFIX of two documented env vars ... so legitimate read-only work mentions it constantly', and 'the skill predates the guard's C-02 rule and was never reconciled'. These are falsifiable mechanism claims, not circular restatements. Structural caveat: because there is no separately-headed `## Why-Why Analysis` section (see WHY-CHAIN-VALID), the check's second requirement — that the hypothesis be the terminal cause of that chain — cannot be tested against an independent chain; the Root Cause Hypothesis section IS the inline chain, so hypothesis and terminal Because are the same text by construction, not independently converging on it."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "No `## Why-Why Analysis` section exists anywhere in the document (confirmed via full heading list: WFI-ID, Status, Category, Mechanism, Meta-Change, GitHub-Issue, Audit-Status, Problem Evidence, Root Cause Hypothesis, Proposed Change, Expected Effect, Verification Metric, Verification Plan, Rollback-Plan, Result — 'Why-Why Analysis' is absent). Per the check's explicit rule, 'A missing section ... is a Major finding.' The `## Root Cause Hypothesis` section does contain an unheaded, unnumbered inline Why/Because narrative (5 paragraphs), but even taken as a substitute it breaks the 'Chained' requirement: paragraphs 1-3 stay on one subject ('Why did read-only commands get denied? Because the predicate is a conjunction of two INDEPENDENT string searches...' through 'Why does the fail-closed default cost anything here?'), then paragraph 4 silently changes subject — 'Why does the skill still instruct the agent to write the file? Because the skill predates the guard's C-02 rule and was never reconciled' — which does not ask Why about paragraph 3's Because (the fail-closed cost), it pivots to the unrelated skill/guard contradiction (Problem Evidence defect (1)) instead of continuing to explain defect (2). None of the five paragraphs cites a retrospective row, RT-ID, BL-ID, report path, or file:line inline, nor are any marked '(hypothesis)' — all five levels are unevidenced by the check's own citation requirement."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Category is plugin-improvement, so `## Proposed Change` must use only generic terms per wfi-category-guide.md Section 2. Item 2 reads '2. **Narrow `_shell_targets_sdd_sudo` to the operand.** Require the write operator and the flag name to be in the same clause...' — the function name embeds the forbidden term `sdd-sudo` (guide substitution: `workflow bypass mode`). Item 3 reads '3. **Exclude the env-var prefixes.** Treat `SDD_SUDO_KEY` and `SDD_SUDO_KEY_FILE` as distinct identifiers...' — both identifiers embed the same forbidden term. The `## Problem Evidence` exemption for raw metric/field names does not extend to `## Proposed Change`; per the guide, occurrences there are unconditionally a Critical finding regardless of whether the term appears as a code identifier rather than prose. `## Root Cause Hypothesis` and `## Expected Effect` were also scanned and contain no forbidden terms (they use 'the flag name', 'the guard', 'the skill', 'the consent token' throughout)."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "`## Proposed Change` is a 3-item numbered prose list, not a table with Target File / Change Description columns, so no row states a specific file path directly. Item 1 ('Reconcile the skill. Retitle `## Implementation` to...') never names plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md as its target file. Items 2 and 3 name a function (`_shell_targets_sdd_sudo`) and env-var identifiers but never state the target file (plugins/sdd-quality-loop/scripts/sdd-hook-guard.py, plus its .js/.ps1/.sh twins confirmed present at that path) within the Proposed Change section itself — the path only appears earlier, in Problem Evidence. Consistent with the NO-PLUGIN-SCOPE-CREEP finding below: even if the section were reformatted into a table, every implied target path (SKILL.md, sdd-hook-guard.py and twins) sits inside `plugins/`, and this WFI's `## Category` section contains no source-of-truth assertion, so the shared carve-out does not apply to these rows either — they would be Major findings under CHANGE-CONCRETE's own plugins/ rule independent of the table-format defect."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "`## Expected Effect` states only qualitative outcomes with no metric name or number: 'Read-only commands that mention the consent token ... stop being denied, while every command that actually writes, moves, or deletes the flag file is still denied. The skill stops instructing agents to perform an action the same plugin forbids...'. No quantitative target (e.g., 'from N to M') appears in this section. The numbers that would satisfy this check (3 -> 0; 100% -> 100%) exist only in the separate `## Verification Metric` section, which does not substitute for a quantitative target being stated in `## Expected Effect` itself per the check's plain text."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "`## Verification Metric` lists two metrics with no priority marking: 'Denials of read-only commands mentioning the consent token: currently 3 observed in one session ... target 0' and 'Denials of genuine write/delete attempts against the flag file: currently 100%; must remain 100%' — neither is labeled primary, violating 'names multiple primary metrics without priority'. No next-checkpoint statement is present anywhere in the section (no 'after the next N features/sessions' language). Additionally, the stated baseline ('currently 3 observed in one session') is not sourced from retrospective_path (reports/retrospective/2026-08-14T034801Z-pillar-a-wave-session.md): a search of that report for 'SDD_SUDO', 'sdd-sudo', '_shell_targets_sdd_sudo', and 'consent' returns zero matches, so this friction is entirely absent from the retrospective and the check's required 'current baseline value from the retrospective report' cannot be satisfied by this WFI's chosen metric."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "`## Verification Plan` is specific about guard unit-test cases and a mutation-check ('revert the operand restriction and confirm the new ALLOW cases fail...') but never references a retrospective metric row, because — as confirmed under VERIFICATION-METRIC-DEFINED — reports/retrospective/2026-08-14T034801Z-pillar-a-wave-session.md contains no row for this friction at all. The check requires the plan to reference 'the specific retrospective metric row(s) that will be compared in the next cycle'; none exists to reference."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every implied Target File in `## Proposed Change` sits inside `plugins/`: plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md (item 1) and plugins/sdd-quality-loop/scripts/sdd-hook-guard.py plus its confirmed twins sdd-hook-guard.js/.ps1/.sh (items 2-3). I evaluated the three-condition carve-out: condition 1 (Category: plugin-improvement) holds. Condition 2 fails — the `## Category` section (lines 11-14) contains only the field 'Category: plugin-improvement' with no prose stating this repository is the plugin's source of truth or that the change travels as a repository commit. Condition 3 is partially present (`## GitHub-Issue` states 'PENDING — to be created by wfi-audit-cycle') but per the rule all three conditions must hold, and condition 2's absence alone disqualifies the carve-out: 'a WFI must assert the source-of-truth relationship itself rather than inherit it silently.' The carve-out therefore does not apply, and every plugins/-path target is a Major finding."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Why-Why Analysis",
+      "change": "Add a new `## Why-Why Analysis` section between `## Root Cause Hypothesis` and `## Proposed Change`, converting the existing 5-paragraph inline narrative into numbered Why/Because rows, each tagged with evidence (file:line or '(hypothesis)'). Keep Level 1 anchored to the friction actually named first ('read-only commands are denied'), and if the skill/guard-contradiction thread (currently paragraph 4) is kept, restate it as a second, explicitly-labeled chain rather than a subject change mid-chain, or drop it from this chain and let Problem Evidence defect (1) stand on its own without a why-chain if it is not the WFI's primary target.",
+      "rationale": "Resolves WHY-CHAIN-VALID: restores the required section, numbering, per-level evidence tags, and chain continuity."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Replace the code identifiers with generic descriptions plus a separate reference key, e.g.: 'Narrow the shell-command predicate that checks whether a command writes to the workflow bypass mode's flag file, so the write operator must be in the same clause as the flag reference (see Problem Evidence citation for the current implementation location).' Move all literal identifiers (`_shell_targets_sdd_sudo`, `SDD_SUDO_KEY`, `SDD_SUDO_KEY_FILE`) into a Target File / implementation-pointer column or into Problem Evidence, which is exempt from the generic-language rule.",
+      "rationale": "Resolves CATEGORY-LANGUAGE-MATCH by removing forbidden-term occurrences from Proposed Change while preserving the technical pointer needed to locate the code."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Reformat as a table with explicit `Target File | Change Description` columns, stating plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md for item 1 and plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (+ .js/.ps1/.sh twins) for items 2-3.",
+      "rationale": "Resolves CHANGE-CONCRETE's table-structure gap, though the plugins/ path still requires the NO-PLUGIN-SCOPE-CREEP fix below to avoid a Major on the same rows."
+    },
+    {
+      "section": "## Category",
+      "change": "Add prose to the `## Category` section stating explicitly that this repository is the sdd-quality-loop plugin's source of truth and that the proposed change travels as a repository commit rather than a downstream GitHub Issue.",
+      "rationale": "Satisfies carve-out condition 2 for NO-PLUGIN-SCOPE-CREEP (and the parallel CHANGE-CONCRETE rows), if that is factually true of this repository; if not true, the plugins/ targets must instead be rerouted through the standard GitHub Issue flow."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Add the quantitative targets already present in Verification Metric directly into this section, e.g., 'Reduce read-only-command denials mentioning the consent token from 3 observed in one session to 0, while keeping denials of genuine write/delete attempts against the flag file at 100%.'",
+      "rationale": "Resolves EFFECT-MEASURABLE by giving the section its own metric name and number rather than relying on the later Verification Metric section."
+    },
+    {
+      "section": "## Verification Metric",
+      "change": "Mark one of the two metrics as primary (recommend the read-only-denial count, since the write/delete-denial rate is a non-regression guardrail, not an improvement target), and add an explicit next-checkpoint sentence, e.g., 'Checkpoint: after the next 10 agent sessions that invoke a guard-evaluated shell command mentioning the consent token.' Since the retrospective report does not track this friction, state explicitly that the baseline is session-observed rather than retrospective-sourced, and flag that measurement should be added to a future retrospective run for this mechanism.",
+      "rationale": "Resolves VERIFICATION-METRIC-DEFINED's missing-priority and missing-checkpoint gaps, and makes the baseline-source mismatch explicit rather than silent."
+    },
+    {
+      "section": "## Verification Plan",
+      "change": "Add a step noting that this friction has no corresponding retrospective metric row today, and commit to adding one (e.g., a 'consent-token denial count' column) to the next retrospective run so future cycles can compare against a report-sourced row instead of only the guard's own unit-test suite.",
+      "rationale": "Resolves VERIFICATION-PLAN-SPECIFIC by acknowledging and closing the retrospective-traceability gap instead of leaving it implicit."
+    }
+  ]
+}
