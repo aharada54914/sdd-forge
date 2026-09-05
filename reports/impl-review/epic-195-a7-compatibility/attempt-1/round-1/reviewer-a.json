@@ -1,0 +1,78 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-a-seq0325",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-195-a7-compatibility-0325",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f4ac38324d4ea976d9f6f1bac538fcfc06438b1031fa53a9e0fd16eb6a137824"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "3ba46d96b3a132f9a38be614532de5942ece5bfdb050ed66e3f05915cbb10946"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "abc2b692b18e3b8c35dda0d660da57574ea2c9ae2c3d223ec50fc440a000c68f"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json", "sha256": "46fa591a7fbf3dce40624ead7e15a3749d28fb120309e13379797f2b423fb9b9"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's ## Architecture section (lines 32-68) provides a mermaid flowchart naming top-level component boundaries (Fixture matrix F1-F4, Byte-identical test BI/REQ-001, Structural compatibility test SC/REQ-002, Orchestration event test OE/REQ-003, Golden baseline GB/REQ-006) and labeled integration edges (\".extends.\", \".compares.\", \".new TEST-019 quality-gate-outcome.\", \".new TEST-018 skill-order/loop-presence/approval.\") showing exactly how the feature integrates with five existing files (tests/loops/loop-inventory.json, tests/lib/loop-driver.sh, tests/loop-consistency.tests.sh, tests/loop-escalation.tests.sh, emit-run-record.sh, tests/install.tests.sh/uninstall.tests.sh). Technology choices per described layer are fixed by frontend-spec.md's Technology Stack table (lines 12-23; a normative refinement per design.md's own Layer Specifications section), naming Bash/JSON/PowerShell for each component (driver, suites, registry data, run-record emitter, golden-baseline scripts, canonical event-trace schema, allowlist manifest, record corpus). This exceeds a one-sentence description naming components without interactions."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency edges scanned from the Architecture mermaid diagram (design.md:34-63) and Components table (design.md:70-85): {F1,F2,F3,F4} -> {BI,SC,OE}; BI -> GB, BI -> INST (extends); OE -> SCHEMA (compares), OE -> {LI,LD,ERR} (extends), OE -> LE (new TEST-019), OE -> LC (new TEST-018); LI -> LIT. This forms a directed acyclic graph: no downstream node (GB, INST, LI, LD, LE, LC, ERR, SCHEMA, LIT) points back to an upstream node (F1-F4, BI, SC, OE). No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's ## Data Plan section (lines 148-237) states 'Data Entities: none persisted by this task...' (line 150) and 'Existing Data Affected: none. tests/loops/loop-inventory.json's 8 existing entries are unmodified by this task...' (line 154), satisfying two of the three required sub-fields. However, no 'Migration Strategy:' labeled sub-field appears anywhere in design.md — confirmed by grepping the file for 'migrat', which returns only an unrelated reference to 'ADR-0023 (track-selection contract migration)' at line 141, never a Migration Strategy statement for this feature's own proposed additive schema changes (the capability_applicability field on the quality-gate loop-inventory entry, the new capability object in emit-run-record.sh output, and the new REQ-007 allowlist-manifest/compatibility-event-trace/v1 schemas). Although these are described elsewhere as additive/optional (Global Constraints, Constraint Compliance table), the Data Plan section itself never states 'no migration required' with rationale for these proposed shape changes, as the check requires. A future Phase 2/3 implementer has no design-fixed Migration Strategy statement in the Data Plan section to follow when landing these additive fields."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## API / Contract Plan section (lines 500-613) enumerates every new/changed interface this feature's future-task deliverables introduce, in the CLI/function-contract shape appropriate to this test-infrastructure feature (no HTTP endpoints exist): assert_capability_applicability <loop-id> <fixture-state> <observed> (line 502), _loop_trace_emit <kind> <producer> <value-json> (line 513), assert_event_trace <golden-trace-path> (line 521), emit-run-record.sh's new --capability-enforcement/--capability-block-id flags with an exhaustive 4-row request/response outcome table (lines 555-561, including the byte-identical no-flag case and a usage-error case), and the golden-baseline capture-golden-baseline.sh [--write-candidate] / promote-golden-baseline.sh <candidate-path> --approved-by <human-identifier> command contract (lines 579-608) with explicit exit-code/file-write behavior per invocation shape. No breaking changes are introduced; AC-011/Data Plan explicitly guarantee the pre-existing no-flag emit-run-record.sh output stays byte-identical."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Security Boundaries section (lines 945-951) names three trust boundaries (B1 golden-baseline capture/update, B2 shared-registry/driver/run-record extension, B3 REQ-007 allowlist manifest integrity — security-spec.md, a normative refinement, extends this to B4/B5), states the auth/authz mechanism at each (e.g., B1: --write-candidate writes only a gitignored candidate; promote-golden-baseline.sh structurally refuses to run under a set CI env var or without --approved-by), explicitly addresses data classification ('repository fixture/script output only, no secrets' / 'none' for PII at every boundary, corroborated by security-spec.md's Data Classification and Protection table stating 'no PII/credential' for every entity), and addresses OWASP concerns both in design.md's own OWASP Concerns column and security-spec.md's dedicated OWASP Mapping section (Software and Data Integrity Failures, Broken Access Control, Security Misconfiguration, Injection N/A, Cryptographic Failures N/A, Identification and Authentication Failures N/A)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type header reads 'test-infrastructure specification (Phase 1 — no code)', which is not one of the five literal enumerated values but is functionally equivalent to cli/library for purposes of this check — the feature has no browser/client UI and no frontend application of any kind. ux-spec.md states explicitly: 'N/A — no change: this feature has no UX surface... no GUI, view, dialog, menu item, or human interactive shell surface' (lines 1-10), and frontend-spec.md states: 'N/A — no change: this feature introduces no browser/client UI and no new runtime service' (lines 1-6), with its own Component Tree/State Shape/Routes/API Client section explicitly 'N/A — no change: no browser UI, no client-side state, no routes, and no API client' (lines 32-39). design.md contains no ## Frontend Plan section to check for consistency against an API / Contract Plan. This check is skipped as inapplicable to a UI-less test-infrastructure feature."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Test Strategy section (lines 615-697) covers 9 ordered future-task items spanning multiple test levels: static/doc-review and schema checks (e.g., item 9's AC-040 CI-workflow-text scan; acceptance-tests.md's AC-008/AC-009/AC-015/AC-028/AC-029/AC-034/AC-038/AC-039 'static' Test Type rows), integration-level fixture-driven suite extensions (items 1, 3-8; TEST-018/TEST-019 driving rounds through the shared driver), a regression/byte-identical check (AC-011), and negative self-check tests (AC-002, AC-035 x3, AC-041 x2). acceptance-tests.md maps all 41 AC-NNN criteria to a named Test ID/Test Type/Test Target, giving explicit, exhaustive AC-to-test traceability for how each criterion is verified end-to-end. Concrete planned verification evidence is named throughout: exact script names (capture-golden-baseline.sh, promote-golden-baseline.sh), exact suite case numbers (TEST-018, TEST-019), exact file paths (specs/epic-195-a7-compatibility/verification/golden-baseline/canonical/), and exact registration targets (tests/run-all.sh, tests/run-all.ps1, .github/workflows/test.yml). The 'what is mocked' element is addressed by item 4's deterministic recorded-response injection seam (never a live model call in the gating suite, AC-030/AC-031). No fullstack critical-user-journey E2E path is required since this feature has no UI (ux-spec.md/frontend-spec.md both N/A)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in design.md's ## Architecture mermaid diagram and ## API / Contract Plan section is either defined in the ## Components table (lines 70-85: tests/loops/loop-inventory.json, tests/lib/loop-driver.sh, tests/loop-escalation.tests.sh, tests/loop-consistency.tests.sh, emit-run-record.sh, tests/install.tests.sh/uninstall.tests.sh, golden-baseline capture/promote scripts, fixture-matrix builder, compatibility-event-trace/v1 schema, REQ-007 SKIP allowlist manifest, contracts/*.schema.json, sdd-bootstrap-interviewer templates) or is an established, verified-existing system component cited via investigation.md: tests/loop-inventory.tests.sh (INV-002, tests/loop-inventory.tests.sh:129-133), check-quality-gate-cycle-limit.sh/select-agent-model.sh (requirements.md:474, INV-005; both confirmed present at plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh and plugins/sdd-implementation/scripts/select-agent-model.sh in this worktree), and check-component-coverage.py (cross-epic, INV-014, Epic A3's own design). No component reference was found that is neither defined in design.md nor traceable to an established component via investigation.md."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log section (lines 136-146) states 'No new ADR' and cites three existing ADRs as the unrevised governing decisions: ADR-0010, ADR-0016, ADR-0023 — all three confirmed present at docs/adr/0010-loop-inventory-and-fixture-vocabulary.md, docs/adr/0016-workflow-axes-separation.md, docs/adr/0023-track-selection-contract-migration.md. The design explicitly reasons why no new ADR is required (this is an additive-extension-only design following INV-006's existing effort-object flag pattern, not a new technology/integration/architectural departure) and explicitly names the one scenario that would require a future ADR-0010 revision ('if Phase 2/3 discovers a genuinely new loop-shaped surface... that is an ADR-0010 revision decision for the Phase 2 task to raise separately, not a decision this package makes') without silently absorbing that decision here."
+    }
+  ]
+}

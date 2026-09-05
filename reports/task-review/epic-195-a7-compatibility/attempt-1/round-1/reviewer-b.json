@@ -1,0 +1,141 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-seq0656",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0656",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-1/integrated-summary.json",
+        "sha256": "a4c436a38fc0bdd4592c7c5f13b5f941c15c9a9e59940e92aeb3a580fbe7105e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json",
+        "sha256": "95785109ca889b537d39758285a7550ec1952a3293eb7a038e6aebb24fb397df"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "32718ef60b56ad24083a9a9e340e99077cab87c5fbf10c46010608b80f318c9d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "9b72b348cba110549c0821e81348da46ad70bb8309a1ec14d8d1134f07d9be65"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No under- or over-classification found. No task touches auth/authz, payment, PII, or classic data migration (every Data Migration field reads 'none' or 'additive'); the seven Risk: high tasks (T-002, T-004, T-005, T-008, T-009, T-010, T-011) each cite a named Security Boundary (B1-B5) plus the policy's 'silent defect causes material harm' catch-all, with a well-reasoned Risk Rationale distinguishing them from T-001/T-003/T-006/T-007's medium classification. No high/critical task's scope is limited to UI copy/CSS/docs/trivial test-only content."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All seven Risk: high tasks carry a Done When item combining explicit Red (failing-fixture) and Green (correct-implementation) TDD evidence with 'An independent quality-gate verdict records PASS'. No Risk: critical task exists in this feature, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004 ('Author the structural compatibility suite') Done When (tasks.md ~lines 679-704) lists 10 distinct checkable items, exceeding the >8-item oversized indicator. Its Scope (~lines 655-675) additionally spans at least 4-5 distinct implementation areas bundled into one task: the AST canonicalizer's three-step algorithm, the structural-fixture-corpus/v1 recording for F1/F2, authoring four separate named-SKIP assertions (F3/F4/F5/F6), and authoring a functionally separate, non-gating AC-031 live-model refresh test with its own new tests/structural-compatibility-live-refresh.tests.sh/.ps1 pair. The live-refresh suite is independently schedulable and does not share the gating suite's TDD Red/Green cycle."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge-case/negative-path coverage is present and distributed across the functional tasks: T-001/AC-014 builds the PROJECT_CONTEXT_INVALID variant; T-002's Scope authors the CI-set/--approved-by-omitted refusal fixtures as TDD Red evidence; T-003/AC-002 is an explicit negative self-check; T-004's Done When requires a corpus/canonicalizer parse failure to hard-fail; T-005's Scope requires a schema-validation non-regression fixture; T-007/AC-019-AC-020 cover stop-event and fallback-non-reuse edge cases; T-009/AC-033 requires a golden negative test; T-010/AC-035 is entirely three hard-fail conditions; T-011/AC-041 requires two negative fixtures. T-006/T-007's deferred edge-case sub-cases are explicitly assigned to T-008, not silently omitted."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's declared Test Type column consistently uses 'integration' only where the scope genuinely spans >=2 components, and reserves 'static / doc-review', 'static / schema', 'static / registration-forcing', and 'regression, byte-identical' for single-artifact or table-completeness checks. No test task's declared type mismatches its own stated scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All seven Risk: high tasks carry an explicit Rollback: field citing infra-spec.md#rollback: T-002 ('a bad initial capture is a straightforward git revert'), T-004, T-005, T-008, T-009, T-010 (manifest restore via git revert, fingerprint_match recomputed live so no cache to reconcile), and T-011 (including the human-copy-staging revert case for .github/workflows/test.yml)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Files edited by multiple tasks are properly sequenced via Depends On: tests/loop-consistency.tests.sh (T-006 -> T-008 -> T-010), tests/loop-escalation.tests.sh (T-007 -> T-008 -> T-010), tests/compatibility-byte-identical.tests.sh and tests/structural-compatibility.tests.sh (T-003/T-004 -> T-010). tests/run-all.sh/.ps1 is edited by five tasks but Global Constraints fixes a single explicit additive-only append rule covering all of them. The one instance where the exception is not satisfied (T-006/T-007 sharing tests/fixtures/compatibility-event-trace/) is reported under DEPENDENCY-OVERLAP to avoid duplicate findings."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007's own Planned Files entry (tasks.md ~line 1013) states tests/fixtures/compatibility-event-trace/ is '(existing after T-006, agent-editable -- golden-trace fixtures for the quality-gate-outcome and PROJECT_CONTEXT_INVALID stop event kinds)', i.e. T-007 explicitly depends on T-006 having already created this shared fixture directory. However T-007's Depends On field (~lines 1004-1006) lists only T-001 and T-005 -- T-006 is omitted -- and T-007's ### Blockers section also reads 'None' (~line 1089). An implementer or scheduler reading only the Depends On/Blockers fields could attempt T-007 before T-006 completes and find the fixture directory does not yet exist, causing an integration failure."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 11 tasks are net-new Phase 2/3 test-infrastructure construction per the feature's own Scope Note; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004 Done When (tasks.md ~lines 679-704) has 10 distinct checkable items (exceeds the >8 oversized-task threshold) and its Scope bundles >=4 distinct implementation areas -- the AST canonicalizer algorithm, the structural-fixture-corpus/v1 recording, four separate named-SKIP assertions (F3/F4/F5/F6), and a functionally separate non-gating AC-031 live-model refresh suite with its own new tests/structural-compatibility-live-refresh.tests.sh/.ps1 pair. The live-refresh suite is a reasonable candidate to split into its own task."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "T-007's Planned Files (tasks.md ~line 1013) states tests/fixtures/compatibility-event-trace/ is 'existing after T-006', but T-007's Depends On field (~lines 1004-1006) lists only T-001 and T-005, and its Blockers section (~line 1089) reads 'None' -- a missing blocker on T-006 for a real artifact-creation dependency."
+    }
+  ]
+}

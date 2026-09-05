@@ -6,13 +6,21 @@
   "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
-    {"severity":"Critical","ref":"verification/T-001.contract.json","note":"The contract pins stale spec_revision 2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437 while identifying the current digest as 466465e04248cb912635ed83435ff0c17e9805648e0caead7132ad6276a34d23 and admitting no fresh independent gate pass occurred. It also records required regression and placeholder-scan checks as false, so it cannot certify the implementation under the current specification."},
-    {"severity":"Major","ref":"verification/T-001/security-review.md","note":"The PASS covers a deleted drafts/apply-protected-files.ps1 artifact without a recorded digest. The document identifies three substantive later changes affecting reviewed boundaries and explicitly states that a fresh independent security review of the shipped runner remains required, leaving T-001's security-review Done When unsatisfied."},
-    {"severity":"Major","ref":"verification/T-001.contract.json#checks[regression]","note":"Regression is required but remains false because the full 116-suite tests/run-all.sh execution timed out. The narrower substitute does not establish the required repository regression result."},
-    {"severity":"Major","ref":"verification/T-001.contract.json#checks[placeholder-scan]","note":"The required placeholder scan remains false on CHANGELOG.md. The contract states that findings require implementation or explicit human acceptance in a quality-gate report and confirms that no such report or acceptance exists."},
-    {"severity":"Major","ref":"reports/implementation/epic-194-a6-lite-integration/T-001.md#C-cross-target-atomicity","note":"A measured mid-batch failure installs target 1 before target 2 fails, leaves targets 3-5 unchanged, and reports only the failing target. The operator cannot determine which protected targets already landed, leaving the partial-publication error path operationally ambiguous; the requested behavior documentation was stopped because its reporting claim was false."}
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1: Write-PublishStateReport / Test-PostCopyHashes",
+      "note": "After Copy-Payload succeeds for all targets, a batch-wide post-copy hash failure leaves FailedTarget null and PublishedTargets containing every target. The failure report therefore labels the corrupted target INSTALLED and claims its digest was verified, without a FAILED entry, contradicting design.md Protected-File Statement point 5's requirement to truthfully enumerate installed, failed, and not-attempted targets on every post-copy-phase failure. The preceding exception names the mismatch and execution remains fail-closed, limiting severity."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/human-copy-runner-contract.tests.ps1: TEST-006d-f and TEST-012",
+      "note": "The suite exercises post-copy corruption but asserts only nonzero exit and the mismatch diagnostic; it does not verify the accompanying live-state enumeration. TEST-012 covers only a failure inside Copy-Payload where FailedTarget is populated, so it cannot detect the contradictory post-copy-failure report."
+    }
   ],
   "blind": true,
-  "input_digest": "3b1c3940f01bc42c9b0dfee82b351e1c8a937d228406f21e1bf20797c9e8fbbd",
-  "consent": {"kind":"sudo","ref":"T-001.panelist-input.txt header"}
+  "input_digest": "46c0cb724c0f056650753f0a01005191e1f63729b6d6aa609faa84bcf96cb67c",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
+  }
 }

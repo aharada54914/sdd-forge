@@ -508,8 +508,13 @@ public static class A6AnchoredPublisher
     }
 
     // fixtureDestination: see the identical note on OpenUnixParent -- the
-    // Windows twin of the same TEST-009d fixture patches
-    // TEST_FIXTURE_BEFORE_DIRECTORY_OPEN_WINDOWS below the same way.
+    // Windows twin of the same TEST-009d fixture patches the WINDOWS
+    // directory-open seam marker below the same way. (The marker's literal
+    // name must appear ONLY at the seam line itself: the suite's injection
+    // is a plain substring replace, and a second occurrence in prose --
+    // this comment's earlier wording had one -- gets the seam body spliced
+    // into the space between methods, where its leading 'if' is CS1519,
+    // measured on the first-ever Windows CI execution of this suite.)
     private static SafeFileHandle OpenWindowsParent(SafeFileHandle root, string path, bool fixtureDestination, out string leaf)
     {
         string[] parts = path.Split('/'); leaf = parts[parts.Length - 1];

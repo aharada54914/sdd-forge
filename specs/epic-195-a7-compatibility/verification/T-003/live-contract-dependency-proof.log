@@ -1,0 +1,25 @@
+=== cycle 2 live-contract dependency proof (2026-08-12) ===
+RUN bash suite from a temp root containing no product contract
+FAIL: all six CLI cells are missing or inconsistent across live product contracts
+19 passed, 6 failed
+EXPECTED RED: bash missing product contracts (exit 1)
+
+MUTATE scratch plugins/sdd-ship/skills/ship/SKILL.md row 1 FULL -> LITE
+FAIL: Bash --full|present and --full|absent are inconsistent across live product contracts
+23 passed, 2 failed
+EXPECTED RED: bash mutated ship fallback contract (exit 1)
+
+RUN PowerShell suite from a temp root containing no product contract
+FAIL: all six CLI cells could not resolve the missing live product contract
+19 passed, 6 failed
+EXPECTED RED: pwsh missing product contracts (exit 1)
+
+MUTATE scratch plugins/sdd-ship/skills/ship/SKILL.md row 1 FULL -> LITE
+FAIL: PowerShell --full|present and --full|absent are inconsistent across live product contracts
+23 passed, 2 failed
+EXPECTED RED: pwsh mutated ship fallback contract (exit 1)
+
+live-contract dependency proof complete: 4 expected RED runs
+RESTORE repository product contracts (never modified)
+Bash direct GREEN: 25 passed, 0 failed
+PowerShell direct GREEN: 25 passed, 0 failed

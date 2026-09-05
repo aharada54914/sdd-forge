@@ -1,0 +1,94 @@
+ticket_id: RT-20260814-001
+status: open
+type: cycle-limit-reached
+severity: major
+review_cycles: 3
+target:
+  feature: "epic-195-a7-compatibility"
+  task: "T-004"
+  files:
+    - "specs/epic-195-a7-compatibility/verification/T-004/malformed-corpus-red.log"
+    - "reports/implementation/epic-195-a7-compatibility/T-004.md"
+    - "specs/epic-195-a7-compatibility/verification/T-004/independent-test.md"
+    - "specs/epic-195-a7-compatibility/verification/T-004/independent-implementation-review.md"
+summary: "T-004 の QG cycle 上限 (3) 到達。cycle 3 (seq0676) の Major 1 件は証跡側の欠陥 (malformed-corpus-red.log の記録カウント 115/1 が出荷ハーネスで再現不能、正しくは 113/3)。是正後に fresh session での再ゲート 1 サイクルが必要"
+problem: |
+  cycle 3 (seq0676) は Major 1 件で NEEDS_WORK。製品本体は健全と確認されて
+  おり、欠陥は証跡側のみ。
+
+  記録済み `malformed-corpus-red.log` は `MUTATION SUMMARY: 115 killed,
+  1 survived` と記載しているが、出荷済みハーネスを pre-fix twin
+  (`abc7ab4a`) に対して実行すると 113 killed / 3 survived になる。
+
+  理由は決定的:
+  - `mutation-proof.sh:254-256` は 3 つの `corpus-*` ケース全部に対し診断文字列
+    `FAIL: full requirements.md canonicalizes without parse fallback` を要求する
+  - この文字列は pre-fix twin に 0 回、出荷 twin に 1 回しか出現しない
+    (`git show abc7ab4a:tests/structural-compatibility.tests.ps1 | grep -c`)
+  - したがって 3 つの ps1 実行は pre-fix では必ず survive し、113/3 が強制される
+  - 実測も 113/3 (corpus-bad-frontmatter [ps1] exit=1、corpus-bad-heading [ps1]
+    exit=1、corpus-and-template-bad-heading [ps1] exit=0)
+
+  記録ログ自身のバイト列がその理由を語っている。83-86 行に緩い
+  pre-remediation 期待値 `evidence=markdown AST parse failure:` が残っており、
+  出荷ハーネスが無条件に 1 行目へ出す `CLASSIFIER-SELFTEST` 行を欠く。
+  評価者は責任構成 (出荷 classifier + 旧期待値 2 本 + pre-fix twin) を再構成し、
+  `115 killed, 1 survived / EXIT_CODE=1`、唯一の survivor が
+  `corpus-and-template-bad-heading [ps1] exit=0` という記録ログとの完全一致を
+  得た。**そのハーネス状態はどのコミットにも存在しない** —— `18472252` が
+  期待値 2 本の厳格化と coherent ケース追加を同時に行っているため。
+
+  再現不能な 115/1 が「検証済み事実」として 6 箇所に伝播している:
+  - `reports/implementation/epic-195-a7-compatibility/T-004.md:75`
+  - 同 `:216` ("The complete harness exited 1 at 115/1")
+  - 同 `:275` (本ゲートに「saved 115/1 pre-fix malformed RED を確認せよ」と指示)
+  - 同 `:302` ("exact 115/1 RED ... transcript accounting")
+  - `verification/T-004/independent-test.md:48`
+  - `verification/T-004/independent-implementation-review.md:38`
+    (PowerShell false GREEN を "the sole survivor (115/1, exit 1)" と記述。
+     出荷ハーネスでは survivor は 3 件)
+
+  calibration item 1 の最上位証跡が自らの結果を誤記し、裏付け記録 2 本が
+  再導出せず数値を反復している。評価者は Critical を検討したうえで適用せず:
+  製品は健全、実質的な RED 主張は真で独立に再現済み、誤りは pre-fix の
+  被害を過小に述べる方向であり PASS を捏造する方向ではない。
+
+  参考 (本チケットの根拠ではない): cycle 2 (seq0675) は同一成果物を検査し、
+  同じ機械的結果 (hybrid 構成が記録ログを厳密再現) に到達したうえで Minor と
+  分類し「authenticity 側に解決」した。cycle 3 は同じ測定を受け入れたうえで
+  Major と分類した。両サイクルは全測定値で一致し、分類のみが異なる。
+  ゲート規則上は返却された verdict が支配するため NEEDS_WORK。
+
+  なお cycle 2 は PASS を返したが、評価者終了後に `e96cfc6f` が着地し、
+  manifest が束縛する 49 ファイルのうち 3 件 (T-002.md / T-003.md /
+  T-004.md) を動かしたため、seq0675 manifest は再検証不能になった。
+  provenance の穴は後追いで埋められないため Done は行わず、cycle 3 を
+  fresh manifest (seq0676) で実施した。
+proposed_resolution: |
+  1. `malformed-corpus-red.log` を出荷済みハーネスで `abc7ab4a` に対して
+     再取得する (113/3 になる)。手書き修正は不可、実走で取り直すこと。
+  2. 上記 6 箇所の 115/1 記述を実測値に修正する。`T-004.md:275` は後続ゲートへの
+     指示文なので、確認対象カウントも併せて更新すること。
+  3. `independent-implementation-review.md:38` の "sole survivor" 記述は
+     survivor 3 件の実態に合わせる。
+
+  そのうえで fresh session で T-004 の evaluator を 1 サイクル予約・起動する。
+  予約は必ず `validate-review-context-set.sh <manifest> <repo-root> --reserve`
+  に行わせること (台帳への手書き追記は禁止。契約が通らない限り予約が存在
+  しない状態を保つため)。
+
+  manifest 構成 (cycle 3 で確定済み、49 エントリ):
+  10 spec ファイル + `quality-gate-calibration.md` + 実装レポート 1 本 +
+  宣言済み Outputs 37 行。`risk-gate-matrix.md` と `investigation.md` は
+  `quality:sdd-evaluator` では認可されないため入れないこと。
+
+  重要 (運用): ゲート実行中・予約が開いている間は、同じワークツリーの
+  当該フィーチャーのファイルへ書き込むエージェントを一切走らせないこと。
+  cycle 2 はまさにこれで失効した —— 評価者の終了後・Done 判定前に
+  `e96cfc6f` が manifest 束縛ファイルを動かし、manifest が再検証不能になった。
+
+  再ゲートで PASS なら quality-gate として Status: Done を記録する。
+  cycle 上限に既に達しているため、本チケットの是正を経ずに 4 サイクル目を
+  回してはならない。
+requires_human_decision: false
+created: 2026-08-14

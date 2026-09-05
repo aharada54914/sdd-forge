@@ -14,7 +14,9 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
+# SUT repointed 2026-08-28 (post-apply hardening): the shipped live script
+# is the SUT; staged==live is held by human-copy-mirror-freshness.
+SUT="${REPO_ROOT}/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 PASS=0
 FAIL=0
 
@@ -264,6 +266,43 @@ if [ "${af_exit}" -eq 10 ] && [ "${af_out}" = "full-required: financial_settleme
   ok "TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced"
 else
   fail "TEST-013af: expected exit 10 and the exact two-token record, got exit ${af_exit}. Output: ${af_out}"
+fi
+
+# TEST-013ag/ah pin amended design.md 2b (2026-08-28, RT-20260828-001):
+# upgrade_reasons shape/grammar is validated for EVERY entry, before
+# eligibility is consulted. Before the fix, an eligible:true entry carrying
+# a malformed value was SILENTLY ACCEPTED (exit 0, lite-eligible) -- the
+# conformance fail-open all three cross-model panelists flagged. The
+# assertion here must be exit 2; asserting "no forged tokens appear in the
+# record" would be vacuous, because an eligible:true entry emits nothing
+# even while defective (RT-20260828-001, fixture note).
+echo "=== TEST-013ag: eligible:true entry with a truthy non-array upgrade_reasons (amended 2b) ==="
+printf '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": "risk"}]}' > "${WORK}/true-scalar.json"
+assert_fragment_invalid "TEST-013ag" "${WORK}/true-scalar.json"
+
+echo "=== TEST-013ah: eligible:true entry with a delimiter-carrying upgrade_reasons element (amended 2b) ==="
+printf '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": ["evil,forged"]}]}' > "${WORK}/true-malformed-element.json"
+assert_fragment_invalid "TEST-013ah" "${WORK}/true-malformed-element.json"
+
+# TEST-013ai/aj pin the OTHER half of amended 2b: a present-but-falsy
+# upgrade_reasons value (false/0/""/[]/null) is treated as absent on both
+# runtimes -- ratified live behavior, not an accident.
+echo "=== TEST-013ai: eligible:false with present-but-falsy upgrade_reasons is absent, yielding the synthetic token ==="
+printf '{"capabilities": [{"id": "x", "eligible": false, "upgrade_reasons": false}]}' > "${WORK}/false-falsy.json"
+ai_out="$(bash "$SUT" "${WORK}/clean.txt" --capability-reasons "${WORK}/false-falsy.json" 2>&1)" && ai_exit=0 || ai_exit=$?
+if [ "${ai_exit}" -eq 10 ] && [ "${ai_out}" = "full-required: ineligible:x; triggers=ineligible:x" ]; then
+  ok "TEST-013ai: present-but-falsy upgrade_reasons on eligible:false is treated as absent (synthetic token, exit 10)"
+else
+  fail "TEST-013ai: expected exit 10 with the synthetic ineligible:x record, got exit ${ai_exit}. Output: ${ai_out}"
+fi
+
+echo "=== TEST-013aj: eligible:true with present-but-falsy upgrade_reasons contributes nothing ==="
+printf '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": 0}]}' > "${WORK}/true-falsy.json"
+aj_out="$(bash "$SUT" "${WORK}/clean.txt" --capability-reasons "${WORK}/true-falsy.json" 2>&1)" && aj_exit=0 || aj_exit=$?
+if [ "${aj_exit}" -eq 0 ] && [ "${aj_out}" = "lite-eligible" ]; then
+  ok "TEST-013aj: present-but-falsy upgrade_reasons on eligible:true is treated as absent, contributing nothing (exit 0)"
+else
+  fail "TEST-013aj: expected exit 0 lite-eligible, got exit ${aj_exit}. Output: ${aj_out}"
 fi
 
 echo ""

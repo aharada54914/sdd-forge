@@ -1,0 +1,68 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "impl-orch-epic-195-a7-compatibility-a4r3",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 3,
+  "attempt": 4,
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "96afecc61cec81979d3a5e724ce3d57c35b754a1048c6cb186488600f630ce17",
+  "requirements_sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "design_sha256": "ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1",
+    "infra-spec.md": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c",
+    "security-spec.md": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Round 3 of the attempt-4 post-implementation provenance re-review. Between round 2 and round 3 the human-approved amendment wave landed as commits 7ac2be7f (layer specs carry AC-009's sanctioned exception; round-2 first-run evidence) and cf9f9c8e (Open Questions carries OQ-004 forward with its resolution vehicle; Round-11 factual correction). No frozen specification document was edited by this review run. Note on prior_round_contract_sha256: round 2 of this attempt was never sealed - it holds reviewer-a.json, reviewer-b.json, integrated-summary.json and precheck-result.json but no impl-review-contract.json and no integrated-verdict.json. This field therefore points at the most recent contract actually persisted for this attempt, round 1's, rather than at a round-2 contract that does not exist.",
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-a-seq0941",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-195-a7-compatibility-0941",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-2/integrated-summary.json","sha256":"ee006a62c6b6d51b77933961c9ce357ba9846eafae0c0ee0d30303a20c27f590"},
+        {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-3/precheck-result.json","sha256":"2f6ec7357865bb80c2448cf61291fad87d25c8b61cdb10c697ca3c660c5242f2"},
+        {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+        {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+        {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+        {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+        {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d"},
+        {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+        {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+        {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0942",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0942",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-3/integrated-summary.json","sha256":"5df64333e8be99bcaefecdd5197a3acbc0e1f96de861b307438acb9c330f7bc2"},
+        {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-3/precheck-result.json","sha256":"2f6ec7357865bb80c2448cf61291fad87d25c8b61cdb10c697ca3c660c5242f2"},
+        {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+        {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+        {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+        {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+        {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d"},
+        {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+        {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+        {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    }
+  ],
+  "timestamp": "2026-08-27T14:47:14Z"
+}

@@ -590,11 +590,13 @@ ADR by this package itself.
   produce a non-empty trigger, never silently contribute nothing); an
   entry with `eligible: true` contributes nothing. Each `<token>` inside
   `upgrade_reasons` is already validated upstream against `lite-upgrade-
-  reason-catalog.json` by whatever produced this fragment, not
-  re-validated here (Design Decisions, below, "no re-validation inside
-  check-risk-upgrade" — unchanged in principle, now scoped to the
-  *values*, never to the fragment's own shape/readability, which REQ-002
-  now validates eagerly, Blocker [B3]).
+  reason-catalog.json` by whatever produced this fragment; its catalog
+  membership is not re-validated here (Design Decisions, below, "no
+  re-validation inside check-risk-upgrade" — unchanged in principle, now
+  scoped by the 2026-08-28 amendment to catalog *membership* alone,
+  never to the fragment's own shape/readability nor to each element's
+  reason-token grammar, both of which REQ-002 validates eagerly per
+  Processing step 2b, Blocker [B3]).
 
 ## API / Contract Plan
 
@@ -626,19 +628,39 @@ unmodified, requirements.md AC-007/AC-009):
 2. if --capability-reasons/-CapabilityReasons is supplied:
      a. attempt to read <fragment-path> as UTF-8 JSON
      b. if unreadable/not-valid-JSON/missing "capabilities" key/
-        "capabilities" not an array/any entry missing "id" or "eligible":
+        "capabilities" not an array/any entry missing "id" or "eligible"/
+        any entry whose "upgrade_reasons" is present, truthy and not an
+        array/any "upgrade_reasons" element that is not a non-empty
+        string matching [a-z0-9][a-z0-9_-]*:
           print "risk-upgrade: capability-reasons fragment invalid";
           exit 2   (Blocker [B3] — a hard error, never a silent degrade;
           this is the ONE new exit-2 condition this REQ adds, distinct
-          from the primary source file's own existing exit-2 condition)
+          from the primary source file's own existing exit-2 condition.
+          The two upgrade_reasons conditions were ratified by the
+          2026-08-28 amendment (RT-20260828-001): they state what the
+          2026-08-25 remediation commit 2499e813 already implemented
+          against a measured trigger-forgery — a ',', ';' or newline
+          inside a reason token forges or breaks the single-line output
+          record whose id field the bounded id grammar already defends
+          (TEST-013m/n/p) — and they apply to EVERY entry regardless of
+          its "eligible" value, because 2b runs before eligibility is
+          consulted. A present-but-falsy "upgrade_reasons" value —
+          false, 0, "", [], null — is treated as absent, matching both
+          live runtimes; only a present, truthy non-array value, or a
+          malformed element inside a real array, is shape-invalid)
      c. else: capability_triggers[] = for each entry in
         fragment["capabilities"] where entry["eligible"] == false, in
         array order: entry["upgrade_reasons"] if non-empty, else
         [ "ineligible:" + entry["id"] ]   (Blocker [B4] — flattened,
-        in order, into one capability_triggers[] list; each
-        upgrade_reasons token is already catalog-validated upstream, not
-        re-validated here, Design Decisions "no re-validation inside
-        check-risk-upgrade")
+        in order, into one capability_triggers[] list; every
+        upgrade_reasons element reaching this step has already passed
+        2b's grammar condition. What is NOT re-checked here is catalog
+        membership alone — each token's presence in
+        lite-upgrade-reason-catalog.json is validated upstream by
+        whatever produced the fragment, Design Decisions "no
+        re-validation inside check-risk-upgrade", scoped by the
+        2026-08-28 amendment to catalog membership, never to the
+        fragment's shape or the elements' grammar)
    else: capability_triggers[] = []   (second argument omitted entirely —
         the ONLY condition AC-007's byte-identical guarantee covers)
 3. all_triggers[] = keyword_triggers[] ++ capability_triggers[]
@@ -928,6 +950,16 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     a `--capability-reasons` path to an unreadable/malformed/shape-invalid
     file exits `2` with no trigger output, distinct from item 4's own
     omitted-argument byte-identical fixture (requirements.md AC-027).
+    Per amended step 2b (2026-08-28), the shape-invalid set includes a
+    malformed `upgrade_reasons` on an `eligible: true` entry — present,
+    truthy and not an array, or a malformed element inside a real array —
+    whose fixture MUST assert exit `2`, never the absence of forged
+    output tokens (vacuous for this case: an `eligible: true` entry
+    emits nothing even while defective); companion fixtures pin
+    present-but-falsy `upgrade_reasons` (`false`/`0`/`""`/`[]`/`null`)
+    as treated-absent on both runtimes (`eligible: false` → the
+    synthetic `ineligible:<id>` token and exit `10`; `eligible: true` →
+    contributes nothing, exit `0` on a clean source).
 14. `check-risk-upgrade-ineligible-no-reasons` (REQ-002, Blocker [B4]) —
     a fragment entry `{"id": "x", "eligible": false, "upgrade_reasons":
     []}` produces `triggers=ineligible:x` and exit `10` (requirements.md
@@ -1036,8 +1068,12 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
 - **No re-validation inside `check-risk-upgrade`** — the script's own new
   second argument is treated as already-catalog-validated data (Data
   Plan), never re-checked against `lite-upgrade-reason-catalog.json`
-  itself; this keeps the script's own logic exactly what it is today (a
-  keyword scanner plus, now, a trivial merge step) and avoids a second,
+  itself; "no re-validation" is scoped (2026-08-28 amendment,
+  RT-20260828-001) to catalog membership alone — the fragment's shape
+  and each element's reason-token grammar ARE validated eagerly, per
+  Processing step 2b — so the script's own logic is a keyword scanner
+  plus an eager fragment shape/grammar gate plus a trivial merge step,
+  and it still avoids a second,
   competing validation surface for the identical catalog A2's own
   `validate-capability-registry` already fail-closes on at Registry-
   authoring time (requirements.md Non-goals — "does not duplicate...

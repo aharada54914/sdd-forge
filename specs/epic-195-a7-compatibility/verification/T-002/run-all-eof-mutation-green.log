@@ -1,0 +1,4 @@
+==> tests/mutate-runner.tests.sh
+==> tests/guard-r10-port.tests.ps1
+All POSIX regression tests passed.
+PASS: runner parsed fully before executing child suites

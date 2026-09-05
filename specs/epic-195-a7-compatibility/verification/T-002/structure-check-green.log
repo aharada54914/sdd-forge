@@ -1,0 +1,4 @@
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK

@@ -1,0 +1,12 @@
+Bash syntax checks
+PowerShell syntax checks
+Resolve-Path: Cannot find path '/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/capture-cli-golden.ps1' because it does not exist.
+Live runner registration
+tests/run-all.sh:101:  tests/compatibility-byte-identical.tests.sh
+tests/run-all.ps1:60:    'tests/compatibility-byte-identical.tests.ps1'
+Fixture builder hashes and immutability
+71ec0a0653f182f0ee40aaa36161cfcbfab63d1ce12a5b982b542cbb3231fb8c  tests/lib/fixture-matrix-builder.sh
+d859b3249e7d5d5e849df2a586392f9c5380cf3e98234ee59bf3d196c226cd5b  tests/lib/fixture-matrix-builder.ps1
+Protected files and frozen task plan unchanged
+Whitespace validation
+static checks passed

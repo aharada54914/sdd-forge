@@ -400,6 +400,134 @@
 
 ### Added
 
+- **Epic A7 orchestration-event trace: TEST-018 (Issue #195, T-006)**: wired
+  T-005's `_loop_trace_emit`/`Write-LoopTraceEvent` collector into the
+  shared driver's own named producer call sites — `skill-order:invocation`
+  (each stage-script invocation), `approval-checkpoint:reserve` (each
+  `_loop_reserve_review_context`/`Invoke-LoopReserveReviewContext` call),
+  and `review-loop-presence:stage-dispatch` (`drive_review_round`/
+  `Invoke-DriveReviewRound`'s own successful dispatch) — and added
+  `TEST-018` to `tests/loop-consistency.tests.sh` (`TEST-019` on the
+  PowerShell twin, where the case number `018` was already taken by a
+  pre-existing, unrelated same-turn-edit-plus-reset regression), driving a
+  single Context-absent spec-review round and comparing the observed trace
+  against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json`, via
+  `assert_event_trace`/`Test-EventTrace`. `done-transition:assert-terminal`
+  is recorded from the test case itself, immediately after its own
+  `assert_terminal`/`Test-LoopTerminal` call, rather than inside that
+  function, to keep `tests/loop-inventory.tests.{sh,ps1}`'s own `TEST-009.2`
+  byte-identity regression lock on `assert_terminal`/`Test-LoopTerminal`
+  intact.
+
+- **Epic A7 orchestration-event trace: TEST-019 (Issue #195, T-007)**: added
+  `TEST-019` to `tests/loop-escalation.tests.sh`/`.ps1` (no case-number
+  collision on either twin — both suites' own next available case after
+  the pre-existing `TEST-018` prefix-collision case genuinely is `019`),
+  asserting a Context-absent (F1) `quality-gate-outcome` +
+  `done-transition` event trace against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-quality-gate-escalation-blocked.json`,
+  via `assert_event_trace`/`Test-EventTrace`: three real
+  `quality-gate-outcome:escalation` decisions recorded from the test case
+  itself immediately after each real decision (this suite's own
+  `check-quality-gate-cycle-limit.sh`/`.ps1` Escalate-Human decision,
+  `next_tier: "human"`, plus `select-agent-model.sh`/`.ps1`'s
+  lightweight->standard and standard->strong decisions — design.md's own
+  producer table names both scripts as this producer's call sites), then
+  exactly one `quality-gate-outcome:capability-applicability` event (F1's
+  own `disabled-legacy` fixture state, always last within the kind), then
+  `done-transition:assert-terminal` recorded from the test case itself,
+  immediately after its own `assert_terminal`/`Test-LoopTerminal` call on
+  the chain's real `terminal-tier` `BLOCKED` outcome — the same
+  T-006-established pattern, keeping `assert_terminal`/`Test-LoopTerminal`
+  byte-identical. The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
+  leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
+  AC-027) is a named `SKIP` until Epic A1 merges — that producer's own
+  call site is design.md's own explicitly-cited future task, unwired
+  anywhere in the tree — with both fixture variants genuinely constructed
+  via T-001's `build_fixture` so the `SKIP` is not a hand-waved
+  placeholder.
+
+- **Epic A7 deferred Epic A5 fixture assertions (Issue #195, T-008)**:
+  authored Epic A5's own three deferred `resolve-project-context-caller-
+  contract` fixture assertions (design.md item 10(a)/(b)/(c), OQ-001)
+  inside the existing `TEST-018`/`TEST-019` suites, never a new suite
+  file: `TEST-018.5`/`TEST-019.5` (anchor-fingerprint drift, AC-036) in
+  `tests/loop-consistency.tests.{sh,ps1}`, and `TEST-019.10`/`TEST-019.11`
+  (Resolver-non-invocation spy-harness, AC-004/AC-021; REQ-002
+  Block-surfaces-not-fallback, AC-037) in
+  `tests/loop-escalation.tests.{sh,ps1}`. Each sub-case's own checker
+  mechanism is proven first against a deliberately-constructed
+  negative fixture (a heading relocated ahead of an otherwise
+  byte-identical anchor window; a spy that would report a false
+  negative; a Block that silently falls back with no
+  `skip-stop-message:stop` event) — these self-checks are unconditionally
+  live and gate pass/fail normally. The production-fixture comparison
+  itself remains a named `SKIP` in every sub-case, per tasks.md T-008's
+  own Scope and acceptance-tests.md's own Test Type column ("named SKIP
+  until Epic A5 merges" / "until Epic A1 AND Epic A5 merge"): a local ad
+  hoc probe (`specs/epic-193-a5-capability-resolver/` presence in the
+  tree) stands in for `merged(A5)` until T-010's own allowlist manifest
+  exists. The anchor-fingerprint sub-case's informational recomputation
+  against the live `sdd-bootstrap-interviewer/SKILL.md` found the digest
+  has already drifted from Epic A5's own recorded citation
+  (`FP-A5-CALLER-CONTRACT-10`) even though the heading's own ordinal
+  position has not — reported for provenance only, since AC-036's own
+  activation condition is unmet regardless.
+
+- **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
+  `emit-run-record.sh`/`.ps1` with `--capability-enforcement
+  <disabled-legacy|advisory|required>`/`--capability-block-id <id>`
+  (`-CapabilityEnforcement`/`-CapabilityBlockId` on the PowerShell twin),
+  gated by a new `emit_capability` flag independent of the existing
+  `emit_v2` (`--effort-*`) gating. The no-flag `sdd-run-record/v1` heredoc
+  stays byte-identical (AC-011); `--effort-*`-only output is unchanged
+  `v2` with no `capability` key; `--capability-enforcement` supplied
+  without any `--effort-*` flag is a usage error (non-zero exit, no
+  `$out` file written, AC-033); both families together add an additive
+  `capability` object (`{enforcement, block_id}`, `block_id` `null` when
+  not supplied) alongside the existing `effort` object (AC-012).
+  `tests/emit-run-record-feature-scope.tests.{sh,ps1}` gain the
+  four-flag-combination matrix plus the capability-only golden negative
+  and a case-sensitive mis-cased-enum rejection case.
+
+- **Epic A7 canonical event-trace schema (Issue #195, T-005)**: extended
+  the existing `loop-inventory/v1` registry and shared Bash/PowerShell
+  loop driver in place rather than building a new mechanism — added an
+  additive, optional `capability_applicability` field to the `quality-gate`
+  entry only (registry stays at 8 entries) and three new driver functions,
+  `_loop_trace_emit`/`assert_capability_applicability`/`assert_event_trace`
+  (`Write-LoopTraceEvent`/`Test-CapabilityApplicability`/`Test-EventTrace`
+  on the PowerShell twin), implementing the `compatibility-event-trace/v1`
+  collector/comparator contract. `assert_terminal`/`assert_artifacts_schema`
+  stay byte-identical to their pre-task form; `tests/loop-inventory.tests.{sh,ps1}`
+  gain `TEST-008`/`TEST-009` covering the field shape, the trace lifecycle
+  reset, monotonic sequencing, all four trace-identity mismatch dimensions,
+  and comparator purity.
+
+- **Epic A7 structural compatibility suite (Issue #195, T-004)**: added
+  offline Bash and PowerShell structural gates for the full seven-file and
+  lite three-file profiles, a versioned recorded-response corpus, and strict
+  Markdown AST canonicalizers that sort frontmatter keys while preserving
+  heading level/order. Malformed frontmatter and unsupported headings fail
+  closed; F3/F4/F5/F6 remain dependency-citing named skips. Registered both
+  suites in the live aggregate runners and staged the protected CI workflow
+  candidate under the feature's checksum-bound `human-copy/` bundle.
+
+- **Epic A7 byte-identical compatibility suite (Issue #195, T-003)**: added
+  Bash and PowerShell F1/F2 compatibility suites that compare all nine
+  canonical targets across two fixed-environment invocations, cover the six
+  legacy CLI-priority cells, and self-check one-byte drift detection. Extended
+  the install/uninstall twins with project-context presence invariants and
+  registered the new suites directly in both live aggregate runners.
+
+- **Epic A7 compatibility fixture matrix (Issue #195, T-001)**: added
+  sourced Bash and PowerShell `build_fixture` helpers for the F1-F4
+  project-context combinations and the six Context-absent CLI cells. Each
+  invocation returns a fresh, physically normalized temporary root outside
+  the repository; invalid F3/F4 fixtures remain valid YAML while failing the
+  named project-context content validator through the schema field alone.
+
 - **Epic 194 T-001 human-copy runner, promoted to its canonical path (#194)**:
   the feature-scoped `apply-protected-files.ps1` runner and its twin
   `.sh`/`.ps1` contract checks (exact four-target payload, ordinal

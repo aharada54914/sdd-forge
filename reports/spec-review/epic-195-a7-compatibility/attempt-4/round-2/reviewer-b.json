@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0774",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0774",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-4/round-2/integrated-summary.json",
+      "sha256": "bdd91b23409f904c23e27ab42d4c5ebfb680f44efcf0d883efad81a2cb9e8fd0"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-4/round-2/precheck-result.json",
+      "sha256": "38eb57d1b04adf9235ff7e29ce6eec10f1cc88789c18681a0d6671b45e42275f"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "514bca67297884eeebfeb1ca8a98785126e3a18604a6ddce01506f6a90550fc5"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-2 edit (requirements.md AC-010, acceptance-tests.md AC-010 row) closes the prior ambiguity: AC-010 now carries the identical named-SKIP clause ('a named SKIP entry in REQ-007's allowlist manifest (AC-034) until Epic A1's Project Context schema exists, activation condition \"Epic A1 merged to `main`\" (REQ-007)') that its Context-present siblings AC-007/AC-042 carry verbatim in structure, and acceptance-tests.md's AC-010 row Test Type now reads 'integration (named SKIP, allowlist-governed, until Epic A1 merges)' with REQ-007 added to the Requirement column, matching the AC-007/AC-019-021/AC-042/AC-043 rows exactly. No implementer decision is left open about whether TEST-019 should hard-fail or SKIP pre-Epic-A1. The rest of the package continues to fix concrete formats (regex patterns, hash algorithms, fixed environment variables, field enumerations) leaving no reasonable two-implementer divergence found in this round's scope."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-007 explicitly scopes itself to 'F4 only — never F6' and cross-references AC-043 as the separate F5/F6 disposition, and AC-042/AC-043 name distinct, non-overlapping activation conditions (Epic A1 alone vs. Epic A1 AND Epic A6). AC-010's new SKIP clause (Epic A1 only) does not conflict with AC-034's allowlist catch-all ('any Context-present REQ-003 assertion') — it is now an explicit instance of that catch-all rather than an undocumented exception. No goal, acceptance criterion, constraint, or non-goal in requirements.md/acceptance-tests.md directly conflicts with another in this round's reviewed text."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md covers negative/boundary paths implied by requirements.md: AC-002/TEST-002 (deliberately mutated fixture, negative self-check), AC-035/TEST-035 (three independent hard-fail negative self-checks for dependency-present SKIP, unknown SKIP, and fingerprint drift), AC-041/TEST-041 (two independent negative fixtures for promote-golden-baseline.sh's CI-set and missing-approved-by refusal), and AC-019-021/TEST-019-021 (PROJECT_CONTEXT_INVALID variant, Edge Cases section, requirements.md lines 838-844). These map to the boundary/failure states requirements.md's Problems and Edge Cases sections name (INV-023 fail-open risk, Context-present-invalid variant)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section (requirements.md, 'Assumptions') lists exactly three assumptions (upstream epics A1/A3/A4/A5/A6 merge status, decision-doc/ADR authority, runtime toolchain), each with an explicit resolution path: the upstream-epic assumption states 'This package re-verifies before Phase 2/3 begins' and ties directly to AC-035's fingerprint-drift hard-fail mechanism rather than leaving drift unresolved. No assumption here is left as a bare, unmarked guess requiring a design-time decision that isn't already routed through REQ-007's allowlist/activation-condition machinery."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline promotion boundary (Security Boundaries B1; Roles and Permissions) is testable, not merely narrative: AC-040/TEST-040 statically scans .github/workflows/test.yml for mutation-capable command strings, and AC-041/TEST-041 directly exercises promote-golden-baseline.sh's runtime refusal (CI env var set → non-zero exit no write; --approved-by omitted/empty → non-zero exit no canonical write) as two independent negative fixtures. This gives a future implementer/verifier a concrete pass/fail check for the human-approval boundary rather than an unverifiable governance statement."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specific gap round-1 reviewer-b findings identified on AC-010/TEST-019 (missing SKIP disposition, leaving ambiguous whether a design/task reviewer would need to invent the activation behavior) is closed by this round's edit, confirmed by direct comparison of the new AC-010 text and acceptance-tests.md row against the AC-007/AC-042/AC-043 sibling pattern. The package otherwise fixes canonical tables, disposition legends (AC-028/AC-029), and per-kind producer/ordering/normalization rules (AC-022-027) that a design reviewer would otherwise have to invent; nothing in this round's change reopens or degrades that readiness."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the repository (confirmed via glob search for domain/*), so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json. Per the check's own skip condition, this is recorded as skipped."
+    }
+  ]
+}

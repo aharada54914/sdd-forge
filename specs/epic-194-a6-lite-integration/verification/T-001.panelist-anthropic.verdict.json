@@ -3,74 +3,44 @@
   "task_id": "T-001",
   "feature": "epic-194-a6-lite-integration",
   "vendor": "anthropic",
-  "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
-  "findings": [
-    {
-      "severity": "Critical",
-      "ref": "specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1 ($Script:DeclaredTargets / Get-PayloadFileSet / Test-ExactSet) vs acceptance-tests.md AC-010",
-      "note": "The delivered runner cannot apply this feature's own real staged tree. Get-PayloadFileSet enumerates the entire human-copy/ tree recursively and excludes only two controls (MANIFEST.sha256, apply-protected-files.ps1), while $Script:DeclaredTargets and the shipped MANIFEST.sha256 hold exactly four plugins/sdd-lite/** entries. The real staged tree also contains .github/workflows/test.yml and README.md (both in the implementation report's own Outputs table), neither of which is a control file under design.md's 'Payload file set, defined' / INV-020. Test-ExactSet therefore throws 'staged payload contains an undeclared path outside the four-target set' and the runner exits 2 against the very batch it exists to apply. AC-010 as written in this bundle was already amended to a five-target declared set explicitly including .github/workflows/test.yml 'with a correct MANIFEST.sha256 entry ... rather than left an undeclared payload path Test-ExactSet could never pass against the real staged tree'; the delivered runner and manifest implement four and human-copy/README.md explicitly refuses to widen. tasks.md Protected Files item 3 likewise commits this runner to applying the staged workflow 'the same way it applies the four payload files'. acceptance-tests.md is additionally self-contradictory: AC-010 says five-target, AC-031 still says four-target. No fixture in the suite exercises the real staged tree, so the 45/45 green never touches this failure."
-    },
-    {
-      "severity": "Critical",
-      "ref": "specs/epic-194-a6-lite-integration/human-copy/README.md 'Human-apply command sequence' steps 2 and 4, vs tests/human-copy-runner-contract.tests.ps1 TEST-000d",
-      "note": "The documented operational procedure breaks the task's own registered test suite. Step 2 instructs the human to 'rm -rf specs/epic-194-a6-lite-integration/human-copy/.github' and 'rm -f .../human-copy/README.md' so the runner's exact-set scan can pass; step 4 then instructs 'bash tests/run-all.sh' and 'pwsh -NoProfile -File tests/run-all.ps1'. TEST-000d hard-fails with 'staged CI workflow candidate is missing: <repo>/specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml' when that file is absent, and this suite is registered in both run-all twins and staged into CI's 3-OS version-gates job (windows-latest / macos-latest / ubuntu-latest). Following the shipped instructions turns this suite permanently red in run-all and in CI; restoring the file to make the suite green again re-breaks the runner. The two delivered artifacts have mutually exclusive preconditions and no test covers either state."
-    },
-    {
-      "severity": "Critical",
-      "ref": "apply-protected-files.ps1, A6AnchoredPublisher.SourceMode; corroborated by verification/T-001/stat-offsets.log",
-      "note": "SourceMode reads struct stat by hand-coded byte offset: 'uint mode = isMac ? (uint)(ushort)Marshal.ReadInt16(buffer, 4) : (uint)Marshal.ReadInt32(buffer, 24)'. The bundle's own stat-offsets.log proves by compile-time offsetof() against real system headers that on aarch64 glibc st_mode is at offset 16 and offset 24 is st_uid, so on arm64 Linux the publisher hands fchmod 'uid & 0777' instead of the source mode (e.g. uid 501 -> 0o765, group-writable) while installing check-risk-upgrade.sh and the other protected gate files. Content digests still match, so no pre-copy, temp, published or post-copy hash check detects it: the mode this runner sets is the one property outside its own tamper-evidence envelope. There is no architecture guard and no fail-closed path. Compounding it, the same log states the fix was already applied ('SourceMode no longer reads any fstat(2) buffer offset by hand ... See the comment on SourceMode in .../apply-protected-files.ps1'), but the runner shipped in this bundle still contains the offset table, still takes the isMac parameter, and carries no such comment. The bundle therefore either ships the defect or misrepresents the artifact under review; neither is verifiable as fixed from the bundle."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-194-a6-lite-integration/verification/T-001.contract.json, checks[id=regression]",
-      "note": "The default-FAIL verification contract records regression as required:true, passes:false. Its own comment states the full tests/run-all.sh (116 suites) 'was attempted and TIMED OUT after 10 minutes mid-run' and that 'This makes the contract fail overall on this required check, which is the correct outcome until tests/run-all.sh (116 suites) is actually run to completion in one session'. A required check is failing by the contract's own accounting, so the task is not gate-ready on the evidence in this bundle."
-    },
-    {
-      "severity": "Major",
-      "ref": "tests/human-copy-runner-contract.tests.ps1 ($FixtureCatalogPath = tests/fixtures/epic-194-human-copy/scenarios.json)",
-      "note": "Every scenario input is read from a fixture catalog absent from the bundle: which declared target is omitted (missing_payload.omit_target), the undeclared fifth path (undeclared_payload.extra_payload), the manifest extra/missing targets, the tampered target, the two control-file names asserted in TEST-005a/b, the mis-cased control name, the foreign Epic-136 prefix and manifest body, the ancestor-symlink target, and the nested PROPOSED path. The catalog is a declared Planned File. Without it the actual inputs behind most of the 45 assertions cannot be read, so that coverage is an unverified claim rather than verified behaviour."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-194-a6-lite-integration/verification/T-001/security-review.md, 'Scope boundary' and 'Nonblocking limitations'",
-      "note": "The security PASS is scoped to 'specs/epic-194-a6-lite-integration/drafts/apply-protected-files.ps1', an artifact the implementation report says was deleted on promotion, and records no digest for the reviewed bytes to compare against the shipped 70de05e9... hash, so 'the bytes are unmodified from the reviewed candidate' is unverifiable from the bundle. The review's own stated precondition -- 'The candidate also must not be promoted until a human resolves the four-target / fifth CI-target contradiction and applies the protected artifacts' -- was not met before promotion, and no human decision on that contradiction appears anywhere in the bundle. The review also discloses that the Windows publisher (roughly 200 lines of NtCreateFile / SetFileInformationByHandle / RtlNtStatusToDosError P/Invoke plus the Windows rename and reparse-point validation) was reviewed statically and never executed; no log in the bundle shows it running."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/qg/T-001/unit-acceptance-green.log (2026-08-19) vs verification/T-001/stat-offsets.log (2026-08-21)",
-      "note": "The only full-fidelity GREEN evidence in the bundle was captured 2026-08-19, before the SourceMode change stat-offsets.log dates to 2026-08-21. No post-change suite run appears anywhere in the bundle, so nothing shows the 45/45 result still holds for the artifact the evidence logs describe as current."
-    },
-    {
-      "severity": "Minor",
-      "ref": "apply-protected-files.ps1, Copy-Payload catch block",
-      "note": "Every exception from CopyOne is relabelled 'secure handle-relative publish rejected <target> (symlink/reparse-point ancestor or unsafe leaf)'. A digest mismatch ('staged payload changed after pre-copy verification'), a temporary-digest mismatch, ENOSPC, or a missing libc entry point is reported to the operator as a path-escape attempt. The inner message is appended, but the headline diagnosis is wrong for most failure modes."
-    },
-    {
-      "severity": "Minor",
-      "ref": "apply-protected-files.ps1, Copy-Payload / Invoke-ApplyProtectedFiles",
-      "note": "Targets are published one at a time with no cross-target atomicity or rollback. A failure on the third target leaves the first two installed, and the runner reports only the failing target -- it never states which files did land. No fixture exercises a mid-batch failure or the resulting partial-install state."
-    },
-    {
-      "severity": "Minor",
-      "ref": "tests/human-copy-runner-contract.tests.sh",
-      "note": "The bash twin only shells out to 'pwsh -File tests/human-copy-runner-contract.tests.ps1'. The repeatedly cited '45/45 on both runtimes' is therefore one PowerShell engine executing the same assertions twice; green-sh.log and green-ps1.log are not independent evidence. The rationale is documented, but the doubled tally should not be read as doubled coverage."
-    },
-    {
-      "severity": "Minor",
-      "ref": "apply-protected-files.ps1 ('# TEST_FIXTURE_AFTER_COPY', '// TEST_FIXTURE_BEFORE_POSIX_DIRECTORY_OPEN', '// TEST_FIXTURE_BEFORE_DIRECTORY_OPEN_WINDOWS', unused 'fixtureDestination' parameter on OpenUnixParent/OpenWindowsParent, unused symlinkat DllImport)",
-      "note": "Named source-substitution seams, a parameter that exists only so injected fixture code can read it, and a symlink-creation P/Invoke that is never called are shipped inside the security-critical publisher. Inert as delivered, but they are documented injection points and dead native imports in the file that writes to protected destinations, and each must be re-derived as dead on every audit pass."
-    },
-    {
-      "severity": "Minor",
-      "ref": "tests/human-copy-runner-contract.tests.ps1, TEST-004a",
-      "note": "The per-target hash-mismatch rejection is asserted only as 'ExitCode -ne 0' with no diagnostic match, unlike TEST-002c/003b/003d/008c/008f/010b. Since Test-ExactSet runs before Test-ManifestHashes, any unrelated non-zero exit satisfies this assertion; the fixture is not proven to reject for the hash reason it names."
-    }
-  ],
+  "model": "claude-fable-5",
   "blind": true,
-  "input_digest": "45c9a06f6d1ee64b33911e824b32a13ca96cf38593d34b0f393baad5b39d8e14",
+  "input_digest": "46c0cb724c0f056650753f0a01005191e1f63729b6d6aa609faa84bcf96cb67c",
   "consent": {
     "kind": "sudo",
-    "ref": "T-001.panelist-input.txt header line '# consent: sudo'; tasks.md T-001 'Approval: Approved (sudo 2026-07-22T15:08:56Z)'"
-  }
+    "ref": "T-001.panelist-input.txt header"
+  },
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/README.md (declared output), 'What's staged' table",
+      "note": "Four of the five staged-payload SHA-256 values in the README table (e.g. check-risk-upgrade.sh ee35d426...) disagree with the current MANIFEST.sha256 and Outputs-table digests (4ffd5cd7...), because the README predates the 2026-08-28 MANIFEST re-signing/ADR-0023 rebase chain. The runner verifies against MANIFEST, not the README, so this is documentation drift, but a human cross-checking the README table would see false mismatches."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/T-001/security-review-20260828.md, Scope Items 4 and 5",
+      "note": "The fresh hash-matched security review is genuine and PASS, but its two recorded Low findings remain open: the live-state report can label a target INSTALLED when Test-PostCopyHashes fails after Copy-Payload fully succeeded (fail-closed via exit code, but untested by any assertion), and read-side verification resolves by path string rather than held handles. Respected at the reviewer's recorded Low disposition."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-001.contract.json comment (NAMED INDEPENDENT SECOND REVIEWER)",
+      "note": "The Done-When's independent quality-gate PASS with a named second reviewer (sdd-evaluator seq0914, reports/quality-gate/.../T-001.md) is recorded only in the contract comment; the report itself is deliberately excluded from the bundle for blind isolation, so this item is accepted on the recorded citation and cannot be independently confirmed from the bundle."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/shared/task-state-check.log",
+      "note": "The task-state-check evidence backing passes:true is dated 2026-08-25 at HEAD 7e282bb1, predating the 2026-08-28 amendment re-binding, Outputs re-pin, and human-apply chain the rest of the contract's evidence reflects; no post-2026-08-28 re-run of this check appears in the bundle."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/T-001/runner-contract-green-20260828.log (TEST-002b/003c/004b/008d/010c labels)",
+      "note": "Multiple pre-copy-rejection assertions still say 'all four live files unchanged' although the declared contract was widened to five targets; this is either stale label text or the fifth destination (.github/workflows/test.yml) is not included in those non-mutation checks. TEST-012 does exercise all five, so at worst this is a narrow assertion-coverage/labeling gap."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-194-a6-lite-integration/T-001.md, 'Four-target / fifth-target contradiction' section",
+      "note": "The report retains the superseded four-target interpretation (test.yml applied by bare cp, removed before runner invocation) alongside later sections, the five-entry MANIFEST, and the amended AC-010/AC-031 five-target contract; it is framed as historical narrative but contradicts the shipped behavior for a reader who stops there."
+    }
+  ]
 }

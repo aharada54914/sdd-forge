@@ -1,0 +1,147 @@
+ticket_id: RT-20260828-001
+status: open
+type: correctness
+severity: major
+target:
+  feature: epic-194-a6-lite-integration
+  task: T-002
+  files:
+    - plugins/sdd-lite/scripts/check-risk-upgrade.sh
+    - plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+    - specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh
+    - specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+    - specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256
+summary: "upgrade_reasons の形状検証が eligible:false の分岐内にしかなく eligible:true が無検査。重大度はリポジトリオーナー裁定により Major"
+problem: |
+  cross-model パネルが重大度で割れた 1 件について、リポジトリオーナーが
+  2026-08-28 に **Major** と裁定した。パネルの内訳は OpenAI = Critical、
+  Google = Critical、Anthropic = Minor（「runtime 間で一貫し実質 fail-closed」）。
+  本チケットはその裁定と、裁定の対象となった事実を記録する。
+
+  裁定された事実（ソースで直接確認済み。ps1 の行番号は human-copy 版）:
+
+  (1) 検証の到達範囲。upgrade_reasons の形状検証は
+      `if ($entry.eligible -eq $false)` (:177) の内側にしか無い。したがって
+      `eligible: true` のエントリが不正な upgrade_reasons を持っていても
+      形状検査を一切受けず、exit 2 に到達しない。sh 双子も同じ構造。
+
+  (2) falsy-present 値の扱い。`Test-PythonFalsy` (:59) は present だが falsy な
+      値（`0` / `""` / `false`）を absent と同一視する。これはコメント自身が
+      sh の `entry.get("upgrade_reasons") or []` との双子整合を理由に
+      意図的挙動として宣言している。
+
+  なぜ Minor でなく Major か（裁定の含意）: 同時に配布される
+  risk-upgrade-policy.md が「fragment が不正なら
+  `risk-upgrade: capability-reasons fragment invalid` で exit 2、
+  never silently degraded to "no Capability-derived trigger"」と契約に明記して
+  いる。(1) はその契約に穴を開けるため「文書化されていない挙動」では済まない。
+  一方で観測された挙動は runtime 間で一貫しており、既知の入力で fail-open な
+  誤判定を生む再現経路は未提示なので Critical（= BLOCKED）ではない。
+
+  現況: この欠陥を含む payload は 2026-08-28 に HUMAN APPLY STEP により live へ
+  適用済み（5 ターゲット全て MANIFEST.sha256 と一致を確認）。したがって本件は
+  staging だけでなく live の enforcement chain に存在する。
+
+  【重要・後から判明】これはコード欠陥ではなく **仕様の不整合** である。
+  sdd-forge-42 の指摘を受けて凍結文書を直接確認した結果（引用はすべて実測）:
+
+  - acceptance-tests.md:50 の AC-027 は「unreadable/malformed/**shape-invalid**
+    な fragment は exit 2」と述べるが、shape-invalid の定義は持たず
+    design.md Test Strategy item 13 に委譲している。
+  - design.md:628-633（Processing 手順 2b）は不正条件を **限定列挙** する:
+    「unreadable/not-valid-JSON/missing "capabilities" key/"capabilities" not
+    an array/any entry missing "id" or "eligible"」。upgrade_reasons は無い。
+  - design.md:640-643（手順 2c）はさらに踏み込み、「each upgrade_reasons token
+    is already catalog-validated upstream, **not re-validated here**, Design
+    Decisions "no re-validation inside check-risk-upgrade"」と明記する。
+
+  したがって実装は捻れた状態にある。design.md が「ここで検証するな」と書いた
+  検証（配列型チェックとトークン pattern チェック）を eligible:false 分岐の
+  内側に **追加** している一方、パネリストが要求する eligible:true 側は
+  覆っていない。sh:186-189 と ps1:174-176 のコメントは design.md の
+  「entry['eligible'] == false」を逐語引用しており、分岐配置自体は設計に忠実。
+
+  この事実は修正の方向を反転させる。「検証を分岐の外へ出す」だけの修正は
+  実装を design.md からさらに引き離し、次の impl レビューアはバグではなく
+  修正の方を指摘する。先に決めるべきは「AC-027 の shape-invalid に非配列
+  upgrade_reasons が含まれるか」であり、これは凍結された approved 文書
+  （requirements/acceptance と design）の間の解釈衝突なので人間裁定が要る。
+  同型の前例: RT-20260826-001（risk-adaptive-layer、批准済み design 文言に
+  合致するコードとその上位要件の約束の乖離）。
+
+  【追補・段階 0 は実質決着】「どちらの文書が権威か」ではなく
+  **「design.md が stale」** である。履歴を追った結果（sdd-forge-42 の示唆に
+  よる。引用は `git show 2499e813` の逐語）:
+
+  問題の検証は 2026-08-25 のコミット `2499e813`
+  「validate upgrade_reasons elements...」で、cross-model パネルの指摘への
+  修復として追加された。design.md の「no re-validation inside
+  check-risk-upgrade」はそれ以前の記述であり、この修復に追随していない。
+
+  修復コミットが記録した修正前の実測値:
+
+      ["evil,forged"]      -> full-required: evil,forged; triggers=evil,forged
+      ["x; triggers=NONE"] -> full-required: x; triggers=NONE; triggers=x; triggers=NONE
+      ["x\ntriggers=NONE"] -> 複数行レコード、単一行出力契約を破壊
+
+  同メッセージいわく「The exact attack the id grammar blocks, wide open one
+  field over」。`id` 側は同じ攻撃を bounded grammar で塞いでおり
+  （TEST-013m/n/p）、reason token 側だけが無防備だった。さらに二つ目の兄弟欠陥
+  として sh/ps1 の stringifier 差異（null / object / nested array で 3 形が
+  食い違う）も同時に閉じている。
+
+  したがって design.md の文面に合わせて検証を削除する選択肢は
+  **実証済みのインジェクションと双子非対称を再導入する**。段階 0 の裁定は
+  事実上「design.md 2b/2c を amendment で現状に追随させる」一択であり、
+  残る自由度は falsy-present 値の扱いのみ。ただし amendment は凍結文書への
+  変更なのでオーナー承認そのものは依然必要。
+
+  なお 42 が測定した削除時の劣化（検証を消し残り 2 行をそのまま残した場合）:
+  非配列 upgrade_reasons のうち `5` は TypeError で exit 2（fail-closed）だが、
+  `"risk"` は文字単位で ['r','i','s','k']、`{"a":1}` はキー単位で ['a'] を
+  トリガ列へ**無言で注入**する。削除は「仕様外の検証」を「無言の破損経路」に
+  交換することになる。
+
+  【精度訂正・本チケットの過大記述を撤回】上の injection 実測値と (1) の
+  eligible:true ギャップを並置した書き方は「eligible:true 経由で今も
+  injection が通る」と読めてしまうが、**それは誤りである**。実測で確認
+  （sh、human-copy 版）:
+
+  - トークンを記録へ出す箇所は 2 つだけで、両方とも
+    `if entry["eligible"] == False:` の内側（:204 `capability_triggers.extend(reasons)`、
+    :206 `capability_triggers.append("ineligible:" + entry["id"])`）。
+    ps1 双子も :219 / :221 で同じ構造。
+  - :211 `all_triggers = keyword_triggers + capability_triggers` が唯一の消費者。
+
+  したがって eligible:true のエントリは**トークンを一切出力しない**。
+  `2499e813` の修復は、出力する経路については injection を完全に閉じている。
+  未検証のまま残っているのは**何も出力しない経路**だけである。
+
+  ギャップの正確な性質: shape-invalid な upgrade_reasons を持つ eligible:true
+  エントリが **無言で受理され exit 0 / lite-eligible になる**。AC-027 の
+  「shape-invalid は exit 2」を満たしていない。これは**露出ではなく
+  検証の fail-open（適合性ギャップ）**である。
+
+  重大度への含意（オーナー判断事項として記録）: オーナーの Major 裁定は
+  「eligible:true が形状検査を受けない」という正確な事実の上で下されており、
+  live injection があるとは報告していない。裁定はその意味で有効だが、
+  「露出ではなく適合性ギャップ」という精度を得た上で Major を維持するか
+  下げるかは、オーナーが改めて判断してよい。
+expected_fix:
+  - "【段階 0・オーナー承認・他の全段階の前提】design.md 2b/2c を amendment レーンで現状に追随させることを承認する。**選択肢は実質これ一つ** — 文面どおりに検証を削除すると `2499e813` が実測付きで塞いだインジェクション（',' / ';' / 改行によるトリガ列偽造）と sh/ps1 の stringifier 非対称を再導入するため。承認が要るのは判断が割れるからではなく、凍結文書への変更だから"
+  - "段階 1: design.md 2b の不正条件列挙に upgrade_reasons の形状を追加し、2c の \"not re-validated here\" と Design Decisions \"no re-validation inside check-risk-upgrade\" を、`2499e813` が既に実装した検証を追認する文言へ改める。amendment は investigation.md の Amendment Re-Review Context へ追記し、spec→impl→task を無編集で連続再レビューする"
+  - "段階 2: 形状検証を eligible 分岐の外へ出し eligible:true にも適用（sh :190 / ps1 :177 の両双子を同一コミットで。片方だけ human-copy に載せない）"
+  - "段階 2: falsy-present 値（false / 0 / 空文字列）を absent 扱いにするか exit 2 にするかを段階 0 の裁定に沿って確定し、双子で一致させ、policy 文書に明記する"
+  - "段階 2: 回帰テストを追加 — (a) eligible:true かつ不正な upgrade_reasons、(b) eligible:false かつ falsy-present 値の各型。**現行フィクスチャは eligible:true の経路に一つも入らない**。これが人間 apply まで生き延びた理由"
+  - "段階 2・(a) の断言内容に注意: 断言は **exit 2** でなければならない。「偽造トークンがレコードに現れないこと」を断言してはいけない — eligible:true はそもそもトークンを出力しないので、その断言は**欠陥がある現状でも PASS する空虚なテスト**になる。なお段階 0 が万一「false 分岐に限定するのが正」に転ぶ場合は同じフィクスチャが exit 0 断言へ反転するため、**このテストは裁定後に書くこと**"
+  - "段階 3: human-copy を修正して MANIFEST.sha256 を再発行し、HUMAN APPLY STEP を再実行する（live は既に適用済みのため、修正は再 apply でしか live に届かない）"
+  - "段階 3: 3 タスクの panelist-input バンドルを再生成しパネルを再実行する（現行 verdict は修正前バンドルに束縛されている）"
+references:
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-openai.verdict.json (Critical, input_digest ae927054)"
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-google.verdict.json (Critical, input_digest ae927054)"
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-anthropic.verdict.json (Minor, finding 7, input_digest ae927054)"
+  - "requirements.md REQ-002 / acceptance-tests.md AC-027"
+  - "plugins/sdd-lite/references/risk-upgrade-policy.md (Capability-derived trigger source 節の fail-closed 契約)"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0

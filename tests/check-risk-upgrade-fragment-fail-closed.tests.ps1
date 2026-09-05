@@ -8,7 +8,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$Sut = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
+# SUT repointed 2026-08-28 (post-apply hardening): the shipped live script
+# is the SUT; staged==live is held by human-copy-mirror-freshness.
+$Sut = Join-Path $RepoRoot 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
 $PowerShell = (Get-Process -Id $PID).Path
 
 $Script:Pass = 0
@@ -235,6 +237,41 @@ try {
         Ok 'TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced'
     } else {
         Bad "TEST-013af: expected exit 10 and the exact two-token record, got exit $afExit. Output: $afJoined"
+    }
+
+    # TEST-013ag/ah pin amended design.md 2b (2026-08-28, RT-20260828-001):
+    # upgrade_reasons shape/grammar is validated for EVERY entry, before
+    # eligibility is consulted. The assertion must be exit 2; asserting the
+    # absence of forged tokens would be vacuous (an eligible:true entry
+    # emits nothing even while defective). Twin of the sh suite's ag-aj.
+    Write-Host '=== TEST-013ag: eligible:true entry with a truthy non-array upgrade_reasons (amended 2b) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'true-scalar.json') -Value '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": "risk"}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ag' (Join-Path $Work 'true-scalar.json')
+
+    Write-Host '=== TEST-013ah: eligible:true entry with a delimiter-carrying upgrade_reasons element (amended 2b) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'true-malformed-element.json') -Value '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": ["evil,forged"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ah' (Join-Path $Work 'true-malformed-element.json')
+
+    Write-Host '=== TEST-013ai: eligible:false with present-but-falsy upgrade_reasons is absent, yielding the synthetic token ==='
+    Set-Content -LiteralPath (Join-Path $Work 'false-falsy.json') -Value '{"capabilities": [{"id": "x", "eligible": false, "upgrade_reasons": false}]}' -NoNewline
+    $aiOutput = & $PowerShell -NoProfile -File $Sut -Path (Join-Path $Work 'clean.txt') -CapabilityReasons (Join-Path $Work 'false-falsy.json') 2>&1
+    $aiExit = $LASTEXITCODE
+    $aiJoined = ($aiOutput -join "`n")
+    if ($aiExit -eq 10 -and $aiJoined -eq 'full-required: ineligible:x; triggers=ineligible:x') {
+        Ok 'TEST-013ai: present-but-falsy upgrade_reasons on eligible:false is treated as absent (synthetic token, exit 10)'
+    } else {
+        Bad "TEST-013ai: expected exit 10 with the synthetic ineligible:x record, got exit $aiExit. Output: $aiJoined"
+    }
+
+    Write-Host '=== TEST-013aj: eligible:true with present-but-falsy upgrade_reasons contributes nothing ==='
+    Set-Content -LiteralPath (Join-Path $Work 'true-falsy.json') -Value '{"capabilities": [{"id": "a", "eligible": true, "upgrade_reasons": 0}]}' -NoNewline
+    $ajOutput = & $PowerShell -NoProfile -File $Sut -Path (Join-Path $Work 'clean.txt') -CapabilityReasons (Join-Path $Work 'true-falsy.json') 2>&1
+    $ajExit = $LASTEXITCODE
+    $ajJoined = ($ajOutput -join "`n")
+    if ($ajExit -eq 0 -and $ajJoined -eq 'lite-eligible') {
+        Ok 'TEST-013aj: present-but-falsy upgrade_reasons on eligible:true is treated as absent, contributing nothing (exit 0)'
+    } else {
+        Bad "TEST-013aj: expected exit 0 lite-eligible, got exit $ajExit. Output: $ajJoined"
     }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }

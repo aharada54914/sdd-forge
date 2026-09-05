@@ -1,0 +1,79 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-a-seq0327",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-195-a7-compatibility-0327",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f4ac38324d4ea976d9f6f1bac538fcfc06438b1031fa53a9e0fd16eb6a137824"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "3ba46d96b3a132f9a38be614532de5942ece5bfdb050ed66e3f05915cbb10946"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "15730cae3b8dabe15ccb3258265c7f6c5a341629ee6412d4f5d41c11b121ac43"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-1/round-2/precheck-result.json", "sha256": "41d337575db75aed0c1c7d493c67f351ac9d6c48275ae26d1333695e76e5f74e"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-1/round-1/integrated-summary.json", "sha256": "3949a5f60c93bda371b429e77471a3ac97b97fcb6dbafe7b41be3577d6d62d0f"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 32-69) satisfies all three required elements: (1) top-level component boundaries via the mermaid Fixture-matrix subgraph (F1-F4) and the three test-kind nodes BI/SC/OE plus the Golden-baseline node GB; (2) integration with existing components via six labeled '.extends.'/'.compares.'/'new TEST-01x' edges into tests/install.tests.sh+tests/uninstall.tests.sh (INV-007), tests/loops/loop-inventory.json (INV-001/INV-002), tests/lib/loop-driver.sh (INV-003/INV-004), tests/loop-escalation.tests.sh and tests/loop-consistency.tests.sh (INV-005), and emit-run-record.sh (INV-006); (3) technology choices for this feature's single applicable layer via the diagram's file-extension-bearing node labels (.sh/.json) cross-referenced with ## Layer Specifications' explicit 'Frontend: N/A ... every future-task deliverable is Bash/PowerShell/JSON' and 'Infrastructure: ... described in Deployment / CI Plan' (lines 109-113), appropriate since Feature Type (line 4) declares a test-infrastructure-only package with no frontend/data layer to describe. This is far beyond a one-sentence description; the Technical Summary (lines 6-30) elaborates the same architecture in multi-paragraph detail with cross-referenced REQ/INV citations."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The ## Architecture mermaid diagram (design.md lines 34-63) declares 17 dependency edges (F1/F2/F3/F4 -> BI/SC/OE; BI -> GB; BI -.extends.-> INST; OE -.compares.-> SCHEMA; OE -.extends.-> LI/LD/ERR; OE -.new TEST-019.-> LE; OE -.new TEST-018.-> LC; LI --> LIT). Every edge flows one-directionally from fixture states -> test kinds -> extension/comparison targets; no extension target (GB, INST, SCHEMA, LI, LD, LE, LC, ERR, LIT) has an outgoing edge back to a fixture state or test kind. No cycle exists."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 148-198) contains all three required sub-fields with explicit content: 'Data Entities: none persisted by this task...' (line 150); 'Existing Data Affected: none. tests/loops/loop-inventory.json's 8 existing entries are unmodified...' (line 154); 'Migration Strategy: No migration required. Every schema-shaped change this design proposes for a future implementation task is additive and optional with a documented backward-compatible default...' (lines 158-169), naming the specific additive fields (capability_applicability, the emit-run-record.sh capability object) and net-new schemas with no prior version. All three sub-fields present and substantive."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 513-626) lists every new/changed contract point: three new function signatures in tests/lib/loop-driver.sh (assert_capability_applicability, _loop_trace_emit, assert_event_trace, each with parameters/behavior fixed), emit-run-record.sh's two new flags with an exhaustive four-combination outcome table (lines 568-573) giving request/response-equivalent JSON shapes (lines 575-580), and the two-command golden-baseline capture/promote CLI contract (lines 588-621) with exact invocation syntax and behavior. HTTP method/path is replaced by CLI-flag/function-signature equivalents appropriate to this feature (no HTTP surface exists; External Integrations: 'None'). Breaking-change disclosure is explicit: 'The no-flag path's heredoc is untouched (byte-identical, AC-011)' (line 582), and the capability-only combination is fixed as a hard usage error rather than a silent third schema version -- an explicit no-breaking-change declaration for the one pre-existing script this task extends."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Security Boundaries (lines 958-965) names three trust boundaries (B1 golden-baseline capture/update, B2 shared-registry/driver/run-record extension, B3 REQ-007 allowlist manifest integrity), each row stating Auth/Authz Mechanism, Data Classification ('repository fixture/script output only, no secrets' -- accurate given External Integrations: 'None'), and OWASP Concerns. security-spec.md (independently Spec-Review-Status: Passed) expands to five boundaries B1-B5 with a full STRIDE table, Authorization table, Data Classification table, and an explicit OWASP Mapping table (Software and Data Integrity Failures, Broken Access Control, Security Misconfiguration, plus justified N/A rows for Injection/Cryptographic Failures/Identification-Authentication Failures). All required elements present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md contains no '## Frontend Plan' or '## Backend Plan' section at all (grep of '^## ' headings confirms only Technical Summary, Architecture, Components, Protected-File Statement, Layer Specifications, Design System Compliance, Cross-Layer Dependencies, ADR Change Log, Data Plan, API / Contract Plan, Test Strategy, Design Decisions, Global Constraints, Security Boundaries, External Integrations, Deployment / CI Plan, Constraint Compliance, Assumptions, Open Questions, Risks). design.md's own '## Layer Specifications' states 'Frontend: N/A -- no browser or frontend application', frontend-spec.md independently states 'N/A -- no change: this feature introduces no browser/client UI', and ux-spec.md states 'N/A -- no GUI, view, dialog, menu item, or human interactive shell surface.' Although Feature Type (design.md line 4, 'test-infrastructure specification (Phase 1 — no code)') is not a literal match to this check's four named skip values, the feature has zero frontend surface of any kind, so the comparison this check performs has no surface to evaluate against -- functionally equivalent to the listed skip conditions."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 628-710) is a 9-item ordered future-task plan covering integration test scope in detail (each item names the specific existing suite/file pairing exercised together, e.g. item 3: tests/install.tests.sh/tests/uninstall.tests.sh plus golden-baseline diff-check; item 5: loop-inventory.json + loop-driver.sh + loop-escalation.tests.sh + loop-consistency.tests.sh); acceptance test approach is covered exhaustively by acceptance-tests.md's mapping of every AC-001-AC-041 to a named TEST-NNN id, Test Type, and Test Target; concrete planned verification evidence is named throughout (capture-golden-baseline.sh, promote-golden-baseline.sh, TEST-018, TEST-019, tests/run-all.sh/.ps1, .github/workflows/test.yml); mocking strategy for the one live-external dependency (LLM generation) is explicit (item 4: 'a deterministic recorded-response injection seam...never a live model call in this gating suite'). This addresses well more than one test level, so the check's own stated failure trigger ('a strategy that addresses only one test level') is not met. Non-blocking observation: design.md does not use the literal phrase 'unit test' for the new pure comparator/collector functions (_loop_trace_emit, assert_capability_applicability, assert_event_trace) or the AST canonicalizer, relying on their exercise via the full TEST-018/TEST-019 fixture-driven rounds plus a discrete malformed-corpus fixture (security-spec.md Security Tests, item 4) for the canonicalizer's parse-failure path specifically -- this does not amount to addressing only one level and is not a basis for FAIL."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in design.md's ## Architecture, ## API / Contract Plan, and Data Plan is defined either in ## Components (tests/loops/loop-inventory.json, tests/lib/loop-driver.sh, tests/loop-escalation.tests.sh, tests/loop-consistency.tests.sh, emit-run-record.sh, tests/install.tests.sh/tests/uninstall.tests.sh, golden-baseline capture/promote scripts, fixture-matrix builder, compatibility-event-trace/v1 schema, REQ-007 allowlist manifest, contracts/*.schema.json [independently verified: exactly 9 files exist under contracts/*.schema.json], plugins/sdd-bootstrap/.../templates/), defined inline in ## Data Plan/## API / Contract Plan (assert_capability_applicability, _loop_trace_emit, assert_event_trace, _LOOP_EVENT_TRACE), or cross-cited to investigation.md/requirements.md as an established existing component: tests/loop-inventory.tests.sh (LIT node, INV-002), check-quality-gate-cycle-limit.sh/select-agent-model.sh (requirements.md AC-025; independently confirmed present at plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh and plugins/sdd-implementation/scripts/select-agent-model.sh), loop_validator_skip and _loop_reserve_review_context (INV-003/INV-005), assert_terminal/assert_artifacts_schema (INV-004). No reference to an undefined, non-established component was found. design.md contains no '## Frontend Plan'/'## Backend Plan' section to additionally scan."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains no section literally titled '## Architecture Decision Records'; it contains '## ADR Change Log' (lines 136-146) serving the equivalent function, stating 'No new ADR' and citing ADR-0010, ADR-0016, and ADR-0023 as the governing, unrevised decisions. All three referenced ADR files independently confirmed to exist: docs/adr/0010-loop-inventory-and-fixture-vocabulary.md, docs/adr/0016-workflow-axes-separation.md, docs/adr/0023-track-selection-contract-migration.md. On whether this feature introduces a new architectural departure requiring its own new ADR: design.md's own ## Design Decisions section provides explicit, evidence-grounded rationale for why every new element (the compatibility-event-trace/v1 schema, the golden-baseline candidate/canonical procedure, the SKIP allowlist manifest) is an additive extension of already-established patterns rather than a new architectural departure (e.g. Global Constraints: 'the design's own basis for the constraint, never loop-inventory.tests.sh's current length == 8 assertion value'; Design Decisions 'Golden-baseline location' cites the repository's existing per-feature specs/<feature>/verification/ convention). requirements.md's Non-goals explicitly reserves any genuinely new loop-shaped surface for a future ADR-0010 revision decision outside this epic's scope. No undisclosed architectural departure found."
+    }
+  ]
+}

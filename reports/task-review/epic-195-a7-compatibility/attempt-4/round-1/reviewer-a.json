@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt4r1-seq0672",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0672",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/dependency-graph.json",
+      "sha256": "bfa0b386e3810bc49ec8da0309be452e02112d1d92d8557c4fd9d73f22b62c9d"
+    },
+    {
+      "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json",
+      "sha256": "d6b5d83b971bb164f63435d75600edc3512de7143c9ea1a5851f95a7101cc5f2"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/tasks.md",
+      "sha256": "383b9fead4f9ffa13e96e32a88f89a975acf6d2e27ad1cfac97e72a3bcce2436"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/traceability.md",
+      "sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Programmatically extracted every AC-NNN listed in tasks.md Requirements: fields (lines 131,280,437,582,744,889,992,1118,1249,1380,1524,1704: 40 distinct AC-NNN, AC-001..AC-043 minus AC-013/017/029) and diffed against acceptance-tests.md's 43-row AC-001..AC-043 table (sha256 7b62c339...aa24d, unchanged since attempt-3). Zero dangling IDs (claimed-minus-real set is empty)."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 12 ### Blockers fields (tasks.md lines 242,402,548,708,857,966,1081,1215,1345,1488,1639,1837) are the literal 'None' (T-001,T-002,T-005,T-009) or comma-separated T-NNN lists (T-003: T-001, T-002; T-004: T-001; T-006: T-001, T-005; T-007: T-001, T-005, T-006; T-008: T-001, T-006, T-007; T-010: T-003, T-004, T-006, T-007, T-008; T-011: T-001..T-010; T-012: T-001, T-004). No range notation or prose. blockers_format_valid=true in precheck-result.json, consistent. Content is byte-identical to the Blockers section reviewed at attempt-3 round-1 (only tasks.md's T-003 Status line changed between bindings, confirmed via git diff 5f9202c9..HEAD -- specs/epic-195-a7-compatibility/tasks.md)."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md Goals define REQ-001..REQ-007; requirements.md also cites external REQ-009 (Field Definitions / Edge Cases). Task Requirements: fields cover REQ-001 (T-003), REQ-002 (T-004, T-012), REQ-003 (T-005..T-009), REQ-005 (T-001, T-011), REQ-006 (T-002, T-011), REQ-007 (T-008, T-010) — programmatically confirmed the only Goal REQ absent from any task's Requirements: field is REQ-004. traceability.md's REQ-004 row (line 23) plus the REQ-004 Clause Mapping section (lines 42-59) states 'Satisfied at spec-authoring time' with a stated rationale (each of the three decomposed clauses traced to REQ-001/REQ-002/REQ-003's own ACs/tasks). traceability.md's REQ-009 row (line 27) states it is Epic A1's own external requirement, 'not one of this package's own REQ-001-REQ-007,' with stated rationale. Zero uncovered requirements without rationale."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Programmatic set comparison: 40 of the 43 AC-NNN rows in acceptance-tests.md are directly claimed in a task's Requirements: field; the remaining 3 (AC-013, AC-017, AC-029) each have a 'Deferred / Non-Task Acceptance Criteria' row in traceability.md (lines 36-40) citing Spec-Review-Status / Impl-Review-Status passed evidence as the satisfying artifact. Zero uncovered ACs without deferral rationale."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks (T-001..T-012) carry a non-empty Requirements: field naming at least one REQ-NNN (tasks.md lines 131,280,437,582,744,889,992,1118,1249,1380,1524,1704, verified programmatically). Zero orphan tasks."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Tasks whose title contains test/spec/verify (case-insensitive, tasks.md lines 861,970,1085,1492,1643): T-006 ('Add TEST-018...'), T-007 ('Add TEST-019...'), T-008 ('...inside TEST-018/TEST-019'), T-011 ('...verify the golden-baseline CI-write guards'), T-012 ('...refresh test'). Each has a Requirements: field with AC-NNN references (T-006: AC-022,023,024,026,032; T-007: AC-010,019,020,025,027; T-008: AC-004,021,036,037; T-011: AC-015,028,040,041; T-012: AC-031). Zero orphaned test tasks."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Orchestrator declared this a post-implementation provenance re-review; provenance-rebinding lifecycle rule applied. All 12 tasks carry an Approval field whose value reads 'Approved (sudo 2026-08-08T16:33:11Z)' (tasks.md lines 103,250,410,556,716,865,974,1089,1223,1353,1496,1647), an established workflow-bypass audit mark unchanged since the attempt-2/attempt-3 PASS bindings. Status: T-001/T-002/T-003 read 'Done' (lines 105,252,412), T-004..T-012 read 'Planned' (9 tasks, lines 558,718,867,976,1091,1225,1355,1498,1649) — all within {Planned, In Progress, Blocked, Implementation Complete, Done}. The newly-Done T-003 is legitimated by the Lifecycle section's 'Only quality-gate may set Done' rule (line 16) and cites persisted independent quality-gate PASS evidence: reports/quality-gate/epic-195-a7-compatibility/T-003.md records cycle-2 (ledger seq0671, run_id RUN-epic-195-a7-compatibility-qg-T-003-seq0671) verdict PASS with 0 Critical, 0 Major, 11 Minor, after cycle-1 (seq0670) NEEDS_WORK was remediated in commit 3be46e1a — verified directly by reading the report and confirming it is chain-linked in identity-ledger.json (record 672's own launch-gate reconstruction, this review). traceability.md's Final Status prose (uncommitted working-tree edit, matching the manifest-bound sha256 d40e35c3...) cites the identical seq0671/T-003.md evidence for the REQ-001 row, and git history (commits 979a95b0, 5989e14e) confirms the tasks.md Status line is the sole substantive tasks.md delta since the attempt-3 binding (git diff 5f9202c9..HEAD -- tasks.md). Zero invalid status/approval fields."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 12 tasks declare both Risk: and Required Workflow: (verified via grep on tasks.md). Pairings: medium->acceptance-first (T-001, T-003, T-006, T-007); high->tdd (T-002, T-004, T-005, T-008, T-009, T-010, T-011, T-012) — every pairing matches the risk-gate-matrix (low->test-after; medium->acceptance-first; high/critical->tdd). precheck-result.json records workflow_match_precheck: PASS, consistent. Zero mismatches."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Programmatic set-intersection of each task's own Requirements: field AC-NNN list found zero AC-NNN claimed by more than one task. AC-026 appears in traceability.md's Acceptance Mapping table (line 116) as 'T-006 (own share), T-007 (own share)' prose, but only T-006's Requirements: field (line 889) actually lists AC-026 in tasks.md; T-007's (line 992) does not — no duplicate primary-target claim in tasks.md itself."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID named in any Blockers: field (T-001 through T-010) is present in dependency-graph.json's nodes array (12 entries, T-001..T-012, generated_at 2026-08-12T01:13:11Z) and has its own ## T-NNN section in tasks.md. Cross-checked all 28 edges against the Blockers fields extracted directly from tasks.md: exact 1:1 match, zero references to a non-existent task, zero edge endpoints outside the nodes array."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check ran. DFS cycle-detection executed over dependency-graph.json's 12 nodes / 28 edges (from->to = 'from waits for to'): zero back-edges found, the graph is a DAG. Topological layers: T-001/T-002/T-005/T-009 (roots, no blockers) -> T-003/T-004/T-006 -> T-007 -> T-008 -> T-010 -> T-011/T-012. Zero cycles."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review convergence rule applied (TYPE-H). Task titles/scope text in the current tasks.md are byte-identical to the content bound by the attempt-3 round-1 PASS (reports/task-review/epic-195-a7-compatibility/attempt-3/round-1/reviewer-a.json) — confirmed via git diff 5f9202c9..HEAD -- specs/epic-195-a7-compatibility/tasks.md, whose sole hunk is T-003's Status line (Planned to Done), a human-authorized status field. Advisory carried forward: T-002 ('...capture/promote scripts and the initial canonical baseline'), T-010 ('...allowlist manifest and its hard-fail checks'), T-011 ('Register every suite and verify the golden-baseline CI-write guards') each join tightly-coupled halves of one REQ deliverable (mandatory-housekeeping exception) — independently re-confirmed this round via grep for '[Aa]nd' in ## T- titles (3 hits, same 3 tasks) and a fresh read of each task's Scope section; no task joins two unrelated feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review convergence rule applied (TYPE-H). Done When list content is byte-identical to the attempt-3 round-1 PASS-bound content (same git diff scope as SINGLE-CONCERN, above — the only tasks.md delta is T-003's Status line, outside any ### Done When block). Independently re-ran the calibration's forbidden-verb/phrase scan (ensure, consider, verify is correct, works correctly, unqualified review/confirm/update) across every ### Done When section this round: zero matches. Every item names a concrete AC, artifact, or QG verdict (e.g. T-002: 'Default capture-golden-baseline.sh invocation is read-only: writes nothing, exits non-zero on drift, zero on match (AC-001)'), and each task's Done When set includes a named TDD/acceptance-first RED+GREEN evidence item plus an independent quality-gate verdict item — T-003's own Done When items are now demonstrated satisfied by the live reports/quality-gate/epic-195-a7-compatibility/T-003.md cycle-2 PASS this review also verified under INITIAL-STATE. The recurring 'traceability.md updated with T-NNN -> REQ-YYY' item targets only the Status-column/Final-Status-prose normalized field this very round's own T-003/REQ-001 update demonstrates is the sanctioned post-gate update path, not a frozen-body edit."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 12 task IDs (T-001..T-012) have a Task Mapping row in traceability.md (lines 139-150, grep-verified). All requirement IDs cited in traceability.md (REQ-001..REQ-007, REQ-009) exist in requirements.md (REQ-001..REQ-007 as this package's own Goals; REQ-009 cited at requirements.md lines 436,711,812 as Epic A1's own external requirement, documented as such in traceability.md's REQ-009 row, line 27). Full-profile layer-spec anchor check: every requirement row cites a canonical <layer>-spec.md#<section> anchor or a reasoned N/A (REQ-001 infra-spec.md#cicd-sequence; REQ-002/REQ-003 security-spec.md#trust-boundaries + frontend-spec.md#technology-stack; REQ-004 reasoned N/A cross-layer-only; REQ-005 infra-spec.md#data-residency-and-retention; REQ-006/REQ-007 infra-spec.md#data-residency-and-retention + security-spec.md#trust-boundaries; REQ-009 reasoned N/A) — every cited anchor matches an actual heading confirmed present in the sha256-verified layer documents read this round (infra-spec.md '## CI/CD Sequence' / '## Data Residency and Retention'; security-spec.md '## Trust Boundaries'; frontend-spec.md '## Technology Stack'). The REQ-001 row's Status cell and the Final Status prose (uncommitted working-tree edit, sha256 d40e35c3...) are the only traceability.md deltas since attempt-3 (confirmed: git diff 5f9202c9..HEAD -- traceability.md against the committed tree is empty; the delta is a working-tree-only edit staged for this round, matching the pre-hashed manifest entry exactly). Zero dangling references either direction."
+    }
+  ],
+  "findings": []
+}
