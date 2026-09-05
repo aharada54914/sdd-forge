@@ -95,6 +95,59 @@ $CAPABILITY_STATE_GATED_IDS = @("check-component-coverage")
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
+# WFI-059: resolve evidence against the PROJECT root, not the caller's base.
+# checks[].evidence had two resolvers and no grammar. This gate resolved it
+# against whatever base the caller passed -- often the spec directory -- while
+# prepare-panelist-input always resolves project-root-relative. A contract
+# written spec-relative therefore passed the Done chain and then reached a
+# blind panel with "no file exists there" stamped over evidence that existed.
+# Measured on epic-194's 2026-08-28 re-panel: all six verdicts returned
+# NEEDS_WORK on that one disagreement.
+#
+# A contract lives at <project-root>/specs/<feature>/verification/<task>.json,
+# so the project root is the nearest ancestor from which the contract's own
+# path starts with "specs/". A contract outside specs/ has no such ancestor:
+# fall back to the caller's base, leaving those callers -- and the shipped
+# golden message corpus -- exactly as they were.
+function Get-ContractProjectRoot {
+    param([string]$ContractPath, [string]$FallbackRoot)
+
+    $contractAbs = [System.IO.Path]::GetFullPath($ContractPath)
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    $current = [System.IO.Path]::GetDirectoryName($contractAbs)
+    while ($current) {
+        $prefix = $current.TrimEnd($sep, '/') + $sep
+        if ($contractAbs.StartsWith($prefix)) {
+            $segments = $contractAbs.Substring($prefix.Length) -split '[\\/]'
+            if ($segments.Length -gt 1 -and $segments[0] -eq 'specs') {
+                return $current.TrimEnd($sep, '/')
+            }
+        }
+        $parent = [System.IO.Path]::GetDirectoryName($current)
+        if (-not $parent -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    return $FallbackRoot
+}
+
+$absEvidenceRoot = (Get-ContractProjectRoot -ContractPath $ContractPath -FallbackRoot $absRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+
+# The note is conditional on purpose. 21 golden fixtures under
+# tests/fixtures/phase2-contract-path-golden/ assert this gate's exact stdout
+# for every evidence diagnostic; a caller that already passes the project root
+# -- which is every shipped caller -- sees byte-identical messages. Only the
+# ambiguous-base case this WFI is about gains the note.
+$EvidenceBaseNote = ""
+if ($absEvidenceRoot -ne $absRoot) {
+    $EvidenceBaseNote = "project-root-relative base: $absEvidenceRoot"
+}
+
+function Format-EvidenceFailure {
+    param([string]$Failure)
+    if ($EvidenceBaseNote) { return "$Failure ($EvidenceBaseNote)" }
+    return $Failure
+}
+
 function Test-CapabilityEnforcementDeclared {
     # True iff this project declares a capability-enforcement posture, i.e.
     # sdd/project-context.yaml exists relative to the repo root. Mirrors the
@@ -265,9 +318,9 @@ foreach ($check in $contract.checks) {
             continue
         }
 
-        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absRoot
+        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absEvidenceRoot
         if (-not $evidenceResult.IsValid) {
-            $failures += "check '$id' $($evidenceResult.Failure)"
+            $failures += "check '$id' " + (Format-EvidenceFailure $evidenceResult.Failure)
             continue
         }
     }
@@ -402,17 +455,17 @@ if ($requiredWorkflow -ceq "tdd") {
                 continue
             }
 
-            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absRoot
+            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absEvidenceRoot
             if (-not $redResult.IsValid) {
-                $failures += "check '$id' $($redResult.Failure)"
+                $failures += "check '$id' " + (Format-EvidenceFailure $redResult.Failure)
                 if ($redResult.StopsCurrentCheck) {
                     continue
                 }
             }
 
-            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absRoot
+            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absEvidenceRoot
             if (-not $greenResult.IsValid) {
-                $failures += "check '$id' $($greenResult.Failure)"
+                $failures += "check '$id' " + (Format-EvidenceFailure $greenResult.Failure)
             }
         }
     }
@@ -466,7 +519,7 @@ foreach ($check in $contract.checks) {
     if (-not [bool]$check.passes) { continue }
     $evidence = ([string]($check.evidence)).Trim()
     if ([string]::IsNullOrWhiteSpace($evidence)) { continue }
-    $evidencePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $evidence))
+    $evidencePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absEvidenceRoot, $evidence))
     if (-not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) {
         $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be read for producer-digest verification: $evidence"
         continue

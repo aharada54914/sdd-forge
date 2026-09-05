@@ -2291,8 +2291,16 @@ if [ -f "${D061}/out.txt" ] && grep -qF "specs/cross-model-verification/verifica
 else
     fail "TEST-061b: expected a not-found note naming the missing path"
 fi
-if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists there]" "${D061}/out.txt"; then
-    ok "TEST-061c: the note states plainly that no file exists there"
+# Asserts the invariant this test owns -- the gap is explained in plain
+# language rather than silently dropped -- and stops short of the trailing
+# base clause. WFI-059 changes that clause from "there" to
+# "at <project-root>/<path>" via a staged patch, and the strict assertion on
+# the new wording lives in tests/wfi-059-evidence-path-base.tests.sh, which is
+# designed-red until a human applies it. Pinning the full string here would
+# turn this whole suite red for the duration and hide unrelated regressions in
+# it; the prefix is what TEST-061 was actually written to protect.
+if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists" "${D061}/out.txt"; then
+    ok "TEST-061c: the note states plainly that no file exists"
 else
     fail "TEST-061c: expected a plain-language explanation of the gap"
 fi
