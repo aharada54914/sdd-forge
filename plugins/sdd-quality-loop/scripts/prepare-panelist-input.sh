@@ -898,12 +898,15 @@ _ppi_declaration_commit() {
     _dc_current_fp="$(_ppi_outputs_fingerprint "$_ppi_decl_report_abs")" || return 1
     _dc_anchor=''
     for _dc_commit in $(git -C "$project_root" log --format='%H' -- "$_dc_report" 2>/dev/null); do
-        _dc_blob="${TMPDIR:-/tmp}/ppi-decl-scan-$$"
+        _dc_blob="$(mktemp "${TMPDIR:-/tmp}/ppi-decl-scan-XXXXXXXXXX")" || return 1
         if ! git -C "$project_root" show "${_dc_commit}:${_dc_report}" >"$_dc_blob" 2>/dev/null; then
             rm -f "$_dc_blob"
-            break
+            return 1
         fi
-        _dc_fp="$(_ppi_outputs_fingerprint "$_dc_blob")"
+        if ! _dc_fp="$(_ppi_outputs_fingerprint "$_dc_blob")"; then
+            rm -f "$_dc_blob"
+            return 1
+        fi
         rm -f "$_dc_blob"
         [ "$_dc_fp" = "$_dc_current_fp" ] || break
         _dc_anchor="$_dc_commit"

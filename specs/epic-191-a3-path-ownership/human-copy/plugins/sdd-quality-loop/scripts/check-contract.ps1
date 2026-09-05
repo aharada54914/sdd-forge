@@ -112,14 +112,18 @@ $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySepa
 function Get-ContractProjectRoot {
     param([string]$ContractPath, [string]$FallbackRoot)
 
-    $contractAbs = [System.IO.Path]::GetFullPath($ContractPath)
+    try {
+        $contractAbs = (Resolve-Path -LiteralPath $ContractPath -ErrorAction Stop).ProviderPath
+    } catch {
+        return $FallbackRoot
+    }
     $sep = [System.IO.Path]::DirectorySeparatorChar
     $current = [System.IO.Path]::GetDirectoryName($contractAbs)
     while ($current) {
         $prefix = $current.TrimEnd($sep, '/') + $sep
         if ($contractAbs.StartsWith($prefix)) {
             $segments = $contractAbs.Substring($prefix.Length) -split '[\\/]'
-            if ($segments.Length -gt 1 -and $segments[0] -eq 'specs') {
+            if ($segments.Length -gt 1 -and $segments[0] -ceq 'specs') {
                 return $current.TrimEnd($sep, '/')
             }
         }
