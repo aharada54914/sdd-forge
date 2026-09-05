@@ -1,0 +1,44 @@
+ticket_id: RT-20260906-001
+status: open
+type: test-gap
+severity: major
+target:
+  feature: epic-136-phase4-docs
+  task: T-002
+  files:
+    - tests/cross-model.tests.ps1
+summary: "Windows boundary failure discards the runner diagnostic needed to classify its cause"
+problem: |
+  Main 633dcdf6d3289054f832ebbed066e6680e25d645 run 33975094357,
+  Windows job 101330280640 step 18, failed TEST-004(c) Gemini iteration 5
+  with exit=1 and verdict=0 (suite 63 passed, 1 failed).
+  The identical tree passed in run 33973516462. This proves inconsistent
+  outcomes, not a production timeout bug.
+  tests/cross-model.tests.ps1:136 captures combined runner output in
+  $script:panelistOutput, but no later code reads it. Lines 630-640 report
+  only exit, verdict presence and timing. The runner's timeout, child-error,
+  exception and verdict-validation branches cannot be distinguished.
+  Lines 190-222 wait until the chosen target, then serialize the verdict;
+  the target is not evidence of actual process completion by that instant.
+expected_fix:
+  - "On failed TEST-004(c), print a bounded, terminal-control-sanitized copy of the captured fixture runner diagnostic; preserve the original exit status and failing assertion. Do not log inherited environment values or credentials."
+  - "Demonstrate the failure branch reports the captured reason without changing failure into success; preserve the successful-case behavior."
+  - "Run syntax checks and the unchanged 64-case PowerShell suite, including Windows; retain all failures. A green rerun alone does not resolve the original intermittent failure."
+references:
+  - reports/verification/main633dcdf6-ci-regression-20260906.md
+  - specs/epic-136-phase4-docs/tasks.md
+  - specs/epic-136-phase4-docs/requirements.md
+  - specs/epic-136-phase4-docs/acceptance-tests.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs only to already-Done T-002 tests. No timeout, repetition, assertion or runner behavior change approved."
+review_cycles: 2
+verification_status: "Diagnostic behavior verified locally; full local suite 54 passed / 10 failed (exit 1); Windows verification and independent quality gate pending. Ticket remains open."
+decision_needed: >-
+  Diagnostic-only remediation scope for already-Done T-002 is approved.
+  Keep the 2-second timeout, 800ms margin,
+  five repetitions per runner, assertions, runner code and CI requirements
+  unchanged. Any eventual behavioral fix needs evidence and its own scoped
+  review. Recheck active protection before editing; a hook denial is not
+  permission to work around it. Do not overwrite historical frozen evidence
+  or mark the original timeout failure resolved through this diagnostic fix.

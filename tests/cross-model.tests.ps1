@@ -34,6 +34,36 @@ function Assert-ExitCode {
     }
 }
 
+function Write-SafeDiagnostic {
+    param(
+        [string]$Label,
+        [string]$Text,
+        [int]$MaxInputChars = 2048,
+        [int]$MaxOutputChars = 4096
+    )
+
+    $normalized = if ($null -eq $Text) { "" } else { $Text.Trim() }
+    if ($normalized.Length -gt $MaxInputChars) {
+        $normalized = $normalized.Substring(0, $MaxInputChars) + "…"
+    }
+
+    $escaped = $normalized | ConvertTo-Json -Compress -EscapeHandling EscapeNonAscii
+    if ($escaped.StartsWith('"') -and $escaped.EndsWith('"') -and $escaped.Length -ge 2) {
+        $escaped = $escaped.Substring(1, $escaped.Length - 2)
+    }
+
+    if ($escaped.Length -gt $MaxOutputChars) {
+        $escaped = $escaped.Substring(0, $MaxOutputChars) + "…"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($escaped)) {
+        Write-Host "diagnostic: $Label <empty>"
+        return
+    }
+
+    Write-Host "diagnostic: $Label $escaped"
+}
+
 # Standard digest used in fixture verdicts
 $DIGEST = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 $DIGEST2 = "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
@@ -633,6 +663,7 @@ try {
             if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
+                Write-SafeDiagnostic -Label "TEST-004(c) runner=$($runner.Name) iteration=$iteration panelist output" -Text $script:panelistOutput
                 Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
             }
         }
