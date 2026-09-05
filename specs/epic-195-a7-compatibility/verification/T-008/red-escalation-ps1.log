@@ -1,0 +1,47 @@
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.ps1 escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.ps1 escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.ps1 reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: Test-LoopTerminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.ps1 denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.ps1 permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+ok: TEST-018.2: temp copy mutation replaced the word-boundary pattern with a plain substring match
+ok: TEST-018.3 (negative self-check): the substring-match mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.ps1 accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: deterministic-runtime-unavailable degradation ===
+SKIP: TEST-013.1: check-terminal-tier-resume.ps1 has no external deterministic-runtime dependency (pure PowerShell reimplementation) -- INV-017 cites only check-terminal-tier-resume.sh:29-32; this leg does not apply on the pwsh lane
+SKIP: TEST-013.2: select-agent-model.ps1 reports deterministic-runtime-unavailable when its deterministic-runtime command is unavailable (INV-017 analogue); recorded degradation
+=== TEST-019: quality-gate-outcome + done-transition event trace (F1) ===
+ok: TEST-019.1: loop_fixture_init (Context-absent F1 event-trace fixture) succeeds
+ok: TEST-019.2: check-quality-gate-cycle-limit.ps1's real Escalate-Human decision (3 gate reports) recorded as quality-gate-outcome:escalation
+ok: TEST-019.3: select-agent-model.ps1's real lightweight->standard escalation recorded as quality-gate-outcome:escalation
+ok: TEST-019.4: select-agent-model.ps1's real standard->strong escalation recorded as quality-gate-outcome:escalation
+ok: TEST-019.5: quality-gate-outcome:capability-applicability recorded for F1's own disabled-legacy fixture state, last within the kind
+ok: TEST-019.6: done-transition:assert-terminal recorded as the round's own last event (terminal-tier BLOCKED)
+ok: TEST-019.7: observed quality-gate-outcome + done-transition event trace matches the committed golden trace
+SKIP: TEST-019.8: F3-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event (AC-019, AC-027) -- the producer call site does not exist anywhere in the tree yet (design.md's own 'future task'); SKIP-with-activation until Epic A1 merges (design.md Compatibility Matrix, F3-invalid row)
+SKIP: TEST-019.9: F4-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event, and 'never reaches the Context-absent compatibility-fallback path' (AC-019, AC-020, AC-027) -- same unwired-producer reasoning as TEST-019.8; SKIP-with-activation until Epic A1 merges
+=== TEST-019.10 (AC-004, AC-021): Resolver-non-invocation spy-harness (named SKIP until Epic A5 merges) ===
+FAIL: TEST-019.10a (negative self-check): the spy-harness mechanism failed to record a direct invocation
+SKIP: TEST-019.10b: AC-004/AC-021 Resolver-non-invocation spy-harness against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; AC-021 additionally needs Epic A1, already merged into this tree) and no caller anywhere in the tree yet invokes resolve-project-context.sh at all (SKIP-with-activation until Epic A5's caller insertion point is implemented, design.md Test Strategy item 6). The spy observes 0 invocation(s) across the F1/F3-invalid/F4-invalid fixture construction above -- a VACUOUSLY true zero, not evidence of correct non-invocation policy, since no call site exists yet to have been correctly declined; reported for provenance only.
+=== TEST-019.11 (AC-037): REQ-002 Block surfaces, never falls back silently (named SKIP until Epic A5 merges) ===
+FAIL: TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) was incorrectly reported as surfaced
+ok: TEST-019.11b (negative self-check): a Block that correctly surfaces (skip-stop-message:stop recorded) is detected as surfaced
+SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree) and the skip-stop-message:stop producer call site does not exist anywhere in the tree yet (same unwired-producer reasoning as TEST-019.8/.9); SKIP-with-activation until Epic A5 merges (design.md Test Strategy item 6)
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.ps1: 29 passed, 2 failed, 4s elapsed

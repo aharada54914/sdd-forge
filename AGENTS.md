@@ -119,6 +119,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
 - `specs/epic-194-a6-lite-integration/`
+- `specs/epic-195-a7-compatibility/`
 - `specs/epic-196-a8-integration/`
 - `specs/design-sync-scan/`
 - `specs/design-sync-standing-consent/`

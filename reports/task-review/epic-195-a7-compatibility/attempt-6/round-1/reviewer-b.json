@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt6r1-seq0944",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0944",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/integrated-summary.json", "sha256": "22eb68ebc7c876d8b8bd83ff5a8c57ccc3fecea939b424ced7be405581863512"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/precheck-result.json", "sha256": "14754a7f85578fc67428696c0393e9bc5d949c124a5df5b885e994567c55b162"},
+      {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+      {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+      {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+      {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+      {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+      {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+      {"path": "specs/epic-195-a7-compatibility/tasks.md", "sha256": "e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c"},
+      {"path": "specs/epic-195-a7-compatibility/traceability.md", "sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+      {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task's declared Risk tier matches its scope's sentinel surfaces per risk-classification-policy.md. T-002/T-009 touch Security Boundary B2 shared files (loop-inventory.json, loop-driver.sh, emit-run-record.sh) and B1 (golden-baseline write path) -> high, correctly declared. T-004 implements B5 (structural-comparison oracle integrity) -> high, correct. T-005 edits the same B2 shared surface -> high, correct. T-008 implements B4 fingerprint-drift + Resolver-non-invocation access-control-adjacent check -> high, correct. T-010 implements B3 allowlist integrity -> high, correct. T-011 is the sole editor of .github/workflows/test.yml (write side of B1) -> high, correctly re-justified after the T-013 split (tasks.md:1521-1543). T-012 was escalated from medium to high on a prior round (RISK-APPROPRIATE Major finding, tasks.md:1676-1719) because its refresh_procedure is B5's sanctioned corpus-mutation write path -- now correctly high with an explicit compensating-control rationale. T-013 implements the read-side B1 CI-write guard checks -> high, correct. T-001/T-003/T-006/T-007 are inert-builder or non-security-surface integration-test-consumer tasks with no sensitive-surface touch -> medium, correct (none touches auth, payment, PII, migration, or a public API contract at over-classified low/medium, and no high/critical task's scope is UI-copy/docs/test-only). No finding."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002, T-004, T-005, T-008, T-009, T-010, T-011, T-012, T-013) carries a Done When item pairing TDD RED (failing-fixture) and GREEN (correct-implementation) evidence with 'An independent quality-gate verdict records PASS' (e.g. tasks.md:380-383, 690-692, 854-857, 1218-1220, 1349-1352, 1489-1492, 1644-1646, 1838-1844, 1983-1985). This package contains no Risk: critical task, so the second-approver/signed-evidence-bundle requirement does not apply. No finding."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When lists range from 5 to 8 items per task (T-004 and T-012 are the largest at 8 and 7 respectively; tasks.md:674-698, 1815-1846), none exceeding the 'more than eight' oversizing threshold. No task title implies multiple sequential phases, and no Scope section spans more than three implementation areas without a single coherent concern (T-011/T-013's prior SINGLE-CONCERN split, tasks.md:1937-1946, is direct evidence the package actively corrects oversizing when found). No group of 3+ tasks is a single-function/single-file-rename fragment; every task carries a multi-item Scope and Done When list tied to a coherent REQ/AC set. No finding."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task's mapped ACs include an explicit negative/error-path scenario: AC-002 (byte-identical negative self-check, T-003), AC-019/AC-020/AC-021 (PROJECT_CONTEXT_INVALID negative variants, T-007/T-008), AC-033 (capability-only usage-error golden negative test, T-009), AC-035 (three independent negative self-checks, T-010), AC-040/AC-041 (negative CI-write-guard fixtures, T-013), and T-002/T-004/T-005/T-012's own TDD RED fixtures (CI-set/--approved-by-omitted refusal; malformed-corpus parse failure; schema-validation/non-regression fixture; structurally-mismatched live-model-response refusal). No functional task's mapped ACs are happy-path-only. No finding."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column assigns integration to multi-component assertions (fixture builder + driver + suite, e.g. AC-003, AC-030), static/doc-review to single-artifact structural checks (AC-008, AC-015, AC-028, AC-038, AC-040), and regression/byte-identical to AC-011. Each task's own scope matches its assigned test type's granularity (e.g. T-003's byte-identical suite spans the fixture builder + golden baseline + install/uninstall suites, correctly integration; T-013's AC-040 static text scan of test.yml is correctly static, not integration). No declared type mismatches its exercised scope. No finding."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field citing infra-spec.md#rollback with a task-specific revert procedure (e.g. T-002 tasks.md:321-324 'a bad initial capture is a straightforward git revert'; T-011 tasks.md:1580-1582 notes the human-applied human-copy step is separately reverted; T-012 tasks.md:1755-1762 states the live-refresh test's zero blast radius). No high/critical task lacks rollback consideration. No finding."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Files touched by more than one task (tests/run-all.{sh,ps1} by T-002/T-003/T-004/T-010/T-013; tests/loop-consistency.tests.sh and tests/loop-escalation.tests.sh by T-006/T-007/T-008/T-010; tests/compatibility-byte-identical.tests.sh and tests/structural-compatibility.tests.sh by T-003-or-T-004 and T-010) are each covered by an explicit Blockers/Depends On ordering that serializes the writes (Global Constraints, tasks.md:52-98; e.g. T-010 Depends On T-003, T-004, T-006, T-007, T-008 precisely because it re-points their SKIP sources, tasks.md:1401-1405). No uncoordinated parallel overlap found. No finding."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Depends On/Blockers entry is either an explicit functional dependency (e.g. T-006 on T-005 because assert_event_trace must exist before TEST-018 can call it, tasks.md:910-912; T-013 on T-002 because AC-041's fixtures invoke a T-002 deliverable, tasks.md:1898-1901) or is explicitly labeled 'Global Constraints -- serialized run-all append order only; no functional dependency' when it is ordering-only (T-002 on T-001, tasks.md:285-288; T-004 on T-002/T-003, tasks.md:587-592; T-013 on T-003/T-004/T-010, tasks.md:1901-1905), so no blocker is spuriously mislabeled as functional. No task's scope depends on another's output without a declared blocker (e.g. T-011's registration task lists all eleven prerequisite tasks it registers, tasks.md:1553-1557). No finding."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. Every task (T-001-T-013) is scoped as new test-infrastructure authoring or extension work per its own Goal/Scope text; none is titled or scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

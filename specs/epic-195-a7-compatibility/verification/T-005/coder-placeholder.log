@@ -1,0 +1,9 @@
+Scan scope: T-005's own agent-editable Planned Files (production deliverables
+plus their own test file, per this repository's own placeholder-scan
+convention -- T-004's own qg-cycle2/T-004/placeholder.log scans its suite
+twins alongside its library twins the same way).
+
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/loops/loop-inventory.json tests/lib/loop-driver.sh tests/lib/loop-driver.ps1 tests/loop-inventory.tests.sh tests/loop-inventory.tests.ps1
+Placeholder scan passed.
+
+exit status: 0

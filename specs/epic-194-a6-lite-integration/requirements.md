@@ -380,8 +380,15 @@ task's own explicit instruction.
   2. **Second argument supplied**: the file at that path is now read and
      validated eagerly. If it is unreadable, not valid UTF-8 JSON, or does
      not conform to the fragment shape (Field Definitions below — a
-     missing `capabilities` key, a non-array value, or any array entry
-     missing `id`/`eligible`) — the script exits `2`
+     missing `capabilities` key, a non-array value, any array entry
+     missing `id`/`eligible`, an entry's `upgrade_reasons` that is
+     present, truthy and not an array, or an `upgrade_reasons` element
+     that is not a non-empty string matching the reason-token grammar
+     `[a-z0-9][a-z0-9_-]*` — the two `upgrade_reasons` conditions align
+     this summary with the Field Definitions shape it cites, which has
+     always declared `upgrade_reasons` as an array of tokens; ratified by
+     the 2026-08-28 amendment, investigation.md Amendment Re-Review
+     Context, seventh entry) — the script exits `2`
      ("`risk-upgrade: capability-reasons fragment invalid`"), the same
      usage-error exit code `check-risk-upgrade` already uses for a
      missing/unreadable primary source file (investigation.md INV-009),
@@ -655,7 +662,15 @@ task's own explicit instruction.
   (REQ-004, Blocker [B2]); (i) a **supplied-but-invalid capability-reasons
   fragment** fixture — `check-risk-upgrade` given a `--capability-reasons`
   path to an unreadable/malformed/shape-invalid file exits `2`, never
-  degrading to `lite-eligible` (REQ-002, Blocker [B3]); (j) an
+  degrading to `lite-eligible` (REQ-002, Blocker [B3]) — including, per
+  the 2026-08-28 amendment's unconditional step-2b validation, a
+  shape-invalid `upgrade_reasons` on an `eligible: true` entry (present,
+  truthy and not an array; or a malformed element inside a real array),
+  which MUST assert exit `2` — never the absence of forged tokens in the
+  output record, an assertion that is vacuous for this case because an
+  `eligible: true` entry emits nothing even while defective — with a
+  companion pinning that a present-but-falsy `upgrade_reasons` (`false`,
+  `0`, `""`, `[]`, `null`) is treated as absent on both runtimes; (j) an
   **ineligible-with-no-reasons** fixture — a fragment entry with
   `eligible: false` and an empty/absent `upgrade_reasons` still produces a
   non-empty `triggers=` entry (`ineligible:<id>`) and exit `10` (REQ-002,

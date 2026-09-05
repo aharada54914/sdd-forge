@@ -1,0 +1,222 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-195-a7-compatibility",
+  "task_id": "T-003",
+  "run_id": "RUN-epic-195-a7-compatibility-qg-T-003-seq0671",
+  "host_session_id": "SESS-qg-epic-195-a7-compatibility-T-003-0671",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ecec8c4f7beb871f15dec6b04bfbc3024d56843d93bf3d898b2c373dfeedfa2a",
+  "previous_record_sha256": "3f6cc5dea2a27b9c5237ec85357bf76d66d4c0f2813868374a319d8f2cc5986b",
+  "sequence": 671,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/tasks.md",
+      "sha256": "c9f2adbb7c47d5c86d78a49fb52a9da55e6baf6f313dc5262980f08564c55d5c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/traceability.md",
+      "sha256": "23d642f4872477c0648cfed9c30071553501a643d92b00b526a71a29d01ffd20"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-195-a7-compatibility/T-003.md",
+      "sha256": "839d3c36210bd7d73780067c23af53afd4b46a382b8aebd5d331b250afe03f6f"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "e89e6f388bb1ba06d4aa093b1bc6b63948559846af3ef13e9ecb1939664c816a"
+    },
+    {
+      "path": "reports/implementation/epic-195-a7-compatibility/T-001.md",
+      "sha256": "00ba81fdbfd01e5fceef52ce4bea3a1d9bae4f659a91df873239d5b930564d48"
+    },
+    {
+      "path": "reports/implementation/epic-195-a7-compatibility/T-002.md",
+      "sha256": "a4991c7a0570e58861441c7cb40eeafd92a2b2fd6517ad48f12ac3d25ca84ab2"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/acceptance.sh",
+      "sha256": "4b7b151c689893c6ee99ba80b78da02b7e55453b09114beb1203429c7ad44909"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/baseline-mutation-proof.log",
+      "sha256": "bca673b73f05d368b1079d7290b91c8b17f058119c7d7eff8da3befd4492d082"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/baseline-mutation-proof.sh",
+      "sha256": "ffa2d7d34a7ee3eaa22a3df867d5231b18c2dbeb6dcf20abb525c5b2011eea3b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/context-invariant-mutation-proof.log",
+      "sha256": "e5913cba6f9320afc1cd515525d5b8e64177cbf8fc885b60fed817853f09ee40"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/context-invariant-mutation-proof.sh",
+      "sha256": "0d6f77807dc3979b278ea43f0c5b9ce0a5ffb61deaa1d561a839478b197d055d"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/final-static-checks.log",
+      "sha256": "c400bc472dd199b4a5688023db77d76bfa8ffeb03f71c80fc3570a17667331e4"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-acceptance.log",
+      "sha256": "c7a6307eb7058f495f9a09226177f9f680cee3fae41719ae221c3f903a41d80b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-golden-contract-ps1.log",
+      "sha256": "998760da0c6ceb2b8a1f67a0f7ec42ff7a123b31a9d5b47a539649851ed966ec"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-golden-contract-sh.log",
+      "sha256": "142b97649ee7ae23b3b14e154a5303f3b5a55ae5a3577d6e30de355caa207b0e"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-install-ps1.log",
+      "sha256": "abad8cbb59355e2a0497cb752ca9f7b9ef153f001ec54b25a0c56c0e08a444b4"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-install-sh.log",
+      "sha256": "a0378af2efcaf903b9dd373501c312ba4f658a2aba0a39b0f0c603e20bd3e904"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-ps1.log",
+      "sha256": "06c59d8a2ab35dfe0fe1a140abc493d0d71d309f0e7c2cf311a9dece4bea02ea"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-sh.log",
+      "sha256": "06c59d8a2ab35dfe0fe1a140abc493d0d71d309f0e7c2cf311a9dece4bea02ea"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-uninstall-ps1.log",
+      "sha256": "fa3ce9c2f6cd1494a30586a62d5711154129350e6fbda68c15875e23a632688c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/green-uninstall-sh.log",
+      "sha256": "521655778d8933e849c841cd28ea0124856cab49adc3bcad6421c5dae8a92644"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/live-contract-dependency-proof.log",
+      "sha256": "deee9d60cc3a2ff334da877c843ba06fbdff84d09358e71236685debec182f36"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/live-contract-dependency-proof.sh",
+      "sha256": "70eece683adab69fd9fc8f093026fa077bd168d652f97a2420028eee419661c6"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/mutation-proof.log",
+      "sha256": "c31f5cff1de5f6635f1bfc29c4d9e4e32ed48114188184dc1508e67fe1d90e71"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/mutation-proof.sh",
+      "sha256": "29bc79ef297626d008390d168cdb336c34335c9f2fd9ddffb9bc48f871001f79"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/red-live-contract-dependency.log",
+      "sha256": "4cbdf5a8015d114320bd34e06ab9e951c51e86d0001786ccda9903f4937b9523"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/red-preimplementation.log",
+      "sha256": "da7b784ad0b35ba573008c2c0f15696d80a5b1a5e15bf61c864eaef09a440e85"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003/structure-green.log",
+      "sha256": "0b1f3ba70f685251fe9fa55f4c26e55ec3113a6f9793461f851e6219f0f87bfe"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/golden-baseline/canonical/manifest.json",
+      "sha256": "bf935386290a27d597e93d9a85ac1dbea39e57f325405744fc78f9f3af16af14"
+    },
+    {
+      "path": "tests/capture-golden-baseline.ps1",
+      "sha256": "7b7e77a577ff617cbf369f976f3cdffb7a94b74bd20685c72714923ed309ea66"
+    },
+    {
+      "path": "tests/capture-golden-baseline.sh",
+      "sha256": "decc888e6eb316f29b4c9c54fd33744b667b61203c737b3650070da38052501c"
+    },
+    {
+      "path": "tests/compatibility-byte-identical.tests.ps1",
+      "sha256": "fe3ba1ae857e511dd145506710a1217b7ed64a8ac0477e9f780789c794e4d115"
+    },
+    {
+      "path": "tests/compatibility-byte-identical.tests.sh",
+      "sha256": "eff2a7e26bf46db943d834b9188da5d6cac47076e794593add6a28ff6635ac62"
+    },
+    {
+      "path": "tests/golden-baseline-contract.tests.ps1",
+      "sha256": "34eac8e56a47944d21eb2fba5e4d0a04864d483ff024dfac87304b10c042648c"
+    },
+    {
+      "path": "tests/golden-baseline-contract.tests.sh",
+      "sha256": "a271932143a3fcf2f330c3f54baca6f43d0fb8743273b7ee7cdb1ca1616ccdf0"
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "sha256": "2667dc81f50cf23f3ec35a76bc92aca65bcc86e7a6dbb69514a29a84c4e22a7c"
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "c944e83dc41aff6bd809d47c3e1e7853441c6f6625c60e781203dba595ddc8b9"
+    },
+    {
+      "path": "tests/promote-golden-baseline.ps1",
+      "sha256": "8fe779a43f0b9f719e594fe4400d1aff10ec38db250a9e987edb7b2042f78310"
+    },
+    {
+      "path": "tests/promote-golden-baseline.sh",
+      "sha256": "7b75a92eb4a60c76b208817e7c0bcfd599f258877ef07d0e3217190be01b241b"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "5cda07d416fbc2fe323f045c93056c1029ed05ddd90c6eeb62f97f3d78309c3a"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "5775a9d3219a01863ccac5207059021930db801d01b169aaac5f34a97a14da50"
+    },
+    {
+      "path": "tests/uninstall.tests.ps1",
+      "sha256": "10cad428b112e0920550da277e4a6c5b32572824c06e8302d8d716ae1ddc2e81"
+    },
+    {
+      "path": "tests/uninstall.tests.sh",
+      "sha256": "a7f95be4173d12ebf353ed7860ec0da2cda741ed6b65d8ef77c0d71f9845ac3e"
+    }
+  ]
+}

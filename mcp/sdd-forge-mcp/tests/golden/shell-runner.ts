@@ -104,6 +104,64 @@ export function shellReportsFileNotFound(combinedOutput: string): boolean {
   return /tasks file not found/.test(combinedOutput);
 }
 
+/**
+ * `check-evidence-bundle.sh` detail lines whose CAUSE is the *checkout's git
+ * object graph*, not anything recorded in tasks.md or in the evidence bundle's
+ * own content. A bundle records the commit it was generated at; if that commit
+ * later becomes unreachable (the feature branch was squash-merged, rebased, or
+ * deleted), the bundle stops validating in a fresh clone while still validating
+ * in a working copy that happens to retain the object.
+ *
+ * `parseTaskState` cannot observe this class at all — it never shells out to
+ * git — so a live comparison that let it drive the expected verdict would
+ * report a parser defect that does not exist, and would flip between machines
+ * for the same commit. Measured 2026-08-31: 26 of the repository's 199 evidence
+ * bundles pin commits unreachable from a full clone, one of them in a golden
+ * feature; that one turned the live comparison red on CI while it stayed green
+ * on a developer machine holding the orphaned object.
+ */
+const ENVIRONMENT_DEPENDENT_DETAIL = /^git_commit does not exist in repository: [0-9a-f]{7,40}$/;
+
+/**
+ * The one own-failure shape `check-task-state.sh` emits when the *subprocess*
+ * bundle validation is what failed. Any other own failure is in the parser's
+ * scope and must still be compared.
+ */
+const EVIDENCE_BUNDLE_SUMMARY = /^T-\d+ evidence bundle failed validation: /;
+
+/**
+ * Returns the environment-dependent detail lines behind a shell failure, but
+ * ONLY when the failure is attributable to them alone: every own-failure line
+ * must be an evidence-bundle summary, and at least one detail line must name an
+ * environment-dependent cause.
+ *
+ * Deliberately narrow. If the shell also reports a status/approval failure, or
+ * the bundle failed for a content reason the parser *can* see (a sha256
+ * mismatch, a missing artifact), this returns an empty array and the caller
+ * compares verdicts strictly, exactly as before. The predicate is a scalpel for
+ * one unobservable cause, not a blanket amnesty for bundle failures — see the
+ * negative controls in `environment-dependence.test.ts`.
+ */
+export function environmentDependentBundleFailures(
+  combinedOutput: string,
+  ownFailureMessages: string[],
+): string[] {
+  if (ownFailureMessages.length === 0) {
+    return [];
+  }
+  if (!ownFailureMessages.every((message) => EVIDENCE_BUNDLE_SUMMARY.test(message))) {
+    return [];
+  }
+  const causes: string[] = [];
+  for (const rawLine of combinedOutput.split("\n")) {
+    const match = /^ - (.+)$/.exec(rawLine);
+    if (match?.[1] !== undefined && ENVIRONMENT_DEPENDENT_DETAIL.test(match[1])) {
+      causes.push(match[1]);
+    }
+  }
+  return causes;
+}
+
 export interface RecordedFixture {
   feature: string;
   exitCode: number;

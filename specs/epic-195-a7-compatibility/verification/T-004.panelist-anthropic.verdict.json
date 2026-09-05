@@ -1,0 +1,46 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-195-a7-compatibility",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-195-a7-compatibility/T-004.md (Files Changed / Outputs); specs/epic-195-a7-compatibility/human-copy/.github/workflows/test.yml; specs/epic-195-a7-compatibility/human-copy/MANIFEST.sha256",
+      "note": "Scope violation against the frozen task plan. T-004 authored the staged CI candidate under specs/epic-195-a7-compatibility/human-copy/ (comment block 'epic-195-a7-compatibility T-004 (REQ-002)' plus two 'Test structural compatibility suite' steps) and its MANIFEST.sha256, and declares both in its Outputs table. tasks.md Global Constraints state 'No task other than T-011 edits .github/workflows/test.yml ... CI wiring for every suite built by T-002-T-010 is registered once, cumulatively, by T-011', and tasks.md Protected Files names the human-copy/ + MANIFEST.sha256 staging route as precisely T-011's mechanism ('T-011 is the sole task that edits this file'). traceability.md 'Deliverables (Per Task)' lists both paths under T-011, not T-004, and T-004's own Planned Files list omits them. final-static-checks.log only shows the LIVE workflow is untouched, which is not the constraint that was breached. It also sets up a collision when T-011 later stages the same file."
+    },
+    {
+      "severity": "Major",
+      "ref": "structural-compatibility suite twins (whole file, both runtimes); tasks.md#T-004 'Depends On: T-001 (functional)'; tasks.md Global Constraints 'Fixtures never touch the real working tree'; acceptance-tests.md AC-005",
+      "note": "AC-005's 'Context-absent generation' is asserted by label only, never by state. Neither twin ever calls T-001's fixture-matrix-builder / build_fixture, although T-004 declares a functional dependency on it, tasks.md Global Constraints name T-004 among the tasks that construct fixtures 'by calling build_fixture in T-002-T-004/T-006-T-008', and T-001's own risk rationale says the builder is 'inert until a consuming suite (T-003, T-004, ...) actually drives a fixture'. No fixture tree is materialized, project-context.yaml absence is never established or asserted, and the only representation of the fixture state is the hand-written string fixture_state F1/F2 inside the corpus JSON. What the suite actually proves is that a hand-authored heading skeleton equals the shipped template's headings; the Context-absent compatibility claim REQ-002/AC-005 makes is not exercised. design.md's 'the harness intercepts generation at this point ... substitutes a pre-recorded response for the fixture under test' has no counterpart in the delivered code."
+    },
+    {
+      "severity": "Minor",
+      "ref": "structural-compatibility suite, validate_track assertion 'generated identifiers retain the shipped three-digit grammar'; structural-fixture-corpus f1-full.json / f2-lite.json",
+      "note": "AC-006 has no independent oracle. The check runs only over corpus content, where T-004 itself appended the literal trailer REQ-001 / AC-001 to every artifact, and compares it against a grammar hard-coded in the suite ('^(REQ|AC)-[0-9]{3}$'). Both sides of the assertion are authored by this task, so it cannot detect any change to the shipped identifier format until T-012's live refresh exists. The mutation harness's full-id/lite-id cases prove the assertion is non-vacuous with respect to the fixture, not with respect to the product."
+    },
+    {
+      "severity": "Minor",
+      "ref": "markdown-ast-canonicalizer twins (awk body / per-line PowerShell loop)",
+      "note": "The 'AST canonicalizer' is line-based with no fenced- or indented-code-block state. A '#' line inside a fenced code block is recorded as a document heading, and any line of three or more '-' or '=' (an ordinary thematic break, or a YAML sample inside a fence) is hard-failed as 'setext heading grammar is unsupported'. design.md only states that the templates use no Setext headings; it does not license treating every horizontal rule as a parse failure. Today's templates contain neither construct (green log), so this is latent, but it makes the gating suite red-line on a benign template edit while letting code-fence content be silently mis-canonicalized as structure."
+    },
+    {
+      "severity": "Minor",
+      "ref": "structural-compatibility suite: anchor_expected (bash) vs ExpectedAnchor (pwsh); emit_recorded_skip vs its PowerShell loop; schema_from_design",
+      "note": "Twin divergences that are benign today but not equivalent. (a) The Bash anchor-fingerprint extractor uses a greedy '.*sha256:' and therefore takes the LAST sha256 in the sed span, while the PowerShell twin's lazy match takes the FIRST; they agree only because the span currently holds exactly one digest. (b) Skip output differs between runtimes: Bash prints 'SKIP: F4/AC-007 (Epic A4 ): ...' with a trailing space, PowerShell prints '(Epic A4)'. (c) schema_from_design pipes 'sed -n ...p' into 'head -1' under 'set -o pipefail', so a second schema match in design.md would SIGPIPE-kill the suite rather than fail an assertion."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-195-a7-compatibility/verification/T-004.contract.json (checks array); tasks.md#T-004 'Security-Sensitive: true'; verification/T-004/run-all-sh.log and run-all-ps1.log",
+      "note": "Two claims that cannot be verified from the bundle alone. (a) The task is declared Security-Sensitive with risk 'high' and implements security-spec B5, yet the contract carries no security-review check and risk-gate-matrix.md is not in the bundle, so whether the required check set was satisfied is unverifiable. (b) The two aggregate-runner logs are elided (322536 and 246608 bytes removed from the middle), so any claim resting on them is unverified; the gate's own regression evidence is the targeted qg-cycle2 regression.log, which deliberately does not run the full aggregate runner."
+    }
+  ],
+  "blind": true,
+  "input_digest": "08ef0a2bd9c3010ca2aa297795ea24805cba1835033f7cd6abdc6685a15083a8",
+  "consent": {
+    "kind": "sudo",
+    "ref": "specs/epic-195-a7-compatibility/tasks.md#T-004 -- 'Approval: Approved (sudo 2026-08-08T16:33:11Z)'; bundle header '# consent: sudo'"
+  }
+}

@@ -7,6 +7,8 @@
 #                           [--effort-control-reviewers <flag|frontmatter|none>]
 #                           [--effort-applied-main <e|none>]
 #                           [--effort-applied-reviewers <e|none>]
+#                           [--capability-enforcement <disabled-legacy|advisory|required>]
+#                           [--capability-block-id <id>]
 #
 # Writes reports/runs/RUN-<UTC-timestamp>-<feature>.json from repository
 # artifacts only (tasks.md, reports/, docs/review-tickets/,
@@ -35,12 +37,15 @@ model_main="unknown"
 model_reviewers="unknown"
 plugin_version="unknown"
 emit_v2=0
+emit_capability=0
 effort_main=""; effort_main_set=0
 effort_reviewers=""; effort_reviewers_set=0
 effort_control_main=""; effort_control_main_set=0
 effort_control_reviewers=""; effort_control_reviewers_set=0
 effort_applied_main=""; effort_applied_main_set=0
 effort_applied_reviewers=""; effort_applied_reviewers_set=0
+capability_enforcement=""; capability_enforcement_set=0
+capability_block_id=""; capability_block_id_set=0
 
 require_effort_control_value() {
   # $1 = flag name (for diagnostics), $2 = value
@@ -48,6 +53,17 @@ require_effort_control_value() {
     flag|frontmatter|none) ;;
     *)
       printf 'emit-run-record: %s must be one of flag|frontmatter|none (got: %s)\n' "$1" "$2" >&2
+      exit 1
+      ;;
+  esac
+}
+
+require_capability_enforcement_value() {
+  # $1 = flag name (for diagnostics), $2 = value
+  case "$2" in
+    disabled-legacy|advisory|required) ;;
+    *)
+      printf 'emit-run-record: %s must be one of disabled-legacy|advisory|required (got: %s)\n' "$1" "$2" >&2
       exit 1
       ;;
   esac
@@ -75,12 +91,27 @@ while [ $# -gt 0 ]; do
       effort_applied_main="${2:-}"; effort_applied_main_set=1; emit_v2=1; shift 2 ;;
     --effort-applied-reviewers)
       effort_applied_reviewers="${2:-}"; effort_applied_reviewers_set=1; emit_v2=1; shift 2 ;;
+    --capability-enforcement)
+      capability_enforcement="${2:-}"
+      require_capability_enforcement_value "--capability-enforcement" "$capability_enforcement"
+      capability_enforcement_set=1; emit_capability=1; shift 2 ;;
+    --capability-block-id)
+      capability_block_id="${2:-}"; capability_block_id_set=1; emit_capability=1; shift 2 ;;
     *) echo "emit-run-record: unknown argument: $1" >&2; exit 1 ;;
   esac
 done
 
 if [ -z "$feature" ]; then
   echo "Usage: emit-run-record.sh <feature-slug> [--track full|lite] [--model-main <id>] [--model-reviewers <id>] [--plugin-version <version>]" >&2
+  exit 1
+fi
+
+if [ "$emit_capability" = "1" ] && [ "$capability_enforcement_set" != "1" ]; then
+  echo "emit-run-record: --capability-block-id requires --capability-enforcement" >&2
+  exit 1
+fi
+if [ "$emit_capability" = "1" ] && [ "$emit_v2" != "1" ]; then
+  echo "emit-run-record: --capability-enforcement requires at least one --effort-* flag" >&2
   exit 1
 fi
 
@@ -205,6 +236,27 @@ if [ "$emit_v2" = "1" ]; then
     if [ -z "$1" ]; then printf 'null'; else printf '"%s"' "$1"; fi
   }
 
+  json_string() {
+    # block_id is caller-supplied rather than an enum, so let jq perform JSON
+    # escaping instead of interpolating raw bytes into the output heredoc.
+    #
+    # jq is this script's only external dependency and it is reachable on this
+    # path alone. This script has no `set -e`, so an unchecked failure here
+    # (jq absent, or any non-zero exit) would yield an empty command
+    # substitution, interpolate '  "block_id": ' into the heredoc, and still
+    # write the record and exit 0 -- silent corruption of a cross-epic shared
+    # surface. Fail closed instead; the caller propagates the status.
+    json_string_out="$(jq -cn --arg value "$1" '$value')" || {
+      echo "emit-run-record: jq is required to serialize --capability-block-id and exited non-zero (is jq installed?)" >&2
+      return 1
+    }
+    if [ -z "$json_string_out" ]; then
+      echo "emit-run-record: jq produced no output while serializing --capability-block-id" >&2
+      return 1
+    fi
+    printf '%s' "$json_string_out"
+  }
+
   resolve_effort_slot() {
     # $1=requested_set $2=requested_value $3=control_value
     # $4=applied_set $5=applied_value
@@ -252,7 +304,56 @@ if [ "$emit_v2" = "1" ]; then
   effort_applied_reviewers_json="$(json_str_or_null "$OUT_APPLIED")"
   effort_degraded_reason_reviewers_json="$(json_str_or_null "$OUT_REASON")"
 
-  cat > "$out" <<EOF
+  if [ "$emit_capability" = "1" ]; then
+    if [ "$capability_block_id_set" = "1" ]; then
+      # json_string runs in a command substitution, so its `return 1` sets this
+      # assignment's status rather than aborting the script; propagate it here,
+      # before the heredoc below can write a record built from an empty value.
+      capability_block_id_json="$(json_string "$capability_block_id")" || exit 1
+    else
+      capability_block_id_json="null"
+    fi
+    cat > "$out" <<EOF
+{
+  "schema": "sdd-run-record/v2",
+  "run_id": "${file_stamp}-${feature}",
+  "generated": "${timestamp}",
+  "feature": "${feature}",
+  "track": "${track}",
+  "model_ids": {
+    "main": "${model_main}",
+    "reviewers": "${model_reviewers}"
+  },
+  "effort": {
+    "main": {
+      "effort_requested": ${effort_requested_main_json},
+      "effort_applied": ${effort_applied_main_json},
+      "effort_degraded_reason": ${effort_degraded_reason_main_json}
+    },
+    "reviewers": {
+      "effort_requested": ${effort_requested_reviewers_json},
+      "effort_applied": ${effort_applied_reviewers_json},
+      "effort_degraded_reason": ${effort_degraded_reason_reviewers_json}
+    }
+  },
+  "capability": {
+    "enforcement": "${capability_enforcement}",
+    "block_id": ${capability_block_id_json}
+  },
+  "plugin_version": "${plugin_version}",
+  "active_wfis": [${active_wfis}],
+  "metrics": {
+    "tasks": {"done": ${tasks_done}, "blocked": ${tasks_blocked}, "total": ${tasks_total}},
+    "first_pass_gate": {"passed_first_try": ${first_pass_tasks}, "total": ${tasks_total}},
+    "gate_reports": {"total": ${gate_total}, "blocked": ${gate_blocked}, "max_runs_single_task": ${max_gate_runs}},
+    "review_tickets": {"critical": ${tickets_critical}, "major": ${tickets_major}, "minor": ${tickets_minor}}
+  }
+}
+EOF
+  else
+    # The effort-only v2 heredoc is intentionally unchanged so existing v2
+    # consumers that never supply capability flags receive identical bytes.
+    cat > "$out" <<EOF
 {
   "schema": "sdd-run-record/v2",
   "run_id": "${file_stamp}-${feature}",
@@ -285,6 +386,7 @@ if [ "$emit_v2" = "1" ]; then
   }
 }
 EOF
+  fi
 else
   # v1 shape, byte-identical to every pre-feature invocation (AC-025). This
   # heredoc is intentionally an exact, unmodified copy of the pre-T-004

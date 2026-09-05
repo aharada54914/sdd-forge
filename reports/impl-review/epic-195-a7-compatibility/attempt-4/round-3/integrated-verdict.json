@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "impl-orch-epic-195-a7-compatibility-a4r3",
+  "verdict": "PASS",
+  "round": 3,
+  "attempt": 4,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

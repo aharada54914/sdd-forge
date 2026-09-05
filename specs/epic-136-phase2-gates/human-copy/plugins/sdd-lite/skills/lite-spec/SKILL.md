@@ -143,21 +143,66 @@ resolve the complete user-supplied requirement/source body into one local,
 readable UTF-8 file. Do not treat an opaque URL as source text and do not fetch
 it remotely for this gate.
 
-Run the platform-local checker against that file:
+**Capability-derived signal (epic-194-a6-lite-integration T-003, REQ-005).**
+For every Capability Registry entry, call Epic A2's `evaluate-predicate` once
+per component the current Project Context already declares (static,
+diff-independent). Union-match across every (Capability, component) pair
+determines the matched set. Assemble every matched Capability whose own
+`lite_policy.eligible` is `false` into the trigger-fragment shape
+`check-risk-upgrade` accepts:
+
+```json
+{
+  "capabilities": [
+    {"id": "<capability-id>", "eligible": false,
+     "upgrade_reasons": ["<already-catalog-validated token>", "..."]}
+  ]
+}
+```
+
+Write this fragment to a local temp path. If no Project Context exists at all
+(disabled-legacy), skip this step entirely -- no fragment is produced, and the
+checker below runs with its first argument only, exactly as before this
+extension.
+
+If a Project Context does exist, the caller has attempted to supply a
+Capability-derived signal, and that attempt fails -- `evaluate-predicate` is
+absent or exits non-zero, the Registry is unreadable or fails to parse as
+valid JSON, or writing the temp fragment fails -- do not fall through to the
+one-argument, keyword-only invocation. An attempt that fails must never be
+silently treated as one that never attempted to. Block immediately, before
+the checker below is ever run: stop before any lite artifact write, tell the
+user the Capability-derived signal could not be produced, and direct them to
+`/sdd-bootstrap:sdd-bootstrap-interviewer`. The second argument's own total
+absence (disabled-legacy, above -- a Project Context that does not exist at
+all) is the only condition that legitimately falls through to the
+one-argument call; every failure encountered once a Project Context is
+confirmed to exist is a Block, never a silent degrade.
+
+Run the platform-local checker against the resolved source file, passing the
+fragment path (when one was produced) as the second argument:
 
 ```txt
-plugins/sdd-lite/scripts/check-risk-upgrade.sh <resolved-source-file>
-powershell -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-lite/scripts/check-risk-upgrade.ps1 -Path <resolved-source-file>
+plugins/sdd-lite/scripts/check-risk-upgrade.sh <resolved-source-file> [--capability-reasons <fragment-path>]
+powershell -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-lite/scripts/check-risk-upgrade.ps1 -Path <resolved-source-file> [-CapabilityReasons <fragment-path>]
 ```
 
 - Exit 0 with `lite-eligible`: continue to Process.
 - Exit 10 with `full-required: ...`: stop before any lite artifact write and
   direct the user to `/sdd-bootstrap:sdd-bootstrap-interviewer` for the full
-  workflow. `--lite` never overrides this decision.
-- Exit 2 with `risk-upgrade: input unavailable`: stop before any lite artifact
-  write. Tell the user that a readable local requirement body is required and
-  direct them to `/sdd-bootstrap:sdd-bootstrap-interviewer`; do not create a
-  partial lite specification.
+  workflow. `--lite` never overrides this decision, regardless of whether the
+  match came from the keyword scan or from this Capability-derived signal.
+- Exit 2 with `risk-upgrade: input unavailable` (primary source) or
+  `risk-upgrade: capability-reasons fragment invalid` (fragment path supplied
+  but unreadable/malformed/shape-invalid): stop before any lite artifact
+  write. Tell the user that a readable local requirement body (and, when
+  applicable, a valid Capability-derived fragment) is required and direct
+  them to `/sdd-bootstrap:sdd-bootstrap-interviewer`; do not create a partial
+  lite specification.
+
+This intake-time Block is layered with, not a substitute for, the existing
+`ship`-time recheck (a second, independent `check-risk-upgrade` invocation at
+ship time, unmodified by this extension) -- both stages are mandatory.
 
 ## Process
 
@@ -185,6 +230,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-lite/scripts/che
 - traceability.md・ADR・evidence-bundle・受入テストの厳密記述は生成しない（必要なら sdd-bootstrap-interviewer に切替）。
 - アプリのコードを実装しない（実装は `implement-task`）。
 - 承認・Done 化を行わない。
+- Predicate-DSL/Registry-matching ロジック自体は実装しない（Epic A2 の `evaluate-predicate` を呼び出すのみ）。
 
 ## Handoff
 

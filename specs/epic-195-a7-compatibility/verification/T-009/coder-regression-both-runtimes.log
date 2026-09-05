@@ -1,0 +1,310 @@
+T-009 blast-radius regression (revised, both runtimes):
+plugins/sdd-quality-loop/scripts/emit-run-record.{sh,ps1} is a cross-epic
+shared surface (Security Boundary B2, third named B2 file).
+
+Correction over the prior coder-regression.log (this same directory): that log's
+enumeration technique was 'grep -l emit-run-record tests/*.tests.sh' -- a .sh-only
+glob that structurally cannot match a PowerShell suite, so no .ps1 consumer of the
+modified emit-run-record.ps1 was ever enumerated or run. Re-inspection also found
+that the ORIGINAL .sh-side enumeration itself over-matched: two of its five listed
+suites (tests/check-component-coverage.tests.sh, tests/validate-capability-registry.tests.sh)
+never actually invoke emit-run-record.sh -- the grep hit is a comment mention
+('# TEST-054 ... emit-run-record', check-component-coverage.tests.sh:217) and a
+synthetic fixture filename used to prove a scanner ignores non-check-* scripts
+('emit-run-record.py', validate-capability-registry.tests.sh:82), never a real
+invocation of the script. Both still ran clean in the original log, so this did
+not hide a regression, but it did overstate the true blast-radius consumer count.
+
+Revised technique: grep -lE 'emit-run-record\.(sh|ps1)' across both tests/*.tests.sh
+AND tests/*.tests.ps1, then each match manually inspected to confirm it is a genuine
+invocation (a call to the real script path), never a comment or fixture-string
+mention.
+
+Genuine .sh invokers (3): tests/emit-run-record-feature-scope.tests.sh (T-009's own
+suite), tests/effort-policy-flip.tests.sh (TEST-044 shells out to emit-run-record.sh,
+but is SKIPped unless SDD_ALLOW_REAL_CODEX_SMOKE=1 is set -- so the script is not
+actually exercised by this run; disclosed, not excluded), tests/run-panelist-effort.tests.sh
+(EMIT_RUN_RECORD_SH, invoked at its own line 326).
+
+Genuine .ps1 invokers (2): tests/emit-run-record-feature-scope.tests.ps1 (T-009's own
+suite), tests/run-panelist-effort.tests.ps1 ($emitRunRecordPs1, invoked at its own
+line 330). tests/effort-policy-flip.tests.ps1 is NOT a genuine .ps1 consumer despite
+matching the earlier grep -l pass on 'emit-run-record.ps1' in a comment: its own
+TEST-044 is written to always Skip and defer to the .sh twin even when opted in
+('single real-invocation path, avoids double LLM spend across both lanes',
+effort-policy-flip.tests.ps1:127-132) -- it never calls emit-run-record.ps1. Included
+below anyway for full parity/transparency with the .sh side's inclusion.
+
+run-all.sh/.ps1 is still not used here for the same reason as the prior log: this
+repository's own deterministic-lane self-check fails closed until a human applies
+the staged human-copy CI patch (precedent: T-004's own qg-cycle2/T-004/regression.log).
+
+==========================================================
+[RUN] tests/emit-run-record-feature-scope.tests.sh
+==========================================================
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (.metrics.gate_reports.total = 1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text "BLOCKED" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded (.metrics.gate_reports.blocked = 1)
+ok: AC-021: schema bumps to v2 when any --effort-* flag supplied (.schema = sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (.feature = feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (.track = lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (.model_ids.main = unknown)
+ok: AC-021: effort.main has exactly the three subfields ((.effort.main | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: effort.reviewers has exactly the three subfields ((.effort.reviewers | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-033 matrix effort-only: existing v2 shape has no capability key (has("capability") = false)
+ok: AC-021: v1 metrics object unchanged in v2 shape (.metrics.tasks.total = 1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: --effort-applied-main with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when --effort-main itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ({
+  "effort_applied": null,
+  "effort_degraded_reason": "effort-control-frontmatter"
+})
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased --effort-control-main value is rejected fail-closed
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (.schema = sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (has("effort") = false)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (has("capability") = false)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)
+ok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record
+ok: AC-033 matrix both: schema remains v2 (.schema = sdd-run-record/v2)
+ok: AC-033 matrix both: effort sibling is present (has("effort") = true)
+ok: AC-012 matrix both: capability has exactly enforcement and block_id (((.capability // {}) | keys | sort) == (["block_id","enforcement"] | sort) = true)
+ok: AC-012 matrix both: enforcement is persisted (.capability.enforcement = advisory)
+ok: AC-012 matrix both: supplied block_id is persisted (.capability.block_id = resolver-no-match)
+ok: AC-012 block_id: JSON-sensitive characters round-trip exactly (.capability.block_id = resolver-"quoted"\path)
+ok: AC-012 optional block_id: enforcement is persisted (.capability.enforcement = required)
+ok: AC-012 optional block_id: omitted value serializes as null (.capability.block_id = null)
+ok: case-sensitivity: mis-cased --capability-enforcement is rejected fail-closed
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.sh: 51 passed, 0 failed
+[tests/emit-run-record-feature-scope.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/effort-policy-flip.tests.sh
+==========================================================
+ok: TEST-041: no --effort-policy flag resolves to matrix post-flip (effort_source=risk-matrix, effort=high; raw={"available_candidates":["openai/gpt-5.2-codex"],"canonical_tier":"strong","effort":"high","effort_control":"none","effort_source":"risk-matrix","escalation":null,"estimated_cost_per_attempt_usd":"1.0","model":"openai/gpt-5.2-codex","xhigh_reason":null})
+ok: TEST-041 (welded carve-out, OQ-004): --effort-policy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff (---- check summary: 10 targets, 0 drift ----)
+ok: TEST-043: USERGUIDE.md describes the matrix-default effort policy
+ok: TEST-043: docs/agent-capability-matrix.md describes the matrix-default effort policy
+ok: TEST-043: CHANGELOG.md describes the matrix-default effort policy
+ok: TEST-043: all three REQ-009 doc surfaces (USERGUIDE.md, docs/agent-capability-matrix.md, CHANGELOG.md) describe the matrix-default policy
+skip: TEST-044: real Codex-host smoke skipped -- SDD_ALLOW_REAL_CODEX_SMOKE not set to 1 (real 'codex' invocation is an autonomous coding-agent CLI, not opted into from an automated suite run; see reports/implementation/epic-159-pillar-c/T-007.md Unresolved Items)
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (ac275a3ea80bc71c39115ec95f9879569c51be7e)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the RELEASE-COMMIT re-run against the actual tagged release is the caller's own job at release time -- this suite verifies the implementation-time HEAD, not a release tag that does not exist yet)
+not ok: TEST-046: current branch (feature/epic-195-a7-compatibility) does not look T-007-scoped -- cannot confirm PR separation
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh (the separate release is the caller's own, later step)
+---- summary: pass=11 fail=1 skip=1 ----
+not ok: effort-policy-flip suite FAILED (1 failures, 1 skipped)
+[tests/effort-policy-flip.tests.sh] exit=1
+
+==========================================================
+[RUN] tests/run-panelist-effort.tests.sh
+==========================================================
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-035 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/stub-feat/verification/T-035.panelist-openai.verdict.json
+ok: TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex (task=T-035b feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/stub-feat/verification/T-035b.panelist-openai.verdict.json
+ok: TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.sh threads --effort onto a second stdout line, verbatim
+ok: TEST-036: omitting --effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex --effort medium (task=T-036 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/stub-feat/verification/T-036.panelist-openai.verdict.json
+ok: TEST-036: the value threaded by prepare-panelist-input.sh reaches run-panelist-gpt's assembled codex argv unchanged
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-037-sdd-evaluator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/stub-feat/verification/T-037-sdd-evaluator.panelist-openai.verdict.json
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex-mini --effort low (task=T-037-sdd-investigator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/stub-feat/verification/T-037-sdd-investigator.panelist-openai.verdict.json
+ok: TEST-037: select-agent-model --host codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model --host claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-052-control feature=f)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.OrkhMrwb8r/specroot/f/verification/T-052-control.panelist-openai.verdict.json
+ok: TEST-052 positive control: a well-formed --model/--effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the run_gpt() wrapper, which unconditionally overrides PATH to the stub codex (7 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+---- summary: pass=28 fail=0 ----
+ok: run-panelist-effort suite passed (28 checks)
+[tests/run-panelist-effort.tests.sh] exit=0
+
+==========================================================
+[RUN] tests/emit-run-record-feature-scope.tests.ps1
+==========================================================
+ok: gate_reports.total counts only feat-a reports (3)
+ok: feat-b's BLOCKED report is not counted for feat-a (0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (2)
+ok: only feat-a T-002 passed on a single gate run (1)
+ok: review_tickets.major counts only feat-a tickets (1)
+ok: feat-b's critical ticket is not counted for feat-a (0)
+ok: CRLF feat-a ticket severity is counted (1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded) (1)
+ok: AC-021: schema bumps to v2 when any -Effort* param bound (sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (unknown)
+ok: AC-021: effort.main has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: effort.reviewers has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-033 matrix effort-only: existing v2 shape has no capability key (False)
+ok: AC-021: v1 metrics object unchanged in v2 shape (1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code (effort-control-frontmatter)
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (False)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (False)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)
+ok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record
+ok: AC-033 matrix both: schema remains v2 (sdd-run-record/v2)
+ok: AC-033 matrix both: effort sibling is present (True)
+ok: AC-012 matrix both: capability has exactly enforcement and block_id (block_id,enforcement)
+ok: AC-012 matrix both: enforcement is persisted (advisory)
+ok: AC-012 matrix both: supplied block_id is persisted (resolver-no-match)
+ok: AC-012 block_id: JSON-sensitive characters round-trip exactly (resolver-"quoted"\path)
+ok: AC-012 optional block_id: enforcement is persisted (required)
+ok: AC-012 optional block_id: omitted value serializes as null ()
+ok: case-sensitivity: mis-cased -CapabilityEnforcement is rejected fail-closed
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.ps1: 51 passed, 0 failed
+[tests/emit-run-record-feature-scope.tests.ps1] exit=0
+
+==========================================================
+[RUN] tests/run-panelist-effort.tests.ps1
+==========================================================
+ok: TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model
+ok: TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.ps1 threads -Effort onto a second stdout line, verbatim
+ok: TEST-036: omitting -Effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+ok: TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged
+ok: TEST-037: select-agent-model -HostName codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model -HostName claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 positive control: a well-formed -Model/-Effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the Invoke-RunGpt wrapper, which unconditionally overrides $env:PATH to the stub codex (11 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+
+run-panelist-effort.tests.ps1: 28 passed, 0 failed
+[tests/run-panelist-effort.tests.ps1] exit=0
+
+==========================================================
+[RUN] tests/effort-policy-flip.tests.ps1
+==========================================================
+ok: TEST-041: no -EffortPolicy flag resolves to matrix post-flip (effort_source=risk-matrix, effort=high)
+ok: TEST-041 (welded carve-out, OQ-004): -EffortPolicy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff
+ok: TEST-043: USERGUIDE.md describes the matrix-default effort policy
+ok: TEST-043: docs/agent-capability-matrix.md describes the matrix-default effort policy
+ok: TEST-043: CHANGELOG.md describes the matrix-default effort policy
+ok: TEST-043: all three REQ-009 doc surfaces describe the matrix-default policy
+skip: TEST-044: real Codex-host smoke skipped -- SDD_ALLOW_REAL_CODEX_SMOKE not set to 1 (see reports/implementation/epic-159-pillar-c/T-007.md Unresolved Items; the .sh twin is authoritative for the opted-in real-invocation path)
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (ac275a3ea80bc71c39115ec95f9879569c51be7e)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the release-commit re-run is the caller's own job at release time)
+not ok: TEST-046: current branch (feature/epic-195-a7-compatibility) does not look T-007-scoped -- cannot confirm PR separation
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh
+---- summary: pass=11 fail=1 skip=1 ----
+not ok: effort-policy-flip suite FAILED (1 failures, 1 skipped)
+[tests/effort-policy-flip.tests.ps1] exit=1
+
+==========================================================
+Summary
+==========================================================
+Bash:       emit-run-record-feature-scope 51/0 (was 50/0 before this
+            session's TEST-011 addition, see coder-acceptance-rerun-2026-08-20.log
+            and MUTATION-KILL below), run-panelist-effort 28/0,
+            effort-policy-flip 11/1/1-skip (1 FAIL is TEST-046, the
+            pre-existing, disclosed, branch-naming self-check unrelated to
+            emit-run-record.sh -- see this suite's own header and T-009's
+            original coder-regression.log for the identical finding; TEST-044
+            itself, the only case that calls emit-run-record.sh, is SKIPped
+            here since SDD_ALLOW_REAL_CODEX_SMOKE is unset, exactly as in the
+            original log).
+PowerShell: emit-run-record-feature-scope 51/0, run-panelist-effort 28/0,
+            effort-policy-flip 11/1/1-skip (same disclosed TEST-046 failure,
+            confirmed present on this twin too; effort-policy-flip.ps1 is not
+            a genuine emit-run-record.ps1 consumer by its own design -- run
+            here for parity/transparency only, not required for this
+            regression check).
+
+Net: every genuine consumer of emit-run-record.{sh,ps1} in both runtimes
+that actually invokes the script passes (T-009's own suite, run-panelist-effort).
+The one FAIL present (effort-policy-flip, both runtimes) is the same
+pre-existing, disclosed, unrelated branch-naming self-check the original
+coder-regression.log already identified and is not attributable to
+T-009's emit-run-record.{sh,ps1} changes; scope is not narrowed after the
+fact -- the failing suite stays in this list with its evidence attached,
+per the panelist's own instruction not to repeat that pattern.

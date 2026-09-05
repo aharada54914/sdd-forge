@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0765",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0765",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-1/precheck-result.json",
+      "sha256": "8d824430e37432703ce9af655c8f067fb6e721e29b7547e754aacd7647c1c2cf"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "54f6ace65a05570cb8b81a418a5c597bd10ba47c10ebc9c20f97ae5de4c60992"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "be0cd28571cc64784c89d687c5c38b8ccbe14bd7dfab0a5ba4c73c8a26311ac9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md AC-009 (lines 357-367) states plainly that 'assert_artifacts_schema and assert_terminal (tests/lib/loop-driver.sh, INV-004) are themselves unmodified by this addition' -- i.e. the capability_applicability field addition leaves assert_terminal's body untouched. acceptance-tests.md's TEST-009 row (line 13, the acceptance test for that same AC-009) instead asserts assert_terminal's body has 'one sanctioned change from the pre-T-006 body ... the `_loop_trace_emit done-transition:assert-terminal` call', locked at 'TEST-009.2's re-baselined hash', and frames this as a correction already made in a 'T-005 cycle-2 correction' to a 'prior hash'. Downstream failure: a task author or verifier reading AC-009 alone will conclude assert_terminal must not change at all, while acceptance-tests.md tells them a specific line must already have been inserted via a prior task cycle -- but this package's own Overview and Non-goals state plainly that 'No test code, fixtures, or registry edits are produced by this task' and that tasks.md (where any T-005/T-006 would live) 'follow[s] in a later phase once this package passes spec-review-loop'. There is no tasks.md in this package and acceptance-tests.md's own Test ID column lists only 'TEST-009' (no '.2' variant) for AC-009, so 'TEST-009.2', 'T-005 cycle-2 correction', and 'pre-T-006 body' name objects that do not exist anywhere in this Phase 1 package and cannot be resolved by the artifacts under review. This is a specification-review-scoped defect (a direct inconsistency between requirements.md and acceptance-tests.md, the two primary Phase 1 artifacts this gate reviews) rather than an implementation-review or quality-gate concern, since no code exists yet against which to adjudicate which statement is correct. Severity Critical is the check's mandated severity and is also independently justified: the contradiction leaves AC-009/TEST-009 -- whether assert_terminal's body may or must change -- with two mutually exclusive truth conditions, so this specific requirement cannot be validated as currently written."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated Goal (REQ-001 through REQ-007) is traced to multiple acceptance criteria: REQ-001 -> AC-002/003/004/038; REQ-002 -> AC-005/006/007/030/031/042/043; REQ-003 -> AC-008 through AC-012, AC-022 through AC-027, AC-032/033/036/037/039; REQ-004 -> AC-013/017/029; REQ-005 -> AC-014/015/019/020/021/028; REQ-006 -> AC-001/018/040/041; REQ-007 -> AC-016/019-021/034/035/042/043. No goal in the Goals section is left without at least one matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria consistently name externally observable comparisons rather than vague intent: byte-for-byte diffs against a golden baseline (AC-002/003/011), exit-code and file-absence checks (AC-033/041), a fixed regex for identifier format (AC-006), a static count assertion on loop-inventory.json (AC-008), a static grep over .github/workflows/test.yml for literal strings (AC-040), and event-trace field comparisons against a versioned schema (AC-022-027). These are concrete, machine-checkable observables in nearly every case (the AC-009/TEST-009 exception is captured under REQ-TESTABILITY)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md lines 229-255) is explicit: it excludes implementing Epics A1-A6 themselves, authoring actual test code/fixtures/registry edits (deferred to Phase 2/3), registering a new loop-inventory 'id', re-specifying Epic A5's deferred suite in full, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task. The boundary between what this Phase 1 package specifies versus builds is unambiguous."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Security Boundaries table (lines 829-834) names trust boundaries B1 (golden-baseline capture/update, maintainer-approval-gated) and B2 (shared registry/driver/run-record edits); Roles and Permissions fixes who may author/approve baseline promotions and touch loop-inventory.json/emit-run-record.sh; REQ-006c fixes a two-stage candidate/canonical baseline-update procedure requiring a human-reviewed pull request; AC-040/AC-041 add both a static CI-workflow scan and a direct runtime-refusal test enforcing that CI never writes the canonical baseline."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (lines 879-908) names a Critical risk (Context-present assertions drifting from still-unmerged upstream epics) and states its planned validation surface directly: REQ-007's named-SKIP/allowlist design (AC-034/AC-035) with a fingerprint-drift hard-fail (AC-035c). The High risk (shared-surface blast radius) points to design.md fixing exact field names/shapes before Phase 2/3 starts. The Medium risk (deliberate 4-file scope deviation from check-sdd-structure.sh) names a concrete self-closing signal (a failing preflight run before Phase 2's first commit, Main Workflows step 1)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (verified by directory listing), so no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json are present. Per the check's skip condition, this check is recorded as skipped and requirements.md is not required to carry a Bounded-Context: field."
+    }
+  ]
+}

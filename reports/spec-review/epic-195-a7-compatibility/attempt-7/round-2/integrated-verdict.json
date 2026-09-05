@@ -1,0 +1,14 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 7,
+  "round": 2,
+  "reviewer_a_run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0935",
+  "reviewer_b_run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0936",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0935",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0936",
+  "finding_counts": {"critical":0,"major":0,"minor":0},
+  "verdict": "PASS",
+  "warningCount": 0
+}
