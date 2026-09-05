@@ -18,6 +18,23 @@ permissions:
   contents: read
 
 jobs:
+  # run-all.sh is the canonical POSIX suite inventory. This fallback runs
+  # every suite not already named by one of the specialized jobs below, so a
+  # new registration cannot remain local-only or duplicate expensive lanes.
+  posix-regression:
+    name: complete POSIX regression inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Run every otherwise-unwired POSIX suite
+        shell: bash
+        run: bash ./tests/run-ci-unwired.sh
+
   test:
     strategy:
       fail-fast: false
