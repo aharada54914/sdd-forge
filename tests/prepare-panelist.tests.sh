@@ -1746,7 +1746,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-049a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-049b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-049b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2022,7 +2022,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-055a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-055b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-055b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2896,8 +2896,8 @@ if [ ! -f "${D075}/out.txt" ]; then
 else
     fail "TEST-075b: bundle file must not be written when still over --max-bytes after both tiers"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes" && \
-   echo "${PP_OUTPUT}" | grep -qE "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null && \
+   echo "${PP_OUTPUT}" | grep -E "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)" > /dev/null; then
     ok "TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count"
 else
     fail "TEST-075c: expected a per-tier elision count in the failure message. Output: ${PP_OUTPUT}"
