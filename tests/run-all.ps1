@@ -8,6 +8,8 @@ $powerShell = (Get-Process -Id $PID).Path
 $tests = @(
     'tests/validate-repository.ps1',
     'tests/scripts.tests.ps1',
+    'tests/wfi-058-outputs-anchor.tests.ps1',
+    'tests/wfi-059-evidence-path-base.tests.ps1',
     'tests/review-contract-foundation.tests.ps1',
     'tests/task-context-isolation.tests.ps1',
     'tests/rollback-1.5.0.tests.ps1',

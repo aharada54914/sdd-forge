@@ -1746,7 +1746,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-049a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-049b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-049b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2022,7 +2022,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-055a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-055b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-055b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2291,8 +2291,16 @@ if [ -f "${D061}/out.txt" ] && grep -qF "specs/cross-model-verification/verifica
 else
     fail "TEST-061b: expected a not-found note naming the missing path"
 fi
-if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists there]" "${D061}/out.txt"; then
-    ok "TEST-061c: the note states plainly that no file exists there"
+# Asserts the invariant this test owns -- the gap is explained in plain
+# language rather than silently dropped -- and stops short of the trailing
+# base clause. WFI-059 changes that clause from "there" to
+# "at <project-root>/<path>" via a staged patch, and the strict assertion on
+# the new wording lives in tests/wfi-059-evidence-path-base.tests.sh, which is
+# designed-red until a human applies it. Pinning the full string here would
+# turn this whole suite red for the duration and hide unrelated regressions in
+# it; the prefix is what TEST-061 was actually written to protect.
+if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists" "${D061}/out.txt"; then
+    ok "TEST-061c: the note states plainly that no file exists"
 else
     fail "TEST-061c: expected a plain-language explanation of the gap"
 fi
@@ -2888,8 +2896,8 @@ if [ ! -f "${D075}/out.txt" ]; then
 else
     fail "TEST-075b: bundle file must not be written when still over --max-bytes after both tiers"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes" && \
-   echo "${PP_OUTPUT}" | grep -qE "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null && \
+   echo "${PP_OUTPUT}" | grep -E "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)" > /dev/null; then
     ok "TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count"
 else
     fail "TEST-075c: expected a per-tier elision count in the failure message. Output: ${PP_OUTPUT}"

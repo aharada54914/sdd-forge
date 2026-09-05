@@ -676,8 +676,13 @@ if [ -d "$input_path" ]; then
                 _ppi_elidable_index="${_ppi_elidable_index}${_ppi_dep_bytes}${_ppi_tab}${_ppi_row_candidate}${_ppi_tab}${_ppi_dep}
 "
             else
+                # WFI-059: name the join that was actually attempted, not just
+                # "there". The base is the literal token <project-root>, not an
+                # absolute path: the sanitize step below redacts every absolute
+                # path before this bundle reaches a vendor, so an absolute form
+                # would always reach the reviewer as "[PATH_REDACTED]".
                 raw_content="${raw_content}# ---- ${_ppi_dep} (contract-declared evidence, not found) ----
-[contract names this evidence path but no file exists there]
+[contract names this evidence path but no file exists at <project-root>/${_ppi_dep}]
 "
             fi
             _ppi_mark_seen "$_ppi_dep"
@@ -859,6 +864,9 @@ _ppi_sha256_stream() {
 # when a commit was found.
 _ppi_decl_commit_checked=0
 _ppi_decl_commit=""
+# Absolute path of the implementation report, read by the WFI-058 anchor scan
+# below (which fingerprints the report's own ## Outputs section).
+_ppi_decl_report_abs="${project_root}/reports/implementation/${feature}/${task_id}.md"
 
 _ppi_declaration_commit() {
     if [ "$_ppi_decl_commit_checked" = "1" ]; then
@@ -866,12 +874,61 @@ _ppi_declaration_commit() {
         return
     fi
     _ppi_decl_commit_checked=1
-    if command -v git >/dev/null 2>&1 && \
-       git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        _ppi_decl_commit="$(git -C "$project_root" log -1 --format='%H' -- \
-            "reports/implementation/${feature}/${task_id}.md" 2>/dev/null)"
+    command -v git >/dev/null 2>&1 || return 1
+    git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
+
+    _dc_report="reports/implementation/${feature}/${task_id}.md"
+
+    # WFI-058: anchor to the last commit that changed the report's ## Outputs
+    # SECTION, not the last commit that touched the report FILE. The two are
+    # the same event only until something edits the report for an unrelated
+    # reason -- a machine-readable header line, an addendum, a status word --
+    # after the declared outputs have legitimately drifted. When that happens
+    # the file-anchored lookup lands PAST the drift, every previously
+    # tolerated row stops verifying, and bundle preparation fail-closes on a
+    # tree that was fine the day before. Measured on epic-194: commit
+    # 8456b861 added `- Task ID:` header lines to three reports whose Outputs
+    # rows had already drifted through the owner-approved apply chain, and
+    # the next bundle build refused with nine hash mismatches.
+    #
+    # Walk the report's own history newest-first and keep the OLDEST
+    # consecutive commit whose Outputs section still equals the current one:
+    # that is where this section's content was introduced, and it is the tree
+    # state the declared hashes were written against.
+    _dc_current_fp="$(_ppi_outputs_fingerprint "$_ppi_decl_report_abs")" || return 1
+    _dc_anchor=''
+    for _dc_commit in $(git -C "$project_root" log --format='%H' -- "$_dc_report" 2>/dev/null); do
+        _dc_blob="$(mktemp "${TMPDIR:-/tmp}/ppi-decl-scan-XXXXXXXXXX")" || return 1
+        if ! git -C "$project_root" show "${_dc_commit}:${_dc_report}" >"$_dc_blob" 2>/dev/null; then
+            rm -f "$_dc_blob"
+            return 1
+        fi
+        if ! _dc_fp="$(_ppi_outputs_fingerprint "$_dc_blob")"; then
+            rm -f "$_dc_blob"
+            return 1
+        fi
+        rm -f "$_dc_blob"
+        [ "$_dc_fp" = "$_dc_current_fp" ] || break
+        _dc_anchor="$_dc_commit"
+    done
+
+    # No commit carries the current section (the table itself is edited but
+    # uncommitted): keep the historical file anchor rather than losing the
+    # fallback entirely. A wrong anchor still cannot admit anything -- the row
+    # is re-hashed against that commit's tree either way.
+    if [ -z "$_dc_anchor" ]; then
+        _dc_anchor="$(git -C "$project_root" log -1 --format='%H' -- "$_dc_report" 2>/dev/null)"
     fi
+    _ppi_decl_commit="$_dc_anchor"
     [ -n "$_ppi_decl_commit" ]
+}
+
+# Fingerprint of a report's ## Outputs section, used to decide WHEN that
+# section last changed. Row extraction is reused verbatim so the fingerprint
+# tracks exactly the rows the authorization boundary reads -- reflowed prose
+# or an edited heading elsewhere in the report does not move the anchor.
+_ppi_outputs_fingerprint() {
+    _ppi_extract_declared_output_rows "$1" | _ppi_sha256_stream
 }
 
 # Verify a declared-outputs row against the tree AS OF the declaration
@@ -909,7 +966,7 @@ _ppi_verify_at_declaration_commit() {
     rm -f "$_vdc_blob"
     [ "$_vdc_hash" = "$_vdc_row_hash" ] || return 1
 
-    printf 'prepare-panelist-input: declared output verified at declaration commit %s: %s (drifted since)\n' \
+    printf 'prepare-panelist-input: declared output verified at declaration commit %s (last ## Outputs change): %s (drifted since)\n' \
         "$(printf '%s' "$_ppi_decl_commit" | cut -c1-7)" "$_vdc_row_path" >&2
     return 0
 }

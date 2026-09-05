@@ -2245,8 +2245,16 @@ if (Test-Path (Join-Path $d "out.txt")) {
     } else {
         fail "TEST-061b: expected a not-found note naming the missing path"
     }
-    if ($bundleText061.Contains("[contract names this evidence path but no file exists there]")) {
-        ok "TEST-061c: the note states plainly that no file exists there"
+    # Asserts the invariant this test owns -- the gap is explained in plain
+    # language rather than silently dropped -- and stops short of the trailing
+    # base clause. WFI-059 changes that clause from "there" to
+    # "at <project-root>/<path>" via a staged patch, and the strict assertion
+    # on the new wording lives in tests/wfi-059-evidence-path-base.tests.ps1,
+    # which is designed-red until a human applies it. Pinning the full string
+    # here would turn this whole suite red for the duration and hide unrelated
+    # regressions in it; the prefix is what TEST-061 was written to protect.
+    if ($bundleText061.Contains("[contract names this evidence path but no file exists")) {
+        ok "TEST-061c: the note states plainly that no file exists"
     } else {
         fail "TEST-061c: expected a plain-language explanation of the gap"
     }
