@@ -19,7 +19,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "2.3.0",
+    "@modelcontextprotocol/inspector": "2.5.0",
     "@types/node": "^26.2.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
