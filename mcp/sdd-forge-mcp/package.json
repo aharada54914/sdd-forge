@@ -20,7 +20,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "2.3.0",
+    "@modelcontextprotocol/inspector": "2.4.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^26.2.0",
     "ajv": "^8.20.0",
