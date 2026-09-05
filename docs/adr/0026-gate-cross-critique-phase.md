@@ -4,6 +4,40 @@ Status: Proposed
 
 Date: 2026-08-07
 
+## Primary Sources
+
+This ADR draws on two bodies of prior art:
+
+1. **Internal prior art**: `skills/adversarial-review/` (proving run 2026-07-07,
+   `SKILL.md` "Real-world impact"), issue #128 (ENH-21), issue #130 (ENH-23).
+2. **External prior art**: *Adversarial Review: Structured Disagreement for
+   Grounded Agentic Code Review* (arXiv:2608.18167, published 2026-08-16,
+   verified 2026-08-25). URL: https://arxiv.org/abs/2608.18167
+
+The paper post-dates the initial ADR draft. Its findings partially confirm and
+partially diverge from the design choices recorded here. The correspondence is
+documented in `## arXiv:2608.18167 Correspondence` below.
+
+## Definitions (from arXiv:2608.18167, adapted to this repository's vocabulary)
+
+**Evidence-backed dissent**: a `PROPOSE-REJECT` or `PROPOSE-SEVERITY-CHANGE`
+verdict accompanied by a `code_evidence` or `spec_evidence` citation (file:line
+plus a concrete claim). Contrasts with a *concern* — a plausible-but-unverified
+objection that cannot be dismissed or adopted without further investigation.
+
+**False consensus**: a verdict of `SUPPORT` or an absence of `PROPOSE-REJECT`
+that does not reflect the critic's genuine assessment, but rather deference to
+the finding author. The paper reports false consensus as the primary failure mode
+of naive mutual-critique loops. This ADR mitigates it by requiring evidence for
+every `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` (see §2, Basis requirement).
+
+**Scope creep**: a finding-driven change that exceeds the approved requirement /
+acceptance-test / task boundary. The paper reports scope creep as a secondary
+failure mode when critics surface plausible concerns outside the approved scope
+and the author implements them. This ADR mitigates it by labelling each finding
+with `in_scope | out_of_scope | unclear` relative to the approved task (see
+`## arXiv:2608.18167 Correspondence`, point 3).
+
 ## Context
 
 The spec/impl/task review loops run two reviewers **blind-parallel**:
@@ -123,3 +157,43 @@ Minor findings, where a critique has nothing of value to attack.
   lane reviews a whole branch diff from outside the gates before a PR;
   this phase attacks one round's findings inside a gate. A feature can
   trigger both, each for its own reason.
+
+## arXiv:2608.18167 Correspondence
+
+The table below documents where this ADR's design aligns with, diverges from,
+or deliberately does not adopt the paper's recommendations. Points not listed
+are outside the paper's scope or outside this ADR's scope.
+
+| # | Paper finding / recommendation | This ADR's position | Reason |
+|---|-------------------------------|---------------------|--------|
+| 1 | Evidence-backed dissent reduces false consensus | **Adopted.** `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` require `code_evidence` or `spec_evidence` with file:line citations (issue #347). | Directly addresses the paper's primary failure mode. |
+| 2 | ~4.5× token cost increase for full adversarial panels (§4.3 Cost Analysis) | **Acknowledged; mitigated.** The phase fires only on Critical findings, BLOCKED rounds, or high/critical-risk features — not on every review. | Cost is confined to the rounds that earn it (§"Consequences"). |
+| 3 | Scope creep from out-of-scope concerns | **Adopted.** Each finding carries `scope: in_scope \| out_of_scope \| unclear`; out_of_scope findings are not converted to implementation directives (issue #348). | Paper reports scope creep as a significant failure mode. |
+| 4 | Immutable target identity (hash-binding the reviewed artifact) | **Adopted.** Report metadata includes `head_sha`, `merge_base_sha`, `diff_sha256`; stale reports cannot satisfy `Adversarial-Lane: fired` (issue #349). | Prevents post-hoc report substitution. |
+| 5 | Sequential Reviewer→Critic model (not blind-parallel first) | **Not adopted for the in-gate phase.** Blind independence of the first pass is `BL-001` and is a non-negotiable floor in the SDD review loops. The paper's sequential model is available outside the gates via `skills/adversarial-review` and ADR-0027's pre-PR lane. | Adopting sequential order inside a gate destroys the independence property the gate exists to enforce. |
+| 6 | Automated evaluation metrics for AR runs | **Partially adopted.** Structural metrics (finding counts, basis counts, scope counts, human dispositions) are recorded in `evaluation.json` per triggering run (issue #350). Token telemetry is deferred — no token budget surface exists (INV-021). | Structural metrics are observable today; token telemetry is a separate feature. |
+| 7 | Concern classification (basis type) | **Adopted.** `basis.kind` discriminates `code_evidence \| spec_evidence \| concern`; concerns alone cannot drive automatic rejection or adoption (issue #347). | Paper shows that mixing evidence and concern in a single "objection" category inflates false consensus rates. |
+
+### Why blind-parallel first pass is maintained (not replaced by sequential)
+
+The paper studies sequential Reviewer→Critic panels and shows improved accuracy.
+This ADR does **not** adopt sequential ordering for the in-gate phase for three
+reasons, each grounded in this repository's specific constraints:
+
+1. **Independence is the gate's assurance property.** Two reviewers who cannot
+   see each other's reasoning cannot anchor on it — this is what makes their
+   agreement corroborating evidence rather than an echo. Replacing the blind
+   pass with a sequential one would make the merged verdict weaker, not
+   stronger, even if the sequential critic finds more findings.
+2. **The SDD loop's identity ledger prevents resumption.** The paper's
+   sequential model relies on passing the first reviewer's output directly to
+   the second before any round record is committed. Inside `sdd-review-loop`,
+   `validate-review-context-set.sh:262-265` prevents resuming a reserved
+   session, so the sequential pass would be a fresh-context launch that re-reads
+   all inputs — the same cost as the current blind launch, without the
+   independence benefit.
+3. **ADR-0027's pre-PR lane already offers the sequential option.** A human who
+   wants sequential Reviewer→Critic outside the gates can invoke
+   `skills/adversarial-review` directly, or trigger the ADR-0027 lane. The
+   in-gate phase is for cost-bounded, deterministic, gate-compatible critique,
+   not for replacing the full adversarial panel protocol.
