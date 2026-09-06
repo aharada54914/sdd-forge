@@ -21,7 +21,7 @@ problem: |
   Lines 190-222 wait until the chosen target, then serialize the verdict;
   the target is not evidence of actual process completion by that instant.
 expected_fix:
-  - "On failed TEST-004(c), print a bounded, terminal-control-sanitized copy of the captured fixture runner diagnostic; preserve the original exit status and failing assertion. Do not log inherited environment values or credentials."
+  - "On failed TEST-004(c), print a bounded, terminal-control-sanitized copy of the captured fixture runner diagnostic and surface boundary-only sidecar timestamps for wait end, output completion, and runner exit observed; preserve the original exit status and failing assertion. Treat output completion as the post-ConvertTo-Json pipeline return, not an OS flush, and runner exit observed as the outer runner return, not exact child exit. Do not log inherited environment values or credentials."
   - "Demonstrate the failure branch reports the captured reason without changing failure into success; preserve the successful-case behavior."
   - "Run syntax checks and the unchanged 64-case PowerShell suite, including Windows; retain all failures. A green rerun alone does not resolve the original intermittent failure."
 references:
@@ -31,9 +31,9 @@ references:
   - specs/epic-136-phase4-docs/acceptance-tests.md
 auto_fix_allowed: false
 requires_human_decision: false
-human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs only to already-Done T-002 tests. No timeout, repetition, assertion or runner behavior change approved."
+human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs only to already-Done T-002 tests, including boundary-only wait-end, output-complete, and runner-exit observed timestamps. No timeout, repetition, assertion or runner behavior change approved."
 review_cycles: 2
-verification_status: "Diagnostic behavior verified locally; full local suite 54 passed / 10 failed (exit 1); Windows verification and independent quality gate pending. Ticket remains open."
+verification_status: "Diagnostic behavior verified locally; local run still showed 54 passed / 10 failed, and prior Windows run 33998162792 showed 60 passed / 4 failed on the old diagnostics; the timestamped diagnostic variant is pending Windows verification and independent quality gate. Boundary-only wait-end, output-complete and runner-exit observed timestamps now added. Ticket remains open."
 decision_needed: >-
   Diagnostic-only remediation scope for already-Done T-002 is approved.
   Keep the 2-second timeout, 800ms margin,
