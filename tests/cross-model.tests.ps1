@@ -241,6 +241,13 @@ if ($completeAtEpochMs -gt 0) {
         if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
     }
     $stubWaitEndEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    if ($env:STUB_STAGE_TIMING_FILE) {
+        try {
+            Set-Content -Encoding Utf8 -Path "$($env:STUB_STAGE_TIMING_FILE).wait-end" -Value $stubWaitEndEpochMs
+        } catch {
+            # Keep boundary diagnostics from changing the verdict path.
+        }
+    }
 }
 @{
     schema = "cross-model-verdict/v1"
@@ -257,11 +264,7 @@ if ($completeAtEpochMs -gt 0) {
 $stubOutputCompleteEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
 if ($env:STUB_STAGE_TIMING_FILE) {
     try {
-        $stageTiming = [ordered]@{
-            stub_wait_end_ms         = $stubWaitEndEpochMs
-            stub_output_complete_ms  = $stubOutputCompleteEpochMs
-        }
-        $stageTiming | ConvertTo-Json -Compress -Depth 3 | Set-Content -Encoding Utf8 -Path $env:STUB_STAGE_TIMING_FILE
+        Set-Content -Encoding Utf8 -Path "$($env:STUB_STAGE_TIMING_FILE).output-complete" -Value $stubOutputCompleteEpochMs
     } catch {
         # Keep boundary diagnostics from changing the verdict path.
     }
@@ -676,15 +679,30 @@ try {
                     $stubLaunchMs = $stubStartEpoch - $invokedAt
                 }
             }
-            $stageTiming = if (Test-Path $stageTimingFile) {
-                try {
-                    Get-Content -Raw -LiteralPath $stageTimingFile | ConvertFrom-Json
-                } catch {
-                    $null
+            $waitEndEpochMs = -1
+            try {
+                $waitEndPath = "$stageTimingFile.wait-end"
+                if (Test-Path $waitEndPath) {
+                    $parsedWaitEndEpochMs = [long]0
+                    if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $waitEndPath)".Trim(), [ref]$parsedWaitEndEpochMs)) {
+                        $waitEndEpochMs = $parsedWaitEndEpochMs
+                    }
                 }
-            } else { $null }
-            $waitEndEpochMs = if ($stageTiming) { [long]$stageTiming.stub_wait_end_ms } else { -1 }
-            $outputCompleteEpochMs = if ($stageTiming) { [long]$stageTiming.stub_output_complete_ms } else { -1 }
+            } catch {
+                $waitEndEpochMs = -1
+            }
+            $outputCompleteEpochMs = -1
+            try {
+                $outputCompletePath = "$stageTimingFile.output-complete"
+                if (Test-Path $outputCompletePath) {
+                    $parsedOutputCompleteEpochMs = [long]0
+                    if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $outputCompletePath)".Trim(), [ref]$parsedOutputCompleteEpochMs)) {
+                        $outputCompleteEpochMs = $parsedOutputCompleteEpochMs
+                    }
+                }
+            } catch {
+                $outputCompleteEpochMs = -1
+            }
             $runnerDeadline = if (Test-Path $deadlineFile) { "$(Get-Content -Raw -LiteralPath $deadlineFile)".Trim() } else { "missing" }
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs wait_end_ms=$waitEndEpochMs output_complete_ms=$outputCompleteEpochMs runner_exit_observed_ms=$runnerExitObservedEpochMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs wait_end_ms=$waitEndEpochMs output_complete_ms=$outputCompleteEpochMs runner_exit_observed_ms=$runnerExitObservedEpochMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"

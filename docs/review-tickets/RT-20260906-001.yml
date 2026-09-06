@@ -32,10 +32,18 @@ references:
   - specs/epic-136-phase4-docs/acceptance-tests.md
 auto_fix_allowed: false
 requires_human_decision: false
+continuation_approval: "2026-09-06: User explicitly approved additional repair and re-review after the three-cycle limit, answering the pending T-002 one-additional-cycle request. Permit cycle 4 only: persist child wait-end at observation before verdict serialization and independently isolate diagnostic read errors. Preserve timeout, margin, repetitions, assertions, production runners and mandatory checks. No further automatic cycle is authorized."
 human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs to already-Done T-002 tests, including boundary-only wait-end, output-complete, and runner-exit observed timestamps. Subsequently explicitly approved adding EOF standard-input consumption to the test CLI and regression verification. No timeout, margin, repetition, assertion or production runner behavior change approved."
-review_cycles: 2
+review_cycles: 4
 verification_status: "Diagnostic behavior verified locally; local run still showed 54 passed / 10 failed, and prior Windows run 33998162792 showed 60 passed / 4 failed on the old diagnostics. Timestamped variant at 588ff2809e6085a84f0deebb9384aa57c7cb1d90 passed all 25 CI jobs, including Windows, in run 34003924105 (https://github.com/aharada54914/sdd-forge/actions/runs/34003924105); primary reverified the completed run and exact head on 2026-09-06. Recorded cross-model suite results are 64 passed / 0 failed on all three CI hosts; see reports/verification/pr400-ci-stage-observation-20260906.md. Historical local failures remain unresolved and independent quality gate remains pending. Boundary-only wait-end, output-complete and runner-exit observed timestamps now added. Ticket remains open; CI success does not establish a root-cause fix."
 decision_needed: >-
+  2026-09-06 third primary review rejected the uncommitted scalar-sidecar
+  candidate: wait-end is still persisted after ConvertTo-Json instead of
+  at its observation point, and parent reads lack the former diagnostic
+  exception isolation. Further repair/review is paused at the three-cycle
+  limit. This pause is now superseded by the explicit T-002 cycle-4 approval
+  recorded above; A7 T-004 approval is not transferable. The rejected candidate
+  has not been committed, pushed, or suite-verified.
   Latest stdin-only local verification: unchanged suite 64 passed / 0 failed,
   exit 0, tested once by independent tester on 2026-09-06. See
   reports/verification/t002-stage-timing-20260906.md for source/log hashes.
