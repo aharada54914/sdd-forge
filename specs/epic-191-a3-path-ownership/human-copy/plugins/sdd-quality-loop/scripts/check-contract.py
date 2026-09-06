@@ -124,7 +124,63 @@ def _pass1_duplicate_ids(checks, failures):
             seen_ids[cid] = i
 
 
-def _pass2_per_check_rules(checks, root, failures):
+def _discover_project_root(contract_path, fallback_root):
+    """WFI-059: resolve evidence against the PROJECT root, not the caller's base.
+
+    `checks[].evidence` had two resolvers and no grammar. This gate resolved it
+    against whatever base the caller passed -- often the spec directory --
+    while prepare-panelist-input always resolves project-root-relative. A
+    contract written spec-relative therefore passed the Done chain and then
+    reached a blind panel with "no file exists there" stamped over evidence
+    that existed. Measured on epic-194's 2026-08-28 re-panel: all six verdicts
+    (two vendors x three tasks) returned NEEDS_WORK on that one disagreement,
+    against evidence that had just produced "Task state check passed for 4
+    task(s)".
+
+    A contract lives at <project-root>/specs/<feature>/verification/<task>.json,
+    so the project root is the nearest ancestor from which the contract's own
+    path starts with "specs/". A contract outside specs/ -- fixtures, ad-hoc
+    trees -- has no such ancestor: fall back to the caller's base, which leaves
+    those callers, and the shipped golden message corpus, exactly as they were.
+    """
+    try:
+        contract_abs = os.path.abspath(contract_path)
+    except Exception:
+        return fallback_root
+
+    current = os.path.dirname(contract_abs)
+    while True:
+        try:
+            rel = os.path.relpath(contract_abs, current)
+        except ValueError:
+            return fallback_root
+        segments = rel.split(os.sep)
+        if len(segments) > 1 and segments[0] == "specs":
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            return fallback_root
+        current = parent
+
+
+def _validate_evidence(label, raw_path, root, failures, base_note):
+    """validate_evidence_path, naming the resolution base when it is NOT the
+    base the caller passed.
+
+    The suffix is conditional on purpose. 21 golden fixtures under
+    tests/fixtures/phase2-contract-path-golden/ assert this gate's exact
+    stdout for every evidence diagnostic; a caller that already passes the
+    project root -- which is every shipped caller -- sees byte-identical
+    messages. Only the ambiguous-base case this WFI is about gains the note.
+    """
+    before = len(failures)
+    validate_evidence_path(label, raw_path, root, failures)
+    if base_note:
+        for i in range(before, len(failures)):
+            failures[i] = f"{failures[i]} ({base_note})"
+
+
+def _pass2_per_check_rules(checks, root, failures, base_note=""):
     """Per-check type strictness, waiver enforcement, evidence path safety."""
     for check in checks:
         cid = check.get("id", "?")
@@ -157,7 +213,7 @@ def _pass2_per_check_rules(checks, root, failures):
             if not evidence:
                 failures.append(f"check '{cid}' passes without evidence")
                 continue
-            validate_evidence_path(f"check '{cid}' evidence", evidence, root, failures)
+            _validate_evidence(f"check '{cid}' evidence", evidence, root, failures, base_note)
 
 
 def _pass3_required_set(checks, failures):
@@ -235,7 +291,7 @@ def _pass4_risk_tier(checks, contract, root, failures):
                     break
 
 
-def _pass5_tdd_evidence(checks, contract, root, failures):
+def _pass5_tdd_evidence(checks, contract, root, failures, base_note=""):
     """Red→Green evidence enforcement for required_workflow == 'tdd'."""
     required_workflow = (contract.get("required_workflow") or "").strip()
     if required_workflow != "tdd":
@@ -257,8 +313,8 @@ def _pass5_tdd_evidence(checks, contract, root, failures):
             failures.append(f"check '{cid}' required_workflow tdd needs non-empty green_evidence")
             continue
 
-        validate_evidence_path(f"check '{cid}' red_evidence", red_evidence, root, failures)
-        validate_evidence_path(f"check '{cid}' green_evidence", green_evidence, root, failures)
+        _validate_evidence(f"check '{cid}' red_evidence", red_evidence, root, failures, base_note)
+        _validate_evidence(f"check '{cid}' green_evidence", green_evidence, root, failures, base_note)
 
 
 def _pass5b_risk_workflow(contract, failures):
@@ -401,14 +457,23 @@ def run(contract_path, root):
         failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
     checks = [c for c in checks_raw if isinstance(c, dict)]
 
+    # WFI-059: every evidence path resolves from the project root, never from
+    # whatever base the caller happened to pass. _pass4_risk_tier keeps the
+    # caller's root -- it reads a project-posture file, not evidence, and
+    # repointing it would change an unrelated gate.
+    evidence_root = _discover_project_root(contract_path, root)
+    base_note = ""
+    if os.path.abspath(evidence_root) != os.path.abspath(root):
+        base_note = f"project-root-relative base: {evidence_root}"
+
     _pass1_duplicate_ids(checks, failures)
-    _pass2_per_check_rules(checks, root, failures)
+    _pass2_per_check_rules(checks, evidence_root, failures, base_note)
     _pass3_required_set(checks, failures)
     _pass4_risk_tier(checks, contract, root, failures)
-    _pass5_tdd_evidence(checks, contract, root, failures)
+    _pass5_tdd_evidence(checks, contract, evidence_root, failures, base_note)
     _pass5b_risk_workflow(contract, failures)
     _pass6_cross_model(checks, contract, failures)
-    _pass7_producer_digest(checks, root, failures)
+    _pass7_producer_digest(checks, evidence_root, failures)
 
     return contract.get("task_id", "?"), failures
 
