@@ -203,6 +203,7 @@ if ($env:STUB_DEADLINE_FILE) {
 }
 if ($env:STUB_CALLED_FILE) { Set-Content -Path $env:STUB_CALLED_FILE -Value "called" }
 if ($env:STUB_PID_FILE) { Set-Content -Path $env:STUB_PID_FILE -Value $PID }
+$null = [Console]::In.ReadToEnd()
 
 if ($env:STUB_MODE -eq "hang") {
     $childStdout = "$($env:STUB_CHILD_PID_FILE).stdout"

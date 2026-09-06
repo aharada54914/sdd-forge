@@ -1,5 +1,39 @@
 # T-002 stage timing verification
 
+## Approved stdin consumption follow-up — 2026-09-06
+
+The user explicitly approved adding stdin-to-EOF consumption to the test CLI
+and regression verification. This supersedes the pending-approval sentence
+in the historical diagnosis below. RT-20260906-001 records the bounded scope.
+Worker `collector_human_candidate` added only
+`$null = [Console]::In.ReadToEnd()` to the generated worker, after the diagnostic
+start/PID markers and before the hang/normal branches. Primary Astra inspected
+the exact diff: no Critical or Warning found in this bounded fixture change;
+production runners, deadlines, 800 ms margin, repetitions and assertions are
+unchanged. The finite fixture input is discarded, not printed or evaluated.
+Worker syntax parse and primary `git diff --check` passed. Independent tester
+`stdin_regression` ran `rtk pwsh -NoProfile -File tests/cross-model.tests.ps1`
+once: **64 passed, 0 failed, exit 0**. Primary read the saved complete output
+at `/tmp/cross-model-tests.XXXXXX.log` (SHA-256
+`b86eb476755735bf34d95b8a50a8e21b4a07d1d99e6b85fc60a1883a6f53784b`).
+Test source SHA-256:
+`2b5d30c064c43b5acd4116f582be2b1f7a124f0a38e8472269aa9f8b44c040dc`.
+All GPT configuration cases and all ten GPT/Gemini boundary repetitions passed;
+the prior local Broken pipe exception did not occur. Both hung cases still
+exited 1, emitted no verdict, and left neither stub nor child alive. Boundary
+outer elapsed times were 2816–2880 ms; these include runner overhead and are
+not the child invocation's 2000 ms deadline clock. Windows execution of the
+new stdin-draining source remains pending; old-head CI is not new-head evidence.
+This is not a formal quality-gate PASS or a Windows timeout resolution.
+
+## Subsequent bounded stdin diagnosis — 2026-09-06
+
+Primary read the stub generator and both runners. The PowerShell stub emits a verdict but has no stdin-draining call. GPT redirects a combined prompt plus bundle; Gemini redirects the smaller bundle-only input. This leaves a test-double contract hypothesis open; GPT-only failure does not prove a GPT production defect.
+
+Primary ran two small subprocess probes without modifying any repository file or rerunning the suite. `Start-Process /usr/bin/true` with `/dev/null` stdin exited 0; with the existing `tests/cross-model.tests.ps1` as stdin it raised `Broken pipe`. A controlled second probe used that same existing input and `/dev/null` stdout: `/usr/bin/true` again raised `Broken pipe`, whereas `/bin/cat` exited 0. This demonstrates that early stdin closure can produce the observed local exception on this host. It does not prove that every historical GPT failure shares that cause, and does not explain Windows boundary timeouts.
+
+Requested explicit scope extension for a stub-only stdin drain plus regression verification. Existing authorization remains diagnostic timestamps only until answered; production timeout, margin, repetitions and assertions are unchanged. No protected edit or bypass attempted. The CI workflow at main `10ad36e` remains live (run `34008874163`), so waiting is not treated as an impasse.
+
 Run date: 2026-09-06
 
 Commands

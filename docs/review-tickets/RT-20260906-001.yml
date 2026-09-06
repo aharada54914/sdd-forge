@@ -21,6 +21,7 @@ problem: |
   Lines 190-222 wait until the chosen target, then serialize the verdict;
   the target is not evidence of actual process completion by that instant.
 expected_fix:
+  - "2026-09-06 scope extension explicitly approved by the user: make only the generated test CLI consume redirected standard input through EOF before emitting its verdict, and regression-verify the change. Preserve production runners, timeout, margin, repetitions and assertions. This targets the separately reproduced local Broken pipe mechanism, not an established fix for the Windows deadline failures."
   - "On failed TEST-004(c), print a bounded, terminal-control-sanitized copy of the captured fixture runner diagnostic and surface boundary-only sidecar timestamps for wait end, output completion, and runner exit observed; preserve the original exit status and failing assertion. Treat output completion as the post-ConvertTo-Json pipeline return, not an OS flush, and runner exit observed as the outer runner return, not exact child exit. Do not log inherited environment values or credentials."
   - "Demonstrate the failure branch reports the captured reason without changing failure into success; preserve the successful-case behavior."
   - "Run syntax checks and the unchanged 64-case PowerShell suite, including Windows; retain all failures. A green rerun alone does not resolve the original intermittent failure."
@@ -31,14 +32,19 @@ references:
   - specs/epic-136-phase4-docs/acceptance-tests.md
 auto_fix_allowed: false
 requires_human_decision: false
-human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs only to already-Done T-002 tests, including boundary-only wait-end, output-complete, and runner-exit observed timestamps. No timeout, repetition, assertion or runner behavior change approved."
+human_decision: "2026-09-06: User explicitly approved safely printing failure error text and adding diagnostic logs to already-Done T-002 tests, including boundary-only wait-end, output-complete, and runner-exit observed timestamps. Subsequently explicitly approved adding EOF standard-input consumption to the test CLI and regression verification. No timeout, margin, repetition, assertion or production runner behavior change approved."
 review_cycles: 2
-verification_status: "Diagnostic behavior verified locally; local run still showed 54 passed / 10 failed, and prior Windows run 33998162792 showed 60 passed / 4 failed on the old diagnostics; the timestamped diagnostic variant is pending Windows verification and independent quality gate. Boundary-only wait-end, output-complete and runner-exit observed timestamps now added. Ticket remains open."
+verification_status: "Diagnostic behavior verified locally; local run still showed 54 passed / 10 failed, and prior Windows run 33998162792 showed 60 passed / 4 failed on the old diagnostics. Timestamped variant at 588ff2809e6085a84f0deebb9384aa57c7cb1d90 passed all 25 CI jobs, including Windows, in run 34003924105 (https://github.com/aharada54914/sdd-forge/actions/runs/34003924105); primary reverified the completed run and exact head on 2026-09-06. Recorded cross-model suite results are 64 passed / 0 failed on all three CI hosts; see reports/verification/pr400-ci-stage-observation-20260906.md. Historical local failures remain unresolved and independent quality gate remains pending. Boundary-only wait-end, output-complete and runner-exit observed timestamps now added. Ticket remains open; CI success does not establish a root-cause fix."
 decision_needed: >-
-  Diagnostic-only remediation scope for already-Done T-002 is approved.
+  Latest stdin-only local verification: unchanged suite 64 passed / 0 failed,
+  exit 0, tested once by independent tester on 2026-09-06. See
+  reports/verification/t002-stage-timing-20260906.md for source/log hashes.
+  New-source Windows CI and independent quality gate remain pending.
+  Diagnostic remediation plus test CLI stdin-to-EOF consumption and regression
+  verification for already-Done T-002 are explicitly approved.
   Keep the 2-second timeout, 800ms margin,
   five repetitions per runner, assertions, runner code and CI requirements
-  unchanged. Any eventual behavioral fix needs evidence and its own scoped
+  unchanged. Any other eventual behavioral fix needs evidence and its own scoped
   review. Recheck active protection before editing; a hook denial is not
   permission to work around it. Do not overwrite historical frozen evidence
   or mark the original timeout failure resolved through this diagnostic fix.
