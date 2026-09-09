@@ -1,12 +1,133 @@
 # Requirements: epic-189-a1-project-context
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/189
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (tracking) /
 https://github.com/aharada54914/sdd-forge/issues/188 (Epic A0, Architecture
 Decisions) — Epic A1 itself
 Investigation: specs/epic-189-a1-project-context/investigation.md
 (INV-001..INV-015, OQ-001..OQ-003)
+
+## RT-20260909-002 amendment (2026-09-09; pending fresh review)
+
+This section is normative for the repair of REQ-010 / AC-027 / AC-032 only.
+It supersedes the Codex plugin-origin prerequisite in REQ-010, its Overview
+and Assumptions repetitions, and any inference that missing plugin metadata
+proves disabled hooks. The original no-schema adapter remains legacy.
+INV-001..INV-015 and OQ-001..OQ-003 remain retained historical investigation.
+INV-015's distinction between fixture verification and live observation remains
+binding; its historical lack of live observation is not a current host verdict.
+No historical Passed, Done, review record or evidence is retroactively changed.
+The existing Passed header describes the historical review until the original
+precheck legally resets it for a new attempt; it is not approval of this text.
+
+### Versioned Codex response contract
+
+Only --verify-response selects this adapter. A record with a schema member
+must select exactly "sdd-codex-host-denial/v1" before runtime dispatch.
+Its only allowed and required members are schema, runtime, nonce, executed,
+raw_result. CLI runtime and recorded runtime must both equal "codex-cli".
+The nonce is exactly 32 lowercase hexadecimal characters; it must equal the
+expected CLI nonce and the nonce in the echoed operation. executed is strictly
+boolean false. raw_result is a string. No plugin flag is inferred or added.
+
+The following JSON strings define exact UTF-8 text after JSON decoding.
+Replace only <nonce> with the generated nonce. Neither has a terminal newline.
+Do not trim, normalize Unicode, convert line endings or accept substring matches.
+
+Emitted tool_call_template.codex-cli.tool_input.patch:
+
+```json
+"*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+Required complete raw_result:
+
+```json
+"Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+The emitted patch and top-level challenge use the same newly generated nonce.
+Claude and Copilot challenge templates and no-schema runtime predicates remain
+unchanged. Explicit unknown, null or wrong-type schema never falls back to a
+legacy adapter, even when legacy-success fields are present. Extra members,
+including either plugin flag with any value, reject. Duplicate JSON member
+names at any depth reject before adapter dispatch.
+
+On an otherwise valid new record, executed true uses WRITE_EXECUTED (63);
+a syntactically valid mismatched outer or echoed nonce uses
+STALE_CHALLENGE_REJECTED (62). Structural/type/schema/signature errors use
+UNRECOGNIZED_RESULT (64). Malformed or duplicate-member response JSON uses
+RECORDED_RESULT_UNREADABLE (61). All these failures report
+CAPABILITY_RUNTIME_UNAVAILABLE, never HOOK_ACTIVE. Isolate each fault in its
+own test; existing precedence outside these isolated cases is not relaxed.
+For a valid record, exit 0 and HOOK_ACTIVE apply.
+
+No-schema Codex missing-flag rejection keeps its existing exit/category;
+its diagnostic must describe insufficient evidence, not assert disabled hooks.
+No-schema Claude/Copilot acceptance is unchanged except duplicate rejection.
+Cleanup does not select the new response adapter: retain its legacy predicates,
+stale-start recovery, nonce syntax and the branch-specific guarantees below. Duplicate
+cleanup members use CLEANUP_RESULT_UNREADABLE (71), never
+SENTINEL_CLEANUP_CONFIRMED. Retain all existing tests under AC-032.
+
+### Cleanup guarantee precedence (2026-09-09; round-1 findings)
+
+REQ-010's Sentinel cleanup contract and AC-032 / TEST-032 are the governing
+three-outcome contract. The live approval sidecars remain byte-identical in
+EVERY outcome. For a fresh, initially absent sentinel: (a) a denied write
+never creates it; (b) an executed write followed by confirmed successful
+cleanup leaves it absent, with the successful cleanup result recorded;
+(c) missing, failed or denied cleanup leaves absence unproven and may leave
+the sentinel present. Case (c) MUST report SENTINEL_CLEANUP_UNCONFIRMED with
+CAPABILITY_RUNTIME_UNAVAILABLE, never silently claim successful cleanup or
+turn the original executed-write result into HOOK_ACTIVE. The next invocation
+records one stale-start cleanup attempt before its new challenge and proceeds
+with that challenge regardless of the stale-cleanup outcome, as REQ-010
+already requires. No direct script write or guard bypass is introduced.
+
+This dated clarification supersedes the unconditional sentinel-state wording
+in REQ-011's TEST-032 summary, the sdd/.hook-canary-sentinel field definition,
+Main Workflows step 4, the sentinel non-mutation Edge Case and Security Boundaries
+B6 below: "byte-identical", "absent-before/absent-after" and "never a lasting
+mutation" apply to the sentinel only in the qualifying branches above, not
+case (c). It does not narrow the unconditional protection of approval sidecars.
+The original AC-032 / TEST-032 cleanup-failure and stale-start fixtures remain
+mandatory; successful cleanup cannot be inferred from an attempted delete.
+
+### Trust boundary and narrowly authorized recovery
+
+This is exact content binding, not cryptographic host attestation or a
+persistent replay ledger. A forged caller-authored file is not detectable by
+this verifier. The trusted session must record its own native tool response
+verbatim after consuming one newly emitted challenge once. A matching file
+alone does not establish freshness, single use, plugin provenance or live
+cross-runtime enforcement. Synthetic tests remain A1 verification-logic
+evidence only; A8's mandatory live cross-runtime proof remains outstanding.
+At review, record current host/original-verifier hashes and the available
+handshake evidence, explicitly retaining unavailable or mismatching results.
+An unavailable/mismatching handshake does not close the narrowly authorized
+repair-review entry below; it is not a passing precheck or live activation.
+At activation, the fresh native dispatch must match the exact template;
+otherwise activation remains unavailable. Never normalize into acceptance.
+
+The human-authorized recovery admission applies only to RT-20260909-002
+contract/candidate/regression/application-helper review and its scoped new
+specification, design and task provenance reviews. Disclose the unavailable
+handshake; all other prechecks, reviewer independence, identity reservations,
+hashes, schemas and cycle limits remain mandatory. No ordinary bootstrap,
+unrelated task work, quality-gate completion or integration is admitted by it.
+Protective enforcement remains active. A denied action cannot be retried by
+another executor or renamed executable. Protected publication remains human,
+using the existing required anchored application path, not a bypass.
+
+Activation requires all scoped provenance reviews first, original-path suites
+and both wrappers successful, then one NEW native challenge/dispatch and its
+unmodified response verified by the actual installed-path verifier. Record
+hashes and results; a different installed version requires human application
+and verification at that path. Fixture GREEN is not this exit condition.
+Retire this recovery admission by dated addendum only after successful exit.
+No historical review is relabeled PASS, and only quality-gate can decide Done.
 
 ## Overview
 

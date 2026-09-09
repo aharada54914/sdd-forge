@@ -1,5 +1,144 @@
 # Acceptance Tests: epic-189-a1-project-context
 
+## RT-20260909-002 acceptance amendment (2026-09-09; pending review)
+
+This dated section extends AC-027 / TEST-027 and AC-032 / TEST-032 under
+REQ-010. Original rows and historical results remain preserved. The initial
+spec-only prose below describes the original package, not current execution.
+Every row below is Planned; existing RED fixtures are not implementation PASS.
+The exact byte templates and trust limits are in requirements.md's RT002
+amendment, which is part of the same hashed review input set.
+
+Each row is an independent fixture against both ORIGINAL wrapper paths.
+For response rejection assert the exact exit/category shown,
+CAPABILITY_RUNTIME_UNAVAILABLE, and absence of HOOK_ACTIVE. Cleanup rejection
+asserts exact exit/category and absence of SENTINEL_CLEANUP_CONFIRMED.
+Do not replace negative assertions with generic nonzero or swallow exit status.
+Fixtures do not dispatch a real tool operation and do not prove live activation.
+
+| Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
+|---|---|---|---|---|---|
+| AC-027 | REQ-010 | TEST-027-RT002-valid | isolated fixture | Exact new response; matching CLI/outer/echoed nonce; boolean false; assert 0; HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-emit | isolated fixture | Emitted Codex patch equals the normative template and embeds the challenge nonce; assert Exact bytes; no trailing newline | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-legacy-claude | isolated fixture | No-schema valid Claude record; assert Existing success unchanged | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-legacy-codex | isolated fixture | No-schema valid Codex plugin-flag record; assert Existing success unchanged | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-legacy-copilot | isolated fixture | No-schema valid Copilot record; assert Existing success unchanged | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-legacy-missing-flags | isolated fixture | No-schema Codex missing plugin flags; assert 65; diagnostic says insufficient evidence, not observed disabled hooks | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-missing-schema | isolated fixture | Delete only schema from otherwise valid new record; assert 65; legacy path rejects without required legacy flags; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-missing-runtime | isolated fixture | Delete only runtime from otherwise valid new record; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-missing-nonce | isolated fixture | Delete only nonce from otherwise valid new record; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-missing-executed | isolated fixture | Delete only executed from otherwise valid new record; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-missing-raw_result | isolated fixture | Delete only raw_result from otherwise valid new record; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-0 | isolated fixture | Explicit schema = unknown string; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-1 | isolated fixture | Explicit schema = null; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-2 | isolated fixture | Explicit schema = false; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-3 | isolated fixture | Explicit schema = 1; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-4 | isolated fixture | Explicit schema = []; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-schema-type-5 | isolated fixture | Explicit schema = {}; include legacy success fields; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-executed-type-0 | isolated fixture | executed = null; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-executed-type-1 | isolated fixture | executed = "false"; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-executed-type-2 | isolated fixture | executed = 0; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-executed-type-3 | isolated fixture | executed = 1; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-executed-true | isolated fixture | Otherwise valid record with boolean executed true; assert 63; WRITE_EXECUTED | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-outer-nonce | isolated fixture | Only outer nonce differs; both remain valid 32-lowercase-hex strings; assert 62; STALE_CHALLENGE_REJECTED | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-inner-nonce | isolated fixture | Only echoed nonce differs; both remain valid 32-lowercase-hex strings; assert 62; STALE_CHALLENGE_REJECTED | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-0 | isolated fixture | Outer nonce is uppercase; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-1 | isolated fixture | Outer nonce is 31 characters; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-2 | isolated fixture | Outer nonce is 33 characters; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-3 | isolated fixture | Outer nonce is non-hex; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-4 | isolated fixture | Outer nonce is null; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-format-5 | isolated fixture | Outer nonce is numeric; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-cli-runtime-0 | isolated fixture | CLI runtime claude-code; recorded runtime codex-cli; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-record-runtime-0 | isolated fixture | CLI runtime codex-cli; recorded runtime claude-code; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-both-runtime-0 | isolated fixture | Both runtimes claude-code with legacy success fields and explicit new schema; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-cli-runtime-1 | isolated fixture | CLI runtime copilot-cli; recorded runtime codex-cli; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-record-runtime-1 | isolated fixture | CLI runtime codex-cli; recorded runtime copilot-cli; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-both-runtime-1 | isolated fixture | Both runtimes copilot-cli with legacy success fields and explicit new schema; assert 64; no legacy fallback | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-flag-0-true | isolated fixture | Add plugin_hooks_enabled = true; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-flag-0-false | isolated fixture | Add plugin_hooks_enabled = false; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-flag-1-true | isolated fixture | Add denied_by_plugin_hooks = true; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-flag-1-false | isolated fixture | Add denied_by_plugin_hooks = false; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-other | isolated fixture | Add an unrelated extra member; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-schema | isolated fixture | Duplicate JSON member schema; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-runtime | isolated fixture | Duplicate JSON member runtime; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-nonce | isolated fixture | Duplicate JSON member nonce; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-executed | isolated fixture | Duplicate JSON member executed; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-raw_result | isolated fixture | Duplicate JSON member raw_result; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-nested | isolated fixture | Duplicate member inside a nested extra object; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-true-false | isolated fixture | Duplicate executed values true then false; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-duplicate-false-true | isolated fixture | Duplicate executed values false then true; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-malformed-json | isolated fixture | Truncated response JSON; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-raw-type-0 | isolated fixture | raw_result = null; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-raw-type-1 | isolated fixture | raw_result = false; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-raw-type-2 | isolated fixture | raw_result = 0; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-raw-type-3 | isolated fixture | raw_result = []; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-raw-type-4 | isolated fixture | raw_result = {}; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-0 | isolated fixture | Otherwise valid record with altered Japanese guard message; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-1 | isolated fixture | Otherwise valid record with altered English guard message; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-2 | isolated fixture | Otherwise valid record with prefixed text; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-3 | isolated fixture | Otherwise valid record with quoted whole envelope; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-4 | isolated fixture | Otherwise valid record with suffixed text; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-5 | isolated fixture | Otherwise valid record with truncated envelope; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-6 | isolated fixture | Otherwise valid record with different target; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-7 | isolated fixture | Otherwise valid record with extra patch operation; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-8 | isolated fixture | Otherwise valid record with historical empty-line patch; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-9 | isolated fixture | Otherwise valid record with terminal LF; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-10 | isolated fixture | Otherwise valid record with leading LF; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-11 | isolated fixture | Otherwise valid record with CRLF substitution; assert 64; UNRECOGNIZED_RESULT | Planned |
+| AC-032 | REQ-010 | TEST-032-RT002-cleanup-true-false | isolated fixture | Cleanup duplicate executed true then false; assert 71; CLEANUP_RESULT_UNREADABLE | Planned |
+| AC-032 | REQ-010 | TEST-032-RT002-cleanup-false-true | isolated fixture | Cleanup duplicate executed false then true; assert 71; CLEANUP_RESULT_UNREADABLE | Planned |
+| AC-032 | REQ-010 | TEST-032-RT002-cleanup-nested | isolated fixture | Cleanup nested duplicate member; assert 71; CLEANUP_RESULT_UNREADABLE | Planned |
+| AC-032 | REQ-010 | TEST-032-RT002-cleanup-valid | isolated fixture | Existing valid cleanup record; assert Existing acceptance unchanged; no new response-schema selector | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-legacy-duplicate | isolated fixture | Duplicate member in no-schema legacy response; assert 61; RECORDED_RESULT_UNREADABLE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-null | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = null; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-boolean | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = true; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-number | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = 1; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-array | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = []; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-object | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = {}; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-unknown | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = "unknown"; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-claude-code-new | isolated fixture | Take an otherwise successful no-schema claude-code legacy record and add only schema = "sdd-codex-host-denial/v1"; CLI runtime claude-code; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-null | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = null; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-boolean | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = true; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-number | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = 1; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-array | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = []; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-object | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = {}; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-unknown | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = "unknown"; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-codex-cli-new | isolated fixture | Take an otherwise successful no-schema codex-cli legacy record and add only schema = "sdd-codex-host-denial/v1"; CLI runtime codex-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-null | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = null; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-boolean | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = true; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-number | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = 1; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-array | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = []; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-object | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = {}; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-unknown | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = "unknown"; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-selector-copilot-cli-new | isolated fixture | Take an otherwise successful no-schema copilot-cli legacy record and add only schema = "sdd-codex-host-denial/v1"; CLI runtime copilot-cli; preserve its original legacy fields, without adding new-adapter fields; no legacy fallback; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-consistent-uppercase | isolated fixture | Set CLI, outer and echoed nonce to the SAME malformed string: 32 hexadecimal characters with uppercase A; all other fields valid; rejection must establish syntax, not unequal nonces; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-consistent-short | isolated fixture | Set CLI, outer and echoed nonce to the SAME malformed string: 31 lowercase hexadecimal characters; all other fields valid; rejection must establish syntax, not unequal nonces; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-consistent-long | isolated fixture | Set CLI, outer and echoed nonce to the SAME malformed string: 33 lowercase hexadecimal characters; all other fields valid; rejection must establish syntax, not unequal nonces; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-nonce-consistent-nonhex | isolated fixture | Set CLI, outer and echoed nonce to the SAME malformed string: 32 characters, one z and 31 lowercase hexadecimal characters; all other fields valid; rejection must establish syntax, not unequal nonces; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-plugin_hooks_enabled-null | isolated fixture | Add only plugin_hooks_enabled = null to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-plugin_hooks_enabled-string | isolated fixture | Add only plugin_hooks_enabled = "false" to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-plugin_hooks_enabled-number | isolated fixture | Add only plugin_hooks_enabled = 1 to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-plugin_hooks_enabled-array | isolated fixture | Add only plugin_hooks_enabled = [] to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-plugin_hooks_enabled-object | isolated fixture | Add only plugin_hooks_enabled = {} to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-denied_by_plugin_hooks-null | isolated fixture | Add only denied_by_plugin_hooks = null to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-denied_by_plugin_hooks-string | isolated fixture | Add only denied_by_plugin_hooks = "false" to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-denied_by_plugin_hooks-number | isolated fixture | Add only denied_by_plugin_hooks = 1 to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-denied_by_plugin_hooks-array | isolated fixture | Add only denied_by_plugin_hooks = [] to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-extra-denied_by_plugin_hooks-object | isolated fixture | Add only denied_by_plugin_hooks = {} to the valid new-adapter record; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-guard-case | isolated fixture | Change only English SDD to sdd inside otherwise exact guard text; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+| AC-027 | REQ-010 | TEST-027-RT002-envelope-target-case | isolated fixture | Change only target sdd/.hook-canary-sentinel to SDD/.hook-canary-sentinel inside otherwise exact echo; assert 64; UNRECOGNIZED_RESULT; CAPABILITY_RUNTIME_UNAVAILABLE; no HOOK_ACTIVE | Planned |
+
+Existing AC-032 rows continue to cover stale-start cleanup, absent-after
+observation and byte-identical approval sidecars; they are not subsumed by
+duplicate parsing checks. Original legacy rejection suites remain mandatory.
+
+The live repair-exit observation is separate from synthetic TEST-027 rows:
+after reviewed human application, record original/installed source hashes,
+one fresh challenge, one actual native host dispatch, verbatim result and
+original-path verification. If unavailable, keep recovery unfinished. This
+does not change historical A1 Done or establish Epic A8 cross-runtime Done.
+
+
 TEST IDs (TEST-001..TEST-046) are namespaced to this feature
 (`specs/epic-189-a1-project-context/`) and map 1:1 to AC-001..AC-046 in
 requirements.md. All tests are Draft/Planned — none has run, since no

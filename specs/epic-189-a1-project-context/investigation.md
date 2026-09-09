@@ -431,3 +431,23 @@ investigation and REQ-010 no longer make unconditionally.
   Phase model exactly; `tasks.md`/`traceability.md` are deferred to Phase 2
   and removed from this package's committed content (Draft preserved
   outside the repository, INV-008 above).
+
+## RT-20260909-002 human authorization record
+
+Date: 2026-09-09. Source: explicit user messages in the current Codex
+conversation; these quotations are preserved verbatim, not inferred from a
+general instruction to finish the repository work.
+
+> フック証跡契約の限定修正については承認する
+
+> 今回の操作に対するSDDガードの実拒否の証明」で満たせるようにする判定契約の変更と、復旧専用レビュー経路の承認する
+
+The authorized amendment is limited to the operation-bound Codex denial
+criterion and its recovery-only review route. It is not authorization to
+bypass protective enforcement, fabricate plugin flags, rewrite historical
+PASS/Done evidence, waive independent review, or admit unrelated integration.
+Cleanup behavior remains REQ-010 / AC-032's existing three-outcome contract;
+the requirements amendment only disambiguates contradictory unconditional
+summaries. This record does not itself establish a passing review or live
+activation. The following amendment-context declaration must bind this
+record and the amended documents to an actual commit before a new review.
