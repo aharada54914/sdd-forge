@@ -810,7 +810,11 @@ for path in "${boundary_paths[@]}"; do
     baseline_paths+=("$path")
   fi
 done
-git -C "$SOURCE_GIT_ROOT" archive 7df7318 "${baseline_paths[@]}" | tar -x -C "$rollback_baseline"
+archive_file="$tmp/rollback-baseline.tar"
+git -C "$SOURCE_GIT_ROOT" archive -o "$archive_file" 7df7318 "${baseline_paths[@]}"
+[[ -s "$archive_file" ]] || fail 'rollback archive export produced an empty tarball'
+tar -tf "$archive_file" >/dev/null
+tar -x -f "$archive_file" -C "$rollback_baseline"
 for path in "${boundary_paths[@]}"; do
   if [[ -f "$ROOT/$path" ]]; then
     mkdir -p "$rollback_target/$(dirname "$path")"
