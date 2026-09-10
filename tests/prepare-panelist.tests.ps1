@@ -1559,6 +1559,49 @@ if ((Test-Path (Join-Path $d "out.txt")) -and (-not ((Get-Content -Raw (Join-Pat
 }
 
 # ============================================================================
+# TEST-078: a prior-review narrative file named in the reviewed task's
+# Outputs table is projected safely, not copied verbatim into the bundle.
+# This catches the blind-contamination case where previous review prose
+# would otherwise ride along through a declared output path.
+# ============================================================================
+
+Write-Host "=== TEST-078: prior-review Outputs entry does not leak narrative prose into bundle ==="
+
+$d = Join-Path $Work "pp078"
+$specDir078 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $d "reports/quality-gate") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$marker078 = "PRIOR" + "REVIEW" + "MARKER078"
+$report078 = Join-Path $d "reports/quality-gate/20260906-cross-model-verification-T-004.md"
+Set-Content -Encoding Utf8 -Path $report078 -Value @"
+${marker078}
+This is prior review narrative that must not be copied verbatim.
+"@
+$hash078 = Get-Sha256OfFile $report078
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("reports/quality-gate/20260906-cross-model-verification-T-004.md") -Hashes @($hash078)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-078a: exit 0"
+} else {
+    fail "TEST-078a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and (-not ((Get-Content -Raw (Join-Path $d "out.txt")) -match $marker078))) {
+    ok "TEST-078b: prior-review prose was not copied verbatim into the bundle"
+} else {
+    fail "TEST-078b: prior-review prose leaked into the bundle through the declared output path"
+}
+
+# ============================================================================
 # TEST-048: the feature's spec documents (requirements/design/acceptance-
 # tests/tasks/traceability/investigation + layer specs when present) are all
 # present in the bundle.

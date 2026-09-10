@@ -1659,6 +1659,48 @@ else
 fi
 
 # ============================================================================
+# TEST-078: a prior-review narrative file named in the reviewed task's
+# Outputs table is projected safely, not copied verbatim into the bundle.
+# This catches the blind-contamination case where previous review prose
+# would otherwise ride along through a declared output path.
+# ============================================================================
+
+echo "=== TEST-078: prior-review Outputs entry does not leak narrative prose into bundle ==="
+
+D078="${WORK}/pp078"
+mkdir -p "${D078}/reports/quality-gate"
+mkdir -p "${D078}/empty-input"
+write_tasks_with_consent "${D078}/tasks.md" "T-004"
+marker078="$(printf '%s%s%s' 'PRIOR' 'REVIEW' 'MARKER078')"
+REPORT078="${D078}/reports/quality-gate/20260906-cross-model-verification-T-004.md"
+cat > "${REPORT078}" <<EOF
+${marker078}
+This is prior review narrative that must not be copied verbatim.
+EOF
+HASH078="$(sha256_of "${REPORT078}")"
+write_impl_report "${D078}" "cross-model-verification" "T-004" \
+    "$(printf 'reports/quality-gate/20260906-cross-model-verification-T-004.md\t%s' "$HASH078")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D078}/empty-input" \
+    --tasks-file "${D078}/tasks.md" \
+    --project-root "${D078}" \
+    --out "${D078}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-078a: exit 0"
+else
+    fail "TEST-078a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D078}/out.txt" ] && ! grep -q "$marker078" "${D078}/out.txt"; then
+    ok "TEST-078b: prior-review prose was not copied verbatim into the bundle"
+else
+    fail "TEST-078b: prior-review prose leaked into the bundle through the declared output path"
+fi
+
+# ============================================================================
 # TEST-048: the feature's spec documents (requirements/design/acceptance-
 # tests/tasks/traceability/investigation + layer specs when present) are all
 # present in the bundle.

@@ -1,3 +1,11 @@
+# Evidence correction notice — 2026-09-05
+
+Primary correction under RT-20260814-001: the active RED assertion below now
+reflects the authentic 113/3 replay, superseding the earlier 115/1 claim.
+Two PowerShell survivors exit 1 without the required diagnostic; the coherent
+corpus-and-template survivor exits 0. This is not a reissued independent
+review verdict; the original review date and role below are historical.
+
 # T-004 Independent Implementation Review
 
 Date: 2026-08-12; remediation re-review 2026-08-14
@@ -35,7 +43,7 @@ formal `quality-gate` Done verdict.
   status before comparing canonical output, so two parse failures cannot
   collapse into an empty-string equality.
 - The saved pre-fix malformed-corpus run kills the Bash mutation and exposes
-  the PowerShell false GREEN as the sole survivor (115/1, exit 1). The restored
+  the PowerShell false GREEN as one of three survivors (113/3, exit 1). The restored
   implementation kills that same coherent corpus-and-template mutation in both
   runtimes.
 - The mutation classifier removes ANSI control sequences and compacts wrapped

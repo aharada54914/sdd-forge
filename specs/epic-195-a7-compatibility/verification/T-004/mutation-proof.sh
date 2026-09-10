@@ -184,7 +184,14 @@ mutate_case() {
     compound-without-a1) perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
     compound-without-a6) perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
     runner-sh) perl -0pi -e 's/^  tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/run-all.sh" ;;
-    runner-ps1) perl -0pi -e 's/^    "tests\/structural-compatibility\.tests\.ps1"\n//m' "$target_root/tests/run-all.ps1" ;;
+    runner-ps1)
+      before="$(shasum -a 256 "$target_root/tests/run-all.ps1" | awk '{print $1}')"
+      perl -0pi -e '
+        my $count = s/^\s*(["'\''])tests\/structural-compatibility\.tests\.ps1\1,?\s*\n//m;
+        die "mutation-proof: runner-ps1 registration line not found\n" unless $count;
+      ' "$target_root/tests/run-all.ps1"
+      require_source_change "$before" "$target_root/tests/run-all.ps1"
+      ;;
     *) printf 'unknown mutation: %s\n' "$id" >&2; exit 2 ;;
   esac
 }

@@ -201,8 +201,21 @@ try {
             Write-Output $CompoundLine
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
+    function Test-RunnerRegistration([string[]]$Lines) {
+        $Pattern = '^\s*([''"])tests/structural-compatibility\.tests\.ps1\1,?\s*$'
+        return [bool](@($Lines | Where-Object { $_ -cmatch $Pattern } | Select-Object -First 1))
+    }
+
+    Assert-True 'PowerShell runner accepts a single-quoted registration line' (Test-RunnerRegistration @("    'tests/structural-compatibility.tests.ps1',"))
+    Assert-True 'PowerShell runner accepts a double-quoted registration line' (Test-RunnerRegistration @('    "tests/structural-compatibility.tests.ps1",'))
+    Assert-True 'PowerShell runner accepts a no-comma historical registration line' (Test-RunnerRegistration @("    'tests/structural-compatibility.tests.ps1'   "))
+    Assert-True 'PowerShell runner rejects a missing registration line' (-not (Test-RunnerRegistration @('    "tests/other.tests.ps1",')))
+    Assert-True 'PowerShell runner rejects a mis-cased registration line' (-not (Test-RunnerRegistration @("    'tests/Structural-Compatibility.tests.ps1',")))
+    Assert-True 'PowerShell runner rejects a mismatched-quote registration line' (-not (Test-RunnerRegistration @('    ''tests/structural-compatibility.tests.ps1",')))
+    Assert-True 'PowerShell runner rejects a comment-only registration line' (-not (Test-RunnerRegistration @("#    'tests/structural-compatibility.tests.ps1',")))
+
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
-    Assert-True 'PowerShell aggregate runner registers this shipped suite' ($Runner -ccontains '    "tests/structural-compatibility.tests.ps1"')
+    Assert-True 'PowerShell aggregate runner registers this shipped suite' (Test-RunnerRegistration $Runner)
 }
 finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
 

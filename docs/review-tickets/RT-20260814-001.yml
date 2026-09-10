@@ -11,6 +11,10 @@ target:
     - "reports/implementation/epic-195-a7-compatibility/T-004.md"
     - "specs/epic-195-a7-compatibility/verification/T-004/independent-test.md"
     - "specs/epic-195-a7-compatibility/verification/T-004/independent-implementation-review.md"
+    - "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh"
+    - "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1"
+    - "tests/prepare-panelist.tests.sh"
+    - "tests/prepare-panelist.tests.ps1"
 summary: "T-004 の QG cycle 上限 (3) 到達。cycle 3 (seq0676) の Major 1 件は証跡側の欠陥 (malformed-corpus-red.log の記録カウント 115/1 が出荷ハーネスで再現不能、正しくは 113/3)。是正後に fresh session での再ゲート 1 サイクルが必要"
 problem: |
   cycle 3 (seq0676) は Major 1 件で NEEDS_WORK。製品本体は健全と確認されて
@@ -90,5 +94,19 @@ proposed_resolution: |
   再ゲートで PASS なら quality-gate として Status: Done を記録する。
   cycle 上限に既に達しているため、本チケットの是正を経ずに 4 サイクル目を
   回してはならない。
+human_decision: |
+  2026-09-06 earlier: User approved the bounded scope expansion for the
+  current declaration audit. Preserve the historical 49-entry recipe;
+  derive current 38-row Outputs from verified live files. No QG Done claim.
+  2026-09-06 subsequent: User explicitly approved extending this ticket to
+  review-input collector repair and regression tests. Exclude prior reviewer
+  reasoning and implementation narrative from blind panel input through every
+  collector ingress and budget rebuild. Retain required specifications,
+  current source, raw evidence, canonical current output path/hash declarations,
+  original-file integrity checks, consent and secret sanitization. Known
+  structured artifacts must be projected by artifact kind, not by keyword
+  filtering arbitrary source or logs. Cheap agents implement; Astra reviews.
+  Preserve historical evidence, frozen artifacts and active hook protections.
+  This approval does not itself resolve the ticket or authorize a Done claim.
 requires_human_decision: false
 created: 2026-08-14
