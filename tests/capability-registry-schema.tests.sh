@@ -189,7 +189,9 @@ done < <(reject_fixtures)
 [[ "$reject_count" -ge 16 ]] || fail "expected at least 16 reject fixtures, found $reject_count"
 
 # Self-registration check (Suite/CI registration Done-When item).
-grep -q 'tests/capability-registry-schema.tests.sh' "$ROOT/tests/run-all.sh" ||
+suite_list="$(bash "$ROOT/tests/run-all.sh" --list)" ||
+  fail "unable to list suites from tests/run-all.sh"
+grep -Fx 'tests/capability-registry-schema.tests.sh' <<< "$suite_list" >/dev/null ||
   fail "suite not registered in tests/run-all.sh"
 grep -q 'tests/capability-registry-schema.tests.ps1' "$ROOT/tests/run-all.ps1" ||
   fail "suite not registered in tests/run-all.ps1"

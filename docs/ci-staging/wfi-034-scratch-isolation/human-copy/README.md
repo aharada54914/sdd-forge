@@ -7,8 +7,8 @@ Bash/PowerShell validators and their launch/report contracts.
 From the repository root, a human maintainer can run:
 
 ```bash
-git apply --check specs/wfi-034-scratch-isolation/human-copy/WFI-034.patch
-git apply specs/wfi-034-scratch-isolation/human-copy/WFI-034.patch
+git apply --check docs/ci-staging/wfi-034-scratch-isolation/human-copy/WFI-034.patch
+git apply docs/ci-staging/wfi-034-scratch-isolation/human-copy/WFI-034.patch
 ```
 
 The patch includes same/ancestor/descendant negative controls in
@@ -19,8 +19,8 @@ If `WFI-034.patch` was applied before the evaluator manifest hash-refresh fix,
 apply the one-time follow-up instead:
 
 ```bash
-git apply --check specs/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
-git apply specs/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
+git apply --check docs/ci-staging/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
+git apply docs/ci-staging/wfi-034-scratch-isolation/human-copy/WFI-034-test-fix.patch
 ```
 
 Fresh applications need only the corrected `WFI-034.patch`.

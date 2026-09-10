@@ -1,6 +1,27 @@
 # Requirements: epic-136-phase3
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
+
+## Approved amendment: RT-20260909-001 (2026-09-09)
+
+Human decision: preserve all existing mandatory dependencies and checks,
+and additionally require successful completion of the full POSIX inventory.
+Specification amendment, implementation, regression tests and formal re-review
+are authorized; previous review evidence remains historical and unchanged.
+
+This amendment supersedes the dependency-equality language in REQ-004,
+AC-017, OQ-5, the preventive-restructuring definition, Edge Cases and Risks.
+The BL-001 preservation obligation remains, but means no loss of any existing
+mandatory job, step, command, result assertion, platform, timeout or dependency
+pin, rather than byte-equality of the dependency list. Investigation BL-001
+and INV-019..023 describe the historical baseline, not the current job list.
+Re-verify the live dependency graph and GitHub required contexts immediately
+before review and integration; compare with the recorded pre-change baseline.
+The observed omission is at PR381 commit 3971c93a5705dc15f86ba56cc62118613e4b19db,
+`.github/workflows/test.yml:1162-1203`: eight dependencies are checked, while
+the POSIX inventory job at line 24 is absent from both dependency and result
+enforcement. AC-016 step preservation and AC-018 optional-workflow isolation
+remain mandatory. A new formal review binding is required before implementation.
 
 Source Issues:
 - https://github.com/aharada54914/sdd-forge/issues/123 (Stream A — drive the
@@ -472,16 +493,19 @@ record) — and a saved quality-gate report before it may be marked Done.
   change is staged via human-copy
   (`specs/epic-136-phase3/human-copy/.github/workflows/test.yml`,
   `MANIFEST.sha256`) since `test.yml` is R-10 protected. (REQ-004)
-- AC-017: `required-checks`' `needs:` list is confirmed byte-unchanged
-  (`needs: [test, cli-hook-enforcement]`) — BL-001's exact pass/fail
-  semantics (`required-checks` passes iff every step that used to gate it
-  still gates it) is preserved by construction because no step leaves the
-  single `test` job; a text-marker-based self-check (the
-  `tests/workflow-state-ci-integration.tests.sh` technique, no new YAML
-  parser dependency) proves BOTH that every step name enumerated from the
-  current pre-Stream-D live `test` job is still present in the staged
-  candidate (with its `[deterministic]` prefix) AND that the `needs:`
-  membership is unchanged. (REQ-004)
+- AC-017: `required-checks` retains every pre-amendment mandatory dependency
+  and success assertion, additionally depends on `posix-regression`, and
+  requires that job's result to equal `success`. Failure, cancellation,
+  skipped, missing and unknown results must each fail closed. The aggregator
+  must still run after an upstream failure (`if: always()`). Preserve every
+  existing job, command, platform, timeout and dependency pin, as well as
+  historical step-prefix coverage and all four suite registrations. Tests
+  must execute the actual aggregator body with synthetic results and detect
+  independent deletion of the POSIX dependency and its success assertion.
+  Test each pre-existing dependency's non-success results independently.
+  Full POSIX inventory execution and all existing mandatory native CI remain
+  required; designed-red and SKIP are not successful execution evidence.
+  Optional sibling-workflow isolation remains unchanged. (REQ-004)
 - AC-018: `self-improvement.yml`'s and `model-freshness-check.yml`'s
   existing isolation from `test.yml`/`required-checks` (investigation.md
   INV-021, INV-022) is unchanged — Stream D does not fold either into the

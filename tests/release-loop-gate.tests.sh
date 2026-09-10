@@ -253,7 +253,8 @@ run_test_010() {
     fail "TEST-010 (AC-010): loop-gate job slice unexpectedly carries a strategy:/matrix: key"
   fi
 
-  if grep -qF 'release-loop-gate.tests.sh' "$RUN_ALL_SH" 2>/dev/null \
+  if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+      grep -Fx 'tests/release-loop-gate.tests.sh' <<< "$registered_suites" >/dev/null \
       && grep -qF 'release-loop-gate.tests.sh' "$TEST_YML" 2>/dev/null; then
     ok "TEST-010 (AC-010): release-loop-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml"
   else

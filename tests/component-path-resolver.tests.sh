@@ -957,7 +957,8 @@ out=$(resolve "${FIXTURES}/base-tree/config.yaml" "${FIXTURES}/base-tree/changed
   && ok "TEST-045.3: base fixture tree has a bounded shared_paths entry" \
   || fail "TEST-045.3: expected SHARED_BOUNDED for contracts/schema.json"
 
-if grep -q "component-path-resolver" "${REPO_ROOT}/tests/run-all.sh" \
+if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+   grep -Fx "tests/component-path-resolver.tests.sh" <<< "$registered_suites" >/dev/null \
    && grep -q "component-path-resolver" "${REPO_ROOT}/tests/run-all.ps1"; then
   ok "TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1"
 else

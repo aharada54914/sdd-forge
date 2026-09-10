@@ -495,7 +495,9 @@ expect_verdict base-old.json multi-component-bump-new.json stale semantic-output
 # =============================================================================
 # Suite/CI registration self-check
 # =============================================================================
-if grep -qF "tests/facet-manifest-staleness.tests.sh" "${REPO_ROOT}/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/facet-manifest-staleness.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: tests/run-all.sh lists this suite"
 else
   fail "self-registration: tests/run-all.sh does not list tests/facet-manifest-staleness.tests.sh"

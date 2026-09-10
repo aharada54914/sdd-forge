@@ -517,7 +517,9 @@ rm -rf "$canary_install" "$canary_entry"
 # =====================================================================
 # Done When #3 -- suite/CI registration and the final cumulative check.
 # =====================================================================
-if grep -q 'tests/capability-registry-parity.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/capability-registry-parity.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: capability-registry-parity.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: capability-registry-parity.tests.sh NOT registered in tests/run-all.sh"
