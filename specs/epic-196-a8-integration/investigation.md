@@ -701,3 +701,11 @@ head of this subsection requires.
   `14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c` at
   commit `8d760af03cacc594afa464841222d7cb7a2201ec` together with that
   block's own superseded value.
+
+### Full commit identities for earlier amendment entries
+
+The earlier “This commit” entry (lines 630–645 before this addition) refers to commit `d9f1c42f69c4604ff7d7bbe050f8b9969e18147e`. Its changed-file set contains only `specs/epic-196-a8-integration/investigation.md`. The historical blob SHA-256 is `117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939`. This explicit identity supersedes the old statement that its identity must be inferred from “this commit” and its file shape; it does not replace the current investigation hash.
+
+The subsequent joint design/investigation amendment entry (lines 691–703 before this addition) refers to commit `a01dbf5a661a2cafc6f53130e06ec3b7df07fd6a`. Its changed-file set is exactly `specs/epic-196-a8-integration/design.md` and `specs/epic-196-a8-integration/investigation.md`. Historical SHA-256: design `c69ec42ed738a1bb091453920b890459f236a60e5673527338d183e94bab78d4`; investigation `2a5912f80e7687a9e4e82d158c359cad1f8aecd6ee0f772b6a08f9985f0e2953`. This binds the existing 2026-08-29 approval to its actual commit rather than a date/file-shape inference. No additional approval or retroactive PASS is asserted.
+
+Source verification: git show --format=fuller --stat for both full commit IDs (36e7e1); historical blob hashes computed from git show bytes (58559b). Re-verify those blobs before applying.

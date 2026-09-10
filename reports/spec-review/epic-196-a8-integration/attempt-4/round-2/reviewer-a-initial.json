@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a07cec-2ebe-7253-a7e9-33e977a23f14",
+  "host_session_id": "01a07cec-2ebe-7253-a7e9-33e977a23f14",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "a240355ad5b237fd6502782423e00497365535272668d79289e48c0473236363"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "dffb5e44ce29f734f5d07d6286eda469a92a8eb3a14f35f12aa0c41e36df83be"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json",
+      "sha256": "f8c88d794fd7920a8dbbdecb2c835235434ac5f368ca2007b03c5276946503c6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Requirements REQ-001–REQ-007 have inspectable outcomes: artifact consumption, install-state equality, native hook observations, normalization fixtures, drift diagnostics, evidence classification, and traceability. AC-001–AC-030 provide corresponding validation decisions. This Phase 1 check does not require implementation or completed evidence."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:5–34 maps all thirty criteria to one primary requirement each. REQ-001–REQ-007 each have matching criteria; AC-028 maps to REQ-003, and the scope/citation process checks AC-029/AC-030 map to REQ-007."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The criteria specify observable artifacts or states, including consumer output influenced by upstream files (AC-002–AC-004), unchanged reinstall state and zero residue (AC-008/AC-009), native-dispatch denial or expected unavailability (AC-013–AC-016), distinct drift exits (AC-023), and aggregate rejection of invalid proof records (AC-028)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:233–260 explicitly excludes other epics' implementation duties, FilesOnly from the four-target matrix, canonicalizer-layer normalization, and producing implementation or live-session evidence during specification authoring. AC-029 makes the integration-only boundary independently inspectable."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The amendment declaration does not meet the calibration's mandatory full-commit-hash evidence bar. investigation.md:630–645 identifies an investigation amendment only as 'This commit' and by its changed-file shape; investigation.md:691–703 identifies another design/investigation amendment only by date and changed-file shape. Neither entry supplies that amendment's full commit hash. A document SHA-256 does not replace the separately required amendment commit identity. Consequently, the calibration's all-or-nothing phase-sequencing suppression cannot apply. requirements.md:3 remains Pending while requirements.md:34–42 and investigation.md:151–157,511–529 reference existing later-phase work. The downstream gate cannot establish the declared amendment exception from a conforming authorization record. This belongs to specification review's launch-to-Phase-1 approval boundary, rather than implementation verification; Critical follows the calibration's default treatment of an unmet amendment exception. Append the missing full amendment commit references and rerun this gate."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The live-host authenticity risk has planned validation through AC-015, AC-026–AC-028: nonce uniqueness, independently recomputed capture hashes, expected config digests, two-party signatures, and aggregate failure conditions. AC-017 independently protects synthetic regression coverage, while AC-022/AC-023 cover lifecycle drift and mode-specific absence behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check confirmed that domain/ is absent, satisfying this check's explicit skip condition."
+    }
+  ]
+}

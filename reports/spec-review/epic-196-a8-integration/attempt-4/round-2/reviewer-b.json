@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a07cf2-80eb-75b1-8d9c-0b325369f53d",
+  "host_session_id": "01a07cf2-80eb-75b1-8d9c-0b325369f53d",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "a240355ad5b237fd6502782423e00497365535272668d79289e48c0473236363"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "dffb5e44ce29f734f5d07d6286eda469a92a8eb3a14f35f12aa0c41e36df83be"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json",
+      "sha256": "f8c88d794fd7920a8dbbdecb2c835235434ac5f368ca2007b03c5276946503c6"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-4/round-2/integrated-summary.json",
+      "sha256": "66c584c43a843060b9ae44c286fa57d97b28ba1ee3a3dffe8829afd250c92ac6"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001–REQ-007 and AC-001–AC-030 define observable handoff, installation, drift and live-host outcomes. AC-013–AC-016 distinguish the five semantic cells; AC-023 distinguishes preflight from post-install verification. Investigation.md:493–559 explicitly defines AC-006's lifecycle predicate and its Blocked-state consequence."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No independent product-behavior contradiction established. AC-006 and the Assumptions section distinguish presence enforcement from SKIP rejection; AC-015/AC-016 retain their separate merge-triggered rejection rule. AC-019/AC-020 distinguish EOL and Unicode normalization. The amendment-declaration defect is reported under APPROVAL-BOUNDARY."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Requirements.md AC-026 explicitly rejects absent-ledger nonces, raw-capture hash mismatches, expected-config digest mismatches and signatures that fail trusted-key verification; AC-028 additionally enumerates missing, expired and session-mismatched records. Acceptance-tests.md TEST-026 specifies a schema review, TEST-027 names substitution/reuse/unsigned/single-signature cases, and TEST-028 states aggregate success without individually mapping the remaining rejection branches to concrete assertions or explaining coverage elsewhere. The closing placeholder-index paragraph defers concrete cases to later phases. WFI-014 requires this exhaustive branch expansion before spec review. A verifier could satisfy the listed targets while omitting material rejection paths. This is a Major Phase-1 acceptance-coverage gap, not a demand for implemented tests."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001 identifies the unconfirmed CLI capabilities and supplies an explicit manual-required fallback without permitting synthetic substitution. OQ-002 resolves drift scope. The Assumptions section supersedes the historical A1 premise and requires re-verification of changeable cross-epic/source contracts. Referenced implementation material was not inspected."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The Amendment Re-Review Context does not meet calibration item 1, which requires amendment commit hashes in full. Investigation.md:630–645 identifies an investigation amendment only as 'This commit' and explicitly omits its SHA; investigation.md:691–698 identifies the subsequent joint design/investigation amendment only by date and changed-file description. The design SHA-256 supplied there satisfies an artifact fingerprint, but does not identify the amendment commit. Thus the declaration cannot receive the calibration's phase-sequencing suppression. Requirements.md's Overview explicitly describes completed later-phase work while Spec-Review-Status is Pending, and investigation.md references its implementation evidence. A downstream gate cannot recognize the required amendment exception without inventing missing lineage. This is a Critical specification-review workflow-boundary defect under the mandatory calibration, not evidence that the reservation failed or that human approval never occurred. Append the missing full amendment commit references to make the declaration reviewable."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The product scope, observable outcomes, ownership split, manual-evidence requirements and deferred capability decision are sufficiently defined for implementation-policy review without inventing product behavior. This check does not waive the acceptance-coverage and amendment-boundary failures above. Reservation-chain arithmetic, all six input hashes and the precheck's shared document hashes matched."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root directory existence check found no domain/ directory; the role's explicit skip condition applies."
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+display_name=café
+registration_path=skills/café/SKILL.md
