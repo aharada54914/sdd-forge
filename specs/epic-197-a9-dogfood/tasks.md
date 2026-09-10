@@ -81,8 +81,8 @@ Required-Workflow: tdd
 Security-Sensitive: yes
 Depends-On: T-001
 Requirements: REQ-001, REQ-002, REQ-003, REQ-004, REQ-013
-(AC-001–AC-007, AC-025)
-Tests: TEST-001–TEST-007, TEST-025
+(AC-001–AC-007, AC-025, AC-032)
+Tests: TEST-001–TEST-007, TEST-025, TEST-032a–TEST-032c
 Planned-Files: `sdd/project-context.yaml`;
 `specs/epic-197-a9-dogfood/human-copy/sdd/project-context.approval.json`;
 `specs/epic-197-a9-dogfood/human-copy/MANIFEST.sha256`; existing ownership and
@@ -109,7 +109,7 @@ fixture, and parity evidence.
 
 - High-risk persisted-field preflight maps every Context/approval/ownership field
   to its sibling contract and a failing mismatch test before the first live edit.
-- TEST-001–TEST-007 and TEST-025 have saved TDD red/green evidence.
+- TEST-001–TEST-007, TEST-025, and TEST-032a–TEST-032c have saved TDD red/green evidence.
 - Component and path rules equal the human rulings; zero unexplained overlap and
   unowned paths are reported.
 - `specs/` and every approved growing path resolve as cross-cutting from the
@@ -124,7 +124,11 @@ Pack content, required enforcement, promotion, rollback application.
 
 ### Blockers
 
-T-001; unresolved OQ-001 or OQ-002.
+T-001; unresolved ownership review findings. The growing-path scope is resolved
+by OQ-002's 2026-09-08 clarification; TEST-025a–k must verify that exact split.
+OQ-001's domain ownership decision was approved on 2026-09-08: T-002 must use
+the exact nine-component set with `sdd-domain` owning `plugins/sdd-domain/**`.
+This decision does not change this task's Draft approval or Planned status.
 
 ## T-003 Implement the approved developer-tooling / cli-library Pack
 
@@ -232,8 +236,8 @@ Required-Workflow: tdd + independent-security-review + two-approver-task-approva
 Security-Sensitive: yes
 Depends-On: T-004
 Requirements: REQ-008, REQ-009, REQ-012
-(AC-014–AC-018, AC-022–AC-024, AC-028)
-Tests: TEST-014–TEST-018, TEST-022–TEST-024, TEST-028
+(AC-014–AC-018, AC-022–AC-024, AC-028, AC-033)
+Tests: TEST-014–TEST-018, TEST-022–TEST-024, TEST-028, TEST-033a–TEST-033c
 Planned-Files: `sdd/project-context.yaml`;
 `specs/epic-197-a9-dogfood/human-copy/sdd/project-context.approval.json`;
 `specs/epic-197-a9-dogfood/human-copy/MANIFEST.sha256`; existing parity/CI/
@@ -262,7 +266,7 @@ and one real post-promotion feature workflow.
 - Critical-task approval includes two distinct task approvers before implementation.
 - Persisted-field preflight covers tuple, binding, approver cardinality, identities,
   `effective_at`, HMAC verdict, and their sibling/mismatch tests.
-- TEST-014–TEST-018, TEST-022–TEST-024, and TEST-028 have saved TDD red/green evidence.
+- TEST-014–TEST-018, TEST-022–TEST-024, TEST-028, and TEST-033a–TEST-033c have saved TDD red/green evidence.
 - Partial promotion, early cooldown, unsigned, self-approved, duplicate, and
   unbound cases fail; authorized branches pass.
 - Independent security review, signed critical evidence bundle, clean-tree proof,

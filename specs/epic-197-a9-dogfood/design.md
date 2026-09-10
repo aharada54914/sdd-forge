@@ -53,6 +53,12 @@ re-verified after A5 merges; this draft does not bind another branch's filenames
 These are implementation-work components, not the unresolved Project Context
 component inventory itself.
 
+OQ-001/OQ-002 update (2026-09-08): the Project Context inventory is the exact
+nine-component set in requirements.md's dated amendment, including independent
+`sdd-domain` ownership of `plugins/sdd-domain/**`. The earlier introductory
+claim that component ownership is unresolved is superseded by this amendment;
+remaining review findings and implementation gates are not waived.
+
 ## Protected-File Statement
 
 The live Context approval sidecar and policy verification machinery use the
@@ -85,7 +91,8 @@ N/A. sdd-forge is developer tooling and this epic adds no graphical interface.
 
 ## ADR Change Log
 
-No new ADR is proposed in this draft. ADR-0019 governs approval and rollback.
+ADR-0034 (`docs/adr/0034-a9-domain-component-ownership.md`) records the human
+decision to include the domain plugin independently. ADR-0019 governs approval and rollback.
 If OQ-001, OQ-003, OQ-004, or OQ-006 creates a durable architecture decision not
 already covered, the human ruling must decide whether a new ADR is required and
 re-verify the next free number immediately before drafting.
@@ -101,12 +108,17 @@ Uses `contracts/project-context.schema.json`. Phase tuples:
 | 1 | full | legacy-seven-layer | advisory |
 | 2 | full | facet-hybrid | required |
 
-The component and shared-path bodies are placeholders until OQ-001/OQ-002 are
-resolved. The generic starter is an input, not the live result
+The component and shared-path bodies must follow the dated OQ-001/OQ-002
+rulings, including the 2026-09-08 domain amendment. The generic starter is an input, not the live result
 (`contracts/project-context.template.yaml:1-30`).
 At bootstrap, `specs/` and all other approved growing paths must already resolve
 through A3 cross-cutting registration; later broadening is not a substitute
 (`issue-197-full-body.md:23`).
+
+OQ-002's 2026-09-08 clarification fixes the growing-path set to `specs/**`,
+`tests/**`, `contracts/**`, `docs/**`, `reports/**`, `marketplaces/**`, and
+`.github/**`. Fixed root metadata uses separate exact-path shared rules;
+neither a root wildcard nor reclassification of installer scripts is implied.
 
 ### `dogfood-run/v1` evidence concept
 
@@ -229,7 +241,11 @@ other epics' frozen artifacts, and leaves every task Draft/Planned.
 ## Open Questions
 
 OQ-001 through OQ-004 and OQ-006 are defined normatively in `requirements.md`
-and remain unresolved. OQ-005 is resolved by `issue-197-full-body.md:17`. No
+and its dated resolutions take precedence over this draft's earlier pending
+language. OQ-001 specifically incorporates the 2026-09-08 ninth-component
+amendment; OQ-002's 2026-09-08 clarification resolves the growing-path scope.
+Other review findings remain open until formally re-reviewed.
+OQ-005 is resolved by `issue-197-full-body.md:17`. No
 implementation task may turn another candidate into a binding choice without a
 dated human ruling.
 
