@@ -260,8 +260,10 @@ if (Test-Path $skill) {
     $sc = Get-Content $skill -Raw
     if ($sc -match "name: cross-model-verify") { ok "CL-012b: SKILL.md has name frontmatter" }
     else { fail "CL-012b: SKILL.md missing name frontmatter" }
-    if ($sc -match "disable-model-invocation: true") { ok "CL-012c: SKILL.md has disable-model-invocation: true" }
-    else { fail "CL-012c: SKILL.md missing disable-model-invocation: true" }
+    if ($sc -cmatch '(?m)^disable-model-invocation:[ \t]*false[ \t]*\r?$') { ok "CL-012c: SKILL.md has disable-model-invocation: false" }
+    else { fail "CL-012c: SKILL.md missing disable-model-invocation: false" }
+    if ($sc -cnotmatch '(?m)^disable-model-invocation:[ \t]*true[ \t]*\r?$') { ok "CL-012e: SKILL.md explicitly rejects disable-model-invocation: true" }
+    else { fail "CL-012e: SKILL.md should not contain disable-model-invocation: true" }
     if ($sc -imatch "blind" -and $sc -imatch "parallel") { ok "CL-012d: SKILL.md mentions blind and parallel" }
     else { fail "CL-012d: SKILL.md should document blind/parallel isolation" }
 } else {
@@ -325,10 +327,10 @@ function New-TranscriptStub {
     # contain arbitrary multi-line JSON/text that isn't safe to hand
     # through New-StubCli's -ShBody sh-idiom translator.
     param([string]$BinDir, [string]$Name, [string]$Transcript)
-    $shBody = "#!/bin/sh`ncat << 'TRANSCRIPT_EOF'`n$Transcript`nTRANSCRIPT_EOF`nexit 0`n"
+    $shBody = "#!/bin/sh`ncat >/dev/null`ncat << 'TRANSCRIPT_EOF'`n$Transcript`nTRANSCRIPT_EOF`nexit 0`n"
     New-StubCli -BinDir $BinDir -Name $Name -ShBody $shBody
     if (-not ($IsLinux -or $IsMacOS)) {
-        $workerBody = "Write-Output @'`n$Transcript`n'@`nexit 0`n"
+        $workerBody = "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output @'`n$Transcript`n'@`nexit 0`n"
         Set-Content -Path (Join-Path $BinDir "$Name-worker.ps1") -Value $workerBody
     }
 }
@@ -342,9 +344,9 @@ function New-TranscriptStub {
 Write-Host "=== CL-014: run-panelist-gpt unparseable-output hardening ==="
 
 $cl014Bin = Join-Path $Work "cl014-bin"
-New-StubCli -BinDir $cl014Bin -Name "codex" -ShBody "#!/bin/sh`nprintf 'usage: codex [OPTIONS]\n'`nexit 0`n"
+New-StubCli -BinDir $cl014Bin -Name "codex" -ShBody "#!/bin/sh`ncat >/dev/null`nprintf 'usage: codex [OPTIONS]\n'`nexit 0`n"
 if (-not ($IsLinux -or $IsMacOS)) {
-    Set-Content -Path (Join-Path $cl014Bin "codex-worker.ps1") -Value "Write-Output 'usage: codex [OPTIONS]'`nexit 0`n"
+    Set-Content -Path (Join-Path $cl014Bin "codex-worker.ps1") -Value "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output 'usage: codex [OPTIONS]'`nexit 0`n"
 }
 
 $cl014 = Join-Path $Work "cl014"
@@ -387,9 +389,9 @@ if (-not (Test-Path "$cl014/specs/feat/verification/T-014.panelist-openai.verdic
 Write-Host "=== CL-015: run-panelist-gemini unparseable-output hardening ==="
 
 $cl015Bin = Join-Path $Work "cl015-bin"
-New-StubCli -BinDir $cl015Bin -Name "gemini" -ShBody "#!/bin/sh`nprintf 'No input provided via stdin.\n'`nexit 0`n"
+New-StubCli -BinDir $cl015Bin -Name "gemini" -ShBody "#!/bin/sh`ncat >/dev/null`nprintf 'No input provided via stdin.\n'`nexit 0`n"
 if (-not ($IsLinux -or $IsMacOS)) {
-    Set-Content -Path (Join-Path $cl015Bin "gemini-worker.ps1") -Value "Write-Output 'No input provided via stdin.'`nexit 0`n"
+    Set-Content -Path (Join-Path $cl015Bin "gemini-worker.ps1") -Value "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output 'No input provided via stdin.'`nexit 0`n"
 }
 
 $cl015 = Join-Path $Work "cl015"
@@ -787,6 +789,63 @@ if (-not (Test-Path "$cl023/specs/feat/verification/T-023.panelist-openai.verdic
     ok "CL-023c: no verdict file is written for malformed JSON"
 } else {
     fail "CL-023c: a verdict file was written despite malformed JSON"
+}
+
+# CL-024: Gemini extraction parity, exercising the real runner with offline CLI output.
+$geminiPayload = [ordered]@{
+    schema = 'cross-model-verdict/v1'; task_id = 'T-024'; feature = 'feat'
+    vendor = 'google'; model = 'stub-model'; verdict = 'NEEDS_WORK'
+    findings = @(@{ severity = 'Major'; ref = 'fixture'; note = 'brace } quote " slash \ survived' })
+    blind = $true; input_digest = $digest
+    consent = @{ kind = 'human-flag'; ref = 'offline-fixture' }
+}
+$geminiJson = $geminiPayload | ConvertTo-Json -Depth 10 -Compress
+$geminiEarlier = $geminiJson.Replace('NEEDS_WORK', 'PASS')
+$geminiCases = @(
+    @{ Name = 'single'; Text = $geminiJson; Accept = $true },
+    @{ Name = 'distractor'; Text = ('{"unrelated":true}' + "`n" + $geminiJson); Accept = $true },
+    @{ Name = 'last'; Text = ($geminiEarlier + "`n" + $geminiJson); Accept = $true },
+    @{ Name = 'fenced'; Text = ('```json' + "`n" + $geminiJson + "`n" + '```'); Accept = $true },
+    @{ Name = 'malformed'; Text = '{"schema":"cross-model-verdict/v1","verdict":}'; Accept = $false; Diagnostic = 'candidate 1.*parse error' },
+    @{ Name = 'wrong-schema'; Text = '{"schema":"cross-model-verdict/v0"}'; Accept = $false; Diagnostic = 'candidate' },
+    @{ Name = 'schema-case'; Text = $geminiJson.Replace('cross-model-verdict/v1', 'Cross-model-verdict/v1'); Accept = $false; Diagnostic = 'candidate' },
+    @{ Name = 'blind-false'; Text = $geminiJson.Replace('"blind":true', '"blind":false'); Accept = $false; Diagnostic = 'blind must be true' },
+    @{ Name = 'digest-case'; Text = $geminiJson.Replace($digest, $digest.ToUpperInvariant()); Accept = $false; Diagnostic = 'input_digest must be 64 lowercase hex' },
+    @{ Name = 'invalid-verdict'; Text = $geminiJson.Replace('NEEDS_WORK', 'UNKNOWN'); Accept = $false; Diagnostic = 'verdict must be PASS or NEEDS_WORK' },
+    @{ Name = 'last-invalid'; Text = ($geminiEarlier + "`n" + $geminiJson.Replace('"blind":true', '"blind":false')); Accept = $false; Diagnostic = 'blind must be true' },
+    @{ Name = 'no-object'; Text = 'no verdict available'; Accept = $false; Diagnostic = 'no JSON object' }
+)
+foreach ($case in $geminiCases) {
+    $caseRoot = Join-Path $Work ("cl024-" + $case.Name)
+    $caseBin = Join-Path $caseRoot 'bin'
+    New-TranscriptStub -BinDir $caseBin -Name 'gemini' -Transcript $case.Text
+    New-Item -ItemType Directory -Path "$caseRoot/specs" -Force | Out-Null
+    Set-Content -Path "$caseRoot/input.txt" -Value 'offline bundle'
+    $casePath = if ($IsLinux -or $IsMacOS) { "${caseBin}:/usr/bin:/bin" } else { "$caseBin;C:\Windows\System32" }
+    $caseProc = Start-Process -FilePath $PowerShellHost `
+        -ArgumentList '-NoProfile', '-File', "$ScriptsDir/run-panelist-gemini.ps1",
+            '--task', 'T-024', '--feature', 'feat', '--input', "$caseRoot/input.txt",
+            '--spec-root', "$caseRoot/specs", '--digest', $digest `
+        -Environment @{ PATH = $casePath } `
+        -RedirectStandardOutput "$caseRoot/stdout.txt" -RedirectStandardError "$caseRoot/stderr.txt" `
+        -Wait -PassThru -NoNewWindow
+    $caseOut = "$caseRoot/specs/feat/verification/T-024.panelist-google.verdict.json"
+    $caseError = [string](Get-Content -Raw "$caseRoot/stderr.txt")
+    if ($case.Accept) {
+        if ($caseProc.ExitCode -eq 0 -and (Test-Path $caseOut)) {
+            $actual = Get-Content -Raw $caseOut | ConvertFrom-Json
+            if ($actual.verdict -ceq 'NEEDS_WORK' -and $actual.vendor -ceq 'google' -and
+                $actual.task_id -ceq 'T-024' -and $actual.feature -ceq 'feat' -and
+                $actual.input_digest -ceq $digest -and $actual.blind -eq $true -and
+                $actual.findings[0].note -ceq $geminiPayload.findings[0].note) {
+                ok "CL-024/$($case.Name): exact selected payload and escaped note preserved"
+            } else { fail "CL-024/$($case.Name): selected payload differs" }
+        } else { fail "CL-024/$($case.Name): exit $($caseProc.ExitCode), diagnostic: $caseError" }
+    } else {
+        if ($caseProc.ExitCode -ne 0 -and -not (Test-Path $caseOut) -and $caseError -cmatch $case.Diagnostic) {
+            ok "CL-024/$($case.Name): rejected with diagnostic and no verdict"
+        } else { fail "CL-024/$($case.Name): rejection mismatch, exit $($caseProc.ExitCode), diagnostic: $caseError" }
+    }
 }
 
 } finally {

@@ -1,0 +1,6 @@
+{
+  "decision": ["Apply human-approved RT-20260908-002 only; preserve downstream validation and all mandatory checks."],
+  "unresolved": ["Native Windows evidence, independent quality gate and CI are pending.", "Broader effort-policy-flip shell failed 2 assertions; PowerShell failed on detached-HEAD null Trim. These are not passing results."],
+  "evidence": ["reports/verification/rt-20260908-002-local-verification.md", "Collection PS 59/0 and SH 52/0; runner effort SH and PS 28/0 each; diff check exit 0."],
+  "next_action": ["Obtain native Windows verification of pinned candidate, then prepare manifest-bound post-fix independent evaluation. Do not merge or close issue before all required conditions pass."]
+}
