@@ -2,6 +2,30 @@
 
 This feature is itself security work, so this document is load-bearing rather than a formality: Stream A closes an availability hole in a `critical`-tier verification path, and Stream B is a threat-model edit whose own accuracy is a security property.
 
+## Baseline and amendment precedence — 2026-09-08
+
+The INV-based descriptions below, including "today", "current state" and
+"no bound exists", describe the original investigation baseline, not the
+present implementation. The current shell helper already implements group
+supervision (`plugins/sdd-quality-loop/scripts/lib/panelist-common.sh:63-120`)
+and the GPT PowerShell runner already implements a bounded wait
+(`plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:242-273`). Neither
+observation proves the amended boundary acceptance tests pass. The amended
+design governs remediation and preserves group-wide cleanup, including when
+the leader has exited. Its shared helper is explicitly in scope and protected.
+For B2 and INV-005, requirements BL-003/AC-006 override the old undifferentiated
+gate-failure description: one remaining valid Anthropic verdict means gate
+exit 1 and aggregate FAIL; empty input means gate exit 2 and no aggregate.
+Both follow runner timeout exit 1 with no verdict and neither permits PASS.
+
+The B1 closure claims below are required outcomes, not established evidence.
+In particular, PowerShell root exit after `Kill($true)` does not establish
+descendant exit; Microsoft's [Process.Kill contract](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.kill?view=net-9.0)
+explicitly distinguishes them. TEST-004 must observe child and descendant
+liveness independently. Cleanup failure remains exit 1/no verdict and does
+not satisfy the no-orphan acceptance condition. The amended design must
+resolve bounded cleanup/output completion before implementation review passes.
+
 ## Trust Boundaries
 
 ### B1 — the vendor CLI process boundary (Stream A, #133)
@@ -44,7 +68,7 @@ The stderr message on timeout names the configured bound and the vendor CLI, and
 
 ## Authorization
 
-- No file in `PROTECTED_GATE_SUFFIXES` is written. Verified by direct read of `guard-invariants.generated.js:5` against all eight targets (INV-017), so no `human-copy` staging round applies — unlike `epic-136-phase3`, whose `.github/workflows/test.yml` target *is* on that list.
+- The human-authorized 2026-09-08 PR #400 amendment supersedes INV-017's no-protection claim. Requirements BL-005 binds dated source evidence identifying both shell runners as protected and requires refreshed evidence at each consumption boundary. Obtain human evidence if inspection is denied, and require human application of exact reviewed bytes with before/after hashes for protected targets. Source membership is not a runtime verdict or authorization; missing evidence/application blocks the affected operation, and no alternate path may bypass a hook denial.
 - `check-cross-model.*` is not edited (BL-002). The gate that judges is not modified by the change it judges.
 - No `SDD_SUDO` interaction. This feature neither reads nor requires sudo state.
 

@@ -451,3 +451,121 @@ the requirements amendment only disambiguates contradictory unconditional
 summaries. This record does not itself establish a passing review or live
 activation. The following amendment-context declaration must bind this
 record and the amended documents to an actual commit before a new review.
+
+## Amendment Re-Review Context
+
+Declaration recorded 2026-09-09 for RT-20260909-002. Amendment snapshot commit:
+`e1f343b44706fc2eb3d09744feed0e034225a0fc`. The human returned the full commit
+identity and the following SHA-256 values after a successful `git diff
+--exit-code` comparison of the three amended documents with that commit.
+The subsequent multi-file hash collection reported one absent staged workflow;
+it was NOT a successful whole-command verification. Its individually printed
+hashes are human-collected evidence, not an agent claim of re-executing the
+refused collector. The absent path is accounted for separately below.
+
+Amended-document hashes AS OF that snapshot (the investigation hash precedes
+this declaration; it is not asserted to hash its own appended bytes):
+
+| Document relative to this feature | SHA-256 at amendment snapshot |
+|---|---|
+| requirements.md | c99ae8bafce9f17da9db189188e3f76337e540c40489e9f290981cf39e2e3434 |
+| acceptance-tests.md | 079567e6ef2ec31c96c77d4e635f1097e06ae74757bb668dd56050620d90f11a |
+| investigation.md | bbe500edca04b25089ee55daf81bf3c6110b156a49ecd3dae3e57a9bd623f75c |
+
+Verbatim human approval, recorded 2026-09-09 in the authorization section of
+the above committed investigation snapshot (SHA-256
+`bbe500edca04b25089ee55daf81bf3c6110b156a49ecd3dae3e57a9bd623f75c`):
+
+> フック証跡契約の限定修正については承認する
+
+> 今回の操作に対するSDDガードの実拒否の証明」で満たせるようにする判定契約の変更と、復旧専用レビュー経路の承認する
+
+The following existing later-phase and decision artifacts are disclosed as
+human-collected content snapshots, not as new approvals, current PASS evidence
+or authorization to implement unrelated work. Feature-relative paths resolve
+under `specs/epic-189-a1-project-context/`; paths beginning `docs/` or `reports/`
+are repository-relative. These SHA-256 pins identify the exact referenced
+content independently of whether that content was part of the amendment commit.
+
+| Referenced artifact | SHA-256 |
+|---|---|
+| design.md | c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5 |
+| tasks.md | bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044 |
+| traceability.md | ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54 |
+| ux-spec.md | 1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7 |
+| frontend-spec.md | 0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771 |
+| infra-spec.md | 2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489 |
+| security-spec.md | d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec |
+| human-copy/PROTECTED-MANIFEST.md | d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb |
+| human-copy/plugins/sdd-quality-loop/references/guard-invariants.json | e37af15bfa44cc04029e65f25602fe9bc617594e847b9af3bceeb450e31367f5 |
+| human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py | 344e035ea9313d0d39a1972e9c1084d9cfaf8afa6e31802222fe9df44c3b1757 |
+| docs/ai-dlc-foundation-decision-v2.md | c2957c535f355dd7ef11c8b5a08bc8b318c80b900b51d3ef537dbbb063d3ba11 |
+| docs/adr/0011-phase2-handle-relative-protected-copy.md | a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb |
+| docs/adr/0016-workflow-axes-separation.md | c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c |
+| docs/adr/0018-provider-binding-separation.md | 26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597 |
+| docs/adr/0019-approval-sidecar-protection.md | f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6 |
+| docs/adr/0020-conditional-predicate-dsl.md | b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba |
+| docs/adr/0021-context-projection-staleness.md | 39495d2a5343c0d0b8b8e8ae07529257dcbe7734ed9086e8ebff19db38a53064 |
+| docs/adr/0023-track-selection-contract-migration.md | 54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c |
+| reports/verification/hook-recovery-entry-contract-20260909.md | 2ca4125082c495724b0bbde33e7451edb21fc4042827c1e67b4354eb9215e79f |
+| docs/review-tickets/RT-20260909-002.yml | 878942094199aa2ae34de1c91a5968cb3019a2c83672d0e762964be5fcd835ad |
+
+Absent historical staged artifact: requirements AC-028 references
+`human-copy/.github/workflows/test.yml`, but commit
+`c8ac93a27e2f8fc351100fb8fa76958781532797` deleted that exact staged file
+and its manifest entry to prevent stale per-feature snapshots from overwriting
+shared CI. Read-only `git show --stat` identified this deletion and
+`git merge-base --is-ancestor` returned zero against amendment snapshot
+`e1f343b44706fc2eb3d09744feed0e034225a0fc`. This is a commit-bound absence
+record, NOT a fabricated content hash or proof of AC-028 satisfaction. The
+historical reference does not authorize restoring the removed snapshot or
+substituting the live workflow's hash. Any remaining specification inconsistency
+is disclosed for independent review, not silently waived by this declaration.
+
+The dated cleanup precedence in the requirements snapshot above governs this
+limited repair; older later-phase summaries are not silently rewritten or
+promoted to current evidence. The referenced recovery contract still requires
+formal predecessor reviews, retained regressions and fresh native activation
+before ordinary work resumes. This declaration supplies provenance only and
+does not change any review verdict, task Done state or implementation outcome.
+
+### Authorized reference and shared-CI follow-up (2026-09-09)
+
+Verbatim additional human authorizations, recorded 2026-09-09:
+
+> RT002限定の設計3文書の改訂・正式再レビューの承認
+
+> 14件のACと既存設計・テストの対応を精査し、根拠のある参照を補う範囲拡張を承認する
+
+> その他の設計変更も承認する
+
+The amendment commit above remains
+`e1f343b44706fc2eb3d09744feed0e034225a0fc`. The following follow-up hashes are
+measured working-tree snapshots on that base, NOT a claim that these later
+bytes are committed or approved by a historical verdict. The original
+declaration and all its commit-time hashes are retained unchanged.
+
+| Follow-up artifact (repository-relative) | SHA-256 measured 2026-09-09 |
+|---|---|
+| specs/epic-189-a1-project-context/requirements.md (Pending) | d303c649816d525ba3be93a45f3ec0f5b1320da404a0850554125efa08ac5660 |
+| specs/epic-189-a1-project-context/acceptance-tests.md | 45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b |
+| specs/epic-189-a1-project-context/investigation.md (before this append) | abd35dd920fbb5935577659f65462ed2fb23ae3be138d6673944426f1484cf67 |
+| specs/epic-189-a1-project-context/design.md | 7ff9e12e80a6bec6189548d2f2c06b3fa41068a59e3d3059094efdfb75c3a1a2 |
+| specs/epic-189-a1-project-context/infra-spec.md | db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776 |
+| specs/epic-189-a1-project-context/security-spec.md | d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9 |
+| tests/guard-invariants-epic-a1.tests.sh | b4813794bc766e88962e1803dbd117abfa66b4b619291d5d7ace12d6ee4a2361 |
+| tests/guard-invariants-epic-a1.tests.ps1 | a2a8c822570c14d3d201b99d7795e7fa63c9c2a6bfcbf6396926d4d0dd436039 |
+| docs/review-tickets/RT-20260811-002.yml | fd1ec0daeaf737b8146e2de88550d547c560ce72275c630c71b238ee918143ad |
+
+The test-script pins identify the existing absence assertions cited by the
+Shared CI amendment, not execution results for its newly planned TEST-028
+branches. The original absence record above remains historical; the newly
+authorized requirements amendment supersedes its unresolved-contract wording
+without restoring the retired workflow snapshot. Tasks, traceability and
+unchanged layer/decision artifacts retain the earlier explicit pins; their
+historical completion is not completion under the new contract.
+
+This append addresses the missing test-artifact provenance without changing
+any test, approval predicate, review calibration or historical FAIL. The next
+review manifest binds the complete investigation including this append; its
+hash is intentionally not asserted to be the pre-append hash in the table.

@@ -1,0 +1,38 @@
+ticket_id: RT-20260908-001
+status: open
+type: test-gap
+severity: major
+review_cycles: 0
+target:
+  feature: cross-model-verification
+  task: T-005
+  files:
+    - tests/collection-layer.tests.sh
+    - reports/verification/issue359-grep-regression-20260908.cjs
+summary: "Issue 359: consume the complete CL-021b diagnostic under pipefail"
+problem: |
+  RT-20260906-002 records a historical CL-021b echo Broken pipe failure.
+  The current assertion still uses echo | grep -qi, so grep can close the
+  pipe before echo finishes. A fresh full suite passes 52/0 (3aeac3), which
+  does not invalidate the intermittent failure or prove the cause fixed.
+expected_fix:
+  - "Replace only CL-021b's early-exiting grep with case-insensitive grep that reads the complete input and redirects matching output to /dev/null."
+  - "Preserve the candidate assertion, pipefail, production runners and timeouts, and all other checks."
+  - "Add a source-bound regression for long positive, negative and empty diagnostics."
+verification:
+  - "Observe the long-positive regression fail before editing the assertion."
+  - "After the one-line fix, run that regression and the complete Bash collection suite."
+  - "Review exact diff, retain historic failures, and require formal quality verification before integration."
+references:
+  - docs/review-tickets/RT-20260906-002.yml
+  - specs/cross-model-verification/tasks.md
+  - specs/cross-model-verification/requirements.md
+  - specs/cross-model-verification/design.md
+  - specs/cross-model-verification/acceptance-tests.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: >-
+  User explicitly approved changing to grep that reads all output and
+  re-verifying in this conversation. This ticket records that narrow
+  approval separately from the PowerShell fixture repair. No protection
+  bypass is permitted; stop a denied operation and request human application.

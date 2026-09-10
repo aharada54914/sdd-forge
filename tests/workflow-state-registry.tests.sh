@@ -105,7 +105,7 @@ shell_schema_accepts() {
           ((keys - ["introduced_before_commit", "reason", "owner",
                     "allowed_missing_stages", "allowed_noncanonical_statuses",
                     "allowed_task_approvals", "allowed_task_statuses",
-                    "retrospective_sources"]) | length == 0) and
+                    "retrospective_sources", "task_status_overrides"]) | length == 0) and
           has("introduced_before_commit") and has("reason") and has("owner") and
           has("allowed_missing_stages") and has("allowed_noncanonical_statuses") and
           has("allowed_task_approvals") and has("allowed_task_statuses") and
@@ -126,6 +126,9 @@ shell_schema_accepts() {
           (.allowed_task_approvals | string_array(["Draft", "Approved"])) and
           (.allowed_task_statuses |
             string_array(["Planned", "In Progress", "Implementation Complete", "Done", "Blocked"])) and
+          (if has("task_status_overrides") then
+            .task_status_overrides == {"T-002":["Implementation Complete","Done"]}
+          else true end) and
           (if has("retrospective_sources") then
             .retrospective_sources | type == "array" and
             length == (unique | length) and

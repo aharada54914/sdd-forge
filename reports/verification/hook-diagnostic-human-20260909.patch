@@ -1,0 +1,16 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py b/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+--- a/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
++++ b/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+@@ -340,7 +340,7 @@
+             "PLUGIN_HOOKS_DISABLED",
+-            "codex-cli evidence's 'plugin_hooks_enabled' is not true -- an "
+-            "unset/false plugin_hooks feature flag means the guard was "
+-            "never invoked at all, so no denial signature can appear; "
+-            "this correctly collapses into hook-not-active rather than "
+-            "being treated as ambiguous",
++            "codex-cli evidence does not establish 'plugin_hooks_enabled: true'; "
++            "missing or invalid evidence metadata is not proof that plugin hooks are disabled. "
++            "The legacy PLUGIN_HOOKS_DISABLED category is retained for compatibility; "
++            "verification remains unavailable without the required evidence, "
++            "including when the recorded flag is explicitly false",
+         )

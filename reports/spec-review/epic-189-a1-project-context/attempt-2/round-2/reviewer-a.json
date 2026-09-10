@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a085ef-6223-7f80-802f-46b8d6bd760c",
+  "host_session_id": "01a085ef-6223-7f80-802f-46b8d6bd760c",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "c99ae8bafce9f17da9db189188e3f76337e540c40489e9f290981cf39e2e3434"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "079567e6ef2ec31c96c77d4e635f1097e06ae74757bb668dd56050620d90f11a"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "abd35dd920fbb5935577659f65462ed2fb23ae3be138d6673944426f1484cf67"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-2/round-2/precheck-result.json",
+      "sha256": "5580bdff1cefe08673f611240083a9e076b6d1add386efba0322597c92322c4e"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-011 define inspectable schema, byte, diagnostic, approval, protection, routing and verification outcomes. The RT-20260909-002 amendment makes the new Codex adapter directly testable through exact decoded strings, a closed record shape, nonce binding and explicit exit/category expectations. All allowed inputs were read completely; their hashes and the precheck pins match. Reservation sequence 972 extends tip 971, the previous-record hash matches, the recomputed record hash matches the quoted REVIEW_CONTEXT_OK evidence, and identity_unique=yes is present."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001 through AC-046 and their requirement-tagged TEST rows provide coverage for all eleven stated goals. The scoped amendment is traced through the TEST-027-RT002 response fixtures and TEST-032-RT002 cleanup fixtures, with a separate observable native repair-exit record."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify observable validation decisions, canonical bytes and hashes, staged/live artifact states, routing results and cleanup outcomes. The amendment requires exact exit/category assertions and forbidden-success assertions. Its dated cleanup precedence makes absent-after conditional on denial or confirmed cleanup while retaining unconditional sidecar integrity."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals distinguish A1 schema and verification logic from later registry, resolver, coverage-gate and live cross-runtime work. The amendment limits recovery admission to RT-20260909-002 repair and provenance reviews, expressly excluding ordinary bootstrap, unrelated tasks, integration and quality-gate completion."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amendment explicitly preserves protective enforcement, independent reviewers, reservations, hashes, schemas, cycle limits and human anchored publication. It disclaims cryptographic host attestation and caller-file forgery detection, requires trusted-session native evidence, and forbids normalization or executor substitution after denial. Investigation's Amendment Re-Review Context supplies the full amendment commit, amended-document fingerprints, dated verbatim approval and referenced-artifact provenance; only phase-sequencing suppression applies. The disclosed historical staged-workflow deletion is not treated as AC-028 satisfaction or permission to restore it."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Approval forgery, weakening, protected publication and hook-evidence risks have planned validation surfaces in AC-014, AC-019, AC-020, AC-023, AC-027 and AC-030 through AC-043. Amendment fixtures cover malformed and duplicate JSON, schema dispatch, strict types, nonce mismatches, extra fields, envelope mutations and legacy compatibility. Recovery exit additionally requires predecessor reviews, original-path suites, both wrappers and fresh native evidence verified at the installed path; synthetic success does not establish activation."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted root-directory existence probe confirmed that domain/ is absent; the check's explicit skip condition applies."
+    }
+  ]
+}

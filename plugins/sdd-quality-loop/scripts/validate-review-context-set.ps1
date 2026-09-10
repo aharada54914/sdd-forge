@@ -162,6 +162,169 @@ function Test-AuthorizedPath {
     }
 }
 
+# Strict content check only; held-handle acquisition remains a separate requirement.
+function Assert-ImplJsonObject([string]$Text) {
+    $parsed = $null
+    try {
+        # Preserve the existing ConvertFrom-Json nesting allowance.
+        $options = [System.Text.Json.JsonDocumentOptions]::new()
+        $options.MaxDepth = 1024
+        $parsed = [System.Text.Json.JsonDocument]::Parse($Text, $options)
+        if ($parsed.RootElement.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) {
+            throw 'JSON root must be an object'
+        }
+        $pending = [Collections.Generic.Stack[System.Text.Json.JsonElement]]::new()
+        $pending.Push($parsed.RootElement)
+        while ($pending.Count -gt 0) {
+            $element = $pending.Pop()
+            if ($element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+                $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+                foreach ($property in $element.EnumerateObject()) {
+                    if (-not $names.Add($property.Name)) { throw 'Duplicate JSON member' }
+                    $pending.Push($property.Value)
+                }
+            } elseif ($element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+                foreach ($value in $element.EnumerateArray()) { $pending.Push($value) }
+            }
+        }
+    }
+    catch {
+        Fail-ReviewContext 'CONTRACT' 'implementation precheck is not unambiguous single-object JSON'
+    }
+    finally {
+        if ($null -ne $parsed) { $parsed.Dispose() }
+    }
+}
+
+function Get-AdrDeclaredPaths {
+    param([byte[]]$DesignBytes)
+    # Latin-1 preserves each byte, including a BOM; the grammar is ASCII only.
+    # ReadAllText would strip a BOM and diverge from LC_ALL=C awk at fences.
+    $text = [Text.Encoding]::GetEncoding(28591).GetString($DesignBytes)
+    $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    function Get-AdrRunWidth([string]$Line, [int]$Start, [char]$Delimiter) {
+        $width = 0
+        while (($Start + $width) -lt $Line.Length -and $Line[$Start + $width] -ceq $Delimiter) { $width++ }
+        return $width
+    }
+    function Test-AdrRunEscaped([string]$Line, [int]$Start) {
+        $slashes = 0
+        while ($Start -gt 0 -and $Line[$Start - 1] -ceq [char]92) { $slashes++; $Start-- }
+        return (($slashes % 2) -ne 0)
+    }
+    $fence = [char]0
+    $fenceWidth = 0
+    foreach ($rawLine in $text.Split([char]10)) {
+        $line = $rawLine
+        if ($line.Length -gt 0 -and $line[$line.Length - 1] -ceq [char]13) {
+            $line = $line.Substring(0, $line.Length - 1)
+        }
+        $indent = 0
+        while ($indent -lt $line.Length -and $line[$indent] -ceq [char]32) { $indent++ }
+        $rest = $line.Substring($indent)
+        $first = [char]0
+        if ($rest.Length -gt 0) { $first = $rest[0] }
+        if ($fence -cne [char]0) {
+            if ($indent -le 3 -and $first -ceq $fence) {
+                $width = Get-AdrRunWidth $rest 0 $fence
+                if ($width -ge $fenceWidth -and $rest.Substring($width) -cmatch '^[ \t]*$') {
+                    $fence = [char]0
+                }
+            }
+            continue
+        }
+        if ($indent -ge 4 -or $first -ceq [char]9) { continue }
+        if ($first -ceq [char]96 -or $first -ceq [char]126) {
+            $width = Get-AdrRunWidth $rest 0 $first
+            if ($width -ge 3) { $fence = $first; $fenceWidth = $width; continue }
+        }
+        $i = 0
+        while ($i -lt $line.Length) {
+            if ($line[$i] -cne [char]96) { $i++; continue }
+            $width = Get-AdrRunWidth $line $i ([char]96)
+            if (Test-AdrRunEscaped $line $i) { $i += $width; continue }
+            $j = $i + $width
+            $closed = $false
+            while ($j -lt $line.Length) {
+                if ($line[$j] -cne [char]96) { $j++; continue }
+                $closeWidth = Get-AdrRunWidth $line $j ([char]96)
+                if ($closeWidth -eq $width -and -not (Test-AdrRunEscaped $line $j)) {
+                    $closed = $true
+                    break
+                }
+                $j += $closeWidth
+            }
+            if (-not $closed) { break }
+            $value = $line.Substring($i + $width, $j - $i - $width)
+            if ($width -eq 1 -and $value -cmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$') {
+                [void]$paths.Add($value)
+            }
+            $i = $j + $width
+        }
+    }
+    [string[]]$result = @($paths)
+    [Array]::Sort($result, [StringComparer]::Ordinal)
+    return $result
+}
+
+# Consume only entries captured and hash-checked by the original input loop.
+function Get-CapturedAdrBinding($Invocation, $Prechecks, [byte[]]$DesignBytes) {
+    $verified = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    $extended = @($Prechecks | Where-Object { $_.Value.psbase.Keys -ccontains 'adr_inputs' })
+    if ($extended.Count -eq 0) { return ,$verified }
+    if ($Prechecks.Count -ne 1) { throw 'ADR binding requires exactly one precheck' }
+    $entry = $Prechecks[0]
+    $pc = $entry.Value
+    foreach ($key in @('schema','feature','attempt','round','design_sha256','adr_inputs')) {
+        if ($pc.psbase.Keys -cnotcontains $key) { throw "Missing exact precheck field: $key" }
+    }
+    if ($pc.schema -isnot [string] -or $pc.schema -cne 'impl-review-precheck/v1' -or
+        $pc.feature -isnot [string] -or $pc.feature -cne $Invocation.feature -or
+        -not (Test-JsonInteger $pc.attempt) -or $pc.attempt -lt 1 -or
+        -not (Test-JsonInteger $pc.round) -or $pc.round -lt 1) {
+        throw 'Invalid ADR precheck identity'
+    }
+    $expectedPath = "reports/impl-review/$($Invocation.feature)/attempt-$($pc.attempt)/round-$($pc.round)/precheck-result.json"
+    if ($entry.Path -cne $expectedPath -or $pc.design_sha256 -isnot [string] -or
+        $pc.design_sha256 -cnotmatch '^[0-9a-f]{64}$' -or $pc.adr_inputs -isnot [array]) {
+        throw 'Invalid ADR precheck path, design hash or array'
+    }
+    $previous = $null
+    foreach ($adr in $pc.adr_inputs) {
+        if ($adr -isnot [Collections.IDictionary] -or
+            @($adr.psbase.Keys).Count -ne 2 -or
+            $adr.psbase.Keys -cnotcontains 'path' -or $adr.psbase.Keys -cnotcontains 'sha256' -or
+            $adr.path -isnot [string] -or $adr.sha256 -isnot [string] -or
+            $adr.path -cnotmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$' -or
+            $adr.sha256 -cnotmatch '^[0-9a-f]{64}$') { throw 'Malformed ADR binding' }
+        if ($null -ne $previous -and [string]::CompareOrdinal($previous,$adr.path) -ge 0) {
+            throw 'ADR bindings must be unique and ordinal sorted'
+        }
+        $verified.Add($adr.path,$adr.sha256)
+        $previous = $adr.path
+    }
+    $designEntries = @($Invocation.allowed_input_manifest | Where-Object {
+        $_.path -ceq "specs/$($Invocation.feature)/design.md"
+    })
+    if ($designEntries.Count -ne 1 -or $null -eq $DesignBytes -or
+        $designEntries[0].sha256 -cne $pc.design_sha256) { throw 'Missing hash-bound design' }
+    $declared = @(Get-AdrDeclaredPaths $DesignBytes)
+    if ($declared.Count -ne $verified.Count) { throw 'ADR declaration set mismatch' }
+    foreach ($path in $declared) {
+        if (-not $verified.ContainsKey($path)) { throw 'ADR declaration set mismatch' }
+    }
+    $adrs = @($Invocation.allowed_input_manifest | Where-Object {
+        $_.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
+    })
+    if ($adrs.Count -ne $verified.Count) { throw 'Invocation ADR set mismatch' }
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($adr in $adrs) {
+        if (-not $seen.Add($adr.path) -or -not $verified.ContainsKey($adr.path) -or
+            $verified[$adr.path] -cne $adr.sha256) { throw 'Invocation ADR binding mismatch' }
+    }
+    return ,$verified
+}
+
 try {
     if (-not (Test-Path -LiteralPath $Manifest -PathType Leaf) -or
         $null -ne (Get-Item -LiteralPath $Manifest -Force).LinkType) {
@@ -170,8 +333,6 @@ try {
     if (-not (Test-Path -LiteralPath $RepositoryRoot -PathType Container)) {
         Fail-ReviewContext 'PATH' 'repository root is missing'
     }
-    $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryRoot).Path)
-    $rootPrefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     try {
         $document = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
     }
@@ -245,6 +406,24 @@ try {
         }
     }
 
+    # POSIX spelling must be checked before Resolve-Path erases aliases.
+    # Windows drive/UNC acquisition remains a separate, unverified change.
+    if ($document.stage -ceq 'impl' -and -not $IsWindows) {
+        if (-not $RepositoryRoot.StartsWith('/', [StringComparison]::Ordinal) -or
+            $RepositoryRoot.Contains('//') -or $RepositoryRoot.Contains('\') -or
+            $RepositoryRoot -cmatch '(^|/)[.]{1,2}(/|$)' -or
+            ($RepositoryRoot -cne '/' -and $RepositoryRoot.EndsWith('/', [StringComparison]::Ordinal))) {
+            Fail-ReviewContext 'PATH' 'implementation review requires an unambiguous absolute repository root'
+        }
+        $rootItem = Get-Item -LiteralPath $RepositoryRoot -Force -ErrorAction Stop
+        if (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $rootItem.LinkType) {
+            Fail-ReviewContext 'PATH' 'implementation review root is a symbolic link'
+        }
+        $root = $RepositoryRoot
+    } else {
+        $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryRoot).Path)
+    }
+    $rootPrefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     $ledger = Join-Path $root 'reports/review-context/identity-ledger.json'
     $ledgerComponent = $root
     foreach ($component in @('reports', 'review-context', 'identity-ledger.json')) {
@@ -505,8 +684,18 @@ try {
         $_ -is [hashtable] -and $_.path -is [string] -and
         $_.path -cmatch '^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$'
     } | Select-Object -First 1
+    $implPrecheckText = $null
+    $implDesignBytes = $null
+    $implPrechecks = [Collections.Generic.List[object]]::new()
+    $verifiedAdrInputs = $null
+    $orderedInputs = $inputs
+    if ($document.stage -ceq 'impl') {
+        $orderedInputs = @($inputs | Sort-Object -Stable -Property {
+            $_.path -is [string] -and $_.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
+        })
+    }
     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($input in $inputs) {
+    foreach ($input in $orderedInputs) {
         if ($input -isnot [hashtable] -or -not (Test-ExactKeys $input @('path', 'sha256')) -or
             -not (Test-CanonicalPath $input.path) -or -not $paths.Add($input.path)) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a duplicate or non-canonical path"
@@ -514,9 +703,21 @@ try {
         if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
             Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
         }
+        $isAdrInput = $document.stage -ceq 'impl' -and
+            $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
+        if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
+            $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
+        }
+        $authorized = if ($isAdrInput) {
+            $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
+            $verifiedAdrInputs.ContainsKey($input.path) -and
+            $verifiedAdrInputs[$input.path] -ceq $input.sha256
+        } else {
+            Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
+        }
         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
-            -not (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)) {
+            -not $authorized) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a real but role-unlisted path: $($input.path)"
         }
         $candidate = [IO.Path]::GetFullPath((Join-Path $root $input.path))
@@ -525,9 +726,26 @@ try {
         }
         $current = $root
         foreach ($component in $input.path.Split('/')) {
+            if ($document.stage -ceq 'impl') {
+                # Reject stationary case aliases; this is not atomic acquisition.
+                $exactEntry = $false
+                foreach ($entry in [IO.Directory]::EnumerateFileSystemEntries($current)) {
+                    if ([StringComparer]::Ordinal.Equals([IO.Path]::GetFileName($entry), $component)) {
+                        $exactEntry = $true
+                        break
+                    }
+                }
+                if (-not $exactEntry) {
+                    Fail-ReviewContext 'PATH' "$($document.role) input has no exact-name directory entry: $($input.path)"
+                }
+            }
             $current = Join-Path $current $component
             if (Test-Path -LiteralPath $current) {
-                if ($null -ne (Get-Item -LiteralPath $current -Force).LinkType) {
+                # A hardlink is a regular input, not a redirected path. Limit
+                # this correction to impl review; other stage contracts retain
+                # their existing behavior. Anchored acquisition is still required.
+                $inputItem = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+                if (($inputItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or ($null -ne $inputItem.LinkType -and ($document.stage -cne 'impl' -or $inputItem.LinkType -cne 'HardLink'))) {
                     Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
                 }
             }
@@ -535,7 +753,64 @@ try {
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a missing or non-regular input: $($input.path)"
         }
+        if ($isAdrInput) {
+            # Leaf also includes POSIX special files. Check type before opening.
+            $adrItem = Get-Item -LiteralPath $candidate -Force -ErrorAction Stop
+            if ($adrItem -isnot [IO.FileInfo] -or $adrItem.PSIsContainer -or
+                ($adrItem.Attributes -band [IO.FileAttributes]::Device) -ne 0) {
+                Fail-ReviewContext 'PATH' 'ADR input is not a regular file'
+            }
+            if (-not $IsWindows) {
+                $stat = $adrItem.PSObject.Properties['UnixStat']
+                if ($null -eq $stat -or $null -eq $stat.Value -or
+                    [string]$stat.Value.ItemType -cne 'File') {
+                    Fail-ReviewContext 'PATH' 'ADR input is not a regular file'
+                }
+            }
+        }
+        $isImplPrecheck = $document.stage -ceq 'impl' -and
+            $input.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
+        if ($document.stage -ceq 'impl' -and
+            ($input.path -ceq "specs/$($document.feature)/design.md" -or
+             $isImplPrecheck -or ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path))) {
+            try {
+                $contentBytes = [IO.File]::ReadAllBytes($candidate)
+                $contentText = [Text.UTF8Encoding]::new($false, $true).GetString($contentBytes)
+            }
+            catch {
+                Fail-ReviewContext 'CONTRACT' 'implementation input cannot be read as strict UTF-8'
+            }
+            if ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path) {
+                if ($contentText.StartsWith([string][char]0xFEFF, [StringComparison]::Ordinal)) {
+                    $contentText = $contentText.Substring(1)
+                }
+                Assert-ImplJsonObject $contentText
+                $implPrecheckText = $contentText
+            }
+            if ($isImplPrecheck) {
+                if ($contentText.StartsWith([string][char]0xFEFF,[StringComparison]::Ordinal)) {
+                    $contentText = $contentText.Substring(1)
+                }
+                # Do not confuse an unreadable later record with no extension.
+                Assert-ImplJsonObject $contentText
+                $implPrechecks.Add([pscustomobject]@{
+                    Path=$input.path
+                    Value=(ConvertFrom-Json -InputObject $contentText -AsHashtable -NoEnumerate -Depth 1024)
+                })
+            } elseif ($input.path -ceq "specs/$($document.feature)/design.md") {
+                $implDesignBytes = $contentBytes
+            }
+            $hasher = [Security.Cryptography.SHA256]::Create()
+            try {
+                $actualHash = [BitConverter]::ToString($hasher.ComputeHash($contentBytes)).Replace('-', '').ToLowerInvariant()
+            }
+            finally {
+                $hasher.Dispose()
+            }
+        }
+        else {
         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
         if ($actualHash -cne $input.sha256) {
             # WFI-025: the ONE scoped exception to the raw-equality rule. A
             # task-stage manifest may declare the task plan's normalized
@@ -576,6 +851,10 @@ try {
         }
     }
 
+    if ($document.stage -ceq 'impl' -and $null -eq $verifiedAdrInputs) {
+        # Validate explicit binding even when the caller omitted every ADR.
+        $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
+    }
     # Round consistency. A manifest freezes hashes at reservation time; the round's
     # precheck-result.json froze them when the round opened. If the two disagree, a
     # reviewed document changed between the precheck and this reservation, so the
@@ -586,8 +865,16 @@ try {
     } | Select-Object -First 1
     if ($null -ne $precheckEntry) {
         $precheckPath = Join-Path $repositoryRoot $precheckEntry.path
-        if (Test-Path -LiteralPath $precheckPath -PathType Leaf) {
-            $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+        if ($document.stage -ceq 'impl' -or (Test-Path -LiteralPath $precheckPath -PathType Leaf)) {
+            if ($document.stage -ceq 'impl') {
+                if ($null -eq $implPrecheckText) {
+                    Fail-ReviewContext 'CONTRACT' 'implementation precheck was not captured'
+                }
+                $precheck = $implPrecheckText | ConvertFrom-Json
+            }
+            else {
+                $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+            }
             $pinned = [ordered]@{}
             $simple = [ordered]@{
                 'requirements.md'     = 'requirements_sha256'

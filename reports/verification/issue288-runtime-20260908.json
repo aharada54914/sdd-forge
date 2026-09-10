@@ -1,0 +1,233 @@
+{
+  "schema": "issue288-diagnostic/v1",
+  "formalGate": false,
+  "reservationWrites": false,
+  "main": "4366438f3b243210a4ece5a17f873ca2d920600a",
+  "validatorHashes": {
+    "bash": "04e01b60cac4b8ccda12df069013a6052cd6825a1430256d59ccdf837a3af2f8",
+    "powershell": "832a00cbd9d9516f990411a684c5f671e8b8d5e92cc8f96d0ed9de4828c38187"
+  },
+  "ledgerHashBeforeAndAfter": "484cf6b9ba21c5d80b07a07ed9aee1909e3c72289250589df6472084ce778cad",
+  "results": [
+    {
+      "stage": "spec",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "b5532e",
+      "wall_time_seconds": 0.000002333,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "ca14b2",
+      "wall_time_seconds": 0.399417166,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "176a61",
+      "wall_time_seconds": 0.000001875,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "2dee4e",
+      "wall_time_seconds": 0.370945083,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "faafa3",
+      "wall_time_seconds": 0.000002208,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "777ba4",
+      "wall_time_seconds": 0.386369292,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "b16c7c",
+      "wall_time_seconds": 0.000002167,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "e928fd",
+      "wall_time_seconds": 0.379649542,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "stale",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "97450f",
+      "wall_time_seconds": 0.000002208,
+      "exit_code": 1,
+      "original_token_count": 20,
+      "output": "REVIEW_CONTEXT_HASH: spec-reviewer-a hash mismatch: specs/f/investigation.md\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "stale",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "a56a5a",
+      "wall_time_seconds": 0.38560475,
+      "exit_code": 1,
+      "original_token_count": 20,
+      "output": "REVIEW_CONTEXT_HASH: spec-reviewer-a hash mismatch: specs/f/investigation.md\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "stale",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "796083",
+      "wall_time_seconds": 0.000001916,
+      "exit_code": 1,
+      "original_token_count": 20,
+      "output": "REVIEW_CONTEXT_HASH: impl-reviewer-a hash mismatch: specs/f/investigation.md\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "stale",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "8b1caa",
+      "wall_time_seconds": 0.400138625,
+      "exit_code": 1,
+      "original_token_count": 20,
+      "output": "REVIEW_CONTEXT_HASH: impl-reviewer-a hash mismatch: specs/f/investigation.md\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "omitted",
+      "root": "absent",
+      "runtime": "bash",
+      "chunk_id": "439c07",
+      "wall_time_seconds": 0.000002291,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "mode": "omitted",
+      "root": "absent",
+      "runtime": "pwsh",
+      "chunk_id": "022e7c",
+      "wall_time_seconds": 0.391588125,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "omitted",
+      "root": "absent",
+      "runtime": "bash",
+      "chunk_id": "1e0075",
+      "wall_time_seconds": 0.000002209,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "mode": "omitted",
+      "root": "absent",
+      "runtime": "pwsh",
+      "chunk_id": "ffc894",
+      "wall_time_seconds": 0.396293458,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "task",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "d72932",
+      "wall_time_seconds": 0.000002083,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK e1776c3e5602ada983bb87ad15a85a852ccd28bb210fbed71fb812b1001a7308 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "task",
+      "mode": "omitted",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "d48bfc",
+      "wall_time_seconds": 0.397370292,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK e1776c3e5602ada983bb87ad15a85a852ccd28bb210fbed71fb812b1001a7308 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=1 identity_unique=yes\n"
+    },
+    {
+      "stage": "task",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "bash",
+      "chunk_id": "144eee",
+      "wall_time_seconds": 0.000002125,
+      "exit_code": 1,
+      "original_token_count": 26,
+      "output": "REVIEW_CONTEXT_PATH: task-reviewer-a contains a real but role-unlisted path: specs/f/investigation.md\n"
+    },
+    {
+      "stage": "task",
+      "mode": "included",
+      "root": "existing",
+      "runtime": "pwsh",
+      "chunk_id": "aa4f2e",
+      "wall_time_seconds": 0.407412375,
+      "exit_code": 1,
+      "original_token_count": 26,
+      "output": "REVIEW_CONTEXT_PATH: task-reviewer-a contains a real but role-unlisted path: specs/f/investigation.md\n"
+    }
+  ]
+}

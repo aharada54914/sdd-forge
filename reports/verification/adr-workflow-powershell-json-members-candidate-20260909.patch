@@ -1,0 +1,98 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -985,1 +985,94 @@
++# Validate raw JSON before ConvertFrom-Json can erase repeated members.
++# Input must be decoded from the SAME safe byte snapshot the caller hashes.
++function Assert-AdrJsonMembers([string]$Text) {
++    $tokens = [regex]::new('\G(?:"(?:[^"\\\x00-\x1f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\[\]:,])')
++    $space = [regex]::new('\G[ \t\r\n]*')
++    # Explicit frames avoid a new recursion-depth limit; keys belong to one
++    # object instance, not a global path map (array siblings may repeat keys).
++    $frames = [Collections.Generic.List[object]]::new()
++    $frames.Add([pscustomobject]@{ Kind='root'; Phase='value'; Keys=$null })
++    $offset = 0
++    while ($offset -lt $Text.Length) {
++        $offset += $space.Match($Text, $offset).Length
++        if ($offset -eq $Text.Length) { break }
++        $match = $tokens.Match($Text, $offset)
++        if (-not $match.Success) { throw 'ADR JSON has an invalid token' }
++        $token = $match.Value
++        $offset += $match.Length
++        $frame = $frames[$frames.Count - 1]
++        if ($frame.Phase -ceq 'colon') {
++            if ($token -cne ':') { throw 'ADR JSON member has no colon' }
++            $frame.Phase = 'value'
++            continue
++        }
++        if ($frame.Phase -ceq 'comma-or-end') {
++            $closing = if ($frame.Kind -ceq 'object') { '}' } else { ']' }
++            if ($token -ceq $closing) {
++                $frames.RemoveAt($frames.Count - 1)
++                continue
++            }
++            if ($token -cne ',') { throw 'ADR JSON missing separator' }
++            $frame.Phase = if ($frame.Kind -ceq 'object') { 'key' } else { 'value' }
++            continue
++        }
++        if ($frame.Phase -ceq 'key-or-end' -and $token -ceq '}') {
++            $frames.RemoveAt($frames.Count - 1)
++            continue
++        }
++        if ($frame.Phase -ceq 'value-or-end' -and $token -ceq ']') {
++            $frames.RemoveAt($frames.Count - 1)
++            continue
++        }
++        if ($frame.Phase -ceq 'key' -or $frame.Phase -ceq 'key-or-end') {
++            if (-not $token.StartsWith('"', [StringComparison]::Ordinal)) {
++                throw 'ADR JSON object key is not a string'
++            }
++            # Parse one isolated string, never a whole object with duplicate
++            # keys. Array wrapping preserves the empty string in PS5.1.
++            $decoded = @(ConvertFrom-Json -InputObject ('[' + $token + ']') -ErrorAction Stop)
++            if ($decoded.Count -ne 1 -or $decoded[0] -isnot [string]) {
++                throw 'ADR JSON key decoding failed'
++            }
++            if (-not $frame.Keys.Add($decoded[0])) { throw 'ADR JSON duplicate decoded member' }
++            $frame.Phase = 'colon'
++            continue
++        }
++        if ($frame.Phase -cne 'value' -and $frame.Phase -cne 'value-or-end') {
++            throw 'ADR JSON has trailing content'
++        }
++        # Consume this value at its parent before descending into a container.
++        # A comma requires a value/key, so trailing commas cannot close it.
++        $frame.Phase = if ($frame.Kind -ceq 'root') { 'done' } else { 'comma-or-end' }
++        if ($token -ceq '{') {
++            $keys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++            $frames.Add([pscustomobject]@{ Kind='object'; Phase='key-or-end'; Keys=$keys })
++        } elseif ($token -ceq '[') {
++            $frames.Add([pscustomobject]@{ Kind='array'; Phase='value-or-end'; Keys=$null })
++        } elseif ($token -ceq '}' -or $token -ceq ']' -or $token -ceq ':' -or $token -ceq ',') {
++            throw 'ADR JSON value missing or container mismatched'
++        }
++    }
++    if ($frames.Count -ne 1 -or $frames[0].Phase -cne 'done') {
++        throw 'ADR JSON is empty or incomplete'
++    }
++}
++# Caller must first validate every path component; this reader alone does
++# not prevent symlink races. Never reopen the path to compute this digest.
++function Read-AdrJsonSnapshot([string]$Path) {
++    $bytes = [IO.File]::ReadAllBytes($Path)
++    $decoder = [Text.UTF8Encoding]::new($false, $true)
++    $text = $decoder.GetString($bytes)
++    # Permit a leading UTF-8 BOM without excluding its bytes from the hash.
++    if ($text.Length -gt 0 -and $text[0] -eq [char]0xfeff) {
++        $text = $text.Substring(1)
++    }
++    Assert-AdrJsonMembers $text
++    $hasher = [Security.Cryptography.SHA256]::Create()
++    try {
++        $digest = [BitConverter]::ToString($hasher.ComputeHash($bytes)).Replace('-', '').ToLowerInvariant()
++    } finally {
++        $hasher.Dispose()
++    }
++    return [pscustomobject]@{ Path=$Path; Sha256=$digest; Text=$text }
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

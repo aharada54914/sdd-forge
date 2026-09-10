@@ -1,0 +1,73 @@
+ticket_id: RT-20260908-003
+status: open
+type: bug
+severity: major
+review_cycles: 0
+target:
+  feature: epic-196-a8-integration
+  stage: spec-review
+  files:
+    - plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+    - plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+    - plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+    - tests/spec-review-loop.tests.sh
+    - contracts/approval-sidecar.schema.json
+    - contracts/review-recovery-request.schema.json
+    - plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+    - plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+    - tests/review-recovery-approval.tests.py
+summary: "Preserve invalid historical review evidence and provide an explicit audited restart"
+problem: |
+  A8 attempt 4 round 2 integrated-summary.json lacks generated_at. Its bytes
+  are pinned by reviewer B's inputs, so modifying the old summary would
+  misrepresent what that reviewer received. Attempt 4 round 3 precheck
+  correctly rejects this malformed contract (tool eddd7a, exit 1).
+  The current reset path requires a valid terminal PASS or BLOCKED contract;
+  this malformed NEEDS_WORK round cannot legally advance or reset.
+  Issue #61 is closed, so its temporary manual-precheck fallback is unavailable.
+  Evidence lives in /Users/jrmag/.local/share/sdd-forge-a8-verify-20260905.
+  Old summary SHA256: 66c584c43a843060b9ae44c286fa57d97b28ba1ee3a3dffe8829afd250c92ac6.
+  Old precheck SHA256: f8c88d794fd7920a8dbbdecb2c835235434ac5f368ca2007b03c5276946503c6.
+expected_fix:
+  - "Define and review an explicit recovery transition; do not relax normal continuation/reset validation or manufacture a terminal verdict."
+  - "Retain all prior round files and reviewer identity reservations byte-for-byte. An append-only repair record identifies their hashes, the structural defect, human authorization, and the new attempt."
+  - "Restart only at a fresh next attempt round 1, with Pending status, fresh independent reviewer identities, complete manifests, and all ordinary acceptance checks. Historical findings remain unresolved until fresh review proves otherwise."
+  - "Bind recovery authorization to the exact feature, source attempt/round, source evidence manifest, destination attempt, and ticket. Reject replay, missing authorization, hash mismatch, path escape, and arbitrary skipping of attempts."
+  - "Validate summary schema before sending it to reviewer B to prevent recurrence; never retrospectively insert a fabricated timestamp."
+  - "Determine all persisted-state consumers before implementation and keep Bash/PowerShell acceptance equivalent. Preserve existing checks and artifact-freeze rules."
+verification:
+  - "Retain the original failed transition and prove original historical hashes are unchanged before and after recovery."
+  - "Add regressions for missing generated_at, valid ordinary continuation/reset, authorized recovery, unauthorized recovery, modified evidence, replay, incorrect feature/counters, and unsafe paths."
+  - "Run related review-loop and workflow-state suites on supported shells; do not count skipped native-platform checks as success."
+  - "Require independent review of the recovery boundary and a successful automated precheck before starting fresh specification review. No PASS or Done inferred from successful recovery alone."
+references:
+  - https://github.com/aharada54914/sdd-forge/issues/196
+  - https://github.com/aharada54914/sdd-forge/issues/61
+  - plugins/sdd-quality-loop/references/debugging-recovery-policy.md
+  - reports/verification/a8-spec-review-resume-20260908.md
+auto_fix_allowed: false
+requires_human_decision: false
+resolved_design_question: >-
+  Existing validate-approval-sidecar.py accepts only project-context and
+  provider-bindings schema families (lines 153-158); it cannot authorize this
+  recovery record. Decide whether to extend the trusted signed-approval
+  contract with a dedicated review-recovery purpose, rather than accepting
+  a caller-authored approval boolean or weakening normal reset. The existing
+  scope approval remains valid; this is a newly identified security-contract
+  decision, not a request to repeat that scope approval.
+human_decision: >-
+  On 2026-09-08 the user additionally explicitly authorized:
+  既存の署名付き承認機構を拡張し、対象証跡のハッシュと次の試行番号を限定した「復旧専用承認」を追加してよい
+  This resolves the dedicated signed recovery-purpose design question above.
+  The file scope includes the existing signer/validator, a dedicated recovery
+  request contract and its regression suite. Authorization logic stays inside
+  the already protected validator, not an unregistered helper. Shell
+  prechecks must invoke the same verifier, not divergent authorization logic.
+  Preserve signature verification and registered-approver checks; bind the
+  complete source manifest and immediately next attempt. This authorization
+  is not itself a generated signed sidecar or a successful recovery execution.
+  On 2026-09-08 the user explicitly authorized: 旧記録を保持し、証跡修復用チケットの作成・正式な再開手順の修正と検証まで対応範囲を拡張してよい
+  This covers repair-ticket creation and formal recovery procedure repair and
+  verification, not weakening checks, rewriting historical evidence, or
+  declaring old failures passed. Stop any operation denied by protected-file
+  enforcement; do not retry through an alternate wrapper, copy, or path.

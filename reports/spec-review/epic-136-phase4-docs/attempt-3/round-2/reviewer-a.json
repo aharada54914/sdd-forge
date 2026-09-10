@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a07cb8-0e4b-74d1-b510-b38d3488bf04",
+  "host_session_id": "01a07cb8-0e4b-74d1-b510-b38d3488bf04",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "a40f30c7431397e7ec5ace116fbce8480de4712013c17c6ef2a02373610046ff"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-2/precheck-result.json",
+      "sha256": "d7e3ccaa27b4ea48ee282744c21eca7a14596a8c73db4634a94a2abf860e89db"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-006 define inspectable documentation or executable outcomes. AC-003–AC-006 and AC-012 specify configuration, termination, verdict absence, gate outcomes, and observed effective defaults; TEST-003–TEST-006 and TEST-012 provide concrete assertions."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both stated goals are covered: failure-policy completeness and bounded invocation map to AC-001–AC-006 and AC-011–AC-012; threat-model coverage maps to AC-007–AC-010 and AC-013–AC-014. Each criterion has a corresponding test entry."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify observable exit codes, process liveness, verdict presence, elapsed time, and document contents. TEST-004(c1)/(c2) explicitly establish actual process-completion ordering and reject inconclusive iterations."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals exclude retries, output-validation changes, gate-logic changes, CLI pinning, and duplicate agent-control documentation. BL-001–BL-004 delimit preserved behavior, the permitted policy correction, and dual-runtime outcomes."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review-input blocker: requirements.md BL-005 explicitly requires rechecking every proposed target against current PROTECTED_GATE_SUFFIXES at specification review and recording the source hash and matches. Its named source, plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js, is outside the allowed manifest. The 2026-09-08 snapshot cannot substitute for that required recheck, and INV-017 is explicitly superseded. Consequently this review cannot establish the current human-application boundary for affected targets. This belongs to specification review because BL-005 expressly requires verification at this stage; Major reflects unresolved authorization applicability, without asserting that the stated protection boundary is absent. Under review-context-boundary.md, a required file outside the manifest warrants BLOCKED. Resolve the input-contract conflict through an authorized review invocation; no unlisted source was read."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Fail-closed behavior, process-tree cleanup, escalation, partial-verdict prevention, and completion races have planned validation in TEST-004–TEST-006. Threat assumptions, mitigations or residual risks, and bypass consequences have inspection targets in TEST-007–TEST-010 and TEST-013–TEST-014."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check found no domain/ directory; the explicit skip condition applies."
+    }
+  ]
+}

@@ -90,7 +90,7 @@ Scoped to all four for the same reason as AC-004: an earlier draft said "shell r
 
 #### AC-006
 
-With a timed-out panelist as the only non-Anthropic vendor, `check-cross-model` fails and does not report consensus PASS. This is the acceptance criterion that actually closes the issue's stated concern about `critical` verification; AC-005 alone only proves the runner behaved.
+With a timed-out panelist as the only non-Anthropic vendor, `check-cross-model` fails and does not report consensus PASS. Assert both resulting input sets: a valid remaining Anthropic verdict with insufficient diversity produces exit 1 and an aggregate FAIL; no verdict files at all produces exit 2 and no aggregate. The runner's timeout exit remains 1 in both cases. This is the acceptance criterion that actually closes the issue's stated concern about `critical` verification; AC-005 alone only proves the runner behaved. The empty-set distinction preserves the existing gate behavior (`check-cross-model.sh:89-97`; `check-cross-model.ps1:89-94`; INV-004), rather than equating a runner exit with a gate exit.
 
 ### REQ-004 — the threat model records a checklist cross-reference (#134)
 
@@ -150,12 +150,12 @@ The issue's second acceptance criterion is "スクリプト挙動と一致" — 
 
 #### AC-012
 
-The timeout default asserted by the tests is read from the same source the scripts read, so a future change to the default cannot leave the tests passing against a stale literal.
+The timeout default asserted by the tests is read from the same source the scripts read, so a future change to the default cannot leave the tests passing against a stale literal. For each runner, both unset and empty configuration must be observed using that effective bound, not merely accepted. The current product requirement remains 600 seconds (AC-003); changing it requires a specification change, not automatic acceptance of any value extracted from source. A missing or disabled deadline must fail the tests even when the CLI was invoked.
 
 ## Non-goals
 
 - **Retries.** `performance-checklist.md` mentions "bounded retries" alongside timeouts, but adding retry logic changes cost and latency characteristics of a `critical` gate and is not required by either issue. Recorded as out of scope, not overlooked.
-- **Rewriting the already-correct half of #133.** The absent/error path is documented and implemented correctly; this feature extends the taxonomy around it and must not restate or restructure it.
+- **Rewriting the absent/error handler.** Its runner behavior is preserved. Policy wording may receive only the explicit empty-verdict exit-code correction in BL-003 in addition to the taxonomy; this does not authorize changes to the gate or its fail-closed disposition.
 - **Adding or changing output validation.** The malformed-output path is already fully implemented at `run-panelist-gpt.sh:241-297` (and its `gemini` twin) and already exits 1 before writing a verdict. This feature *documents* it and writes no new validation code. Stated as a Non-goal because round 1 of spec review correctly found the boundary between "document existing behaviour" and "implement new behaviour" was drawn for the timeout and the absent/error path but left ambiguous for this row.
 - **Re-documenting `.codex/agents/*.toml`** (INV-010).
 - **Changing `check-cross-model`'s own logic.** The gate reads verdict files and is already correct (INV-004); the defect is upstream.
@@ -168,7 +168,7 @@ The timeout default asserted by the tests is read from the same source the scrip
 3. **A partially written verdict.** If the CLI is killed mid-write, a truncated JSON must not be left where `check-cross-model` will read it — hence AC-005's absence assertion. The existing scripts write to a scratch path and move on success; the design must preserve that ordering.
 4. **`SDD_PANELIST_TIMEOUT=0` or negative.** Rejected as a tool error (AC-003) rather than silently meaning "no bound", which would reintroduce the defect through configuration.
 5. **A vendor CLI that rate-limits by sleeping rather than erroring.** Indistinguishable from a hang at the process boundary, and correctly handled as one — this is the substance of AC-002.
-6. **The polling boundary race.** A polled deadline is not atomic with process completion: the CLI can exit successfully inside the very interval in which the poller is about to declare the deadline exceeded. The implementation must not report a timeout for a child that has already exited successfully — after the deadline fires, it must re-check whether the child completed before treating the expiry as authoritative. Raised by round 1 of spec review; the original edge-case list covered "killed mid-write" but not this, and every planned test used a 1-second bound against a 30-second stub, a margin so wide it could only ever exercise the unambiguously-hung case.
+6. **The polling boundary race.** A polled deadline is not atomic with process completion. After a deadline indication, the runner must re-check actual child completion before committing to timeout. If the child is already exited at that re-check, use its exit status and validate its complete output normally; a successful child with valid output succeeds. If the child is still running at that re-check, timeout is authoritative: terminate its tree/group, exit 1, and publish no verdict. Finishing output or a planned sleep before a deadline is not evidence of process exit. TEST-004(c) must establish and assert both orderings using observable process state; approximate wall-clock timing alone cannot select the expected outcome. The configured bound, no-orphan guarantee, and timeout fail-closed behavior remain unchanged.
 7. **A vendor CLI that ignores `SIGTERM`.** The Assumptions section anticipates this and requires escalation to `SIGKILL`, but a stub built from plain `sleep` dies on the first `SIGTERM` by default disposition, so it can never reach the escalation branch. A test suite built only from such a stub would pass against an implementation whose escalation is broken or absent. At least one sub-case must use a stub that installs a `SIGTERM` trap and keeps running.
 
 ## Assumptions
@@ -181,6 +181,60 @@ The timeout default asserted by the tests is read from the same source the scrip
 
 - **BL-001 — the absent/error path is behaviour-preserving.** A CLI that is absent or exits non-zero must behave exactly as it does today (exit 1, no verdict). The timeout is an additional bound, not a rewrite of the existing handler.
 - **BL-002 — `check-cross-model` is unchanged.** No file under `plugins/sdd-quality-loop/scripts/check-cross-model.*` is edited by this feature.
-- **BL-003 — the existing policy text is extended, not replaced.** `cross-model-verification-policy.md:28-31` and `:202-210` keep their current meaning; the taxonomy is added around them.
+- **BL-003 — preserve the fail-closed policy, correct the empty-set exit code.** Preserve the absent/error posture and extend the taxonomy. The historical empty-verdict policy quoted in INV-005 incorrectly said exit 1, whereas INV-004 records exit 2. Explicitly permit that one numeric correction to exit 2, with no aggregate and no consensus PASS, matching the unchanged gate. This supersedes any instruction to preserve the historical empty-set number; it does not permit softening failure, skipping diversity, or changing gate code. The corrected policy is currently at `cross-model-verification-policy.md:230-240`; re-verify these citations at review and implementation time.
 - **BL-004 — dual-runtime parity.** Whatever the shell runners do, the PowerShell runners must do. This repository enforces parity between the two runtimes and a one-sided fix would fail that.
-- **BL-005 — no file in `PROTECTED_GATE_SUFFIXES` is written.** Confirmed for every target of this feature by direct read of `guard-invariants.generated.js:5` (INV-017), so no `human-copy` staging round applies.
+- **BL-005 — no agent writes a protected file.** Re-check each proposed target by suffix against the current `PROTECTED_GATE_SUFFIXES` at specification review, design review, task drafting, and immediately before implementation. Record the source hash and matching targets at each consumption point; never inherit an exemption from INV-017. On 2026-09-08, direct inspection of `plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js:5` and `guard_invariants.py:4` found both shell `run-panelist-*` scripts protected, superseding INV-017's historical no-match conclusion. A matching target requires the approved human-application workflow; an unavailable or denied application blocks that target, not permission to bypass enforcement. A no-human-copy conclusion is valid only for the exact re-verified nonmatching targets. BL-002 still forbids changes to `check-cross-model.*` regardless of who applies them.
+
+## Review correction precedence — 2026-09-08
+
+The current BL-003, BL-005, AC-006, AC-012 and Edge Case 6 are normative for this amendment. INV-005's quoted exit 1 and INV-017's protected-list snapshot are retained as historical investigation evidence, not current behavioral or authorization requirements. Any sibling restatement of the old empty-set number, unconditional no-staging exemption, approximate-time success rule, or invoke-only default check must be reconciled under its own review gate before it can authorize implementation; a previously recorded PASS does not establish conformance to these amended requirements.
+
+### BL-005 review-input procedure and human source evidence
+
+For a review whose allowed inputs exclude guard sources, the orchestrator must
+obtain current source observations before launching the review, using human
+collection if the protection hook denies the agent's probe. Bind the observation
+time, source hashes, relevant source excerpts and target classification into this
+canonical requirements input. The independent reviewer checks that evidence and
+its limitations within the hashed input; it must not read an unlisted guard file.
+This assigns collection and review to their respective roles rather than waiving
+BL-005's re-verification. A changed source, new target, missing observation or
+incomplete classification requires refreshed evidence before consumption. Every
+later design, task and implementation boundary still requires its own refresh.
+No source observation authorizes an otherwise denied operation.
+
+Human collection received for this specification review at
+2026-09-07T23:05:35.797Z–2026-09-07T23:05:35.801Z reported four source records
+and `errors=0`. Original transcript SHA-256:
+`df555c9a145143546718a48329a8612c456d45686b2de7ac265a8b8bf6e58dc7`.
+The transcript is retained in the user attachment
+`/Users/jrmag/.codex/attachments/eaff7de8-878b-481d-acc7-8ce29f82be39/pasted-text.txt`;
+reviewers do not need or receive access to that external path. These are
+human-reported source hashes, not an independently executed protection verdict.
+
+| Observed source | SHA-256 |
+|---|---|
+| Repository `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` | `0202c8f32f8810d77ba438a965f6b57213fb907f1a3c724f318cda9fd7b19d90` |
+| Installed `sdd-quality-loop/1.17.0/scripts/sdd-hook-guard.py` | `da37e08d7341f58ee61bbd0aa146486be21a069b4435ccd449114eaf72363889` |
+| Repository `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py` | `777a8a0f880f52a066b111daf6f8e204381f6a3604c77a70a3dce0070b0b9197` |
+| Installed `sdd-quality-loop/1.17.0/scripts/generated/guard_invariants.py` | `777a8a0f880f52a066b111daf6f8e204381f6a3604c77a70a3dce0070b0b9197` |
+
+The installed root is
+`/Users/jrmag/.codex/plugins/cache/sdd-plugins/sdd-quality-loop/1.17.0`.
+Both main-source excerpts show the adjacent generated-module path at line 955,
+assignment from `PROTECTED_GATE_SUFFIXES` at line 1008, and normalized suffix
+matching at line 1077. Both complete generated inventory lines (line 4) include
+`plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh` and
+`plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh`. Accordingly both shell
+runner targets require human application. The `.ps1` twins, the policy document
+and `docs/THREAT-MODEL.md` have no matching entry in these observed suffix lists;
+this bounded inventory observation is not a blanket exemption from other guards.
+`plugins/sdd-quality-loop/scripts/check-cross-model.sh` is also listed, but
+BL-002 prohibits editing either gate implementation regardless of membership.
+Any additional implementation target must be classified before use.
+
+The differing main-source hashes must not be described as identical installations.
+The matching generated hashes and cited loading/matching spans support this
+specific source-membership finding only. They do not prove runtime hook activation,
+end-to-end write rejection or permission to bypass a refusal. INV-017's historical
+no-staging conclusion remains superseded; prior review failures remain unchanged.

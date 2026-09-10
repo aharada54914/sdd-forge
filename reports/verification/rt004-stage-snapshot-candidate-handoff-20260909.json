@@ -1,0 +1,23 @@
+{
+  "decision": [
+    "RT004 only: stage-owned snapshot candidate, not a protected-source application.",
+    "Keep opening verification in the parent function; preserve original Git evidence identity separately from JSON read paths.",
+    "User permits CI/main progression after this defect is genuinely fixed; no fabricated PASS or skipped required checks."
+  ],
+  "unresolved": [
+    "Limited independent static review found no new Critical/Major; human protected application remains outstanding.",
+    "Candidate has not executed; late-contract RED is not yet fixed in the live validator.",
+    "Lifecycle allocation/cleanup/signals, other evidence mutations and full Bash/PowerShell coverage remain unverified."
+  ],
+  "evidence": [
+    "Touched reports/verification/adr-workflow-bash-snapshot-composed-candidate-20260909.patch; sha256 707df63e253eb90805ac9d209bc5295bf017d15befe32cfa34c1b6a94fbce5fb.",
+    "git apply --numstat parses 533 added / 18 removed lines; parsing is not applicability or runtime proof.",
+    "Last actual late-contract test: 4 passed / 1 failed; history preservation: 6 passed / 0 failed.",
+    "GitHub refresh: 11 open PRs; no running checks returned; unresolved failing checks remain."
+  ],
+  "next_action": [
+    "Preserve independent-review warnings: legacy prior-summary behavior, non-atomic acquisition and unverified lifecycle/platform coverage.",
+    "Perform hash-bound human application and original-path tests; static review is not formal or runtime PASS.",
+    "Run full required checks and real CI before merging; keep historical failures immutable."
+  ]
+}

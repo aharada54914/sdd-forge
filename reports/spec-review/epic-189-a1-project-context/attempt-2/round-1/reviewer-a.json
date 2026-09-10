@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a085bd-2eff-7c81-9d38-d39bca959a36",
+  "host_session_id": "01a085bd-2eff-7c81-9d38-d39bca959a36",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "a7e9299a560f0ede540e0778bc79e71e3dc2756687da70c07784577f3cae8b61"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "079567e6ef2ec31c96c77d4e635f1097e06ae74757bb668dd56050620d90f11a"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-2/round-1/precheck-result.json",
+      "sha256": "0a11b7412b20be6d07d4a934a492d59c78a00bbdaf28e0064ad0c7669f99fa0c"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-011 specify inspectable schemas, canonical bytes, signatures, validation outcomes, protection inventories, consumer behavior and verification surfaces. The RT-20260909-002 amendment defines exact decoded response text, required members, nonce constraints, adapter selection and isolated failure categories (requirements.md:24-72), supporting concrete implementation and verification decisions."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001 through AC-046 and their Requirement/Test-ID mappings cover all eleven requirements. The amendment explicitly maps its response and cleanup changes to REQ-010, AC-027/AC-032 and independently named TEST-027-RT002/TEST-032-RT002 cases (acceptance-tests.md:3-128)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance targets specify observable validation results, byte/hash equality, staged versus live state, denial outcomes and recovery states. Amendment fixtures require exact exit/category assertions and absence of success markers; the valid response and emitted patch have exact positive assertions (acceptance-tests.md:12-22)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly separate A1 schemas and verification logic from downstream capability machinery, repository instance data and live cross-runtime enforcement. The amendment limits recovery admission to RT-20260909-002 repair and scoped provenance reviews, excluding ordinary bootstrap, unrelated work, quality-gate completion and integration (requirements.md:90-106)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The post-implementation amendment lacks the required approval/provenance declaration. requirements.md:11-21 references historical Passed/Done records, requirements.md:90-98 asserts a human-authorized recovery admission, and acceptance-tests.md:5-8 and :135-139 reference existing RED fixtures and historical A1 Done while Spec-Review-Status is Pending. However, the completely read investigation.md has no '## Amendment Re-Review Context' section, full amendment commit hashes, amended-document fingerprints, dated verbatim human approval quotation, or referenced later-phase artifact pins. Under spec-review-calibration.md's Amendment Re-Review Context rules, phase-sequencing suppression therefore does not apply. A downstream task author or verifier cannot establish the authorized post-implementation amendment boundary from this package. This is a specification-stage approval-boundary defect, not a request for implementation evidence or completed tests; Critical follows the calibration's unsafe/unauthorized workflow-boundary classification. Add a conforming, hash-pinned declaration with all four required evidence elements before resubmission."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Approval forgery, weakening, protected writes and publication failures have planned validation surfaces in AC-014, AC-019/020, AC-023, AC-030, AC-033, AC-036 and AC-043. The amendment separately specifies synthetic negative fixtures and a fresh installed-verifier/native-dispatch activation observation, explicitly declining to treat fixtures as host attestation or A8 completion (requirements.md:76-106; acceptance-tests.md:135-139)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check found no domain/ directory; the check's explicit skip condition applies."
+    }
+  ]
+}

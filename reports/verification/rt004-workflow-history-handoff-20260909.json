@@ -1,0 +1,22 @@
+{
+  "decision": [
+    "Keep RT004's approved complete ADR binding contract; do not execute copied/candidate validators or bypass protected edits.",
+    "Preserve legacy no-extension opening semantics while checking new ADR historical bindings before the verified-opening early return."
+  ],
+  "unresolved": [
+    "Both real workflow validators accept null/object/one-sided ADR extensions during next-round opening: 6 expected rejections fail.",
+    "Complete Bash and PS5.1 workflow candidate consumers, valid extended historical fixtures, independent review and protected human application remain pending.",
+    "All 7 open PRs and overall issue-resolution/main-integration goal remain incomplete."
+  ],
+  "evidence": [
+    "reports/verification/rt004-workflow-history-red-20260909.md",
+    "tests/impl-review-adr-inputs.tests.sh --workflow-only: 2 passed, 6 failed, exit 1; unchanged actual validators; macOS Bash and pwsh.",
+    "Test SHA256 e5ce411d69daa75b55790a6280982e17fdab483b2c74604dd02d8bdacc48a008",
+    "Bash check-workflow-state.sh:826 and PowerShell check-workflow-state.ps1:1060 early returns precede contract validation."
+  ],
+  "next_action": [
+    "Continue the complete historical-binding validator patch DATA before the opening return in both workflow consumers. Do not merely reject malformed shapes and call complete.",
+    "Prove complete new ADR-bound historical and current-PASS rounds as well as all missing/divergent bindings; preserve old FAIL and reservations.",
+    "Obtain independent security/contract review before human application; only merge after formal gates and required CI pass."
+  ]
+}

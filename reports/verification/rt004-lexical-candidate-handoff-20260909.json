@@ -1,0 +1,48 @@
+{
+  "decision": [
+    "Keep RT-20260908-004 within its approved ADR contract plan",
+    "Prepare patch data only; no protected-validator application or copied execution"
+  ],
+  "unresolved": [
+    "Admission call sites now connected in patch data only; seven downstream runtime consumers remain incomplete",
+    "PowerShell UnixStat candidate needs consumer regressions; Windows reparse rejection in Bash remains unresolved",
+    "Candidate execution and native parity are unverified",
+    "A9 cross-epic scope and separate PR381/CI requirement amendments still await explicit approval"
+  ],
+  "evidence": [
+    "2026-09-09: historical-output-binding candidate 2a20fe9a8249c88ad6d8a230aa3691c6cba5b67548df95444500962f0046cce8 supersedes 533a24fe generation candidate. Actual PS workflow opening early-return at 1059 bypasses later reviewer checks; prior assumption corrected. Candidate verifies actual reviewer A/B output role/schema/run/session and exact precheck/design/ADR pins alongside contract manifests, safe paths and output rehash. Seven hunk anchors/counts verified against fresh actual source; actual protected diff empty. NOT runtime tested or independently reviewed. See rt004-history-output-binding-20260909.md.",
+    "reports/verification/rt004-powershell-history-candidate-20260909.md",
+    "CURRENT PowerShell generation/history candidate 533a24fe12a44e1098f0032330cf977b6bfc8af4b441d359d74b2c5112b2d070; supersedes 2c61323a8ec25a09556065717187c6e47a07812c5cccc284c304eedb7f1a5ccd below",
+    "Seven final hunks/source anchors checked against fresh actual PowerShell source; historical NEEDS_WORK binds saved hashes without requiring current ADR bytes; unchanged design plus ADR set still rejects; not executed",
+    "reports/verification/rt004-persisted-powershell-candidate-20260909.md",
+    "PowerShell task predecessor candidate 6125fa788b1cf93c755500f663def8f5547125fc64d9ed415bd1dc4cf57c3565: three final hunks/source anchors checked, live target diff empty, not applied/executed",
+    "Generic macOS PowerShell JSON round-trip confirmed System.Int64 and empty-array preservation; first command quoting failed before evaluation; no candidate runtime test claimed",
+    "reports/verification/rt004-persisted-bash-candidate-20260909.md",
+    "Partial persisted Bash candidate 0432bc8486bca2e54ff0e0f819795462bafcd9389d930e7f93a86c0702d5fe0d: five hunks and actual shared-library anchors checked as data only; not applied or executed",
+    "Persisted candidate binds contract/precheck identity, core/layer hashes, both manifests and complete current ADR set; legacy, concurrency and Windows reparse regressions remain pending",
+    "Bash generation candidate source line anchors have drifted; not an application-ready package",
+    "reports/verification/rt004-canonical-layer-candidate-20260909.md",
+    "CURRENT Bash candidate c6363960ceaf56eef8f6db55b7e761cd29792d79b1814560b72737c6b3d5c840; CURRENT PowerShell candidate 2c61323a8ec25a09556065717187c6e47a07812c5cccc284c304eedb7f1a5ccd; previous hashes below are historical",
+    "Canonical extension layer ordering and strict core/layer digest shapes added in patch data; twelve hunk counts/offsets checked, actual precheck diffs empty, no candidate execution",
+    "reports/verification/rt004-powershell-precheck-candidate-20260909.md",
+    "PowerShell generation/verification patch SHA-256 096fcc83db40c6cb11155b703a61f4fd00ed6c620ae7dcc89ef0ac66fe0e5030; data-only, unapplied, unexecuted",
+    "Six PowerShell patch-data counts and source anchors matched; candidate-specific regression and native parity not run",
+    "reports/verification/rt004-precheck-generation-candidate-20260909.md",
+    "Bash precheck generation companion patch SHA-256 31af58442668921a310a705e57d1c3438bb5fa120b999bb30c4e369db83ccb72; not applied or executed",
+    "Generation candidate presence detection now distinguishes valid absence from JSON read/parse failure; exactly one object required",
+    "Generation patch-data counts 1/111,1/3,1/27,1/3,6/3,1/2 and cumulative offsets checked; no applicability or runtime claim",
+    "reports/verification/rt004-admission-legacy-boundaries-20260909.md",
+    "reports/verification/adr-runtime-lexical-candidate-status-20260909.md",
+    "Candidate SHA-256 ebbb6f890c72ae6f375608d26cb764d3639435be7dba4f79b4f1bde0e7a5cb1c",
+    "Six patch-data counts and cumulative start positions checked: Bash 1/139,3/30,2/7; PowerShell 1/189,1/37,3/5; not applicability or execution",
+    "Both call sites inspect pinned role-authorized prechecks even when every ADR is omitted; only complete verified path/hash sets extend allowlist",
+    "Actual-runtime baseline: 112 passed / 64 failed across 176 cases; new legacy-declared, legacy-injected and zero-bound controls all 12 passed",
+    "64 failure lines exactly equal prior 164-case run; no candidate test pass claimed",
+    "Test SHA-256 4ab1d3590d9b0dc1f2eb84bb83a74057b29bac221c6a9427d2fceaa9d8db5d2c; handle 38538 terminal exit 1",
+    "Log /tmp/rt004-admission-legacy-boundaries-20260909.log SHA-256 92257e9ecd8c71ff4bfb5257ab2bad4952c8a091f1994299517bd02506c67f8c",
+    "Live validator diffs empty; test bash -n and git diff --check exit 0",
+    "Fresh GitHub observation: seven unchanged open heads, all CheckRuns terminal; PR400 green but formal findings unresolved; PR245 conflicts/no Actions",
+    "Previous task-sync failed from bare memoryctl not in PATH; documented absolute memoryctl path is available"
+  ],
+  "next_action": "Complete workflow-state ADR history checks BEFORE verified-opening early return, retaining legacy semantics and full identity/verdict/summary isolation; implement PS5.1-safe consumer and Bash parity, then actual regression coverage and independent review before any human application. Do not assume JSON loading proves failed-round evidence validity."
+}

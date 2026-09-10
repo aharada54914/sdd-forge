@@ -1,0 +1,6 @@
+{
+  "decision": ["Continue approved dependency-only integration; strict updated base and all required CI are mandatory; no failure waiver."],
+  "unresolved": ["PR391 fresh package tests and CI pending; independent registry engines claim rejected.", "PR400 termination confirmed but missing combined stage file does not identify the internal delay.", "CI optimization concrete design acceptance remains pending, separately from approved issue work."],
+  "evidence": ["PR391 head e75b8f804ec381a12e92dc5a5509bb00ad426357, main e5ff39d95adadb7c0628132313392ec03c7f21c4, live pending run34011363087.", "PR400 failed job101424396065 step18 exacthead c3b3dd21f56a923baf0ca5ac3c8b9ec6f359398d.", "reports/verification/pr391-integration-preflight-20260906.md"],
+  "next_action": ["Collect exact-head package logs from pr364_doc_fix.", "Verify CI completion, fresh head/base and independent review before merging.", "Obtain safely sanitized PR400 stage evidence without weakening timeout or tests."]
+}

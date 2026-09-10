@@ -1,0 +1,39 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -984,1 +984,35 @@
++# Called only for ADR-extended records, before opening freshness tolerance.
++# Full history binding validates manifest structure and pins separately.
++function Test-AdrSharedLayerAgreement($Contract, $ReviewerA, $ReviewerB,
++    [string]$Feature, [string]$RepositoryRoot) {
++    $recorded = Get-RecordedRepositoryRoot $Contract $RepositoryRoot
++    if (-not $recorded.Valid) { return $false }
++    # Ordinal keys: PowerShell's default hashtable is case-insensitive.
++    $hashes = [Collections.Generic.Dictionary[string,string]]::new(
++        [StringComparer]::Ordinal)
++    $owners = @($Contract.reviewers) + @($ReviewerA, $ReviewerB)
++    foreach ($owner in $owners) {
++        foreach ($item in @($owner.allowed_input_manifest)) {
++            if ($null -eq $item -or $item.path -isnot [string]) { return $false }
++            $relative = Get-RepositoryRelativePath $item.path $RepositoryRoot $recorded.Root
++            if ($null -eq $relative) { return $false }
++            $isLayer = $false
++            foreach ($name in @('ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
++                if ([string]::Equals($relative, "specs/$Feature/$name", [StringComparison]::Ordinal)) {
++                    $isLayer = $true
++                    break
++                }
++            }
++            if (-not $isLayer) { continue }
++            if ($item.sha256 -isnot [string] -or $item.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++                return $false
++            }
++            if ($hashes.ContainsKey($relative) -and $hashes[$relative] -cne $item.sha256) {
++                return $false
++            }
++            $hashes[$relative] = $item.sha256
++        }
++    }
++    return $true
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

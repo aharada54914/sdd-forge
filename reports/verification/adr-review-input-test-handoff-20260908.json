@@ -1,0 +1,7 @@
+{
+  "decision": ["RT-20260908-004 scope remains approved; preserve protected application boundary and existing FAIL records."],
+  "unresolved": ["Complete protected product correction and human application patch are not prepared.", "Producer, persisted-contract, parser, lifecycle and native Windows coverage remain incomplete."],
+  "evidence": ["Expanded real-validator suite: first run exit 1, 4 passed and 44 failed; forty omission variants reserved fixture identities.", "reports/verification/adr-review-input-expanded-red-20260908.md", "Primary test-delta review: Critical 0; combined omission cases do not isolate malformed-field rejection."],
+  "next_action": ["Complete the reviewed human-application patch without retrying a denied protected edit.", "After valid bound admission works, test malformed fields with complete manifests as well as omission."],
+  "capture_result": "Second execution terminated exit 1, passed=4 failed=44; complete stdout/stderr captured in adr-review-input-expanded-red-20260908.log."
+}

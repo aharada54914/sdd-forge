@@ -1,0 +1,23 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -1448,11 +1448,18 @@
+         return ($Value -is [int] -or $Value -is [long] -or
+             $Value -is [double] -or $Value -is [decimal])
+     }
++    # This value comes only from validated JSON via ConvertFrom-Json.
++    # Some PowerShell versions turn nonempty timestamp strings into dates;
++    # JSON objects/arrays/numbers cannot produce these CLR date types here.
++    # Do not cast other values: the raw JSON contract remains nonempty string.
++    $generatedAt = $fields['generated_at']
++    $generatedAtIsString = ($generatedAt -is [string] -and $generatedAt.Length -gt 0) -or
++        $generatedAt -is [datetime] -or $generatedAt -is [datetimeoffset]
+     if ($fields['schema'] -isnot [string] -or
+         -not [string]::Equals($fields['schema'], 'integrated-summary/v1', [StringComparison]::Ordinal) -or
+         -not (IsNumber $fields['attempt']) -or $fields['attempt'] -ne $Attempt -or
+         -not (IsNumber $fields['round']) -or $fields['round'] -ne $Round -or
+-        $fields['generated_at'] -isnot [string] -or $fields['generated_at'].Length -eq 0) {
++        -not $generatedAtIsString) {
+         throw 'ADR summary identity invalid'
+     }
+     $checkIds = $fields['reviewer_a_check_ids']

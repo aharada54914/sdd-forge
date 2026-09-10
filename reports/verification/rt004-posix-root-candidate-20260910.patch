@@ -1,0 +1,48 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -24,2 +24,0 @@
+-repository_root=$(cd "$repository_root" && pwd -P) ||
+-  fail PATH 'repository root cannot be resolved'
+@@ -295,1 +293,15 @@
++# Preserve the supplied spelling until the validated stage is known.
++# This is a stationary root check, not atomic descendant acquisition.
++if [[ "$stage" == impl ]]; then
++  [[ "$repository_root" == /* && "$repository_root" != *//* &&
++     "$repository_root" != *\\* &&
++     ! "$repository_root" =~ (^|/)\.\.?(/|$) &&
++     ( "$repository_root" == / || "$repository_root" != */ ) ]] ||
++    fail PATH 'implementation review requires an unambiguous absolute repository root'
++  [[ ! -L "$repository_root" ]] ||
++    fail PATH 'implementation review root is a symbolic link'
++else
++  repository_root=$(cd "$repository_root" && pwd -P) ||
++    fail PATH 'repository root cannot be resolved'
++fi
+ ledger="$repository_root/reports/review-context/identity-ledger.json"
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -173,2 +173,0 @@
+-    $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryRoot).Path)
+-    $rootPrefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+@@ -248,1 +246,19 @@
++    # POSIX spelling must be checked before Resolve-Path erases aliases.
++    # Windows drive/UNC acquisition remains a separate, unverified change.
++    if ($document.stage -ceq 'impl' -and -not $IsWindows) {
++        if (-not $RepositoryRoot.StartsWith('/', [StringComparison]::Ordinal) -or
++            $RepositoryRoot.Contains('//') -or $RepositoryRoot.Contains('\') -or
++            $RepositoryRoot -cmatch '(^|/)[.]{1,2}(/|$)' -or
++            ($RepositoryRoot -cne '/' -and $RepositoryRoot.EndsWith('/', [StringComparison]::Ordinal))) {
++            Fail-ReviewContext 'PATH' 'implementation review requires an unambiguous absolute repository root'
++        }
++        $rootItem = Get-Item -LiteralPath $RepositoryRoot -Force -ErrorAction Stop
++        if (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $null -ne $rootItem.LinkType) {
++            Fail-ReviewContext 'PATH' 'implementation review root is a symbolic link'
++        }
++        $root = $RepositoryRoot
++    } else {
++        $root = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryRoot).Path)
++    }
++    $rootPrefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+     $ledger = Join-Path $root 'reports/review-context/identity-ledger.json'

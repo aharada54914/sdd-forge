@@ -21,8 +21,6 @@ command -v jq >/dev/null 2>&1 ||
   fail MANIFEST 'manifest is missing or is not a regular file'
 [[ -d "$repository_root" ]] ||
   fail PATH 'repository root is missing'
-repository_root=$(cd "$repository_root" && pwd -P) ||
-  fail PATH 'repository root cannot be resolved'
 
 sha256_file() {
   local path=$1
@@ -45,6 +43,53 @@ sha256_text() {
   fi
 }
 
+admission_json_members() {
+  jq -Rse '
+    ltrimstr("\uFEFF") as $raw |
+    # A raw lexical pass retains repeated keys that ordinary jq object parsing
+    # would collapse. All inner groups are noncapturing; capture 0 is the token.
+    "[ \t\r\n]*(\"(?:[^\"\\\\\\x00-\\x1f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"|-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\\[\\]:,])" as $pattern |
+    reduce ($raw | match($pattern; "g")) as $match (
+      {"end":0, stack:[{kind:"root",phase:"value",keys:{}}]};
+      if $match.offset != .end then error("ADR JSON invalid token") else . end |
+      .end = ($match.offset + $match.length) |
+      $match.captures[0].string as $token |
+      ((.stack|length)-1) as $i |
+      .stack[$i] as $frame |
+      if $frame.phase == "colon" then
+        if $token != ":" then error("ADR JSON member has no colon")
+        else .stack[$i].phase = "value" end
+      elif $frame.phase == "comma-or-end" then
+        (if $frame.kind == "object" then "}" else "]" end) as $close |
+        if $token == $close then .stack |= .[:-1]
+        elif $token != "," then error("ADR JSON missing separator")
+        else .stack[$i].phase = (if $frame.kind == "object" then "key" else "value" end) end
+      elif $frame.phase == "key-or-end" and $token == "}" then .stack |= .[:-1]
+      elif $frame.phase == "value-or-end" and $token == "]" then .stack |= .[:-1]
+      elif $frame.phase == "key" or $frame.phase == "key-or-end" then
+        if ($token|startswith("\"")|not) then error("ADR JSON key is not a string")
+        else
+          # Decode only one string, not an object. Unicode-escaped aliases
+          # therefore collide, while keys in sibling objects stay independent.
+          ($token|fromjson) as $key |
+          if ($frame.keys|has($key)) then error("ADR JSON duplicate decoded member")
+          else .stack[$i].keys[$key] = true | .stack[$i].phase = "colon" end
+        end
+      elif $frame.phase != "value" and $frame.phase != "value-or-end" then
+        error("ADR JSON trailing content")
+      else
+        .stack[$i].phase = (if $frame.kind == "root" then "done" else "comma-or-end" end) |
+        if $token == "{" then .stack += [{kind:"object",phase:"key-or-end",keys:{}}]
+        elif $token == "[" then .stack += [{kind:"array",phase:"value-or-end",keys:{}}]
+        elif (["}","]",":",","]|index($token)) != null then error("ADR JSON missing value")
+        else . end
+      end
+    ) |
+    if ($raw[.end:]|test("^[ \t\r\n]*$")|not) then error("ADR JSON trailing invalid token")
+    elif (.stack|length) != 1 or .stack[0].phase != "done" then error("ADR JSON incomplete")
+    else true end
+  ' "$1" >/dev/null
+}
 is_canonical_path() {
   local path=$1
   [[ "$path" =~ ^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$ ]] &&
@@ -292,6 +337,20 @@ esac
 [[ "$host_session_id" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]] ||
   fail IDENTITY 'host-session ID must be a nonblank canonical identifier'
 
+# Preserve the supplied spelling until the validated stage is known.
+# This is a stationary root check, not atomic descendant acquisition.
+if [[ "$stage" == impl ]]; then
+  [[ "$repository_root" == /* && "$repository_root" != *//* &&
+     "$repository_root" != *\\* &&
+     ! "$repository_root" =~ (^|/)\.\.?(/|$) &&
+     ( "$repository_root" == / || "$repository_root" != */ ) ]] ||
+    fail PATH 'implementation review requires an unambiguous absolute repository root'
+  [[ ! -L "$repository_root" ]] ||
+    fail PATH 'implementation review root is a symbolic link'
+else
+  repository_root=$(cd "$repository_root" && pwd -P) ||
+    fail PATH 'repository root cannot be resolved'
+fi
 ledger="$repository_root/reports/review-context/identity-ledger.json"
 ledger_component="$repository_root"
 for component in reports review-context identity-ledger.json; do
@@ -476,25 +535,199 @@ precheck_rel=$(jq -r '
 precheck_abs=''
 [[ -n "$precheck_rel" ]] && precheck_abs="$repository_root/$precheck_rel"
 
+impl_precheck_base64=''
+impl_design_base64=''
+impl_design_captured=false
+verified_adr_inputs='[]'
+adr_binding_verified=false
+impl_any_adr_extension=false
+
+# Restricted inline-code grammar, applied to the already hash-checked bytes.
+adr_declared_paths() {
+  LC_ALL=C awk '
+    function width(s, i, ch, n) {
+      n = 0
+      while (substr(s, i + n, 1) == ch) n++
+      return n
+    }
+    function escaped(s, i, n) {
+      n = 0
+      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
+      return n % 2
+    }
+    {
+      line = $0; sub(/\r$/, "", line)
+      match(line, /^ */); indent = RLENGTH
+      rest = substr(line, indent + 1); ch = substr(rest, 1, 1)
+      if (fence != "") {
+        if (indent <= 3 && ch == fence) {
+          n = width(rest, 1, ch)
+          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
+        }
+        next
+      }
+      if (indent >= 4 || rest ~ /^\t/) next
+      if (ch == "\140" || ch == "~") {
+        n = width(rest, 1, ch)
+        if (n >= 3) { fence = ch; fence_width = n; next }
+      }
+      i = 1
+      while (i <= length(line)) {
+        if (substr(line, i, 1) != "\140") { i++; continue }
+        n = width(line, i, "\140")
+        if (escaped(line, i)) { i += n; continue }
+        j = i + n; closed = 0
+        while (j <= length(line)) {
+          if (substr(line, j, 1) != "\140") { j++; continue }
+          m = width(line, j, "\140")
+          if (!escaped(line, j) && m == n) { closed = 1; break }
+          j += m
+        }
+        if (!closed) break
+        value = substr(line, i + n, j - i - n)
+        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/) print value
+        i = j + n
+      }
+    }
+  ' | LC_ALL=C sort -u
+}
+
+# Called only after all non-ADR manifest entries have passed the original loop.
+# A precheck with no extension keeps legacy rules; explicit null is not absence.
+verify_captured_adr_binding() {
+  local extension declared declared_set expected_set invocation_set design_hash
+  verified_adr_inputs='[]'
+  if [[ -z "$precheck_rel" ]]; then
+    adr_binding_verified=true
+    return 0
+  fi
+  extension=$(read_precheck_content | jq -er 'if has("adr_inputs") then "present" else "absent" end') || return 1
+  if [[ "$extension" == absent && "$impl_any_adr_extension" != true ]]; then
+    adr_binding_verified=true
+    return 0
+  fi
+  jq -e --arg p "$precheck_rel" '[.allowed_input_manifest[] |
+    select(.path | test("^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$"))] |
+    length == 1 and .[0].path == $p' "$manifest" >/dev/null || return 1
+  read_precheck_content | jq -e --arg f "$feature" --arg p "$precheck_rel" '
+    .schema == "impl-review-precheck/v1" and .feature == $f and
+    (.attempt | type == "number" and . >= 1 and . == floor) and
+    (.round | type == "number" and . >= 1 and . == floor) and
+    ($p == ("reports/impl-review/" + $f + "/attempt-" + (.attempt | tostring) +
+      "/round-" + (.round | tostring) + "/precheck-result.json")) and
+    (.design_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
+    (.adr_inputs | type == "array" and all(.[];
+      type == "object" and keys == ["path", "sha256"] and
+      (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
+      (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
+    ([.adr_inputs[].path] == ([.adr_inputs[].path] | sort | unique))
+  ' >/dev/null || return 1
+  [[ "$impl_design_captured" == true ]] || return 1
+  design_hash=$(read_precheck_content | jq -er '.design_sha256') || return 1
+  jq -e --arg p "specs/$feature/design.md" --arg h "$design_hash" '
+    [.allowed_input_manifest[] | select(.path == $p)] | length == 1 and .[0].sha256 == $h
+  ' "$manifest" >/dev/null || return 1
+  declared=$(printf '%s' "$impl_design_base64" | base64 -d | adr_declared_paths) || return 1
+  declared_set=$(printf '%s' "$declared" | jq -Rsc 'split("\n") | map(select(length > 0))') || return 1
+  read_precheck_content | jq -e --argjson wanted "$declared_set" '[.adr_inputs[].path] == $wanted' >/dev/null || return 1
+  expected_set=$(read_precheck_content | jq -cS '.adr_inputs') || return 1
+  invocation_set=$(jq -cS '[.allowed_input_manifest[] | select(.path | startswith("docs/adr/"))] | sort_by(.path)' "$manifest") || return 1
+  [[ "$expected_set" == "$invocation_set" ]] || return 1
+  verified_adr_inputs=$expected_set
+  adr_binding_verified=true
+}
+read_precheck_content() {
+  if [[ "$stage" == impl ]]; then
+    [[ -n "$impl_precheck_base64" ]] ||
+      fail CONTRACT 'implementation precheck was not captured'
+    printf '%s' "$impl_precheck_base64" | base64 -d
+  else
+    cat -- "$precheck_abs"
+  fi
+}
+
 while IFS=$'\t' read -r path expected_hash; do
   is_canonical_path "$path" ||
     fail PATH "$role contains a non-canonical repository-relative path: $path"
   is_forbidden_review_output "$path" &&
     fail PATH "$role contains a forbidden raw reviewer report: $path"
-  path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash" ||
-    fail PATH "$role contains a real but role-unlisted path: $path"
+  if [[ "$stage" == impl && "$path" == docs/adr/* ]]; then
+    if [[ "$adr_binding_verified" != true ]]; then
+      verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+    fi
+    [[ "$role" == impl-reviewer-a || "$role" == impl-reviewer-b ]] ||
+      fail PATH 'ADR inputs require an implementation reviewer'
+    jq -e --arg p "$path" --arg h "$expected_hash" 'any(.[]; .path == $p and .sha256 == $h)' \
+      <<< "$verified_adr_inputs" >/dev/null || fail PATH 'ADR input is outside the verified declaration'
+  else
+    path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash" ||
+      fail PATH "$role contains a real but role-unlisted path: $path"
+  fi
 
   candidate="$repository_root/$path"
   current="$repository_root"
   IFS='/' read -r -a components <<< "$path"
   for component in "${components[@]}"; do
+    if [[ "$stage" == impl ]]; then
+      # Reject stationary case aliases; this is not atomic acquisition.
+      (
+        unset GLOBIGNORE
+        shopt -s nullglob dotglob
+        exact_entry=false
+        for entry in "$current"/*; do
+          if [[ "${entry##*/}" == "$component" ]]; then
+            exact_entry=true
+            break
+          fi
+        done
+        "$exact_entry"
+      ) || fail PATH "$role input has no exact-name directory entry: $path"
+    fi
     current="$current/$component"
     [[ ! -L "$current" ]] ||
       fail PATH "$role input traverses a symbolic link: $path"
   done
   [[ ! -L "$candidate" && -f "$candidate" ]] ||
     fail PATH "$role contains a missing or non-regular input: $path"
+  if [[ "$stage" == impl && ( "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ||
+        "$path" == reports/impl-review/*/attempt-*/round-*/precheck-result.json ) ]]; then
+    command -v base64 >/dev/null 2>&1 ||
+      fail RUNTIME 'deterministic-runtime-unavailable: base64'
+    command -v iconv >/dev/null 2>&1 ||
+      fail RUNTIME 'deterministic-runtime-unavailable: iconv'
+    # Encoding preserves NUL bytes and trailing newlines in a shell variable.
+    # This fixes content reuse, not the safety of the initial pathname open.
+    content_base64=$(base64 < "$candidate") ||
+      fail CONTRACT 'implementation input capture failed'
+    if [[ "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ]]; then
+      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
+        fail CONTRACT 'implementation input cannot be read as strict UTF-8'
+    fi
+    if [[ "$path" == "$precheck_rel" ]]; then
+      printf '%s' "$content_base64" | base64 -d | admission_json_members - >/dev/null 2>&1 ||
+        fail CONTRACT 'implementation precheck is not unambiguous single-object JSON'
+      printf '%s' "$content_base64" | base64 -d |
+        jq -se 'length == 1 and (.[0] | type == "object")' >/dev/null 2>&1 ||
+        fail CONTRACT 'implementation precheck is not unambiguous single-object JSON'
+      impl_precheck_base64=$content_base64
+    elif [[ "$path" == "specs/$feature/design.md" ]]; then
+      impl_design_base64=$content_base64
+      impl_design_captured=true
+    fi
+    # Observe every precheck, not just the first selected legacy record.
+    # Legacy extra records retain their old semantics unless an ADR extension
+    # is present; an extension requires one unambiguous precheck below.
+    if [[ "$path" == reports/impl-review/*/attempt-*/round-*/precheck-result.json ]]; then
+      extension_present=$(printf '%s' "$content_base64" | base64 -d |
+        jq -sc 'any(.[]; objects | has("adr_inputs"))') ||
+        fail CONTRACT 'implementation precheck extension cannot be inspected'
+      if [[ "$extension_present" == true ]]; then impl_any_adr_extension=true; fi
+    fi
+    actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text) ||
+      fail HASH 'implementation captured input hashing failed'
+  else
   actual_hash=$(sha256_file "$candidate")
+  fi
   if [[ "$actual_hash" != "$expected_hash" ]]; then
     # WFI-025: the ONE scoped exception to the raw-equality rule. A
     # task-stage manifest may declare the task plan's normalized digest, but
@@ -514,7 +747,13 @@ while IFS=$'\t' read -r path expected_hash; do
       fail HASH "$role hash mismatch: $path"
     fi
   fi
-done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
+done < <(jq -r --arg stage "$stage" '.allowed_input_manifest |
+  (if $stage == "impl" then sort_by(.path | startswith("docs/adr/")) else . end) |
+  .[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
+if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
+  # An omitted ADR list must not bypass validation of an explicit extension.
+  verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+fi
 
 # Round consistency. A manifest freezes hashes at reservation time; the round's
 # precheck-result.json froze them when the round opened. If the two disagree, a
@@ -523,7 +762,11 @@ done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest"
 # forbidden, so that state is unrecoverable once a reviewer has run -- refuse the
 # reservation now rather than discovering it a round later.
 if [[ -n "$precheck_rel" ]]; then
-  if [[ -f "$precheck_abs" && ! -L "$precheck_abs" ]]; then
+  if [[ "$stage" == impl && -z "$impl_precheck_base64" ]]; then
+    fail CONTRACT 'implementation precheck was not captured'
+  fi
+
+  if [[ "$stage" == impl || ( -f "$precheck_abs" && ! -L "$precheck_abs" ) ]]; then
     while IFS=$'\t' read -r pinned_path pinned_hash; do
       [[ -n "$pinned_path" ]] || continue
       manifest_hash=$(jq -r --arg p "$pinned_path" '
@@ -532,7 +775,7 @@ if [[ -n "$precheck_rel" ]]; then
       [[ -n "$manifest_hash" ]] || continue
       [[ "$manifest_hash" == "$pinned_hash" ]] ||
         fail ROUND "manifest freezes $pinned_path at a hash this round's precheck did not pin: the document changed mid-round"
-    done < <(jq -r --arg f "$feature" '
+    done < <(read_precheck_content | jq -r --arg f "$feature" '
       [ {p: ("specs/" + $f + "/requirements.md"),     h: .requirements_sha256},
         {p: ("specs/" + $f + "/acceptance-tests.md"), h: .acceptance_sha256},
         {p: ("specs/" + $f + "/design.md"),           h: .design_sha256},
@@ -542,7 +785,7 @@ if [[ -n "$precheck_rel" ]]; then
       | .[]
       | select((.h | type) == "string" and (.h | test("^[0-9a-f]{64}$")))
       | [.p, .h] | @tsv
-    ' "$precheck_abs" | tr -d '\r')
+    ' | tr -d '\r')
   fi
 fi
 

@@ -1,0 +1,168 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -538,1 +538,104 @@
+ impl_precheck_base64=''
++impl_design_base64=''
++impl_design_captured=false
++verified_adr_inputs='[]'
++adr_binding_verified=false
++impl_any_adr_extension=false
++
++# Restricted inline-code grammar, applied to the already hash-checked bytes.
++adr_declared_paths() {
++  LC_ALL=C awk '
++    function width(s, i, ch, n) {
++      n = 0
++      while (substr(s, i + n, 1) == ch) n++
++      return n
++    }
++    function escaped(s, i, n) {
++      n = 0
++      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
++      return n % 2
++    }
++    {
++      line = $0; sub(/\r$/, "", line)
++      match(line, /^ */); indent = RLENGTH
++      rest = substr(line, indent + 1); ch = substr(rest, 1, 1)
++      if (fence != "") {
++        if (indent <= 3 && ch == fence) {
++          n = width(rest, 1, ch)
++          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
++        }
++        next
++      }
++      if (indent >= 4 || rest ~ /^\t/) next
++      if (ch == "\140" || ch == "~") {
++        n = width(rest, 1, ch)
++        if (n >= 3) { fence = ch; fence_width = n; next }
++      }
++      i = 1
++      while (i <= length(line)) {
++        if (substr(line, i, 1) != "\140") { i++; continue }
++        n = width(line, i, "\140")
++        if (escaped(line, i)) { i += n; continue }
++        j = i + n; closed = 0
++        while (j <= length(line)) {
++          if (substr(line, j, 1) != "\140") { j++; continue }
++          m = width(line, j, "\140")
++          if (!escaped(line, j) && m == n) { closed = 1; break }
++          j += m
++        }
++        if (!closed) break
++        value = substr(line, i + n, j - i - n)
++        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/) print value
++        i = j + n
++      }
++    }
++  ' | LC_ALL=C sort -u
++}
++
++# Called only after all non-ADR manifest entries have passed the original loop.
++# A precheck with no extension keeps legacy rules; explicit null is not absence.
++verify_captured_adr_binding() {
++  local extension declared declared_set expected_set invocation_set design_hash
++  verified_adr_inputs='[]'
++  if [[ -z "$precheck_rel" ]]; then
++    adr_binding_verified=true
++    return 0
++  fi
++  extension=$(read_precheck_content | jq -er 'if has("adr_inputs") then "present" else "absent" end') || return 1
++  if [[ "$extension" == absent && "$impl_any_adr_extension" != true ]]; then
++    adr_binding_verified=true
++    return 0
++  fi
++  jq -e --arg p "$precheck_rel" '[.allowed_input_manifest[] |
++    select(.path | test("^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$"))] |
++    length == 1 and .[0].path == $p' "$manifest" >/dev/null || return 1
++  read_precheck_content | jq -e --arg f "$feature" --arg p "$precheck_rel" '
++    .schema == "impl-review-precheck/v1" and .feature == $f and
++    (.attempt | type == "number" and . >= 1 and . == floor) and
++    (.round | type == "number" and . >= 1 and . == floor) and
++    ($p == ("reports/impl-review/" + $f + "/attempt-" + (.attempt | tostring) +
++      "/round-" + (.round | tostring) + "/precheck-result.json")) and
++    (.design_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
++    (.adr_inputs | type == "array" and all(.[];
++      type == "object" and keys == ["path", "sha256"] and
++      (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++      (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
++    ([.adr_inputs[].path] == ([.adr_inputs[].path] | sort | unique))
++  ' >/dev/null || return 1
++  [[ "$impl_design_captured" == true ]] || return 1
++  design_hash=$(read_precheck_content | jq -er '.design_sha256') || return 1
++  jq -e --arg p "specs/$feature/design.md" --arg h "$design_hash" '
++    [.allowed_input_manifest[] | select(.path == $p)] | length == 1 and .[0].sha256 == $h
++  ' "$manifest" >/dev/null || return 1
++  declared=$(printf '%s' "$impl_design_base64" | base64 -d | adr_declared_paths) || return 1
++  declared_set=$(printf '%s' "$declared" | jq -Rsc 'split("\n") | map(select(length > 0))') || return 1
++  read_precheck_content | jq -e --argjson wanted "$declared_set" '[.adr_inputs[].path] == $wanted' >/dev/null || return 1
++  expected_set=$(read_precheck_content | jq -cS '.adr_inputs') || return 1
++  invocation_set=$(jq -cS '[.allowed_input_manifest[] | select(.path | startswith("docs/adr/"))] | sort_by(.path)' "$manifest") || return 1
++  [[ "$expected_set" == "$invocation_set" ]] || return 1
++  verified_adr_inputs=$expected_set
++  adr_binding_verified=true
++}
+ read_precheck_content() {
+@@ -551,2 +654,13 @@
+   is_forbidden_review_output "$path" &&
+     fail PATH "$role contains a forbidden raw reviewer report: $path"
+-  path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash" ||
+-    fail PATH "$role contains a real but role-unlisted path: $path"
++  if [[ "$stage" == impl && "$path" == docs/adr/* ]]; then
++    if [[ "$adr_binding_verified" != true ]]; then
++      verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
++    fi
++    [[ "$role" == impl-reviewer-a || "$role" == impl-reviewer-b ]] ||
++      fail PATH 'ADR inputs require an implementation reviewer'
++    jq -e --arg p "$path" --arg h "$expected_hash" 'any(.[]; .path == $p and .sha256 == $h)' \
++      <<< "$verified_adr_inputs" >/dev/null || fail PATH 'ADR input is outside the verified declaration'
++  else
++    path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash" ||
++      fail PATH "$role contains a real but role-unlisted path: $path"
++  fi
+ 
+   candidate="$repository_root/$path"
+@@ -584,1 +698,2 @@
+-  if [[ "$stage" == impl && ( "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ) ]]; then
++  if [[ "$stage" == impl && ( "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ||
++        "$path" == reports/impl-review/*/attempt-*/round-*/precheck-result.json ) ]]; then
+     command -v base64 >/dev/null 2>&1 ||
+@@ -592,5 +707,7 @@
+     content_base64=$(base64 < "$candidate") ||
+       fail CONTRACT 'implementation input capture failed'
+-    printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
+-      fail CONTRACT 'implementation input cannot be read as strict UTF-8'
++    if [[ "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ]]; then
++      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
++        fail CONTRACT 'implementation input cannot be read as strict UTF-8'
++    fi
+     if [[ "$path" == "$precheck_rel" ]]; then
+@@ -600,1 +714,14 @@
+       impl_precheck_base64=$content_base64
++    elif [[ "$path" == "specs/$feature/design.md" ]]; then
++      impl_design_base64=$content_base64
++      impl_design_captured=true
+     fi
++    # Observe every precheck, not just the first selected legacy record.
++    # Legacy extra records retain their old semantics unless an ADR extension
++    # is present; an extension requires one unambiguous precheck below.
++    if [[ "$path" == reports/impl-review/*/attempt-*/round-*/precheck-result.json ]]; then
++      extension_present=$(printf '%s' "$content_base64" | base64 -d |
++        jq -sc 'any(.[]; objects | has("adr_inputs"))') ||
++        fail CONTRACT 'implementation precheck extension cannot be inspected'
++      if [[ "$extension_present" == true ]]; then impl_any_adr_extension=true; fi
++    fi
+     actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text) ||
+@@ -633,1 +751,9 @@
+   fi
+-done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
++done < <(jq -r --arg stage "$stage" '.allowed_input_manifest |
++  (if $stage == "impl" then sort_by(.path | startswith("docs/adr/")) else . end) |
++  .[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
++if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
++  # An omitted ADR list must not bypass validation of an explicit extension.
++  verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
++fi
+ 
+ # Round consistency. A manifest freezes hashes at reservation time; the round's

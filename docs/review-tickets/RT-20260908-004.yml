@@ -1,0 +1,68 @@
+ticket_id: RT-20260908-004
+status: open
+type: bug
+severity: major
+review_cycles: 0
+target:
+  feature: epic-136-phase4-docs
+  stage: impl-review
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+    - plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+    - plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+    - plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
+    - plugins/sdd-review-loop/scripts/task-review-precheck.sh
+    - plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+    - plugins/sdd-review-loop/templates/impl-review-contract.template.json
+    - plugins/sdd-review-loop/references/review-context-boundary.md
+    - plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+    - plugins/sdd-review-loop/agents/impl-reviewer-a.md
+    - plugins/sdd-review-loop/agents/impl-reviewer-b.md
+    - tests/review-context-boundary.tests.sh
+    - tests/impl-review-round2-contract.tests.sh
+    - tests/impl-review-adr-inputs.tests.sh
+    - tests/impl-review-adr-inputs.tests.ps1
+summary: "Hash-bind design-referenced ADR inputs consistently across implementation review consumers"
+problem: |
+  Attempt 4 round 1 reviewer A reported ADR-PRESENT as Major FAIL because
+  design.md references docs/adr/0033-panelist-supervisor-process-ownership.md
+  but the review's authorized input set cannot admit that ADR. This does not
+  assert that the ADR is absent. validate-review-context-set.sh:136-158 and
+  its PowerShell counterpart restrict impl inputs to feature documents,
+  calibration and round evidence. Persisted contracts are independently
+  checked in review-precheck-common.sh:113-176, impl-review-precheck.ps1,
+  and both check-workflow-state scripts. A launch-only allowlist relaxation
+  would leave downstream validation inconsistent.
+expected_fix:
+  - "Define an explicit optional ADR manifest extension for impl review; exact paths must be referenced by the bound design, canonical docs/adr/NNNN-*.md regular files, and bound to raw SHA-256 before either reviewer reads them."
+  - "Hash-bind the same ADR set in precheck, invocation and persisted contract, with both reviewer manifests complete. Re-verify immediately before launch and at downstream consumption; never treat a caller-supplied manifest alone as authorization."
+  - "Keep authorization restricted to impl review and its exact declared ADRs, not every docs/adr file or arbitrary repository documents. Preserve reviewer A/B narrative isolation and existing summary rules."
+  - "Reject unsafe paths, symlink components, missing files, unreferenced ADRs, duplicate/conflicting entries, hash mismatch and divergent reviewer manifests. Do not execute ADR content."
+  - "Keep old evidence immutable: historical contracts without this extension retain their existing validation semantics; new ADR-reading rounds require the explicit complete binding. Do not retrofit ADR inputs into old reservations or claim old reviewers read them."
+  - "Update all actual consumers consistently in Bash and PowerShell, including downstream task-stage validation. Do not weaken existing checks, manufacture PASS, or alter other unresolved findings."
+verification:
+  - "Retain the existing ADR-PRESENT FAIL as baseline evidence; add a failing regression for a valid referenced hash-bound ADR rejected by the existing admission path."
+  - "Positive cases: referenced canonical ADR accepted for both impl reviewers; no-ADR legacy contract remains valid; current and later-round summary rules remain intact."
+  - "Negative cases in both runtimes: omitted ADR hash, wrong hash, changed ADR after precheck, unreferenced ADR, missing file, traversal/absolute path, symlink, wrong filename case, duplicate path, missing reviewer binding and non-impl role admission."
+  - "Exercise admission, persisted contract validation and downstream task-stage validation, not just a string-presence assertion. Preserve valid historical contracts and old identity ledger records."
+  - "Run related boundary, round-2 contract and workflow-state parity suites. Use offline fixtures; native Windows validation must be distinguished from macOS PowerShell execution."
+  - "Require independent security/contract review before applying protected implementation changes and genuine fresh review before resolving ADR-PRESENT. Ticket completion does not resolve the PowerShell cleanup or protection-classification findings."
+references:
+  - reports/impl-review/epic-136-phase4-docs/attempt-4/round-1/reviewer-a.json
+  - reports/impl-review/epic-136-phase4-docs/attempt-4/round-1/impl-review-contract.json
+  - reports/impl-review/epic-136-phase4-docs/attempt-4/round-1/design-round-1-proposed-changes.md
+  - specs/epic-136-phase4-docs/design.md
+  - plugins/sdd-quality-loop/references/debugging-recovery-policy.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: >-
+  On 2026-09-08 the user explicitly approved: ADRをハッシュ付きレビュー入力へ追加するため、
+  保護対象のレビュー契約・検証器の修正まで範囲拡張を承認する
+  This authorizes the narrowly scoped contract/validator correction and its
+  tests, not arbitrary reviewer input access or a protection bypass. Keep
+  prior failures and reservations intact. If enforcement rejects an edit,
+  stop the denied operation and prepare exact human-application instructions;
+  do not retry through an alternate wrapper, renamed target or plugin cache.

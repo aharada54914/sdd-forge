@@ -1,0 +1,134 @@
+diff --git a/tests/impl-review-adr-inputs.tests.sh b/tests/impl-review-adr-inputs.tests.sh
+--- a/tests/impl-review-adr-inputs.tests.sh
++++ b/tests/impl-review-adr-inputs.tests.sh
+@@ -425,2 +425,3 @@
+   local role mutation index anchor_a_ok anchor_b_ok check_baseline_ok extended_ok history_pin_ok
++  local boundary_control_ok boundary_early_ok boundary_before boundary_source boundary_mode
+   local interrupted_file interrupted_hash preserved late_control_ok late_missing_ok
+@@ -367,1 +368,3 @@
++  elif [[ "${1:-}" == --pwsh-boundary-only ]]; then
++    history_modes=(legacy current-singleton current-pwsh-control current-pwsh-early-poison current-pwsh-poison)
+   elif [[ "${1:-}" == --current-adr-only ]]; then
+@@ -443,2 +446,3 @@
+     history_modes+=(current-singleton current-empty current-add current-remove current-parent-link current-own-opening)
++    history_modes+=(current-pwsh-control current-pwsh-early-poison current-pwsh-poison)
+   fi
+@@ -452,2 +456,4 @@
+     current_ok=false
++    boundary_control_ok=false
++    boundary_early_ok=false
+     anchor_a_ok=false
+@@ -462,2 +468,3 @@
+       if [[ "$runtime" == pwsh && "$mode" == late-contract-* ]]; then continue; fi
++      if [[ "$runtime" == bash && "$mode" == current-pwsh-* ]]; then continue; fi
+       interrupted_file=''
+@@ -500,2 +507,3 @@
+           if [[ "$mode" == current-singleton || "$mode" == current-empty ]]; then expect=0; fi
++          if [[ "$mode" == current-pwsh-control || "$mode" == current-pwsh-poison ]]; then expect=0; fi
+           if [[ "$mode" == current-own-opening ]]; then opening=impl:1:3; expect=0; fi
+@@ -849,3 +857,9 @@
+       rc=0
++      if [[ "$mode" == current-pwsh-* ]]; then
++        boundary_mode=${mode#current-pwsh-}
++        boundary_before=$(sha "$stage/precheck-result.json") || return 1
++        boundary_source=$(sha "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1") || return 1
++        pwsh -NoProfile -NonInteractive -File "$ROOT/tests/fixtures/adr-pwsh-read-boundary.ps1" \
++          -FixtureRoot "$dir" -Mode "$boundary_mode" > "$dir/output.log" 2>&1 || rc=$?
+-      if [[ "$runtime" == bash && ( "$mode" == late-contract-control || "$mode" == late-contract-rescue ) ]]; then
++      elif [[ "$runtime" == bash && ( "$mode" == late-contract-control || "$mode" == late-contract-rescue ) ]]; then
+         ADR_REAL_JQ="$(command -v jq)" ADR_MUTATION_ROOT="$dir" ADR_MUTATION_MODE="$mode" \
+@@ -798,2 +812,22 @@
+       case "$mode" in
++        current-pwsh-*)
++          check_baseline_ok=$current_ok
++          if ! python3 "$ROOT/tests/fixtures/adr-pwsh-boundary-receipt.py" \
++            "$ROOT" "$dir" "$boundary_mode" "$boundary_before" "$boundary_source" "$rc"; then
++            preserved=false
++          fi
++          if [[ "$mode" == current-pwsh-control && "$rc" == 0 && "$preserved" == true && "$baseline_ok" == true && "$current_ok" == true ]]; then
++            boundary_control_ok=true
++          fi
++          if [[ "$mode" == current-pwsh-early-poison ]]; then
++            check_baseline_ok=$boundary_control_ok
++            if [[ "$rc" == 1 && "$preserved" == true && "$boundary_control_ok" == true ]] && \
++              grep -F 'stage-provenance:' "$dir/output.log" >/dev/null && grep -Ei 'adr' "$dir/output.log" >/dev/null; then
++              boundary_early_ok=true
++            fi
++          fi
++          if [[ "$mode" == current-pwsh-poison && ( "$boundary_control_ok" != true || "$boundary_early_ok" != true ) ]]; then
++            check_baseline_ok=false
++          fi
++          ;;
+         current-*) check_baseline_ok=$current_ok ;;
+@@ -920,2 +954,2 @@
+-if [[ "${1:-}" == --workflow-only || "${1:-}" == --history-pin-only || "${1:-}" == --late-contract-only || "${1:-}" == --current-adr-only ]]; then
++if [[ "${1:-}" == --workflow-only || "${1:-}" == --history-pin-only || "${1:-}" == --late-contract-only || "${1:-}" == --current-adr-only || "${1:-}" == --pwsh-boundary-only ]]; then
+   printf 'ADR workflow history: passed=%s failed=%s\n' "$passed" "$failed"
+diff --git a/tests/fixtures/adr-pwsh-boundary-receipt.py b/tests/fixtures/adr-pwsh-boundary-receipt.py
+new file mode 100644
+--- /dev/null
++++ b/tests/fixtures/adr-pwsh-boundary-receipt.py
+@@ -0,0 +1,63 @@
++"""Human-applied receipt checks for the original-path PowerShell observer."""
++import copy
++import hashlib
++import json
++import pathlib
++import sys
++
++def unique(pairs):
++    result = {}
++    for key, value in pairs:
++        if key in result:
++            raise ValueError("Duplicate receipt key")
++        result[key] = value
++    return result
++
++def digest(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++repo, fixture = map(pathlib.Path, sys.argv[1:3])
++mode, before, source_before, child_exit = sys.argv[3:]
++child_exit = int(child_exit)
++validator = repo / "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
++target = fixture / "reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json"
++receipt_path = fixture / "pwsh-boundary-receipt.json"
++anchor = '    $calibrationRelative = if ($Stage -eq "spec") {'
++locations = [i + 1 for i, line in enumerate(validator.read_text(encoding="utf-8").splitlines()) if line == anchor]
++assert len(locations) == 1, "Non-unique original boundary"
++after = digest(target)
++expected_exit = 1 if mode == "early-poison" else 0
++expected_hits = 0 if mode == "early-poison" else 1
++changed = mode != "control"
++keys = {"schema", "mode", "hits", "validator", "validator_sha256", "line",
++        "target", "receipt", "before", "after", "changed", "completed",
++        "observer_ok", "child_exit"}
++
++def valid(record):
++    if not isinstance(record, dict) or set(record) != keys:
++        return False
++    if record["schema"] != "adr-pwsh-boundary/v1" or record["mode"] != mode:
++        return False
++    for key, expected in (("validator", validator), ("target", target), ("receipt", receipt_path)):
++        if not isinstance(record[key], str) or pathlib.Path(record[key]).resolve() != expected.resolve():
++            return False
++    return (
++        record["completed"] is True and record["observer_ok"] is True
++        and type(record["child_exit"]) is int and record["child_exit"] == child_exit == expected_exit
++        and type(record["hits"]) is int and record["hits"] == expected_hits
++        and type(record["line"]) is int and record["line"] == locations[0]
++        and record["validator_sha256"] == source_before == digest(validator)
++        and record["before"] == before and record["after"] == after
++        and record["changed"] is changed and (before != after) is changed
++        and (not changed or target.read_bytes() == b"{")
++    )
++
++record = json.loads(receipt_path.read_text(encoding="utf-8"), object_pairs_hook=unique)
++assert valid(record), "Invalid or incomplete observer receipt"
++# Reject observer setup failure even when the expected child exit is 1.
++for field, value in (("completed", False), ("observer_ok", False), ("child_exit", None)):
++    negative = copy.deepcopy(record)
++    negative[field] = value
++    assert not valid(negative), "Incomplete observer was accepted"
++print("ok: observer receipt and incomplete-receipt rejection: " + mode)
++print(json.dumps(record, sort_keys=True))

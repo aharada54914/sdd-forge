@@ -1,0 +1,43 @@
+{
+  "formalGate": false,
+  "reservationWrites": false,
+  "fixture": "issue288-fixture-20260908/persisted-{spec,impl}",
+  "results": [
+    {
+      "stage": "spec",
+      "runtime": "bash",
+      "chunk_id": "fd539c",
+      "wall_time_seconds": 0.000001916,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=- identity_unique=yes\n"
+    },
+    {
+      "stage": "spec",
+      "runtime": "pwsh",
+      "chunk_id": "ebc531",
+      "wall_time_seconds": 0.374827125,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=- identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "runtime": "bash",
+      "chunk_id": "2f35ab",
+      "wall_time_seconds": 0.000001834,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=- identity_unique=yes\n"
+    },
+    {
+      "stage": "impl",
+      "runtime": "pwsh",
+      "chunk_id": "f24b6f",
+      "wall_time_seconds": 0.3906815,
+      "exit_code": 0,
+      "original_token_count": 57,
+      "output": "REVIEW_CONTEXT_OK 688998a3547be3c8ea1da0fcbf237efb18cc39edd7e7d4a4eb37a3239f188808 sequence=2 previous_record_sha256=429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5 pre_append_tip_sequence=- identity_unique=yes\n"
+    }
+  ]
+}

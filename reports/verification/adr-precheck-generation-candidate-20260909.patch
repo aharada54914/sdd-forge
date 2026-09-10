@@ -1,0 +1,267 @@
+diff --git a/plugins/sdd-review-loop/scripts/impl-review-precheck.sh b/plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+--- a/plugins/sdd-review-loop/scripts/impl-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+@@ -53,1 +53,119 @@
++# RT-20260908-004: scoped declaration inputs, never caller-selected ADR reads.
++adr_precheck_safe_file() {
++  local relative=$1 current=$repo_root component entry found
++  local -a components
++  [[ "$relative" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || return 1
++  [[ "$relative" != */ && "$relative" != *//* ]] || return 1
++  IFS=/ read -r -a components <<< "$relative"
++  for component in "${components[@]}"; do
++    [[ "$component" != . && "$component" != .. ]] || return 1
++    [[ -d "$current" && ! -L "$current" && -r "$current" && -x "$current" ]] || return 1
++    found=false
++    for entry in "$current"/* "$current"/.[!.]* "$current"/..?*; do
++      if [[ "${entry##*/}" == "$component" ]]; then found=true; break; fi
++    done
++    [[ "$found" == true ]] || return 1
++    current="$current/$component"
++    [[ ! -L "$current" ]] || return 1
++  done
++  [[ -f "$current" && -r "$current" && ! -L "$current" ]]
++}
++
++# Same restricted byte grammar as admission; not general Markdown parsing.
++adr_precheck_declared_paths() {
++  LC_ALL=C awk '
++    function width(s, i, ch, n) {
++      n = 0
++      while (substr(s, i + n, 1) == ch) n++
++      return n
++    }
++    function escaped(s, i, n) {
++      n = 0
++      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
++      return n % 2
++    }
++    {
++      line = $0
++      sub(/\r$/, "", line)
++      match(line, /^ */)
++      indent = RLENGTH
++      rest = substr(line, indent + 1)
++      ch = substr(rest, 1, 1)
++      if (fence != "") {
++        if (indent <= 3 && ch == fence) {
++          n = width(rest, 1, ch)
++          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
++        }
++        next
++      }
++      if (indent >= 4 || rest ~ /^\t/) next
++      if (ch == "\140" || ch == "~") {
++        n = width(rest, 1, ch)
++        if (n >= 3) { fence = ch; fence_width = n; next }
++      }
++      i = 1
++      while (i <= length(line)) {
++        if (substr(line, i, 1) != "\140") { i++; continue }
++        n = width(line, i, "\140")
++        if (escaped(line, i)) { i += n; continue }
++        j = i + n
++        closed = 0
++        while (j <= length(line)) {
++          if (substr(line, j, 1) != "\140") { j++; continue }
++          m = width(line, j, "\140")
++          if (!escaped(line, j) && m == n) { closed = 1; break }
++          j += m
++        }
++        if (!closed) break
++        value = substr(line, i + n, j - i - n)
++        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/)
++          print value
++        i = j + n
++      }
++    }
++  ' "$1" | LC_ALL=C sort -u
++}
++
++adr_precheck_collect() {
++  local expected_design=$1 actual paths path digest result='[]'
++  [[ "$expected_design" =~ ^[0-9a-f]{64}$ ]] || return 1
++  adr_precheck_safe_file "$DESIGN_MD" || return 1
++  actual=$(sha256 "$repo_root/$DESIGN_MD") || return 1
++  [[ "$actual" == "$expected_design" ]] || return 1
++  paths=$(adr_precheck_declared_paths "$repo_root/$DESIGN_MD") || return 1
++  if [[ -n "$paths" ]]; then
++    while IFS= read -r path; do
++      adr_precheck_safe_file "$path" || return 1
++      digest=$(sha256 "$repo_root/$path") || return 1
++      [[ "$digest" =~ ^[0-9a-f]{64}$ ]] || return 1
++      result=$(jq -c --arg path "$path" --arg sha256 "$digest" \
++        '. + [{path:$path,sha256:$sha256}]' <<< "$result") || return 1
++    done <<< "$paths"
++  fi
++  adr_precheck_safe_file "$DESIGN_MD" || return 1
++  actual=$(sha256 "$repo_root/$DESIGN_MD") || return 1
++  [[ "$actual" == "$expected_design" ]] || return 1
++  printf '%s\n' "$result"
++}
++
++# Extension-only material: sorted layer keys, path/sha256 ADR key order,
++# sorted ASCII paths, compact separators, and no trailing newline.
++adr_precheck_input_hash() {
++  local design=$1 requirements=$2 acceptance=$3 layers=$4 adrs=$5 material
++  [[ "$design" =~ ^[0-9a-f]{64}$ && "$requirements" =~ ^[0-9a-f]{64}$ &&
++     "$acceptance" =~ ^[0-9a-f]{64}$ ]] || return 1
++  layers=$(jq -csSe '
++    select(length == 1) | .[0] | select(type == "object") |
++    select(length == 0 or keys ==
++      ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]) |
++    select(all(.[]; type == "string" and length == 64 and test("^[0-9a-f]{64}$")))
++  ' <<< "$layers") || return 1
++  if [[ "$layers" != '{}' ]]; then
++    material=$(printf '%s:%s:%s:%s' "$design" "$requirements" "$acceptance" "$layers") || return 1
++  else
++    material=$(printf '%s:%s:%s' "$design" "$requirements" "$acceptance") || return 1
++  fi
++  printf '%s:adr_inputs/v1:%s' "$material" "$adrs" | sha256_stream
++}
++
+ # Shared predecessor-verdict validation (require_persisted_pass and
+@@ -74,1 +192,3 @@
+   precheck="${REPORT_DIR}/precheck-result.json"
++  adr_precheck_safe_file "$precheck" || fail "unsafe precheck evidence path"
++  adr_precheck_safe_file "$DESIGN_MD" || fail "unsafe design input path"
+@@ -102,1 +222,26 @@
++  extension_present=$(jq -sr 'if length == 1 and (.[0] | type == "object")
++    then .[0] | has("adr_inputs") else error("expected one precheck object") end' \
++    "$precheck") || fail "cannot inspect ADR extension presence"
++  if [[ "$extension_present" == true ]]; then
++    # Presence is not truthiness: null and malformed values are rejected.
++    recorded_adrs=$(jq -ce '
++      .adr_inputs | select(type == "array") |
++      select(all(.[]; type == "object" and keys == ["path","sha256"] and
++        (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++        (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) |
++      select([.[].path] == ([.[].path] | sort | unique)) |
++      map({path:.path,sha256:.sha256})
++    ' "$precheck") || fail "invalid ADR input manifest"
++    bound_design=$(jq -er '.design_sha256 | select(type == "string" and length == 64 and test("^[0-9a-f]{64}$"))' "$precheck") || fail "invalid design binding"
++    actual_adrs=$(adr_precheck_collect "$bound_design") || fail "ADR collection failed"
++    [[ "$recorded_adrs" == "$actual_adrs" ]] || fail "ADR inputs changed after precheck"
++    bound_requirements=$(jq -er '.requirements_sha256 | select(type == "string" and length == 64 and test("^[0-9a-f]{64}$"))' "$precheck") || fail "invalid requirements binding"
++    bound_acceptance=$(jq -er '.acceptance_sha256 | select(type == "string" and length == 64 and test("^[0-9a-f]{64}$"))' "$precheck") || fail "invalid acceptance binding"
++    bound_layers=$(jq -c '.layer_sha256' "$precheck") || fail "missing layer binding"
++    expected_input=$(adr_precheck_input_hash "$bound_design" "$bound_requirements" \
++      "$bound_acceptance" "$bound_layers" "$actual_adrs") || fail "input hash calculation failed"
++    jq -e --arg expected "$expected_input" \
++      '.input_sha256 == $expected and ($expected | test("^[0-9a-f]{64}$"))' \
++      "$precheck" >/dev/null || fail "ADR input material hash mismatch"
++  fi
+   echo "impl-review-precheck: inputs verified for reviewer invocation."
+@@ -219,1 +364,3 @@
++adr_precheck_safe_file "$DESIGN_MD" || fail "unsafe design input path"
+ design_sha256=$(sha256 "${DESIGN_MD}")
++adr_inputs=$(adr_precheck_collect "$design_sha256") || fail "cannot bind design ADR inputs"
+@@ -249,0 +396,87 @@
++    # A failed ADR-bound round is historical: validate its internal bindings,
++    # not today's corrected ADR bytes. Legacy rounds keep design-only progress.
++    prior_precheck="${prior_contract%/*}/precheck-result.json"
++    prior_adr_inputs=null
++    prior_extension=$(jq -sr 'if length == 1 and (.[0] | type == "object")
++      then .[0] | has("adr_inputs") else error("invalid contract") end' "$prior_contract") || fail "invalid previous ADR contract"
++    precheck_extension=false
++    if [[ -e "$prior_precheck" || -L "$prior_precheck" ]]; then
++      adr_precheck_safe_file "$prior_precheck" || fail "unsafe previous ADR precheck"
++      precheck_extension=$(jq -sr 'if length == 1 and (.[0] | type == "object")
++        then .[0] | has("adr_inputs") else error("invalid precheck") end' "$prior_precheck") || fail "invalid previous ADR precheck"
++    fi
++    [[ "$prior_extension" == "$precheck_extension" ]] || fail "one-sided previous ADR extension"
++    if [[ "$prior_extension" == true ]]; then
++      prior_a="${prior_contract%/*}/reviewer-a.json"
++      prior_b="${prior_contract%/*}/reviewer-b.json"
++      for evidence in "$prior_contract" "$prior_precheck" "$prior_a" "$prior_b"; do
++        adr_precheck_safe_file "$evidence" || fail "unsafe previous ADR evidence"
++      done
++      prior_precheck_hash=$(sha256 "$prior_precheck") || fail "cannot hash previous ADR precheck"
++      prior_a_hash=$(sha256 "$prior_a") || fail "cannot hash previous ADR reviewer A"
++      prior_b_hash=$(sha256 "$prior_b") || fail "cannot hash previous ADR reviewer B"
++      prior_adr_inputs=$(jq -nce --slurpfile cs "$prior_contract" --slurpfile ps "$prior_precheck" \
++        --slurpfile aa "$prior_a" --slurpfile bb "$prior_b" --arg feature "$FEATURE" \
++        --argjson attempt "$ATTEMPT" --argjson round "$prior_round" \
++        --arg pc "$prior_precheck" --arg pch "$prior_precheck_hash" --arg repo "$repo_root/" '
++        def hash: type == "string" and test("^[0-9a-f]{64}$") and length == 64;
++        def adrs:
++          type == "array" and all(.[]; type == "object" and keys == ["path","sha256"] and
++            (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++            (.sha256 | hash)) and ([.[].path] == ([.[].path] | sort | unique));
++        def relative:
++          if startswith($repo) then .[($repo | length):]
++          elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
++          else . end;
++        def pin($entries; $path; $hash):
++          [$entries[] | select((.path | relative) == $path)] as $found |
++          ($found | length) == 1 and $found[0].sha256 == $hash;
++        select([$cs,$ps,$aa,$bb] | all(.[]; length == 1 and (.[0] | type == "object"))) |
++        $cs[0] as $c | $ps[0] as $p |
++        select($c.schema == "impl-review-contract/v1" and $c.stage == "impl" and
++          $c.verdict == "NEEDS_WORK" and $p.schema == "impl-review-precheck/v1") |
++        select([$c,$p] | all(.[]; .feature == $feature and .attempt == $attempt and .round == $round)) |
++        select(($c.adr_inputs | adrs) and ($p.adr_inputs | adrs) and $c.adr_inputs == $p.adr_inputs) |
++        select(all(["design_sha256","requirements_sha256","acceptance_sha256"][];
++          . as $key | ($p[$key] | hash) and $c[$key] == $p[$key])) |
++        select(($p.layer_sha256 | type == "object") and $c.layer_sha256 == $p.layer_sha256 and
++          (($p.layer_sha256 | keys) == [] or ($p.layer_sha256 | keys) ==
++            ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]) and
++          ($p.layer_sha256 | all(.[]; hash))) |
++        select(($c.reviewers | type == "array") and
++          ([$c.reviewers[].role] | sort) == ["impl-reviewer-a","impl-reviewer-b"]) |
++        select(all(["impl-reviewer-a","impl-reviewer-b"][]; . as $role |
++          ($c.reviewers[] | select(.role == $role)) as $reservation |
++          (if $role == "impl-reviewer-a" then $aa[0] else $bb[0] end) as $output |
++          $output.schema == ($role + "/v1") and $output.stage == "impl" and $output.role == $role and
++          all(["run_id","host_session_id"][]; . as $key |
++            ($output[$key] | type == "string" and test("\\S")) and $output[$key] == $reservation[$key]) and
++          all([$reservation,$output][]; .allowed_input_manifest as $entries |
++            ($entries | type == "array") and
++            all($entries[]; (.path | type == "string") and (.sha256 | hash)) and
++            pin($entries; $pc; $pch) and
++            pin($entries; ("specs/" + $feature + "/design.md"); $p.design_sha256) and
++            pin($entries; ("specs/" + $feature + "/requirements.md"); $p.requirements_sha256) and
++            pin($entries; ("specs/" + $feature + "/acceptance-tests.md"); $p.acceptance_sha256) and
++            all($p.layer_sha256 | to_entries[]; pin($entries; ("specs/" + $feature + "/" + .key); .value)) and
++            ([$entries[] | select(.path | relative | startswith("docs/adr/")) | {path,sha256}] | sort_by(.path)) == $p.adr_inputs
++          ))) |
++        $p.adr_inputs | map({path:.path,sha256:.sha256})
++      ') || fail "previous ADR reviewer/contract binding mismatch"
++      prior_input_hash=$(adr_precheck_input_hash \
++        "$(jq -r .design_sha256 "$prior_precheck")" "$(jq -r .requirements_sha256 "$prior_precheck")" \
++        "$(jq -r .acceptance_sha256 "$prior_precheck")" "$(jq -c .layer_sha256 "$prior_precheck")" \
++        "$prior_adr_inputs") || fail "invalid previous ADR input material"
++      [[ "$(jq -r .input_sha256 "$prior_precheck")" == "$prior_input_hash" ]] || fail "previous ADR input hash mismatch"
++      for evidence in "$prior_precheck" "$prior_a" "$prior_b"; do
++        adr_precheck_safe_file "$evidence" || fail "previous ADR evidence changed"
++      done
++      [[ "$(sha256 "$prior_precheck")" == "$prior_precheck_hash" &&
++         "$(sha256 "$prior_a")" == "$prior_a_hash" &&
++         "$(sha256 "$prior_b")" == "$prior_b_hash" ]] || fail "previous ADR evidence changed"
++    else
++      jq -e 'all(.reviewers[]?.allowed_input_manifest[]?;
++        (.path | gsub("\\\\"; "/") | test("(^|/)docs/adr/") | not))' \
++        "$prior_contract" >/dev/null || fail "legacy previous contract cannot admit ADR inputs"
++      # No historical ADR permission is inferred from an absent extension.
++    fi
+@@ -253,3 +487,4 @@
+-    if [[ "${design_sha256}" == "${prior_design_sha256}" ]]; then
+-      echo "ERROR: impl-review-precheck: design.md sha256 is unchanged from round ${prior_round}." \
+-        "A new round must review changed text; edit design.md, then re-invoke." >&2
++    if [[ "$design_sha256" == "$prior_design_sha256" &&
++          ( "$prior_adr_inputs" == null || "$prior_adr_inputs" == "$adr_inputs" ) ]]; then
++      echo "ERROR: impl-review-precheck: design and declared ADR inputs are unchanged from round ${prior_round}." \
++        "A new round must review changed inputs." >&2
+@@ -366,6 +601,3 @@
+-if $full_profile; then
+-  input_material="$(printf '%s:%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" "$layer_sha256")"
+-else
+-  input_material="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256")"
+-fi
+-input_sha256="$(printf '%s' "$input_material" | sha256_stream)"
++input_sha256=$(adr_precheck_input_hash "$design_sha256" "$requirements_sha256" \
++  "$acceptance_sha256" "$layer_sha256" "$adr_inputs") || fail "input hash calculation failed"
++[[ "$input_sha256" =~ ^[0-9a-f]{64}$ ]] || fail "invalid input hash"
+@@ -403,1 +635,2 @@
+   "layer_sha256": ${layer_sha256},
++  "adr_inputs": ${adr_inputs},

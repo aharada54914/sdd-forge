@@ -1,0 +1,18 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -1816,7 +1816,13 @@
+             $verdict = Get-Content -LiteralPath $latest.File.FullName -Raw | ConvertFrom-Json
+             $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+         }
+-    } catch { Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed" }
++    } catch {
++        # Identify the failed validation boundary without exposing evidence or exception text.
++        if ($Stage -ceq 'impl') {
++            Stop-WorkflowState $Feature "stage-provenance" "ADR impl review evidence validation failed"
++        }
++        Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed"
++    }
+     $reviewerAPath = Join-Path $latest.File.DirectoryName "reviewer-a.json"
+     $reviewerBPath = Join-Path $latest.File.DirectoryName "reviewer-b.json"
+     $summaryPath = Join-Path $latest.File.DirectoryName "integrated-summary.json"

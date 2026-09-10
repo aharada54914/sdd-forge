@@ -1,5 +1,54 @@
 # Security Specification: epic-189-a1-project-context
 
+## RT-20260909-002 security amendment (2026-09-09)
+
+Human authorization: "RT002限定の設計3文書の改訂・正式再レビューの承認".
+This amendment requires new independent design provenance review; it does not
+rewrite prior evidence or establish activation. Requirements.md's RT002
+contract, its acceptance matrix, and design.md's dated dispatch design govern
+the changed B7 / REQ-010 / AC-027 / AC-032 semantics.
+
+The versioned Codex adapter proves a match to the exact operation-bound SDD
+denial transcript, not plugin origin or a cryptographic host signature. Require
+the exact schema, exact member set, CLI/record runtime codex-cli, boolean false
+executed, and agreement of the expected/recorded/echoed 32-lowercase-hex nonce.
+Compare the entire raw envelope and Add File patch to the normative decoded
+requirements templates; do not trim, normalize or accept substrings. Reject
+unknown or wrong-type explicit schema without fallback, any extra plugin flag,
+and duplicate members at any object depth. No-schema legacy runtime predicates
+remain; missing flag metadata is not proof of disabled configuration.
+
+Plain caller-authored evidence can be fully forged; this verifier cannot
+authenticate it or enforce persistent single use. The trusted current session
+must consume one new emitted challenge through one actual native dispatch and
+record its own unaltered response. Replay prevention is not inferred solely
+from nonce matching. Recheck current host/installed verifier at review and
+activation; drift or mismatch remains unavailable rather than normalized.
+
+The nonce-bearing Codex canary is not real approval content. For an initially
+absent sentinel, denial leaves it absent; executed write plus confirmed cleanup
+leaves it absent; missing, failed or denied cleanup may leave it present and
+must report SENTINEL_CLEANUP_UNCONFIRMED with CAPABILITY_RUNTIME_UNAVAILABLE.
+All approval sidecars remain byte-identical. Record one stale-start cleanup
+attempt before a new challenge and proceed regardless of its outcome. Never
+force deletion or turn an executed-write failure into HOOK_ACTIVE. Cleanup
+keeps its own predicates and nonce syntax; duplicate JSON rejects with 71,
+never SENTINEL_CLEANUP_CONFIRMED. The new response adapter cannot confirm cleanup.
+
+This supersedes the Trust Boundaries diagram's unconditional confirmed-cleanup
+edge, the B7 boundary/STRIDE rows' unconditional cleanup/self-healing wording,
+the Data Classification sentinel row's undefined-content and retention claims,
+and Security Tests TEST-027/032/035's unconditional absent-after summary.
+Those historical summaries apply only where qualified above. The signed
+approval, protected-write, publisher and other B1-B9 guarantees are unchanged.
+
+Retain all legacy and cleanup/stale-start tests and add every rejecting and
+positive branch in the RT002 acceptance matrix, asserting nonzero and no
+HOOK_ACTIVE for each response rejection. Require original-path suites and both
+wrappers, formal scoped provenance reviews and permitted human application.
+Fixture GREEN is not activation, A8 live proof or CI completion; recovery ends
+only with fresh native evidence verified by the actual original installation.
+
 This document expands design.md's Security Boundaries (B1-B9) and Global
 Constraints into the review harness's canonical layer-file shape. It
 introduces no new security judgment beyond what design.md already fixes;

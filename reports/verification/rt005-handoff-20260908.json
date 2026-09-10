@@ -1,0 +1,6 @@
+{
+  "decision": ["RT-20260908-005 bounded two-test-file change explicitly approved and applied; old evidence preserved"],
+  "unresolved": ["Formal post-Done gate lifecycle and fresh hash-bound input declaration remain pending; ticket open; native Windows and PR-head CI not run"],
+  "evidence": ["reports/verification/rt005-mixed-failure-fix-20260908.md", "RED 5 pass / 4 expected fail; GREEN 11 pass; full package 251 pass / 0 fail; independent ordinary review no findings"],
+  "next_action": ["Prepare sanctioned post-fix formal-gate declaration and lifecycle for sdd-forge-mcp T-002 without retrofitting frozen reports; gate before resolving RT005 or merging"]
+}

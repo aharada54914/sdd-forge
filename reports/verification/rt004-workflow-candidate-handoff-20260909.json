@@ -1,0 +1,22 @@
+{
+  "decision": [
+    "Continue RT004 within its approved protected-consumer scope using patch data only until independent review and human application.",
+    "Historical saved-state ADR binding must precede the verified-opening early return; do not compare deliberately corrected ADR bytes to old hashes."
+  ],
+  "evidence": [
+    "reports/verification/adr-workflow-bash-history-candidate-20260909.patch SHA256 890cf2e4c3ee99292f3b2c4a8db76cc866cdb655122fa2454facca1dab211144",
+    "reports/verification/rt004-workflow-bash-history-candidate-20260909.md",
+    "Two patch hunks, 239 inserted lines: counts/offsets/current-source anchors match. Actual Bash validator unchanged; git diff --check exit 0.",
+    "Actual regression from previous turn remains 2 passed and 6 failed; no candidate execution."
+  ],
+  "unresolved": [
+    "Partial Bash history candidate does not yet connect verified ADR bindings to PASS allowlist/current-byte validation.",
+    "PS5.1 workflow equivalent, terminal-state formula verification, complete historical input relationships, positive extended fixtures and native Windows remain pending.",
+    "Independent review, protected human application, genuine review gates and CI success remain required. All issue/PR integration goal work remains incomplete."
+  ],
+  "next_action": [
+    "Finish Bash workflow current-PASS ADR declaration/hash validation and exact allowlist connection while preserving existing freshness sites.",
+    "Implement PS5.1-equivalent candidate and verify terminal aggregation against canonical integration rules before independent review.",
+    "Keep all previous candidate patches and RED evidence; do not apply or execute this partial candidate."
+  ]
+}

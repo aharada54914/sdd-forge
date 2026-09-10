@@ -1,0 +1,421 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -35,1 +35,372 @@
+-# plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
++workflow_adr_safe_file() {
++  local relative=$1 current=$REPO_ROOT component entry found
++  local -a components
++  [[ "$relative" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || return 1
++  [[ "$relative" != */ && "$relative" != *//* ]] || return 1
++  IFS=/ read -r -a components <<< "$relative"
++  for component in "${components[@]}"; do
++    [[ "$component" != . && "$component" != .. ]] || return 1
++    [[ -d "$current" && ! -L "$current" && -r "$current" && -x "$current" ]] || return 1
++    found=false
++    for entry in "$current"/* "$current"/.[!.]* "$current"/..?*; do
++      if [[ "${entry##*/}" == "$component" ]]; then found=true; break; fi
++    done
++    [[ "$found" == true ]] || return 1
++    current="$current/$component"
++    [[ ! -L "$current" ]] || return 1
++  done
++  [[ -f "$current" && -r "$current" && ! -L "$current" ]]
++}
++
++workflow_adr_input_hash() {
++  local design=$1 requirements=$2 acceptance=$3 layers=$4 adrs=$5 material
++  [[ "$design" =~ ^[0-9a-f]{64}$ && "$requirements" =~ ^[0-9a-f]{64}$ &&
++     "$acceptance" =~ ^[0-9a-f]{64}$ ]] || return 1
++  layers=$(jq -csSe '
++    select(length == 1) | .[0] | select(type == "object") |
++    select(length == 0 or keys ==
++      ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]) |
++    select(all(.[]; type == "string" and length == 64 and test("^[0-9a-f]{64}$")))
++  ' <<< "$layers") || return 1
++  if [[ "$layers" != '{}' ]]; then
++    material=$(printf '%s:%s:%s:%s' "$design" "$requirements" "$acceptance" "$layers") || return 1
++  else
++    material=$(printf '%s:%s:%s' "$design" "$requirements" "$acceptance") || return 1
++  fi
++  printf '%s:adr_inputs/v1:%s' "$material" "$adrs" | sha256_stream
++}
++
++
++# ADR historical binding is checked BEFORE a verified opening can return.
++# No current design or ADR contents are read here: this is saved-state agreement.
++workflow_adr_history_bindings() {
++  local feature=$1 attempt=$2 round=$3
++  local relative="reports/impl-review/$feature/attempt-$attempt/round-$round"
++  local contract="$REPO_ROOT/$relative/impl-review-contract.json"
++  local precheck="$REPO_ROOT/$relative/precheck-result.json"
++  local pair_file=$precheck present snapshot path hash now recorded_root adrs input_hash
++  local previous_relative="" previous_file=/dev/null previous_hash=""
++  local -a files
++  files=(impl-review-contract.json precheck-result.json reviewer-a.json reviewer-b.json integrated-summary.json integrated-verdict.json)
++  [[ -f "$pair_file" ]] || pair_file=/dev/null
++  present=$(jq -sr '
++    if length < 1 or length > 2 or (all(.[]; type == "object") | not) then error("invalid ADR objects")
++    elif (.[0]|has("adr_inputs")) != (if length == 2 then .[1]|has("adr_inputs") else false end)
++      then error("one-sided ADR extension")
++    else .[0]|has("adr_inputs") end
++  ' "$contract" "$pair_file") || diagnostic "$feature" stage-provenance "ADR extension pairing is invalid"
++  if [[ "$present" == false ]]; then
++    # No extension never grants ADR authority, including relocated aliases.
++    jq -se '
++      all(.[]; all(..|objects|select(has("path"))|.path;
++        type == "string" and (gsub("\\\\";"/")|test("(^|/)docs/adr/";"i")|not)))
++    ' "$contract" "$REPO_ROOT/$relative/reviewer-a.json" "$REPO_ROOT/$relative/reviewer-b.json" >/dev/null ||
++      diagnostic "$feature" stage-provenance "ADR input has no binding extension"
++    printf '[]\n'
++    return 0
++  fi
++  # Hash all saved inputs before/after use, not just the precheck.
++  snapshot=''
++  for path in "${files[@]}"; do
++    workflow_adr_safe_file "$relative/$path" ||
++      diagnostic "$feature" stage-provenance "ADR evidence path is unsafe"
++    hash=$(sha256_file "$REPO_ROOT/$relative/$path") ||
++      diagnostic "$feature" stage-provenance "ADR evidence hash failed"
++    snapshot="$snapshot$hash:$path
++"
++  done
++  if (( round > 1 )); then
++    previous_relative="reports/impl-review/$feature/attempt-$attempt/round-$((round-1))/integrated-summary.json"
++    previous_file="$REPO_ROOT/$previous_relative"
++    workflow_adr_safe_file "$previous_relative" ||
++      diagnostic "$feature" stage-provenance "ADR previous summary path is unsafe"
++    previous_hash=$(sha256_file "$previous_file") ||
++      diagnostic "$feature" stage-provenance "ADR previous summary cannot be hashed"
++  fi
++  hash=$(sha256_file "$precheck") || diagnostic "$feature" stage-provenance "ADR precheck hash failed"
++  recorded_root=$(recorded_repo_root "$contract") || diagnostic "$feature" stage-provenance "ADR recorded root cannot be read"
++  [[ "$recorded_root" != __INVALID__ ]] || diagnostic "$feature" stage-provenance "ADR recorded root is ambiguous"
++  adrs=$(jq -cse --arg feature "$feature" --arg stage impl \
++    --argjson attempt "$attempt" --argjson round "$round" \
++    --arg pc "$relative/precheck-result.json" --arg pc_hash "$hash" \
++    --arg design "specs/$feature/design.md" \
++    --arg previous_path "$previous_relative" --arg previous_hash "$previous_hash" \
++    --slurpfile previous "$previous_file" \
++    --arg summary_hash "$(sha256_file "$REPO_ROOT/$relative/integrated-summary.json")" \
++    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
++    --arg recorded "${recorded_root:+$recorded_root/}" '
++    def digest: type == "string" and test("^[0-9a-f]{64}$") and length == 64;
++    def nonempty: type == "string" and length > 0;
++    def adr_set:
++      type == "array" and
++      all(.[]; type == "object" and keys == ["path","sha256"] and
++        (.path|type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++        (.sha256|digest)) and ([.[].path] == ([.[].path]|sort|unique));
++    def relative_path:
++      gsub("\\\\"; "/") |
++      if startswith($repo) then .[($repo|length):]
++      elif startswith($alias) then .[($alias|length):]
++      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
++      elif test("^(/|[A-Za-z]:/)") then null
++      else . end;
++    def allowed($role; $path):
++      ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
++      ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
++      ($path == ("specs/" + $feature + "/requirements.md")) or
++      ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
++      ($path == ("specs/" + $feature + "/investigation.md")) or
++      ($stage == "impl" and
++        ($path == ("specs/" + $feature + "/design.md") or
++         $path == ("specs/" + $feature + "/ux-spec.md") or
++         $path == ("specs/" + $feature + "/frontend-spec.md") or
++         $path == ("specs/" + $feature + "/infra-spec.md") or
++         $path == ("specs/" + $feature + "/security-spec.md"))) or
++      ($stage == "task" and
++        ($path == ("specs/" + $feature + "/tasks.md") or
++         $path == ("specs/" + $feature + "/design.md") or
++         $path == ("specs/" + $feature + "/traceability.md") or
++         $path == ("specs/" + $feature + "/ux-spec.md") or
++         $path == ("specs/" + $feature + "/frontend-spec.md") or
++         $path == ("specs/" + $feature + "/infra-spec.md") or
++         $path == ("specs/" + $feature + "/security-spec.md"))) or
++      ($path == (if $stage == "spec" then
++                   "plugins/sdd-review-loop/references/spec-review-calibration.md"
++                 else "plugins/sdd-review-loop/references/reviewer-calibration.md" end)) or
++      ($path == ($round_root + "/precheck-result.json")) or
++      ($role == ($stage + "-reviewer-b") and $path == ($round_root + "/integrated-summary.json")) or
++      ($stage == "impl" and $role == "impl-reviewer-a" and $round > 1 and
++       $path == ($attempt_root + "/round-" + (($round-1)|tostring) + "/integrated-summary.json")) or
++      ($stage == "task" and $role == "task-reviewer-a" and
++       $path == ($round_root + "/dependency-graph.json")) or
++      ($stage == "task" and $role == "task-reviewer-b" and
++       ($path == "plugins/sdd-quality-loop/references/risk-gate-matrix.md" or
++        $path == "plugins/sdd-quality-loop/references/risk-classification-policy.md"));
++
++    def layer($path):
++      any(["ux-spec.md","frontend-spec.md","infra-spec.md","security-spec.md"][];
++        $path == ("specs/"+$feature+"/"+.));
++    def summary_shape($s;$expected_round):
++      ($s|type=="object" and keys==["attempt","generated_at","reviewer_a_check_ids",
++        "reviewer_a_fail_count","reviewer_a_pass_count","reviewer_a_skip_count","round","schema"]) and
++      $s.schema=="integrated-summary/v1" and $s.attempt==$attempt and $s.round==$expected_round and
++      ($s.generated_at|nonempty) and
++      ($s.reviewer_a_check_ids|type=="array" and length>0 and all(.[];nonempty) and
++        length==(unique|length)) and
++      all([$s.reviewer_a_fail_count,$s.reviewer_a_pass_count,$s.reviewer_a_skip_count][];
++        type=="number" and .>=0 and .==floor) and
++      ($s.reviewer_a_fail_count+$s.reviewer_a_pass_count+$s.reviewer_a_skip_count)==
++        ($s.reviewer_a_check_ids|length);
++    def manifest($m;$role;$p):
++      ($m|type == "array") and
++      all($m[]; type == "object" and (.path|nonempty) and (.sha256|digest)) and
++      ([$m[].path|relative_path] as $paths |
++        all($paths[]; . != null and (test("(^|/)\\.\\.?(/|$)")|not)) and
++        ($paths|length) == ($paths|unique|length)) and
++      all($m[]; .path as $raw | ($raw|relative_path) as $rel |
++        if ($raw|gsub("\\\\";"/")|test("(^|/)docs/adr/";"i"))
++        then any($p.adr_inputs[]; .path == $raw)
++        else allowed($role;$rel) end) and
++      ([$m[]|select(.path == $pc)|.sha256] == [$pc_hash]) and
++      ([$m[]|select(.path == $design)|.sha256] == [$p.design_sha256]) and
++      ([$m[]|select((.path|relative_path) == ("specs/"+$feature+"/requirements.md"))|.sha256] == [$p.requirements_sha256]) and
++      ([$m[]|select((.path|relative_path) == ("specs/"+$feature+"/acceptance-tests.md"))|.sha256] == [$p.acceptance_sha256]) and
++      all($p.layer_sha256|to_entries[];
++        . as $pin |
++        ([$m[]|select((.path|relative_path)==("specs/"+$feature+"/"+$pin.key))|.sha256]==[$pin.value])) and
++      (if $role=="impl-reviewer-a" and $round>1 then
++        ([$m[]|select((.path|relative_path)==$previous_path)|.sha256]==[$previous_hash])
++       else true end) and
++      ([$m[]|select((.path|relative_path) == "plugins/sdd-review-loop/references/reviewer-calibration.md")]|length)==1 and
++      (if $role=="impl-reviewer-b" then
++        ([$m[]|select((.path|relative_path) == ($pc|sub("precheck-result.json$";"integrated-summary.json")))|.sha256] == [$summary_hash])
++       else true end) and
++      ([$m[]|select(.path|startswith("docs/adr/"))|{path,sha256}]|sort_by(.path)) == $p.adr_inputs;
++    def norm: map({path,sha256})|sort_by(.path);
++    def superset($actual;$bound):
++      ($actual|norm) as $a | ($bound|norm) as $b |
++      (($b-$a)|length)==0 and all(($a-$b)[]; .path|relative_path|layer(.));
++    def failures: [.checks[]|select(.result=="FAIL")];
++    def expected:
++      failures as $f | if any($f[];.severity=="Critical") then "BLOCKED"
++      elif ($f|length)>0 then "NEEDS_WORK" else "PASS" end;
++    # Fixed ADR-extension v1 lists; do not derive historical policy from outputs.
++    def check_ids($role):
++      if $role=="impl-reviewer-a" then
++        ["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE",
++         "SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE",
++         "NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"]
++      else
++        ["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID",
++         "NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED",
++         "INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"]
++      end;
++    def review($r;$bound;$role;$schema):
++      $r.schema==$schema and $r.stage=="impl" and $r.role==$role and
++      ($r.run_id|nonempty) and ($r.host_session_id|nonempty) and
++      $r.run_id==$bound.run_id and $r.host_session_id==$bound.host_session_id and
++      ($r.checks|type=="array" and length>0) and
++      ([$r.checks[].id]==check_ids($role)) and
++      all($r.checks[]; (.id|nonempty) and (.result=="PASS" or .result=="FAIL" or .result=="SKIP")) and
++      ([$r.checks[].id]|length)==([$r.checks[].id]|unique|length) and
++      all($r|failures|.[]; .severity=="Critical" or .severity=="Major" or .severity=="Minor") and
++      $r.verdict==($r|expected);
++    select(length==6 and all(.[];type=="object")) |
++    .[0] as $c | .[1] as $p | .[2] as $a | .[3] as $b | .[4] as $s | .[5] as $v |
++    select(($c.adr_inputs|adr_set) and ($p.adr_inputs|adr_set) and $c.adr_inputs==$p.adr_inputs) |
++    select($p.schema=="impl-review-precheck/v1" and $p.feature==$feature and
++      $p.attempt==$attempt and $p.round==$round and
++      ($p.design_sha256|digest) and ($p.requirements_sha256|digest) and
++      ($p.acceptance_sha256|digest) and ($p.input_sha256|digest)) |
++    select($c.schema=="impl-review-contract/v1" and $c.feature==$feature and $c.stage=="impl" and
++      $c.attempt==$attempt and $c.round==$round and ($c.run_id|nonempty) and
++      $c.design_sha256==$p.design_sha256 and $c.requirements_sha256==$p.requirements_sha256 and
++      $c.acceptance_sha256==$p.acceptance_sha256 and $c.layer_sha256==$p.layer_sha256) |
++    select(($c.reviewers|type=="array") and
++      ([$c.reviewers[].role]|sort)==["impl-reviewer-a","impl-reviewer-b"] and
++      ([$c.reviewers[].run_id]|all(nonempty) and (unique|length)==2) and
++      ([$c.reviewers[].host_session_id]|all(nonempty) and (unique|length)==2)) |
++    ($c.reviewers[]|select(.role=="impl-reviewer-a")) as $ca |
++    ($c.reviewers[]|select(.role=="impl-reviewer-b")) as $cb |
++    select(review($a;$ca;"impl-reviewer-a";"impl-reviewer-a/v1") and
++      review($b;$cb;"impl-reviewer-b";"impl-reviewer-b/v1")) |
++    select(manifest($ca.allowed_input_manifest;$ca.role;$p) and
++      manifest($cb.allowed_input_manifest;$cb.role;$p) and
++      manifest($a.allowed_input_manifest;$a.role;$p) and
++      manifest($b.allowed_input_manifest;$b.role;$p) and
++      superset($a.allowed_input_manifest;$ca.allowed_input_manifest) and
++      superset($b.allowed_input_manifest;$cb.allowed_input_manifest)) |
++    select(([$ca.allowed_input_manifest[],$cb.allowed_input_manifest[],
++      $a.allowed_input_manifest[],$b.allowed_input_manifest[]] |
++      map({path:(.path|relative_path),sha256}) |
++      map(select(.path|layer(.))) | group_by(.path) |
++      all(.[]; (map(.sha256)|unique|length)==1))) |
++    select((if $round>1 then
++      ($previous|length)==1 and summary_shape($previous[0];$round-1)
++      else ($previous|length)==0 end)) |
++    select(summary_shape($s;$round) and
++      ($s.reviewer_a_check_ids|sort)==([$a.checks[].id]|sort) and
++      $s.reviewer_a_fail_count==([$a.checks[]|select(.result=="FAIL")]|length) and
++      $s.reviewer_a_pass_count==([$a.checks[]|select(.result=="PASS")]|length) and
++      $s.reviewer_a_skip_count==([$a.checks[]|select(.result=="SKIP")]|length)) |
++    (($a|failures)+($b|failures)) as $f |
++    ([$f[]|select(.severity=="Critical")]|length) as $critical |
++    ([$f[]|select(.severity=="Major")]|length) as $major |
++    ([$f[]|select(.severity=="Minor")]|length) as $minor |
++    (if $critical>0 then "BLOCKED" elif $major>0 or ($minor>0 and $round<3) then "NEEDS_WORK"
++      elif $minor>0 then "PASS-with-warnings" else "PASS" end) as $expected |
++    select($v.schema=="integrated-verdict/v1" and $v.feature==$feature and $v.stage=="impl" and
++      $v.attempt==$attempt and $v.round==$round and $v.run_id==$c.run_id) |
++    select(all([$c,$v][];
++      .verdict==$expected and .findings_critical==$critical and .findings_major==$major and
++      .findings_minor==$minor and .reviewer_a_verdict==$a.verdict and .reviewer_b_verdict==$b.verdict)) |
++    $p.adr_inputs|map({path,sha256})
++  ' "$contract" "$precheck" "$REPO_ROOT/$relative/reviewer-a.json" \
++    "$REPO_ROOT/$relative/reviewer-b.json" "$REPO_ROOT/$relative/integrated-summary.json" \
++    "$REPO_ROOT/$relative/integrated-verdict.json") ||
++    diagnostic "$feature" stage-provenance "ADR historical binding or review identity is inconsistent"
++  input_hash=$(workflow_adr_input_hash \
++    "$(jq -er .design_sha256 "$precheck")" "$(jq -er .requirements_sha256 "$precheck")" \
++    "$(jq -er .acceptance_sha256 "$precheck")" "$(jq -c .layer_sha256 "$precheck")" "$adrs") ||
++    diagnostic "$feature" stage-provenance "ADR input material is invalid"
++  jq -e --arg expected "$input_hash" '.input_sha256==$expected' "$precheck" >/dev/null ||
++    diagnostic "$feature" stage-provenance "ADR input digest mismatch"
++  now=''
++  for path in "${files[@]}"; do
++    workflow_adr_safe_file "$relative/$path" || diagnostic "$feature" stage-provenance "ADR evidence path changed"
++    hash=$(sha256_file "$REPO_ROOT/$relative/$path") || diagnostic "$feature" stage-provenance "ADR evidence rehash failed"
++    now="$now$hash:$path
++"
++  done
++  if (( round > 1 )); then
++    workflow_adr_safe_file "$previous_relative" ||
++      diagnostic "$feature" stage-provenance "ADR previous summary path changed"
++    hash=$(sha256_file "$previous_file") ||
++      diagnostic "$feature" stage-provenance "ADR previous summary cannot be rehashed"
++    [[ "$hash" == "$previous_hash" ]] ||
++      diagnostic "$feature" stage-provenance "ADR previous summary changed during validation"
++  fi
++  [[ "$snapshot" == "$now" ]] || diagnostic "$feature" stage-provenance "ADR evidence changed during validation"
++  printf '%s\n' "$adrs"
++}
++# Same restricted byte grammar as admission; not general Markdown parsing.
++workflow_adr_declared_paths() {
++  LC_ALL=C awk '
++    function width(s, i, ch, n) {
++      n = 0
++      while (substr(s, i + n, 1) == ch) n++
++      return n
++    }
++    function escaped(s, i, n) {
++      n = 0
++      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
++      return n % 2
++    }
++    {
++      line = $0
++      sub(/\r$/, "", line)
++      match(line, /^ */)
++      indent = RLENGTH
++      rest = substr(line, indent + 1)
++      ch = substr(rest, 1, 1)
++      if (fence != "") {
++        if (indent <= 3 && ch == fence) {
++          n = width(rest, 1, ch)
++          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
++        }
++        next
++      }
++      if (indent >= 4 || rest ~ /^\t/) next
++      if (ch == "\140" || ch == "~") {
++        n = width(rest, 1, ch)
++        if (n >= 3) { fence = ch; fence_width = n; next }
++      }
++      i = 1
++      while (i <= length(line)) {
++        if (substr(line, i, 1) != "\140") { i++; continue }
++        n = width(line, i, "\140")
++        if (escaped(line, i)) { i += n; continue }
++        j = i + n
++        closed = 0
++        while (j <= length(line)) {
++          if (substr(line, j, 1) != "\140") { j++; continue }
++          m = width(line, j, "\140")
++          if (!escaped(line, j) && m == n) { closed = 1; break }
++          j += m
++        }
++        if (!closed) break
++        value = substr(line, i + n, j - i - n)
++        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/)
++          print value
++        i = j + n
++      }
++    }
++  ' "$1" | LC_ALL=C sort -u
++}
++
++# Current PASS only. Declaration changes are authorization failures, not staleness.
++workflow_adr_current_declarations() {
++  local feature=$1 contract=$2 bindings=$3
++  local design="specs/$feature/design.md" before after actual recorded present
++  present=$(jq -sr '
++    if length != 1 or (.[0]|type) != "object" then error("invalid ADR contract")
++    else .[0]|has("adr_inputs") end
++  ' "$contract") || diagnostic "$feature" stage-provenance "ADR contract cannot be read"
++  [[ "$present" == false ]] && return 0
++  workflow_adr_safe_file "$design" ||
++    diagnostic "$feature" stage-provenance "ADR current design path is unsafe"
++  before=$(sha256_file "$REPO_ROOT/$design") ||
++    diagnostic "$feature" stage-provenance "ADR current design cannot be hashed"
++  actual=$(workflow_adr_declared_paths "$REPO_ROOT/$design") ||
++    diagnostic "$feature" stage-provenance "ADR declarations cannot be derived"
++  recorded=$(jq -r '.[].path' <<< "$bindings") ||
++    diagnostic "$feature" stage-provenance "ADR verified declarations cannot be read"
++  [[ "$actual" == "$recorded" ]] ||
++    diagnostic "$feature" stage-provenance "ADR current design declarations differ from saved bindings"
++  workflow_adr_safe_file "$design" ||
++    diagnostic "$feature" stage-provenance "ADR current design path changed"
++  after=$(sha256_file "$REPO_ROOT/$design") ||
++    diagnostic "$feature" stage-provenance "ADR current design cannot be rehashed"
++  [[ "$before" == "$after" ]] ||
++    diagnostic "$feature" stage-provenance "ADR current design changed during declaration verification"
++}
++# plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
+@@ -806,1 +1177,6 @@
+-  if ! jq -e --arg feature "$feature" --arg stage "$stage" \
++  local verified_adr_bindings='[]'
++  if [[ "$stage" == impl ]]; then
++    verified_adr_bindings=$(workflow_adr_history_bindings "$feature" "$best_attempt" "$best_round") ||
++      diagnostic "$feature" stage-provenance "ADR saved-state verification failed"
++  fi
++  if ! jq -e --arg feature "$feature" --arg stage "$stage" \
+@@ -845,2 +1221,5 @@
+-  local recorded_root
+-  recorded_root="$(recorded_repo_root "$contract")"
++  if [[ "$stage" == impl ]]; then
++    workflow_adr_current_declarations "$feature" "$contract" "$verified_adr_bindings"
++  fi
++  local recorded_root
++  recorded_root="$(recorded_repo_root "$contract")"
+@@ -851,3 +1230,4 @@
+-    --arg recorded "${recorded_root:+$recorded_root/}" \
+-    --argjson attempt "$best_attempt" --argjson round "$best_round" '
+-    def relative_path:
++    --arg recorded "${recorded_root:+$recorded_root/}" \
++    --argjson verified_adrs "$verified_adr_bindings" \
++    --argjson attempt "$best_attempt" --argjson round "$best_round" '
++    def relative_path:
+@@ -880,1 +1260,2 @@
+-      ($path == (if $stage == "spec" then
++      ($stage == "impl" and any($verified_adrs[]; .path == $path)) or
++      ($path == (if $stage == "spec" then
+@@ -918,2 +1299,6 @@
+-    [[ -f "$manifest_file" && ! -L "$manifest_file" && -r "$manifest_file" ]] ||
+-      diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
++    if [[ "$stage" == impl && "$manifest_relative" == docs/adr/* ]]; then
++      workflow_adr_safe_file "$manifest_relative" ||
++        diagnostic "$feature" stage-provenance "ADR manifest input path is unsafe"
++    fi
++    [[ -f "$manifest_file" && ! -L "$manifest_file" && -r "$manifest_file" ]] ||
++      diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
+@@ -950,1 +1335,5 @@
+-  done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")
++    if [[ "$stage" == impl && "$manifest_relative" == docs/adr/* ]]; then
++      workflow_adr_safe_file "$manifest_relative" ||
++        diagnostic "$feature" stage-provenance "ADR manifest input path changed"
++    fi
++  done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")

@@ -664,7 +664,7 @@ if [ "${RUN_EXIT}" != "0" ]; then
 else
     fail "CL-021a: expected non-zero exit when no candidate carries the verdict schema, got 0 -- ${RUN_OUTPUT}"
 fi
-if echo "${RUN_OUTPUT}" | grep -qi "candidate"; then
+if echo "${RUN_OUTPUT}" | grep -i "candidate" >/dev/null; then
     ok "CL-021b: diagnostic reports candidate objects were considered and rejected"
 else
     fail "CL-021b: expected a candidate-aware diagnostic, got: ${RUN_OUTPUT}"

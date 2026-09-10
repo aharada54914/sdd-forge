@@ -982,6 +982,792 @@ function Stop-WorkflowStateOrTolerateOmit(
     if ($allExplained) { return }
     Stop-WorkflowState $Feature $Rule $Message
 }
+# Validate raw JSON before ConvertFrom-Json can erase repeated members.
+# Input must be decoded from the SAME safe byte snapshot the caller hashes.
+function Assert-AdrJsonMembers([string]$Text) {
+    $tokens = [regex]::new('\G(?:"(?:[^"\\\x00-\x1f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\[\]:,])')
+    $space = [regex]::new('\G[ \t\r\n]*')
+    # Explicit frames avoid a new recursion-depth limit; keys belong to one
+    # object instance, not a global path map (array siblings may repeat keys).
+    $frames = [Collections.Generic.List[object]]::new()
+    $frames.Add([pscustomobject]@{ Kind='root'; Phase='value'; Keys=$null })
+    $offset = 0
+    while ($offset -lt $Text.Length) {
+        $offset += $space.Match($Text, $offset).Length
+        if ($offset -eq $Text.Length) { break }
+        $match = $tokens.Match($Text, $offset)
+        if (-not $match.Success) { throw 'ADR JSON has an invalid token' }
+        $token = $match.Value
+        $offset += $match.Length
+        $frame = $frames[$frames.Count - 1]
+        if ($frame.Phase -ceq 'colon') {
+            if ($token -cne ':') { throw 'ADR JSON member has no colon' }
+            $frame.Phase = 'value'
+            continue
+        }
+        if ($frame.Phase -ceq 'comma-or-end') {
+            $closing = if ($frame.Kind -ceq 'object') { '}' } else { ']' }
+            if ($token -ceq $closing) {
+                $frames.RemoveAt($frames.Count - 1)
+                continue
+            }
+            if ($token -cne ',') { throw 'ADR JSON missing separator' }
+            $frame.Phase = if ($frame.Kind -ceq 'object') { 'key' } else { 'value' }
+            continue
+        }
+        if ($frame.Phase -ceq 'key-or-end' -and $token -ceq '}') {
+            $frames.RemoveAt($frames.Count - 1)
+            continue
+        }
+        if ($frame.Phase -ceq 'value-or-end' -and $token -ceq ']') {
+            $frames.RemoveAt($frames.Count - 1)
+            continue
+        }
+        if ($frame.Phase -ceq 'key' -or $frame.Phase -ceq 'key-or-end') {
+            if (-not $token.StartsWith('"', [StringComparison]::Ordinal)) {
+                throw 'ADR JSON object key is not a string'
+            }
+            # Parse one isolated string, never a whole object with duplicate
+            # keys. Array wrapping preserves the empty string in PS5.1.
+            $decoded = @(ConvertFrom-Json -InputObject ('[' + $token + ']') -ErrorAction Stop)
+            if ($decoded.Count -ne 1 -or $decoded[0] -isnot [string]) {
+                throw 'ADR JSON key decoding failed'
+            }
+            if (-not $frame.Keys.Add($decoded[0])) { throw 'ADR JSON duplicate decoded member' }
+            $frame.Phase = 'colon'
+            continue
+        }
+        if ($frame.Phase -cne 'value' -and $frame.Phase -cne 'value-or-end') {
+            throw 'ADR JSON has trailing content'
+        }
+        # Consume this value at its parent before descending into a container.
+        # A comma requires a value/key, so trailing commas cannot close it.
+        $frame.Phase = if ($frame.Kind -ceq 'root') { 'done' } else { 'comma-or-end' }
+        if ($token -ceq '{') {
+            $keys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+            $frames.Add([pscustomobject]@{ Kind='object'; Phase='key-or-end'; Keys=$keys })
+        } elseif ($token -ceq '[') {
+            $frames.Add([pscustomobject]@{ Kind='array'; Phase='value-or-end'; Keys=$null })
+        } elseif ($token -ceq '}' -or $token -ceq ']' -or $token -ceq ':' -or $token -ceq ',') {
+            throw 'ADR JSON value missing or container mismatched'
+        }
+    }
+    if ($frames.Count -ne 1 -or $frames[0].Phase -cne 'done') {
+        throw 'ADR JSON is empty or incomplete'
+    }
+}
+# Caller must first validate every path component; this reader alone does
+# not prevent symlink races. Never reopen the path to compute this digest.
+function Read-AdrJsonSnapshot([string]$Path) {
+    $bytes = [IO.File]::ReadAllBytes($Path)
+    $decoder = [Text.UTF8Encoding]::new($false, $true)
+    $text = $decoder.GetString($bytes)
+    # Permit a leading UTF-8 BOM without excluding its bytes from the hash.
+    if ($text.Length -gt 0 -and $text[0] -eq [char]0xfeff) {
+        $text = $text.Substring(1)
+    }
+    Assert-AdrJsonMembers $text
+    $hasher = [Security.Cryptography.SHA256]::Create()
+    try {
+        $digest = [BitConverter]::ToString($hasher.ComputeHash($bytes)).Replace('-', '').ToLowerInvariant()
+    } finally {
+        $hasher.Dispose()
+    }
+    return [pscustomobject]@{ Path=$Path; Sha256=$digest; Text=$text }
+}
+# ADR history core binding. Does not read current ADR bytes or grant admission.
+# The full history caller must also validate identities, manifests and summaries.
+function Get-AdrHistoryCoreBinding($Contract, $Precheck) {
+    function Get-ExactAdrField($Object, [string]$Name) {
+        if ($Object -isnot [pscustomobject]) { throw 'ADR record must be an object' }
+        $properties = @($Object.PSObject.Properties | Where-Object {
+            [string]::Equals($_.Name, $Name, [StringComparison]::Ordinal)
+        })
+        if ($properties.Count -ne 1) { throw "ADR field missing: $Name" }
+        # Preserve JSON [] and singleton arrays in Windows PowerShell 5.1.
+        return ,($properties[0].Value)
+    }
+    function Test-AdrDigest($Value) {
+        return ($Value -is [string] -and $Value -cmatch '\A[0-9a-f]{64}\z')
+    }
+    function Get-AdrCanonicalEntries($Entries) {
+        if ($Entries -isnot [array]) { throw 'ADR entries must be an array' }
+        $serialized = [Collections.Generic.List[string]]::new()
+        $previous = $null
+        foreach ($entry in $Entries) {
+            if ($entry -isnot [pscustomobject] -or
+                @($entry.PSObject.Properties).Count -ne 2) { throw 'ADR entry shape invalid' }
+            $path = Get-ExactAdrField $entry 'path'
+            $hash = Get-ExactAdrField $entry 'sha256'
+            if ($path -isnot [string] -or
+                $path -cnotmatch '\Adocs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md\z' -or
+                -not (Test-AdrDigest $hash)) { throw 'ADR entry path or hash invalid' }
+            if ($null -ne $previous -and
+                [StringComparer]::Ordinal.Compare($previous, $path) -ge 0) {
+                throw 'ADR entries must be sorted and unique'
+            }
+            $previous = $path
+            # Both values are restricted ASCII without JSON escape characters.
+            $serialized.Add('{"path":"' + $path + '","sha256":"' + $hash + '"}')
+        }
+        return '[' + [string]::Join(',', $serialized.ToArray()) + ']'
+    }
+    function Get-AdrCanonicalLayers($Layers) {
+        if ($Layers -isnot [pscustomobject]) { throw 'ADR layers must be an object' }
+        $properties = @($Layers.PSObject.Properties)
+        if ($properties.Count -eq 0) { return '{}' }
+        if ($properties.Count -ne 4) { throw 'ADR layer key count invalid' }
+        $parts = [Collections.Generic.List[string]]::new()
+        # ASCII key order matches jq -cS, independently of locale.
+        foreach ($name in @('frontend-spec.md','infra-spec.md','security-spec.md','ux-spec.md')) {
+            $hash = Get-ExactAdrField $Layers $name
+            if (-not (Test-AdrDigest $hash)) { throw 'ADR layer hash invalid' }
+            $parts.Add('"' + $name + '":"' + $hash + '"')
+        }
+        return '{' + [string]::Join(',', $parts.ToArray()) + '}'
+    }
+    if ($Contract -isnot [pscustomobject] -or
+        ($null -ne $Precheck -and $Precheck -isnot [pscustomobject])) {
+        throw 'ADR history records must be objects'
+    }
+    $contractPresent = @($Contract.PSObject.Properties.Name) -ccontains 'adr_inputs'
+    $precheckPresent = $null -ne $Precheck -and
+        @($Precheck.PSObject.Properties.Name) -ccontains 'adr_inputs'
+    if ($contractPresent -ne $precheckPresent) { throw 'one-sided ADR extension' }
+    if (-not $contractPresent) {
+        # The caller still rejects ADR-like paths in every legacy manifest.
+        return [pscustomobject]@{ Extended=$false; EntriesJson='[]' }
+    }
+    $entries = Get-AdrCanonicalEntries (Get-ExactAdrField $Precheck 'adr_inputs')
+    if ((Get-AdrCanonicalEntries (Get-ExactAdrField $Contract 'adr_inputs')) -cne $entries) {
+        throw 'ADR saved sets disagree'
+    }
+    $pins = [Collections.Generic.List[string]]::new()
+    foreach ($name in @('design_sha256','requirements_sha256','acceptance_sha256')) {
+        $pin = Get-ExactAdrField $Precheck $name
+        $other = Get-ExactAdrField $Contract $name
+        if (-not (Test-AdrDigest $pin) -or -not (Test-AdrDigest $other) -or $pin -cne $other) {
+            throw 'ADR core pins disagree'
+        }
+        $pins.Add($pin)
+    }
+    # Extended records explicitly bind an empty or complete layer map.
+    $layerJson = @(
+        (Get-AdrCanonicalLayers (Get-ExactAdrField $Precheck 'layer_sha256')),
+        (Get-AdrCanonicalLayers (Get-ExactAdrField $Contract 'layer_sha256')))
+    if ($layerJson[0] -cne $layerJson[1]) { throw 'ADR saved layer pins disagree' }
+    $material = [string]::Join(':', $pins.ToArray())
+    if ($layerJson[0] -cne '{}') { $material += ':' + $layerJson[0] }
+    $material += ':adr_inputs/v1:' + $entries
+    $hasher = [Security.Cryptography.SHA256]::Create()
+    try {
+        $digest = [BitConverter]::ToString($hasher.ComputeHash(
+            [Text.Encoding]::ASCII.GetBytes($material))).Replace('-', '').ToLowerInvariant()
+    } finally { $hasher.Dispose() }
+    $recordedDigest = Get-ExactAdrField $Precheck 'input_sha256'
+    if (-not (Test-AdrDigest $recordedDigest) -or $recordedDigest -cne $digest) {
+        throw 'ADR saved input digest mismatch'
+    }
+    return [pscustomobject]@{ Extended=$true; EntriesJson=$entries }
+}
+# Called for each of the four ADR-extended saved manifests. Snapshot hashes and
+# canonical core/ADR validation are prerequisites owned by the history caller.
+function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
+    [string]$Feature, [int]$Attempt, [int]$Round, [string]$RepositoryRoot,
+    [string]$RecordedRoot, [string]$PrecheckHash, [string]$SummaryHash,
+    [string]$PreviousSummaryHash) {
+    if ($Role -cnotin @('impl-reviewer-a','impl-reviewer-b') -or
+        $Manifest -isnot [array]) { throw 'ADR manifest role or array invalid' }
+    $roundRoot = "reports/impl-review/$Feature/attempt-$Attempt/round-$Round"
+    $pcPath = "$roundRoot/precheck-result.json"
+    $designPath = "specs/$Feature/design.md"
+    $summaryPath = "$roundRoot/integrated-summary.json"
+    $previousPath = "reports/impl-review/$Feature/attempt-$Attempt/round-$($Round-1)/integrated-summary.json"
+    $calibration = 'plugins/sdd-review-loop/references/reviewer-calibration.md'
+    $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($name in @('requirements.md','acceptance-tests.md','investigation.md',
+        'design.md','ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
+        [void]$allowed.Add("specs/$Feature/$name")
+    }
+    [void]$allowed.Add($calibration)
+    [void]$allowed.Add($pcPath)
+    if ($Role -ceq 'impl-reviewer-b') { [void]$allowed.Add($summaryPath) }
+    if ($Role -ceq 'impl-reviewer-a' -and $Round -gt 1) { [void]$allowed.Add($previousPath) }
+    $adrs = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($entry in $Precheck.adr_inputs) { $adrs.Add($entry.path, $entry.sha256) }
+    $normalized = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    $raw = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($entry in $Manifest) {
+        if ($entry -isnot [pscustomobject] -or
+            @($entry.PSObject.Properties.Name) -cnotcontains 'path' -or
+            @($entry.PSObject.Properties.Name) -cnotcontains 'sha256' -or
+            $entry.path -isnot [string] -or $entry.path.Length -eq 0 -or
+            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z') {
+            throw 'ADR manifest entry invalid'
+        }
+        $relative = Get-RepositoryRelativePath $entry.path $RepositoryRoot $RecordedRoot
+        if ($null -eq $relative -or $relative -cmatch '(^|/)[.]{1,2}(/|$)' -or
+            $normalized.ContainsKey($relative)) { throw 'ADR manifest path invalid or duplicated' }
+        # Detect all ADR-like aliases before relocation; only raw canonical
+        # declarations may use this branch. Case-insensitive detection rejects
+        # mis-cased aliases rather than granting them authority.
+        if ($entry.path.Replace('\','/') -imatch '(^|/)docs/adr/') {
+            if (-not $adrs.ContainsKey($entry.path) -or $adrs[$entry.path] -cne $entry.sha256) {
+                throw 'ADR manifest member is undeclared or differs from precheck'
+            }
+        } elseif (-not $allowed.Contains($relative)) { throw 'ADR manifest violates role isolation' }
+        $normalized.Add($relative, $entry.sha256)
+        $raw.Add($entry.path, $entry.sha256)
+    }
+    # Precheck/design must have exact raw canonical entries, not relocated aliases.
+    if (-not $raw.ContainsKey($pcPath) -or $raw[$pcPath] -cne $PrecheckHash -or
+        -not $raw.ContainsKey($designPath) -or $raw[$designPath] -cne $Precheck.design_sha256) {
+        throw 'ADR manifest precheck or design pin invalid'
+    }
+    $required = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    $required.Add("specs/$Feature/requirements.md", $Precheck.requirements_sha256)
+    $required.Add("specs/$Feature/acceptance-tests.md", $Precheck.acceptance_sha256)
+    foreach ($pin in $Precheck.layer_sha256.PSObject.Properties) {
+        $required.Add("specs/$Feature/$($pin.Name)", $pin.Value)
+    }
+    if ($Role -ceq 'impl-reviewer-b') { $required.Add($summaryPath, $SummaryHash) }
+    if ($Role -ceq 'impl-reviewer-a' -and $Round -gt 1) {
+        $required.Add($previousPath, $PreviousSummaryHash)
+    }
+    foreach ($pin in $required.GetEnumerator()) {
+        if ($pin.Value -cnotmatch '\A[0-9a-f]{64}\z' -or
+            -not $normalized.ContainsKey($pin.Key) -or $normalized[$pin.Key] -cne $pin.Value) {
+            throw 'ADR manifest required pin missing or inconsistent'
+        }
+    }
+    if (-not $normalized.ContainsKey($calibration)) { throw 'ADR manifest calibration missing' }
+    foreach ($pin in $adrs.GetEnumerator()) {
+        if (-not $raw.ContainsKey($pin.Key) -or $raw[$pin.Key] -cne $pin.Value) {
+            throw 'ADR manifest omits declared input'
+        }
+    }
+    return [pscustomobject]@{ Raw=$raw; Normalized=$normalized }
+}
+function Test-AdrHistoryManifestSuperset($Actual, $Bound, [string]$Feature) {
+    foreach ($entry in $Bound.Raw.GetEnumerator()) {
+        if (-not $Actual.Raw.ContainsKey($entry.Key) -or
+            $Actual.Raw[$entry.Key] -cne $entry.Value) { return $false }
+    }
+    $layers = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($name in @('ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
+        [void]$layers.Add("specs/$Feature/$name")
+    }
+    foreach ($entry in $Actual.Normalized.GetEnumerator()) {
+        if (-not $Bound.Normalized.ContainsKey($entry.Key) -and
+            -not $layers.Contains($entry.Key)) { return $false }
+    }
+    return $true
+}
+# Called only for ADR-extended records, before opening freshness tolerance.
+# Full history binding validates manifest structure and pins separately.
+function Test-AdrSharedLayerAgreement($Contract, $ReviewerA, $ReviewerB,
+    [string]$Feature, [string]$RepositoryRoot) {
+    $recorded = Get-RecordedRepositoryRoot $Contract $RepositoryRoot
+    if (-not $recorded.Valid) { return $false }
+    # Ordinal keys: PowerShell's default hashtable is case-insensitive.
+    $hashes = [Collections.Generic.Dictionary[string,string]]::new(
+        [StringComparer]::Ordinal)
+    $owners = @($Contract.reviewers) + @($ReviewerA, $ReviewerB)
+    foreach ($owner in $owners) {
+        foreach ($item in @($owner.allowed_input_manifest)) {
+            if ($null -eq $item -or $item.path -isnot [string]) { return $false }
+            $relative = Get-RepositoryRelativePath $item.path $RepositoryRoot $recorded.Root
+            if ($null -eq $relative) { return $false }
+            $isLayer = $false
+            foreach ($name in @('ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
+                if ([string]::Equals($relative, "specs/$Feature/$name", [StringComparison]::Ordinal)) {
+                    $isLayer = $true
+                    break
+                }
+            }
+            if (-not $isLayer) { continue }
+            if ($item.sha256 -isnot [string] -or $item.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                return $false
+            }
+            if ($hashes.ContainsKey($relative) -and $hashes[$relative] -cne $item.sha256) {
+                return $false
+            }
+            $hashes[$relative] = $item.sha256
+        }
+    }
+    return $true
+}
+# Saved output checks only; the caller must validate safe JSON snapshots,
+# precheck/core pins, four manifests, summaries and current-stage freshness.
+function Test-AdrHistoryOutputs($Contract, $ReviewerA, $ReviewerB, $Verdict,
+    [string]$Feature, [int]$Attempt, [int]$Round) {
+    function Field($Object, [string]$Name) {
+        if ($Object -isnot [pscustomobject]) { throw 'ADR output is not an object' }
+        $exactProperties = @($Object.PSObject.Properties | Where-Object {
+            [string]::Equals($_.Name, $Name, [StringComparison]::Ordinal)
+        })
+        if ($exactProperties.Count -ne 1) { throw "ADR output field missing: $Name" }
+        return ,($exactProperties[0].Value)
+    }
+    function TextEquals($Actual, [string]$Expected) {
+        return ($Actual -is [string] -and
+            [string]::Equals($Actual, $Expected, [StringComparison]::Ordinal))
+    }
+    function Nonempty($Value) {
+        return ($Value -is [string] -and $Value.Length -gt 0)
+    }
+    function CountEquals($Value, [long]$Expected) {
+        # JSON numeric values only; never coerce strings, bools or null.
+        if ($Value -isnot [int] -and $Value -isnot [long] -and
+            $Value -isnot [double] -and $Value -isnot [decimal]) { return $false }
+        return ($Value -ge 0 -and $Value -eq $Expected)
+    }
+    function CheckIdentity($Object, [string]$Schema) {
+        if (-not (TextEquals (Field $Object 'schema') $Schema) -or
+            -not (TextEquals (Field $Object 'feature') $Feature) -or
+            -not (TextEquals (Field $Object 'stage') 'impl') -or
+            -not (CountEquals (Field $Object 'attempt') $Attempt) -or
+            -not (CountEquals (Field $Object 'round') $Round) -or
+            -not (Nonempty (Field $Object 'run_id'))) { throw 'ADR output identity invalid' }
+    }
+    CheckIdentity $Contract 'impl-review-contract/v1'
+    CheckIdentity $Verdict 'integrated-verdict/v1'
+    if (-not (TextEquals (Field $Verdict 'run_id') (Field $Contract 'run_id'))) {
+        throw 'ADR integrated run ID mismatch'
+    }
+    $bound = Field $Contract 'reviewers'
+    if ($bound -isnot [array] -or $bound.Count -ne 2) { throw 'ADR reviewer pair invalid' }
+    $roles = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+    $runs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $sessions = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($reviewer in $bound) {
+        $role = Field $reviewer 'role'
+        $run = Field $reviewer 'run_id'
+        $session = Field $reviewer 'host_session_id'
+        if ((-not (TextEquals $role 'impl-reviewer-a') -and
+             -not (TextEquals $role 'impl-reviewer-b')) -or
+            -not (Nonempty $run) -or -not (Nonempty $session)) {
+            throw 'ADR reviewer reservation identity invalid'
+        }
+        if ($roles.ContainsKey($role) -or -not $runs.Add($run) -or
+            -not $sessions.Add($session)) { throw 'ADR reviewer identities must be distinct' }
+        $roles.Add($role, $reviewer)
+    }
+    $totals = @{ Critical=0L; Major=0L; Minor=0L }
+    $results = [Collections.Generic.List[object]]::new()
+    foreach ($pair in @(
+        [pscustomobject]@{ Output=$ReviewerA; Role='impl-reviewer-a' },
+        [pscustomobject]@{ Output=$ReviewerB; Role='impl-reviewer-b' })) {
+        $output = $pair.Output
+        $role = $pair.Role
+        $reservation = $roles[$role]
+        if (-not (TextEquals (Field $output 'schema') ($role + '/v1')) -or
+            -not (TextEquals (Field $output 'stage') 'impl') -or
+            -not (TextEquals (Field $output 'role') $role) -or
+            -not (TextEquals (Field $output 'run_id') (Field $reservation 'run_id')) -or
+            -not (TextEquals (Field $output 'host_session_id') (Field $reservation 'host_session_id'))) {
+            throw 'ADR reviewer output identity mismatch'
+        }
+        $checks = Field $output 'checks'
+        if ($checks -isnot [array] -or $checks.Count -eq 0) { throw 'ADR reviewer checks invalid' }
+        # Fixed ADR-extension v1 profile; ordinal and positional comparison.
+        $expectedIds = if (TextEquals $role 'impl-reviewer-a') {
+            @('ARCH-COVERAGE','NO-CIRCULAR-DEPS','DATA-COVERAGE','API-COVERAGE',
+              'SECURITY-COVERAGE','FRONTEND-BACKEND-CONSISTENCY','TEST-STRATEGY-COVERAGE',
+              'NO-UNDEFINED-COMPONENT','ADR-PRESENT','DESIGN-SYSTEM-CONFORMANCE','DOMAIN-CONFORMANCE')
+        } else {
+            @('DECISION-JUSTIFIED','OPEN-QUESTIONS-RESOLVABLE','ASSUMPTIONS-VALID',
+              'NO-REQ-CONTRADICTION','PERF-ADDRESSED','DEPLOYMENT-CONCRETE','MIGRATION-PLANNED',
+              'INTEGRATION-IDENTIFIED','DESIGN-WITHIN-SCOPE','VERIFICATION-PATH-CONCRETE','DOMAIN-CONFORMANCE')
+        }
+        if ($checks.Count -ne $expectedIds.Count) { throw 'ADR required check count mismatch' }
+        for ($index = 0; $index -lt $expectedIds.Count; $index++) {
+            if (-not (TextEquals (Field $checks[$index] 'id') $expectedIds[$index])) {
+                throw 'ADR required check sequence mismatch'
+            }
+        }
+        $ids = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        $counts = @{ PASS=0L; FAIL=0L; SKIP=0L }
+        $critical = 0L
+        foreach ($check in $checks) {
+            $id = Field $check 'id'
+            $result = Field $check 'result'
+            if (-not (Nonempty $id) -or -not $ids.Add($id)) { throw 'ADR duplicate or empty check ID' }
+            if (-not (TextEquals $result 'PASS') -and -not (TextEquals $result 'FAIL') -and
+                -not (TextEquals $result 'SKIP')) { throw 'ADR check result invalid' }
+            $counts[$result]++
+            if (TextEquals $result 'FAIL') {
+                $severity = Field $check 'severity'
+                if (-not (TextEquals $severity 'Critical') -and
+                    -not (TextEquals $severity 'Major') -and
+                    -not (TextEquals $severity 'Minor')) { throw 'ADR check severity invalid' }
+                $totals[$severity]++
+                if (TextEquals $severity 'Critical') { $critical++ }
+            }
+        }
+        $expected = if ($critical -gt 0) { 'BLOCKED' }
+            elseif ($counts.FAIL -gt 0) { 'NEEDS_WORK' } else { 'PASS' }
+        if (-not (TextEquals (Field $output 'verdict') $expected)) { throw 'ADR reviewer verdict mismatch' }
+        $results.Add([pscustomobject]@{ Ids=$ids; Counts=$counts; Verdict=$expected })
+    }
+    $expectedIntegrated = if ($totals.Critical -gt 0) { 'BLOCKED' }
+        elseif ($totals.Major -gt 0 -or ($totals.Minor -gt 0 -and $Round -lt 3)) { 'NEEDS_WORK' }
+        elseif ($totals.Minor -gt 0) { 'PASS-with-warnings' } else { 'PASS' }
+    foreach ($record in @($Contract, $Verdict)) {
+        if (-not (TextEquals (Field $record 'verdict') $expectedIntegrated) -or
+            -not (TextEquals (Field $record 'reviewer_a_verdict') $results[0].Verdict) -or
+            -not (TextEquals (Field $record 'reviewer_b_verdict') $results[1].Verdict)) {
+            throw 'ADR integrated reviewer verdict mismatch'
+        }
+        foreach ($severity in @('Critical','Major','Minor')) {
+            $name = 'findings_' + $severity.ToLowerInvariant()
+            if (-not (CountEquals (Field $record $name) $totals[$severity])) {
+                throw 'ADR aggregate findings disagree with actual reviewer checks'
+            }
+        }
+    }
+    # The caller compares A's exact ID set and counters with current summary.
+    return $results[0]
+}
+# Current summary binds A's actual checks; prior summary is shape-only.
+# Caller supplies safe parsed snapshots and pins their raw hashes in manifests.
+function Test-AdrHistorySummary($Summary, [int]$Attempt, [int]$Round, $ReviewerResult) {
+    if ($Summary -isnot [pscustomobject]) { throw 'ADR summary must be an object' }
+    $fields = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+    foreach ($property in $Summary.PSObject.Properties) {
+        if ($fields.ContainsKey($property.Name)) { throw 'ADR duplicate summary field' }
+        $fields.Add($property.Name, $property.Value)
+    }
+    $expectedKeys = @('attempt','generated_at','reviewer_a_check_ids',
+        'reviewer_a_fail_count','reviewer_a_pass_count','reviewer_a_skip_count','round','schema')
+    if ($fields.Count -ne $expectedKeys.Count) { throw 'ADR summary key count invalid' }
+    foreach ($key in $expectedKeys) {
+        if (-not $fields.ContainsKey($key)) { throw 'ADR summary field missing or mis-cased' }
+    }
+    function IsNumber($Value) {
+        return ($Value -is [int] -or $Value -is [long] -or
+            $Value -is [double] -or $Value -is [decimal])
+    }
+    # This value comes only from validated JSON via ConvertFrom-Json.
+    # Some PowerShell versions turn nonempty timestamp strings into dates;
+    # JSON objects/arrays/numbers cannot produce these CLR date types here.
+    # Do not cast other values: the raw JSON contract remains nonempty string.
+    $generatedAt = $fields['generated_at']
+    $generatedAtIsString = ($generatedAt -is [string] -and $generatedAt.Length -gt 0) -or
+        $generatedAt -is [datetime] -or $generatedAt -is [datetimeoffset]
+    if ($fields['schema'] -isnot [string] -or
+        -not [string]::Equals($fields['schema'], 'integrated-summary/v1', [StringComparison]::Ordinal) -or
+        -not (IsNumber $fields['attempt']) -or $fields['attempt'] -ne $Attempt -or
+        -not (IsNumber $fields['round']) -or $fields['round'] -ne $Round -or
+        -not $generatedAtIsString) {
+        throw 'ADR summary identity invalid'
+    }
+    $checkIds = $fields['reviewer_a_check_ids']
+    if ($checkIds -isnot [array] -or $checkIds.Count -eq 0) { throw 'ADR summary IDs invalid' }
+    $ids = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($id in $checkIds) {
+        if ($id -isnot [string] -or $id.Length -eq 0 -or -not $ids.Add($id)) {
+            throw 'ADR summary IDs must be nonempty and unique'
+        }
+    }
+    $counts = [Collections.Generic.Dictionary[string,long]]::new([StringComparer]::Ordinal)
+    $sum = 0L
+    foreach ($result in @('PASS','FAIL','SKIP')) {
+        $value = $fields['reviewer_a_' + $result.ToLowerInvariant() + '_count']
+        # Bound before integer conversion; rejects NaN, infinity and fractions.
+        if (-not (IsNumber $value) -or -not ($value -ge 0 -and $value -le $ids.Count) -or
+            $value % 1 -ne 0) { throw 'ADR summary counter invalid' }
+        $counts.Add($result, [long]$value)
+        $sum += [long]$value
+    }
+    if ($sum -ne $ids.Count) { throw 'ADR summary total does not equal its ID count' }
+    if ($null -ne $ReviewerResult) {
+        # This result must come from Test-AdrHistoryOutputs, never caller JSON.
+        if (-not $ids.SetEquals($ReviewerResult.Ids)) { throw 'ADR summary IDs disagree with actual reviewer A' }
+        foreach ($result in @('PASS','FAIL','SKIP')) {
+            if ($counts[$result] -ne $ReviewerResult.Counts[$result]) {
+                throw 'ADR summary counters disagree with actual reviewer A'
+            }
+        }
+    }
+}
+# Compose saved-state checks from immutable text/hash pairs. The file-system
+# caller must create these with Read-AdrJsonSnapshot after safe-path checks,
+# then recheck current evidence stability; no current ADR bytes are read here.
+function Get-AdrHistoryBinding([Collections.IDictionary]$Snapshots,
+    [string]$Feature, [int]$Attempt, [int]$Round, [string]$RepositoryRoot) {
+    function Read-SavedAdrObject([string]$Name, [bool]$Optional = $false) {
+        if (-not $Snapshots.ContainsKey($Name)) {
+            if ($Optional) { return $null }
+            throw "ADR saved snapshot missing: $Name"
+        }
+        $snapshot = $Snapshots[$Name]
+        if ($snapshot.Text -isnot [string] -or $snapshot.Sha256 -isnot [string] -or
+            $snapshot.Sha256 -cnotmatch '\A[0-9a-f]{64}\z') {
+            throw 'ADR snapshot text or digest invalid'
+        }
+        # PowerShell can unwrap singleton arrays during conversion. Check the
+        # raw root first; the member checker already enforces the JSON grammar.
+        Assert-AdrJsonMembers $snapshot.Text
+        if (-not $snapshot.Text.TrimStart([char[]]" `t`r`n").StartsWith('{', [StringComparison]::Ordinal)) {
+            throw 'ADR saved evidence root must be an object'
+        }
+        return ConvertFrom-Json -InputObject $snapshot.Text -ErrorAction Stop
+    }
+    $contract = Read-SavedAdrObject 'impl-review-contract.json'
+    $precheck = Read-SavedAdrObject 'precheck-result.json' $true
+    $reviewerA = Read-SavedAdrObject 'reviewer-a.json'
+    $reviewerB = Read-SavedAdrObject 'reviewer-b.json'
+    $verdict = Read-SavedAdrObject 'integrated-verdict.json'
+    $summary = Read-SavedAdrObject 'integrated-summary.json'
+    $core = Get-AdrHistoryCoreBinding $contract $precheck
+    if (-not $core.Extended) {
+        # Legacy absence is not permission to read ADRs, including aliases.
+        foreach ($owner in (@($contract.reviewers) + @($reviewerA, $reviewerB))) {
+            foreach ($entry in @($owner.allowed_input_manifest)) {
+                if ($entry.path -isnot [string] -or
+                    $entry.path.Replace('\','/') -imatch '(^|/)docs/adr/') {
+                    throw 'ADR input has no binding extension'
+                }
+            }
+        }
+    } else {
+        foreach ($name in @('schema','feature','attempt','round')) {
+            if (@($precheck.PSObject.Properties.Name) -cnotcontains $name) {
+                throw 'ADR precheck identity field missing'
+            }
+        }
+        if ($precheck.schema -isnot [string] -or $precheck.schema -cne 'impl-review-precheck/v1' -or
+            $precheck.feature -isnot [string] -or $precheck.feature -cne $Feature) {
+            throw 'ADR precheck identity mismatch'
+        }
+        foreach ($pair in @(@('attempt',$Attempt), @('round',$Round))) {
+            $value = $precheck.($pair[0])
+            if (($value -isnot [int] -and $value -isnot [long] -and
+                 $value -isnot [double] -and $value -isnot [decimal]) -or $value -ne $pair[1]) {
+                throw 'ADR precheck attempt or round mismatch'
+            }
+        }
+        $aResult = Test-AdrHistoryOutputs $contract $reviewerA $reviewerB $verdict $Feature $Attempt $Round
+        Test-AdrHistorySummary $summary $Attempt $Round $aResult
+        $previousHash = ''
+        if ($Round -gt 1) {
+            $previous = Read-SavedAdrObject 'previous-integrated-summary.json'
+            Test-AdrHistorySummary $previous $Attempt ($Round - 1) $null
+            $previousHash = $Snapshots['previous-integrated-summary.json'].Sha256
+        }
+        $recorded = Get-RecordedRepositoryRoot $contract $RepositoryRoot
+        if (-not $recorded.Valid) { throw 'ADR recorded root is ambiguous' }
+        foreach ($role in @('impl-reviewer-a','impl-reviewer-b')) {
+            $reservation = @($contract.reviewers | Where-Object { $_.role -ceq $role })[0]
+            $output = if ($role -ceq 'impl-reviewer-a') { $reviewerA } else { $reviewerB }
+            $bound = Get-AdrHistoryManifest $reservation.allowed_input_manifest $role $precheck `
+                $Feature $Attempt $Round $RepositoryRoot $recorded.Root `
+                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash
+            $actual = Get-AdrHistoryManifest $output.allowed_input_manifest $role $precheck `
+                $Feature $Attempt $Round $RepositoryRoot $recorded.Root `
+                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash
+            if (-not (Test-AdrHistoryManifestSuperset $actual $bound $Feature)) {
+                throw 'ADR actual reviewer manifest diverges from reservation'
+            }
+        }
+        if (-not (Test-AdrSharedLayerAgreement $contract $reviewerA $reviewerB $Feature $RepositoryRoot)) {
+            throw 'ADR shared layer pins disagree'
+        }
+    }
+    return [pscustomobject]@{
+        Extended=$core.Extended; EntriesJson=$core.EntriesJson
+        Contract=$contract; Precheck=$precheck; ReviewerA=$reviewerA
+        ReviewerB=$reviewerB; Verdict=$verdict; Summary=$summary
+    }
+}
+# Root is the caller's trusted repository root; do not resolve an evidence
+# alias before examining each case-exact child and rejecting reparse points.
+function Get-AdrSafeEvidencePath([string]$Relative, [string]$RepositoryRoot,
+    [bool]$AllowMissingLeaf = $false) {
+    if ($Relative -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9._/-]*\z' -or
+        $Relative.EndsWith('/') -or $Relative.Contains('//')) {
+        throw 'ADR evidence relative path invalid'
+    }
+    $current = Get-Item -LiteralPath $RepositoryRoot -Force -ErrorAction Stop
+    $components = $Relative.Split('/')
+    for ($index = 0; $index -lt $components.Count; $index++) {
+        $component = $components[$index]
+        if ($component -ceq '.' -or $component -ceq '..' -or
+            -not $current.PSIsContainer -or
+            ($current.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw 'ADR evidence parent is unsafe'
+        }
+        $siblings = @(Get-ChildItem -LiteralPath $current.FullName -Force -ErrorAction Stop)
+        $children = @($siblings |
+            Where-Object { [string]::Equals($_.Name, $component, [StringComparison]::Ordinal) })
+        if ($children.Count -eq 0 -and $AllowMissingLeaf -and $index -eq ($components.Count - 1)) {
+            # Missing means no directory entry, not an unresolved link target.
+            # A case variant is malformed evidence, even on case-sensitive hosts.
+            $aliases = @($siblings | Where-Object {
+                [string]::Equals($_.Name, $component, [StringComparison]::OrdinalIgnoreCase)
+            })
+            if ($aliases.Count -ne 0) { throw 'ADR evidence leaf has wrong case' }
+            return $null
+        }
+        if ($children.Count -ne 1) { throw 'ADR evidence component missing or wrong case' }
+        $current = $children[0]
+        if ($current.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            throw 'ADR evidence reparse point rejected'
+        }
+    }
+    if ($current.PSIsContainer -or $current -isnot [IO.FileInfo]) {
+        throw 'ADR evidence is not a regular file'
+    }
+    return $current.FullName
+}
+# Same restricted byte grammar as admission and the Bash declaration consumer.
+function Get-AdrCurrentDeclaredPaths([string]$DesignPath) {
+    # Preserve each byte, including a BOM; only ASCII declarations are recognized.
+    $text = [Text.Encoding]::GetEncoding(28591).GetString([IO.File]::ReadAllBytes($DesignPath))
+    $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    function Get-AdrRunWidth([string]$Line, [int]$Start, [char]$Delimiter) {
+        $width = 0
+        while (($Start + $width) -lt $Line.Length -and $Line[$Start + $width] -ceq $Delimiter) { $width++ }
+        return $width
+    }
+    function Test-AdrRunEscaped([string]$Line, [int]$Start) {
+        $slashes = 0
+        while ($Start -gt 0 -and $Line[$Start - 1] -ceq [char]92) { $slashes++; $Start-- }
+        return (($slashes % 2) -ne 0)
+    }
+    $fence = [char]0
+    $fenceWidth = 0
+    foreach ($rawLine in $text.Split([char]10)) {
+        $line = $rawLine
+        if ($line.Length -gt 0 -and $line[$line.Length - 1] -ceq [char]13) {
+            $line = $line.Substring(0, $line.Length - 1)
+        }
+        $indent = 0
+        while ($indent -lt $line.Length -and $line[$indent] -ceq [char]32) { $indent++ }
+        $rest = $line.Substring($indent)
+        $first = [char]0
+        if ($rest.Length -gt 0) { $first = $rest[0] }
+        if ($fence -cne [char]0) {
+            if ($indent -le 3 -and $first -ceq $fence) {
+                $width = Get-AdrRunWidth $rest 0 $fence
+                if ($width -ge $fenceWidth -and $rest.Substring($width) -cmatch '^[ \t]*$') {
+                    $fence = [char]0
+                }
+            }
+            continue
+        }
+        if ($indent -ge 4 -or $first -ceq [char]9) { continue }
+        if ($first -ceq [char]96 -or $first -ceq [char]126) {
+            $width = Get-AdrRunWidth $rest 0 $first
+            if ($width -ge 3) { $fence = $first; $fenceWidth = $width; continue }
+        }
+        $i = 0
+        while ($i -lt $line.Length) {
+            if ($line[$i] -cne [char]96) { $i++; continue }
+            $width = Get-AdrRunWidth $line $i ([char]96)
+            if (Test-AdrRunEscaped $line $i) { $i += $width; continue }
+            $j = $i + $width
+            $closed = $false
+            while ($j -lt $line.Length) {
+                if ($line[$j] -cne [char]96) { $j++; continue }
+                $closeWidth = Get-AdrRunWidth $line $j ([char]96)
+                if ($closeWidth -eq $width -and -not (Test-AdrRunEscaped $line $j)) {
+                    $closed = $true
+                    break
+                }
+                $j += $closeWidth
+            }
+            if (-not $closed) { break }
+            $value = $line.Substring($i + $width, $j - $i - $width)
+            if ($width -eq 1 -and $value -cmatch '\Adocs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md\z') {
+                [void]$paths.Add($value)
+            }
+            $i = $j + $width
+        }
+    }
+    [string[]]$result = @($paths)
+    [Array]::Sort($result, [StringComparer]::Ordinal)
+    return $result
+}
+function Test-AdrCurrentDeclarations($Binding, [string]$Feature, [string]$RepositoryRoot) {
+    if (-not $Binding.Extended) { return }
+    $relative = "specs/$Feature/design.md"
+    $safe = Get-AdrSafeEvidencePath $relative $RepositoryRoot
+    $before = Get-Sha256 $safe
+    $actual = @(Get-AdrCurrentDeclaredPaths $safe)
+    $recorded = @(ConvertFrom-Json -InputObject $Binding.EntriesJson -ErrorAction Stop)
+    if ($actual.Count -ne $recorded.Count) { throw 'ADR current design declarations differ from saved bindings' }
+    for ($index = 0; $index -lt $actual.Count; $index++) {
+        if ($actual[$index] -cne $recorded[$index].path) {
+            throw 'ADR current design declarations differ from saved bindings'
+        }
+    }
+    $safe = Get-AdrSafeEvidencePath $relative $RepositoryRoot
+    if ((Get-Sha256 $safe) -cne $before) { throw 'ADR current design changed during declaration verification' }
+}
+function Read-AdrHistoryEvidence([string]$Feature, [int]$Attempt, [int]$Round,
+    [string]$RepositoryRoot) {
+    $relative = "reports/impl-review/$Feature/attempt-$Attempt/round-$Round"
+    $snapshots = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+    $paths = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($name in @('impl-review-contract.json','precheck-result.json',
+        'reviewer-a.json','reviewer-b.json','integrated-verdict.json','integrated-summary.json')) {
+        $path = "$relative/$name"
+        # Legacy evidence may predate persisted prechecks. Pairing still fails
+        # if the contract has the ADR extension but its precheck is absent.
+        $safe = Get-AdrSafeEvidencePath $path $RepositoryRoot ($name -ceq 'precheck-result.json')
+        if ($null -eq $safe) { continue }
+        $snapshots.Add($name, (Read-AdrJsonSnapshot $safe))
+        $paths.Add($name, $path)
+    }
+    $pc = $null
+    if ($snapshots.ContainsKey('precheck-result.json')) {
+        $pc = ConvertFrom-Json -InputObject $snapshots['precheck-result.json'].Text -ErrorAction Stop
+    }
+    $contract = ConvertFrom-Json -InputObject $snapshots['impl-review-contract.json'].Text -ErrorAction Stop
+    $core = Get-AdrHistoryCoreBinding $contract $pc
+    if ($Round -gt 1) {
+        $previousPath = "reports/impl-review/$Feature/attempt-$Attempt/round-$($Round-1)/integrated-summary.json"
+        $needsPrevious = $core.Extended
+        $recorded = Get-RecordedRepositoryRoot $contract $RepositoryRoot
+        if (-not $recorded.Valid) { throw 'ADR recorded repository root is invalid' }
+        foreach ($reviewer in @($contract.reviewers)) {
+            foreach ($item in @($reviewer.allowed_input_manifest)) {
+                $normalized = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot $recorded.Root
+                if ($normalized -ceq $previousPath) { $needsPrevious = $true }
+            }
+        }
+        if ($needsPrevious) {
+            $safe = Get-AdrSafeEvidencePath $previousPath $RepositoryRoot
+            $snapshots.Add('previous-integrated-summary.json', (Read-AdrJsonSnapshot $safe))
+            $paths.Add('previous-integrated-summary.json', $previousPath)
+        }
+    }
+    $binding = Get-AdrHistoryBinding $snapshots $Feature $Attempt $Round $RepositoryRoot
+    # Validate/hash the paths again, but return the original verified objects.
+    # This detects persistent replacement; it is not an atomic no-follow open.
+    foreach ($name in $snapshots.Keys) {
+        $safe = Get-AdrSafeEvidencePath $paths[$name] $RepositoryRoot
+        $after = Read-AdrJsonSnapshot $safe
+        if ($after.Sha256 -cne $snapshots[$name].Sha256) {
+            throw 'ADR evidence changed during validation'
+        }
+    }
+    if (-not $snapshots.ContainsKey('precheck-result.json')) {
+        $appeared = Get-AdrSafeEvidencePath "$relative/precheck-result.json" $RepositoryRoot $true
+        if ($null -ne $appeared) {
+            throw 'ADR precheck appeared during validation'
+        }
+    }
+    # Preserve exact path identity: previous and current summaries share a basename.
+    $evidenceHashes = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($name in $snapshots.Keys) {
+        $evidenceHashes.Add($paths[$name], $snapshots[$name].Sha256)
+    }
+    $binding | Add-Member -MemberType NoteProperty -Name EvidenceHashes -Value $evidenceHashes
+    return $binding
+}
 function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {
     $root = Join-Path $RepoRoot "reports/$Stage-review/$Feature"
     if (-not (Test-Path -LiteralPath $root -PathType Container) -or (Get-Item $root -Force).LinkType) {
@@ -1022,9 +1808,21 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         Stop-WorkflowState $Feature "stage-provenance" "$Stage PASS has no readable review contract"
     }
     try {
-        $verdict = Get-Content -LiteralPath $latest.File.FullName -Raw | ConvertFrom-Json
-        $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
-    } catch { Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed" }
+        if ($Stage -ceq 'impl') {
+            $adrHistory = Read-AdrHistoryEvidence $Feature $latest.Attempt $latest.Round $RepoRoot
+            $verdict = $adrHistory.Verdict
+            $contract = $adrHistory.Contract
+        } else {
+            $verdict = Get-Content -LiteralPath $latest.File.FullName -Raw | ConvertFrom-Json
+            $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+        }
+    } catch {
+        # Identify the failed validation boundary without exposing evidence or exception text.
+        if ($Stage -ceq 'impl') {
+            Stop-WorkflowState $Feature "stage-provenance" "ADR impl review evidence validation failed"
+        }
+        Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed"
+    }
     $reviewerAPath = Join-Path $latest.File.DirectoryName "reviewer-a.json"
     $reviewerBPath = Join-Path $latest.File.DirectoryName "reviewer-b.json"
     $summaryPath = Join-Path $latest.File.DirectoryName "integrated-summary.json"
@@ -1035,9 +1833,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
     }
     try {
-        $reviewerA = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
-        $reviewerB = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json
-        $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
+        if ($Stage -ceq 'impl') {
+            $reviewerA = $adrHistory.ReviewerA
+            $reviewerB = $adrHistory.ReviewerB
+            $summary = $adrHistory.Summary
+        } else {
+            $reviewerA = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
+            $reviewerB = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json
+            $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
+        }
     } catch { Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer evidence is malformed" }
     $identityOk = [string]$verdict.feature -eq $Feature -and [string]$verdict.stage -eq $Stage -and
         [int]$verdict.attempt -eq $latest.Attempt -and [int]$verdict.round -eq $latest.Round -and
@@ -1076,7 +1880,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         ($roles -join ",") -eq "$Stage-reviewer-a,$Stage-reviewer-b" -and
         $runs.Count -eq 2 -and $hosts.Count -eq 2 -and -not ($runs -contains "") -and -not ($hosts -contains "")
     if (-not $contractOk) { Stop-WorkflowState $Feature "stage-provenance" "$Stage review contract identity is invalid" }
-    if (-not (Test-ManifestPaths $contract $Feature $Stage $latest.Attempt $latest.Round $RepoRoot)) {
+    # Extended impl manifests were strictly validated by Get-AdrHistoryBinding.
+    # This runs after the existing own-stage opening return. A declaration-set
+    # change is an authorization failure, not tolerated downstream staleness.
+    if ($Stage -ceq 'impl') {
+        try { Test-AdrCurrentDeclarations $adrHistory $Feature $RepoRoot }
+        catch { Stop-WorkflowState $Feature "stage-provenance" "ADR current design declaration validation failed" }
+    }
+    if (-not ($Stage -ceq 'impl' -and $adrHistory.Extended) -and
+        -not (Test-ManifestPaths $contract $Feature $Stage $latest.Attempt $latest.Round $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest paths are not canonical"
     }
     $recorded = Get-RecordedRepositoryRoot $contract $RepoRoot
@@ -1098,6 +1910,27 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest path escapes repository"
             }
             $manifestFile = Join-Path $RepoRoot $manifestRelative
+            if ($Stage -ceq 'impl' -and $adrHistory.EvidenceHashes.ContainsKey($manifestRelative)) {
+                if ($adrHistory.EvidenceHashes[$manifestRelative] -cne [string]$item.sha256) {
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                }
+                # All consumers use the generation already parsed and verified above.
+                continue
+            }
+            if ($Stage -ceq 'impl' -and $manifestRelative.StartsWith('docs/adr/', [StringComparison]::Ordinal)) {
+                try {
+                    $safe = Get-AdrSafeEvidencePath $manifestRelative $RepoRoot
+                    $adrHash = Get-Sha256 $safe
+                    $safe = Get-AdrSafeEvidencePath $manifestRelative $RepoRoot
+                    if ($adrHash -cne [string]$item.sha256 -or (Get-Sha256 $safe) -cne $adrHash) {
+                        throw 'ADR content differs from its binding or changed during consumption'
+                    }
+                    # Detect persistent parent/leaf replacement after the second read.
+                    # This is not an atomic no-follow open or a defense against ABA races.
+                    [void](Get-AdrSafeEvidencePath $manifestRelative $RepoRoot)
+                } catch { Stop-WorkflowState $Feature "stage-provenance" "ADR current input path or hash is invalid" }
+                continue
+            }
             if ($statusNeutral -contains $manifestRelative) { continue }
             if (-not (Test-Path -LiteralPath $manifestFile -PathType Leaf) -or
                 (Get-Item -LiteralPath $manifestFile -Force).LinkType) {
@@ -1316,14 +2149,24 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         (Get-Item -LiteralPath $precheck -Force).LinkType) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage required review inputs are missing"
     }
-    $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
+    if ($Stage -ceq 'impl') {
+        if ($null -eq $adrHistory.Precheck -or -not $adrHistory.EvidenceHashes.ContainsKey($precheckRelative)) {
+            Stop-WorkflowState $Feature "stage-provenance" "$Stage required review inputs are missing"
+        }
+        $precheckData = $adrHistory.Precheck
+        $precheckHash = $adrHistory.EvidenceHashes[$precheckRelative]
+    } else {
+        $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
+    }
     # Same per-path disambiguation. The calibration doc's own plugins/
     # historical-pin fallback (Test-ManifestHashForFile) is tried FIRST and
     # is unrelated to this recovery; only if that ALSO fails does the
     # omit-vs-stale query run, comparing against the calibration doc's
     # current live hash like every other check here.
     $calibrationHash = Get-Sha256 $calibration
-    $precheckHash = Get-Sha256 $precheck
+    if ($Stage -cne 'impl') {
+        $precheckHash = Get-Sha256 $precheck
+    }
     Stop-WorkflowStateOrTolerateOmit $Feature $Stage "stage-provenance" "$Stage reviewer manifests omit required inputs" `
         $contract $RepoRoot @(
             @{ Ok = (Test-ManifestHashForFile $contract "/$calibrationRelative" $calibration $RepoRoot $contractPath);
@@ -1476,6 +2319,57 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     }
 }
 
+# The exact legacy schema const controls which task can reopen.
+function Test-LegacyTaskOverrides([string]$Feature, [string]$Tasks, $Entry) {
+    $item = Get-Item -LiteralPath $Tasks -ErrorAction SilentlyContinue
+    if (-not $item -or $item.PSIsContainer -or
+        ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        Stop-WorkflowState $Feature "legacy-state" "task plan is missing, linked, or unreadable"
+    }
+    $records = [Collections.Generic.List[object]]::new()
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $current = $null
+    foreach ($line in [IO.File]::ReadAllLines($Tasks)) {
+        if ($line -cmatch '^[ \t]*##([^#]|$)') {
+            $current = $null
+            if ($line -cmatch '^## (T-[0-9]{3})(?:[ \t]|$)') {
+                $id = $Matches[1]
+                if (-not $seen.Add($id)) {
+                    Stop-WorkflowState $Feature "legacy-state" "duplicate task identity"
+                }
+                $current = [pscustomobject]@{ Id = $id; Approvals = 0; Statuses = 0; Approval = ''; Status = '' }
+                $records.Add($current)
+            }
+            continue
+        }
+        if ($line -cmatch '^Approval:') {
+            if ($null -eq $current) { Stop-WorkflowState $Feature "legacy-state" "orphan approval" }
+            $current.Approvals++
+            $current.Approval = (($line -creplace '^Approval:[ \t]*', '') -creplace '[ \t]+\(.*$', '').TrimEnd([char[]]" `t")
+        }
+        if ($line -cmatch '^Status:') {
+            if ($null -eq $current) { Stop-WorkflowState $Feature "legacy-state" "orphan status" }
+            $current.Statuses++
+            $current.Status = ($line -creplace '^Status:[ \t]*', '').TrimEnd([char[]]" `t")
+        }
+    }
+    if (-not $seen.Contains('T-002')) { Stop-WorkflowState $Feature "legacy-state" "reopening task is absent" }
+    foreach ($record in $records) {
+        if ($record.Approvals -ne 1 -or $record.Statuses -ne 1 -or
+            $record.Approval.Contains("`t") -or $record.Status.Contains("`t")) {
+            Stop-WorkflowState $Feature "legacy-state" "task lifecycle fields are malformed"
+        }
+        if ($record.Approval -cne 'Approved') {
+            Stop-WorkflowState $Feature "legacy-state" "reopening contract requires Approved tasks"
+        }
+        $allowed = @($Entry.legacy.allowed_task_statuses)
+        if ($record.Id -ceq 'T-002') { $allowed = @($Entry.legacy.task_status_overrides.'T-002') }
+        if ($allowed -cnotcontains $record.Status) {
+            Stop-WorkflowState $Feature "legacy-state" "task lifecycle is broader than the migration record"
+        }
+    }
+}
+
 function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
     $stages = @(
         @("spec", "requirements.md", "Spec-Review-Status", "spec_status"),
@@ -1496,6 +2390,10 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
         }
     }
     $tasks = Join-Path $Directory "tasks.md"
+    if (@($Entry.legacy.PSObject.Properties.Name) -ccontains 'task_status_overrides') {
+        Test-LegacyTaskOverrides $Feature $tasks $Entry
+        return
+    }
     if (Test-Path $tasks -PathType Leaf) {
         foreach ($match in [regex]::Matches([IO.File]::ReadAllText($tasks), "(?m)^Approval:\s*([^\r\n(]+)")) {
             if (@($Entry.legacy.allowed_task_approvals) -notcontains $match.Groups[1].Value.Trim()) {

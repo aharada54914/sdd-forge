@@ -1,0 +1,6 @@
+{
+  "decision": ["Preserve mandatory checks and historical evidence; do not treat isolated T-002 success as global workflow PASS."],
+  "unresolved": ["PowerShell workflow-state suite exits 1 at tests/workflow-state.tests.ps1:11: epic-136-phase4-docs impl integrated verdict is not a valid PASS.", "Formal review entry remains blocked on previously recorded hook-response evidence contract; scope expansion approval is pending."],
+  "evidence": ["2026-09-09: bash tests/workflow-state-registry.tests.sh exited 0.", "python3 tests/workflow-state-t002-reopening.tests.py passed all 96 subcases in preceding turn.", "Bash workflow-state suite session 19500 completed: exit 0, ok: Shell workflow-state validation fixtures passed.", "GitHub compare 18a58810...main: diverged, behind_by 2, ahead_by 902. Later partial equivalence and missing reservation-check candidate recorded in issue288-main-equivalence-gap-20260909.md."],
+  "next_action": ["Resolve phase4-docs formal provenance via authorized fresh review, without changing past verdicts.", "Before closing #288, verify new-round investigation omission enforcement and negative regressions."]
+}

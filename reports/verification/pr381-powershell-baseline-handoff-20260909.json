@@ -1,0 +1,6 @@
+{
+  "decision": ["Diagnosed three additional PowerShell suites without editing test implementation or frozen evidence. Bind a scoped CI remediation ticket before changing four confirmed consumers; do not reopen resolved historical RT-20260808-001."],
+  "unresolved": ["Three new suites fail only their source-text Bash registration assertions: loop-inventory 4, ownership-digest 1, facet-manifest-parity 6. Previously standing-consent TEST-053 also fails; genuine CI reachability failures remain separate. RT-20260909-001 frozen needs amendment still awaits explicit approval. Formal gates and native required CI remain unpassed."],
+  "evidence": ["reports/verification/pr381-powershell-three-suite-baseline-20260909.md. Handles 43349, 38807, 22045 all terminal exit 1. Counts 67/4, 12/1, 323/6. No active run to poll. Actual run-all.sh --list returned exit 0 with all eleven exact members."],
+  "next_action": ["Obtain/bind the scoped four-PowerShell-consumer repair and regression approval; keep every existing conjunct and failed-list rejection. Separately obtain the frozen needs amendment approval recorded in RT-20260909-001. Do not repeat these unchanged full suites, poll terminal handles, or claim native Windows coverage from macOS PowerShell."]
+}

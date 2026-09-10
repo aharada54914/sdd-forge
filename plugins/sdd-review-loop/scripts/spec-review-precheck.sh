@@ -342,8 +342,21 @@ if [[ "$round" -gt 1 ]]; then
     || fail "prior round contract is malformed or does not require work"
   prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
   prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
-  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
-    || fail "reviewed inputs are unchanged from the prior round"
+  if [[ "$requirements_sha" == "$prior_requirements_sha" && "$acceptance_sha" == "$prior_acceptance_sha" ]]; then
+    # Compare live bytes only after validating the complete historical evidence.
+    prior_root="$(recorded_repo_root "$prior_contract")"
+    prior_investigation_sha="$(jq -r --arg investigation "specs/${feature}/investigation.md" \
+      --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "${prior_root:+$prior_root/}" \
+      "$jq_relative_path"'
+      [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $investigation) | .sha256] | unique |
+      if length == 1 then .[0] else "" end' "$prior_contract")"
+    investigation="${spec_dir}/investigation.md"
+    is_sha256 "$prior_investigation_sha" && [[ -f "$investigation" && ! -L "$investigation" ]] ||
+      fail "reviewed inputs are unchanged or prior investigation is unavailable"
+    current_investigation_sha="$(sha256 "$investigation")"
+    is_sha256 "$current_investigation_sha" && [[ "$current_investigation_sha" != "$prior_investigation_sha" ]] ||
+      fail "reviewed inputs are unchanged from the prior round"
+  fi
 fi
 
 if [[ "$reset" == true ]]; then

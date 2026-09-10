@@ -1,12 +1,53 @@
 # Requirements: epic-189-a1-project-context
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/189
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (tracking) /
 https://github.com/aharada54914/sdd-forge/issues/188 (Epic A0, Architecture
 Decisions) — Epic A1 itself
 Investigation: specs/epic-189-a1-project-context/investigation.md
 (INV-001..INV-015, OQ-001..OQ-003)
+
+## Shared CI registration amendment (2026-09-09; pending fresh review)
+
+Human authorization: "その他の設計変更も承認する", following the disclosed
+AC-028 stale-workflow conflict. This section governs REQ-011 / AC-028 and
+supersedes this feature's references to staging a complete shared
+`.github/workflows/test.yml` in its human-copy bundle. Other protected-file
+publication and all mandatory checks remain unchanged. No historical verdict
+is upgraded by this amendment.
+
+The canonical live workflow is the registration source of truth. The per-feature
+workflow file AND its MANIFEST.sha256 entry must remain absent. The historical
+deletion and its reason are recorded in investigation.md:513 and
+RT-20260811-002; existing absence assertions are in
+tests/guard-invariants-epic-a1.tests.sh:536-542 and its .ps1 twin:401-406.
+Recheck these shared-state facts against the exact reviewed checkout, and again
+immediately before consuming them at implementation/integration time.
+
+For every new script covered by REQ-011, verify both test twins exist and are
+directly registered in their corresponding run-all driver, and verify both
+runtime invocations in the canonical live CI workflow. Record checkout identity
+and workflow SHA-256 with the registration evidence; a hash alone is not proof
+of registration or execution. Missing twins, driver entries or CI invocations
+fail independently. Passing via a newly disabled job/step, reduced matrix,
+weakened dependency/condition, or removal of an existing mandatory check is
+forbidden. Existing POSIX full-suite success remains mandatory.
+
+If shared CI needs editing, use a separately reviewed, explicitly authorized
+shared-workflow change based on the current canonical file, not this feature's
+retired snapshot. Bind its baseline hash and compare the complete job/step,
+matrix, dependency and condition inventory before/after. Any baseline drift
+invalidates that approval input and requires a fresh comparison and review.
+No guard bypass or automatic protected-file publication is authorized.
+
+This precedence also applies to historical workflow-staging statements in
+Human-copy procedure, Roles and Responsibilities and Main Workflows below;
+design.md's architecture, Test Strategy item 11 and Deployment / CI Plan;
+infra-spec.md's CI publication sequence; and the frozen tasks.md/traceability.md
+REQ-011 and T-013 mappings. Those historical task/evidence records are retained,
+not retroactively satisfied. Their provenance must be formally re-reviewed
+before a new completion decision can rely on the amended contract.
 
 ## RT-20260909-002 amendment (2026-09-09; pending fresh review)
 
@@ -1213,8 +1254,9 @@ package; REQ↔Test correspondence in the interim is carried by
   INV-012): every new script REQ-003..REQ-007, REQ-010 introduces gets a
   `.sh`+`.ps1` test-twin pair under `tests/`, registered directly in
   `tests/run-all.sh`/`.ps1` (both unprotected, INV-012), with the
-  `.github/workflows/test.yml` step registration staged via human-copy
-  (protected, INV-011). Mandatory cases across the suites (expanded — this
+  canonical live `.github/workflows/test.yml` registration verified under
+  the Shared CI registration amendment above (protected, INV-011; no
+  per-feature workflow snapshot). Mandatory cases across the suites (expanded — this
   list supersedes any prior draft's shorter list; each bullet is its own
   independent fixture/assertion, not a shared "one case covers the
   category" shortcut; new AC/TEST numbers AC-030..AC-043/TEST-030..TEST-043
@@ -1603,12 +1645,17 @@ named, diagnosable error instead.
   those cases — never `HOOK_ACTIVE` when a genuine, fresh denial was not
   actually observed for the runtime under test. (REQ-010)
 - AC-028: every REQ-003..REQ-007, REQ-010 script has a `.sh`+`.ps1` test
-  twin registered directly in `tests/run-all.sh`/`.ps1` (self-registration
-  grep), with its `.github/workflows/test.yml` step staged under
-  `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
-  + a `MANIFEST.sha256` entry, mirroring epic-159-pillar-c's AC-027
-  three-part proof shape (staged-candidate / live-unchanged /
-  post-copy-registered). (REQ-011)
+  twin registered directly in its corresponding `tests/run-all.sh`/`.ps1`
+  driver and invoked in the canonical live `.github/workflows/test.yml`.
+  Missing each twin, driver entry or runtime CI invocation fails separately.
+  Both the per-feature human-copy workflow file and its MANIFEST.sha256 entry
+  remain absent; reintroducing either fails. Any shared CI change retains all
+  existing mandatory checks, POSIX full-suite success, job/step invocations,
+  matrices, dependencies and conditions; stale baseline evidence or any
+  deletion/disablement/reduction fails pending fresh review, never passes by
+  skipping work. TEST-028 and its branch-specific rows define the assertions.
+  This replaces, not claims satisfaction of, the retired three-part snapshot
+  proof. (REQ-011; Shared CI registration amendment)
 - AC-029: no suite this epic adds invokes a real LLM, `gh`, or `sdd-sudo`;
   every mktemp fixture root is `pwd -P`-normalized immediately after
   creation (macOS `$TMPDIR` symlink resilience, matching

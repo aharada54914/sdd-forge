@@ -1,0 +1,86 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -165,1 +165,35 @@
++# Strict content check only; held-handle acquisition remains a separate requirement.
++function Assert-ImplJsonObject([string]$Text) {
++    $parsed = $null
++    try {
++        # Preserve the existing ConvertFrom-Json nesting allowance.
++        $options = [System.Text.Json.JsonDocumentOptions]::new()
++        $options.MaxDepth = 1024
++        $parsed = [System.Text.Json.JsonDocument]::Parse($Text, $options)
++        if ($parsed.RootElement.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) {
++            throw 'JSON root must be an object'
++        }
++        $pending = [Collections.Generic.Stack[System.Text.Json.JsonElement]]::new()
++        $pending.Push($parsed.RootElement)
++        while ($pending.Count -gt 0) {
++            $element = $pending.Pop()
++            if ($element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
++                $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++                foreach ($property in $element.EnumerateObject()) {
++                    if (-not $names.Add($property.Name)) { throw 'Duplicate JSON member' }
++                    $pending.Push($property.Value)
++                }
++            } elseif ($element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
++                foreach ($value in $element.EnumerateArray()) { $pending.Push($value) }
++            }
++        }
++    }
++    catch {
++        Fail-ReviewContext 'CONTRACT' 'implementation precheck is not unambiguous single-object JSON'
++    }
++    finally {
++        if ($null -ne $parsed) { $parsed.Dispose() }
++    }
++}
++
+ try {
+@@ -524,1 +558,2 @@
++    $implPrecheckText = $null
+     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+@@ -572,2 +607,29 @@
++        if ($document.stage -ceq 'impl' -and
++            ($input.path -ceq "specs/$($document.feature)/design.md" -or
++             ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path))) {
++            try {
++                $contentBytes = [IO.File]::ReadAllBytes($candidate)
++                $contentText = [Text.UTF8Encoding]::new($false, $true).GetString($contentBytes)
++            }
++            catch {
++                Fail-ReviewContext 'CONTRACT' 'implementation input cannot be read as strict UTF-8'
++            }
++            if ($null -ne $wfi025PrecheckEntry -and $input.path -ceq $wfi025PrecheckEntry.path) {
++                if ($contentText.StartsWith([string][char]0xFEFF, [StringComparison]::Ordinal)) {
++                    $contentText = $contentText.Substring(1)
++                }
++                Assert-ImplJsonObject $contentText
++                $implPrecheckText = $contentText
++            }
++            $hasher = [Security.Cryptography.SHA256]::Create()
++            try {
++                $actualHash = [BitConverter]::ToString($hasher.ComputeHash($contentBytes)).Replace('-', '').ToLowerInvariant()
++            }
++            finally {
++                $hasher.Dispose()
++            }
++        }
++        else {
+         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
++        }
+         if ($actualHash -cne $input.sha256) {
+@@ -623,3 +685,11 @@
+-        if (Test-Path -LiteralPath $precheckPath -PathType Leaf) {
+-            $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
++        if ($document.stage -ceq 'impl' -or (Test-Path -LiteralPath $precheckPath -PathType Leaf)) {
++            if ($document.stage -ceq 'impl') {
++                if ($null -eq $implPrecheckText) {
++                    Fail-ReviewContext 'CONTRACT' 'implementation precheck was not captured'
++                }
++                $precheck = $implPrecheckText | ConvertFrom-Json
++            }
++            else {
++                $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
++            }
+             $pinned = [ordered]@{}

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a07e23-8b0f-7831-a345-29351d94be5a",
+  "host_session_id": "01a07e23-8b0f-7831-a345-29351d94be5a",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "1e5b761e90a4e71e1477667209581a5a48b3e395fd0495c21a5730ecddc6e991"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-3/precheck-result.json",
+      "sha256": "7a6552ad5224f064c3d40a1174d5be91b2266135367082d8ae5cef4ff020d729"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-006 define inspectable document content or measurable runner/gate outcomes. AC-003 through AC-006 and AC-012 specify configuration, deadlines, process cleanup, exit codes and verdict presence. TEST-003, TEST-004(c1/c2), TEST-006 and TEST-012 distinguish effective defaults, actual process completion and both gate input sets."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both overview goals are traced: failure-policy completeness and bounded fail-closed behavior map to AC-001 through AC-006 and AC-011/012; threat-model coverage maps to AC-007 through AC-010 and AC-013/014. Each criterion has a corresponding TEST-ID."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria identify observable file content, elapsed time, process liveness, exit status and output artifacts. TEST-001 and TEST-009 require accompanying substantive statements; TEST-004 requires established process-state orderings rather than approximate timing; TEST-003/012 require observing the effective fallback deadline."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:155 explicitly excludes retries, rewriting existing failure handlers, new output validation, duplicate agent-role documentation, gate logic changes and vendor CLI pinning. BL-002/003 limit gate-related work to documenting the existing empty-set behavior."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "BL-001 through BL-005 state compatibility, parity and protected-write boundaries. requirements.md:188 supersedes historical investigation claims. The review-input procedure at requirements.md:192 binds dated human-reported source hashes and target classifications, requires refresh at later consumption points and expressly denies bypass authorization. Reserved identity chain facts, allowed-input hashes and corresponding precheck hashes were verified without reading unlisted guard sources or the ledger."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Timeout, orphan-process, partial-verdict and fail-open risks have concrete validation in TEST-004 through TEST-006. Security-documentation claims have inspection targets in TEST-007 through TEST-010 and TEST-013/14. Protected-target handling has the bounded evidence and refresh procedure in BL-005."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check found no domain/ directory; the applicability condition is absent."
+    }
+  ]
+}

@@ -1,5 +1,37 @@
 # Infrastructure Specification: epic-189-a1-project-context
 
+## RT-20260909-002 infrastructure amendment (2026-09-09)
+
+Human authorization: "RT002限定の設計3文書の改訂・正式再レビューの承認".
+This scoped amendment awaits independent design provenance review; historical
+text and evidence remain retained. Requirements.md's RT002 contract and
+design.md's dated RT002 dispatch/cleanup design govern REQ-010, AC-027 and
+AC-032; no runtime deployment or external dependency is introduced.
+
+For Codex only, the native canary Add File operation has the exact nonce-bearing
+content defined in requirements.md, not an unspecified empty payload. It is
+transient canary content, never an approval sidecar, with no backup requirement.
+An initially absent sentinel stays absent after a denied write; an executed
+write leaves it absent only after confirmed successful cleanup. Missing,
+failed or denied cleanup may leave it present and must report
+SENTINEL_CLEANUP_UNCONFIRMED with CAPABILITY_RUNTIME_UNAVAILABLE. Live approval
+sidecars remain byte-identical in all branches. One stale-start cleanup attempt
+is recorded before the next challenge; challenge emission proceeds regardless
+of cleanup outcome. An attempted delete is not confirmed removal or self-healing.
+
+This supersedes the Data Residency and Retention sentinel row's unconditional
+created-then-cleaned, no-defined-content and self-healing summaries only;
+other entities, legacy runtime templates and protection remain unchanged.
+The new response schema is never a cleanup confirmation schema.
+
+CI fixtures remain deterministic and network/LLM-free, using original source
+paths and both wrappers with all existing tests retained. Fixture success is
+distinct from activation: after formal reviews and permitted human production
+application, recheck the actual installation and host, obtain one new native
+challenge/dispatch response, and verify it unchanged using the original
+installed verifier. Only HOOK_ACTIVE from that fresh execution ends the
+repair-only admission; A8 cross-runtime proof and required CI remain separate.
+
 No new runtime deployment. This document expands design.md's Deployment /
 CI Plan, Architecture, and Data Plan into the review harness's canonical
 layer-file shape; it introduces no new infrastructure judgment beyond what
@@ -157,3 +189,22 @@ integration; no new runtime service).
 
 - None — no new infrastructure judgment is introduced beyond what
   Deployment / CI Plan, Architecture, and Data Plan already fix.
+
+## Shared CI amendment (2026-09-09; pending fresh review)
+
+The authorized Shared CI registration amendment in requirements.md and
+design.md's Authorized AC-028 design resolution supersede this document's
+diagram/sequence entries that stage a complete `.github/workflows/test.yml`
+inside the A1 human-copy bundle. The canonical live workflow remains protected;
+both retired per-feature workflow file and manifest entry must stay absent.
+All other protected-file publication rules remain in force.
+
+Verify each REQ-011 Bash/PowerShell test twin, direct driver registration and
+live CI invocation. Separately authorized shared CI edits require a fresh,
+hash-bound baseline and structural preservation of every existing job, step
+invocation, matrix, dependency, execution condition and mandatory check,
+including mandatory POSIX full-suite success. TEST-028 and its named branch
+rows define positive, omission, stale-snapshot and baseline-drift rejection
+cases; skipped execution never supplies success evidence. Recheck shared-state
+membership/registration at review and immediately before implementation.
+Historical task/review records are not rewritten or deemed satisfied.

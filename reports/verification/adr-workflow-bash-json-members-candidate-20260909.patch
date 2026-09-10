@@ -1,0 +1,54 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -35,1 +35,50 @@
++# Caller must validate/hash a safe immutable snapshot, then use that same
++# snapshot for this raw check and subsequent whole-object JSON parsing.
++workflow_adr_json_members() {
++  jq -Rse '
++    . as $raw |
++    # A raw lexical pass retains repeated keys that ordinary jq object parsing
++    # would collapse. All inner groups are noncapturing; capture 0 is the token.
++    "[ \t\r\n]*(\"(?:[^\"\\\\\\x00-\\x1f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"|-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\\[\\]:,])" as $pattern |
++    reduce ($raw | match($pattern; "g")) as $match (
++      {"end":0, stack:[{kind:"root",phase:"value",keys:{}}]};
++      if $match.offset != .end then error("ADR JSON invalid token") else . end |
++      .end = ($match.offset + $match.length) |
++      $match.captures[0].string as $token |
++      ((.stack|length)-1) as $i |
++      .stack[$i] as $frame |
++      if $frame.phase == "colon" then
++        if $token != ":" then error("ADR JSON member has no colon")
++        else .stack[$i].phase = "value" end
++      elif $frame.phase == "comma-or-end" then
++        (if $frame.kind == "object" then "}" else "]" end) as $close |
++        if $token == $close then .stack |= .[:-1]
++        elif $token != "," then error("ADR JSON missing separator")
++        else .stack[$i].phase = (if $frame.kind == "object" then "key" else "value" end) end
++      elif $frame.phase == "key-or-end" and $token == "}" then .stack |= .[:-1]
++      elif $frame.phase == "value-or-end" and $token == "]" then .stack |= .[:-1]
++      elif $frame.phase == "key" or $frame.phase == "key-or-end" then
++        if ($token|startswith("\"")|not) then error("ADR JSON key is not a string")
++        else
++          # Decode only one string, not an object. Unicode-escaped aliases
++          # therefore collide, while keys in sibling objects stay independent.
++          ($token|fromjson) as $key |
++          if ($frame.keys|has($key)) then error("ADR JSON duplicate decoded member")
++          else .stack[$i].keys[$key] = true | .stack[$i].phase = "colon" end
++        end
++      elif $frame.phase != "value" and $frame.phase != "value-or-end" then
++        error("ADR JSON trailing content")
++      else
++        .stack[$i].phase = (if $frame.kind == "root" then "done" else "comma-or-end" end) |
++        if $token == "{" then .stack += [{kind:"object",phase:"key-or-end",keys:{}}]
++        elif $token == "[" then .stack += [{kind:"array",phase:"value-or-end",keys:{}}]
++        elif (["}","]",":",","]|index($token)) != null then error("ADR JSON missing value")
++        else . end
++      end
++    ) |
++    if ($raw[.end:]|test("^[ \t\r\n]*$")|not) then error("ADR JSON trailing invalid token")
++    elif (.stack|length) != 1 or .stack[0].phase != "done" then error("ADR JSON incomplete")
++    else true end
++  ' "$1" >/dev/null
++}
+ # plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)

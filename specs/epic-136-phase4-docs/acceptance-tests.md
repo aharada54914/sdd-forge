@@ -38,6 +38,7 @@ Assert the rate-limit row says it reaches the gate *through* the exit-non-zero o
 Seven sub-cases per runner: unset, empty, `600`, `1`, `0`, `-5`, `abc`.
 
 - **First four** (`unset`, empty, `600`, `1`): the runner proceeds to invoke the CLI. `1` is a valid bound, not an invalid one — it is the same value AC-004's timeout sub-cases use.
+- **Unset and empty, separately for each runner:** observe the effective deadline passed to the real timeout mechanism and assert its duration equals the source-derived default (currently 600 seconds per AC-003). Exercise expiry using a controllable test clock/wait boundary or the real bound; confirm timeout exit 1, no verdict, and process cleanup. Source-text inspection or successful CLI invocation alone is insufficient. The fixture must fail if either fallback disables its deadline or chooses a different duration; time acceleration must not replace the timeout decision with a canned result.
 - **Last three** (`0`, `-5`, `abc`): exit **2**, and the stub CLI records that it was **never called**.
 
 (An earlier draft wrote "first three / last three" against a seven-item list, leaving `1` unclassified. Both round-2 reviewers caught the arithmetic independently.)
@@ -57,7 +58,12 @@ Assertion 2 is what distinguishes a genuine kill from a parent that merely stopp
 
 **(b) The `SIGTERM`-ignoring case (Edge Case 7).** Same bound, but the stub installs `trap '' TERM` and keeps running. Assert the runner still returns within the margin and the stub is dead — which can only happen via the `SIGKILL` escalation. A stub built from plain `sleep` dies on the first `SIGTERM` by default disposition, so without this sub-case an implementation whose escalation is broken or entirely absent would pass every other test.
 
-**(c) The polling boundary race (Edge Case 6).** `SDD_PANELIST_TIMEOUT=2` with a stub that exits **successfully** at ~2 seconds — inside the interval where the poller is about to declare expiry. Assert the runner reports success and writes its verdict; it must not report a timeout for a child that already finished. Run this sub-case repeatedly (≥ 5 iterations) since it targets a race, and treat any single timeout report as a failure rather than flakiness.
+**(c) The polling boundary race (Edge Case 6).** Keep `SDD_PANELIST_TIMEOUT=2` and exercise the real runner decision with a stub CLI. Establish both ordered cases below for every runner, each at least five times, with recorded evidence of the deadline indication, actual child completion state at the re-check, runner result, and verdict presence. A fixture may synchronize the observation boundary, but must not substitute the runner's decision or extend its production timeout.
+
+- **(c1), completed before the post-deadline re-check:** establish that the child has actually exited 0 and its valid output is complete before the runner performs the re-check. Assert runner exit 0, intact verdict, and no timeout classification. This must exercise the post-deadline branch, not merely ordinary early success. A stub's planned exit time, output-complete marker, or end-of-sleep timestamp alone does not establish child process exit.
+- **(c2), still running at the post-deadline re-check:** keep the child observably alive until that decision. Assert runner exit 1, no verdict, and no surviving child or descendant. Finishing shortly afterward cannot retroactively turn this valid timeout into success.
+
+Failure to establish either ordering is a failing/incomplete test, never a success, SKIP, or discarded iteration. Do not rerun until five favorable samples appear, increase the bound to hide failures, or infer ordering from approximate two-second elapsed time. Every established c1 timeout and every established c2 success is a failure.
 
 **Both runtimes are covered, but not with an identical sub-case list (round-2 and round-3 remediation).** An earlier draft targeted "shell runners" only, leaving the two PowerShell scripts unasserted while BL-004 demanded parity. A later draft over-corrected by inventing a PowerShell (b) that could not fail. Per AC-004's runtime table:
 
@@ -65,7 +71,7 @@ Assertion 2 is what distinguishes a genuine kill from a parent that merely stopp
 |---|---|---|
 | (a) bound is enforced, child dies | yes — **including the no-orphan assertion** | yes — including the no-orphan assertion |
 | (b) escalation is reached | yes — the stub traps `SIGTERM`, so only `SIGKILL` can end it | **none, deliberately** |
-| (c) boundary race reports success | yes | yes |
+| (c1)/(c2) boundary ordering chooses success/timeout correctly | yes — both orderings | yes — both orderings |
 
 **Why (b) has no PowerShell counterpart.** `Process.Kill()` maps to `TerminateProcess`, which user-mode code cannot trap or refuse. There is no stub that "ignores" it, so a PowerShell (b) would assert exactly what (a) already asserts — a test that cannot fail. Round 3 caught an earlier draft doing precisely that, phrased as "a stub that does not exit on a close request", which also contradicted the table's own "no soft-request step precedes it".
 
@@ -81,7 +87,12 @@ After the TEST-004 timeout, assert exit code 1 **and** that the output directory
 
 ### TEST-006 (AC-006) — the gate actually fails
 
-Compose TEST-004/005 with `check-cross-model` over the resulting verdict directory, with the timed-out panelist as the only non-Anthropic vendor. Assert non-zero exit and that no consensus PASS is reported.
+Compose TEST-004/005 with `check-cross-model`, with the timed-out panelist as the only non-Anthropic vendor. Exercise both gate implementations and both resulting input sets separately:
+
+- One otherwise-valid Anthropic verdict remains, but diversity is insufficient: assert exit 1, aggregate FAIL, and no consensus PASS.
+- No verdict files remain: assert exit 2, no aggregate, and no consensus PASS.
+
+In both cases the timed-out runner itself exits 1 and publishes no verdict. Verify the policy distinguishes these runner and gate exit codes and describes the same two gate outcomes (BL-003); do not edit the gate to make it match the obsolete exit-1 quotation in INV-005.
 
 This is the only test that demonstrates the issue's stated concern — a loophole in `critical` verification — is closed. TEST-005 alone only proves the runner behaved.
 
@@ -119,7 +130,7 @@ Added after round 2, which found this was the one investigation open question th
 
 ### TEST-012 (AC-012) — the default is not duplicated
 
-The default asserted by the tests is derived from the runner script itself, not written as a literal `600` in the test. A test carrying its own copy of the constant keeps passing after someone changes the script's default, which converts the test from a guard into a decoration.
+Derive the default from each runner's configuration source, then compare it with the effective timeout observed for each unset and empty execution in TEST-003. Independently verify the derived value satisfies AC-003's current 600-second product requirement; a source change alone cannot redefine acceptance. A missing deadline or wrong duration in either fallback must fail, even if the source still declares the right default and the CLI was invoked. Retain explicit-value expiry and cleanup coverage in TEST-004/005; it does not replace the two fallback assertions.
 
 ## Notes
 

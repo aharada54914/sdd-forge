@@ -1,0 +1,107 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -48,1 +48,48 @@
++admission_json_members() {
++  jq -Rse '
++    ltrimstr("\uFEFF") as $raw |
++    # A raw lexical pass retains repeated keys that ordinary jq object parsing
++    # would collapse. All inner groups are noncapturing; capture 0 is the token.
++    "[ \t\r\n]*(\"(?:[^\"\\\\\\x00-\\x1f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"|-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\\[\\]:,])" as $pattern |
++    reduce ($raw | match($pattern; "g")) as $match (
++      {"end":0, stack:[{kind:"root",phase:"value",keys:{}}]};
++      if $match.offset != .end then error("ADR JSON invalid token") else . end |
++      .end = ($match.offset + $match.length) |
++      $match.captures[0].string as $token |
++      ((.stack|length)-1) as $i |
++      .stack[$i] as $frame |
++      if $frame.phase == "colon" then
++        if $token != ":" then error("ADR JSON member has no colon")
++        else .stack[$i].phase = "value" end
++      elif $frame.phase == "comma-or-end" then
++        (if $frame.kind == "object" then "}" else "]" end) as $close |
++        if $token == $close then .stack |= .[:-1]
++        elif $token != "," then error("ADR JSON missing separator")
++        else .stack[$i].phase = (if $frame.kind == "object" then "key" else "value" end) end
++      elif $frame.phase == "key-or-end" and $token == "}" then .stack |= .[:-1]
++      elif $frame.phase == "value-or-end" and $token == "]" then .stack |= .[:-1]
++      elif $frame.phase == "key" or $frame.phase == "key-or-end" then
++        if ($token|startswith("\"")|not) then error("ADR JSON key is not a string")
++        else
++          # Decode only one string, not an object. Unicode-escaped aliases
++          # therefore collide, while keys in sibling objects stay independent.
++          ($token|fromjson) as $key |
++          if ($frame.keys|has($key)) then error("ADR JSON duplicate decoded member")
++          else .stack[$i].keys[$key] = true | .stack[$i].phase = "colon" end
++        end
++      elif $frame.phase != "value" and $frame.phase != "value-or-end" then
++        error("ADR JSON trailing content")
++      else
++        .stack[$i].phase = (if $frame.kind == "root" then "done" else "comma-or-end" end) |
++        if $token == "{" then .stack += [{kind:"object",phase:"key-or-end",keys:{}}]
++        elif $token == "[" then .stack += [{kind:"array",phase:"value-or-end",keys:{}}]
++        elif (["}","]",":",","]|index($token)) != null then error("ADR JSON missing value")
++        else . end
++      end
++    ) |
++    if ($raw[.end:]|test("^[ \t\r\n]*$")|not) then error("ADR JSON trailing invalid token")
++    elif (.stack|length) != 1 or .stack[0].phase != "done" then error("ADR JSON incomplete")
++    else true end
++  ' "$1" >/dev/null
++}
+ is_canonical_path() {
+@@ -491,1 +538,12 @@
++impl_precheck_base64=''
++read_precheck_content() {
++  if [[ "$stage" == impl ]]; then
++    [[ -n "$impl_precheck_base64" ]] ||
++      fail CONTRACT 'implementation precheck was not captured'
++    printf '%s' "$impl_precheck_base64" | base64 -d
++  else
++    cat -- "$precheck_abs"
++  fi
++}
++
+ while IFS=$'\t' read -r path expected_hash; do
+@@ -524,2 +582,25 @@
++  if [[ "$stage" == impl && ( "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ) ]]; then
++    command -v base64 >/dev/null 2>&1 ||
++      fail RUNTIME 'deterministic-runtime-unavailable: base64'
++    command -v iconv >/dev/null 2>&1 ||
++      fail RUNTIME 'deterministic-runtime-unavailable: iconv'
++    # Encoding preserves NUL bytes and trailing newlines in a shell variable.
++    # This fixes content reuse, not the safety of the initial pathname open.
++    content_base64=$(base64 < "$candidate") ||
++      fail CONTRACT 'implementation input capture failed'
++    printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
++      fail CONTRACT 'implementation input cannot be read as strict UTF-8'
++    if [[ "$path" == "$precheck_rel" ]]; then
++      printf '%s' "$content_base64" | base64 -d | admission_json_members - >/dev/null 2>&1 ||
++        fail CONTRACT 'implementation precheck is not unambiguous single-object JSON'
++      printf '%s' "$content_base64" | base64 -d |
++        jq -se 'length == 1 and (.[0] | type == "object")' >/dev/null 2>&1 ||
++        fail CONTRACT 'implementation precheck is not unambiguous single-object JSON'
++      impl_precheck_base64=$content_base64
++    fi
++    actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text) ||
++      fail HASH 'implementation captured input hashing failed'
++  else
+   actual_hash=$(sha256_file "$candidate")
++  fi
+   if [[ "$actual_hash" != "$expected_hash" ]]; then
+@@ -553,2 +634,6 @@
++  if [[ "$stage" == impl && -z "$impl_precheck_base64" ]]; then
++    fail CONTRACT 'implementation precheck was not captured'
++  fi
++
+-  if [[ -f "$precheck_abs" && ! -L "$precheck_abs" ]]; then
++  if [[ "$stage" == impl || ( -f "$precheck_abs" && ! -L "$precheck_abs" ) ]]; then
+     while IFS=$'\t' read -r pinned_path pinned_hash; do
+@@ -562,2 +647,2 @@
+-    done < <(jq -r --arg f "$feature" '
++    done < <(read_precheck_content | jq -r --arg f "$feature" '
+       [ {p: ("specs/" + $f + "/requirements.md"),     h: .requirements_sha256},
+@@ -572,2 +657,2 @@
+-    ' "$precheck_abs" | tr -d '\r')
++    ' | tr -d '\r')
+   fi

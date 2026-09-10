@@ -1,0 +1,21 @@
+{
+  "decision": [
+    "Continue RT004 within approved scope; protected changes remain patch data only until independent review and human application.",
+    "Current PASS ADR declaration set must match historical verified bindings; preserve existing lifecycle and strictly-downstream freshness semantics."
+  ],
+  "evidence": [
+    "Bash candidate SHA256 3756bf0ccfd239fbe31dbc65281256ece419b07032223104c76bed49609b5fd0; seven hunks, 333 added lines, static anchors/counts/offsets PASS.",
+    "reports/verification/rt004-workflow-current-pass-candidate-20260909.md",
+    "Actual validator unchanged. No candidate execution. Prior actual RED remains 2 passed / 6 failed.",
+    "Seven PR heads freshly checked unchanged. No external mutations."
+  ],
+  "unresolved": [
+    "PS5.1 workflow counterpart; complete positive/negative tests; historical predecessor-summary/layer completeness; persisted terminal verdict semantics; Windows/replacement/duplicate-key boundaries.",
+    "Independent review and actual protected application/testing; all broader goal requirements remain incomplete."
+  ],
+  "next_action": [
+    "Complete saved historical previous-summary and layer pin validation in the Bash candidate using canonical producer evidence.",
+    "Prepare PS5.1 workflow counterpart, then full scoped fixtures and independent review.",
+    "Do not execute candidate validators or mark old failures PASS."
+  ]
+}

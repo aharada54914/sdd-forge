@@ -249,7 +249,7 @@ Required Workflow: tdd
 
 Security-Sensitive: true
 
-Cross-Model: not enabled
+Cross-Model: enabled
 
 Test Type: integration — same shape as T-001 on the PowerShell suite: a real
 child process via a stub on `PATH`, real elapsed time, real liveness assertions.

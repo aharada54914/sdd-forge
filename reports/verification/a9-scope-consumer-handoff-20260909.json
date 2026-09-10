@@ -1,0 +1,25 @@
+{
+  "decision": [
+    "Preserve the approved nine-component ownership and fixed-root/shared-directory split.",
+    "The new affected_path runtime contract is proposed only; no cross-epic amendment approval inferred.",
+    "No unchanged remote CI rerun: all seven open PRs have no live Actions jobs."
+  ],
+  "unresolved": [
+    "A9 override consumer choice: runtime Pack integration versus classification evidence only; recommended runtime path-scope integration requires explicit contract amendment.",
+    "PR401 local registry correction exposes existing unpassed lifecycle prerequisites, not a ready merge.",
+    "RT004 protected runtime human patch remains incomplete and must not be applied.",
+    "PR381 PowerShell registration and frozen POSIX dependency-contract amendments still need their explicit approvals."
+  ],
+  "evidence": [
+    "reports/verification/a9-scoped-characteristic-options-20260909.md",
+    "A9 tree 135b147926689bd3adc8c834932a9b82b9f5a607: resolve-component-paths.py:587-590 assigns cross-cutting paths no owners; :653 derives affected components only from exclusive/bounded-shared owners.",
+    "capability-registry.schema.json:140 and evaluate-predicate.py:158-162 only admit affected_component scope.",
+    "Fresh gh issue view 193: OPEN, forbids self-reported Change Characteristics; inputs must be A3-derived.",
+    "Fresh gh pr list: 401,400,394,390,381,371,245; no active Actions checks; failed check names and exact heads confirmed."
+  ],
+  "next_action": [
+    "Obtain approval of the proposed scope-aware runtime contract before amending A1/A2/A3/A5/A9 specifications.",
+    "After approval expand separate acceptance IDs and canonical contract/ADR proposal; retain old review evidence and Draft task state.",
+    "Continue other already-approved tasks without inferring approval from automatic goal continuations."
+  ]
+}

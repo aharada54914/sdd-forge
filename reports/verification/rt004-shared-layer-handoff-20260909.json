@@ -1,0 +1,24 @@
+{
+  "decision": [
+    "Retain protected-file boundary; candidate data changes only.",
+    "Preserve issue71 layer-superset compatibility while requiring unique saved hash per normalized shared layer path for ADR-extended history.",
+    "Retain persisted Major=NEEDS_WORK; terminal printed BLOCKED is not a stored-verdict rewrite."
+  ],
+  "evidence": [
+    "reports/verification/rt004-independent-shared-layer-review-20260909.md",
+    "Independent reviewer confirmed the five-line correction fixed the static finding; runtime tests still pending.",
+    "Bash workflow candidate SHA256 87f3f4547b3a75e10bf57df2f1b9686add25c456c893cbb068e594fb43dab3f1; patch-format parse exit0.",
+    "Docs candidate SHA256 9d5f5ee19cae29ab2d155241e3e722fdec6fe47fee52c991423afffd2bd0c269; five-file patch parse exit0.",
+    "Seven open PR heads unchanged; PR394 Windows and required-checks terminal FAILURE in run34023439393."
+  ],
+  "unresolved": [
+    "PS5.1 workflow candidate, coherent positive/history mutation fixtures, full runtime integration and native Windows checks.",
+    "Read-only Node source-anchor comparison hook-denied; not retried. Actual protected validators remain unchanged this turn.",
+    "No formal QG, full CI green, commit, push, merge or issue closure."
+  ],
+  "next_action": [
+    "Add coherent extended-history fixture data with equal additional layers accepted and conflicting hashes rejected, preserving legacy evidence.",
+    "Complete PowerShell equivalent and full candidate review before human application.",
+    "Continue full issue/PR goal; do not classify candidate static review as integration completion."
+  ]
+}

@@ -1,0 +1,8 @@
+0442c04636bd9980b8de4a299e89bae35f35361218cba7676d036f2c01bf02fd  docs/review-tickets/RT-20260909-002.yml
+24ffa036514344c0c33028a0467023098af1772ea5b5bd02fdd1f3203574be88  reports/verification/hook-recovery-entry-contract-20260909.md
+07834d4078fde6aa71820c6bed1789ba5d4e2f7fa6eee2d91d40b2195fb2099d  reports/verification/hook-evidence-contract-repair-20260909.md
+d9277ca516fa79b6ef459e0d0505375624a0a9279c32390758a96650985d0064  plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+c9a6a330238e8b466a3e08345affc3e0d51545091c84150ade94f8f8a7b06e12  plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh
+5837fcfa74fd7ea277163df531e1b0d42841aa8a5f8ca68c2500f8e5d59a9f00  plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1
+ec94cc6577e4aed8b59e469b938e6c8dfb457ef35f9574448efcab258ccb6565  tests/check-hook-activation-handshake.tests.sh
+c243ffeda8fb91843c97b6df03deac9e0f4569322ecbc9d38b02a2fb87b82aaa  tests/check-hook-activation-handshake.tests.ps1
