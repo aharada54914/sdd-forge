@@ -179,13 +179,13 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-001 | REQ-001 | A schema test accepts exactly the Phase-1 workflow tuple `full` / `legacy-seven-layer` / `advisory`. |
 | AC-002 | REQ-001 | Publication tests reject missing/invalid approval binding and demonstrate the human-copy boundary. |
 | AC-003 | REQ-002 | A fixture asserts every approved component ID and its required classification fields against the OQ-001 decision record. |
-| AC-004 | REQ-002 | A fixture rejects one deliberately omitted required component and one unjustified empty classification. |
-| AC-005 | REQ-003 | Ownership validation reports zero unexplained overlaps for the approved map. |
-| AC-006 | REQ-003 | Ownership validation reports zero unexplained unowned tracked paths and verifies every approved shared-path rule. |
+| AC-004 | REQ-002 | Separate fixtures reject omission of each of the nine required component IDs, an extra unapproved ID, and an unjustified empty classification. |
+| AC-005 | REQ-003 | Ownership validation reports zero unexplained overlaps for the approved map and blocks Phase-1 publication when a tracked path newly matches multiple components without an approved shared rule. |
+| AC-006 | REQ-003 | Ownership validation reports zero unexplained unowned tracked paths, verifies every approved shared-path rule, and blocks Phase-1 publication when a tracked path matches neither a component nor a shared rule. |
 | AC-007 | REQ-004 | Characteristic tests distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases. |
-| AC-008 | REQ-005 | Registry validation accepts the human-approved first Pack and resolves it for a representative sdd-forge component. |
+| AC-008 | REQ-005 | Registry validation accepts the human-approved first Pack and resolves it for the representative change defined below (full-track plugin code, never docs-only). |
 | AC-009 | REQ-005 | Registry validation proves desktop, cloud-service, and new durable-workflow Pack entries were not added by A9. |
-| AC-010 | REQ-006 | An advisory run emits Manifest/Summary/Projection/evidence with bound revision and digests for a representative plugin change. |
+| AC-010 | REQ-006 | An advisory run emits Manifest/Summary/Projection/evidence with bound revision and digests for the representative change defined below (full-track plugin code, never docs-only). |
 | AC-011 | REQ-006 | An advisory Pack finding is visible and non-blocking while pre-existing blocking gates retain their behavior. |
 | AC-012 | REQ-007 | The promotion record contains every evidence field named in REQ-007 and links each criterion to saved evidence. |
 | AC-013 | REQ-007 | Promotion is rejected when one human-approved OQ-003 threshold is unmet or evidence is stale. |
@@ -193,7 +193,7 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-015 | REQ-008 | Tests reject each partial promotion: layout-only and enforcement-only. |
 | AC-016 | REQ-009 | A two-or-more-identity fixture requires two distinct valid approvals for required-to-advisory rollback. |
 | AC-017 | REQ-009 | A single-identity fixture rejects rollback before 24 hours and accepts it at/after the signed effective time. |
-| AC-018 | REQ-009 | Rollback fixtures reject unsigned, self-approved, duplicated-identity, and non-bound sidecars. |
+| AC-018 | REQ-009 | Rollback fixtures reject unsigned, self-approved, duplicated-identity, and non-bound sidecars. A registry change between request and effective time triggers validation against the current registry; elapsed cooldown alone cannot authorize rollback when the current registry requires two distinct approvals. |
 | AC-019 | REQ-010 | A dogfood friction fixture produces a Draft WFI with all required analysis sections and no Approved status. |
 | AC-020 | REQ-011 | Dependency preflight blocks when any A1–A8 required surface is absent/incompatible and records the failing dependency. |
 | AC-021 | REQ-011 | Shared-state preflight records fresh hashes/inventories for Registry, guards, components, Active Specs, WFI namespace, and protected targets. |
@@ -205,6 +205,15 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-027 | REQ-006 | Release-cycle evidence identifies explicit start/end releases and proves every PR in that complete cycle passed the advisory capability-mode Gate. |
 | AC-028 | REQ-008 | After required promotion, saved evidence proves at least one real feature completed the full workflow end-to-end under `facet-hybrid`. |
 | AC-029 | REQ-010 | The dogfood cycle records WFI references for observed friction or the literal result `none` when zero, covering path ownership, staleness, and approval flow. |
+| AC-032 | REQ-003 | Ownership validation verifies that every component include set matches tracked paths and that the recomputed ownership digest matches the recorded digest; an empty include match or mismatched digest each blocks publication. |
+| AC-033 | REQ-008 | Required-enforcement activation rejects when the selected Pack evidence is missing, resolver evidence is missing, or both are missing. |
+
+Reconciliation (2026-09-08): AC-032/033 retain the identifiers from the
+previous remediation candidate `4349ae407aa7dffc5baf0b6595084c7c6e0e514b`.
+AC-030/031 are not included here: their characteristic-override contract still
+needs reconciliation with the current schema. The old AC-034 intent is covered
+by AC-018 and TEST-018a/b. None of these edits retroactively changes a review
+verdict or authorizes implementation of Draft tasks.
 
 ## Field Definitions
 
@@ -215,6 +224,7 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | Pack | Human-approved Registry capability set for developer-tooling / cli-library. |
 | Promotion record | Saved, reviewable decision evidence for moving Phase 1 to Phase 2. |
 | Rollback | Policy-weakening `required` to `advisory` transition. |
+| Representative change | A plugin-code change touching at least one owned plugin component in the approved nine-component inventory, never a docs-only change. Under OQ-006 it takes the full track and exercises the selected Pack's predicate/facet/gate machinery. |
 
 ## Roles and Permissions
 
@@ -271,7 +281,7 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 Which stable components should represent sdd-forge: per-package, capability-group,
 or hybrid? Human ruling must include IDs and rationale.
 
-Resolution (2026-09-02, human approval verbatim: 「OQ 推奨案で全て承認する
+Historical resolution (2026-09-02; component count superseded below, human approval verbatim: 「OQ 推奨案で全て承認する
 実装せよ」): **hybrid — eight components**: one per plugin
 (`sdd-bootstrap`, `sdd-review-loop`, `sdd-implementation`,
 `sdd-quality-loop`, `sdd-ship`, `sdd-lite`), plus `mcp` (the MCP service
@@ -282,6 +292,29 @@ measured defect class this decision guards against — concurrent epics
 overwriting shared plugin files — occurs exactly at the plugin boundary;
 per-package is finer than any enforcement surface, and capability-group is
 too coarse to detect cross-plugin drift.
+
+Amendment (2026-09-08, human approval verbatim):
+「A9 を進めるため、plugins/domain/** を独立した「9番目のコンポーネント」として扱う設計変更を承認」
+The binding inventory is now nine components: `sdd-bootstrap`,
+`sdd-review-loop`, `sdd-implementation`, `sdd-quality-loop`, `sdd-ship`,
+`sdd-lite`, `sdd-domain`, `mcp`, and `installer`. The ninth component owns
+`plugins/sdd-domain/**`, independently of the other eight; it is neither
+folded into another component nor classified as cross-cutting.
+The approval prompt and prior reviewer used `plugins/domain/**` as a spelling
+for the domain plugin. At base commit
+`135b147926689bd3adc8c834932a9b82b9f5a607`, `git ls-tree --name-only HEAD:plugins`
+identifies `sdd-domain`; `git ls-tree -r --name-only HEAD plugins/domain`
+returns no tracked paths. The canonical existing path above governs; this
+decision does not create a new directory or an alias ownership rule.
+Re-verify the tracked plugin inventory at review and implementation HEAD;
+unexpected additions or renames require reconciliation, not an automatic
+change to this closed nine-component set.
+This amendment supersedes only the earlier eight-component count and the
+omission of domain, not approval boundaries or the separate characteristic
+override proposal. Historical review outputs remain unchanged.
+The provisional-choice text in investigation.md's Component Decomposition
+discussion and Open Questions is historical; this dated OQ-001 amendment and
+OQ-002 govern ownership for the next review.
 
 ### OQ-002 — Path ownership map — Resolved
 
@@ -304,6 +337,23 @@ release/root metadata (`CHANGELOG.md`, `AGENTS.md`, `README.md`,
 `package.json`). Rationale: this session's principal measured frictions —
 amendment propagation across shared files and stale review provenance —
 all arose from ownership ambiguity on exactly these shared paths.
+
+OQ-001 propagation (2026-09-08): `plugins/sdd-domain/**` maps exclusively to
+`sdd-domain`. All other component/shared rules above are retained.
+
+Growing-path clarification (2026-09-08, human approval verbatim):
+「固定名のルートファイルは別の共有ルールとして維持する定義でよい」
+This approves the proposed distinction: "growing paths" means the seven
+directory patterns `specs/**`, `tests/**`, `contracts/**`, `docs/**`,
+`reports/**`, `marketplaces/**`, and `.github/**`. Each is cross-cutting from
+bootstrap, including newly added tracked descendants. Fixed root metadata
+`CHANGELOG.md`, `AGENTS.md`, `README.md`, and `package.json` retains separate
+exact-path cross-cutting rules; it is not part of the growing-path set.
+This does not authorize a catch-all root rule or move installer-owned root
+scripts into shared ownership. An unlisted new root file still requires
+ownership reconciliation under REQ-003. This clarification supersedes earlier
+claims that the growing-path definition is unresolved, including historical
+investigation/review discussion; original review evidence remains unchanged.
 
 ### OQ-003 — Phase-2 promotion criteria — Resolved
 

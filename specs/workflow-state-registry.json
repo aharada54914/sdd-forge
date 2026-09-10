@@ -421,6 +421,10 @@
     {
       "feature": "epic-195-a7-compatibility",
       "profile": "full"
+    },
+    {
+      "feature": "epic-197-a9-dogfood",
+      "profile": "full"
     }
   ]
 }
