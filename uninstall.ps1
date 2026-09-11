@@ -4,8 +4,8 @@ param(
     [string]$MarketplaceName = "sdd-plugins",
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")]
-    [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop"),
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")]
+    [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain"),
     [switch]$KeepFiles,
     [switch]$SkipPluginUninstall,
     [switch]$SkipAgentUninstall,
@@ -27,7 +27,7 @@ if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
     throw "InstallRoot must not be empty."
 }
 
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
 $shippedAgents = @("sdd-investigator.toml", "sdd-evaluator.toml", "sdd-panelist-gpt.toml", "sdd-panelist-gemini.toml")
@@ -35,6 +35,14 @@ $shippedAgents = @("sdd-investigator.toml", "sdd-evaluator.toml", "sdd-panelist-
 # A full uninstall selects every known plugin. Only then is it safe to remove the
 # marketplace, since removing it also uninstalls any plugins still registered.
 $isFullUninstall = -not ($allPlugins | Where-Object { $Plugins -notcontains $_ })
+
+# Shared payload, agents and MCPs must remain usable by unselected plugins.
+if (-not $isFullUninstall) {
+    $KeepFiles = $true
+    $SkipAgentUninstall = $true
+    $SkipMcpUninstall = $true
+    Write-Host "Partial plugin uninstall: preserving shared files, agents and MCP registrations."
+}
 
 # Best-effort plugin command. A non-zero exit (e.g. "plugin not installed") is
 # reported as a warning but never aborts the uninstall — re-running the

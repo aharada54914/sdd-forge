@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
 PASS=0
 FAIL=0
 
@@ -221,6 +221,7 @@ resolve_registered_plugins() {
             local -a dependencies=()
             case "$plugin" in
                 sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+                sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
                 sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
                 sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
             esac
@@ -561,8 +562,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Scenario (c): failure during registration → freshly placed tree is kept
+# Scenario (b3): opt-in domain selection resolves dependencies
 # ---------------------------------------------------------------------------
+if invoke_installer_scenario plugins="sdd-domain"; then
+    ok "domain selection registers its dependency closure"
+else
+    fail "domain selection registers its dependency closure"
+fi
+
+# Scenario (c): failure during registration → freshly placed tree is kept
 invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins"
 ok "failure on registration keeps the freshly placed install"
 

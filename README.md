@@ -197,9 +197,9 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `sdd-lite` | `sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` |
 | `sdd-ship` | `sdd-bootstrap` / `sdd-review-loop` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` |
 
-したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、実際には 6 プラグインすべてが導入されます。
+したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、`sdd-domain` を除く 6 プラグインが登録されます。
 
-> **`sdd-domain` はインストーラの対象外です。** `--plugins` が受け付ける allowlist（`install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` で共通）には `sdd-domain` が含まれておらず、インストーラ経由では導入できません。DDD アップストリームレーンを使う場合は、marketplace（`.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json`。いずれにも `sdd-domain` は登録済みです）から個別にインストールしてください。
+> **`sdd-domain` は明示指定で導入できます。** Bash は `./install.sh --plugins sdd-domain`、PowerShell は `./install.ps1 -Plugins sdd-domain` を実行してください。必要な `sdd-bootstrap`・`sdd-quality-loop` と、bootstrap の依存先 `sdd-review-loop` も自動登録されます。既定のインストール構成には含まれません。全体アンインストールでは登録解除され、domain だけを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使います（依存プラグインと共有ファイルは保持）。
 
 **Node.js の要件**: 同梱の MCP サーバー（`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`）はいずれも `engines.node >= 22.19.0` を要求します。`node` が PATH に無い場合やバージョンが 22.19.0 未満の場合、**MCP の配置・登録のみが警告付きでスキップされ、プラグイン本体のインストールは継続します**。
 
@@ -249,7 +249,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
 - **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
 - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
-- **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。**なお `sdd-domain` は `install.sh` / `install.ps1` の `--plugins` allowlist に含まれておらず、インストーラ経由では導入できません**（両 marketplace には登録済みのため、marketplace から個別にインストールしてください）。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
+- **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。インストーラで `--plugins sdd-domain`（PowerShell: `-Plugins sdd-domain`）を明示指定すると導入できます。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
 - **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / claude.ai/design 確認ループ）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。

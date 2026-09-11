@@ -9,7 +9,7 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $uninstaller = Join-Path $repositoryRoot "uninstall.ps1"
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-FakeCommands {
@@ -121,7 +121,8 @@ function Invoke-UninstallScenario {
 
     $failed = $false
     try {
-        $params = @{ InstallRoot = $installRoot; Target = $Target; Plugins = $Plugins }
+        $params = @{ InstallRoot = $installRoot; Target = $Target }
+        if ($PSBoundParameters.ContainsKey('Plugins')) { $params.Plugins = $Plugins }
         if ($KeepFiles) { $params.KeepFiles = $true }
         if ($SkipAgentUninstall) { $params.SkipAgentUninstall = $true }
         if ($SkipPluginUninstall) { $params.SkipPluginUninstall = $true }
@@ -206,8 +207,23 @@ try {
 finally { if (Test-Path $d.TestRoot) { Remove-Item -Path $d.TestRoot -Recurse -Force } }
 
 # ---------------------------------------------------------------------------
-# Scenario (e): missing optional CLI (target All) tolerated
+# Scenario (d2): domain-only removal preserves shared resources
 # ---------------------------------------------------------------------------
+$domain = Invoke-UninstallScenario -Plugins @("sdd-domain")
+try {
+    if ($domain.Failed) { throw "domain: uninstaller threw" }
+    foreach ($command in @("codex plugin remove", "claude plugin uninstall", "copilot plugin uninstall")) {
+        if (-not $domain.Log.Contains("$command sdd-domain@sdd-plugins")) { throw "domain: missing $command" }
+    }
+    if ($domain.Log.Contains("marketplace remove") -or $domain.Log.Contains("sdd-bootstrap@sdd-plugins")) { throw "domain: shared registration removed" }
+    if (-not (Test-Path $domain.InstallRoot)) { throw "domain: shared files removed" }
+    if (-not (Test-Path (Join-Path $domain.CodexHome "agents/sdd-investigator.toml"))) { throw "domain: shared agent removed" }
+    if ($domain.Log.Contains("mcp remove")) { throw "domain: shared MCP registration removed" }
+    Write-Host "ok: domain-only uninstall keeps dependencies and shared files"
+}
+finally { if (Test-Path $domain.TestRoot) { Remove-Item -Path $domain.TestRoot -Recurse -Force } }
+
+# Scenario (e): missing optional CLI (target All) tolerated
 $e = Invoke-UninstallScenario -OmitCommand "codex" -RestrictPath
 try {
     if ($e.Failed) { throw "missing optional codex CLI should be tolerated under target All" }
