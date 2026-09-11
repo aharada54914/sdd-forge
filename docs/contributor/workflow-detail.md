@@ -636,7 +636,7 @@ project-root/
 
 各タスクは `Risk:` 階層 (`low | medium | high | critical`) を持ち、その階層が
 「どの決定論的ゲートを必須とするか」を駆動します。正準対応表は
-[`risk-gate-matrix.md`](../plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
+[`risk-gate-matrix.md`](../../plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
 階層が上がるほど必須セットは厳しくなり、下位階層の必須セットを包含します
 (非ダウングレード superset 則)。
 
