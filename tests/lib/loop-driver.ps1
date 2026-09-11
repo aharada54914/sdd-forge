@@ -192,7 +192,7 @@ Existing Data Affected: none
     @"
 # Traceability
 
-| REQ-ID | Description | Layer Spec |
+| Requirement | Description | Layer Spec |
 |---|---|---|
 | REQ-001 | loop-driver fixture requirement | ux-spec.md#req-001 |
 "@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/traceability.md") -NoNewline -Encoding utf8
