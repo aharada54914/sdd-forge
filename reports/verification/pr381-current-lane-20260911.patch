@@ -1,0 +1,275 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 42f98ea3..9208bf39 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -31,6 +31,32 @@ jobs:
+           fetch-depth: 0
+       - name: Install contract validator
+         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
++      - name: Test required-checks POSIX failure propagation
++        run: python3 tests/required-checks-posix.tests.py
++      - name: Test guard dispatch fallback
++        shell: bash
++        run: bash ./tests/guard-dispatch-fallback.tests.sh
++      - name: Test guard negative corpus
++        shell: bash
++        run: bash ./tests/guard-negative-corpus.tests.sh
++      - name: Test deterministic lane coverage
++        shell: bash
++        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
++      - name: Test workflow scenarios
++        shell: bash
++        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
++      - name: Test design system contract (Bash)
++        shell: bash
++        run: bash ./tests/design-system-contract.tests.sh
++      - name: Test design system contract (PowerShell)
++        shell: pwsh
++        run: ./tests/design-system-contract.tests.ps1
++      - name: Test design sync standing consent (Bash)
++        shell: bash
++        run: bash ./tests/design-sync-standing-consent.tests.sh
++      - name: Test design sync standing consent (PowerShell)
++        shell: pwsh
++        run: ./tests/design-sync-standing-consent.tests.ps1
+       - name: Run every otherwise-unwired POSIX suite
+         shell: bash
+         run: bash ./tests/run-ci-unwired.sh
+@@ -43,18 +63,20 @@ jobs:
+     runs-on: ${{ matrix.os }}
+     timeout-minutes: 30
+     steps:
+-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++      # eval-lane: (none yet)
++      - name: "[deterministic] Setup step 1"
++        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+         with:
+           # Full history: review-loop prechecks and provenance tests resolve
+           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
+           fetch-depth: 0
+ 
+-      - name: Verify generated guard invariants (Windows)
++      - name: "[deterministic] Verify generated guard invariants (Windows)"
+         if: runner.os == 'Windows'
+         shell: pwsh
+         run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+ 
+-      - name: Verify generated guard invariants (POSIX)
++      - name: "[deterministic] Verify generated guard invariants (POSIX)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+@@ -63,12 +85,12 @@ jobs:
+       # the generated gate-capabilities.json projection, mirroring the guard
+       # invariants --check steps immediately above (design.md Deployment / CI
+       # Plan; infra-spec.md CI/CD Sequence).
+-      - name: Verify generated gate-capabilities projection (Windows)
++      - name: "[deterministic] Verify generated gate-capabilities projection (Windows)"
+         if: runner.os == 'Windows'
+         shell: pwsh
+         run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+ 
+-      - name: Verify generated gate-capabilities projection (POSIX)
++      - name: "[deterministic] Verify generated gate-capabilities projection (POSIX)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+@@ -97,12 +119,12 @@ jobs:
+       # removing either step leaves the other's failure mode entirely
+       # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+       # each of the two independently for exactly that reason.
+-      - name: Verify vendored contracts copy (Windows)
++      - name: "[deterministic] Verify vendored contracts copy (Windows)"
+         if: runner.os == 'Windows'
+         shell: pwsh
+         run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+ 
+-      - name: Verify vendored contracts copy (POSIX)
++      - name: "[deterministic] Verify vendored contracts copy (POSIX)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+@@ -110,42 +132,42 @@ jobs:
+       # pwsh steps run the test scripts directly: piping through tee changes
+       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+       # log already captures their output.
+-      - name: Validate workflow state (PowerShell)
++      - name: "[deterministic] Validate workflow state (PowerShell)"
+         shell: pwsh
+         run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+ 
+-      - name: Validate workflow state (POSIX)
++      - name: "[deterministic] Validate workflow state (POSIX)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+ 
+-      - name: Validate repository
++      - name: "[deterministic] Validate repository"
+         shell: pwsh
+         run: ./tests/validate-repository.ps1
+ 
+-      - name: Validate repository (POSIX)
++      - name: "[deterministic] Validate repository (POSIX)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: ./tests/validate-repository.sh
+ 
+-      - name: Test repository release validation parity
++      - name: "[deterministic] Test repository release validation parity"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: ./tests/repository-release-validation.tests.sh
+ 
+-      - name: Test deterministic gate scripts
++      - name: "[deterministic] Test deterministic gate scripts"
+         shell: pwsh
+         run: ./tests/scripts.tests.ps1
+ 
+-      - name: Test selected-feature structure validation
++      - name: "[deterministic] Test selected-feature structure validation"
+         shell: pwsh
+         run: ./tests/structure-check-feature-mode.tests.ps1
+ 
+-      - name: Test quality-gate cycle-limit suite (bash)
++      - name: "[deterministic] Test quality-gate cycle-limit suite (bash)"
+         shell: bash
+         run: bash ./tests/quality-gate-cycle-limit.tests.sh
+ 
+-      - name: Test portable review-loop prechecks (pwsh)
++      - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
+         shell: pwsh
+         run: |
+           ./tests/review-contract-foundation.tests.ps1
+@@ -153,58 +175,58 @@ jobs:
+           ./tests/impl-layer-review-inputs.tests.ps1
+           ./tests/task-layer-review-inputs.tests.ps1
+ 
+-      - name: Test cross-model gate (pwsh)
++      - name: "[deterministic] Test cross-model gate (pwsh)"
+         shell: pwsh
+         run: ./tests/cross-model.tests.ps1
+ 
+-      - name: Test Phase 2 guard invariants (pwsh)
++      - name: "[deterministic] Test Phase 2 guard invariants (pwsh)"
+         if: runner.os == 'Windows'
+         shell: pwsh
+         run: ./tests/phase2-guard-invariants.tests.ps1
+ 
+-      - name: Test Phase 2 guard invariants (bash)
++      - name: "[deterministic] Test Phase 2 guard invariants (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: bash ./tests/phase2-guard-invariants.tests.sh
+ 
+-      - name: Test hook guards
++      - name: "[deterministic] Test hook guards"
+         shell: pwsh
+         run: ./tests/hooks.tests.ps1
+ 
+-      - name: Test cross-runtime scenario suite (pwsh)
++      - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
+         shell: pwsh
+         run: ./tests/scenario.tests.ps1
+ 
+-      - name: Test guards (bash)
++      - name: "[deterministic] Test guards (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+ 
+-      - name: Test approval boundary (bash)
++      - name: "[deterministic] Test approval boundary (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
+ 
+-      - name: Test deterministic gates (bash)
++      - name: "[deterministic] Test deterministic gates (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
+ 
+-      - name: Test panelist-input consent gate (bash)
++      - name: "[deterministic] Test panelist-input consent gate (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
+ 
+-      - name: Test panelist-input consent gate (pwsh)
++      - name: "[deterministic] Test panelist-input consent gate (pwsh)"
+         if: runner.os == 'Windows'
+         shell: pwsh
+         run: ./tests/prepare-panelist.tests.ps1
+ 
+-      - name: Test portable review-loop prechecks (bash)
++      - name: "[deterministic] Test portable review-loop prechecks (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+@@ -219,37 +241,37 @@ jobs:
+           bash tests/task-review-precheck.tests.sh
+           bash tests/review-agent-isolation.tests.sh
+ 
+-      - name: Test cross-model gate (bash)
++      - name: "[deterministic] Test cross-model gate (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
+ 
+-      - name: Test outcome-based eval suite (bash)
++      - name: "[deterministic] Test outcome-based eval suite (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
+ 
+-      - name: Test CRLF line-ending parity (bash)
++      - name: "[deterministic] Test CRLF line-ending parity (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+ 
+-      - name: Test cross-runtime scenario suite (bash)
++      - name: "[deterministic] Test cross-runtime scenario suite (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
+ 
+-      - name: Test branch-protection script (bash)
++      - name: "[deterministic] Test branch-protection script (bash)"
+         if: runner.os != 'Windows'
+         shell: bash
+         run: |
+           bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+ 
+-      - name: Upload test logs
++      - name: "[deterministic] Upload test logs"
+         if: failure()
+         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+         with:
+@@ -1162,7 +1184,7 @@ jobs:
+   required-checks:
+     name: required-checks
+     if: always()
+-    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement]
++    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -1200,4 +1222,8 @@ jobs:
+             echo "cli-hook-enforcement job failed"
+             exit 1
+           fi
++          if [ "${{ needs.posix-regression.result }}" != "success" ]; then
++            echo "posix-regression job failed"
++            exit 1
++          fi
+           echo "all required checks passed"
