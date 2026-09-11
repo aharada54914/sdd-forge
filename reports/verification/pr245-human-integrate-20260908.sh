@@ -5,9 +5,10 @@ umask 077
 source_repo=/Users/jrmag/.local/share/sdd-forge-pr245-recovery-20260908
 main_ref=4366438f3b243210a4ece5a17f873ca2d920600a
 pr_ref=54b1ff247081971e0560cf20d45f4369e01b5c0d
+source_ref=893240da2985b76af255d88469ce66f3b9461456
 stop() { printf 'STOP: %s\n' "$*" >&2; exit 1; }
 for tool in rtk git node; do command -v "$tool" >/dev/null || stop "Missing $tool"; done
-[[ "$(rtk proxy git -C "$source_repo" rev-parse HEAD)" == "$pr_ref" ]] || stop 'Source HEAD changed'
+[[ "$(rtk proxy git -C "$source_repo" rev-parse HEAD)" == "$source_ref" ]] || stop 'Source HEAD changed'
 remote_main=$(rtk proxy git ls-remote https://github.com/aharada54914/sdd-forge.git refs/heads/main)
 [[ "$remote_main" == "$main_ref"$'\trefs/heads/main' ]] || stop 'Remote main changed; re-audit required'
 remote_pr=$(rtk proxy git ls-remote https://github.com/aharada54914/sdd-forge.git refs/pull/245/head)
@@ -149,7 +150,7 @@ fs.writeFileSync(path.join(backup, 'candidate-files.sha256'), [...outputs].map((
 console.log('23 conflicts resolved; archive repair preserved; 24 mirror hashes verified.');
 console.log('Historical invocation pins are archival, not replayable against the re-chained ledger.');
 NODE
-rtk proxy git diff --cached --check
+rtk proxy git diff --cached "$main_ref" --check
 rtk proxy git diff --cached --stat
 rtk proxy git status --short
 printf '\nCandidate prepared: %s/repo\n' "$candidate_root"

@@ -1,4 +1,4 @@
-// Unit-level simulation only: no git index or filesystem writes are performed.
+// Unit-level simulation: merge-tree writes Git objects, but no index or working-tree files.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const cp = require('node:child_process');
@@ -23,6 +23,13 @@ function blob(ref, file) {
   return cache.get(key);
 }
 const script = fs.readFileSync(path.join(__dirname, 'pr245-human-integrate-20260908.sh'), 'utf8');
+const sourceHead = run(['rev-parse', 'HEAD']).trim();
+const sourcePin = script.match(/^source_ref=([0-9a-f]{40})$/m)?.[1];
+assert.equal(sourcePin, sourceHead, 'Source repair commit must be pinned separately from PR head');
+assert.notEqual(sourcePin, pr);
+assert.equal(run(['diff', '--name-only', pr, sourcePin]).trim(), 'tests/review-agent-isolation.tests.sh');
+assert(script.includes('== "$source_ref"'), 'Source HEAD preflight must use source pin');
+assert(script.includes('git diff --cached "$main_ref" --check'), 'Whitespace must check the actual PR delta');
 const code = script.split("<<'NODE'\n")[1].split('\nNODE\n')[0];
 const compiled = new vm.Script(code);
 const backup = '/virtual-audit-backup';
