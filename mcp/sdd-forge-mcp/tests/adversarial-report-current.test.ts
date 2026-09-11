@@ -47,10 +47,19 @@ test("report currentness rejects changed head, base, diff, and report bytes", ()
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(JSON.parse(result.stdout), { status: "current", head_sha: head,
       merge_base_sha: base, report_sha256: hash(original) });
+    for (const created_at of ["2024-02-29T00:00:00Z", "2026-09-11T09:00:00+09:00"]) {
+      const changed = render({ ...metadata, created_at });
+      writeFileSync(report, changed);
+      const validDate = run(hash(changed));
+      assert.equal(validDate.status, 0, validDate.stderr);
+      assert.equal(JSON.parse(validDate.stdout).status, "current");
+    }
     for (const changedMetadata of [
       { ...metadata, token: "fixture-only-not-a-real-token" },
       { ...metadata, reviewer_run_ids: { reviewer_a: "run-a" } },
       { ...metadata, schema_version: "unknown-version" },
+      ...["nonsense", "2026-02-30T00:00:00Z", "2026-09-11", "2026-09-11T00:00:00"].map(
+        created_at => ({ ...metadata, created_at })),
     ]) {
       const changed = render(changedMetadata);
       writeFileSync(report, changed);
