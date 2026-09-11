@@ -1481,7 +1481,12 @@ function Test-ApprovalIncreases {
     # Codex Bash/shell: conservative heuristic.
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
         # Case-insensitive tasks.md check (intentional: matches JS/py behavior).
-        if ($command.ToLower().Contains("tasks.md") -and [regex]::IsMatch($command, "Approval:\s*Approved")) {
+        # Use Get-Count (which subtracts Second Approval matches) rather than a
+        # raw regex match, so a command that only writes "Second Approval:
+        # Approved" is not misclassified as a primary approval (which would
+        # surface the sudo-bypassable APPROVAL_MSG instead of the
+        # never-bypassable SECOND_APPROVAL_MSG).
+        if ($command.ToLower().Contains("tasks.md") -and (Get-Count $command) -gt 0) {
             return $true
         }
         return $false
