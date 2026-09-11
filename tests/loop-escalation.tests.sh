@@ -826,7 +826,17 @@ SPY_F4_INVALID_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture present absent re
 
 if [[ "$SPY_F1_RC" -eq 0 && "$SPY_F3_RC" -eq 0 && "$SPY_F4_RC" -eq 0 ]]; then
   SPY_INVOCATIONS="$(wc -l < "$SPY_LOG" | tr -d ' ')"
-  skip_allowlist_line "$SKIP_ALLOWLIST_MANIFEST" 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
+  SPY_SKIP_LOG="$SPY_DIR/allowlisted-output.log"
+  if skip_allowlist_line "$SKIP_ALLOWLIST_MANIFEST" 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021 > "$SPY_SKIP_LOG"; then
+    cat "$SPY_SKIP_LOG"
+    if skip_allowlist_audit "$SKIP_ALLOWLIST_MANIFEST" "$SPY_SKIP_LOG" "$REPO_ROOT" origin/main; then
+      ok 'TEST-019.10b: emitted resolver dependency skips remain allowed on origin/main'
+    else
+      fail 'TEST-019.10b: emitted resolver dependency skips are no longer allowed'
+    fi
+  else
+    fail 'TEST-019.10b: cannot render resolver dependency evidence'
+  fi
   printf 'INFO: TEST-019.10b spy observed %s invocation(s) across F1/F3-invalid/F4-invalid fixtures\n' "$SPY_INVOCATIONS"
 else
   fail "TEST-019.10b: build_fixture could not construct the F1/F3-invalid/F4-invalid fixtures needed to even name this SKIP (rc: F1=${SPY_F1_RC}, F3=${SPY_F3_RC}, F4=${SPY_F4_RC})"

@@ -168,6 +168,11 @@ function Test-ManifestContract {
         if ($source -notmatch "skip_allowlist_line[^`n]*$assertion") { Fail "AC-016 $assertion output is not sourced through skip_allowlist_line"; return }
     }
     Pass 'AC-016 all five fixed SKIP assertions read from the manifest helper'
+    $rendered = & pwsh -NoProfile -File $Evaluator line $ShippedManifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
+    $renderExit = $LASTEXITCODE
+    $expectedLine = "$SkipPrefix TEST-019.10b/AC-004+AC-021 (Epic A1+Epic A5): blocked by issue #189+#193 until merged(A1) AND merged(A5);merged(A5)"
+    if ($renderExit -eq 0 -and $rendered -ceq $expectedLine) { Pass 'compound dependency rendering matches the Bash manifest contract' }
+    else { Fail 'compound dependency rendering matches the Bash manifest contract' }
 }
 
 try {
