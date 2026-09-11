@@ -162,11 +162,13 @@
     },
     "citation": {
       "type": "object",
-      "required": ["path", "claim"],
+      "description": "A concrete file location and assertion. Also run mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs to require line_end >= line_start; Draft-07 alone cannot compare sibling values.",
+      "required": ["path", "claim", "line_start", "line_end"],
       "additionalProperties": false,
       "properties": {
         "path": {
           "type": "string",
+          "pattern": "\\S",
           "description": "Repo-relative file path."
         },
         "line_start": {
@@ -179,6 +181,7 @@
         },
         "claim": {
           "type": "string",
+          "pattern": "\\S",
           "description": "The concrete assertion the citation supports (e.g. 'validate-review-context-set.sh:262-265 prevents resumption, so the cost argument is wrong')."
         }
       }

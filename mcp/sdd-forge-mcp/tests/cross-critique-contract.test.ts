@@ -1,13 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Ajv } from "ajv";
 import { load } from "js-yaml";
 
 // Compiled tests live under mcp/sdd-forge-mcp/dist-test/tests/.
 const schema = JSON.parse(readFileSync(new URL("../../../../contracts/cross-critique.v1.schema.json", import.meta.url), "utf8"));
 const validate = new Ajv({ strict: false, validateFormats: false }).compile(schema);
-const citation = { path: "src/example.ts", line_start: 1, claim: "Concrete supporting evidence" };
+const citation = { path: "src/example.ts", line_start: 1, line_end: 1, claim: "Concrete supporting evidence" };
 function verdict() {
   return {
     target_finding_id: "A-1", critic_role: "reviewer-b", verdict: "SUPPORT",
@@ -35,6 +39,53 @@ test("evaluation accepts unavailable duration without treating it as zero", () =
 });
 
 test("cross critique accepts a supported finding", () => assert.equal(accepts(verdict()), true));
+test("cross critique CLI rejects reversed ranges without rejecting single-line citations", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cross-critique-"));
+  const path = join(dir, "annex.json");
+  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  try {
+    for (const [start, end, expected] of [[1, 1, 0], [2, 5, 0], [5, 2, 1]]) {
+      writeFileSync(path, JSON.stringify({ schema_version: "cross-critique.v1", round_id: "round-1",
+        status: "complete", created_at: "2026-09-11T00:00:00Z", verdicts: [{ ...verdict(),
+          basis: { kind: "code_evidence", citations: [{ ...citation, line_start: start, line_end: end }] },
+        }] }));
+      const result = spawnSync(process.execPath, [cli, path], { encoding: "utf8" });
+      assert.equal(result.status, expected, result.stderr);
+      assert.equal(JSON.parse(result.stdout).status, expected === 0 ? "valid" : "invalid");
+      if (expected === 1) assert.equal(JSON.parse(result.stdout).reason, "citation-range-reversed");
+    }
+    writeFileSync(path, "not JSON");
+    const malformed = spawnSync(process.execPath, [cli, path], { encoding: "utf8" });
+    assert.equal(malformed.status, 1);
+    assert.equal(JSON.parse(malformed.stdout).reason, "cannot-read-json");
+    for (const kind of ["code_evidence", "spec_evidence"]) {
+      for (const badCitation of [{ ...citation, claim: " " }, { ...citation, path: "" },
+        { path: citation.path, claim: citation.claim }, { ...citation, line_start: 0 }]) {
+        writeFileSync(path, JSON.stringify({ schema_version: "cross-critique.v1", round_id: "round-1",
+          status: "complete", created_at: "2026-09-11T00:00:00Z",
+          verdicts: [{ ...verdict(), basis: { kind, citations: [badCitation] } }] }));
+        const invalid = spawnSync(process.execPath, [cli, path], { encoding: "utf8" });
+        assert.equal(invalid.status, 1);
+        assert.equal(JSON.parse(invalid.stdout).reason, "schema-invalid");
+      }
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+for (const kind of ["code_evidence", "spec_evidence"]) {
+  test(`${kind} rejects incomplete or blank citation locations`, () => {
+    for (const field of ["path", "claim", "line_start", "line_end"]) {
+      const missing: Record<string, unknown> = { ...citation };
+      delete missing[field];
+      assert.equal(accepts({ ...verdict(), basis: { kind, citations: [missing] } }), false, `missing ${field}`);
+    }
+    for (const field of ["path", "claim"]) {
+      for (const blank of ["", " \t\n"]) {
+        assert.equal(accepts({ ...verdict(), basis: { kind, citations: [{ ...citation, [field]: blank }] } }), false,
+          `blank ${field}`);
+      }
+    }
+  });
+}
 test("evaluation distinguishes measured tokens from unavailable telemetry", () => {
   const root = new URL("../../../../", import.meta.url);
   const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-evaluation.v1.schema.json", root), "utf8"));

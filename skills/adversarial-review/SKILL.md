@@ -139,6 +139,22 @@ Update `phase_r` to `"ran": true` with counts when Phase R completes.
 
 ## Contracts and schemas
 
+Before using a cross-critique annex as evidence, run the read-only checker
+against the final JSON file (the same command works in Bash and PowerShell):
+
+```sh
+node mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs /ABSOLUTE/EVIDENCE-CHECKOUT/reports/adversarial-review/BRANCH/cross-critique.json
+```
+
+Exit 0 with `status: valid` proves contract conformance and ordered citation
+ranges, not the truth of a claim. Every evidence citation requires a nonblank
+path and claim plus positive `line_start` and `line_end`; a single-line citation
+uses equal coordinates. The checker rejects `line_end < line_start`, which
+plain Draft-07 validation alone cannot enforce. Fix invalid annexes before
+using their proposals; do not rewrite persisted reviewer verdicts or treat a
+failed/unavailable checker as successful validation. Required Node dependencies
+are the same as for the report-currentness checker above.
+
 | Schema | Purpose |
 |--------|---------|
 | `contracts/cross-critique.v1.schema.json` | cross-critique.json annex (issues #347, #348) |
