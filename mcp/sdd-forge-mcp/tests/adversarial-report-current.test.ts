@@ -30,6 +30,10 @@ test("report currentness rejects changed head, base, diff, and report bytes", ()
       reviewer_run_ids: { reviewer_a: "run-a", reviewer_b: "run-b" } };
     const render = (value: unknown) => `# Review\n\n\`\`\`yaml\n${JSON.stringify(value)}\n\`\`\`\n`;
     const original = render(metadata);
+    // Host diff drivers must not change the bytes bound by the review.
+    writeFileSync(join(repo, ".git", "info", "attributes"), "change.txt diff=unavailable-driver\n");
+    git("config", "diff.unavailable-driver.textconv", "sdd-fixture-missing-textconv");
+    git("config", "diff.external", "sdd-fixture-missing-external-diff");
     const report = join(repo, "report.md");
     const run = (expected = hash(original)) => spawnSync(process.execPath, [cli,
       "--repo", repo, "--report", report, "--base", "main", "--report-sha256", expected], { encoding: "utf8" });
