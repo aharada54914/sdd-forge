@@ -6,7 +6,7 @@
   },
   {
     "assertion_id": "AC-007",
-    "dependencies": [{"epic":"A4","issue":192,"fingerprints":[{"source":"specs/epic-192-a4-facet-manifest/requirements.md","line_range":"211-213","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:b84bd60bfba1bc9741bb76096d0502a461343c6867efcaa4bc57986b02d11157","quote":"- **REQ-001** (Facet Manifest schema — decision v2 §19 item 1, §16, §12):"}]}],
+    "dependencies": [{"epic":"A4","issue":192,"merged_commit":"02166dbabb0979081337b1d408b26019be3668d6","fingerprints":[{"source":"specs/epic-192-a4-facet-manifest/requirements.md","line_range":"211-213","algorithm":"sha256","normalization":"lf-normalized, utf-8, lines joined by a single \\n, no trailing newline","digest":"sha256:b84bd60bfba1bc9741bb76096d0502a461343c6867efcaa4bc57986b02d11157","quote":"- **REQ-001** (Facet Manifest schema — decision v2 §19 item 1, §16, §12):"}]}],
     "activation_condition": "merged(A4)"
   },
   {

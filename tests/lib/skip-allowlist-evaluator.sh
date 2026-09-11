@@ -25,8 +25,13 @@ skip_allowlist_merged() {
   issue="$(jq -er --arg ac "$assertion" --arg epic "$epic" '.[]|select(.assertion_id==$ac)|.dependencies[]|select(.epic==$epic)|.issue' "$manifest")" || return 2
   source="$(jq -er --arg ac "$assertion" --arg epic "$epic" '.[]|select(.assertion_id==$ac)|.dependencies[]|select(.epic==$epic)|.fingerprints[0].source' "$manifest")" || return 2
   spec_dir="${source%/*}"
-  branch="$(skip_allowlist_branch "$repo" "$issue")" || return 1
-  git -C "$repo" merge-base --is-ancestor "$branch" "$main_ref" 2>/dev/null || return 1
+  # An immutable integration receipt survives branch cleanup. Never fall back
+  # to another branch if a supplied receipt is malformed or not ancestral.
+  branch="$(jq -er --arg ac "$assertion" --arg epic "$epic" '.[]|select(.assertion_id==$ac)|.dependencies[]|select(.epic==$epic)|if has("merged_commit") then .merged_commit | if type=="string" and test("^[0-9a-f]{40}$") then . else error("invalid merged_commit") end else "" end' "$manifest")" || return 2
+  if [[ -z "$branch" ]]; then branch="$(skip_allowlist_branch "$repo" "$issue")" || return 1; fi
+  if git -C "$repo" merge-base --is-ancestor "$branch" "$main_ref" 2>/dev/null; then :
+  elif (( $? == 1 )); then return 1
+  else return 2; fi
   skip_allowlist_terminal "$repo" "$main_ref" "$spec_dir/requirements.md" || return 1
   skip_allowlist_terminal "$repo" "$main_ref" "$spec_dir/design.md" || return 1
 }
@@ -36,7 +41,9 @@ skip_allowlist_fingerprint_match() {
   local dep epic issue branch ref count fp source range expected start end actual
   dep="$(jq -cer --arg ac "$assertion" --argjson index "$index" '.[]|select(.assertion_id==$ac)|.dependencies[$index]' "$manifest")" || return 2
   epic="$(jq -r .epic <<<"$dep")"; issue="$(jq -r .issue <<<"$dep")"
-  if skip_allowlist_merged "$manifest" "$assertion" "$epic" "$repo" "$main_ref"; then ref="$main_ref"; else ref="$(skip_allowlist_branch "$repo" "$issue")" || return 1; fi
+  if skip_allowlist_merged "$manifest" "$assertion" "$epic" "$repo" "$main_ref"; then ref="$main_ref"
+  elif (( $? > 1 )); then return 2
+  else ref="$(skip_allowlist_branch "$repo" "$issue")" || return 1; fi
   count="$(jq '.fingerprints|length' <<<"$dep")"
   for ((fp=0; fp<count; fp++)); do
     source="$(jq -r --argjson fp "$fp" '.fingerprints[$fp].source' <<<"$dep")"
@@ -57,9 +64,13 @@ skip_allowlist_condition() {
     token="${tokens[$i]}"
     if ((i % 2)); then [[ "$token" == AND || "$token" == OR ]] || return 2; op="$token"; continue; fi
     value=1
-    if [[ "$token" =~ ^merged\((A[0-9]+)\)$ ]]; then skip_allowlist_merged "$manifest" "$assertion" "${BASH_REMATCH[1]}" "$repo" "$main_ref" && value=0
-    elif [[ "$token" =~ ^fingerprint_match\(([0-9]+)\)$ ]]; then skip_allowlist_fingerprint_match "$manifest" "$assertion" "${BASH_REMATCH[1]}" "$repo" "$main_ref" && value=0
+    if [[ "$token" =~ ^merged\((A[0-9]+)\)$ ]]; then
+      if skip_allowlist_merged "$manifest" "$assertion" "${BASH_REMATCH[1]}" "$repo" "$main_ref"; then value=0; else value=$?; fi
+    elif [[ "$token" =~ ^fingerprint_match\(([0-9]+)\)$ ]]; then
+      if skip_allowlist_fingerprint_match "$manifest" "$assertion" "${BASH_REMATCH[1]}" "$repo" "$main_ref"; then value=0; else value=$?; fi
     else return 2; fi
+    # Predicate errors are not evidence that a dependency is unmerged.
+    if ((value > 1)); then return 2; fi
     if ((i == 0)); then result=$value
     elif [[ "$op" == AND ]]; then ((result == 0 && value == 0)) && result=0 || result=1
     else ((result == 0 || value == 0)) && result=0 || result=1; fi
@@ -92,7 +103,11 @@ skip_allowlist_audit() {
     if [[ -z "$ids" ]]; then printf 'ERROR: unrecognized skip-shaped line: %s\n' "$line" >&2; failures=$((failures + 1)); continue; fi
     while IFS= read -r assertion; do
       if ! jq -e --arg ac "$assertion" '.[]|select(.assertion_id==$ac)' "$manifest" >/dev/null; then printf 'ERROR: unrecognized allowlist assertion %s\n' "$assertion" >&2; failures=$((failures + 1)); continue; fi
-      if skip_allowlist_condition "$manifest" "$assertion" "$repo" "$main_ref"; then printf 'ERROR: %s emitted after activation condition became true\n' "$assertion" >&2; failures=$((failures + 1)); fi
+      if skip_allowlist_condition "$manifest" "$assertion" "$repo" "$main_ref"; then
+        printf 'ERROR: %s emitted after activation condition became true\n' "$assertion" >&2; failures=$((failures + 1))
+      elif (( $? > 1 )); then
+        printf 'ERROR: %s invalid activation evidence\n' "$assertion" >&2; failures=$((failures + 1))
+      fi
       dep_count="$(jq --arg ac "$assertion" '.[]|select(.assertion_id==$ac)|.dependencies|length' "$manifest")"
       for ((index=0; index<dep_count; index++)); do
         epic="$(jq -r --arg ac "$assertion" --argjson i "$index" '.[]|select(.assertion_id==$ac)|.dependencies[$i].epic' "$manifest")"
