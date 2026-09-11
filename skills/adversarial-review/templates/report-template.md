@@ -30,7 +30,7 @@ A report becomes stale when **any** of the following is true:
 1. `head_sha` does not match `git rev-parse HEAD` on the branch.
 2. `merge_base_sha` does not match `git merge-base HEAD <base-branch>`.
 3. The `diff_sha256` computed from
-   `git diff --binary --no-ext-diff <merge_base_sha>..<head_sha>`
+   `git diff --binary --no-ext-diff --no-textconv <merge_base_sha>..<head_sha>`
    does not match the stored value.
 
 When a report is stale, it MUST be regenerated before it can satisfy

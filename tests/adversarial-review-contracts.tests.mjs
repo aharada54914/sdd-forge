@@ -53,6 +53,31 @@ const annex = {
   verdicts: [baseVerdict],
 };
 expectValid(crossCritique, annex, "complete annex");
+for (const [field, prefix] of [["related_requirements", "REQ"], ["related_acceptance_tests", "AC"], ["related_tasks", "T"]]) {
+  const scoped = (ids) => ({ ...annex, verdicts: [{ ...baseVerdict, scope: { assessment: "in_scope", [field]: ids } }] });
+  expectValid(crossCritique, scoped([`${prefix}-A1`]), `${field} accepts namespaced IDs`);
+  for (const ids of [[], [`${prefix}-`], [`${prefix}-A 1`], [`${prefix}-A1\n`], [`${prefix.toLowerCase()}-1`], [`${prefix}-1`, `${prefix}-1`]]) {
+    expectInvalid(crossCritique, scoped(ids), `${field} rejects empty, malformed, or duplicate IDs`);
+  }
+}
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, verdict: "PROPOSE-SEVERITY-CHANGE" }],
+}, "severity change requires a proposed severity");
+expectValid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity: "Major" }],
+}, "evidence-backed severity change");
+expectValid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, basis: { kind: "concern", claim: "Investigate a possible regression" } }],
+}, "concern preserves its concrete claim");
+for (const claim of [undefined, "", " \t\n"]) {
+  expectInvalid(crossCritique, {
+    ...annex,
+    verdicts: [{ ...baseVerdict, basis: { kind: "concern", ...(claim === undefined ? {} : { claim }) } }],
+  }, "concern requires a nonblank claim");
+}
 expectInvalid(crossCritique, { ...annex, verdicts: [] }, "complete annex needs verdicts");
 expectInvalid(crossCritique, {
   ...annex,
@@ -60,8 +85,14 @@ expectInvalid(crossCritique, {
 }, "evidence basis needs citations");
 expectInvalid(crossCritique, {
   ...annex,
-  verdicts: [{ ...baseVerdict, basis: { kind: "concern", citations: baseVerdict.basis.citations } }],
+  verdicts: [{ ...baseVerdict, basis: { kind: "concern", claim: "Unverified concern", citations: baseVerdict.basis.citations } }],
 }, "concern cannot masquerade as cited evidence");
+for (const verdict of ["PROPOSE-REJECT", "PROPOSE-SEVERITY-CHANGE"]) {
+  expectInvalid(crossCritique, {
+    ...annex,
+    verdicts: [{ ...baseVerdict, verdict, proposed_severity: "Major", basis: { kind: "concern", claim: "Unverified concern" } }],
+  }, "concerns cannot justify rejection or severity changes");
+}
 expectInvalid(crossCritique, {
   ...annex,
   verdicts: [{ ...baseVerdict, scope: { assessment: "in_scope", related_requirements: [] } }],
@@ -119,6 +150,31 @@ expectValid(report, {
 const evaluation = compile("adversarial-review-evaluation");
 const evaluationRecord = load("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json");
 expectValid(evaluation, evaluationRecord, "checked-in evaluation");
+for (const duration_ms of [null, 0, 1200]) {
+  expectValid(evaluation, { ...evaluationRecord, duration_ms }, "measured or unavailable duration");
+}
+for (const duration_ms of [-1, 0.5, "unknown"]) {
+  expectInvalid(evaluation, { ...evaluationRecord, duration_ms }, "invalid duration");
+}
+for (const token_usage of [
+  { total_tokens: 0, source: "host complete-run receipt" },
+  { total_tokens: 1234, source: "host complete-run receipt" },
+  { total_tokens: null, unavailable_reason: "host only provides partial usage" },
+]) {
+  expectValid(evaluation, { ...evaluationRecord, token_usage }, "explicit measured or unavailable telemetry");
+}
+for (const token_usage of [
+  { total_tokens: -1, source: "host" },
+  { total_tokens: 1.5, source: "host" },
+  { total_tokens: 1, source: " " },
+  { total_tokens: null },
+  { total_tokens: null, unavailable_reason: "\t" },
+  { total_tokens: 0, unavailable_reason: "missing measurement" },
+  { total_tokens: null, source: "host" },
+  { total_tokens: 1, source: "host", unavailable_reason: "contradiction" },
+]) {
+  expectInvalid(evaluation, { ...evaluationRecord, token_usage }, "telemetry must not invent or mix measurement states");
+}
 expectInvalid(evaluation, { ...evaluationRecord, reviewer_launch_count: 1 }, "two-reviewer minimum");
 expectInvalid(evaluation, {
   ...evaluationRecord,
@@ -131,6 +187,6 @@ const template = fs.readFileSync(
 );
 assert.match(template, /reviewer_run_ids:\n  reviewer_a:/);
 assert.doesNotMatch(template, /reviewer_run_ids:\n  - reviewer_a:/);
-assert.match(template, /git diff --binary --no-ext-diff/);
+assert.match(template, /git diff --binary --no-ext-diff --no-textconv/);
 
 process.stdout.write("adversarial-review contract tests passed\n");

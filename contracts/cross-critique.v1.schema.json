@@ -100,6 +100,13 @@
           "description": "Optional. When the finding stands but the proposed fix is wrong, disproportionate, or over-engineered, state the minimal alternative here."
         }
       },
+      "allOf": [{
+        "if": {
+          "properties": { "verdict": { "const": "PROPOSE-SEVERITY-CHANGE" } },
+          "required": ["verdict"]
+        },
+        "then": { "required": ["proposed_severity"] }
+      }],
       "if": {
         "properties": {
           "verdict": {
@@ -140,6 +147,11 @@
           "enum": ["code_evidence", "spec_evidence", "concern"],
           "description": "code_evidence: a file:line citation that directly refutes or confirms the finding. spec_evidence: a requirement/AC/ADR that directly bears on the finding. concern: a plausible objection that could not be verified this session. A concern does not auto-reject or auto-adopt — the finding author must respond with evidence, a withdrawal, or an escalation to human judgement."
         },
+        "claim": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "Concrete unverified concern; required when kind is concern."
+        },
         "citations": {
           "type": "array",
           "description": "Required for code_evidence and spec_evidence. Each citation pins the exact location.",
@@ -159,6 +171,7 @@
         "required": ["citations"]
       },
       "else": {
+        "required": ["claim"],
         "not": { "required": ["citations"] }
       }
     },
@@ -197,21 +210,21 @@
         },
         "related_requirements": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^REQ-[0-9]+$" },
+          "items": { "type": "string", "pattern": "^REQ-\\S+$", "not": { "pattern": "\\s" } },
           "minItems": 1,
           "uniqueItems": true,
           "description": "REQ-* IDs from requirements.md that this finding relates to. Required for in_scope assessments."
         },
         "related_acceptance_tests": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^AC-[0-9]+$" },
+          "items": { "type": "string", "pattern": "^AC-\\S+$", "not": { "pattern": "\\s" } },
           "minItems": 1,
           "uniqueItems": true,
           "description": "AC-* IDs from requirements.md that this finding relates to."
         },
         "related_tasks": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^T-[0-9]+$" },
+          "items": { "type": "string", "pattern": "^T-\\S+$", "not": { "pattern": "\\s" } },
           "minItems": 1,
           "uniqueItems": true,
           "description": "T-* IDs from tasks.md that this finding relates to."

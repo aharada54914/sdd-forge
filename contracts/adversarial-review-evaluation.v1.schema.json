@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/aharada54914/sdd-forge/contracts/adversarial-review-evaluation.v1.schema.json",
   "title": "Adversarial Review Evaluation v1",
-  "description": "Schema for evaluation.json — structural run metrics produced at the end of a risk-adaptive adversarial review invocation (issue #350, ADR-0027). Produced only on triggering runs; non-triggering runs produce no evaluation.json. Token telemetry is out of scope (INV-021).",
+  "description": "Schema for evaluation.json — structural run metrics produced at the end of a risk-adaptive adversarial review invocation (issue #350, ADR-0027). Produced only on triggering runs; non-triggering runs produce no evaluation.json. Token collection is host-provided, never estimated; unavailable telemetry is explicitly recorded.",
   "type": "object",
   "required": [
     "schema_version",
@@ -240,10 +240,33 @@
         "not": { "required": ["not_ran_reason"] }
       }
     },
+    "token_usage": {
+      "description": "Required for new runs by producer instructions; optional here for historical v1 records. Record the measured whole-run total and source, or null with a reason when complete telemetry is unavailable. Metrics never control verdicts.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["total_tokens", "source"],
+          "additionalProperties": false,
+          "properties": {
+            "total_tokens": { "type": "integer", "minimum": 0 },
+            "source": { "type": "string", "pattern": "\\S" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["total_tokens", "unavailable_reason"],
+          "additionalProperties": false,
+          "properties": {
+            "total_tokens": { "type": "null" },
+            "unavailable_reason": { "type": "string", "pattern": "\\S" }
+          }
+        }
+      ]
+    },
     "duration_ms": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
-      "description": "Optional. Wall-clock duration of the full run in milliseconds, if the orchestrator can measure it."
+      "description": "Optional. Measured wall-clock duration of the full run in milliseconds, or null when unavailable. Never substitute zero or an estimate for an unavailable measurement."
     },
     "notes": {
       "type": "string",

@@ -162,6 +162,7 @@ For EVERY finding of theirs, output one block:
   | SUPPLEMENT
 - Basis:
   - kind: code_evidence | spec_evidence | concern
+  - claim: <the concrete concern; required when kind is concern>
   - citations: (required for code_evidence and spec_evidence)
     - path: <file>, line_start: <n>, line_end: <n>, claim: <what this proves>
   NOTE: PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE REQUIRE code_evidence or
