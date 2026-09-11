@@ -532,9 +532,10 @@ if (-not (Test-Path -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-cont
 }
 
 Write-Output "=== registration self-check ==="
-$runAllSh = Join-Path $repoRoot "tests/run-all.sh"
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $repoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-if ((Select-String -LiteralPath $runAllSh -Pattern "check-component-coverage" -Quiet) -and (Select-String -LiteralPath $runAllPs1 -Pattern "check-component-coverage" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/check-component-coverage.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "check-component-coverage" -Quiet)) {
     Ok "check-component-coverage suite self-registers in run-all.sh and .ps1"
 } else {
     Fail "check-component-coverage missing from run-all.sh/.ps1 registration"

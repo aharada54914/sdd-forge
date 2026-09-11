@@ -1,3 +1,6 @@
+> **STALE — retained as the review record for PR head `9e39c396`; the
+> subsequent hardening commit requires its own target identity.**
+
 # 2026-08-29 Adversarial Review — feat/adversarial-review-enhancements — Integrated Findings
 
 Produced by a two-reviewer adversarial review (Reviewer A: design /
@@ -12,18 +15,18 @@ adds the evaluation record schema (#350) and the usage-history convention (#346)
 
 ```yaml
 schema_version:  adversarial-review-report.v1
-merge_base_sha:  e0047832
-head_sha:        pending-first-commit
-diff_sha256:     7708caf170317f0ce7b20ed8b1872f186599774d6851b26a61d8c05e43428aab
+merge_base_sha:  e00478321327b48e4e4ad21a14391d69e0f1baa9
+head_sha:        9e39c396f4ca8f9abe3c9aabb090868ada17b53f
+diff_sha256:     8bf861912ac750c3e1f46858d0d8800e5b84c2bb7c914f94dd605d482d15edd2
 created_at:      2026-08-29T13:18:00Z
-skill_version:   e0047832
+skill_version:   e00478321327b48e4e4ad21a14391d69e0f1baa9
 reviewer_run_ids:
-  - reviewer_a: run-003-reviewer-a
-  - reviewer_b: run-003-reviewer-b
+  reviewer_a: run-003-reviewer-a
+  reviewer_b: run-003-reviewer-b
 ```
 
-> **Note**: `head_sha` will be updated to the actual merge commit SHA after the
-> PR lands. This report is pre-merge.
+> **Note**: The identity above is the original reviewed PR head, not a future
+> merge commit. The stale notice preserves that immutable historical target.
 
 ### Stale judgement
 
@@ -123,3 +126,11 @@ fixes land.
   in the schema description. Full `oneOf` restructuring deferred to a follow-up
   schema v2 to preserve backward compatibility with tooling that does not
   support `oneOf` discriminators.
+- 2026-08-31 adversarial hardening found that the report template encoded
+  `reviewer_run_ids` as an array although its schema requires an object; the
+  template now uses the schema shape and this historical block was corrected
+  while being explicitly marked stale.
+- 2026-08-31 adversarial hardening added executable schema fixtures after the
+  original report incorrectly concluded that schema tests could be deferred.
+  The fixtures also exposed and now lock evidence-citation, non-empty scope-ID,
+  complete/unavailable annex, full-SHA, and Phase-R outcome invariants.

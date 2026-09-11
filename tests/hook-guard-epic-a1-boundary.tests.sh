@@ -459,13 +459,17 @@ if [ -f "$ROOT/tests/hook-guard-epic-a1-boundary.tests.ps1" ]; then
 else
   fail "self-registration: PowerShell twin tests/hook-guard-epic-a1-boundary.tests.ps1 missing"
 fi
-for runner in run-all.sh run-all.ps1; do
-  if grep -q "hook-guard-epic-a1-boundary.tests" "$ROOT/tests/$runner"; then
-    pass "self-registration: registered in tests/$runner"
-  else
-    fail "self-registration: NOT registered in tests/$runner"
-  fi
-done
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/hook-guard-epic-a1-boundary.tests.sh" <<< "$registered_suites" >/dev/null; then
+  pass "self-registration: registered in tests/run-all.sh"
+else
+  fail "self-registration: NOT registered in tests/run-all.sh"
+fi
+if grep -q "hook-guard-epic-a1-boundary.tests" "$ROOT/tests/run-all.ps1"; then
+  pass "self-registration: registered in tests/run-all.ps1"
+else
+  fail "self-registration: NOT registered in tests/run-all.ps1"
+fi
 
 printf '\nPASS: %s\nFAIL: %s\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] || exit 1

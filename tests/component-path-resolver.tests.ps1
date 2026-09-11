@@ -840,9 +840,10 @@ if ((Get-Classification $r.Output "src/shared-ui/button.ts") -eq "OVERLAP") { Ok
 if ((Get-Classification $r.Output "src/desktop/generated/x.ts") -eq "UNOWNED") { Ok "TEST-045.2: base fixture has a nested excluded subtree" } else { Fail "TEST-045.2: expected UNOWNED" }
 if ((Get-Classification $r.Output "contracts/schema.json") -eq "SHARED_BOUNDED") { Ok "TEST-045.3: base fixture has a bounded shared_paths entry" } else { Fail "TEST-045.3: expected SHARED_BOUNDED" }
 
-$runAllSh = Join-Path $repoRoot "tests/run-all.sh"
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $repoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-resolver" -Quiet) -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-resolver" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-resolver.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-resolver" -Quiet)) {
     Ok "TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1"
 } else {
     Fail "TEST-045.4: component-path-resolver missing from run-all.sh/.ps1 registration"

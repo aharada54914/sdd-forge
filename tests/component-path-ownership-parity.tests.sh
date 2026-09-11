@@ -78,10 +78,11 @@ error_category() {
 }
 
 registration_audit() {
-  local run_sh="$1" run_ps="$2" workflow="$3" suite sh_count ps_count ci_sh_count ci_ps_count
+  local run_sh="$1" run_ps="$2" workflow="$3" suite sh_count ps_count ci_sh_count ci_ps_count registered_suites
   shift 3
+  registered_suites="$(bash "$run_sh" --list)" || return 1
   for suite in "$@"; do
-    sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$run_sh" 2>/dev/null || true)"
+    sh_count="$(grep -Fxc -- "tests/$suite.tests.sh" <<< "$registered_suites" || true)"
     ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$run_ps" 2>/dev/null || true)"
     ci_sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$workflow" 2>/dev/null || true)"
     ci_ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$workflow" 2>/dev/null || true)"
@@ -250,10 +251,7 @@ else
 fi
 
 parity_suite="$(basename "$0" .tests.sh)"
-if [[ "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$ROOT/tests/run-all.sh" || true)" == "1" \
-   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$ROOT/tests/run-all.ps1" || true)" == "1" \
-   && "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$LIVE_WORKFLOW" || true)" == "1" \
-   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$LIVE_WORKFLOW" || true)" == "1" ]]; then
+if registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "$parity_suite"; then
   pass "TEST-051 parity harness self-registration"
 else
   fail "TEST-051 parity harness self-registration"
@@ -267,17 +265,21 @@ else
   fail "TEST-051 staged candidates match every manifest row ($manifest_output)"
 fi
 
-cp "$ROOT/tests/run-all.sh" "$TMP/run-all-mutant.sh"
 first_suite="${suite_bases[0]:-}"
-python3 - "$TMP/run-all-mutant.sh" "tests/$first_suite.tests.sh" <<'PY'
-import pathlib
-import sys
-p = pathlib.Path(sys.argv[1])
-p.write_text(p.read_text().replace(sys.argv[2], '', 1))
-PY
+# Mutate the actual inventory, not a runner-source literal that may not exist.
+# Require a valid baseline so a broken disposable runner cannot yield a false pass.
 if [[ -n "$first_suite" ]] \
-  && ! registration_audit "$TMP/run-all-mutant.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
-  pass "TEST-047 registration audit rejects a disposable missing-suite mutant"
+  && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}" \
+  && registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" \
+  && mutant_suites="$(awk -v target="tests/$first_suite.tests.sh" '$0 != target' <<< "$registered_suites")" \
+  && printf '[[ "$1" == --list ]] || exit 2\nprintf "%%s\\n" %q\n' "$mutant_suites" > "$TMP/run-all-mutant.sh" \
+  && mutant_listing="$(bash "$TMP/run-all-mutant.sh" --list)" \
+  && [[ "$mutant_listing" == "$mutant_suites" ]]; then
+  if ! registration_audit "$TMP/run-all-mutant.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
+    pass "TEST-047 registration audit rejects a disposable missing-suite mutant"
+  else
+    fail "TEST-047 registration audit rejects a disposable missing-suite mutant"
+  fi
 else
   fail "TEST-047 registration audit rejects a disposable missing-suite mutant"
 fi

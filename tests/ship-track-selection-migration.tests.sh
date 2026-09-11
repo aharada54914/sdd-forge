@@ -1084,7 +1084,9 @@ assert_mutation handshake-after-contract "$DOC_SHIP" handshake-before-contract n
 # Self-registration (REQ-011 / design.md Test Strategy item 11).
 # ===========================================================================
 printf -- '--- self-registration ---\n'
-if grep -q 'tests/ship-track-selection-migration.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/ship-track-selection-migration.tests.sh" <<< "$registered_suites" >/dev/null; then
   pass "self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh"

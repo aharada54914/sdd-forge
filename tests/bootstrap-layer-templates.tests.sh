@@ -41,6 +41,7 @@ ux="$TEMPLATES/ux-spec.template.md"
 frontend="$TEMPLATES/frontend-spec.template.md"
 infra="$TEMPLATES/infra-spec.template.md"
 security="$TEMPLATES/security-spec.template.md"
+DESIGN="$TEMPLATES/design.template.md"
 
 assert_file "$ux" "TEST-001 UX layer template exists"
 assert_file "$frontend" "TEST-001 frontend layer template exists"
@@ -90,6 +91,7 @@ assert_contains "$security" '^## OWASP Mapping$' "TEST-005 OWASP mapping"
 assert_contains "$security" '^## Secrets Management$' "TEST-005 secrets"
 assert_contains "$security" 'SBOM|Supply Chain' "TEST-005 supply chain"
 assert_contains "$security" '^## Security Tests$' "TEST-005 security tests"
+assert_contains "$DESIGN" 'workflow position.*owning task|owning task.*workflow position' "TEST-007 activation clauses key off workflow position"
 
 tmp=${TMPDIR:-/tmp}/sdd-layer-template-test-$$
 mkdir -p "$tmp"
@@ -197,6 +199,11 @@ for field in "Risk:" "Risk Rationale:" "Required Workflow:" "Requirements:"; do
     fail "RT001: tasks.template.md lost required line '$field'"
   fi
 done
+if grep -Eq 'design clause.*contradiction.*review time|review time.*design clause.*contradiction' "$TEMPLATES/tasks.template.md"; then
+  pass "RT001: tasks template names cross-state contradictions"
+else
+  fail "RT001: tasks template names cross-state contradictions"
+fi
 for field in "## Risk" "## Risk Rationale" "## Required Workflow" "## Requirements"; do
   if grep -q "^${field}\$" "$TEMPLATES/ai-task.template.md"; then
     pass "RT001: ai-task.template.md carries '$field'"

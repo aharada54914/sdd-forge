@@ -18,6 +18,23 @@ permissions:
   contents: read
 
 jobs:
+  # run-all.sh is the canonical POSIX suite inventory. This fallback runs
+  # every suite not already named by one of the specialized jobs below, so a
+  # new registration cannot remain local-only or duplicate expensive lanes.
+  posix-regression:
+    name: complete POSIX regression inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Run every otherwise-unwired POSIX suite
+        shell: bash
+        run: bash ./tests/run-ci-unwired.sh
+
   test:
     strategy:
       fail-fast: false
@@ -459,7 +476,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -811,6 +828,137 @@ jobs:
         shell: pwsh
         run: ./tests/component-path-ownership-parity.tests.ps1
 
+      # epic-194-a6-lite-integration (issue #194): T-001..T-004 CI-staging
+      # registration, ordered T-001 -> T-002 -> T-003 -> T-004 as tasks.md's
+      # Global Constraints require. All eleven suites are already registered
+      # in the live tests/run-all.{sh,ps1}; this staged candidate supplies
+      # their previously missing direct CI steps. Staged here under
+      # specs/epic-194-a6-lite-integration/human-copy/.github/workflows/
+      # test.yml pending human application to this live file.
+
+      - name: Test human-copy-runner-contract suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        # The runner under test is PowerShell-native only (tasks.md T-001
+        # Planned Files); this suite shells out to pwsh internally.
+        run: bash ./tests/human-copy-runner-contract.tests.sh
+
+      - name: Test human-copy-runner-contract suite (pwsh)
+        shell: pwsh
+        run: ./tests/human-copy-runner-contract.tests.ps1
+
+      - name: Test check-risk-upgrade-byte-identical suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
+
+      - name: Test check-risk-upgrade-byte-identical suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
+
+      - name: Test check-risk-upgrade-capability-merge suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
+
+      - name: Test check-risk-upgrade-capability-merge suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
+
+      - name: Test lite-spec-capability-block suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-spec-capability-block.tests.sh
+
+      - name: Test lite-spec-capability-block suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-spec-capability-block.tests.ps1
+
+      - name: Test lite-gate-summary-consumption suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-consumption.tests.sh
+
+      - name: Test lite-gate-summary-consumption suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-consumption.tests.ps1
+
+      - name: Test lite-gate-summary-absent suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent.tests.sh
+
+      - name: Test lite-gate-summary-absent suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent.tests.ps1
+
+      - name: Test lite-gate-summary-invalid suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-invalid.tests.sh
+
+      - name: Test lite-gate-summary-invalid suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-invalid.tests.ps1
+
+      - name: Test lite-gate-full-upgrade-backstop suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
+
+      - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
@@ -840,7 +988,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -896,7 +1044,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
@@ -948,7 +1096,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 

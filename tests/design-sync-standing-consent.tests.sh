@@ -739,7 +739,8 @@ fi
 
 # --- REQ-010 (AC-027, AC-028) -----------------------------------------------
 
-if grep -Fq 'tests/design-sync-standing-consent.tests.sh' "$RUN_ALL_SH" \
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" \
+  && grep -Fx 'tests/design-sync-standing-consent.tests.sh' <<< "$registered_suites" >/dev/null \
   && grep -Fq 'tests/design-sync-standing-consent.tests.ps1' "$RUN_ALL_PS1"; then
   pass "TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)"
 else

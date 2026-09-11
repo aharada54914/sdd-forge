@@ -349,7 +349,8 @@ else
 fi
 
 # --- Suite/CI registration self-check ---------------------------------------
-if [ -f "${REPO_ROOT}/tests/run-all.sh" ] && grep -qF "tests/context-projection-schema.tests.sh" "${REPO_ROOT}/tests/run-all.sh"; then
+if suite_list="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+   grep -Fx 'tests/context-projection-schema.tests.sh' <<< "$suite_list" >/dev/null; then
   ok "self-registration: tests/run-all.sh lists this suite"
 else
   fail "self-registration: tests/run-all.sh does not list tests/context-projection-schema.tests.sh"

@@ -317,9 +317,10 @@ components:
 
     if (Should-Run 'TEST-041') {
         $wiringCount = 0
-        $runAllSh = Join-Path $repoRoot 'tests/run-all.sh'
+        # Query the runner's external inventory rather than its source text.
+        $runAllSh = @(& bash (Join-Path $repoRoot 'tests/run-all.sh') --list)
         $runAllPs1 = Join-Path $repoRoot 'tests/run-all.ps1'
-        if ([IO.File]::ReadAllText($runAllSh).Contains('  tests/ownership-digest.tests.sh')) { $wiringCount++ }
+        if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains 'tests/ownership-digest.tests.sh') { $wiringCount++ }
         if ([IO.File]::ReadAllText($runAllPs1).Contains("'tests/ownership-digest.tests.ps1'")) { $wiringCount++ }
         $liveWorkflow = [IO.File]::ReadAllText((Join-Path $repoRoot '.github/workflows/test.yml'))
         if ($liveWorkflow.Contains('bash ./tests/ownership-digest.tests.sh')) { $wiringCount++ }

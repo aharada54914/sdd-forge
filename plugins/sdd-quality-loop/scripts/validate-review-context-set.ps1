@@ -36,6 +36,26 @@ function Test-CanonicalPath {
     )
 }
 
+function Test-CanonicalScratchRoot {
+    param([string]$Path)
+    return ($Path -is [string] -and
+        ($Path -cmatch '^/([^/]+/)*[^/]+$' -or $Path -cmatch '^[A-Za-z]:/([^/]+/)*[^/]+$') -and
+        $Path -cnotmatch '(^|/)\.\.?(/|$)' -and -not $Path.Contains('\') -and
+        -not $Path.EndsWith('/'))
+}
+
+function Test-ScratchRootsOverlap {
+    param([string]$Left, [string]$Right)
+    $comparison = if ($Left -cmatch '^[A-Za-z]:/' -and $Right -cmatch '^[A-Za-z]:/') {
+        [StringComparison]::OrdinalIgnoreCase
+    } else {
+        [StringComparison]::Ordinal
+    }
+    return ($Left.Equals($Right, $comparison) -or
+        $Left.StartsWith("$Right/", $comparison) -or
+        $Right.StartsWith("$Left/", $comparison))
+}
+
 function Test-JsonInteger {
     param([object]$Value)
     if ($Value -is [byte] -or $Value -is [sbyte] -or
@@ -193,6 +213,9 @@ try {
         if ($document.ContainsKey('gate_report_declaration')) {
             $topKeys = @($topKeys) + @('gate_report_declaration')
         }
+        if ($document.ContainsKey('scratch_root')) {
+            $topKeys = @($topKeys) + @('scratch_root')
+        }
     }
     if (-not (Test-ExactKeys $document $topKeys) -or
         $document.schema -cne 'review-context-invocation/v2' -or
@@ -212,6 +235,9 @@ try {
     if ($document.stage -ceq 'quality' -and
         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+    }
+    if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
+        Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
     }
     $gateReportDeclarationPath = ''
     $gateReportDeclarationSha256 = ''
@@ -404,6 +430,19 @@ try {
             $implementationReportLines[0] -cne "# Implementation Report: $($document.task_id)" -or
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
+        }
+        if ($document.ContainsKey('scratch_root')) {
+            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .+$' })
+            if ($scratchRootLines.Count -ne 1) {
+                Fail-ReviewContext 'PATH' 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
+            }
+            $implementationScratchRoot = $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
+            if (-not (Test-CanonicalScratchRoot $implementationScratchRoot)) {
+                Fail-ReviewContext 'PATH' 'implementation Scratch Root is not a canonical absolute path'
+            }
+            if (Test-ScratchRootsOverlap $document.scratch_root $implementationScratchRoot) {
+                Fail-ReviewContext 'PATH' 'evaluator scratch root overlaps the implementation scratch root'
+            }
         }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {

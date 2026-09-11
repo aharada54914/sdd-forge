@@ -51,6 +51,8 @@ agents="${ROOT}/AGENTS.md"
 for stage in spec-review-loop impl-review-loop task-review-loop; do
   grep -Fq "$stage" "$agents" || fail "AGENTS.md must require $stage"
 done
+grep -Eq 'cross-epic.*merge state.*task plan|task plan.*cross-epic.*merge state' "$agents" || \
+  fail "AGENTS.md must tell review lanes to compare cross-epic merge state against the task plan"
 
 interviewer="${ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 grep -Fq '/sdd-review-loop:spec-review-loop --feature <feature>' "$interviewer" || \

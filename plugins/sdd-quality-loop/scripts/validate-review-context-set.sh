@@ -54,6 +54,24 @@ is_canonical_path() {
     [[ ! "$path" =~ ^[A-Za-z]: ]]
 }
 
+is_canonical_scratch_root() {
+  local path=$1
+  [[ "$path" != *\\* ]] &&
+    [[ "$path" != */ ]] &&
+    [[ ! "$path" =~ (^|/)\.\.?(/|$) ]] &&
+    { [[ "$path" =~ ^/([^/]+/)*[^/]+$ ]] ||
+      [[ "$path" =~ ^[A-Za-z]:/([^/]+/)*[^/]+$ ]]; }
+}
+
+scratch_roots_overlap() {
+  local left=$1 right=$2
+  if [[ "$left" =~ ^[A-Za-z]:/ && "$right" =~ ^[A-Za-z]:/ ]]; then
+    left=$(printf '%s' "$left" | tr '[:upper:]' '[:lower:]')
+    right=$(printf '%s' "$right" | tr '[:upper:]' '[:lower:]')
+  fi
+  [[ "$left" == "$right" || "$left" == "$right/"* || "$right" == "$left/"* ]]
+}
+
 is_forbidden_review_output() {
   local path=$1
   [[ "$path" =~ ^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$ ]] ||
@@ -229,9 +247,10 @@ jq -e '
   type == "object" and
   (
     (.stage == "quality" and
-      (((keys | sort) == ((base_keys + ["task_id"]) | sort)) or
-        ((keys | sort) ==
-          ((base_keys + ["task_id", "gate_report_declaration"]) | sort))) and
+      ((keys | sort) ==
+        ((base_keys + ["task_id"] +
+          (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
+          (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
       (if has("gate_report_declaration") then
         (.gate_report_declaration |
@@ -239,6 +258,13 @@ jq -e '
           ((keys | sort) == ["path", "sha256"]) and
           (.path | type == "string" and length > 0) and
           (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+      else true end) and
+      (if has("scratch_root") then
+        (.scratch_root |
+          type == "string" and
+          (test("^/([^/]+/)*[^/]+$") or test("^[A-Za-z]:/([^/]+/)*[^/]+$")) and
+          (contains("\\") | not) and
+          (test("(^|/)\\.\\.?(/|$)") | not))
       else true end)) or
     (.stage != "quality" and ((keys | sort) == (base_keys | sort)))
   ) and
@@ -273,6 +299,10 @@ previous_record_sha256=$(jq -r '.previous_record_sha256' "$manifest" | tr -d '\r
 bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
+scratch_root=''
+if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
+  scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
+fi
 # WFI-036. Optional, quality-only, and inert unless present: the contract check
 # above rejects the key outright on any other stage.
 gate_report_declaration_path=''
@@ -439,6 +469,17 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
     fail PATH 'sdd-evaluator implementation report heading does not match task ID'
   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+  if [[ -n "$scratch_root" ]]; then
+    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .+$' "$repository_root/$implementation_report_path" || true)
+    [[ "$implementation_scratch_count" -eq 1 ]] ||
+      fail PATH 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
+    implementation_scratch_root=$(sed -n 's/^- \*\*Scratch Root\*\*: //p' "$repository_root/$implementation_report_path")
+    is_canonical_scratch_root "$implementation_scratch_root" ||
+      fail PATH 'implementation Scratch Root is not a canonical absolute path'
+    if scratch_roots_overlap "$scratch_root" "$implementation_scratch_root"; then
+      fail PATH 'evaluator scratch root overlaps the implementation scratch root'
+    fi
+  fi
 
   # WFI-036. The named gate report is a declaration source, not a manifest
   # input. It is verified in full here -- canonical path, confined to the gate's

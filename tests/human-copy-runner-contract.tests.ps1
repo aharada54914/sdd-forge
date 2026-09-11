@@ -95,16 +95,17 @@ if ($MissingScenarioNames.Count -eq 0) {
     Bad "TEST-000b: fixture catalog is missing scenarios: $($MissingScenarioNames -join ', ')"
 }
 
-$RunAllSh = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.sh') -Raw
+$RunAllSh = @(& bash (Join-Path $RepoRoot 'tests/run-all.sh') --list)
+$RunAllShExit = $LASTEXITCODE
 $RunAllPs1 = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
-$ShT001 = $RunAllSh.IndexOf('tests/human-copy-runner-contract.tests.sh', [StringComparison]::Ordinal)
-$ShT002 = $RunAllSh.IndexOf('tests/check-risk-upgrade-byte-identical.tests.sh', [StringComparison]::Ordinal)
+$ShT001 = [Array]::IndexOf([string[]]$RunAllSh, 'tests/human-copy-runner-contract.tests.sh')
+$ShT002 = [Array]::IndexOf([string[]]$RunAllSh, 'tests/check-risk-upgrade-byte-identical.tests.sh')
 $Ps1T001 = $RunAllPs1.IndexOf('tests/human-copy-runner-contract.tests.ps1', [StringComparison]::Ordinal)
 $Ps1T002 = $RunAllPs1.IndexOf('tests/check-risk-upgrade-byte-identical.tests.ps1', [StringComparison]::Ordinal)
-if ($ShT001 -ge 0 -and $ShT002 -ge 0 -and $ShT001 -lt $ShT002 -and $Ps1T001 -ge 0 -and $Ps1T002 -ge 0 -and $Ps1T001 -lt $Ps1T002) {
+if ($RunAllShExit -eq 0 -and $ShT001 -ge 0 -and $ShT002 -ge 0 -and $ShT001 -lt $ShT002 -and $Ps1T001 -ge 0 -and $Ps1T002 -ge 0 -and $Ps1T001 -lt $Ps1T002) {
     Ok 'TEST-000c: twin suites self-register first in the Epic-194 serialized order'
 } else {
-    Bad 'TEST-000c: twin suites must be registered before the T-002 Epic-194 suites in both run-all arrays'
+    Bad 'TEST-000c: twin suites must precede the T-002 Epic-194 suites in successful Bash listing and the PowerShell runner'
 }
 
 if (-not (Test-Path -LiteralPath $CiDraftPath -PathType Leaf)) {

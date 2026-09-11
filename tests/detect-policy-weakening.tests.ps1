@@ -822,8 +822,9 @@ if ($r.ExitCode -eq 2 -and $errText -notmatch '(?i)traceback') {
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 
-$RunAllSh = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.sh')
-if ($RunAllSh -match 'detect-policy-weakening\.tests\.sh') {
+# The runner loads an external inventory; query its public list.
+$PosixEntries = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -eq 0 -and $PosixEntries -ccontains 'tests/detect-policy-weakening.tests.sh') {
   Test-Pass 'self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh'
 } else {
   Test-Fail 'self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh'

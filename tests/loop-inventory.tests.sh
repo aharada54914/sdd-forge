@@ -19,8 +19,8 @@
 #     hitl-diagnosis specifically carry driver_scripts: []; every
 #     fixture_profiles value is drawn from the closed greenfield/brownfield
 #     vocabulary (ADR-0010).
-#   TEST-004 — self-registration forcing: greps tests/run-all.sh,
-#     tests/run-all.ps1, and .github/workflows/test.yml for the four
+#   TEST-004 — self-registration forcing: queries tests/run-all.sh --list,
+#     and checks tests/run-all.ps1 and .github/workflows/test.yml for the four
 #     canonical Pillar-A suite registrations (conditional on the suite file
 #     existing on disk; this suite's own registration is always required).
 #   TEST-008 — optional capability-applicability contract and legacy-copy
@@ -348,7 +348,10 @@ CANONICAL_BASENAMES=(loop-inventory.tests loop-driver.tests loop-consistency.tes
 
 assert_registered_sh() {
   local basename="$1"
-  grep -q "tests/${basename}\.sh" "$RUN_ALL_SH" 2>/dev/null && \
+  local registered_suites
+  # The runner reads its inventory dynamically; source text is not membership.
+  registered_suites="$(bash "$RUN_ALL_SH" --list)" || return 1
+  grep -Fx -- "tests/${basename}.sh" <<< "$registered_suites" >/dev/null && \
     grep -q "${basename}\.sh" "$TEST_YML" 2>/dev/null
 }
 assert_registered_ps1() {
@@ -356,6 +359,40 @@ assert_registered_ps1() {
   grep -q "tests/${basename}\.ps1" "$RUN_ALL_PS1" 2>/dev/null && \
     grep -q "${basename}\.ps1" "$TEST_YML" 2>/dev/null
 }
+
+check_registration_controls() {
+  local RUN_ALL_SH="${WORK}/registration-runner.sh"
+  local TEST_YML="${WORK}/registration-workflow.yml"
+  local REGISTRATION_LIST REGISTRATION_EXIT=0
+  export REGISTRATION_LIST REGISTRATION_EXIT
+  # A dynamic listing must work without a static suite name in the runner.
+  printf '%s\n' '[[ "$1" == "--list" ]] || exit 9' \
+    'printf "%s\n" "$REGISTRATION_LIST"' 'exit "$REGISTRATION_EXIT"' > "$RUN_ALL_SH"
+  printf '%s\n' 'run: bash tests/loop-inventory.tests.sh' > "$TEST_YML"
+  REGISTRATION_LIST='tests/loop-inventory.tests.sh'
+  if assert_registered_sh loop-inventory.tests; then
+    ok "TEST-004.3: dynamic exact registration is accepted"
+  else
+    fail "TEST-004.3: dynamic exact registration is rejected"
+  fi
+  local control
+  for control in missing near-match failed-list missing-ci; do
+    REGISTRATION_LIST='tests/loop-inventory.tests.sh'
+    REGISTRATION_EXIT=0
+    case "$control" in
+      missing) REGISTRATION_LIST='' ;;
+      near-match) REGISTRATION_LIST='tests/loop-inventory.tests.sh.bak' ;;
+      failed-list) REGISTRATION_EXIT=7 ;;
+      missing-ci) printf '%s\n' 'run: echo no suite' > "$TEST_YML" ;;
+    esac
+    if assert_registered_sh loop-inventory.tests; then
+      fail "TEST-004.4: ${control} registration was accepted"
+    else
+      ok "TEST-004.4: ${control} registration is rejected"
+    fi
+  done
+}
+check_registration_controls
 
 for basename in "${CANONICAL_BASENAMES[@]}"; do
   sh_path="${REPO_ROOT}/tests/${basename}.sh"

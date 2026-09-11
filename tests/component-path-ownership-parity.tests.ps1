@@ -70,13 +70,14 @@ function Get-ErrorCategory([string]$Stem, [string]$Probe) {
 }
 
 function Test-RegistrationAudit([string]$RunSh, [string]$RunPs, [string]$Workflow, [string[]]$Suites) {
-    $runShText = [System.IO.File]::ReadAllText($RunSh)
+    $runShEntries = @(& bash $RunSh --list)
+    if ($LASTEXITCODE -ne 0) { return $false }
     $runPsText = [System.IO.File]::ReadAllText($RunPs)
     $workflowText = [System.IO.File]::ReadAllText($Workflow)
     foreach ($suite in $Suites) {
         $shToken = "tests/$suite.tests.sh"
         $psToken = "tests/$suite.tests.ps1"
-        if (($runShText.Split($shToken).Count - 1) -ne 1 -or
+        if (@($runShEntries | Where-Object { $_ -ceq $shToken }).Count -ne 1 -or
             ($runPsText.Split($psToken).Count - 1) -ne 1 -or
             ($workflowText.Split($shToken).Count - 1) -ne 1 -or
             ($workflowText.Split($psToken).Count - 1) -ne 1) {
@@ -215,16 +216,36 @@ exit 0
     }
     if ($manifestStatus -eq 0) { Pass 'TEST-051 staged candidates match every manifest row' } else { Fail "TEST-051 staged candidates match every manifest row ($($manifestOutput -join '; '))" }
 
-    $mutantRunSh = Join-Path $Tmp 'run-all-mutant.sh'
+    # Keep the runner's real layout so rejection proves an inventory defect,
+    # not failure to find the inventory beside a relocated script.
+    $mutantTests = Join-Path $Tmp 'registration-mutant/tests'
+    New-Item -ItemType Directory -Path $mutantTests -Force | Out-Null
+    $mutantRunSh = Join-Path $mutantTests 'run-all.sh'
+    $mutantInventory = Join-Path $mutantTests 'suite-inventory.posix'
     Copy-Item -LiteralPath (Join-Path $Root 'tests/run-all.sh') -Destination $mutantRunSh
-    $firstSuite = $suiteBases[0]
-    $mutantText = [System.IO.File]::ReadAllText($mutantRunSh)
-    $mutantText = [regex]::Replace($mutantText, [regex]::Escape("tests/$firstSuite.tests.sh"), '', 1)
-    [System.IO.File]::WriteAllText($mutantRunSh, $mutantText)
-    if (-not (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
-        Pass 'TEST-047 registration audit rejects a disposable missing-suite mutant'
+    $inventory = [System.IO.File]::ReadAllLines((Join-Path $Root 'tests/suite-inventory.posix'))
+    [System.IO.File]::WriteAllLines($mutantInventory, $inventory)
+    if (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases) {
+        Pass 'TEST-047 disposable registration baseline is accepted'
     } else {
-        Fail 'TEST-047 registration audit rejects a disposable missing-suite mutant'
+        Fail 'TEST-047 disposable registration baseline is accepted'
+    }
+    $firstSuite = $suiteBases[0]
+    $firstToken = "tests/$firstSuite.tests.sh"
+    $withoutFirst = @($inventory | Where-Object { $_ -cne $firstToken })
+    $mutations = @(
+        @{ Name = 'missing'; Lines = $withoutFirst },
+        @{ Name = 'duplicate'; Lines = @($inventory) + @($firstToken) },
+        @{ Name = 'case'; Lines = $withoutFirst + @($firstToken.ToUpperInvariant()) },
+        @{ Name = 'suffix'; Lines = $withoutFirst + @("$firstToken.bak") }
+    )
+    foreach ($mutation in $mutations) {
+        [System.IO.File]::WriteAllLines($mutantInventory, [string[]]$mutation.Lines)
+        if (-not (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
+            Pass "TEST-047 registration audit rejects a disposable $($mutation.Name)-suite mutant"
+        } else {
+            Fail "TEST-047 registration audit rejects a disposable $($mutation.Name)-suite mutant"
+        }
     }
 
     $ac047 = Get-Content -LiteralPath $Acceptance | Where-Object { $_.StartsWith('| AC-047 ') }

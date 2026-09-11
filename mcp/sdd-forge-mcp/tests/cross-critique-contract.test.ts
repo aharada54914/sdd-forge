@@ -39,6 +39,37 @@ test("evaluation accepts unavailable duration without treating it as zero", () =
 });
 
 test("cross critique accepts a supported finding", () => assert.equal(accepts(verdict()), true));
+test("cross critique accepts completed zero-finding reviews without weakening unavailable validation", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cross-critique-empty-"));
+  const path = join(dir, "annex.json");
+  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  try {
+    for (const lane of [undefined, "sdd-gate", "standalone-adversarial"]) {
+      const base = { schema_version: "cross-critique.v1", round_id: "round-clean",
+        created_at: "2026-09-11T00:00:00Z", ...(lane === undefined ? {} : { review_lane: lane }) };
+      for (const [fields, expected] of [
+        [{ status: "complete", source_finding_count: 0, verdicts: [] }, 0],
+        [{ status: "complete", verdicts: [] }, 1],
+        ...[1, -1, 0.5, null, "0", false].map(source_finding_count =>
+          [{ status: "complete", source_finding_count, verdicts: [] }, 1] as const),
+        [{ status: "complete", source_finding_count: 0, verdicts: [verdict()] }, 1],
+        [{ status: "complete", source_finding_count: 1, verdicts: [verdict()] }, 0],
+        [{ status: "complete", verdicts: [{}] }, 1],
+        [{ status: "complete" }, 1],
+        [{ status: "unavailable", verdicts: [], unavailable_reason: "Runner unavailable" }, 0],
+        [{ status: "unavailable", verdicts: [] }, 1],
+        [{ status: "unavailable", verdicts: [verdict()], unavailable_reason: "Runner unavailable" }, 1],
+      ] as const) {
+        const bytes = JSON.stringify({ ...base, ...fields });
+        writeFileSync(path, bytes);
+        const result = spawnSync(process.execPath, [cli, path], { encoding: "utf8" });
+        assert.equal(result.status, expected, `${lane ?? "legacy"}: ${bytes}: ${result.stdout}`);
+        assert.equal(JSON.parse(result.stdout).status, expected === 0 ? "valid" : "invalid");
+        assert.equal(readFileSync(path, "utf8"), bytes, "validation must not rewrite evidence");
+      }
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
 test("cross critique CLI rejects reversed ranges without rejecting single-line citations", () => {
   const dir = mkdtempSync(join(tmpdir(), "cross-critique-"));
   const path = join(dir, "annex.json");

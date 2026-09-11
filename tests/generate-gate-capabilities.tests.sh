@@ -146,7 +146,8 @@ fi
 # =====================================================================
 # Suite/CI registration
 # =====================================================================
-if grep -q 'tests/generate-gate-capabilities.tests.sh' "$ROOT/tests/run-all.sh"; then
+if suite_list="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+   grep -Fx 'tests/generate-gate-capabilities.tests.sh' <<< "$suite_list" >/dev/null; then
   ok "run-all.sh registers this suite"
 else
   fail "run-all.sh does not register this suite"
@@ -307,32 +308,38 @@ HUMAN_COPY_PY="$ROOT/specs/epic-190-a2-capability-registry/human-copy/plugins/sd
 
 py_tuple_superset_check() {
   # $1 = a generate-guard-invariants.py(.candidate) path. Loads it as a
-  # Python module (importlib, stdlib only; __name__ != "__main__" so
-  # main() never runs on import) and compares its PHASE2_TARGETS /
+  # Python syntax tree (stdlib only; no generator execution) and compares its PHASE2_TARGETS /
   # BASELINE_SUFFIXES / EPIC_A1_TARGETS module-level tuples against
   # $LIVE_PY's own tuples. Prints PASS and exits 0 iff every live entry in
   # each tuple is also present in the corresponding argument's tuple (a
-  # pure superset, 0 removals); prints FAIL + the exact removed entries
+  # pure superset, 0 removals), including shell key sets and export mappings;
+  # prints FAIL + the exact removed entries
   # and exits 1 otherwise (including when the argument's own attribute is
   # absent entirely, e.g. a pre-epic-189-a1-merge script with no
   # EPIC_A1_TARGETS constant at all -- getattr(..., ()) reads that as "no
   # entries", which is correctly a removal of every live entry).
   python3 - "$1" "$LIVE_PY" <<'PYEOF'
-import importlib.machinery
-import importlib.util
+import ast
 import sys
 
 target_path, live_path = sys.argv[1], sys.argv[2]
 
 
 def load(path, name):
-    loader = importlib.machinery.SourceFileLoader(name, path)
-    spec = importlib.util.spec_from_loader(name, loader)
-    module = importlib.util.module_from_spec(spec)
-    loader.exec_module(module)
-    return module
+    # Inspect literal constants without executing either generator.
+    with open(path, encoding="utf-8") as source:
+        tree = ast.parse(source.read(), filename=path)
+    result = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in attributes:
+                    result[target.id] = ast.literal_eval(node.value)
+    return result
 
 
+attributes = ("PHASE2_TARGETS", "BASELINE_SUFFIXES", "EPIC_A1_TARGETS",
+              "REQUIRED_SHELL", "ARRAY_SHELL_KEYS", "REGEX_EXPORTS", "ARRAY_EXPORTS")
 live = load(live_path, "live_guard_invariants_gen")
 try:
     target = load(target_path, "target_guard_invariants_gen")
@@ -352,15 +359,21 @@ def check(label, live_values, target_values):
         removed_total.extend((label, item) for item in removed)
 
 
-for attr in ("PHASE2_TARGETS", "BASELINE_SUFFIXES", "EPIC_A1_TARGETS"):
-    check(attr, getattr(live, attr, ()), getattr(target, attr, ()))
+for attr in attributes:
+    live_values = live[attr]
+    target_values = target.get(attr, {}) if isinstance(live_values, dict) else target.get(attr, ())
+    if isinstance(live_values, dict):
+        # Preserve mappings, not merely export keys.
+        check(attr, live_values.items(), target_values.items())
+    else:
+        check(attr, live_values, target_values)
 
 if removed_total:
     print(f"FAIL: script drops {len(removed_total)} live-protected entr(y/ies):")
     for label, item in removed_total:
         print(f"  [{label}] {item}")
     sys.exit(1)
-print("PASS: script tuples are a pure superset of live (0 removals)")
+print("PASS: script constants and export mappings preserve live (0 removals)")
 sys.exit(0)
 PYEOF
 }
@@ -369,6 +382,25 @@ if candidate_py_out="$(py_tuple_superset_check "$CANDIDATE_PY" 2>&1)"; then
   ok "QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)"
 else
   fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $candidate_py_out"
+fi
+
+# A correct path tuple must not conceal missing shell keys or renamed exports.
+# These temporary source fixtures are parsed only, never executed.
+sed '/"patch_apply_cmds"/d' "$LIVE_PY" > "$WORKDIR/missing-shell-key.candidate"
+if mutation_out="$(py_tuple_superset_check "$WORKDIR/missing-shell-key.candidate" 2>&1)"; then
+  fail "generator regression control accepts missing shell keys"
+elif [[ "$mutation_out" == *"REQUIRED_SHELL"* && "$mutation_out" == *"ARRAY_SHELL_KEYS"* && "$mutation_out" == *"ARRAY_EXPORTS"* ]]; then
+  ok "generator regression control rejects missing shell keys in all three contracts"
+else
+  fail "generator regression control failed without expected diagnostics: $mutation_out"
+fi
+sed 's/"SHELL_PATCH_APPLY_CMDS"/"shell_patch_apply_cmds"/' "$LIVE_PY" > "$WORKDIR/renamed-export.candidate"
+if mutation_out="$(py_tuple_superset_check "$WORKDIR/renamed-export.candidate" 2>&1)"; then
+  fail "generator regression control accepts a case-changed export mapping"
+elif [[ "$mutation_out" == *"ARRAY_EXPORTS"* ]]; then
+  ok "generator regression control rejects a case-changed export mapping"
+else
+  fail "generator export regression failed without expected diagnostic: $mutation_out"
 fi
 
 # =====================================================================
@@ -458,6 +490,61 @@ fi
 # `version-gates`), not just a missing step inside an existing job.
 # =====================================================================
 LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
+
+# Validate the entire bundle: a workflow-only hash check missed five stale entries.
+bundle_check() {
+python3 - "$CANDIDATE_DIR" "$1" <<'PYEOF'
+import hashlib
+from pathlib import Path
+import re
+import sys
+
+root = Path(sys.argv[1])
+try:
+    entries = {}
+    for line in Path(sys.argv[2]).read_text().splitlines():
+        match = re.fullmatch(r'([0-9a-f]{64})  (.+)', line)
+        if not match or match[2] in entries:
+            raise ValueError('malformed or duplicate manifest entry')
+        entries[match[2]] = match[1]
+    files = {p.relative_to(root).as_posix()[:-10]: p
+             for p in root.rglob('*.candidate')
+             if p.name != 'MANIFEST.sha256.candidate' and p.is_file()}
+    if len(files) != 7 or set(entries) != set(files):
+        raise ValueError('manifest must bind exactly the seven candidate files')
+    for rel, path in files.items():
+        if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != entries[rel]:
+            raise ValueError('candidate hash mismatch: ' + rel)
+except (OSError, ValueError) as exc:
+    print(str(exc))
+    sys.exit(1)
+print('all seven candidate hashes match')
+PYEOF
+}
+if bundle_out="$(bundle_check "$CANDIDATE_DIR/MANIFEST.sha256.candidate")"; then
+  ok "candidate bundle: all seven manifest hashes match"
+else
+  fail "candidate bundle manifest: $bundle_out"
+fi
+
+# Exercise the same checker with manifest-only mutations; candidate bytes
+# remain untouched and no candidate executable is loaded.
+for mutation in missing duplicate malformed hash; do
+  mutant="$WORKDIR/manifest-$mutation.txt"
+  case "$mutation" in
+    missing) sed '1d' "$CANDIDATE_DIR/MANIFEST.sha256.candidate" > "$mutant"; expected='manifest must bind exactly';;
+    duplicate) sed '1p' "$CANDIDATE_DIR/MANIFEST.sha256.candidate" > "$mutant"; expected='malformed or duplicate';;
+    malformed) sed '1s/^/invalid /' "$CANDIDATE_DIR/MANIFEST.sha256.candidate" > "$mutant"; expected='malformed or duplicate';;
+    hash) sed '1s/^[0-9a-f]*/0000000000000000000000000000000000000000000000000000000000000000/' "$CANDIDATE_DIR/MANIFEST.sha256.candidate" > "$mutant"; expected='candidate hash mismatch';;
+  esac
+  if bundle_out="$(bundle_check "$mutant")"; then
+    fail "candidate bundle mutation $mutation was accepted"
+  elif [[ "$bundle_out" == *"$expected"* ]]; then
+    ok "candidate bundle mutation $mutation rejected with expected diagnostic"
+  else
+    fail "candidate bundle mutation $mutation failed for an unexpected reason: $bundle_out"
+  fi
+done
 
 job_keys() {
   # $1 = a GitHub Actions workflow YAML path. Prints each top-level job

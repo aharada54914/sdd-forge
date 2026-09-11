@@ -264,8 +264,9 @@ Assert-SchemaError "TEST-040: 'jsonpath' operator token rejected as PREDICATE_SC
 # =====================================================================
 # Suite/CI registration self-checks
 # =====================================================================
-$runAllSh = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.sh')
-if ($runAllSh -match [regex]::Escape('tests/evaluate-predicate.tests.sh')) {
+# The runner loads an external inventory; query its public list.
+$posixEntries = @(& bash (Join-Path $root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -eq 0 -and $posixEntries -ccontains 'tests/evaluate-predicate.tests.sh') {
   Ok 'self-registration: evaluate-predicate.tests.sh registered in tests/run-all.sh'
 } else {
   Fail 'self-registration: evaluate-predicate.tests.sh NOT registered in tests/run-all.sh'

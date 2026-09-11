@@ -429,7 +429,9 @@ fi
 # ============================================================================
 echo "=== QGCL-016: self-registration + human-copy test.yml conformance (AC-007) ==="
 
-if grep -qF 'quality-gate-cycle-limit.tests.sh' "$RUN_ALL_SH" 2>/dev/null; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+  grep -Fx "tests/quality-gate-cycle-limit.tests.sh" <<< "$registered_suites" >/dev/null; then
     ok "QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh registered in tests/run-all.sh"
 else
     fail "QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh NOT registered in tests/run-all.sh"

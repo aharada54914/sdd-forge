@@ -615,7 +615,9 @@ else
 fi
 
 # Self-registration.
-if grep -q 'tests/guard-invariants-epic-a1.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/guard-invariants-epic-a1.tests.sh" <<< "$registered_suites" >/dev/null; then
   pass "self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh"

@@ -531,9 +531,10 @@ if ($tabExitCode -ne 0 -and $tabOut -match "spaces, not tabs") {
 # Registration self-check
 # ============================================================================
 Write-Output "=== registration self-check ==="
-$runAllSh = Join-Path $suiteRepoRoot "tests/run-all.sh"
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $suiteRepoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $suiteRepoRoot "tests/run-all.ps1"
-if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-diff-basis" -Quiet) -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-diff-basis" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/component-path-diff-basis.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-diff-basis" -Quiet)) {
     Ok "component-path-diff-basis suite self-registers in run-all.sh and .ps1"
 } else {
     Fail "component-path-diff-basis missing from run-all.sh/.ps1 registration"

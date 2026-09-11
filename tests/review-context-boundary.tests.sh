@@ -81,34 +81,34 @@ grep -Fq 'persisted impl reviewer-a manifest is missing previous-round summary' 
 anchors() {
   cat <<'ANCHORS'
 # The flat contract predicates in the manifest jq filter.
-:245 validator .schema == "review-context-invocation/v2"
-:246 validator .input_mode == "file-manifest"
-:247 validator .fallback_mode == "none"
-:248 validator .read_only == true
-:249 validator .feature | type == "string" and test(
-:250 validator .sequence | type == "number" and floor == . and . >= 2
-:251 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
-:252 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
-:235 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+:271 validator .schema == "review-context-invocation/v2"
+:272 validator .input_mode == "file-manifest"
+:273 validator .fallback_mode == "none"
+:274 validator .read_only == true
+:275 validator .feature | type == "string" and test(
+:276 validator .sequence | type == "number" and floor == . and . >= 2
+:277 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+:278 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+:254 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
 
 # The optional quality-stage gate-report declaration: presence gate and shape.
-:236-241 validator if has("gate_report_declaration") then
-:236-241 validator (keys | sort) == ["path", "sha256"]
+:255-260 validator if has("gate_report_declaration") then
+:255-260 validator (keys | sort) == ["path", "sha256"]
 
 # The declared gate report must be canonical, symlink-free, a regular file
 # under reports/quality-gate/, and hash to the pinned value before any row is
 # read from it.
-:448-463 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
-:448-463 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+:489-504 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:489-504 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
 
 # Its `## Post-Fix Artifacts` rows are the second authorization source.
-:128-134 validator gate_report_output_is_declared() {
-:128-134 validator '## Post-Fix Artifacts'
+:146-152 validator gate_report_output_is_declared() {
+:146-152 validator '## Post-Fix Artifacts'
 
 # stage/role must be an authorized pair. The identically-shaped `case` inside
 # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
-:286-288 validator case "$stage:$role" in
-:286-288 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+:316-318 validator case "$stage:$role" in
+:316-318 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
 
 # No rows for the ledger's global-uniqueness check or for the line that prints
 # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
@@ -120,33 +120,33 @@ anchors() {
 
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
-:419 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:555 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:449 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:596 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
-:421 validator [[ "$sequence" -eq "$expected_sequence"
+:451 validator [[ "$sequence" -eq "$expected_sequence"
 
 # The record-hash construction a reviewer is told to recompute: the chain-walk
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
-:344 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:549 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:374 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+:590 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
-:428-441 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
-:428-441 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+:458-471 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:458-471 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
 # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
 # no symlink component. One row per clause the field table claims.
-:480-493 validator is_canonical_path "$path"
-:480-493 validator is_forbidden_review_output "$path"
-:480-493 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+:521-534 validator is_canonical_path "$path"
+:521-534 validator is_forbidden_review_output "$path"
+:521-534 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
 
 # Manifest hash equality against the file on disk.
-:497 validator actual_hash=$(sha256_file "$candidate")
+:538 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:564-574 validator '.records += [{
+:605-615 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
