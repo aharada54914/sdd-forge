@@ -214,7 +214,7 @@ EOF
   cat > "${LOOP_FIXTURE_ROOT}/specs/${feature}/traceability.md" <<'EOF'
 # Traceability
 
-| REQ-ID | Description | Layer Spec |
+| Requirement | Description | Layer Spec |
 |---|---|---|
 | REQ-001 | loop-driver fixture requirement | ux-spec.md#req-001 |
 EOF
@@ -437,7 +437,8 @@ _loop_review_context_call() {
   previous="$(_loop_previous_hash)"
   run_id="fixture-${role}-${feature}-seq${sequence}"
   session="fixture-session-${role}-seq${sequence}"
-  manifest_path="$(mktemp "${TMPDIR:-/tmp}/loop-manifest.XXXXXX.json")"
+  # BSD mktemp needs trailing Xs; never continue after allocation failure.
+  manifest_path="$(mktemp "${TMPDIR:-/tmp}/loop-manifest.XXXXXX")" || return 1
   jq -n --arg schema "review-context-invocation/v2" --arg stage "$stage" --arg role "$role" \
     --arg feature "$feature" --arg run_id "$run_id" --arg session "$session" \
     --argjson sequence "$sequence" --arg previous "$previous" \

@@ -8,9 +8,8 @@ fresh-context fix verification. See [SKILL.md](SKILL.md) for the protocol.
 
 Standalone skill, deliberately **outside** `plugins/` and outside the plugin
 skill-visibility contract enforced by `tests/validate-repository.ps1` (which
-only scans `plugins/`). Per the handoff plan
-([docs/handoff-adversarial-review-skill.md](../../docs/handoff-adversarial-review-skill.md)),
-it graduates to a plugin only after 2–3 real uses prove it stable.
+only scans `plugins/`). It graduates to a plugin only after 2–3 real uses
+prove it stable.
 
 ## Install
 
