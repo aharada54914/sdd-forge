@@ -38,6 +38,11 @@
       "format": "date-time",
       "description": "ISO-8601 UTC timestamp of annex creation."
     },
+    "source_finding_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total findings in the original blind reviewer outputs, before cross-critique. Required as explicit zero for a completed empty annex; never infer zero from missing or unavailable reviewer output. This declaration is not independent proof of the source reports."
+    },
     "verdicts": {
       "type": "array",
       "description": "Per-finding cross-critique verdicts from both reviewers. A completed review with no findings has an empty array.",
@@ -73,6 +78,21 @@
         }
       }
     }
+  }, {
+    "if": {
+      "required": ["status", "verdicts"],
+      "properties": { "status": { "const": "complete" }, "verdicts": { "maxItems": 0 } }
+    },
+    "then": {
+      "required": ["source_finding_count"],
+      "properties": { "source_finding_count": { "const": 0 } }
+    }
+  }, {
+    "if": {
+      "required": ["source_finding_count"],
+      "properties": { "source_finding_count": { "const": 0 } }
+    },
+    "then": { "properties": { "verdicts": { "maxItems": 0 } } }
   }],
   "if": {
     "properties": { "status": { "const": "unavailable" } }

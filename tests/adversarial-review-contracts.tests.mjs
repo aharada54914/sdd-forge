@@ -78,7 +78,13 @@ for (const claim of [undefined, "", " \t\n"]) {
     verdicts: [{ ...baseVerdict, basis: { kind: "concern", ...(claim === undefined ? {} : { claim }) } }],
   }, "concern requires a nonblank claim");
 }
-expectValid(crossCritique, { ...annex, verdicts: [] }, "completed zero-findings annex");
+expectInvalid(crossCritique, { ...annex, verdicts: [] }, "empty annex requires an explicit source finding count");
+expectValid(crossCritique, { ...annex, source_finding_count: 0, verdicts: [] }, "completed zero-findings annex");
+for (const count of [1, -1, 0.5, null, "0", false]) {
+  expectInvalid(crossCritique, { ...annex, source_finding_count: count, verdicts: [] }, "empty annex requires numeric zero source findings");
+}
+expectInvalid(crossCritique, { ...annex, source_finding_count: 0 }, "zero source findings cannot accompany verdicts");
+expectValid(crossCritique, { ...annex, source_finding_count: 1 }, "nonempty source review remains supported");
 const missingVerdictsAnnex = { ...annex };
 delete missingVerdictsAnnex.verdicts;
 expectInvalid(crossCritique, missingVerdictsAnnex, "complete annex requires an explicit verdicts array");
