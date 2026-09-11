@@ -147,6 +147,44 @@ for bad_header in 'req-id' 'REQ-id' 'Notes | REQ-ID'; do
   fi
 done
 
+for boundary in '# Notes' '## Notes' '### Notes' '#### Notes' '##### Notes' '###### Notes'; do
+  for next_layer in 'security-spec.md#access' 'invalid-anchor'; do
+    expected=0
+    [ "$next_layer" = 'invalid-anchor' ] && expected=1
+    printf '%s\n' \
+      '| Requirement | Layer Spec |' '|---|---|' \
+      '| REQ-001 | ux-spec.md#journey |' "$boundary" \
+      '| Requirement | Notes |' '|---|---|' \
+      '| REQ-001 | supplementary prose, not a layer anchor |' \
+      '### Next traceability table' \
+      '| Requirement | Notes | Layer Spec |' '|---|---|---|' \
+      "| REQ-001 | independent column layout | $next_layer |" \
+      > "$TMP_WORK/table-boundary.md"
+    python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+      "$TMP_WORK/table-boundary.md" "$TMP_WORK/header-requirements.md" \
+      > "$TMP_WORK/boundary.log" 2>&1
+    actual=$?
+    if [ "$actual" -eq "$expected" ] && { [ "$expected" -eq 0 ] || grep -F 'invalid Layer Spec for REQ-001: invalid-anchor' "$TMP_WORK/boundary.log" >/dev/null; }; then
+      pass "TEST-008 table boundary $boundary, next layer $next_layer"
+    else
+      cat "$TMP_WORK/boundary.log"
+      fail "TEST-008 table boundary $boundary, next layer $next_layer"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+      pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+        -Path "$TMP_WORK/table-boundary.md" -RequirementsPath "$TMP_WORK/header-requirements.md" \
+        > "$TMP_WORK/boundary.log" 2>&1
+      actual=$?
+      if [ "$actual" -eq "$expected" ] && { [ "$expected" -eq 0 ] || grep -F 'invalid Layer Spec for REQ-001: invalid-anchor' "$TMP_WORK/boundary.log" >/dev/null; }; then
+        pass "TEST-008 PowerShell table boundary $boundary, next layer $next_layer"
+      else
+        cat "$TMP_WORK/boundary.log"
+        fail "TEST-008 PowerShell table boundary $boundary, next layer $next_layer"
+      fi
+    fi
+  done
+done
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

@@ -23,12 +23,11 @@ $inTraceabilityTable = $false
 $layerSpecIndex = -1
 foreach ($rawLine in Get-Content -LiteralPath $Path) {
     $line = $rawLine.TrimEnd()
-    if ($line.StartsWith('## ', [StringComparison]::Ordinal) -or [string]::IsNullOrWhiteSpace($line)) {
+    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) {
         $inTraceabilityTable = $false
         $layerSpecIndex = -1
         continue
     }
-    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) { continue }
 
     $cells = @($line.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
     if (-not $inTraceabilityTable) {

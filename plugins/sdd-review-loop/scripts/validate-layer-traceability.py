@@ -31,16 +31,9 @@ def main() -> int:
     layer_spec_index = None
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.rstrip()
-        if line.startswith("## "):
+        if not line.startswith("|"):
             in_traceability_table = False
             layer_spec_index = None
-            continue
-        if not line.strip():
-            if in_traceability_table:
-                in_traceability_table = False
-                layer_spec_index = None
-            continue
-        if not line.startswith("|"):
             continue
 
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
