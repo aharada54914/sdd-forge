@@ -284,12 +284,9 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 ## 週次セルフ改善 (自動運用)
 
-[.github/workflows/self-improvement.yml](.github/workflows/self-improvement.yml) が毎週月曜 09:00 JST に [.github/self-improvement-prompt.md](.github/self-improvement-prompt.md) の指示でリポジトリを監査し、Issue 起票と小さな改善 PR の作成まで自動で行います。人間の作業はレビューとマージのみです。
+ChatGPTログインを使うローカルCodexの定期タスクが、毎週月曜09:00 JSTに監査します。対象を絞った証拠付きの報告と改善案を返し、承認済みタスクのみ既存ゲートに従って修正します。運用条件・指示文・移行時の検証結果は[ローカル週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
 
-初回セットアップ (1回だけ):
-
-1. 手元で `claude setup-token` を実行し、トークンをリポジトリの Secrets に `CLAUDE_CODE_OAUTH_TOKEN` として登録 (Claude Pro/Max のサブスクリプション枠を消費。API 従量課金なし)
-2. Settings → Actions → General → Workflow permissions で "Allow GitHub Actions to create and approve pull requests" を有効化
+実行時はPCとCodexアプリを起動しておいてください。旧Claude版GitHub Actions監査は移行先リポジトリで無効化済みです。定期タスクはローカル設定なので、clone先では別途登録が必要です。
 
 ## 変更履歴
 
