@@ -840,10 +840,22 @@ Assert-Mutation 'handshake-after-contract' $DocShip 'handshake-before-contract' 
 # Self-registration (REQ-011 / design.md Test Strategy item 11).
 # ===========================================================================
 Write-Output '--- self-registration ---'
-$runAllSh = [IO.File]::ReadAllText((Join-Path $Root 'tests/run-all.sh'))
+# Query executable registration because the POSIX runner loads an inventory.
+function Test-ExactRegistration([string[]]$Listed, [int]$ExitCode, [string]$Target) {
+    return $ExitCode -eq 0 -and @($Listed | Where-Object { $_ -ceq $Target }).Count -eq 1
+}
+$targetSh = 'tests/ship-track-selection-migration.tests.sh'
+$listedSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+$listExit = $LASTEXITCODE
 $runAllPs1 = [IO.File]::ReadAllText((Join-Path $Root 'tests/run-all.ps1'))
-Assert-True ($runAllSh.Contains('tests/ship-track-selection-migration.tests.sh')) `
+Assert-True (Test-ExactRegistration $listedSh $listExit $targetSh) `
     'self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh'
+Assert-True (Test-ExactRegistration @($targetSh) 0 $targetSh) 'registration control: exact entry accepted'
+Assert-True (-not (Test-ExactRegistration @() 0 $targetSh)) 'registration control: missing entry rejected'
+Assert-True (-not (Test-ExactRegistration @($targetSh, $targetSh) 0 $targetSh)) 'registration control: duplicate entry rejected'
+Assert-True (-not (Test-ExactRegistration @("$targetSh.extra") 0 $targetSh)) 'registration control: near match rejected'
+Assert-True (-not (Test-ExactRegistration @($targetSh.ToUpperInvariant()) 0 $targetSh)) 'registration control: case mismatch rejected'
+Assert-True (-not (Test-ExactRegistration @($targetSh) 1 $targetSh)) 'registration control: failed listing rejected'
 Assert-True ($runAllPs1.Contains('tests/ship-track-selection-migration.tests.ps1')) `
     'self-registration: tests/ship-track-selection-migration.tests.ps1 registered in tests/run-all.ps1'
 Assert-True (Test-Path -LiteralPath (Join-Path $Root 'tests/ship-track-selection-migration.tests.sh')) `
