@@ -35,24 +35,13 @@ while IFS= read -r suite; do
   fi
 done < "$RUN_ALL"
 
-expected="$(
-  while IFS= read -r suite; do
-    [[ -n "$suite" && "$suite" != \#* ]] || continue
-    if ! awk -v suite="$suite" '
-      $0 !~ /^[[:space:]]*#/ && index($0, suite) { found = 1 }
-      END { exit found ? 0 : 1 }
-    ' "$WORKFLOW"; then
-      printf '%s\n' "$suite"
-    fi
-  done < "$RUN_ALL" | sort
-)"
 unwired="$($ROOT/tests/run-ci-unwired.sh --list | sort)"
-if [[ "$unwired" != "$expected" ]]; then
-  printf 'FAIL: run-ci-unwired.sh inventory drifted from the canonical inventory/workflow diff\n' >&2
-  printf 'expected:\n%s\n' "$expected" >&2
-  printf 'actual:\n%s\n' "$unwired" >&2
-  exit 1
-fi
+while IFS= read -r suite; do
+  grep -Fx -- "$suite" "$RUN_ALL" >/dev/null || {
+    printf 'FAIL: fallback emitted an unregistered suite: %s\n' "$suite" >&2
+    exit 1
+  }
+done <<<"$unwired"
 
 if grep -Ev '^tests/[A-Za-z0-9._/-]+\.tests\.sh$' <<<"$unwired" | grep -q .; then
   printf 'FAIL: CI fallback emitted a comment or non-suite entry\n' >&2
@@ -61,17 +50,11 @@ fi
 
 # Negative control: if a suite disappears from a specialized CI job, the
 # fallback must discover it without changing either runner.
-specialized_suite="$(
-  while IFS= read -r suite; do
-    [[ -n "$suite" && "$suite" != \#* ]] || continue
-    awk -v suite="$suite" '
-      $0 !~ /^[[:space:]]*#/ && index($0, suite) { found = 1 }
-      END { exit found ? 0 : 1 }
-    ' "$WORKFLOW" && { printf '%s\n' "$suite"; break; }
-  done < "$RUN_ALL"
-)"
-if [[ -z "$specialized_suite" ]]; then
-  printf 'FAIL: no specialized suite is shared by the canonical inventory and workflow\n' >&2
+specialized_suite=tests/quality-gate-cycle-limit.tests.sh
+grep -Fx -- "$specialized_suite" "$RUN_ALL" >/dev/null
+grep -Fx -- "        run: bash ./$specialized_suite" "$WORKFLOW" >/dev/null
+if grep -Fx -- "$specialized_suite" <<<"$unwired" >/dev/null; then
+  printf 'FAIL: direct specialized suite was unnecessarily scheduled again\n' >&2
   exit 1
 fi
 
@@ -86,3 +69,50 @@ if ! grep -Fxq -- "$specialized_suite" <<<"$mutated_unwired"; then
 fi
 
 printf 'CI suite wiring tests passed\n'
+
+# Behavioral controls use the real runner and a one-suite inventory, not a
+# second implementation of its workflow detector.
+fixture_dir="$(mktemp -d "${TMPDIR:-/tmp}/ci-wiring-controls.XXXXXX")"
+trap 'rm -f "$tmp_workflow"; rm -rf "$fixture_dir"' EXIT
+suite=tests/ci-suite-wiring.tests.sh
+printf '%s\n' "$suite" > "$fixture_dir/inventory"
+assert_fallback() {
+  local label=$1 expected=$2 body=$3 actual
+  printf 'jobs:\n  test:\n    steps:\n%s\n' "$body" > "$fixture_dir/workflow.yml"
+  actual="$(SUITE_INVENTORY="$fixture_dir/inventory" CI_WORKFLOW="$fixture_dir/workflow.yml" bash "$ROOT/tests/run-ci-unwired.sh" --list)"
+  if [[ "$actual" != "$expected" ]]; then
+    printf 'FAIL: %s: expected fallback [%s], got [%s]\n' "$label" "$expected" "$actual" >&2
+    exit 1
+  fi
+}
+assert_fallback step-name "$suite" "      - name: $suite
+        run: echo done"
+assert_fallback env-value "$suite" "      - env:
+          TARGET: $suite
+        run: echo done"
+assert_fallback assertion "$suite" "      - run: test -f $suite"
+assert_fallback echoed-command "$suite" "      - run: echo bash $suite"
+assert_fallback heredoc "$suite" "      - run: |
+          cat <<'EOF'
+          bash $suite
+          EOF"
+assert_fallback conditional "$suite" "      - run: |
+          if false; then
+            bash $suite
+          fi"
+assert_fallback direct '' "      - name: execute
+        run: bash ./$suite"
+assert_fallback multiline '' "      - name: execute
+        run: |
+          bash $suite"
+assert_fallback logging '' "      - name: execute
+        run: |
+          bash $suite 2>&1 | tee \"suite.log\""
+assert_fallback path-prefix "$suite" "      - name: different suite
+        run: bash ./${suite}.extra"
+assert_fallback syntax-only "$suite" "      - run: bash -n ./$suite"
+assert_fallback syntax-then-execution '' "      - name: execute
+        run: |
+          bash -n ./tests/release-host-smoke.sh
+          ./$suite 2>&1 | tee \"suite.log\""
+printf 'CI suite wiring behavioral controls passed (12 cases)\n'
