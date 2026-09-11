@@ -1,0 +1,44 @@
+ticket_id: RT-20260912-001
+status: open
+type: review-provenance-gap
+severity: major
+target:
+  feature: epic-159-pillar-d
+  task: T-003
+  files:
+    - .github/scripts/check-model-freshness.sh
+    - tests/model-freshness-check.tests.sh
+    - tests/model-freshness-check.tests.ps1
+    - reports/verification/issue298-model-token-filter-20260911.md
+summary: "Bind Issue 298 model-token repair to its high-risk task and independent verification"
+problem: |
+  PR 409 changes the T-003 scheduled model-discovery script. Its local
+  verification report is not a new implementation run or independent quality
+  decision for the repair. The original Done task and historical PASS records
+  do not attest to PR head 3aac5b55044d3db82894820c59eef88b60f5f417.
+  The open review discussion requires an approved repair scope and independent
+  verification before merge. Approval-count bypass alone does not resolve it.
+  The product defect is digit-bearing CSS/SVG/version tokens being interpreted
+  as model IDs by the former charset-plus-digit extraction predicate.
+expected_fix:
+  - "Keep repair limited to lowercase claude-/gpt-/o-digit family extraction, retaining the charset and digit predicates."
+  - "Preserve source URLs, credentials, workflow permissions, registry read-only behavior, outage handling, divergence filing and deduplication."
+  - "Record the repair implementation run and risk preflight; do not describe them as having preceded already-existing changes. Preserve historical review records."
+  - "Verify the real Bash script rejects noise and retains all three positive families, known-model suppression, outage, deduplication and injection controls. Distinguish PowerShell contract tests from production-script execution."
+  - "Follow the supported task reopening and independent quality review path for this repair; do not mark the original task Done or rewrite a verdict merely to unblock merge."
+  - "Require latest-head CI success and postmerge verification before closing Issue 298."
+references:
+  - "https://github.com/aharada54914/sdd-forge/issues/298"
+  - "https://github.com/aharada54914/sdd-forge/pull/409#discussion_r3985618262"
+  - "specs/epic-159-pillar-d/tasks.md:437"
+  - "specs/epic-159-pillar-d/design.md:304"
+  - "specs/epic-159-pillar-d/security-spec.md:113"
+  - "reports/verification/issue298-model-token-filter-20260911.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
+human_decision:
+  source: "Explicit user instructions in this conversation"
+  quote: "そのほかの作業についても承認を求めなくてよい"
+  scope: "Existing Issue/PR repairs and necessary verification; not a waiver of protection hooks, mandatory validation, or independent review."
+  approval_bypass_scope: "All PR approval-review counts only; substantive findings remain open."
