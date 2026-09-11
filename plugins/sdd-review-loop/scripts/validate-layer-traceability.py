@@ -27,11 +27,34 @@ def main() -> int:
         print("no requirement ids found in requirements.md", file=sys.stderr)
         return 1
     traced_ids: set[str] = set()
-    for line in path.read_text(encoding="utf-8").splitlines():
+    in_traceability_table = False
+    layer_spec_index = None
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.rstrip()
+        if line.startswith("## "):
+            in_traceability_table = False
+            layer_spec_index = None
+            continue
+        if not line.strip():
+            if in_traceability_table:
+                in_traceability_table = False
+                layer_spec_index = None
+            continue
+        if not line.startswith("|"):
+            continue
+
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        if cells and re.fullmatch(r"REQ-\d{3}", cells[0]):
+        if not in_traceability_table:
+            if cells and cells[0] == "Requirement" and "Layer Spec" in cells:
+                in_traceability_table = True
+                layer_spec_index = cells.index("Layer Spec")
+            continue
+
+        if not cells or layer_spec_index is None:
+            continue
+        if re.fullmatch(r"REQ-\d{3}", cells[0]):
             traced_ids.add(cells[0])
-            value = cells[2] if len(cells) > 2 else ""
+            value = cells[layer_spec_index] if len(cells) > layer_spec_index else ""
             if not (ANCHORS.fullmatch(value) or EXCLUSION.fullmatch(value)):
                 print(f"invalid Layer Spec for {cells[0]}: {value}", file=sys.stderr)
                 return 1
