@@ -235,6 +235,7 @@ emit_recorded_skip() {
     esac
     assert_skip_line "$fixture named skip line renders in the twin-identical shape" "$line"
     printf '%s\n' "$line"
+    printf '%s\n' "$line" >> "$tmp/emitted-skips.log"
   else
     fail "$fixture named skip metadata matches its acceptance dependency"
   fi
@@ -250,14 +251,27 @@ emit_compound_skip() {
     line="$(skip_allowlist_line "$SKIP_MANIFEST" "$fixture/$ac" AC-043)"
     assert_skip_line "$fixture compound skip line renders in the twin-identical shape" "$line"
     printf '%s\n' "$line"
+    printf '%s\n' "$line" >> "$tmp/emitted-skips.log"
   else
     fail "$fixture compound named skip matches task and acceptance dependencies"
   fi
 }
-emit_recorded_skip F4 "$CORPUS/f4-required.json"
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-007 "$REPO_ROOT" origin/main; then
+  printf '%s\n' 'AC-007 active: checking recorded F4 full-track artifacts'
+  validate_track full "$CORPUS/f4-required.json"
+elif (( $? == 1 )); then
+  emit_recorded_skip F4 "$CORPUS/f4-required.json"
+else
+  fail 'F4 activation evidence is unavailable or invalid'
+fi
 emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
 emit_compound_skip F5
 emit_compound_skip F6
+
+# Formatting assertions alone cannot prove that a dependency is still absent.
+# Audit the lines actually emitted; never turn an obsolete skip into success.
+assert_true "emitted dependency skips remain allowed on origin/main" \
+  skip_allowlist_audit "$SKIP_MANIFEST" "$tmp/emitted-skips.log" "$REPO_ROOT" origin/main
 
 assert_true "Bash aggregate runner registers this shipped suite" grep -Fxq '  tests/structural-compatibility.tests.sh' "$REPO_ROOT/tests/run-all.sh"
 
