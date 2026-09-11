@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { load } from "js-yaml";
 import { Ajv } from "ajv";
+import addFormats from "ajv-formats";
 
 try {
   const { values } = parseArgs({ options: Object.fromEntries(
@@ -23,7 +24,9 @@ try {
   if (!block) throw new Error("missing-metadata");
   const metadata = load(block[1]);
   const schema = JSON.parse(readFileSync(new URL("../../../contracts/adversarial-review-report.v1.schema.json", import.meta.url), "utf8"));
-  const validate = new Ajv({ strict: false, validateFormats: false }).compile(schema);
+  const ajv = new Ajv({ strict: false });
+  addFormats(ajv, ["date-time"]);
+  const validate = ajv.compile(schema);
   if (!validate(metadata)) throw new Error("invalid-metadata");
   const head = git("rev-parse", "--verify", "HEAD^{commit}").toString().trim();
   const baseTip = git("rev-parse", "--verify", "--end-of-options", `${values.base}^{commit}`).toString().trim();
