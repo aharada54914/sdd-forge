@@ -208,6 +208,9 @@ if ($completeAtEpochMs -gt 0) {
         if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
     }
 }
+if ($env:STUB_PHASE_FILE) {
+    Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+}
 @{
     schema = "cross-model-verdict/v1"
     task_id = "T-901"
@@ -220,6 +223,10 @@ if ($completeAtEpochMs -gt 0) {
     input_digest = ("a" * 64)
     consent = @{ kind = "human-flag"; ref = "test fixture" }
 } | ConvertTo-Json -Compress -Depth 5
+if ($env:STUB_PHASE_FILE) {
+    [Console]::Out.Flush()
+    Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+}
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 
 if ($IsWindows) {
@@ -610,6 +617,7 @@ try {
             $caseRoot = Join-Path $workDir "$caseName/specs"
             $startFile = Join-Path $workDir "$caseName.stub-start"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
+            $phaseFile = Join-Path $workDir "$caseName.phases"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
             Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$nearBoundaryBudgetSec" `
@@ -617,6 +625,7 @@ try {
                     STUB_COMPLETE_BEFORE_DEADLINE_MS = "$nearBoundaryMarginMs"
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
+                    STUB_PHASE_FILE                   = $phaseFile
                 }
             $elapsed = (Get-MonotonicMilliseconds) - $started
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
@@ -630,10 +639,21 @@ try {
             $runnerDeadline = if (Test-Path $deadlineFile) { "$(Get-Content -Raw -LiteralPath $deadlineFile)".Trim() } else { "missing" }
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            if (Test-Path -LiteralPath $phaseFile) {
+                foreach ($phase in Get-Content -LiteralPath $phaseFile) {
+                    if ($phase -cmatch '^(wait_end|output_end)=[0-9]+$') {
+                        Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
+                    }
+                }
+            }
             if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
                 Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
+                # This runner uses only the synthetic CLI and fixed test input.
+                # Keep failure diagnostics bounded and strip terminal controls.
+                $safeOutput = [regex]::Replace($script:panelistOutput, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '')
+                Write-Host ("runner diagnostic: " + $safeOutput.Substring(0, [Math]::Min(4096, $safeOutput.Length)))
             }
         }
     }
