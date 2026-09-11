@@ -38,9 +38,19 @@ test("report currentness rejects changed head, base, diff, and report bytes", ()
       assert.deepEqual(JSON.parse(result.stdout), { status: "not-current", reason });
     };
     writeFileSync(report, original);
-    let result = run();
+    const result = run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(JSON.parse(result.stdout).status, "current");
+    assert.deepEqual(JSON.parse(result.stdout), { status: "current", head_sha: head,
+      merge_base_sha: base, report_sha256: hash(original) });
+    for (const changedMetadata of [
+      { ...metadata, token: "fixture-only-not-a-real-token" },
+      { ...metadata, reviewer_run_ids: { reviewer_a: "run-a" } },
+      { ...metadata, schema_version: "unknown-version" },
+    ]) {
+      const changed = render(changedMetadata);
+      writeFileSync(report, changed);
+      rejected("invalid-metadata", hash(changed));
+    }
     writeFileSync(report, original + "changed body\n");
     rejected("report-digest-mismatch");
     for (const field of ["head_sha", "merge_base_sha", "diff_sha256"]) {
