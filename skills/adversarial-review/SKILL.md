@@ -80,6 +80,24 @@ protocol's effectiveness.
 
 ## Evaluation record (ADR-0027 risk-adaptive lane)
 
+Before using a report as `Adversarial-Lane: fired`, verify its currentness with
+the read-only CLI (Node and `mcp/sdd-forge-mcp` dependencies must be installed):
+
+```sh
+node mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs --repo . --report reports/adversarial-review/BRANCH/report.md --base origin/main --report-sha256 SAVED_REPORT_SHA256
+```
+
+At review completion, record the SHA-256 of the final report bytes separately
+in the review receipt or PR metadata as `report_sha256`. Pass that saved digest
+above; do not recompute it from the current report to make verification pass.
+The digest is external to avoid a self-referential hash inside the report.
+Record `diff_sha256` from the bytes of
+`git diff --no-ext-diff --no-textconv MERGE_BASE_SHA..HEAD_SHA`.
+Exit 0 and `status: current` are required; nonzero (including unavailable Git,
+missing files or invalid metadata) cannot satisfy the lane. This command does
+not launch agents, change review verdicts, or modify repository files. The same
+command and JSON output apply in Bash and PowerShell.
+
 When invoked as the ADR-0027 pre-PR lane (i.e. the firing predicate is
 satisfied), the orchestrator produces an `evaluation.json` alongside `report.md`
 in `reports/adversarial-review/<branch-slug>/`. Non-triggering invocations
