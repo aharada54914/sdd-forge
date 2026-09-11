@@ -449,7 +449,16 @@ if (Test-Path -LiteralPath (Join-Path $repositoryRoot "tests/hook-guard-epic-a1-
 }
 foreach ($runner in @("run-all.sh", "run-all.ps1")) {
     $runnerPath = Join-Path $repositoryRoot (Join-Path "tests" $runner)
-    if ([System.IO.File]::ReadAllText($runnerPath).Contains("hook-guard-epic-a1-boundary.tests")) {
+    if ($runner -ceq "run-all.sh") {
+        # The POSIX runner loads an inventory; inspect what it will execute.
+        $listedTests = @(& bash $runnerPath --list)
+        $registered = $LASTEXITCODE -eq 0 -and @($listedTests | Where-Object {
+            $_ -ceq 'tests/hook-guard-epic-a1-boundary.tests.sh'
+        }).Count -eq 1
+    } else {
+        $registered = [System.IO.File]::ReadAllText($runnerPath).Contains("hook-guard-epic-a1-boundary.tests")
+    }
+    if ($registered) {
         Pass "self-registration: registered in tests/$runner"
     } else {
         Fail "self-registration: NOT registered in tests/$runner"
