@@ -184,6 +184,22 @@ if ($env:STUB_MODE -eq "hang") {
     Start-Sleep -Seconds 30
 }
 
+# Prepare the fixed response before the timed wait. Serializing it after the
+# wait adds cold ConvertTo-Json/JIT work to the intended completion instant.
+# Output still happens only after the same deadline-relative wait below.
+$stubResponse = @{
+    schema = "cross-model-verdict/v1"
+    task_id = "T-901"
+    feature = "timeout-test"
+    vendor = "stub"
+    model = "stub-model"
+    verdict = "PASS"
+    findings = @()
+    blind = $true
+    input_digest = ("a" * 64)
+    consent = @{ kind = "human-flag"; ref = "test fixture" }
+} | ConvertTo-Json -Compress -Depth 5
+
 # Boundary cases derive their target from the exact absolute deadline exported
 # by the runner. This deducts child startup jitter without moving completion
 # earlier relative to the timeout clock.
@@ -211,18 +227,7 @@ if ($completeAtEpochMs -gt 0) {
 if ($env:STUB_PHASE_FILE) {
     Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
 }
-@{
-    schema = "cross-model-verdict/v1"
-    task_id = "T-901"
-    feature = "timeout-test"
-    vendor = "stub"
-    model = "stub-model"
-    verdict = "PASS"
-    findings = @()
-    blind = $true
-    input_digest = ("a" * 64)
-    consent = @{ kind = "human-flag"; ref = "test fixture" }
-} | ConvertTo-Json -Compress -Depth 5
+[Console]::Out.WriteLine($stubResponse)
 if ($env:STUB_PHASE_FILE) {
     [Console]::Out.Flush()
     Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"

@@ -78,6 +78,123 @@ protocol's effectiveness.
   reason, so the same false alarm is not re-raised later
 - Skipping Phase R because "the fixes were straightforward"
 
+## Evaluation record (ADR-0027 risk-adaptive lane)
+
+Before using a report as `Adversarial-Lane: fired`, verify its currentness with
+the read-only CLI (Node and `mcp/sdd-forge-mcp` dependencies must be installed):
+
+```sh
+node mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs --repo . --report /ABSOLUTE/EVIDENCE-CHECKOUT/reports/adversarial-review/BRANCH/report.md --base origin/main --report-sha256 SAVED_REPORT_SHA256
+```
+
+At review completion, record the SHA-256 of the final report bytes separately
+in the review receipt or PR metadata as `report_sha256`. Pass that saved digest
+above; do not recompute it from the current report to make verification pass.
+The digest is external to avoid a self-referential hash inside the report.
+Record `diff_sha256` from the bytes of
+`git diff --binary --no-ext-diff --no-textconv MERGE_BASE_SHA..HEAD_SHA`.
+Exit 0 and `status: current` are required; nonzero (including unavailable Git,
+missing files or invalid metadata) cannot satisfy the lane. This command does
+not launch agents, change review verdicts, or modify repository files. The same
+command and JSON output apply in Bash and PowerShell.
+
+### Publish evidence without moving the reviewed HEAD
+
+Keep the final report and its companion files outside the reviewed branch.
+The `reports/adversarial-review/<branch-slug>/` path is relative to a separate
+evidence checkout, not a requirement to commit evidence on the target branch.
+Use a separate evidence repository or a separate evidence branch/worktree that
+will not be merged into the target before its currentness check.
+
+1. Finish and commit the target changes; record that exact HEAD, merge base,
+   and full diff digest for the review. Do not modify them to fit a report.
+2. Produce the report and any `evaluation.json`/cross-critique annex under the
+   canonical path in the evidence checkout. Save the final report digest in a
+   separate receipt before publication.
+3. Commit/publish the evidence there. In the target PR, link to the report at
+   the immutable **evidence commit**, and record the target HEAD, merge base,
+   and saved report digest. Do not use a mutable evidence-branch URL.
+4. To verify, retrieve that evidence commit, then pass its absolute report
+   path to `--report` and the reviewed checkout to `--repo`, as above. Verify
+   against the target PR's current HEAD and base; do not check out an old target
+   commit merely to obtain a passing result.
+
+Committing a report or receipt on the target branch changes HEAD and makes the
+old report stale, even if no product code changed. There is no evidence-only
+commit exemption. Historical reports may remain in the target repository but
+cannot claim currentness. A target update requires a fresh review of the new
+target, not editing the old report's hashes. Publishing evidence separately
+avoids a circular report/commit hash without excluding any target diff files.
+
+When invoked as the ADR-0027 pre-PR lane (i.e. the firing predicate is
+satisfied), the orchestrator produces an `evaluation.json` alongside `report.md`
+in the evidence checkout's `reports/adversarial-review/<branch-slug>/`.
+Non-triggering invocations
+produce no `evaluation.json`.
+
+`evaluation.json` must conform to
+`contracts/adversarial-review-evaluation.v1.schema.json`. Fill all required
+fields at the end of Phase 3 (synthesis). Update `phase_r.*` after Phase R
+completes.
+
+Every new evaluation must include `token_usage`. Use a measured `total_tokens`
+and its telemetry `source` only when the host reports usage for the complete
+review run (including resumed/recovery calls). Otherwise record `total_tokens:
+null` and a nonblank `unavailable_reason`, including partial telemetry as an
+unavailability reason. Never estimate tokens or substitute zero. This is an
+observability record, not a gate failure or a verdict input. Older v1 records
+without this field remain readable; do not retrofit guessed values into them.
+
+**Minimum required fields at synthesis time:**
+
+```json
+{
+  "schema_version": "adversarial-review-evaluation.v1",
+  "branch_slug": "<branch-slug>",
+  "created_at": "<ISO-8601 UTC>",
+  "report_path": "reports/adversarial-review/<branch-slug>/report.md",
+  "trigger_reasons": ["workflow_surface"],
+  "reviewer_launch_count": 2,
+  "token_usage": { "total_tokens": null, "unavailable_reason": "host does not expose complete run token telemetry" },
+  "continuation_status": { "reviewer_a": "resumed", "reviewer_b": "resumed" },
+  "finding_counts": { "phase1_total": 0, "cross_critique_new": 0 },
+  "basis_counts": { "code_evidence": 0, "spec_evidence": 0, "concern": 0 },
+  "scope_counts": { "in_scope": 0, "out_of_scope": 0, "unclear": 0 },
+  "phase_r": { "ran": false, "not_ran_reason": "fixes not yet landed" }
+}
+```
+
+Update `phase_r` to `"ran": true` with counts when Phase R completes.
+
+## Contracts and schemas
+
+Set the annex's root `review_lane` to `standalone-adversarial`; severity-change
+proposals use exactly `CRITICAL|HIGH|MEDIUM|LOW`. Do not convert these to the
+SDD gate vocabulary or rewrite the original reviewer verdicts. An absent lane
+retains legacy SDD gate semantics (`Critical|Major|Minor`).
+
+Before using a cross-critique annex as evidence, run the read-only checker
+against the final JSON file (the same command works in Bash and PowerShell):
+
+```sh
+node mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs /ABSOLUTE/EVIDENCE-CHECKOUT/reports/adversarial-review/BRANCH/cross-critique.json
+```
+
+Exit 0 with `status: valid` proves contract conformance and ordered citation
+ranges, not the truth of a claim. Every evidence citation requires a nonblank
+path and claim plus positive `line_start` and `line_end`; a single-line citation
+uses equal coordinates. The checker rejects `line_end < line_start`, which
+plain Draft-07 validation alone cannot enforce. Fix invalid annexes before
+using their proposals; do not rewrite persisted reviewer verdicts or treat a
+failed/unavailable checker as successful validation. Required Node dependencies
+are the same as for the report-currentness checker above.
+
+| Schema | Purpose |
+|--------|---------|
+| `contracts/cross-critique.v1.schema.json` | cross-critique.json annex (issues #347, #348) |
+| `contracts/adversarial-review-report.v1.schema.json` | Report metadata block (issue #349) |
+| `contracts/adversarial-review-evaluation.v1.schema.json` | evaluation.json run metrics (issue #350) |
+
 ## Real-world impact
 
 Proving run (torque-system-manager, 2026-07-07, PR #7): cross-critique and
@@ -88,3 +205,5 @@ lock-site count inside a fix text, and re-calibrated four of five initial
 High/Medium severities — offsetting single-review severity inflation. External
 benchmark (2026): adversarial panels find roughly 20% more bugs than a single
 review.
+
+Usage history: [reports/adversarial-review/](../../../reports/adversarial-review/)
