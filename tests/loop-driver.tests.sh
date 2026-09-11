@@ -137,13 +137,13 @@ else
   fail "helper: generated traceability violates the real layer contract"
 fi
 TRACE_NEG="${SEED_ROOT}/traceability-negative.md"
-sed 's/| Requirement |/| REQ-ID |/' "${GF_ROOT}/specs/${FEATURE_GF}/traceability.md" > "$TRACE_NEG"
+sed 's/| Requirement |/| req-id |/' "${GF_ROOT}/specs/${FEATURE_GF}/traceability.md" > "$TRACE_NEG"
 if python3 "$TRACE_VALIDATOR" "$TRACE_NEG" "${GF_ROOT}/specs/${FEATURE_GF}/requirements.md" 2> "${SEED_ROOT}/trace-negative.log"; then
-  fail "helper: obsolete traceability header accepted"
+  fail "helper: mis-cased traceability header accepted"
 elif grep -F 'no requirement rows found' "${SEED_ROOT}/trace-negative.log" >/dev/null; then
-  ok "helper: obsolete traceability header rejected by real validator"
+  ok "helper: mis-cased traceability header rejected by real validator"
 else
-  fail "helper: obsolete header rejected for an unexpected reason"
+  fail "helper: mis-cased header rejected for an unexpected reason"
 fi
 
 # Inject allocation failure only; jq records whether construction was reached.

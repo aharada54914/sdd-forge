@@ -4,14 +4,18 @@ Every Layer Spec cell must contain one or more canonical
 `<layer>-spec.md#<section>` anchors, or
 `N/A — cross-layer only: <reason>`. Blank cells and bare `N/A` are invalid.
 
-| Requirement | Design | Layer Spec | Code Target | Test ID | Status |
-|---|---|---|---|---|---|
-| REQ-001 | design.md#architecture | ux-spec.md#scope-and-user-journeys | src/ | TEST-001 | Planned |
-| REQ-002 | design.md#components | frontend-spec.md#technology-stack | src/ | TEST-002 | Planned |
-| REQ-003 | design.md#deployment--ci-plan | infra-spec.md#deployment-topology | scripts/ | TEST-003 | Planned |
-| REQ-004 | design.md#security-boundaries | security-spec.md#trust-boundaries | src/ | TEST-004 | Planned |
-| REQ-005 | design.md#cross-layer-dependencies | ux-spec.md#component-states; frontend-spec.md#state-shape | src/ | TEST-005 | Planned |
-| REQ-006 | design.md#constraint-compliance | N/A — cross-layer only: repository metadata has no single layer owner | manifests/ | TEST-006 | Planned |
+The Investigation column records the actual supporting INV/BL identifiers from
+`investigation.md`; use a reasoned N/A when no investigation item applies.
+Do not invent evidence identifiers merely to fill the column.
+
+| Requirement | Investigation | Design | Layer Spec | Code Target | Test ID | Status |
+|---|---|---|---|---|---|---|
+| REQ-001 | {{req_001_investigation_ids_or_reasoned_na}} | design.md#architecture | ux-spec.md#scope-and-user-journeys | src/ | TEST-001 | Planned |
+| REQ-002 | {{req_002_investigation_ids_or_reasoned_na}} | design.md#components | frontend-spec.md#technology-stack | src/ | TEST-002 | Planned |
+| REQ-003 | {{req_003_investigation_ids_or_reasoned_na}} | design.md#deployment--ci-plan | infra-spec.md#deployment-topology | scripts/ | TEST-003 | Planned |
+| REQ-004 | {{req_004_investigation_ids_or_reasoned_na}} | design.md#security-boundaries | security-spec.md#trust-boundaries | src/ | TEST-004 | Planned |
+| REQ-005 | {{req_005_investigation_ids_or_reasoned_na}} | design.md#cross-layer-dependencies | ux-spec.md#component-states; frontend-spec.md#state-shape | src/ | TEST-005 | Planned |
+| REQ-006 | {{req_006_investigation_ids_or_reasoned_na}} | design.md#constraint-compliance | N/A — cross-layer only: repository metadata has no single layer owner | manifests/ | TEST-006 | Planned |
 
 ## Layer Coverage
 
