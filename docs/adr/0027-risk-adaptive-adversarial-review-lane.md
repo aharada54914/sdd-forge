@@ -10,7 +10,8 @@ Date: 2026-08-07
    issue #128 (ENH-21), issue #130 (ENH-23).
 2. **External prior art**: *Adversarial Review: Structured Disagreement for
    Grounded Agentic Code Review* (arXiv:2608.18167, published 2026-08-16,
-   verified 2026-08-25). URL: https://arxiv.org/abs/2608.18167
+   verified 2026-08-25; v1 rechecked 2026-09-12).
+   Versioned source: https://arxiv.org/html/2608.18167v1
 
 The paper's findings are incorporated where compatible with this ADR's design
 constraints. See `## arXiv:2608.18167 Correspondence` below for the full
@@ -164,7 +165,7 @@ branch's current merge base and head. A stale report MUST NOT be used to satisfy
 | # | Paper finding / recommendation | This ADR's position | Reason |
 |---|-------------------------------|---------------------|--------|
 | 1 | Evidence-backed dissent (file:line citations required for rejection) | **Adopted.** Phase 2 cross-critique requires `basis.kind: code_evidence \| spec_evidence` for every `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` (issue #347). | Matches the paper's core recommendation and the existing iron rule 1 in `reviewer-prompts.md`. |
-| 2 | ~4.5× token cost for adversarial panels | **Acknowledged.** The lane fires only on the enumerated surfaces; routine branches pay zero cost (§"Consequences"). `evaluation.json` records structural cost indicators (issue #350). | The paper's cost figure applies to full panels; this lane is risk-gated. |
+| 2 | AR uses ~4.5× the Zero-shot tokens on SWE-bench Verified (§5.2; cost discussion in §6) | **Acknowledged; not a general multiplier.** The lane remains risk-gated; `evaluation.json` records structural indicators (issue #350). | This benchmark comparison does not measure this repository's protocol cost. |
 | 3 | Scope creep from plausible out-of-scope concerns | **Adopted.** Each cross-critique finding carries `scope: in_scope \| out_of_scope \| unclear`; out_of_scope findings are labelled and not converted to implementation directives (issue #348). | Direct adoption of the paper's scope-creep mitigation. |
 | 4 | Sequential Reviewer→Critic model | **Not adopted as the primary protocol.** The existing `skills/adversarial-review` phases (blind → cross-critique → synthesis) are retained. Phase 1 stays blind; Phase 2 is the cross-critique. | The paper's sequential model is an alternative, not a strict requirement; the blind first pass provides the independence property the paper's approach trades away. |
 | 5 | Automated evaluation / tracking | **Partially adopted.** `evaluation.json` captures structural metrics per run (issue #350). Token telemetry is deferred. | No token budget surface exists in this repository today (INV-021). |

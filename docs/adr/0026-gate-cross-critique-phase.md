@@ -12,7 +12,8 @@ This ADR draws on two bodies of prior art:
    `SKILL.md` "Real-world impact"), issue #128 (ENH-21), issue #130 (ENH-23).
 2. **External prior art**: *Adversarial Review: Structured Disagreement for
    Grounded Agentic Code Review* (arXiv:2608.18167, published 2026-08-16,
-   verified 2026-08-25). URL: https://arxiv.org/abs/2608.18167
+   verified 2026-08-25; v1 rechecked 2026-09-12).
+   Versioned source: https://arxiv.org/html/2608.18167v1
 
 The paper post-dates the initial ADR draft. Its findings partially confirm and
 partially diverge from the design choices recorded here. The correspondence is
@@ -167,10 +168,10 @@ are outside the paper's scope or outside this ADR's scope.
 | # | Paper finding / recommendation | This ADR's position | Reason |
 |---|-------------------------------|---------------------|--------|
 | 1 | Evidence-backed dissent reduces false consensus | **Adopted.** `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` require `code_evidence` or `spec_evidence` with file:line citations (issue #347). | Directly addresses the paper's primary failure mode. |
-| 2 | ~4.5× token cost increase for full adversarial panels (§4.3 Cost Analysis) | **Acknowledged; mitigated.** The phase fires only on Critical findings, BLOCKED rounds, or high/critical-risk features — not on every review. | Cost is confined to the rounds that earn it (§"Consequences"). |
+| 2 | AR uses ~4.5× the Zero-shot tokens on SWE-bench Verified (§5.2; cost discussion in §6) | **Acknowledged; not a general multiplier.** The phase is risk-gated. | This benchmark comparison does not measure this repository's protocol cost. |
 | 3 | Scope creep from out-of-scope concerns | **Adopted.** Each finding carries `scope: in_scope \| out_of_scope \| unclear`; out_of_scope findings are not converted to implementation directives (issue #348). | Paper reports scope creep as a significant failure mode. |
-| 4 | Immutable target identity (hash-binding the reviewed artifact) | **Adopted.** Report metadata includes `head_sha`, `merge_base_sha`, `diff_sha256`; stale reports cannot satisfy `Adversarial-Lane: fired` (issue #349). | Prevents post-hoc report substitution. |
-| 5 | Sequential Reviewer→Critic model (not blind-parallel first) | **Not adopted for the in-gate phase.** Blind independence of the first pass is `BL-001` and is a non-negotiable floor in the SDD review loops. The paper's sequential model is available outside the gates via `skills/adversarial-review` and ADR-0027's pre-PR lane. | Adopting sequential order inside a gate destroys the independence property the gate exists to enforce. |
+| 4 | Frozen review artifact (Figure 1); hash fields are a repository-specific extension | **Extended locally.** Report metadata includes `head_sha`, `merge_base_sha`, `diff_sha256`; stale reports cannot satisfy `Adversarial-Lane: fired` (issue #349). | The exact hash-binding contract is our design, not a claimed paper requirement. |
+| 5 | Sequential Reviewer→Critic model (not blind-parallel first) | **Not adopted.** Both this phase and ADR-0027 retain a blind first pass; see ADR-0027 Decision 3 and `skills/adversarial-review/SKILL.md` Phase 1. | Initial independent judgments are retained before mutual critique. |
 | 6 | Automated evaluation metrics for AR runs | **Partially adopted.** Structural metrics (finding counts, basis counts, scope counts, human dispositions) are recorded in `evaluation.json` per triggering run (issue #350). Token telemetry is deferred — no token budget surface exists (INV-021). | Structural metrics are observable today; token telemetry is a separate feature. |
 | 7 | Concern classification (basis type) | **Adopted.** `basis.kind` discriminates `code_evidence \| spec_evidence \| concern`; concerns alone cannot drive automatic rejection or adoption (issue #347). | Paper shows that mixing evidence and concern in a single "objection" category inflates false consensus rates. |
 
@@ -192,8 +193,8 @@ reasons, each grounded in this repository's specific constraints:
    session, so the sequential pass would be a fresh-context launch that re-reads
    all inputs — the same cost as the current blind launch, without the
    independence benefit.
-3. **ADR-0027's pre-PR lane already offers the sequential option.** A human who
-   wants sequential Reviewer→Critic outside the gates can invoke
-   `skills/adversarial-review` directly, or trigger the ADR-0027 lane. The
-   in-gate phase is for cost-bounded, deterministic, gate-compatible critique,
-   not for replacing the full adversarial panel protocol.
+3. **ADR-0027 also retains blind-first review.** ADR-0027 Decision 3 invokes
+   `skills/adversarial-review/SKILL.md` Phase 1 before cross-critique; neither
+   entry point supplies the paper's sequential-first option. The distinction
+   between these lanes is their review target and authority, not first-pass
+   ordering.
