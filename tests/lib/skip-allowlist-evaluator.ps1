@@ -30,8 +30,16 @@ function Test-Merged([string]$Manifest, [string]$Assertion, [string]$Epic, [stri
     $entry = Get-Entry $Manifest $Assertion
     $dependency = @($entry.dependencies | Where-Object epic -eq $Epic)
     if ($dependency.Count -ne 1) { throw "dependency is not unique: $Assertion/$Epic" }
-    try { $branch = Find-EpicBranch $Repo ([int]$dependency[0].issue) } catch { return $false }
+    # Keep ancestry proof after branch cleanup; an invalid explicit receipt
+    # must not silently fall back to some other epic-named branch.
+    if ($dependency[0].PSObject.Properties.Name -ccontains 'merged_commit') {
+        $branch = $dependency[0].merged_commit
+        if ($branch -isnot [string] -or $branch -cnotmatch '^[0-9a-f]{40}$') { throw 'invalid merged_commit' }
+    } else {
+        try { $branch = Find-EpicBranch $Repo ([int]$dependency[0].issue) } catch { return $false }
+    }
     & git -C $Repo merge-base --is-ancestor $branch $MainRef 2>$null
+    if ($LASTEXITCODE -gt 1) { throw 'integration ancestry evidence unavailable' }
     if ($LASTEXITCODE -ne 0) { return $false }
     $specDir = Split-Path -Parent ([string]$dependency[0].fingerprints[0].source)
     return (Test-Terminal $Repo $MainRef "$specDir/requirements.md") -and (Test-Terminal $Repo $MainRef "$specDir/design.md")
@@ -45,8 +53,8 @@ function Test-Fingerprint([string]$Manifest, [string]$Assertion, [int]$Index, [s
     $entry = Get-Entry $Manifest $Assertion
     if ($Index -lt 0 -or $Index -ge $entry.dependencies.Count) { throw "dependency index is out of range: $Index" }
     $dependency = $entry.dependencies[$Index]
-    try { $branch = Find-EpicBranch $Repo ([int]$dependency.issue) } catch { return $false }
-    $ref = if (Test-Merged $Manifest $Assertion ([string]$dependency.epic) $Repo $MainRef) { $MainRef } else { $branch }
+    if (Test-Merged $Manifest $Assertion ([string]$dependency.epic) $Repo $MainRef) { $ref = $MainRef }
+    else { try { $ref = Find-EpicBranch $Repo ([int]$dependency.issue) } catch { return $false } }
     foreach ($fingerprint in $dependency.fingerprints) {
         $range = ([string]$fingerprint.line_range).Split('-')
         $allLines = Invoke-GitText $Repo @('show', "${ref}:$($fingerprint.source)")

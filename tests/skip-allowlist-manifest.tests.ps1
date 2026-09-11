@@ -105,6 +105,28 @@ function Test-Clean {
     else { Fail "clean fixture is accepted with a non-vacuous audit ($($captured -join '; '))" }
 }
 function Test-Primitives {
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    $integrated = (& git -C $fixture.Repo rev-parse HEAD).Trim()
+    $document = @(Get-Content -Raw -LiteralPath $fixture.Manifest | ConvertFrom-Json)
+    $document[0].dependencies[0] | Add-Member -NotePropertyName merged_commit -NotePropertyValue $integrated
+    $pinnedManifest = Join-Path $Work 'pinned.json'
+    [IO.File]::WriteAllText($pinnedManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+    Invoke-Git $fixture.Repo @('branch', '-d', 'feature/epic-999-fixture')
+    if ((Invoke-Evaluator @('merged', $pinnedManifest, 'AC-900', 'A9', $fixture.Repo, 'main')) -eq 0 -and
+        (Invoke-Evaluator @('fingerprint-match', $pinnedManifest, 'AC-900', '0', $fixture.Repo, 'main')) -eq 0) {
+        Pass 'pinned integration survives deletion of the merged branch'
+    } else { Fail 'pinned integration survives deletion of the merged branch' }
+    if ((Invoke-Evaluator @('merged', $pinnedManifest, 'AC-900', 'A9', $fixture.Repo, 'main^')) -ne 0) {
+        Pass 'integration pin not ancestral to target is rejected'
+    } else { Fail 'integration pin not ancestral to target is rejected' }
+    [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-900: dependency claimed absent`n", [Text.UTF8Encoding]::new($false))
+    foreach ($badPin in @('main', '0000000000000000000000000000000000000000')) {
+        $document[0].dependencies[0].merged_commit = $badPin
+        [IO.File]::WriteAllText($pinnedManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+        if ((Invoke-Evaluator @('audit', $pinnedManifest, $fixture.Output, $fixture.Repo, 'main')) -ne 0) {
+            Pass 'invalid or unavailable integration evidence cannot authorize a skip'
+        } else { Fail 'invalid or unavailable integration evidence cannot authorize a skip' }
+    }
     $fixture = New-Fixture 'unmerged'
     if ((Invoke-Evaluator @('merged', $fixture.Manifest, 'AC-900', 'A9', $fixture.Repo, 'main')) -ne 0) { Pass 'merged(A9) is false before branch ancestry reaches main' } else { Fail 'merged(A9) is false before branch ancestry reaches main' }
     if ((Invoke-Evaluator @('fingerprint-match', $fixture.Manifest, 'AC-900', '0', $fixture.Repo, 'main')) -eq 0) { Pass 'fingerprint_match(0) matches the unmerged epic current HEAD' } else { Fail 'fingerprint_match(0) matches the unmerged epic current HEAD' }

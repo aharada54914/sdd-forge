@@ -119,6 +119,32 @@ case_clean() {
 }
 
 case_primitives() {
+  create_fixture merged-fingerprint-match
+  local integrated
+  integrated="$(git -C "$FIXTURE_REPO" rev-parse HEAD)"
+  jq --arg commit "$integrated" '.[0].dependencies[0].merged_commit = $commit' "$FIXTURE_MANIFEST" > "$WORK/pinned.json"
+  git -C "$FIXTURE_REPO" branch -d feature/epic-999-fixture >/dev/null
+  if run_evaluator merged "$WORK/pinned.json" AC-900 A9 "$FIXTURE_REPO" main &&
+     run_evaluator fingerprint-match "$WORK/pinned.json" AC-900 0 "$FIXTURE_REPO" main; then
+    pass 'pinned integration survives deletion of the merged branch'
+  else
+    fail 'pinned integration survives deletion of the merged branch'
+  fi
+  if run_evaluator merged "$WORK/pinned.json" AC-900 A9 "$FIXTURE_REPO" main^ >/dev/null 2>&1; then
+    fail 'integration pin not ancestral to target is rejected'
+  else
+    pass 'integration pin not ancestral to target is rejected'
+  fi
+  printf '%s TEST-FIXTURE/AC-900: dependency claimed absent\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
+  local bad_pin
+  for bad_pin in main 0000000000000000000000000000000000000000; do
+    jq --arg commit "$bad_pin" '.[0].dependencies[0].merged_commit = $commit' "$FIXTURE_MANIFEST" > "$WORK/invalid-pin.json"
+    if run_evaluator audit "$WORK/invalid-pin.json" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main >/dev/null 2>&1; then
+      fail 'invalid or unavailable integration evidence cannot authorize a skip'
+    else
+      pass 'invalid or unavailable integration evidence cannot authorize a skip'
+    fi
+  done
   create_fixture unmerged
   if run_evaluator merged "$FIXTURE_MANIFEST" AC-900 A9 "$FIXTURE_REPO" main >/dev/null 2>&1; then
     fail 'merged(A9) is false before branch ancestry reaches main'
