@@ -293,11 +293,13 @@ $runAllSh = Join-Path $repoRoot "tests/run-all.sh"
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
 $testYml = Join-Path $repoRoot ".github/workflows/test.yml"
 
-$runAllShContent = if (Test-Path -LiteralPath $runAllSh) { Get-Content -LiteralPath $runAllSh -Raw } else { "" }
+# run-all.sh loads its inventory externally; query the executable list.
+$posixEntries = @(& bash $runAllSh --list)
+$posixListExit = $LASTEXITCODE
 $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
 $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
 
-if ($runAllShContent.Contains("tests/hitl-wfi-terminal.tests.sh") -and $testYmlContent.Contains("hitl-wfi-terminal.tests.sh")) {
+if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/hitl-wfi-terminal.tests.sh' -and $testYmlContent.Contains("hitl-wfi-terminal.tests.sh")) {
     Ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml"
 } else {
     Fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh and/or test.yml"

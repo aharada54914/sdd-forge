@@ -1017,7 +1017,9 @@ Status: Planned
     if (-not (Test-Path -LiteralPath $PSCommandPath)) {
         Fail 'TEST-027 tests/agent-model-routing.tests.ps1 twin does not exist'
     }
-    if (-not (Select-String -LiteralPath $RunAllSh -Pattern 'tests/agent-model-routing\.tests\.sh' -CaseSensitive -Quiet)) {
+    # run-all.sh loads its inventory externally; query the executable list.
+    $posixEntries = @(& bash $RunAllSh --list)
+    if ($LASTEXITCODE -ne 0 -or $posixEntries -cnotcontains 'tests/agent-model-routing.tests.sh') {
         Fail 'TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh'
     }
     if (-not (Select-String -LiteralPath $RunAllPs1 -Pattern 'tests/agent-model-routing\.tests\.ps1' -CaseSensitive -Quiet)) {
