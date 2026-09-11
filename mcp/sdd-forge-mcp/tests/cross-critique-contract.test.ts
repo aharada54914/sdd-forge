@@ -20,6 +20,20 @@ function accepts(record: unknown) {
     status: "complete", created_at: "2026-09-11T00:00:00Z", verdicts: [record] });
 }
 
+test("evaluation accepts unavailable duration without treating it as zero", () => {
+  const root = new URL("../../../../", import.meta.url);
+  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-evaluation.v1.schema.json", root), "utf8"));
+  const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
+  const record = JSON.parse(readFileSync(new URL("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json", root), "utf8"));
+  assert.equal(check(record), true, "historical record remains valid");
+  for (const duration of [null, 0, 1234]) {
+    assert.equal(check({ ...record, duration_ms: duration }), true, JSON.stringify(check.errors));
+  }
+  for (const duration of [-1, 0.5, "unknown", "0", false]) {
+    assert.equal(check({ ...record, duration_ms: duration }), false);
+  }
+});
+
 test("cross critique accepts a supported finding", () => assert.equal(accepts(verdict()), true));
 test("severity change requires proposed severity", () => {
   assert.equal(accepts({ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE" }), false);

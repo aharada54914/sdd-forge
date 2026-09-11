@@ -219,9 +219,9 @@
       }
     },
     "duration_ms": {
-      "type": "integer",
+      "type": ["integer", "null"],
       "minimum": 0,
-      "description": "Optional. Wall-clock duration of the full run in milliseconds, if the orchestrator can measure it."
+      "description": "Optional. Measured wall-clock duration of the full run in milliseconds, or null when unavailable. Never substitute zero or an estimate for an unavailable measurement."
     },
     "notes": {
       "type": "string",
