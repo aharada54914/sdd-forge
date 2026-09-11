@@ -118,6 +118,7 @@ tests=(
   tests/golden-baseline-contract.tests.sh
   tests/structural-compatibility.tests.sh
   tests/structural-activation.tests.sh
+  tests/escalation-skip-activation.tests.sh
   tests/skip-allowlist-manifest.tests.sh
   tests/promote-golden-baseline-ci-guard.tests.sh
   tests/path-lineending-regression.tests.sh

@@ -107,12 +107,23 @@ function Invoke-Audit([string]$Manifest, [string]$Output, [string]$Repo, [string
     return 0
 }
 
+function Write-AllowlistedLine([string]$Manifest, [string]$Label, [string[]]$Assertions) {
+    if ($Assertions.Count -eq 0) { throw 'line requires an assertion' }
+    $entries = @($Assertions | ForEach-Object { Get-Entry $Manifest $_ })
+    $epics = @($entries.dependencies.epic | Sort-Object -CaseSensitive -Unique)
+    $issues = @($entries.dependencies.issue | Sort-Object -Unique | ForEach-Object { "#$_" })
+    $conditions = @($entries.activation_condition | Sort-Object -CaseSensitive -Unique)
+    $marker = 'SK' + 'IP:'
+    [Console]::Out.WriteLine("$marker $Label (Epic $($epics -join '+Epic ')): blocked by issue $($issues -join '+') until $($conditions -join ';')")
+}
+
 try {
     switch -CaseSensitive ($Command) {
         'merged' { if (Test-Merged $Rest[0] $Rest[1] $Rest[2] $Rest[3] $Rest[4]) { exit 0 } else { exit 1 } }
         'fingerprint-match' { if (Test-Fingerprint $Rest[0] $Rest[1] ([int]$Rest[2]) $Rest[3] $Rest[4]) { exit 0 } else { exit 1 } }
         'condition' { if (Test-Condition $Rest[0] $Rest[1] $Rest[2] $Rest[3]) { exit 0 } else { exit 1 } }
         'audit' { exit (Invoke-Audit $Rest[0] $Rest[1] $Rest[2] $Rest[3]) }
-        default { throw 'usage: evaluator {merged|fingerprint-match|condition|audit} ...' }
+        'line' { if ($Rest.Count -lt 3) { throw 'line requires manifest, label, and assertion' }; Write-AllowlistedLine $Rest[0] $Rest[1] $Rest[2..($Rest.Count - 1)]; exit 0 }
+        default { throw 'usage: evaluator {merged|fingerprint-match|condition|audit|line} ...' }
     }
 } catch { [Console]::Error.WriteLine("ERROR: $($_.Exception.Message)"); exit 2 }
