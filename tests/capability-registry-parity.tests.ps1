@@ -462,8 +462,9 @@ try {
   # ===================================================================
   # Done When #3 -- suite/CI registration and the final cumulative check.
   # ===================================================================
-  $runAllSh = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.sh')
-  if ($runAllSh.Contains('tests/capability-registry-parity.tests.sh')) {
+  # The runner exposes its external inventory through --list.
+  $runAllSh = @(& bash (Join-Path $root 'tests/run-all.sh') --list)
+  if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains 'tests/capability-registry-parity.tests.sh') {
     Ok 'self-registration: capability-registry-parity.tests.sh registered in tests/run-all.sh'
   } else {
     Fail 'self-registration: capability-registry-parity.tests.sh NOT registered in tests/run-all.sh'

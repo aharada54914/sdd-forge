@@ -269,8 +269,9 @@ foreach ($fixture in $rejectFixtures) {
 }
 if ($rejectCount -lt 16) { Fail "expected at least 16 reject fixtures, found $rejectCount" }
 
-$runAllSh = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.sh')
-if ($runAllSh -notmatch [regex]::Escape('tests/capability-registry-schema.tests.sh')) {
+# The runner exposes its external inventory through --list.
+$runAllSh = @(& bash (Join-Path $root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -ne 0 -or $runAllSh -cnotcontains 'tests/capability-registry-schema.tests.sh') {
   Fail 'suite not registered in tests/run-all.sh'
 }
 $runAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.ps1')

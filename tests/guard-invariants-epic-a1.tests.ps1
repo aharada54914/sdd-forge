@@ -461,9 +461,11 @@ if (Test-Path -LiteralPath $nested -PathType Leaf) {
     Test-Fail 'staging: the nested staged PROTECTED-MANIFEST.md copy exists' 'missing'
 }
 
-$runAllSh = [IO.File]::ReadAllText((Join-Path $Root 'tests/run-all.sh'))
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+$runAllShExit = $LASTEXITCODE
 $runAllPs1 = [IO.File]::ReadAllText((Join-Path $Root 'tests/run-all.ps1'))
-Assert-True ($runAllSh.Contains('tests/guard-invariants-epic-a1.tests.sh')) 'self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh'
+Assert-True ($runAllShExit -eq 0 -and $runAllSh -ccontains 'tests/guard-invariants-epic-a1.tests.sh') 'self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh'
 Assert-True ($runAllPs1.Contains('tests/guard-invariants-epic-a1.tests.ps1')) 'self-registration: tests/guard-invariants-epic-a1.tests.ps1 registered in tests/run-all.ps1'
 Assert-True (Test-Path -LiteralPath (Join-Path $Root 'tests/guard-invariants-epic-a1.tests.sh') -PathType Leaf) 'self-registration: tests/guard-invariants-epic-a1.tests.sh twin exists'
 
