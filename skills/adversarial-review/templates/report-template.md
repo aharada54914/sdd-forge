@@ -7,6 +7,10 @@ cross-critique, on `{{BRANCH}}` @ `{{COMMIT}}`.
 ## Report Metadata (immutable target identity)
 
 <!-- Fill all fields before publishing; do not edit post-publication.
+     Publish this report in a separate evidence checkout, not on the reviewed
+     target branch. Link its immutable evidence commit and save report_sha256
+     separately in the PR receipt. The canonical reports/adversarial-review/
+     path is relative to that evidence checkout (see SKILL.md publication steps).
      A report is STALE if head_sha or merge_base_sha no longer matches the
      branch's current state. A stale report MUST NOT satisfy
      "Adversarial-Lane: fired" in the PR body. -->

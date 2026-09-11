@@ -84,7 +84,7 @@ Before using a report as `Adversarial-Lane: fired`, verify its currentness with
 the read-only CLI (Node and `mcp/sdd-forge-mcp` dependencies must be installed):
 
 ```sh
-node mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs --repo . --report reports/adversarial-review/BRANCH/report.md --base origin/main --report-sha256 SAVED_REPORT_SHA256
+node mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs --repo . --report /ABSOLUTE/EVIDENCE-CHECKOUT/reports/adversarial-review/BRANCH/report.md --base origin/main --report-sha256 SAVED_REPORT_SHA256
 ```
 
 At review completion, record the SHA-256 of the final report bytes separately
@@ -98,9 +98,38 @@ missing files or invalid metadata) cannot satisfy the lane. This command does
 not launch agents, change review verdicts, or modify repository files. The same
 command and JSON output apply in Bash and PowerShell.
 
+### Publish evidence without moving the reviewed HEAD
+
+Keep the final report and its companion files outside the reviewed branch.
+The `reports/adversarial-review/<branch-slug>/` path is relative to a separate
+evidence checkout, not a requirement to commit evidence on the target branch.
+Use a separate evidence repository or a separate evidence branch/worktree that
+will not be merged into the target before its currentness check.
+
+1. Finish and commit the target changes; record that exact HEAD, merge base,
+   and full diff digest for the review. Do not modify them to fit a report.
+2. Produce the report and any `evaluation.json`/cross-critique annex under the
+   canonical path in the evidence checkout. Save the final report digest in a
+   separate receipt before publication.
+3. Commit/publish the evidence there. In the target PR, link to the report at
+   the immutable **evidence commit**, and record the target HEAD, merge base,
+   and saved report digest. Do not use a mutable evidence-branch URL.
+4. To verify, retrieve that evidence commit, then pass its absolute report
+   path to `--report` and the reviewed checkout to `--repo`, as above. Verify
+   against the target PR's current HEAD and base; do not check out an old target
+   commit merely to obtain a passing result.
+
+Committing a report or receipt on the target branch changes HEAD and makes the
+old report stale, even if no product code changed. There is no evidence-only
+commit exemption. Historical reports may remain in the target repository but
+cannot claim currentness. A target update requires a fresh review of the new
+target, not editing the old report's hashes. Publishing evidence separately
+avoids a circular report/commit hash without excluding any target diff files.
+
 When invoked as the ADR-0027 pre-PR lane (i.e. the firing predicate is
 satisfied), the orchestrator produces an `evaluation.json` alongside `report.md`
-in `reports/adversarial-review/<branch-slug>/`. Non-triggering invocations
+in the evidence checkout's `reports/adversarial-review/<branch-slug>/`.
+Non-triggering invocations
 produce no `evaluation.json`.
 
 `evaluation.json` must conform to
@@ -138,6 +167,11 @@ without this field remain readable; do not retrofit guessed values into them.
 Update `phase_r` to `"ran": true` with counts when Phase R completes.
 
 ## Contracts and schemas
+
+Set the annex's root `review_lane` to `standalone-adversarial`; severity-change
+proposals use exactly `CRITICAL|HIGH|MEDIUM|LOW`. Do not convert these to the
+SDD gate vocabulary or rewrite the original reviewer verdicts. An absent lane
+retains legacy SDD gate semantics (`Critical|Major|Minor`).
 
 Before using a cross-critique annex as evidence, run the read-only checker
 against the final JSON file (the same command works in Bash and PowerShell):

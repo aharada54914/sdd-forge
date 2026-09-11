@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/aharada54914/sdd-forge/contracts/adversarial-review-report.v1.schema.json",
   "title": "Adversarial Review Report Metadata v1",
-  "description": "Schema for the immutable target identity metadata block in an adversarial review report (issue #349, ADR-0027). The metadata block is YAML embedded in the report Markdown; this schema describes its parsed form. A report is STALE if head_sha or merge_base_sha no longer matches the branch's current state.",
+  "description": "Schema for the immutable target identity metadata block in an adversarial review report (issue #349, ADR-0027). The metadata block is YAML embedded in the report Markdown; this schema describes its parsed form. Publish reports in a separate evidence checkout and link the immutable evidence commit from the target PR. A report is STALE if head_sha or merge_base_sha no longer matches the target branch's current state, including after an evidence-only commit on that target.",
   "type": "object",
   "required": [
     "schema_version",
