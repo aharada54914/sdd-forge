@@ -187,13 +187,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
 
-`--plugins` に指定できる名前は次の 6 つです: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop`。
+`--plugins` に指定できる名前は次の 7 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain`。
 
 **依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます（自動追加された分は警告として表示されます）。
 
 | 指定したプラグイン | 自動的に追加される依存 |
 |---|---|
 | `sdd-bootstrap` | `sdd-review-loop` |
+| `sdd-domain` | `sdd-bootstrap` / `sdd-quality-loop` / `sdd-review-loop` |
 | `sdd-lite` | `sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` |
 | `sdd-ship` | `sdd-bootstrap` / `sdd-review-loop` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` |
 
@@ -234,7 +235,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
 | `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
 | `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
-| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` から選択。既定はこの 6 件すべて |
+| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` から小文字で選択。既定はこの 7 件すべて |
 | `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
 | `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
 | `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |

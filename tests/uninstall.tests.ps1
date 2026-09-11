@@ -282,10 +282,12 @@ Write-Host "ok: idempotency: second uninstall succeeds"
 # ---------------------------------------------------------------------------
 # Scenario (h): invalid plugin name rejected (ValidateSet)
 # ---------------------------------------------------------------------------
-$hFailed = $false
-try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin") *>$null }
-catch { $hFailed = $true }
-if (-not $hFailed) { throw "invalid plugin name was accepted" }
+foreach ($invalidPlugin in @("not-a-plugin", "SDD-DOMAIN", "Sdd-Domain", "SDD-BOOTSTRAP")) {
+    $hFailed = $false
+    try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall -Plugins @($invalidPlugin) *>$null }
+    catch [System.Management.Automation.ParameterBindingException] { $hFailed = $true }
+    if (-not $hFailed) { throw "invalid plugin name was accepted: $invalidPlugin" }
+}
 Write-Host "ok: invalid plugin name rejected"
 
 # ---------------------------------------------------------------------------

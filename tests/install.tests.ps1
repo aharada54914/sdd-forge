@@ -520,15 +520,17 @@ finally {
     }
 }
 
-$invalidFailed = $false
-try {
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path $env:TEMP ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin")
-}
-catch {
-    $invalidFailed = $true
-}
-if (-not $invalidFailed) {
-    throw "Installer accepted an invalid plugin name."
+foreach ($invalidPlugin in @("not-a-plugin", "SDD-DOMAIN", "Sdd-Domain", "SDD-BOOTSTRAP")) {
+    $invalidFailed = $false
+    try {
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -SkipAgentInstall -SkipMcp -Plugins @($invalidPlugin)
+    }
+    catch [System.Management.Automation.ParameterBindingException] {
+        $invalidFailed = $true
+    }
+    if (-not $invalidFailed) {
+        throw "Installer accepted invalid plugin name: $invalidPlugin"
+    }
 }
 
 # ---------------------------------------------------------------------------
