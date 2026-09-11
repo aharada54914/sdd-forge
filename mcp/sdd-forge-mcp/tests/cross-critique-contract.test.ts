@@ -35,6 +35,26 @@ test("evaluation accepts unavailable duration without treating it as zero", () =
 });
 
 test("cross critique accepts a supported finding", () => assert.equal(accepts(verdict()), true));
+test("evaluation distinguishes measured tokens from unavailable telemetry", () => {
+  const root = new URL("../../../../", import.meta.url);
+  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-evaluation.v1.schema.json", root), "utf8"));
+  const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
+  const record = JSON.parse(readFileSync(new URL("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json", root), "utf8"));
+  assert.equal(check(record), true, "do not fabricate telemetry for historical records");
+  for (const token_usage of [
+    { total_tokens: null, unavailable_reason: "Host does not expose token telemetry" },
+    { total_tokens: 0, source: "provider usage response" },
+    { total_tokens: 1234, source: "provider usage response" },
+  ]) assert.equal(check({ ...record, token_usage }), true, JSON.stringify(check.errors));
+  for (const token_usage of [
+    {}, { total_tokens: null }, { total_tokens: null, unavailable_reason: " " },
+    { total_tokens: null, source: "provider" }, { total_tokens: 12 },
+    { total_tokens: 12, source: " " }, { total_tokens: -1, source: "provider" },
+    { total_tokens: 1.5, source: "provider" }, { total_tokens: "12", source: "provider" },
+    { total_tokens: 0, unavailable_reason: "not exposed" },
+    { total_tokens: 12, source: "provider", unavailable_reason: "not exposed" },
+  ]) assert.equal(check({ ...record, token_usage }), false, JSON.stringify(token_usage));
+});
 test("severity change requires proposed severity", () => {
   assert.equal(accepts({ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE" }), false);
   assert.equal(accepts({ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity: "Minor" }), true);

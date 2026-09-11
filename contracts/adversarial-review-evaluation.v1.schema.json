@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/aharada54914/sdd-forge/contracts/adversarial-review-evaluation.v1.schema.json",
   "title": "Adversarial Review Evaluation v1",
-  "description": "Schema for evaluation.json — structural run metrics produced at the end of a risk-adaptive adversarial review invocation (issue #350, ADR-0027). Produced only on triggering runs; non-triggering runs produce no evaluation.json. Token telemetry is out of scope (INV-021).",
+  "description": "Schema for evaluation.json — structural run metrics produced at the end of a risk-adaptive adversarial review invocation (issue #350, ADR-0027). Produced only on triggering runs; non-triggering runs produce no evaluation.json. Token collection is host-provided, never estimated; unavailable telemetry is explicitly recorded.",
   "type": "object",
   "required": [
     "schema_version",
@@ -217,6 +217,29 @@
           "description": "V-* findings introduced by fixes, per Phase R."
         }
       }
+    },
+    "token_usage": {
+      "description": "Required for new runs by the producer instructions; optional here solely for historical v1 records. Record the measured total across the entire review run and its source, or null with a reason if complete telemetry is unavailable. Metrics never control the review verdict.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["total_tokens", "source"],
+          "additionalProperties": false,
+          "properties": {
+            "total_tokens": { "type": "integer", "minimum": 0 },
+            "source": { "type": "string", "pattern": "\\S" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["total_tokens", "unavailable_reason"],
+          "additionalProperties": false,
+          "properties": {
+            "total_tokens": { "type": "null" },
+            "unavailable_reason": { "type": "string", "pattern": "\\S" }
+          }
+        }
+      ]
     },
     "duration_ms": {
       "type": ["integer", "null"],

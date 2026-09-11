@@ -108,6 +108,14 @@ produce no `evaluation.json`.
 fields at the end of Phase 3 (synthesis). Update `phase_r.*` after Phase R
 completes.
 
+Every new evaluation must include `token_usage`. Use a measured `total_tokens`
+and its telemetry `source` only when the host reports usage for the complete
+review run (including resumed/recovery calls). Otherwise record `total_tokens:
+null` and a nonblank `unavailable_reason`, including partial telemetry as an
+unavailability reason. Never estimate tokens or substitute zero. This is an
+observability record, not a gate failure or a verdict input. Older v1 records
+without this field remain readable; do not retrofit guessed values into them.
+
 **Minimum required fields at synthesis time:**
 
 ```json
@@ -118,6 +126,7 @@ completes.
   "report_path": "reports/adversarial-review/<branch-slug>/report.md",
   "trigger_reasons": ["workflow_surface"],
   "reviewer_launch_count": 2,
+  "token_usage": { "total_tokens": null, "unavailable_reason": "host does not expose complete run token telemetry" },
   "continuation_status": { "reviewer_a": "resumed", "reviewer_b": "resumed" },
   "finding_counts": { "phase1_total": 0, "cross_critique_new": 0 },
   "basis_counts": { "code_evidence": 0, "spec_evidence": 0, "concern": 0 },
