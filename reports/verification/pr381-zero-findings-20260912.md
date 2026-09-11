@@ -27,3 +27,19 @@ severity vocabularies, evidence requirements and unavailable-state constraints
 are unchanged. This is a local repair verification, not an independent gate
 verdict or proof of latest-head CI success. CI wiring and scratch-root review
 findings remain separate outstanding work; this report does not authorize merge.
+
+## Repository-wide regression follow-up
+
+The full CI fallback runner subsequently exposed an old root contract test that
+still required completed annexes to contain findings. Its assertion failed with
+`complete annex needs verdicts: unexpectedly valid` (expected false, actual true).
+This was not covered by the MCP-only test run above.
+
+Updated that expectation to accept completed zero-findings reviews and added
+explicit rejection assertions for a missing verdict array, a malformed verdict,
+an unavailable review missing its reason, and an unavailable review containing
+verdicts. Existing citation, severity, scope and concern checks remain intact.
+`bash tests/adversarial-review-contracts.tests.sh` now exits 0. The original full
+fallback run is retained in `/tmp/pr381-ci-fallback-full-20260912.log`; its failure
+must not be reported as a successful full-suite run. Latest-head CI and remaining
+scratch isolation findings still require resolution before merge.

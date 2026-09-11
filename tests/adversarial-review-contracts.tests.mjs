@@ -78,7 +78,17 @@ for (const claim of [undefined, "", " \t\n"]) {
     verdicts: [{ ...baseVerdict, basis: { kind: "concern", ...(claim === undefined ? {} : { claim }) } }],
   }, "concern requires a nonblank claim");
 }
-expectInvalid(crossCritique, { ...annex, verdicts: [] }, "complete annex needs verdicts");
+expectValid(crossCritique, { ...annex, verdicts: [] }, "completed zero-findings annex");
+const missingVerdictsAnnex = { ...annex };
+delete missingVerdictsAnnex.verdicts;
+expectInvalid(crossCritique, missingVerdictsAnnex, "complete annex requires an explicit verdicts array");
+expectInvalid(crossCritique, { ...annex, verdicts: [{}] }, "complete annex rejects a malformed verdict");
+expectInvalid(crossCritique, { ...annex, status: "unavailable", verdicts: [] }, "unavailable annex requires a reason");
+expectInvalid(crossCritique, {
+  ...annex,
+  status: "unavailable",
+  unavailable_reason: "reviewer context lost",
+}, "unavailable annex cannot contain verdicts");
 expectInvalid(crossCritique, {
   ...annex,
   verdicts: [{ ...baseVerdict, basis: { kind: "code_evidence" } }],
