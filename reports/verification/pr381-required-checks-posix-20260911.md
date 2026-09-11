@@ -1,5 +1,53 @@
 # PR #381: require the complete POSIX lane
 
+## 2026-09-12 completed POSIX rerun
+
+At ae877415ef3ae8e485de0e99c089ac545f9c9a7b, the fresh local
+`bash tests/run-ci-unwired.sh` finished with exit 0: all 59 previously-unwired
+POSIX suites passed. Log: `/tmp/sdd-pr381-unwired-ae877415-20260912.log`.
+Session 87652 is finished; this supersedes its running state below.
+CI run 34619171639 also passed its complete POSIX regression inventory job,
+but Windows test job 103328538988 failed while other jobs were still running.
+The PR is not ready to merge; the Windows failure requires diagnosis.
+
+Diagnosis and narrow repair: job 103328538988 failed TEST-011 in
+`tests/phase2-guard-invariants.tests.ps1`. The live workflow has quoted
+`[deterministic]` step-name prefixes, but its regex expected bare names.
+The same suite reproduced this on local PowerShell: 50 passed, 1 failed,
+1 skipped, exit 1. Missing commands or wrong ordering were alternative
+hypotheses; reading the live workflow confirmed those were retained.
+The test now strips only that exact display-name decoration before applying
+all existing command, OS, shell and ordering predicates unchanged. Four
+regressions cover decorated/undecorated names, unchanged run commands, and
+case sensitivity. Main-agent diff review found no Critical issue; no gate or
+workflow behavior changed. Repair attempt 1 passed: 55 passed, 0 failed,
+1 existing installation-runner skip, exit 0. Log:
+`/tmp/sdd-pr381-phase2-label-fixed-20260912.log`. The skip is not a PASS.
+New-head CI, merge and postmerge verification remain required.
+
+## 2026-09-12 exact-head continuation
+
+The checkpoint was committed as f75cae15 and main was integrated in
+`ae877415ef3ae8e485de0e99c089ac545f9c9a7b`. After confirming the current GitHub
+credential includes workflow scope, a normal fast-forward push updated PR381's
+branch `codex/conduct-critical-review-and-improve-plugin` from 63f735dc to that
+head. GitHub reports MERGEABLE; this is not a merge or test-success verdict.
+
+Fresh checks at that head: deterministic-lane-selfcheck 29 passed, 0 failed,
+0 designed-red; required-checks-posix regression 4 test methods passed.
+Diff whitespace validation excluding stored patch artifacts passed. The full
+check reports whitespace on blank context lines inside the stored
+`pr381-current-lane-20260911.patch`; those lines were not stripped, because
+they are patch syntax rather than production trailing whitespace.
+
+Exact-head CI: https://github.com/aharada54914/sdd-forge/actions/runs/34619171639
+was queued/running at this checkpoint. Local `bash tests/run-ci-unwired.sh`
+is running in session 87652 with output at
+`/tmp/sdd-pr381-unwired-ae877415-20260912.log`. Poll the same session; neither
+result is yet a PASS. Substantive review, CI success, merge, and postmerge
+verification remain pending. Historical staging/push blockers below describe
+earlier states and are superseded by the successful push recorded here.
+
 Status: human application verified; targeted live-workflow checks passed;
 clean-commit rerun, exact-head CI, required approval and merge pending.
 
