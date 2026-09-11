@@ -5,7 +5,7 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")]
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain", IgnoreCase = $false)]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
@@ -28,6 +28,7 @@ while ($dependenciesChanged) {
     foreach ($plugin in @($Plugins)) {
         $dependencies = switch ($plugin) {
             "sdd-bootstrap" { @("sdd-review-loop"); break }
+            "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
             "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
             "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
             default { @() }
@@ -562,7 +563,7 @@ function Download-AuthenticatedArchive {
 }
 
 function Get-RequiredPaths {
-    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
+    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
     $paths = @(
         ".agents/plugins/marketplace.json",
         ".claude-plugin/marketplace.json",
