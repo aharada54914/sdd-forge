@@ -43,3 +43,19 @@ verdicts. Existing citation, severity, scope and concern checks remain intact.
 fallback run is retained in `/tmp/pr381-ci-fallback-full-20260912.log`; its failure
 must not be reported as a successful full-suite run. Latest-head CI and remaining
 scratch isolation findings still require resolution before merge.
+
+## Phase R skip-reason follow-up
+
+Independent finding: https://github.com/aharada54914/sdd-forge/pull/381#discussion_r3993232185
+
+Added regression cases for absent, null, empty, ASCII-whitespace and Unicode
+whitespace skip reasons, alongside a valid explanatory reason. Before the schema
+repair, the suite exited 1 with `skipped Phase R requires a nonblank explanation:
+unexpectedly valid`. Requiring a non-whitespace character in `not_ran_reason`
+fixes the failure; `node tests/adversarial-review-contracts.tests.mjs` exits 0.
+The existing ran/skipped count-field exclusions and requirements are unchanged.
+
+The first full fallback run finished with exactly one failing suite, the stale
+root contract expectation described above. A new full run is pending; neither
+that run nor latest-head CI is claimed as successful here. The separate source
+finding-count binding and scratch-root findings remain unresolved.

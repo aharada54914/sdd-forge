@@ -194,6 +194,7 @@
         },
         "not_ran_reason": {
           "type": "string",
+          "pattern": "\\S",
           "description": "Present when ran == false. Explains why (e.g. 'no fixes landed yet', 'zero adopted findings')."
         },
         "verified_count": {

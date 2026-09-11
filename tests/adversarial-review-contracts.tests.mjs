@@ -190,6 +190,16 @@ expectInvalid(evaluation, {
   ...evaluationRecord,
   phase_r: { ran: true, verified_count: 1 },
 }, "completed Phase R needs every outcome count");
+expectValid(evaluation, {
+  ...evaluationRecord,
+  phase_r: { ran: false, not_ran_reason: "No findings eligible for reproduction" },
+}, "skipped Phase R carries an explanation");
+for (const not_ran_reason of [undefined, null, "", " ", "\t\n", "\u3000"]) {
+  expectInvalid(evaluation, {
+    ...evaluationRecord,
+    phase_r: { ran: false, ...(not_ran_reason === undefined ? {} : { not_ran_reason }) },
+  }, "skipped Phase R requires a nonblank explanation");
+}
 
 const template = fs.readFileSync(
   path.join(root, "skills/adversarial-review/templates/report-template.md"),
