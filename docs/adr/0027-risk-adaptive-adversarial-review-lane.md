@@ -4,6 +4,19 @@ Status: Proposed
 
 Date: 2026-08-07
 
+## Primary Sources
+
+1. **Internal prior art**: `skills/adversarial-review/` (proving run 2026-07-07),
+   issue #128 (ENH-21), issue #130 (ENH-23).
+2. **External prior art**: *Adversarial Review: Structured Disagreement for
+   Grounded Agentic Code Review* (arXiv:2608.18167, published 2026-08-16,
+   verified 2026-08-25; v1 rechecked 2026-09-12).
+   Versioned source: https://arxiv.org/html/2608.18167v1
+
+The paper's findings are incorporated where compatible with this ADR's design
+constraints. See `## arXiv:2608.18167 Correspondence` below for the full
+alignment record.
+
 ## Context
 
 `skills/adversarial-review/` packages a two-reviewer mutual-critique
@@ -75,7 +88,8 @@ keyed to that same tier.
    verification). The lane adds only an invocation context, an input
    definition (the merge-base diff plus AGENTS.md house rules), and an
    output location: `reports/adversarial-review/<branch-slug>/report.md`,
-   linked from the PR body.
+   in a separate evidence checkout, linked by immutable evidence commit from
+   the target PR body (see the publication rule below).
 
 4. **Findings do not gate deterministically; they gate socially.** The
    lane's report is review input for the human merger, exactly like a
@@ -115,3 +129,67 @@ keyed to that same tier.
   half of that risk.
 - **No gate-determinism impact.** The SDD loops' contracts, manifests,
   and ledger are byte-identical before and after this decision.
+
+## Pre-PR Lane: Evaluation Targets
+
+The pre-PR lane reviews the branch's **cumulative diff against the merge base**.
+The evaluation targets are defined as follows:
+
+- **Primary target**: `git diff <merge-base>..<head>` — all changed files.
+- **Excluded**: generated files under `**/generated/`, vendored dependencies,
+  and binary assets. These are noted as out-of-scope in Phase 0.
+- **Required context for Phase 0**: `AGENTS.md` (house rules), the feature's
+  `specs/<feature>/requirements.md` and `tasks.md` (scope boundaries for scope
+  judgements per issue #348), and any referenced ADRs.
+- **Output location**: `reports/adversarial-review/<branch-slug>/report.md`,
+  plus `reports/adversarial-review/<branch-slug>/evaluation.json` when the full
+  triggering protocol runs (issue #350). These paths are relative to the
+  separate evidence checkout, not the reviewed target branch.
+
+### Immutable target identity
+
+Each pre-PR lane report MUST include the following metadata fields (issue #349):
+
+```
+merge_base_sha: <sha>
+head_sha:       <sha>
+diff_sha256:    <sha256 of the raw diff text>
+created_at:     <ISO-8601 UTC>
+skill_version:  <git describe or commit SHA of skills/adversarial-review/>
+```
+
+A report is **stale** if `head_sha` or `merge_base_sha` no longer matches the
+branch's current merge base and head. A stale report MUST NOT be used to satisfy
+`Adversarial-Lane: fired` in the PR body.
+
+### Evidence publication (2026-09-12 clarification)
+
+The shared cross-critique annex explicitly selects `review_lane:
+standalone-adversarial` for this lane, preserving `CRITICAL|HIGH|MEDIUM|LOW`.
+Absent `review_lane` or explicit `sdd-gate` retains the legacy
+`Critical|Major|Minor` vocabulary. Each lane rejects the other's severity
+values; no lossy mapping or persisted-verdict rewrite is permitted.
+
+Publish the report, evaluation, and annexes in a separate evidence repository
+or branch/worktree; link the immutable evidence commit in the target PR and
+save the final report digest separately. The read-only checker takes the
+target checkout as `--repo` and the retrieved evidence report's absolute path
+as `--report` (see `skills/adversarial-review/SKILL.md`).
+
+Publishing on the reviewed branch changes its HEAD and would make the report
+stale immediately. An evidence-only commit exemption was rejected because
+issue #349 requires exact current HEAD identity. Separate publication retains
+that rule and the full target diff without a self-referential report hash.
+The cost is a second evidence checkout and an immutable-link receipt. It must
+not be merged into the target before the currentness check. In-tree historical
+reports remain historical; do not rewrite their target identities to pass.
+
+## arXiv:2608.18167 Correspondence
+
+| # | Paper finding / recommendation | This ADR's position | Reason |
+|---|-------------------------------|---------------------|--------|
+| 1 | Evidence-backed dissent (file:line citations required for rejection) | **Adopted.** Phase 2 cross-critique requires `basis.kind: code_evidence \| spec_evidence` for every `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` (issue #347). | Matches the paper's core recommendation and the existing iron rule 1 in `reviewer-prompts.md`. |
+| 2 | AR uses ~4.5× the Zero-shot tokens on SWE-bench Verified (§5.2; cost discussion in §6) | **Acknowledged; not a general multiplier.** The lane remains risk-gated; `evaluation.json` records structural indicators (issue #350). | This benchmark comparison does not measure this repository's protocol cost. |
+| 3 | Scope creep from plausible out-of-scope concerns | **Adopted.** Each cross-critique finding carries `scope: in_scope \| out_of_scope \| unclear`; out_of_scope findings are labelled and not converted to implementation directives (issue #348). | Direct adoption of the paper's scope-creep mitigation. |
+| 4 | Sequential Reviewer→Critic model | **Not adopted as the primary protocol.** The existing `skills/adversarial-review` phases (blind → cross-critique → synthesis) are retained. Phase 1 stays blind; Phase 2 is the cross-critique. | The paper's sequential model is an alternative, not a strict requirement; the blind first pass provides the independence property the paper's approach trades away. |
+| 5 | Automated evaluation / tracking | **Partially adopted.** `evaluation.json` captures structural metrics per run (issue #350). Token telemetry is deferred. | No token budget surface exists in this repository today (INV-021). |

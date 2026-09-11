@@ -166,13 +166,15 @@ $ErrorActionPreference = "Stop"
 # pwsh cold start, which sits INSIDE the runner's WaitForExit window) from the
 # delay the stub was asked to introduce.
 if ($env:STUB_START_FILE) {
-    Set-Content -Path $env:STUB_START_FILE -Value ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
+    [IO.File]::WriteAllText($env:STUB_START_FILE, [string][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
 }
 if ($env:STUB_DEADLINE_FILE) {
-    Set-Content -Path $env:STUB_DEADLINE_FILE -Value $env:SDD_PANELIST_DEADLINE_EPOCH_MS
+    [IO.File]::WriteAllText($env:STUB_DEADLINE_FILE, $env:SDD_PANELIST_DEADLINE_EPOCH_MS)
 }
-if ($env:STUB_CALLED_FILE) { Set-Content -Path $env:STUB_CALLED_FILE -Value "called" }
-if ($env:STUB_PID_FILE) { Set-Content -Path $env:STUB_PID_FILE -Value $PID }
+# These receipts are inside the deadline. Avoid provider/cmdlet cold-start
+# work here; keep their contents and the timeout assertions unchanged.
+if ($env:STUB_CALLED_FILE) { [IO.File]::WriteAllText($env:STUB_CALLED_FILE, "called") }
+if ($env:STUB_PID_FILE) { [IO.File]::WriteAllText($env:STUB_PID_FILE, [string]$PID) }
 
 if ($env:STUB_MODE -eq "hang") {
     $childStdout = "$($env:STUB_CHILD_PID_FILE).stdout"
@@ -180,9 +182,25 @@ if ($env:STUB_MODE -eq "hang") {
     $child = Start-Process -FilePath (Get-Process -Id $PID).Path `
         -ArgumentList "-NoProfile", "-Command", "Start-Sleep -Seconds 30" `
         -RedirectStandardOutput $childStdout -RedirectStandardError $childStderr -PassThru
-    if ($env:STUB_CHILD_PID_FILE) { Set-Content -Path $env:STUB_CHILD_PID_FILE -Value $child.Id }
+    if ($env:STUB_CHILD_PID_FILE) { [IO.File]::WriteAllText($env:STUB_CHILD_PID_FILE, [string]$child.Id) }
     Start-Sleep -Seconds 30
 }
+
+# Prepare the fixed response before the timed wait. Serializing it after the
+# wait adds cold ConvertTo-Json/JIT work to the intended completion instant.
+# Output still happens only after the same deadline-relative wait below.
+$stubResponse = @{
+    schema = "cross-model-verdict/v1"
+    task_id = "T-901"
+    feature = "timeout-test"
+    vendor = "stub"
+    model = "stub-model"
+    verdict = "PASS"
+    findings = @()
+    blind = $true
+    input_digest = ("a" * 64)
+    consent = @{ kind = "human-flag"; ref = "test fixture" }
+} | ConvertTo-Json -Compress -Depth 5
 
 # Boundary cases derive their target from the exact absolute deadline exported
 # by the runner. This deducts child startup jitter without moving completion
@@ -209,23 +227,12 @@ if ($completeAtEpochMs -gt 0) {
     }
 }
 if ($env:STUB_PHASE_FILE) {
-    Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`n")
 }
-@{
-    schema = "cross-model-verdict/v1"
-    task_id = "T-901"
-    feature = "timeout-test"
-    vendor = "stub"
-    model = "stub-model"
-    verdict = "PASS"
-    findings = @()
-    blind = $true
-    input_digest = ("a" * 64)
-    consent = @{ kind = "human-flag"; ref = "test fixture" }
-} | ConvertTo-Json -Compress -Depth 5
+[Console]::Out.WriteLine($stubResponse)
 if ($env:STUB_PHASE_FILE) {
     [Console]::Out.Flush()
-    Add-Content -LiteralPath $env:STUB_PHASE_FILE -Value "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`n")
 }
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 
