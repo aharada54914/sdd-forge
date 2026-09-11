@@ -88,7 +88,8 @@ keyed to that same tier.
    verification). The lane adds only an invocation context, an input
    definition (the merge-base diff plus AGENTS.md house rules), and an
    output location: `reports/adversarial-review/<branch-slug>/report.md`,
-   linked from the PR body.
+   in a separate evidence checkout, linked by immutable evidence commit from
+   the target PR body (see the publication rule below).
 
 4. **Findings do not gate deterministically; they gate socially.** The
    lane's report is review input for the human merger, exactly like a
@@ -142,7 +143,8 @@ The evaluation targets are defined as follows:
   judgements per issue #348), and any referenced ADRs.
 - **Output location**: `reports/adversarial-review/<branch-slug>/report.md`,
   plus `reports/adversarial-review/<branch-slug>/evaluation.json` when the full
-  triggering protocol runs (issue #350).
+  triggering protocol runs (issue #350). These paths are relative to the
+  separate evidence checkout, not the reviewed target branch.
 
 ### Immutable target identity
 
@@ -159,6 +161,22 @@ skill_version:  <git describe or commit SHA of skills/adversarial-review/>
 A report is **stale** if `head_sha` or `merge_base_sha` no longer matches the
 branch's current merge base and head. A stale report MUST NOT be used to satisfy
 `Adversarial-Lane: fired` in the PR body.
+
+### Evidence publication (2026-09-12 clarification)
+
+Publish the report, evaluation, and annexes in a separate evidence repository
+or branch/worktree; link the immutable evidence commit in the target PR and
+save the final report digest separately. The read-only checker takes the
+target checkout as `--repo` and the retrieved evidence report's absolute path
+as `--report` (see `skills/adversarial-review/SKILL.md`).
+
+Publishing on the reviewed branch changes its HEAD and would make the report
+stale immediately. An evidence-only commit exemption was rejected because
+issue #349 requires exact current HEAD identity. Separate publication retains
+that rule and the full target diff without a self-referential report hash.
+The cost is a second evidence checkout and an immutable-link receipt. It must
+not be merged into the target before the currentness check. In-tree historical
+reports remain historical; do not rewrite their target identities to pass.
 
 ## arXiv:2608.18167 Correspondence
 
