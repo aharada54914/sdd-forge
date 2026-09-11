@@ -518,10 +518,9 @@ fi
 # activation at "once Epic A5's caller insertion point is implemented," not
 # merely once the digest happens to still match (the window legitimately
 # changes once A5's own caller-integration lands there), so this comparison
-# is reported for provenance only and never gates pass/fail. A local ad hoc
-# probe (specs/epic-193-a5-capability-resolver/ presence in this tree)
-# stands in for the activation condition until T-010's own allowlist
-# manifest exists (tasks.md T-008 Scope).
+# is reported for provenance only and never gates pass/fail. AC-036 is not
+# one of T-010's five fixed manifest entries, so its T-008-local probe remains
+# outside the shared allowlist contract (tasks.md T-008 Scope).
 # ---------------------------------------------------------------------------
 echo "=== TEST-018.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
 

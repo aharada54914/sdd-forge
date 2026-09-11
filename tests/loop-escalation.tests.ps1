@@ -696,12 +696,21 @@ try {
 
     if ($spyF1Rc -eq 0 -and $spyF3Rc -eq 0 -and $spyF4Rc -eq 0) {
         $spyInvocations = @(Get-Content -LiteralPath $spyLog).Count
-        $a5MergedForSpy = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
-        if ($a5MergedForSpy) {
-            Test-Fail "TEST-019.10b (AC-004, AC-021): Epic A5 has merged but no real Resolver-non-invocation fixture is wired against a live caller yet -- promote this SKIP in a follow-on task (observed $spyInvocations invocation(s))"
+        $auditHost = (Get-Process -Id $PID).Path
+        $evaluator = Join-Path $repoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+        $manifest = Join-Path $repoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+        $skipLine = & $auditHost -NoProfile -File $evaluator line $manifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host $skipLine
+            $skipLog = Join-Path $spyDir 'allowlisted-output.log'
+            [IO.File]::WriteAllLines($skipLog, [string[]]@($skipLine))
+            & $auditHost -NoProfile -File $evaluator audit $manifest $skipLog $repoRoot origin/main
+            if ($LASTEXITCODE -eq 0) { Test-Ok 'TEST-019.10b: emitted resolver dependency skips remain allowed on origin/main' }
+            else { Test-Fail 'TEST-019.10b: emitted resolver dependency skips are no longer allowed' }
         } else {
-            Write-Host "SKIP: TEST-019.10b: AC-004/AC-021 Resolver-non-invocation spy-harness against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; AC-021 additionally needs Epic A1, already merged into this tree) and no caller anywhere in the tree yet invokes resolve-project-context.sh at all (SKIP-with-activation until Epic A5's caller insertion point is implemented, design.md Test Strategy item 6). The spy observes $spyInvocations invocation(s) across the F1/F3-invalid/F4-invalid fixture construction above -- a VACUOUSLY true zero, not evidence of correct non-invocation policy, since no call site exists yet to have been correctly declined; reported for provenance only."
+            Test-Fail 'TEST-019.10b: cannot render resolver dependency evidence'
         }
+        Write-Host "INFO: TEST-019.10b spy observed $spyInvocations invocation(s) across F1/F3-invalid/F4-invalid fixtures"
     } else {
         Test-Fail "TEST-019.10b: build_fixture could not construct the F1/F3-invalid/F4-invalid fixtures needed to even name this SKIP (rc: F1=$spyF1Rc, F3=$spyF3Rc, F4=$spyF4Rc)"
     }

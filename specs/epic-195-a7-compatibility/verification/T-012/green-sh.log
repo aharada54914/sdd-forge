@@ -1,0 +1,23 @@
+PASS: structurally invalid live response preserves an existing target
+PASS: structurally invalid live response preserves an absent target
+PASS: missing final result is rejected before write
+PASS: malformed final artifact payload is rejected before write
+PASS: valid F1 response refreshes a scratch target
+PASS: valid F2 response refreshes a scratch target
+PASS: live invocation uses the exact argument contract
+PASS: mis-cased required-output anchor is rejected
+PASS: validator rejects schema mismatch
+PASS: validator rejects state mismatch
+PASS: validator rejects model mismatch
+PASS: validator rejects commit mismatch
+PASS: validator rejects refresh mismatch
+PASS: validator rejects path mismatch
+PASS: validator rejects frontmatter mismatch
+PASS: validator rejects heading mismatch
+PASS: validator rejects status mismatch
+PASS: validator rejects identifier mismatch
+PASS: validator rejects reserved-a mismatch
+PASS: validator rejects reserved-b mismatch
+PASS: live refresh remains outside aggregate runners and CI
+0 self-tests failed
+EXIT_CODE: 0

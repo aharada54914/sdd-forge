@@ -1,0 +1,16 @@
+bash tests/skip-allowlist-manifest.tests.sh --all
+
+PASS: AC-034 manifest contains exactly the five fixed entries and fingerprint values
+PASS: AC-016 all five fixed SKIP assertions read from the manifest helper
+PASS: merged(A9) is false before branch ancestry reaches main
+PASS: fingerprint_match(0) matches the unmerged epic current HEAD
+PASS: merged fingerprint-match fixture makes both primitives true
+PASS: merged fingerprint-mismatch fixture keeps merged true and fingerprint_match false
+PASS: OR accepts one true primitive
+PASS: AND rejects one false primitive
+PASS: AC-035a dependency-present output is a hard failure
+PASS: AC-035b unrecognized output is a hard failure
+PASS: AC-035c merged fingerprint drift is a hard failure
+PASS: clean fixture audits one real allowlisted line without failing vacuously
+12 passed, 0 failed
+exit=0

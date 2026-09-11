@@ -9,6 +9,8 @@ BOOTSTRAP_SKILL="$REPO_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interview
 LITE_SKILL="$REPO_ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
 DESIGN="$REPO_ROOT/specs/epic-195-a7-compatibility/design.md"
 ACCEPTANCE="$REPO_ROOT/specs/epic-195-a7-compatibility/acceptance-tests.md"
+SKIP_MANIFEST="$REPO_ROOT/tests/fixtures/skip-allowlist-manifest.json"
+source "$REPO_ROOT/tests/lib/skip-allowlist-evaluator.sh"
 
 PASS=0
 FAIL=0
@@ -226,9 +228,14 @@ emit_recorded_skip() {
   actual_deps="$(jq -r '.skip.dependencies[]' "$json" | LC_ALL=C sort -u)"
   if jq -e --arg fixture "$fixture" --arg ac "$ac" '.skip.name == $fixture and .skip.acceptance_criterion == $ac and (.skip.reason | type == "string" and length > 0)' "$json" >/dev/null &&
      [[ "$actual_deps" == "$expected_deps" ]]; then
-    line="$(printf 'SKIP: %s/%s (%s): %s' "$fixture" "$ac" "$(tr '\n' '+' <<<"$actual_deps" | sed 's/+$//')" "$(jq -r '.skip.reason' "$json")")"
+    case "$ac" in
+      AC-007) line="$(skip_allowlist_line "$SKIP_MANIFEST" "$fixture/$ac" AC-007)" ;;
+      AC-042) line="$(skip_allowlist_line "$SKIP_MANIFEST" "$fixture/$ac" AC-042)" ;;
+      *) fail "$fixture assertion has no manifest entry: $ac"; return ;;
+    esac
     assert_skip_line "$fixture named skip line renders in the twin-identical shape" "$line"
     printf '%s\n' "$line"
+    printf '%s\n' "$line" >> "$tmp/emitted-skips.log"
   else
     fail "$fixture named skip metadata matches its acceptance dependency"
   fi
@@ -241,17 +248,30 @@ emit_compound_skip() {
   acceptance_deps="$(grep -Eo 'A[0-9]+' <<<"$acceptance_row" | LC_ALL=C sort -u)"
   task_deps="$(grep -Eo 'A[0-9]+' <<<"$task_span" | LC_ALL=C sort -u)"
   if [[ -n "$ac" && "$acceptance_deps" == "$task_deps" && "$(wc -l <<<"$acceptance_deps" | tr -d ' ')" -gt 1 ]]; then
-    line="$(printf 'SKIP: %s/%s (%s): compound dependency not merged' "$fixture" "$ac" "$(tr '\n' '+' <<<"$acceptance_deps" | sed 's/+$//')")"
+    line="$(skip_allowlist_line "$SKIP_MANIFEST" "$fixture/$ac" AC-043)"
     assert_skip_line "$fixture compound skip line renders in the twin-identical shape" "$line"
     printf '%s\n' "$line"
+    printf '%s\n' "$line" >> "$tmp/emitted-skips.log"
   else
     fail "$fixture compound named skip matches task and acceptance dependencies"
   fi
 }
-emit_recorded_skip F4 "$CORPUS/f4-required.json"
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-007 "$REPO_ROOT" origin/main; then
+  printf '%s\n' 'AC-007 active: checking recorded F4 full-track artifacts'
+  validate_track full "$CORPUS/f4-required.json"
+elif (( $? == 1 )); then
+  emit_recorded_skip F4 "$CORPUS/f4-required.json"
+else
+  fail 'F4 activation evidence is unavailable or invalid'
+fi
 emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
 emit_compound_skip F5
 emit_compound_skip F6
+
+# Formatting assertions alone cannot prove that a dependency is still absent.
+# Audit the lines actually emitted; never turn an obsolete skip into success.
+assert_true "emitted dependency skips remain allowed on origin/main" \
+  skip_allowlist_audit "$SKIP_MANIFEST" "$tmp/emitted-skips.log" "$REPO_ROOT" origin/main
 
 assert_true "Bash aggregate runner registers this shipped suite" grep -Fxq '  tests/structural-compatibility.tests.sh' "$REPO_ROOT/tests/run-all.sh"
 

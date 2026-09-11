@@ -835,3 +835,40 @@ design — confirmed by the attempt-6 precheck computing
   closing OQ-004. Post-amendment digests are pinned externally by the
   attempt-4 round-3 reviewer invocation manifests, per this section's
   convention.
+
+### Round-13 extension (2026-08-29): design.md's "External Integrations:
+None" contradicted AC-031's own live-model-call requirement
+
+- **What was found.** T-012's third implementation attempt independently
+  re-verified rather than trusted its own prior framing, and found that
+  design.md:1112-1115 stated "External Integrations: None. Every target
+  in this package is internal to the repository" while AC-031
+  (requirements.md, acceptance-tests.md) requires T-012 to exercise "a
+  live model call" — a live call to an external model provider is an
+  external integration by definition. No document named which provider/
+  CLI, model, auth, prompt, or response envelope that call would use.
+  The task is `Risk: high`, `Security-Sensitive: true`, with an explicit
+  STRIDE-B5 rationale against a schema-valid-but-wrong live response
+  silently becoming T-004's gating oracle; the implementer correctly
+  declined to invent this contract itself rather than risk exactly that
+  failure mode.
+- Human approval (verbatim, dated): 2026-08-29, in answer to two
+  questions presented together — the first proposing an "External
+  Integrations" exception clause naming AC-031's non-gating live-model
+  refresh test as the package's sole sanctioned external integration,
+  the second proposing to finalize the concrete invocation contract
+  (`claude -p`, reusing the F1/F2 fixture-matrix inputs,
+  `--output-format json` extraction, existing CLI session auth, both
+  wrapper scripts shelling out to the same `claude` binary) exactly as
+  previously drafted. The human answered 「承認、この文言で適用」 to the
+  first and 「はい、そのまま確定」 to the second.
+- **What changed.** design.md's "External Integrations" section gained
+  the sanctioned-exception sentence and, immediately after it, the full
+  invocation-contract paragraph (provider/CLI, fixture-input reuse,
+  auth, response extraction, Bash/PowerShell parity) transcribed above,
+  verbatim, into the frozen document. No other document byte moved.
+  Pre-amendment `specs/epic-195-a7-compatibility/design.md` SHA-256:
+  `66d76ede49bbbd1c9e98db643dde39ecd557abe3aaf0cb57eb7c8c59e05bcf7e`
+  (commit `db30d2c5`); post-amendment SHA-256:
+  `f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29`,
+  committed together with this investigation.md entry.

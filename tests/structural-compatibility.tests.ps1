@@ -8,6 +8,7 @@ $BootstrapSkill = Join-Path $RepoRoot 'plugins/sdd-bootstrap/skills/sdd-bootstra
 $LiteSkill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
 $Design = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/design.md'
 $Acceptance = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/acceptance-tests.md'
+$EmittedSkips = [Collections.Generic.List[string]]::new()
 $script:Passed = 0
 $script:Failed = 0
 
@@ -177,6 +178,16 @@ try {
 
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]
+        if ($Fixture -ceq 'F4') {
+            $AuditHost = (Get-Process -Id $PID).Path
+            & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') condition (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') AC-007 $RepoRoot origin/main
+            if ($LASTEXITCODE -eq 0) {
+                Write-Output 'AC-007 active: checking recorded F4 full-track artifacts'
+                Validate-Track 'full' $F4
+                continue
+            }
+            if ($LASTEXITCODE -ne 1) { Fail 'F4 activation evidence is unavailable or invalid'; continue }
+        }
         $Row = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains("($Fixture", [StringComparison]::Ordinal) }
         $Ac = (($Row -csplit '\|')[1]).Trim()
         $ExpectedDependencies = @([regex]::Matches($Row, 'Epic A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
@@ -187,6 +198,7 @@ try {
             $SkipLine = "SKIP: $Fixture/$Ac ($($ActualDependencies -join '+')): $($Entry.skip.reason)"
             Assert-SkipLine "$Fixture named skip line renders in the twin-identical shape" $SkipLine
             Write-Output $SkipLine
+            $EmittedSkips.Add($SkipLine)
         } else { Fail "$Fixture named skip metadata matches its acceptance dependency" }
     }
     $TaskSkipSpan = [regex]::Match($TasksText, 'F5/F6 structural-identity assertions are named `SKIP`s[\s\S]*?until they merge', [Text.RegularExpressions.RegexOptions]::CultureInvariant).Value
@@ -199,10 +211,26 @@ try {
             $CompoundLine = "SKIP: $Fixture/$CompoundAc ($($AcceptanceDependencies -join '+')): compound dependency not merged"
             Assert-SkipLine "$Fixture compound skip line renders in the twin-identical shape" $CompoundLine
             Write-Output $CompoundLine
+            $EmittedSkips.Add($CompoundLine)
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
+    # Audit the actual emitted lines, not just their formatting or unit fixtures.
+    $SkipLog = Join-Path $Temp 'emitted-skips.log'
+    [IO.File]::WriteAllLines($SkipLog, $EmittedSkips)
+    $AuditHost = (Get-Process -Id $PID).Path
+    & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') audit (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') $SkipLog $RepoRoot origin/main
+    Assert-True 'emitted dependency skips remain allowed on origin/main' ($LASTEXITCODE -eq 0)
+
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
-    Assert-True 'PowerShell aggregate runner registers this shipped suite' ($Runner -ccontains '    "tests/structural-compatibility.tests.ps1"')
+    # Runner formatting is not a contract: accept either literal quote style,
+    # but reject comments, different paths, and case changes.
+    $RegistrationPattern = '^\s*([''"])tests/structural-compatibility\.tests\.ps1\1,?\s*$'
+    Assert-True 'runner registration accepts single quotes and a comma' ("    'tests/structural-compatibility.tests.ps1'," -cmatch $RegistrationPattern)
+    Assert-True 'runner registration accepts double quotes' ('    "tests/structural-compatibility.tests.ps1"' -cmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects commented entries' ("# 'tests/structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects a different path' ("'other/structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects case changes' ("'tests/Structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'PowerShell aggregate runner registers this shipped suite' (@($Runner | Where-Object { $_ -cmatch $RegistrationPattern }).Count -eq 1)
 }
 finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
 

@@ -1,0 +1,26 @@
+PASS: F1 live response validated before refresh: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/structural-live-self-test.1ed0fed49b2048c99dd05cc866b5fda7/corpus/f1-full.json
+FAIL: structurally invalid live response preserves an existing target
+PASS: F1 live response validated before refresh: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/structural-live-self-test.1ed0fed49b2048c99dd05cc866b5fda7/corpus/f1-full.json
+FAIL: structurally invalid live response preserves an absent target
+FAIL: The property 'result' cannot be found on this object. Verify that the property exists.
+PASS: missing final result is rejected before write
+PASS: F1 live response validated before refresh: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/structural-live-self-test.1ed0fed49b2048c99dd05cc866b5fda7/corpus/f1-full.json
+PASS: valid F1 response refreshes a scratch target
+PASS: F2 live response validated before refresh: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/structural-live-self-test.1ed0fed49b2048c99dd05cc866b5fda7/corpus/f2-lite.json
+PASS: valid F2 response refreshes a scratch target
+PASS: live invocation uses the exact argument contract
+FAIL: validator rejects schema mismatch
+FAIL: validator rejects state mismatch
+FAIL: validator rejects model mismatch
+FAIL: validator rejects commit mismatch
+FAIL: validator rejects refresh mismatch
+FAIL: validator rejects path mismatch
+FAIL: validator rejects frontmatter mismatch
+FAIL: validator rejects heading mismatch
+FAIL: validator rejects status mismatch
+FAIL: validator rejects identifier mismatch
+FAIL: validator rejects reserved-a mismatch
+FAIL: validator rejects reserved-b mismatch
+PASS: live refresh remains outside aggregate runners and CI
+14 self-tests failed
+EXIT_CODE: 1
