@@ -213,6 +213,15 @@ try {
     Assert-True 'registration rejects a longer path' ('"tests/structural-compatibility.tests.ps1.bak"' -cnotmatch $RegistrationPattern)
     Assert-True 'registration rejects an absent entry' (@(@('') -cmatch $RegistrationPattern).Count -eq 0)
     Assert-True 'registration detects duplicate entries' (@(@('"tests/structural-compatibility.tests.ps1"', "'tests/structural-compatibility.tests.ps1',") -cmatch $RegistrationPattern).Count -eq 2)
+    # Runner formatting is not a contract: accept either literal quote style,
+    # but reject comments, different paths, and case changes.
+    $RegistrationPattern = '^\s*([''"])tests/structural-compatibility\.tests\.ps1\1,?\s*$'
+    Assert-True 'runner registration accepts single quotes and a comma' ("    'tests/structural-compatibility.tests.ps1'," -cmatch $RegistrationPattern)
+    Assert-True 'runner registration accepts double quotes' ('    "tests/structural-compatibility.tests.ps1"' -cmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects commented entries' ("# 'tests/structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects a different path' ("'other/structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'runner registration rejects case changes' ("'tests/Structural-compatibility.tests.ps1'," -cnotmatch $RegistrationPattern)
+    Assert-True 'PowerShell aggregate runner registers this shipped suite' (@($Runner | Where-Object { $_ -cmatch $RegistrationPattern }).Count -eq 1)
 }
 finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
 
