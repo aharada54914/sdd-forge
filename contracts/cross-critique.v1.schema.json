@@ -189,17 +189,17 @@
         },
         "related_requirements": {
           "type": "array",
-          "items": { "type": "string", "pattern": "\\S" },
+          "items": { "type": "string", "pattern": "^REQ-\\S+$", "not": { "pattern": "\\s" } },
           "description": "REQ-* IDs from requirements.md that this finding relates to. Required for in_scope assessments."
         },
         "related_acceptance_tests": {
           "type": "array",
-          "items": { "type": "string", "pattern": "\\S" },
+          "items": { "type": "string", "pattern": "^AC-\\S+$", "not": { "pattern": "\\s" } },
           "description": "AC-* IDs from requirements.md that this finding relates to."
         },
         "related_tasks": {
           "type": "array",
-          "items": { "type": "string", "pattern": "\\S" },
+          "items": { "type": "string", "pattern": "^T-\\S+$", "not": { "pattern": "\\s" } },
           "description": "T-* IDs from tasks.md that this finding relates to."
         },
         "evidence": {

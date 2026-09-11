@@ -65,12 +65,24 @@ for (const kind of ["code_evidence", "spec_evidence"]) {
     assert.equal(accepts({ ...verdict(), basis: { kind, citations: [citation] } }), true);
   });
 }
-for (const field of ["related_requirements", "related_acceptance_tests", "related_tasks"]) {
+for (const [field, prefix] of [
+  ["related_requirements", "REQ"], ["related_acceptance_tests", "AC"], ["related_tasks", "T"],
+]) {
   test(`in_scope requires nonempty ${field}`, () => {
     for (const refs of [[], [""], ["   "]]) {
       assert.equal(accepts({ ...verdict(), scope: { assessment: "in_scope", [field]: refs } }), false);
     }
-    assert.equal(accepts({ ...verdict(), scope: { assessment: "in_scope", [field]: ["REF-001"] } }), true);
+    assert.equal(accepts({ ...verdict(), scope: { assessment: "in_scope", [field]: [`${prefix}-001`] } }), true);
+  });
+  test(`${field} rejects unrelated or malformed identifiers`, () => {
+    for (const assessment of ["in_scope", "out_of_scope", "unclear"]) {
+      for (const id of ["REF-001", `${prefix.toLowerCase()}-001`, `${prefix}-`,
+        ` ${prefix}-001`, `${prefix}-001 `, `${prefix}-001\n`, `${prefix}-one two`]) {
+        assert.equal(accepts({ ...verdict(), scope: { assessment, [field]: [id] } }), false,
+          `${assessment}: ${JSON.stringify(id)}`);
+      }
+      assert.equal(accepts({ ...verdict(), scope: { assessment, [field]: [`${prefix}-001a`] } }), true);
+    }
   });
 }
 test("concerns remain allowed for support but cannot reject findings", () => {
