@@ -80,7 +80,7 @@ translation layer):
   Every recorded-result / recorded-cleanup-result file is a JSON object
   with (at minimum) a top-level `"nonce"` string (compared verbatim
   against `--nonce`) and a top-level boolean `"executed"` (did the
-  tool-call attempt actually run/succeed). `executed: true` ALWAYS
+  tool-call attempt actually run/succeed). In valid legacy records, `executed: true`
   short-circuits to `WRITE_EXECUTED` regardless of any other field --
   proof the write ran is proof the hook did not block it, full stop, never
   overridden by a contradictory denial claim elsewhere in the same file.
@@ -101,15 +101,18 @@ translation layer):
                   case (decision doc Section 7 v2) and correctly falls
                   through to `UNRECOGNIZED_RESULT`, never a special case.
     codex-cli:    `"plugin_hooks_enabled": true` AND
-                  `"denied_by_plugin_hooks": true`. An unset/false
-                  `plugin_hooks_enabled` collapses into
-                  `CAPABILITY_RUNTIME_UNAVAILABLE` (reason
-                  `PLUGIN_HOOKS_DISABLED`) regardless of
-                  `denied_by_plugin_hooks` -- a guard that was never
-                  invoked (feature flag unset) cannot have produced a
-                  denial signature, matching REQ-010's explicit
-                  "indistinguishable from, and correctly collapses into,
-                  'hook not active'" text.
+                  `"denied_by_plugin_hooks": true`. Missing/invalid metadata
+                  remains unavailable with legacy reason `PLUGIN_HOOKS_DISABLED`;
+                  it does not prove that hooks were actually disabled.
+
+  RT-20260909-002 adds the explicit `sdd-codex-host-denial/v1` response
+  adapter: exactly schema/runtime/nonce/executed/raw_result, Codex only,
+  boolean nonexecution and an exact operation-bound host denial. Unknown
+  selectors never fall back to legacy evidence. Duplicate JSON members at
+  any depth are unreadable in both response and cleanup modes. See the
+  approved hook-recovery-entry-contract-20260909.md for normative bytes.
+  Plain-file matching is not host attestation or a persistent replay ledger;
+  the calling session must record one fresh actual native dispatch.
 
   The recorded-cleanup-result file uses the SAME `"nonce"`/`"executed"`
   envelope alone (no runtime-specific sub-fields; the literal
@@ -129,6 +132,7 @@ REQ-009's five entry points is T-011/T-012's own scope, not this script's.
 import argparse
 import json
 import os
+import re
 import secrets
 import sys
 
@@ -150,6 +154,15 @@ CATEGORY_EXIT_CODES = {
 CHALLENGE_SCHEMA = "sdd-hook-challenge/v1"
 VERIFY_RESULT_SCHEMA = "sdd-hook-verify-result/v1"
 CLEANUP_RESULT_SCHEMA = "sdd-hook-cleanup-result/v1"
+HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
+HOST_DENIAL_PREFIX = (
+    "Script error:\nCommand blocked by PreToolUse hook: "
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
+    "これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, "
+    "or critical test files. These are part of the enforcement chain and cannot be "
+    "bypassed by sudo.. Command: "
+)
 
 # Dedicated canary target -- NEVER the live approval sidecars (B5). Fixed,
 # never caller-overridable, CWD-relative like every sibling script's
@@ -158,12 +171,8 @@ CANARY_TARGET = "sdd/.hook-canary-sentinel"
 
 RUNTIMES = ("claude-code", "codex-cli", "copilot-cli")
 
-# Per-runtime example tool-call the AGENT SESSION itself is instructed to
-# attempt (illustrative -- the exact bytes are not pinned by any AC; the
-# calling skill, REQ-009's own scope, is free to adapt these). Claude
-# Code/Copilot CLI share the same native Write-tool shape (requirements.md);
-# Codex CLI uses the equivalent apply_patch envelope, mirroring
-# `sdd-hook-guard.py`'s own AC-023 matrix row 12 example shape.
+# Existing Claude/Copilot templates remain unchanged. Codex is built per
+# challenge below: RT002 pins its exact bytes, including the generated nonce.
 TOOL_CALL_TEMPLATES = {
     "claude-code": {
         "tool_name": "Write",
@@ -173,13 +182,14 @@ TOOL_CALL_TEMPLATES = {
         "tool_name": "Write",
         "tool_input": {"file_path": CANARY_TARGET, "content": ""},
     },
-    "codex-cli": {
-        "tool_name": "apply_patch",
-        "tool_input": {
-            "patch": "*** Begin Patch\n*** Add File: {}\n+\n*** End Patch\n".format(CANARY_TARGET),
-        },
-    },
 }
+
+
+def _codex_canary_patch(nonce):
+    return (
+        f"*** Begin Patch\n*** Add File: {CANARY_TARGET}\n"
+        f"+sdd-hook-challenge:{nonce}\n*** End Patch"
+    )
 
 
 class HookHandshakeError(Exception):
@@ -206,11 +216,17 @@ def _fresh_nonce():
 
 
 def build_challenge():
+    nonce = _fresh_nonce()
+    templates = dict(TOOL_CALL_TEMPLATES)
+    templates["codex-cli"] = {
+        "tool_name": "apply_patch",
+        "tool_input": {"patch": _codex_canary_patch(nonce)},
+    }
     return {
         "schema": CHALLENGE_SCHEMA,
-        "nonce": _fresh_nonce(),
+        "nonce": nonce,
         "canary_target": CANARY_TARGET,
-        "tool_call_template": TOOL_CALL_TEMPLATES,
+        "tool_call_template": templates,
     }
 
 
@@ -243,6 +259,15 @@ def run_emit_challenge():
 # ---------------------------------------------------------------------------
 
 
+def _unique_json_members(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError("duplicate JSON member")
+        obj[key] = value
+    return obj
+
+
 def _load_json_object(path, missing_category, unreadable_category):
     if not os.path.isfile(path):
         raise HookHandshakeError(missing_category, f"no evidence file at {path!r}")
@@ -252,8 +277,8 @@ def _load_json_object(path, missing_category, unreadable_category):
     except (OSError, UnicodeDecodeError) as exc:
         raise HookHandshakeError(unreadable_category, f"cannot read {path!r}: {exc}") from exc
     try:
-        obj = json.loads(raw)
-    except json.JSONDecodeError as exc:
+        obj = json.loads(raw, object_pairs_hook=_unique_json_members)
+    except ValueError as exc:
         raise HookHandshakeError(unreadable_category, f"{path!r} is not valid JSON: {exc}") from exc
     if not isinstance(obj, dict):
         raise HookHandshakeError(unreadable_category, f"{path!r} must be a JSON object at the top level")
@@ -338,11 +363,11 @@ def _verify_codex_cli(obj):
     if obj.get("plugin_hooks_enabled") is not True:
         raise HookHandshakeError(
             "PLUGIN_HOOKS_DISABLED",
-            "codex-cli evidence's 'plugin_hooks_enabled' is not true -- an "
-            "unset/false plugin_hooks feature flag means the guard was "
-            "never invoked at all, so no denial signature can appear; "
-            "this correctly collapses into hook-not-active rather than "
-            "being treated as ambiguous",
+            "codex-cli evidence does not establish 'plugin_hooks_enabled: true'; "
+            "missing or invalid evidence metadata is not proof that plugin hooks are disabled. "
+            "The legacy PLUGIN_HOOKS_DISABLED category is retained for compatibility; "
+            "verification remains unavailable without the required evidence, "
+            "including when the recorded flag is explicitly false",
         )
     if obj.get("denied_by_plugin_hooks") is not True:
         raise HookHandshakeError(
@@ -351,6 +376,31 @@ def _verify_codex_cli(obj):
             "'denied_by_plugin_hooks: true' signature; got "
             f"denied_by_plugin_hooks={obj.get('denied_by_plugin_hooks')!r}",
         )
+
+
+def _verify_codex_host_denial(obj, expected_nonce, runtime):
+    if (set(obj) != {"schema", "runtime", "nonce", "executed", "raw_result"}
+            or runtime != "codex-cli" or obj.get("runtime") != "codex-cli"):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "invalid host-denial fields or runtime")
+    for nonce in (expected_nonce, obj.get("nonce")):
+        if not isinstance(nonce, str) or re.fullmatch(r"[0-9a-f]{32}", nonce) is None:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    raw_result = obj.get("raw_result")
+    if not isinstance(raw_result, str):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial raw_result must be a string")
+    # Escape the entire normative envelope; only the one nonce slot varies.
+    # fullmatch accepts no prefix, suffix, normalization or terminal newline.
+    placeholder = "<nonce>"
+    pattern = re.escape(HOST_DENIAL_PREFIX + _codex_canary_patch(placeholder))
+    pattern = pattern.replace(re.escape(placeholder), r"([0-9a-f]{32})")
+    match = re.fullmatch(pattern, raw_result)
+    if match is None:
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial envelope or operation does not match")
+    if match.group(1) != expected_nonce:
+        raise HookHandshakeError("STALE_CHALLENGE_REJECTED", "echoed operation nonce does not match this challenge")
 
 
 RUNTIME_VERIFIERS = {
@@ -364,6 +414,11 @@ def run_verify_response(nonce, recorded_result_path, runtime):
     """Raises HookHandshakeError for every non-HOOK_ACTIVE outcome; returns
     normally (no return value) ONLY when HOOK_ACTIVE is proven."""
     obj = _load_json_object(recorded_result_path, "NO_RECORDED_RESULT", "RECORDED_RESULT_UNREADABLE")
+    if "schema" in obj:
+        if obj["schema"] != HOST_DENIAL_SCHEMA:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", "unknown recorded-result schema")
+        _verify_codex_host_denial(obj, nonce, runtime)
+        return
     _check_nonce(obj, nonce)
     RUNTIME_VERIFIERS[runtime](obj)
 
