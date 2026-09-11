@@ -44,6 +44,16 @@ if (Initialize-LoopFixture -Profile "greenfield" -Feature $featureGf) {
 }
 $gfRoot = $script:LoopFixtureRoot
 
+# Exercise the real parser: fixture headers must follow the shipped contract.
+try {
+    & (Join-Path $repoRoot "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1") `
+        -Path (Join-Path $gfRoot "specs/$featureGf/traceability.md") `
+        -RequirementsPath (Join-Path $gfRoot "specs/$featureGf/requirements.md")
+    Ok "fixture traceability is accepted by the real validator"
+} catch {
+    Fail "fixture traceability rejected: $($_.Exception.Message)"
+}
+
 if ($gfRoot -and $gfRoot -ne $repoRoot -and -not $gfRoot.StartsWith($repoRoot + [IO.Path]::DirectorySeparatorChar)) {
     Ok "TEST-005.2: greenfield fixture root ($gfRoot) lies outside the repository working tree"
 } else {
