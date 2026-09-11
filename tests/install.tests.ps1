@@ -2,6 +2,51 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+
+# Exercise the production archive-download branch without network or host install
+# writes. A failed tar may still leave a marketplace-shaped partial directory.
+& {
+    $tokens = $null
+    $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $repositoryRoot 'install.ps1'), [ref]$tokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw 'Installer parse failed' }
+    $tarCalls = @($ast.FindAll({ param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -ceq 'tar' -and $node.Extent.Text.Contains('-xzf')
+    }, $true))
+    if ($tarCalls.Count -ne 1) { throw 'Expected one production archive extraction' }
+    $block = $tarCalls[0].Parent
+    while ($block -and $block -isnot [Management.Automation.Language.StatementBlockAst]) { $block = $block.Parent }
+    if (-not $block) { throw 'Archive branch not found' }
+    $body = [scriptblock]::Create($block.Extent.Text.Substring(1, $block.Extent.Text.Length - 2))
+    function Download-AuthenticatedArchive {
+        param($RepositoryName, $RefName, $ArchivePath)
+        $partial = Join-Path (Split-Path $ArchivePath) 'partial/.agents/plugins'
+        New-Item -ItemType Directory -Path $partial -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $partial 'marketplace.json') -Value '{}'
+    }
+    function tar { $global:LASTEXITCODE = $script:archiveTestExit }
+    $Repository = 'fixture/only'
+    $Ref = 'fixture'
+    foreach ($code in @(0, 2)) {
+        $script:archiveTestExit = $code
+        $temporaryRoot = $null
+        $caught = $null
+        try { . $body } catch { $caught = $_ }
+        finally {
+            if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
+                Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+            }
+        }
+        if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
+        if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
+            throw 'Failed tar with partial marketplace must stop with extraction diagnostic'
+        }
+        Write-Host "ok: archive extraction exit $code handled"
+    }
+    $global:LASTEXITCODE = 0
+}
+
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
 $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
