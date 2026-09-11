@@ -92,6 +92,13 @@
           "description": "Optional. When the finding stands but the proposed fix is wrong, disproportionate, or over-engineered, state the minimal alternative here."
         }
       },
+      "allOf": [{
+        "if": {
+          "properties": { "verdict": { "const": "PROPOSE-SEVERITY-CHANGE" } },
+          "required": ["verdict"]
+        },
+        "then": { "required": ["proposed_severity"] }
+      }],
       "if": {
         "properties": {
           "verdict": {
@@ -127,6 +134,11 @@
       "description": "Evidence or concern backing the verdict. Distinguishes decided evidence from unverified concerns (arXiv:2608.18167 §concern classification).",
       "required": ["kind"],
       "additionalProperties": false,
+      "if": {
+        "properties": { "kind": { "enum": ["code_evidence", "spec_evidence"] } },
+        "required": ["kind"]
+      },
+      "then": { "required": ["citations"] },
       "properties": {
         "kind": {
           "enum": ["code_evidence", "spec_evidence", "concern"],
@@ -177,17 +189,17 @@
         },
         "related_requirements": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": { "type": "string", "pattern": "\\S" },
           "description": "REQ-* IDs from requirements.md that this finding relates to. Required for in_scope assessments."
         },
         "related_acceptance_tests": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": { "type": "string", "pattern": "\\S" },
           "description": "AC-* IDs from requirements.md that this finding relates to."
         },
         "related_tasks": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": { "type": "string", "pattern": "\\S" },
           "description": "T-* IDs from tasks.md that this finding relates to."
         },
         "evidence": {
@@ -200,9 +212,9 @@
       },
       "then": {
         "anyOf": [
-          { "required": ["related_requirements"] },
-          { "required": ["related_acceptance_tests"] },
-          { "required": ["related_tasks"] }
+          { "required": ["related_requirements"], "properties": { "related_requirements": { "minItems": 1 } } },
+          { "required": ["related_acceptance_tests"], "properties": { "related_acceptance_tests": { "minItems": 1 } } },
+          { "required": ["related_tasks"], "properties": { "related_tasks": { "minItems": 1 } } }
         ],
         "description": "in_scope requires at least one of related_requirements, related_acceptance_tests, or related_tasks."
       }
