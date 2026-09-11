@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "impl-orch-epic-195-a7-compatibility-a5r1-20260911",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 5,
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "design_sha256": "f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1",
+    "infra-spec.md": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c",
+    "security-spec.md": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-a7-impl-a5r1-a-20260911-c085220d-cf03-48d1-a6d9-8dc0301aeb34",
+      "host_session_id": "SESS-a7-impl-a5r1-a-c32379bd-f00d-4e10-a305-750a6170f022",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+          "sha256": "ad7aaf3ce7b5fac7630647d9b122bd46312b40fb8860198ccd86a4c5db7636bc"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-a7-impl-a5r1-b-20260911-8d8f52e8-5bf9-4535-b974-a6a0e3fa9b69",
+      "host_session_id": "SESS-a7-impl-a5r1-b-afd27a44-dbb8-43ba-9758-056bed648c28",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+          "sha256": "ad7aaf3ce7b5fac7630647d9b122bd46312b40fb8860198ccd86a4c5db7636bc"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/integrated-summary.json",
+          "sha256": "221ca933cdba60bdb670b3a9b2f18da339195daca22240a881bdd716a50d12bc"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "New attempt after the previously authorized live-refresh design amendment. No frozen specification or historical verdict was edited in this round. Current design is not approved by this review.",
+  "timestamp": "2026-09-11T04:50:28.687Z"
+}

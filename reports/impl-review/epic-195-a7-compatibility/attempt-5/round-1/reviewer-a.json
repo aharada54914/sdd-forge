@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-a7-impl-a5r1-a-20260911-c085220d-cf03-48d1-a6d9-8dc0301aeb34",
+  "host_session_id": "SESS-a7-impl-a5r1-a-c32379bd-f00d-4e10-a305-750a6170f022",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+      "sha256": "ad7aaf3ce7b5fac7630647d9b122bd46312b40fb8860198ccd86a4c5db7636bc"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:34-87 defines fixture inputs, three compatibility-test boundaries, golden-baseline interaction, and integration with the existing registry, shared driver, suites, and emitter. design.md:99-130 binds the layer refinements; frontend-spec.md and infra-spec.md define the shell/JSON/local-CI technology choices and absence of an application frontend/backend."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The declared graph in design.md:34-87 proceeds from fixtures to suites and their baseline, schema, registry, driver, and emitter dependencies. No declared dependency path returns to its originating component."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:163-177 explicitly supplies Data Entities, Existing Data Affected, and an additive/optional no-migration rationale. The subsequent Data Plan defines the capability fields, fixture matrix, six-kind event-trace schema, producer/ordering contracts, and versioned SKIP manifest. The done-transition firing deviation is expressly disclosed and linked to OQ-004 rather than represented as satisfied."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:590-738 specifies the shell-equivalent contracts: helper signatures, inputs, return behavior, collector/comparator separation, emitter flag outcomes, fixture builder, and capture/promote commands. Event payloads are defined in the Data Plan; design.md:1124-1136 defines the live-refresh CLI invocation and response extraction. Existing behavior is preserved through explicit absent-field/no-flag compatibility contracts."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The sanctioned AC-031 external-model boundary is missing from the normative security model. design.md:1114-1136 explicitly permits an authenticated external Claude CLI call, transmitting F1/F2 inputs and extracting the returned result into corpus artifacts. However, security-spec.md:14-34 still frames the entire attack surface as local; its B1-B5 boundary table at :59-65 describes B5 as recorded-response substitution, not the live provider crossing; and :79-84 still states every actor is within the local OS/filesystem/git boundary. infra-spec.md:56-59 likewise asserts there is no network boundary. Non-gating execution does not remove this trust boundary. Carry the sanctioned exception into the security/infra refinements, explicitly model the outbound fixture and inbound model-response boundary with the existing CLI-session authentication and relevant integrity controls, and scope the local-only claims to the offline/gating paths. This is a current cross-layer coverage contradiction, not a finding based solely on amendment history."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is test-infrastructure specification (Phase 1 — no code), not fullstack (design.md:4). The layer documents explicitly describe no application frontend/backend."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:740-840 supplies fixture, regression, structural, orchestration, emitter, SKIP-governance, and registration verification plans, including explicit unit-scope/mocking treatment and concrete suite/artifact names. acceptance-tests.md:3-47 maps AC-001 through AC-043 to planned evidence. design.md:1179-1204 gives OQ-004 a concrete same-change TEST-026 extension and acceptance condition; it does not claim the known-unsatisfied firing semantics were tested. No tests were executed in this review."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Components referenced by design.md:34-87 and :590-738 are defined in the Components, Data Plan, API / Contract Plan, or Design Decisions sections, or identified as established components by investigation.md INV-001 through INV-007 and INV-018/INV-024. The external CLI is explicitly identified in design.md:1124-1136."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:151-161 identifies this as an extension within established loop/axis/track decisions, names ADR-0010/0016/0023, and explicitly defers any genuinely new loop-shaped architectural departure to an ADR revision. investigation.md INV-008 through INV-010 provides the corresponding existing ADR context. No uncovered architectural departure is established by the allowed inputs."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the repository has no design-system directory. design.md:132-134 also records ds_profile: none and no UI application."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: a read-only directory-existence check confirmed that the repository has no domain directory."
+    }
+  ]
+}

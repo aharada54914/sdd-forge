@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-a7-impl-a5r1-b-20260911-8d8f52e8-5bf9-4535-b974-a6a0e3fa9b69",
+  "host_session_id": "SESS-a7-impl-a5r1-b-afd27a44-dbb8-43ba-9758-056bed648c28",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "f4cbe691e6f11d8ae1424285007c1110e817ed677925591bd04725eb7187fc29"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+      "sha256": "ad7aaf3ce7b5fac7630647d9b122bd46312b40fb8860198ccd86a4c5db7636bc"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/integrated-summary.json",
+      "sha256": "221ca933cdba60bdb670b3a9b2f18da339195daca22240a881bdd716a50d12bc"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Design Decisions supplies rationales for reusing existing loop suites and lifecycle, separating event collection from comparison, selecting a feature-scoped canonical/candidate baseline, treating capability-only emission as a usage error, limiting capability_applicability to quality-gate, and marking F7/F8 N/A. The recorded-response seam explains why gating comparisons remain deterministic."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:1191-1204 carries OQ-004 forward and specifies a concrete closure vehicle: amend AC-009, fix assert_terminal firing semantics, and extend TEST-026 on the existing harness. However, it names no role owning resolution and supplies no 'Blocks Implementation: yes/no' field. requirements.md's corresponding OQ-004 at line 919 likewise does not assign that owner. Consequently, the known-unsatisfied producer contract has an acceptance condition but no accountable resolution owner or explicit implementation-blocking disposition. Assign a resolution role and state the blocking disposition; preserve the existing concrete closure test. This is a current open-question completeness finding, not a demand to undo the documented deferral or historical amendment."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Assumptions inherits the documented upstream-epic dependencies and deterministic runtime assumptions. investigation.md INV-023 grounds upstream merge dependencies; INV-005/INV-007 ground the existing Bash/PowerShell test and CI conventions. The design's fingerprint citations and REQ-007 activation evaluator provide explicit re-verification rather than treating author-time sibling state as permanently current."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Constraint Compliance addresses the compatibility constraints: no added loop identity or orchestration suite, AC-009's sanctioned producer-call exception, no-flag emitter identity, named dependency SKIPs, distinguishable invalid-context events, guarded baseline promotion, and fingerprint drift detection. Its AC-026 firing-semantics row explicitly records Known-unsatisfied status and defers resolution to OQ-004 consistently with requirements.md; that disclosed deferral is not treated as satisfaction."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Deployment / CI Plan identifies local repository test infrastructure and registration in tests/run-all.sh, tests/run-all.ps1, and .github/workflows/test.yml using the existing INV-005 pattern. REQ-007 explicitly controls staged dependency activation. AC-040 excludes mutation-capable baseline commands from gating CI, and the live refresh is excluded from gating execution. No database deployment or migration order applies."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Data Plan introduces test fixtures, traces, manifests, and additive optional registry/run-record fields, not database columns or tables. Existing no-field/no-flag shapes remain supported under AC-008 and AC-011. No database migration is required."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:1112-1134 explicitly permits the AC-031/T-012 live Claude refresh integration and specifies claude -p --output-format json, existing CLI-session authentication, F1/F2 inputs, and result extraction. It does not define what the refresh does when the CLI, authentication, or external service is unavailable, nor how failed or unusable responses affect the existing corpus. The parser-hard-fail rule at design.md:957-963 concerns recorded-artifact canonicalization, not an unavailable live integration. Non-gating status does not determine whether refresh fails, skips, or preserves corpus output. security-spec.md's Framing and Authentication Flow also still characterize the feature as entirely local by quoting the superseded External Integrations 'None' statement. Specify the live refresh's failure outcome and corpus-preservation behavior, and reconcile the layer description with the sanctioned external boundary."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Components, Data Plan, API / Contract Plan, and Test Strategy cover REQ-001–REQ-007: byte and structural compatibility, canonical orchestration traces, exclusive comparison classes, fixture matrices, governed baselines, and auditable dependency SKIPs. The live refresh corresponds to AC-031. No additional browser application, runtime service, loop identity, or unrelated feature is introduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md names concrete planned evidence for its compatibility-oracle risks: AC-040's workflow scan and AC-041's runtime refusal fixtures protect canonical baselines; AC-035 exercises dependency-present SKIP, unknown SKIP, and fingerprint drift; AC-030 checks malformed recorded artifacts; AC-009/AC-011/AC-033 check shared-helper and emitter contracts. OQ-004 explicitly requires an extended TEST-026 before closure instead of claiming ordering-only evidence proves firing semantics. The separate live-integration failure-policy gap is recorded under INTEGRATION-IDENTIFIED, not duplicated here. No implementation or test execution was performed."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: the target repository has no domain/ directory; the approved-domain-model prerequisite is absent."
+    }
+  ]
+}
