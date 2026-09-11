@@ -139,7 +139,13 @@
         "required": ["kind"]
       },
       "then": { "required": ["citations"] },
+      "else": { "required": ["claim"] },
       "properties": {
+        "claim": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "The assertion being raised. Required for concern so its substance is retained even when no citation can be verified. Evidence-backed records may retain their claim in citations instead."
+        },
         "kind": {
           "enum": ["code_evidence", "spec_evidence", "concern"],
           "description": "code_evidence: a file:line citation that directly refutes or confirms the finding. spec_evidence: a requirement/AC/ADR that directly bears on the finding. concern: a plausible objection that could not be verified this session. A concern does not auto-reject or auto-adopt — the finding author must respond with evidence, a withdrawal, or an escalation to human judgement."

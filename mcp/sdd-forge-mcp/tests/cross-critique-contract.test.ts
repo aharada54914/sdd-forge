@@ -86,9 +86,20 @@ for (const [field, prefix] of [
   });
 }
 test("concerns remain allowed for support but cannot reject findings", () => {
-  const record = { ...verdict(), basis: { kind: "concern" }, scope: { assessment: "unclear" } };
+  const record = { ...verdict(), basis: { kind: "concern", claim: "Concurrent use might overwrite the report; not reproduced." }, scope: { assessment: "unclear" } };
   assert.equal(accepts(record), true);
   assert.equal(accepts({ ...record, verdict: "PROPOSE-REJECT" }), false);
+});
+
+test("concerns retain their assertion and reject an absent or blank claim", () => {
+  for (const claim of [undefined, "", " \t\n", null, 42]) {
+    const basis = claim === undefined ? { kind: "concern" } : { kind: "concern", claim };
+    assert.equal(accepts({ ...verdict(), verdict: "SUPPLEMENT", basis }), false,
+      `invalid concern: ${JSON.stringify(basis)}`);
+  }
+  assert.equal(accepts({ ...verdict(), verdict: "SUPPLEMENT", basis: {
+    kind: "concern", claim: "Concurrent use might overwrite the report; not reproduced.",
+  } }), true);
 });
 
 test("filled report template conforms to its metadata contract", () => {
