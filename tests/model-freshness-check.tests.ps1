@@ -7,7 +7,7 @@
 # cross-host runtime claim (REQ-004; recorded non-twin, AC-016) -- so unlike
 # tests/bump-version-gate.tests.ps1 (which shells out to a bash-only real
 # script that DOES run on operator workstations), this twin does NOT shell
-# out to bash at all. Instead it RE-IMPLEMENTS the fetch /
+# out to the product bash script. Instead it RE-IMPLEMENTS the fetch /
 # compute-divergence / file-or-dedupe-issue algorithm natively as PowerShell
 # functions (the "full-parity-port idiom", tests/release-loop-gate.tests.ps1
 # precedent) and drives THAT native port against the same fixture scenarios
@@ -40,6 +40,12 @@ $script:passCount = 0
 $script:failCount = 0
 function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
+
+# Registration checks inspect the runner's actual inventory, not its source text.
+function Test-PosixRegistration([string]$Runner = $runAllSh) {
+    $listed = @(& bash $Runner --list)
+    return ($LASTEXITCODE -eq 0 -and $listed -ccontains 'tests/model-freshness-check.tests.sh')
+}
 
 $DIVERGENCE_MARKER = "[model-freshness-divergence]"
 $UNAVAILABLE_MARKER = "[model-freshness-fetch-unavailable]"
@@ -366,6 +372,27 @@ function Test-021 {
 function Test-009 {
     Write-Output "=== TEST-009 (AC-009): self-registration ==="
 
+    $probe = [IO.Path]::GetTempFileName()
+    try {
+        foreach ($mutation in @('missing', 'near-match', 'case', 'failed-list')) {
+            $entry = switch ($mutation) {
+                'missing' { 'tests/other.tests.sh' }
+                'near-match' { 'tests/model-freshness-check.tests.sh.extra' }
+                'case' { 'tests/MODEL-freshness-check.tests.sh' }
+                'failed-list' { 'tests/model-freshness-check.tests.sh' }
+            }
+            $exitCode = if ($mutation -eq 'failed-list') { 1 } else { 0 }
+            [IO.File]::WriteAllText($probe, "printf '%s\n' '$entry'`nexit $exitCode`n")
+            if (Test-PosixRegistration $probe) {
+                Fail "TEST-009: $mutation registration was accepted"
+            } else {
+                Ok "TEST-009: $mutation registration is rejected"
+            }
+        }
+    } finally {
+        Remove-Item -LiteralPath $probe
+    }
+
     $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
     if ($runAllPs1Content.Contains("model-freshness-check.tests.ps1")) {
         Ok "TEST-009 (AC-009): registered in tests/run-all.ps1"
@@ -373,8 +400,7 @@ function Test-009 {
         Fail "TEST-009 (AC-009): NOT registered in tests/run-all.ps1"
     }
 
-    $runAllShContent = if (Test-Path -LiteralPath $runAllSh) { Get-Content -LiteralPath $runAllSh -Raw } else { "" }
-    if ($runAllShContent.Contains("model-freshness-check.tests.sh")) {
+    if (Test-PosixRegistration) {
         Ok "TEST-009 (AC-009): registered in tests/run-all.sh"
     } else {
         Fail "TEST-009 (AC-009): NOT registered in tests/run-all.sh"
@@ -435,9 +461,8 @@ function Test-016 {
         Fail "TEST-016 (AC-016): tests/model-freshness-check.tests.sh does not exist"
     }
 
-    $runAllShContent = if (Test-Path -LiteralPath $runAllSh) { Get-Content -LiteralPath $runAllSh -Raw } else { "" }
     $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
-    if ($runAllShContent.Contains("model-freshness-check.tests.sh") -and $runAllPs1Content.Contains("model-freshness-check.tests.ps1")) {
+    if ((Test-PosixRegistration) -and $runAllPs1Content.Contains("model-freshness-check.tests.ps1")) {
         Ok "TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1"
     } else {
         Fail "TEST-016 (AC-016): one or both twins are NOT registered in tests/run-all.sh/.ps1"

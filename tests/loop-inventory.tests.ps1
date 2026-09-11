@@ -343,10 +343,28 @@ Write-Output "=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / tes
 
 $canonicalBasenames = @("loop-inventory.tests", "loop-driver.tests", "loop-consistency.tests", "loop-escalation.tests")
 
-function Test-RegisteredSh([string]$Basename) {
-    $inRunAll = (Select-String -LiteralPath $runAllSh -Pattern ([regex]::Escape("tests/$Basename.sh")) -Quiet -ErrorAction SilentlyContinue)
+function Test-RegisteredSh([string]$Basename, [string]$Runner = $runAllSh) {
+    # The POSIX runner loads its inventory rather than spelling out each suite.
+    $listed = @(& bash $Runner --list)
+    $inRunAll = ($LASTEXITCODE -eq 0 -and $listed -ccontains "tests/$Basename.sh")
     $inYml = (Select-String -LiteralPath $testYml -Pattern ([regex]::Escape("$Basename.sh")) -Quiet -ErrorAction SilentlyContinue)
     return ($inRunAll -and $inYml)
+}
+foreach ($mutation in @('missing', 'near-match', 'case', 'failed-list')) {
+    $probe = Join-Path $work "registration-$mutation.sh"
+    $entry = switch ($mutation) {
+        'missing' { 'tests/other.tests.sh' }
+        'near-match' { 'tests/loop-inventory.tests.sh.extra' }
+        'case' { 'tests/LOOP-inventory.tests.sh' }
+        'failed-list' { 'tests/loop-inventory.tests.sh' }
+    }
+    $exitCode = if ($mutation -eq 'failed-list') { 1 } else { 0 }
+    [IO.File]::WriteAllText($probe, "printf '%s\n' '$entry'`nexit $exitCode`n")
+    if (Test-RegisteredSh 'loop-inventory.tests' $probe) {
+        Fail "TEST-004.3: $mutation registration was accepted"
+    } else {
+        Ok "TEST-004.3: $mutation registration is rejected"
+    }
 }
 function Test-RegisteredPs1([string]$Basename) {
     $inRunAll = (Select-String -LiteralPath $runAllPs1 -Pattern ([regex]::Escape("tests/$Basename.ps1")) -Quiet -ErrorAction SilentlyContinue)
