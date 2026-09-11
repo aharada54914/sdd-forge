@@ -13,6 +13,10 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "review_lane": {
+      "enum": ["sdd-gate", "standalone-adversarial"],
+      "description": "Selects severity vocabulary without converting persisted verdicts. Omission preserves legacy sdd-gate semantics."
+    },
     "schema_version": {
       "const": "cross-critique.v1",
       "description": "Schema identifier. Bump on breaking changes."
@@ -42,6 +46,34 @@
       }
     }
   },
+  "allOf": [{
+    "if": {
+      "required": ["review_lane"],
+      "properties": { "review_lane": { "const": "standalone-adversarial" } }
+    },
+    "then": {
+      "properties": {
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "proposed_severity": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] } }
+          }
+        }
+      }
+    },
+    "else": {
+      "properties": {
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "proposed_severity": { "enum": ["Critical", "Major", "Minor"] } }
+          }
+        }
+      }
+    }
+  }],
   "if": {
     "properties": { "status": { "const": "unavailable" } }
   },
@@ -86,8 +118,8 @@
           "description": "Normative verdict vocabulary (ADR-0026 §5). PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE require basis.kind == code_evidence or spec_evidence."
         },
         "proposed_severity": {
-          "enum": ["Critical", "Major", "Minor"],
-          "description": "Required when verdict == PROPOSE-SEVERITY-CHANGE. Must use the loop's severity vocabulary (Critical|Major|Minor), not CRITICAL/HIGH/MEDIUM/LOW."
+          "type": "string",
+          "description": "Required when verdict == PROPOSE-SEVERITY-CHANGE. Root review_lane selects the exact vocabulary: Critical|Major|Minor for absent/sdd-gate; CRITICAL|HIGH|MEDIUM|LOW for standalone-adversarial. No mapping between vocabularies is performed."
         },
         "basis": {
           "$ref": "#/definitions/basis"
@@ -216,7 +248,7 @@
           "items": { "type": "string", "pattern": "^REQ-\\S+$", "not": { "pattern": "\\s" } },
           "minItems": 1,
           "uniqueItems": true,
-          "description": "REQ-* IDs from requirements.md that this finding relates to. Required for in_scope assessments."
+          "description": "REQ-* IDs from requirements.md that this finding relates to. in_scope requires at least one REQ, AC, or task ID."
         },
         "related_acceptance_tests": {
           "type": "array",

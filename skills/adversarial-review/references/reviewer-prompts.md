@@ -158,7 +158,7 @@ SCOPE CONTEXT (for scope assessments — leave "none" if not provided)
 
 For EVERY finding of theirs, output one block:
 ### Verdict on <ID>: <their title>
-- Verdict: SUPPORT | PROPOSE-SEVERITY-CHANGE (to <severity>) | PROPOSE-REJECT
+- Verdict: SUPPORT | PROPOSE-SEVERITY-CHANGE (to CRITICAL|HIGH|MEDIUM|LOW) | PROPOSE-REJECT
   | SUPPLEMENT
 - Basis:
   - kind: code_evidence | spec_evidence | concern
@@ -172,7 +172,7 @@ For EVERY finding of theirs, output one block:
   basis for PROPOSE-REJECT; record it as kind: concern.
 - Scope:
   - assessment: in_scope | out_of_scope | unclear
-  - related_requirements: [REQ-*] (at least one required when in_scope)
+  - related_requirements: [REQ-*] (in_scope requires at least one REQ, AC, or task ID across these lists)
   - related_acceptance_tests: [AC-*]
   - related_tasks: [T-*]
   - evidence: <file:line or ID supporting the scope assessment>

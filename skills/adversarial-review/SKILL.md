@@ -175,6 +175,11 @@ Update `phase_r` to `"ran": true` with counts when Phase R completes.
 
 ## Contracts and schemas
 
+Set the annex's root `review_lane` to `standalone-adversarial`; severity-change
+proposals use exactly `CRITICAL|HIGH|MEDIUM|LOW`. Do not convert these to the
+SDD gate vocabulary or rewrite the original reviewer verdicts. An absent lane
+retains legacy SDD gate semantics (`Critical|Major|Minor`).
+
 Before using a cross-critique annex as evidence, run the read-only checker
 against the final JSON file (the same command works in Bash and PowerShell):
 

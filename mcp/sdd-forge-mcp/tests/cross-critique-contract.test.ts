@@ -110,6 +110,47 @@ test("severity change requires proposed severity", () => {
   assert.equal(accepts({ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE" }), false);
   assert.equal(accepts({ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity: "Minor" }), true);
 });
+test("severity vocabulary is selected explicitly without weakening legacy gates", () => {
+  const gate = ["Critical", "Major", "Minor"];
+  const standalone = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
+  for (const lane of [undefined, "sdd-gate", "standalone-adversarial"]) {
+    const allowed = lane === "standalone-adversarial" ? standalone : gate;
+    for (const severity of [...gate, ...standalone, "high", "Medium", "", null]) {
+      const annex = { schema_version: "cross-critique.v1", round_id: "round-1",
+        status: "complete", created_at: "2026-09-11T00:00:00Z",
+        ...(lane === undefined ? {} : { review_lane: lane }),
+        verdicts: [{ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity: severity }] };
+      const before = JSON.stringify(annex);
+      assert.equal(validate(annex), typeof severity === "string" && allowed.includes(severity),
+        `${lane ?? "legacy"}: ${severity}`);
+      assert.equal(JSON.stringify(annex), before, "validation must not rewrite evidence");
+    }
+  }
+  for (const review_lane of ["Standalone-adversarial", "unknown", "", null]) {
+    assert.equal(validate({ schema_version: "cross-critique.v1", round_id: "round-1",
+      status: "complete", created_at: "2026-09-11T00:00:00Z", review_lane, verdicts: [verdict()] }), false);
+  }
+});
+test("annex CLI preserves standalone severity while rejecting gate vocabulary mixing", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cross-critique-lane-"));
+  const path = join(dir, "annex.json");
+  const cli = fileURLToPath(new URL("../../scripts/check-cross-critique.mjs", import.meta.url));
+  try {
+    for (const [review_lane, proposed_severity, expected] of [
+      ["standalone-adversarial", "MEDIUM", 0], ["standalone-adversarial", "Major", 1],
+      ["sdd-gate", "Major", 0], ["sdd-gate", "MEDIUM", 1],
+    ] as const) {
+      const bytes = JSON.stringify({ schema_version: "cross-critique.v1", round_id: "round-1",
+        status: "complete", created_at: "2026-09-11T00:00:00Z", review_lane,
+        verdicts: [{ ...verdict(), verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity }] });
+      writeFileSync(path, bytes);
+      const result = spawnSync(process.execPath, [cli, path], { encoding: "utf8" });
+      assert.equal(result.status, expected, result.stderr);
+      assert.equal(JSON.parse(result.stdout).status, expected === 0 ? "valid" : "invalid");
+      assert.equal(readFileSync(path, "utf8"), bytes);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
 for (const kind of ["code_evidence", "spec_evidence"]) {
   test(`${kind} requires citations even for SUPPORT`, () => {
     assert.equal(accepts({ ...verdict(), basis: { kind } }), false);

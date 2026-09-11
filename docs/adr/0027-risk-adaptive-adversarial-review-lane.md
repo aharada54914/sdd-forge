@@ -164,6 +164,12 @@ branch's current merge base and head. A stale report MUST NOT be used to satisfy
 
 ### Evidence publication (2026-09-12 clarification)
 
+The shared cross-critique annex explicitly selects `review_lane:
+standalone-adversarial` for this lane, preserving `CRITICAL|HIGH|MEDIUM|LOW`.
+Absent `review_lane` or explicit `sdd-gate` retains the legacy
+`Critical|Major|Minor` vocabulary. Each lane rejects the other's severity
+values; no lossy mapping or persisted-verdict rewrite is permitted.
+
 Publish the report, evaluation, and annexes in a separate evidence repository
 or branch/worktree; link the immutable evidence commit in the target PR and
 save the final report digest separately. The read-only checker takes the
