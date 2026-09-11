@@ -40,7 +40,7 @@
     },
     "verdicts": {
       "type": "array",
-      "description": "Per-finding cross-critique verdicts from both reviewers.",
+      "description": "Per-finding cross-critique verdicts from both reviewers. A completed review with no findings has an empty array.",
       "items": {
         "$ref": "#/definitions/verdict_record"
       }
@@ -81,11 +81,6 @@
     "required": ["unavailable_reason"],
     "properties": {
       "verdicts": { "maxItems": 0 }
-    }
-  },
-  "else": {
-    "properties": {
-      "verdicts": { "minItems": 1 }
     }
   },
   "definitions": {
