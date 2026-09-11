@@ -69,6 +69,13 @@ Before reviewing, read
 every check. Do not fail the specification for missing design, task, command, or
 quality-gate evidence. This gate owns Phase 1 specification readiness only.
 
+Check `specs/<feature>/investigation.md` for a conforming `## Amendment
+Re-Review Context` entry (defined in the calibration's own "Amendment
+Re-Review Context" section) before judging any check that could turn on
+phase-sequencing. Apply the calibration's scoped suppression exactly as
+written when a conforming entry is present; otherwise judge phase-sequencing
+under the default Phase-1 calibration, with no benefit of the doubt.
+
 # Review
 
 All checks default to FAIL. Emit PASS only when the requirement or acceptance

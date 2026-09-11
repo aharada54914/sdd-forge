@@ -39,3 +39,22 @@ No new secrets, dependencies, test skips, or relaxed checks were introduced.
 This is author-side review, not the required third-party GitHub approval.
 Latest-head CI, branch currency, required approval, merge and post-merge
 verification remain required before closing either related issue.
+
+## Current-main integration verification
+
+Merged main `4366438f3b243210a4ece5a17f873ca2d920600a` into the candidate.
+The sole conflict was the staged manifest; retained main's entries and computed
+the two affected hashes from the merged files. Both staged guards remain
+byte-identical to their live counterparts.
+
+- Bash Phase 2 invariants: 42 passed, 0 failed, exit 0.
+- Bash guards: 135 passed, 0 failed, exit 0.
+- PowerShell hook guards: passed, exit 0.
+- `git diff --cached origin/main --check`: exit 0.
+
+Logs: `/tmp/pr402-main-mirror-20260911.log`,
+`/tmp/pr402-main-guards-20260911.log`, `/tmp/pr402-main-hooks-20260911.log`.
+Whitespace warnings against the old feature HEAD concern existing main
+patches and historical evidence; those unrelated artifacts were preserved.
+The PowerShell Phase 2 suite above predates this main merge; it is not claimed
+as a rerun on the merged candidate. CI and third-party approval remain pending.

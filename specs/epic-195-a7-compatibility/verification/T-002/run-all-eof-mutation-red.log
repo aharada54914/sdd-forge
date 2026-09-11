@@ -1,0 +1,5 @@
+==> tests/mutate-runner.tests.sh
+==> tests/guard-r10-port.tests.ps1
+All POSIX regression tests passed.
+/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.qJsofj54Df/tests/run-all.sh: line 44: unexpected EOF while looking for matching `"'
+FAIL: runner reparsed a child-mutated tail (exit=2)

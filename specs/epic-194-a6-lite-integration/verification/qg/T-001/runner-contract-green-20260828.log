@@ -1,0 +1,72 @@
+==> pwsh /Users/jrmag/Projects/active/sdd-forge-wt-e194done/tests/human-copy-runner-contract.tests.ps1
+ok: TEST-000a: fixture catalog schema is recognized
+ok: TEST-000b: fixture catalog covers every required runner scenario
+ok: TEST-000c: twin suites self-register first in the Epic-194 serialized order
+ok: TEST-000d: staged CI workflow candidate contains both twin steps first in the Epic-194 serialized order
+=== TEST-001: correct payload copies cleanly, post-copy verified ===
+ok: TEST-001a: correct payload exits 0
+ok: TEST-001b: every target's installed content matches the staged payload
+=== TEST-002: undeclared fifth payload path rejected before copy ===
+ok: TEST-002a: undeclared fifth path rejected (exit 2)
+ok: TEST-002b: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-002c: manifest-only fifth target is rejected by the declared/manifest exact-set check
+ok: TEST-002d: manifest-extra rejection occurs before every live copy
+=== TEST-003: missing declared target rejected before copy ===
+ok: TEST-003a: missing declared target rejected (exit 2)
+ok: TEST-003b: rejection is specifically the payload-vs-declared exact-set mismatch
+ok: TEST-003c: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-003d: manifest missing one declared target is rejected by the declared/manifest exact-set check
+ok: TEST-003e: manifest-missing rejection occurs before every live copy
+=== TEST-004: per-target hash mismatch rejected before copy ===
+ok: TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit 2)
+ok: TEST-004b: no copy occurred before rejection (all four live files unchanged)
+=== TEST-005: control files excluded from payload-set comparison ===
+ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
+ok: TEST-005b: apply-protected-files.ps1 correctly excluded from the payload set
+ok: TEST-005c: payload set == exactly the declared targets, control files excluded
+ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
+=== TEST-006: post-copy corruption detected and reported ===
+ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
+ok: TEST-006b: failure message names post-copy re-verification
+ok: TEST-006c: failure message names the corrupted target
+ok: TEST-006d: real CLI rejects corruption injected after Copy-Payload
+ok: TEST-006e: real CLI invokes and reports post-copy re-verification
+ok: TEST-006f: real CLI diagnostic names the corrupted installed target
+=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
+ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
+ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
+=== TEST-012: mid-batch failure reports which targets are live ===
+ok: TEST-012a: the target published before the failure is reported INSTALLED (plugins/sdd-lite/references/risk-upgrade-policy.md)
+ok: TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem
+ok: TEST-012c: all 3 targets after the failure are reported NOT ATTEMPTED
+ok: TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED
+ok: TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery
+ok: TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration
+=== TEST-007: feature-scoped, not fixed-prefix, resolution ===
+ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
+=== TEST-008: case-sensitive control names and digest grammar ===
+ok: TEST-008a: a mis-cased control filename is not classified as a control path
+ok: TEST-008b: real CLI rejects a mis-cased control name as undeclared payload
+ok: TEST-008c: mis-cased control rejection identifies the exact-set violation (case-insensitive lane)
+ok: TEST-008d: mis-cased control rejection occurs before every live copy
+ok: TEST-008e: uppercase digest text is rejected by the canonical lowercase manifest grammar
+ok: TEST-008f: uppercase digest rejection identifies the canonical lowercase grammar
+ok: TEST-008g: uppercase digest rejection occurs before every live copy
+=== TEST-009: ancestor symlink escape rejected before copy ===
+ok: TEST-009a: destination ancestor symlink/reparse point is rejected
+ok: TEST-009b: escaped external target remains byte-identical (rejection occurred before copy)
+ok: TEST-009c: lexical/canonical parent traversal outside the repository is rejected
+ok: TEST-009d: deterministic substitution seam executed
+ok: TEST-009e: atomic no-follow directory open explicitly rejected the substituted ancestor
+ok: TEST-009f: substituted external target remains byte-identical
+ok: TEST-009g: repository live target remains byte-identical after the rejected race
+=== TEST-010: nested PROPOSED subtree rejected explicitly ===
+ok: TEST-010a: nested PROPOSED payload is rejected
+ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompatibility
+ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
+=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
+ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
+ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
+
+Results: 56 passed, 0 failed

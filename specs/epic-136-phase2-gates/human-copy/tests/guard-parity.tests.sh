@@ -718,6 +718,175 @@ for wfi037_case in \
 done
 
 # ---------------------------------------------------------------------------
+# Scenario WFI-048: a patch applier states its target INSIDE the file it is
+# given, and an interpreter can embed the target in a larger token. Neither
+# reaches the token pre-filter, so before WFI-048 every payload below was
+# ALLOWED -- including the exact command that landed 2b8e528a on main after
+# the Edit tool had already refused the same change.
+#
+# docs/ci-staging/README.md says "A human must verify the base commit and
+# digest, then apply." The guard is the only thing enforcing "a human must".
+# ---------------------------------------------------------------------------
+wfi048_payload() {
+    printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' \
+        "$(printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+}
+
+wfi048_dir="${WORK}/wfi048"
+mkdir -p "${wfi048_dir}/specs/demo"
+
+# A patch whose target IS protected.
+cat > "${wfi048_dir}/protected.patch" <<'WFI048_EOF'
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -1,3 +1,3 @@
+ name: test
+-    runs-on: ubuntu-22.04
++    runs-on: ubuntu-24.04
+ steps:
+WFI048_EOF
+
+# A patch that touches nothing protected. Applying it is a normal operation
+# here and must keep working -- a blanket verb denial is what WFI-048 rejects.
+cat > "${wfi048_dir}/unprotected.patch" <<'WFI048_EOF'
+--- a/specs/demo/requirements.md
++++ b/specs/demo/requirements.md
+@@ -1,3 +1,3 @@
+ # Requirements
+-old
++new
+ tail
+WFI048_EOF
+
+# Not a unified diff at all: the guard cannot prove it is harmless.
+printf 'this file is not a unified diff at all\n' > "${wfi048_dir}/not-a-diff.patch"
+
+# Trailing tab-and-timestamp on both headers. Two of this repository's own
+# staged patches carry this and escaped a naive census because the timestamp
+# stayed attached to the path. Written with printf so the tabs are explicit.
+printf '%s\t%s\n' '--- a/.github/workflows/test.yml' '2026-07-23 18:32:40' \
+    > "${wfi048_dir}/timestamped.patch"
+printf '%s\t%s\n' '+++ b/.github/workflows/test.yml' '2026-07-23 18:32:43' \
+    >> "${wfi048_dir}/timestamped.patch"
+printf '@@ -1,2 +1,2 @@\n name: test\n-old\n+new\n' \
+    >> "${wfi048_dir}/timestamped.patch"
+
+# Deleting a protected file is still writing to it, and a deletion names its
+# target on the --- side only, with /dev/null on the +++ side.
+cat > "${wfi048_dir}/delete-protected.patch" <<'WFI048_EOF'
+--- a/tests/gates.tests.sh
++++ /dev/null
+@@ -1,2 +0,0 @@
+-#!/usr/bin/env bash
+-echo hi
+WFI048_EOF
+
+# Adversarial: an UNPROTECTED patch whose BODY removes a line beginning "-- "
+# and adds one beginning "++ ". The rendered diff therefore carries "--- ..."
+# directly above "+++ ...", which reads as a header pair but is not one.
+# Reading the pair alone would deny this; requiring the "@@ " hunk header next
+# does not, and a body line can never start with "@@ " because diff prefixes
+# it with a space, + or -.
+cat > "${wfi048_dir}/body-lookalike.patch" <<'WFI048_EOF'
+--- a/specs/demo/notes.md
++++ b/specs/demo/notes.md
+@@ -1,4 +1,4 @@
+ notes
+--- see tests/gates.tests.sh
++++ see the guide
+ tail
+WFI048_EOF
+
+# Non-vacuity controls. If the first of these ever allows, every deny below is
+# meaningless because the target stopped being a registered protected path.
+parity_check_in "$wfi048_dir" "wfi048 control: protected target is registered (deny)" 2 \
+    "$(wfi048_payload "rm .github/workflows/test.yml")"
+parity_check_in "$wfi048_dir" "wfi048 control: unprotected target is not (allow)" 0 \
+    "$(wfi048_payload "rm specs/demo/requirements.md")"
+
+# The recoverable half: the guard reads the patch and finds the target.
+for wfi048_case in \
+    "git apply protected.patch" \
+    "git apply -R protected.patch" \
+    "git apply --reverse protected.patch" \
+    "git am protected.patch" \
+    "patch -p1 -i protected.patch" \
+    "patch -p1 < protected.patch"; do
+    parity_check_in "$wfi048_dir" "wfi048 patch applier (deny): ${wfi048_case}" 2 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# Fail closed: a patch the guard cannot read or parse is exactly the artifact
+# an evasion would construct.
+for wfi048_case in \
+    "git apply does-not-exist.patch" \
+    "git apply not-a-diff.patch" \
+    "cat protected.patch | git apply" \
+    "git apply timestamped.patch" \
+    "git apply delete-protected.patch"; do
+    parity_check_in "$wfi048_dir" "wfi048 fail closed (deny): ${wfi048_case}" 2 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# Applying a patch that touches nothing protected must keep working, and the
+# header-lookalike body must not be mistaken for a target.
+for wfi048_case in \
+    "git apply unprotected.patch" \
+    "git apply -R unprotected.patch" \
+    "patch -p1 < unprotected.patch" \
+    "git apply body-lookalike.patch"; do
+    parity_check_in "$wfi048_dir" "wfi048 unprotected patch (allow): ${wfi048_case}" 0 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# Inspection modifies nothing, and docs/ci-staging/README.md tells a human to
+# run exactly this before applying. The exemption cannot be used to evade: an
+# evader still needs a second, unexempt segment, judged on its own.
+for wfi048_case in \
+    "git apply --check protected.patch" \
+    "git apply --stat protected.patch" \
+    "git apply --numstat protected.patch" \
+    "git apply --summary protected.patch" \
+    "patch --dry-run -p1 < protected.patch"; do
+    parity_check_in "$wfi048_dir" "wfi048 inspection (allow): ${wfi048_case}" 0 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# The embedded half: the path IS on the command line, inside a larger token
+# that does not END with the registered suffix.
+for wfi048_case in \
+    "python3 -c \"open('.github/workflows/test.yml','a').write('x')\"" \
+    "node -e \"require('fs').appendFileSync('.github/workflows/test.yml','x')\"" \
+    "python3 -c \"import os; os.remove('tests/gates.tests.sh')\"" \
+    "python3 -c 'open(\".github/workflows/test.yml\",\"w\")'"; do
+    parity_check_in "$wfi048_dir" "wfi048 embedded path (deny): ${wfi048_case}" 2 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# The false positives that CHOSE the boundary class. Each carries python3,
+# which is both a write verb and an indirect command, so a pre-filter hit here
+# would deny -- these rows are not vacuous. A right-edge-only rule denies the
+# last two; requiring a delimiter on both edges denies none.
+for wfi048_case in \
+    "python3 -c \"print('see .github/workflows/test.yml for details')\"" \
+    "python3 -c \"print('guard reads .github/workflows/test.yml; see WFI-048')\"" \
+    "python3 -c \"print('freeze tests/gates.tests.sh, and the rest')\""; do
+    parity_check_in "$wfi048_dir" "wfi048 prose (allow): ${wfi048_case}" 0 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# Arbitrary interpreter scripts stay ALLOWED by design: the script decides its
+# targets at runtime and the guard cannot recover them. WFI-048 records this
+# as open rather than counting it as covered. A run that flips these has
+# over-reached into the blanket verb denial WFI-048 rejects.
+for wfi048_case in \
+    "python3 rewrite.py" \
+    "node rewrite.js"; do
+    parity_check_in "$wfi048_dir" "wfi048 arbitrary script (allow, open by design): ${wfi048_case}" 0 \
+        "$(wfi048_payload "${wfi048_case}")"
+done
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

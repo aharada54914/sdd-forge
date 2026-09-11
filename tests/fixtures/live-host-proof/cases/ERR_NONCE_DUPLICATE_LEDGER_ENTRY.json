@@ -1,0 +1,3 @@
+{
+  "expected_error": "ERR_NONCE_DUPLICATE_LEDGER_ENTRY"
+}

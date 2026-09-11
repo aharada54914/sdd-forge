@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt3r1-seq0669",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0669",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-3/round-1/precheck-result.json", "sha256": "210560049dffce71169be9f83a38bb883a59a793fbb51af642cc8b595dd3fd65"},
+      {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+      {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"},
+      {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+      {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+      {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"},
+      {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+      {"path": "specs/epic-195-a7-compatibility/tasks.md", "sha256": "dca0d8321717d2dc47b440c70dcf5d5150518d0f4cb9f94667f39253530a001d"},
+      {"path": "specs/epic-195-a7-compatibility/traceability.md", "sha256": "23d642f4872477c0648cfed9c30071553501a643d92b00b526a71a29d01ffd20"},
+      {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "reports/task-review/epic-195-a7-compatibility/attempt-3/round-1/integrated-summary.json", "sha256": "eab991532b6ad934563a36ca796f1875a43d2f41ca08ac9603155e540c11e5c9"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (tasks.md:254) is Risk: high and its Risk Rationale (tasks.md:256-272) cites Security Boundary B1 (security-spec.md#trust-boundaries line 61, 'the canonical baseline must never be silently regenerated'), matching the proximity rule's data-mutation/silent-defect-material-harm sentinel; consistent classification. Advisory: tasks.md's only delta versus the prior attempt-2 round-2 PASS-bound content (raw sha256 f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b) is T-002's Status field flipping Planned to Done (git diff 77ba561a..HEAD -- tasks.md, single hunk at line 252); the Risk/Risk Rationale/Scope/Done When text this check evaluates is byte-identical to content already bound by that prior PASS. Carried forward per the post-implementation provenance re-review convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No Risk: critical tasks exist (grep '^Risk:' tasks.md returns only medium/high values), so the second-approver+signed-bundle requirement does not apply to any task. Every Risk: high task (T-002 line 254, T-004 line 560, T-005 line 720, T-008 line 1093, T-009 line 1227, T-010 line 1357, T-011 line 1500, T-012 line 1651) carries a Done When item requiring both TDD Red→Green evidence (e.g. T-002 tasks.md:377-380: 'TDD evidence: RED ... and GREEN ...') and an independent review verdict distinct from the implementing agent ('An independent quality-gate verdict records PASS' — quality-gate is structurally separate per the Lifecycle section, tasks.md:10-16: 'Only quality-gate may set Done'). This is TYPE-D and was independently re-verified this round (not carried forward): confirmed present for all 8 high-risk tasks by direct text inspection, matching risk-gate-matrix.md's high-tier requirement set (red→green evidence, requirement-traceability, independent-review verdict)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No oversized or fragmented task detected: each of T-001–T-012 has a bounded Scope/Done When list tied to a single coherent deliverable (e.g. T-002's Done When has 7 items, all scoped to the golden-baseline capture/promote contract). Advisory: this content is byte-identical to the prior attempt-2 round-2 PASS-bound tasks.md content (only T-002's Status field changed, per git diff 77ba561a..HEAD). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (REQ-006, AC-001/AC-018) has associated error-path coverage: its own Scope (tasks.md:354-356) requires TDD Red fixtures for the CI-env-var-set and --approved-by-omitted refusal paths, and REQ-006's acceptance-tests.md rows include AC-041 (line 45: 'integration, negative self-check ×2 ... CI env var set ... non-zero exit ... --approved-by omitted ... non-zero exit') and AC-040 (line 44, static CI-scan negative check). Advisory: this evidence and the underlying task text are unchanged from the prior attempt-2 round-2 PASS-bound content (only T-002's Status field changed). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No test-type/scope mismatch found in the unchanged task test descriptions (e.g. T-002's golden-baseline-contract.tests.sh is scoped as a TDD suite over the capture/promote CLI contract, consistent with its declared workflow). Advisory: tasks.md test-task content is byte-identical to the prior attempt-2 round-2 PASS-bound content (only T-002's Status field changed). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (Risk: high) has an explicit Rollback field (tasks.md:318-321: 'revert this task's commit(s) (infra-spec.md#rollback). The canonical path is a plain committed file at this stage ... a bad initial capture is a straightforward git revert'), and every other high-risk task (T-004, T-005, T-008, T-009, T-010, T-011, T-012) likewise carries a Rollback field referencing infra-spec.md#rollback. Advisory: this content is unchanged from the prior attempt-2 round-2 PASS-bound tasks.md (only T-002's Status field changed). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tests/run-all.sh/.ps1 is listed in multiple tasks' Planned Files (T-002, T-003, T-004, T-010, T-011), but Global Constraints (tasks.md:54-61) fixes a serialized, append-only registration order ('every task ... appends only its own suite's registration line, in task order T-001 → T-011'), which is a coordinated (non-conflicting) sharing pattern, not uncoordinated parallel overlap. Advisory: this content is unchanged from the prior attempt-2 round-2 PASS-bound tasks.md (only T-002's Status field changed). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's Depends On T-001 is explicitly qualified as non-functional (tasks.md:282-285: 'Global Constraints — serialized run-all append order only; no functional dependency — the initial canonical capture runs directly against the fixed pre-capability merge-base commit ... never through the fixture-matrix builder'), correctly distinguishing a sequencing-only blocker from a functional one; no spurious or missing blocker detected. Advisory: this content is unchanged from the prior attempt-2 round-2 PASS-bound tasks.md (only T-002's Status field changed). Carried forward per the convergence rule, citing reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/ as the prior PASS evidence."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001–T-012 are all feature-authoring/test-authoring/registration tasks (fixture builder, golden-baseline scripts, compatibility suites, driver extensions, manifest, CI registration); none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

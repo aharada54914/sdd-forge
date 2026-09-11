@@ -1,0 +1,160 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2r2-seq0665",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0665",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/dependency-graph.json",
+      "sha256": "07a0157a3b8c412aeb7c137492dbe1f52a35a1432a29dc8b8aa14ade907e7a42"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/precheck-result.json",
+      "sha256": "758f23cf2cc7ba9560dffebb7b4dd07bfdf363932ab4e85d6e93fe947b8ebbf0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+      "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+      "sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+      "sha256": "f66fc1ad2201999bb3a9b8ee66ac9d332519e438012573107f924eaf77817231"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "LAUNCH-GATE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "reports/review-context/identity-ledger.json has 665 records; tail record (index 664) is {sequence:665, stage:task, role:task-reviewer-a, run_id:RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2r2-seq0665, host_session_id:SESS-task-task-reviewer-a-epic-195-a7-compatibility-0665, previous_record_sha256:13d29f0dad2a6da5ac5dadfbd5729c325748188145dba8f25fe090c94600be0f, record_sha256:91e010ad69636eb3f15983f09344610e71b2fac7356166e7586acb02742a370d}, matching the assigned identity exactly. Recomputed sha256('665|task|task-reviewer-a|RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2r2-seq0665|SESS-task-task-reviewer-a-epic-195-a7-compatibility-0665|13d29f0dad2a6da5ac5dadfbd5729c325748188145dba8f25fe090c94600be0f') = 91e010ad69636eb3f15983f09344610e71b2fac7356166e7586acb02742a370d, equal to the expected record_sha256. Chain link verified: my previous_record_sha256 equals record 664's (sequence 664, task-reviewer-b) record_sha256 = 13d29f0dad2a6da5ac5dadfbd5729c325748188145dba8f25fe090c94600be0f. Scanned all 665 records: run_id and host_session_id for this identity each appear exactly once, at sequence 665 only. No duplicates found across the ledger."
+    },
+    {
+      "id": "INPUT-DISCIPLINE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Re-hashed all 12 files listed in reports/review-context/epic-195-a7-compatibility-task-a2r2-a-invocation.json before reading; every sha256 matched the manifest exactly, including specs/epic-195-a7-compatibility/tasks.md=f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b and specs/epic-195-a7-compatibility/traceability.md=f66fc1ad2201999bb3a9b8ee66ac9d332519e438012573107f924eaf77817231. input_mode/fallback_mode/read_only fields in the invocation file are file-manifest/none/true as required. identity_ledger_sha256 in the manifest (9171beca8c16f1173cd80201f1d270cc4bdf9c7aa502dc546bc4442bba0c50f8) is the pre-reservation snapshot, per the orchestrator's stated expected mechanism (it necessarily differs from the post-reservation ledger that now includes record 665). No file outside the 12-entry manifest was read for substantive review content."
+    },
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md defines AC-001 through AC-043 (43 IDs, confirmed via grep). Every AC-NNN cited in tasks.md's Requirements: fields (AC-001..AC-043 subset used across T-001..T-012) resolves to a real criterion. No dangling AC ID found in any Requirements: field."
+    },
+    {
+      "id": "STRUCT-FIELDS",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks (T-001..T-012) each carry exactly one occurrence of: Source Issue, Approval, Status, Risk, Risk Rationale, Required Workflow, Security-Sensitive, Cross-Model, Requirements, Depends On, Planned Files, Data Migration, Breaking API, Rollback, ### Goal, ### Must Read, ### Scope, ### Done When, ### Out of Scope, ### Blockers (verified by grep -c over the raw, hash-verified tasks.md text)."
+    },
+    {
+      "id": "DEP-GRAPH-MATCH",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/dependency-graph.json's 28 edges match tasks.md's ### Blockers fields exactly for every task: T-001/T-002/T-005/T-009 Blockers=None (no outgoing edges); T-003->{T-001,T-002}; T-004->{T-001}; T-006->{T-001,T-005}; T-007->{T-001,T-005,T-006}; T-008->{T-001,T-006,T-007}; T-010->{T-003,T-004,T-006,T-007,T-008}; T-011->{T-001..T-010}; T-012->{T-001,T-004}. No mismatches."
+    },
+    {
+      "id": "DEP-ACYCLIC",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "DFS cycle detection over dependency-graph.json's 12 nodes / 28 edges found no back-edge / no cycle. precheck-result.json also records blockers_format_valid:true, satisfying the gating precondition for this check to run."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md defines REQ-001..REQ-007 (plus externally-cited REQ-009). REQ-001,002,003,005,006,007 are each referenced by at least one task's Requirements: field (T-003/T-004/T-005-009/T-001,011/T-002,011/T-008,010). REQ-004 has no task reference but is explicitly deferred in traceability.md's Deferred/Non-Task Acceptance Criteria section with rationale ('Satisfied by this document (REQ-004 clause mapping)'). REQ-009 is external (Epic A1's own requirement) and tracked N/A in traceability.md's own row with stated rationale."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 43 AC-NNN IDs in acceptance-tests.md are accounted for: 40 are referenced directly in tasks.md Requirements: fields (AC-001..043 minus {013,017,029}); the remaining 3 (AC-013, AC-017, AC-029) are listed in traceability.md's Deferred / Non-Task Acceptance Criteria table with stated rationale (REQ-004 process/traceability-review items, already Satisfied at Phase 1). No AC is uncovered."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every one of the 12 tasks (T-001..T-012) has a non-empty Requirements: field citing at least one REQ-NNN (see REQ-COVERAGE evidence). No orphan task."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks are test/suite-authoring tasks and each references specific AC-NNN IDs via its Requirements: field (cross-checked against AC-COVERAGE). No test task lacks an AC reference."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table (lines 70-85) lists T-001..T-012 with Requirements/AC values that exactly match tasks.md's Requirements: field for every task (verified field-by-field). All requirement IDs appearing in traceability.md (REQ-001..007, REQ-009) exist in requirements.md (REQ-001..007 defined under Goals; REQ-009 cited as Epic A1's external requirement at requirements.md:436,711,812). No dangling reference in either direction."
+    },
+    {
+      "id": "TRACEABILITY-REMEDIATION",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md REQ-005 row Status cell (line 24) now reads 'In Progress — T-001 Done (quality-gate cycle-2 PASS, ledger seq0662, reports/quality-gate/epic-195-a7-compatibility/T-001.md); T-011 Planned', and the Final Status paragraph (lines 152-164) states the document was produced at Phase 2 with every row Planned, statuses advance only from saved evidence, and names REQ-005 In Progress / T-001 Done with the same QG-report + verification-directory citations, with 'REQ-005's remaining task T-011 and every other row stay Planned'. This is internally consistent between the row cell and the Final Status prose, and consistent with tasks.md's actual status set (T-001 Status: Done; all 11 other tasks Status: Planned, confirmed via grep). Every other requirement row's Status column (REQ-001/002/003/006/007 = Planned; REQ-004 = its pre-existing spec-authoring-time Satisfied status; REQ-009 = its pre-existing external N/A status) is unchanged from what the document's own internal narrative describes as the baseline. Task Mapping (12 rows), Acceptance Mapping (43 rows), Layer Coverage (4 rows), Deferred/Non-Task Acceptance Criteria (3 rows), REQ-004 Clause Mapping (3 rows), and Deliverables tables were all read in full and are complete/unaltered in substance — no mapping content was lost by the edit. The ledger independently corroborates a 'sdd-evaluator' quality-stage record at sequence 662 for this feature (RUN-epic-195-a7-compatibility-qg-T-001-seq0662), consistent with the cited 'ledger seq0662'."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md body is byte-identical to the round already bound by the attempt-1 round-3 PASS evidence (raw sha256 f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b, confirmed by direct hash). Re-inspected all 12 task titles/scopes: the two-clause titles present (T-002 'capture/promote scripts and the initial canonical baseline'; T-010 'allowlist manifest and its hard-fail checks'; T-011 'Register every suite and verify the golden-baseline CI-write guards') each connect tightly-coupled, non-decomposable work within one coherent deliverable (mandatory housekeeping/verification tied to the same artifact), not two distinct feature concerns. No new finding; content unchanged since the prior attempt's persisted PASS at reports/task-review/epic-195-a7-compatibility/attempt-1/round-3/."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md body is byte-identical to the attempt-1 round-3 PASS-bound content (raw hash match, see LIFECYCLE-ONLY-DELTA). Re-read all 12 Done When lists: each item names a concrete artifact/log/test-count/quality-gate verdict (e.g. T-002: 'TDD evidence: RED ... and GREEN ...; An independent quality-gate verdict records PASS', '.../verification/golden-baseline/canonical/' committed path; T-003: byte-identical assertion counts, negative self-check evidence; T-011: AC-040 static-scan pass/fail, AC-041 two named negative fixtures). No forbidden vague verb ('ensure'/'consider'/'works correctly'/bare 'update X') found heading a Done-When bullet. T-001's own traceability Done-When bullet ('traceability.md updated with T-001 → REQ-005 (AC-014)') is now genuinely discharged: the current traceability.md correctly reflects T-001 → REQ-005 (AC-014) in the Task Mapping table and additionally now correctly states T-001's Done status in the REQ-005 row/Final Status prose (the round-1 contradiction reviewer B found is resolved). No task's Done-When items require editing a frozen artifact (design.md/tasks.md body/traceability.md-post-gate) as their proof; every task instead points to implementation reports and specs/epic-195-a7-compatibility/verification/ evidence, which remain writable addenda. No new finding; content unchanged since the prior attempt's persisted PASS."
+    },
+    {
+      "id": "LIFECYCLE-ONLY-DELTA",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Raw sha256 of specs/epic-195-a7-compatibility/tasks.md = f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b, matching both the manifest entry and the stated attempt-2/round-1 raw hash. Applying the stated normalization (Task-Review-Status: Passed -> Pending; Approval: Approved (sudo ...) -> Draft for all 12 tasks; Status: Done/Planned -> Planned for all 12 tasks; no Second-Approval lines present to drop) and recomputing sha256 over the normalized text yields e49d1b7d52e6c9861fe6b88ac6ad2cda4c7d30979251c904738f2b1a9b02ab02, exactly matching the claimed attempt-1 round-3 binding hash. This independently confirms the only substantive delta since the frozen tasks.md content is lifecycle-field normalization (Approval/Status), i.e. no task-body content drift."
+    },
+    {
+      "id": "STATUS-LEGALITY",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "grep over tasks.md confirms exactly 12 Status: lines: T-001 = Done (line 105); T-002..T-012 = Planned (11 occurrences, lines 252,412,558,718,867,976,1091,1225,1355,1498,1649). No In Progress or Blocked status present. Zero occurrences of a line starting 'Second-Approval'. Every Approval: line (12 total) reads 'Approved (sudo 2026-08-08T16:33:11Z)', a valid workflow-bypass-mode audit mark consistent with a post-implementation provenance re-review."
+    }
+  ],
+  "findings": []
+}

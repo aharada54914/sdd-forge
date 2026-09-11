@@ -1,0 +1,34 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0938",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0938",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-1/integrated-summary.json","sha256":"8e54de2f7ae557d3985c719ab8c0dfa5e1bb6d842170bd1741c8803aeb0f3098"},
+    {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json","sha256":"9268d5ebc52b77a17063302945d2253a8df527be314646e5a352e32562eecf98"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"04a124d6d56298cc1b2ff63f2eacd21c75c615a781e220d0ad37513636fe9dfc"},
+    {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3"},
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+    {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+    {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {"id":"DECISION-JUSTIFIED","result":"PASS","severity":"Major","finding":"No issues found. design.md Design Decisions gives explicit rationales for suite placement, the no-ninth-loop choice, the capability-only usage error, golden-baseline location, quality-gate-only applicability, and F7/F8 disposition."},
+    {"id":"OPEN-QUESTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"design.md Open Questions carries no unresolved entry: OQ-001 through OQ-003 are explicitly resolved with their decisions and revision paths. The cross-document omission of requirements.md OQ-004 is classified under NO-REQ-CONTRADICTION."},
+    {"id":"ASSUMPTIONS-VALID","result":"PASS","severity":"Major","finding":"design.md Assumptions are grounded in investigation.md INV references and requirements.md Assumptions, and the shared upstream-state assumptions carry an explicit pre-Phase-2/3 re-verification instruction plus AC-035 fingerprint-drift enforcement."},
+    {"id":"NO-REQ-CONTRADICTION","result":"FAIL","severity":"Critical","finding":"requirements.md AC-026 and Open Questions OQ-004 state that the AC-009-pinned implementation violates the Done-transition producer firing condition: it emits before terminal-state comparison, emits on a failed comparison, and emits nothing on either early return. design.md Data Plan nevertheless requires that producer to fire exactly once per round at the instant it evaluates the freshly read terminal state, while design.md Constraint Compliance contains no compliance statement or disposition for this known-unsatisfied compatibility constraint and design.md Open Questions says only OQ-001 through OQ-003 exist and are resolved. The current amended design therefore presents an unsatisfied compatibility invariant as implementable without carrying its governing open resolution into the implementation policy. This is a primary TYPE-D missing constraint-compliance statement and can cause downstream work or verification to claim a contract the pinned implementation cannot meet; the provenance re-review context re-binds these current bytes but does not waive the defect."},
+    {"id":"PERF-ADDRESSED","result":"PASS","severity":"Major","finding":"No performance requirements found in requirements.md."},
+    {"id":"DEPLOYMENT-CONCRETE","result":"PASS","severity":"Major","finding":"design.md Deployment / CI Plan and infra-spec.md CI/CD Sequence identify the local/GitHub Actions targets, future suite registration, staged SKIP activation, gating versus non-gating jobs, and the CI prohibition on mutation-capable baseline commands. Data Plan declares no schema or database migration."},
+    {"id":"MIGRATION-PLANNED","result":"PASS","severity":"Major","finding":"design.md Data Plan states that this task persists no data, affects no existing data, and requires no migration; future schema-shaped additions are optional/additive with backward-compatible defaults."},
+    {"id":"INTEGRATION-IDENTIFIED","result":"PASS","severity":"Major","finding":"design.md External Integrations explicitly states that there are no external systems or third-party services; the cross-epic dependencies are repository-internal and are identified with contracts, fingerprints, activation conditions, and drift failure behavior."},
+    {"id":"DESIGN-WITHIN-SCOPE","result":"PASS","severity":"Major","finding":"design.md covers REQ-001 through REQ-007 and the user stories through the byte, structural, event-trace, fixture-matrix, baseline-governance, and staged-activation plans. Its components remain within the specified test-infrastructure scope, and the layer specifications introduce no UI framework or unrelated runtime service."},
+    {"id":"VERIFICATION-PATH-CONCRETE","result":"FAIL","severity":"Major","finding":"The high-risk Done-transition compatibility claim has no concrete validation path for its producer firing semantics. design.md Data Plan requires exactly one emission per round at terminal-state evaluation, but acceptance-tests.md TEST-026 checks only that the event is last within TEST-018 and TEST-019. requirements.md AC-026/OQ-004 explicitly records that failed comparisons and early returns violate the firing condition and that no check in the package detects the deviation. Thus the named verification artifact cannot validate the applicable high-risk claim; this is distinct from the TYPE-D contradiction because it is the absence of an executable mismatch test for failed-comparison and early-return branches."},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"SKIP: the project has no domain/ directory, so the approved-domain-model applicability condition is absent."}
+  ]
+}

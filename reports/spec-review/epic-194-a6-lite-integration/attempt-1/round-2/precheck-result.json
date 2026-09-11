@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b",
+  "acceptance_sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "df759452fd013d75384aa9f40669ce3c4dcc3d1e0ca3d5a94a5784b46eb70116",
+  "edit_summary": "Extended acceptance-tests.md TEST-030 to add the present-but-empty-Summary pass-through companion fixture (EDGE-CASE-COVERAGE remedy).",
+  "reset": false,
+  "generated_at": "2026-07-22T05:45:17Z"
+}

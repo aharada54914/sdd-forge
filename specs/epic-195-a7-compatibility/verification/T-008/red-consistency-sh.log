@@ -1,0 +1,48 @@
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+ok: TEST-008.2: spec leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, PASS/Minor-only) green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+WARNING: task-review-precheck: plugins/sdd-quality-loop/scripts/check-risk.sh not found or not executable; skipping risk check.
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+ok: TEST-008.12: domain leg drives rounds 1->3 (NEEDS_WORK, NEEDS_WORK, cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)
+NOTE: TEST-008.14: domain-review-precheck.ps1 now exists upstream -- tests/loop-consistency.tests.ps1's named SKIP self-heals; no action needed here.
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LOOP_FIXTURE_ROOT
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-63225/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns assert_bidirectional_invariant red
+=== TEST-018: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ===
+ok: TEST-018.1: loop_fixture_init (Context-absent event-trace fixture) succeeds
+ok: TEST-018.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green
+ok: TEST-018.3: observed end state PASS matches the loop-inventory terminal
+ok: TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via assert_event_trace
+=== TEST-018.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ===
+ok: TEST-018.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal
+FAIL: TEST-018.5b (negative self-check): the anchor-fingerprint checker did NOT detect a heading relocated ahead of an otherwise byte-identical window (sha256-only would have missed this)
+SKIP: TEST-018.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: DRIFT sha256=a030f071223c64118dd358436bba5f81bad50c19b8cd19bc1ecb10c69a01b8cf (expected d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64) ordinal=3 (expected 3)
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.sh: 32 passed, 1 failed, 16s elapsed

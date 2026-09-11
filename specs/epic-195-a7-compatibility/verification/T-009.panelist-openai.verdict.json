@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-009",
+  "feature": "epic-195-a7-compatibility",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "tests/emit-run-record-feature-scope.tests.sh / tests/emit-run-record-feature-scope.tests.ps1",
+      "note": "The declared test sources contain only structural no-flag checks and do not contain the claimed TEST-011 byte-for-byte comparison against the committed v1 golden fixtures. This contradicts the 51-test remediation logs and leaves AC-011 unverified by the bundled implementation."
+    },
+    {
+      "severity": "Major",
+      "ref": "plugins/sdd-quality-loop/scripts/emit-run-record.sh:109-112; plugins/sdd-quality-loop/scripts/emit-run-record.ps1:84-87",
+      "note": "Supplying capability-block-id without capability-enforcement reaches an additional usage-error branch that is neither specified in AC-033's exhaustive flag-combination contract nor exercised by either test twin. The implementation therefore exposes undocumented and unverified CLI behavior."
+    }
+  ],
+  "blind": true,
+  "input_digest": "3cf472fc852193488cb52c0d23423d61b692d35369bc4fd9749d7e5e63a5f0d5",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-009 Approval: Approved (sudo 2026-08-08T16:33:11Z)"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-b-a3r1-seq786",
+  "host_session_id": "SESS-spec-b-epic-196-a8-integration-a3r1-seq786",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "eb1e4c0fb2b0c2304ebedc1d8d27b1fbec3354f5cde5be4c15436ed599f99476"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "469b26f986577fd253a4649a1e49552dff077334f81149a11402866365afc6f4"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-1/precheck-result.json",
+      "sha256": "6ff0e4a94c02927054fbd5c47aa75a441b4af64911352967d0440025536654b7"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-1/integrated-summary.json",
+      "sha256": "48d501f128e4e6b41b873e43bfcc94888430bccb0872fc793f46bc49d3224e69"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:28-32 (Overview) states this package is 'Phase 1 (specification) only: investigation.md, requirements.md, design.md, acceptance-tests.md... tasks.md and traceability.md follow in a later phase once this package passes spec-review-loop,' and investigation.md's Risks section (Medium bullet, near line 790) asserts a 'deliberate 4-file (no layer-spec, no Phase-2) scope' under which a check-sdd-structure.sh run 'is expected to report six missing: lines (ux-spec.md/frontend-spec.md/infra-spec.md/security-spec.md/tasks.md/traceability.md).' This directly conflicts with investigation.md's own '## Amendment Re-Review Context' section (same file, lines ~109-247), which cites full commit hashes and SHA-256 fingerprints proving frontend-spec.md, infra-spec.md, and security-spec.md already exist as of commit caea5556623aa1ba6b26d3dac73404ed203e57ac (e.g. frontend-spec.md sha256 cd8048b30777d10869b6144c23845eb8a7656e12f01d2ee2159df13b531acd82), and that tasks.md and traceability.md already exist and have each been amended twice (commits 19005e7741e600ff8b3c4b01cfb33681bb8aec64 and e36a4436f7d12cc368d36e17dcdba04748b4547e; traceability.md sha256 b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61), with tasks.md explicitly described as 'the task-stage review evidence this feature's earlier attempts pinned' and 'Defines T-008.' Downstream failure mode: an implementer, task author, or reviewer who reads only requirements.md's Overview and investigation.md's Risks bullet -- without independently reconciling them against the dense Amendment section -- would reasonably conclude frontend-spec.md/infra-spec.md/security-spec.md/tasks.md/traceability.md do not yet exist and that a structure check should report six missing files, when in fact at most one file (ux-spec.md) is actually missing; this misleads about which artifacts are already load-bearing (tasks.md already defines T-008, the task the amended Activation Gate names as sole owner of the AC-015/AC-016 allowlist entries) versus still to be authored. This is a specification-package internal-consistency defect entirely within the Phase 1 artifacts (requirements.md, investigation.md) this gate reviews -- not an implementation, task, or quality-gate concern -- and it is not suppressed by the calibration's Amendment Re-Review Context clause because it does not rest solely on 'a later-phase artifact exists/is referenced': it is a direct factual conflict between two passages of the reviewed package about the package's own current file inventory, a conflict the amendment disclosed elsewhere in the same document but never reconciled back into the Overview or Risks text. Severity is Major rather than Critical because it does not create an unsafe/unauthorized workflow-boundary problem (the amendment itself is human-approved per the Amendment Re-Review Context) or an impossible acceptance criterion -- it is a stale, internally-inconsistent factual claim that risks downstream mismatch about the package's true current composition."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": ""
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory, domain/context-map.md, or domain/domain-contract.json is part of the allowed input manifest, and none of the six reviewed documents (requirements.md, acceptance-tests.md, investigation.md) declare a Bounded-Context: field or reference a domain contract/context map -- the check's own scope precondition is absent, so it is recorded as skipped per its explicit skip condition."
+    }
+  ]
+}

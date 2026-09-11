@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 3,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "fc5f9ffe66edb9c94c865193e8bca9565eb24e91e7fcf55dba354e883106a505",
+  "acceptance_sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "86a204d3855d0e7fd1b35d698bc44f11b93cba6cbaa8324cece2f1d2033fb7bf",
+  "edit_summary": "Close round-2 reviewer-b CONTRADICTION (Critical) and DOWNSTREAM-READINESS (Major): requirements.md's Overview now carries a dated (2026-08-23), human-approved amendment note stating the 'Phase 1 only / tasks.md follows in a later phase' framing described the package at authoring time and is retained as a record, that the epic's implementation phase has since run, that tasks.md/traceability.md exist, and that the T-005/T-006 assert_terminal re-baseline AC-009's provenance references is part of that recorded history — with the note and AC-009/TEST-009's past-tense provenance declared the authoritative framing. Non-goals' Phase 2/3 deferral bullet gains a matching cross-reference to the note. The original Overview/Non-goals text is contextualized, not rewritten or deleted; the round-1 AC-009/TEST-009 remediation is untouched. Same treatment as the identical false-by-time framing defect already being remediated in epic-194.",
+  "reset": false,
+  "generated_at": "2026-08-23T13:27:23Z"
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0780",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0780",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-5/round-1/integrated-summary.json", "sha256": "2015f79dbf8f2dc413b546414f17736ac52431334c0e11a316e96cdd6ae7ffa3"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json", "sha256": "0e5ed8f2af3a9c7738f21496b560490d08e2933d98a4a6c4283ffbf4b13e7860"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "f3dda65bca1826656215e30849b85c9c83b87ee7648dc9b2a0bca2587d27b337"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms load-bearing for downstream implementation are concretely defined: Field Definitions fixes Context-absent/-present/-invalid fixtures, event-identical vs byte-identical vs structural comparison classes (AC-029's exhaustive judgment table), and the six canonical event kinds with named producers (AC-022-AC-027). REQ-005/AC-028's F1-F8 matrix and disposition legend (ASSERT / SKIP-with-activation / N/A) leave no fixture row's coverage undecided. No two implementers would reasonably diverge on scope or vocabulary from this text."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked AC-005/AC-042/AC-043 (full-track vs lite-track structural clauses), AC-004/AC-007/AC-010/AC-019-AC-021 (SKIP-dependency scoping, including AC-021's compound A1+A5 gating vs AC-004's single A5 gating), and AC-009/TEST-009's cited function-body hashes (f325a4df.../460467af...) against investigation.md's Amendment Re-Review Context citations of the same hashes - all consistent. The Overview/Non-goals text describing this package as 'Phase 1 only, no later-phase artifacts' is superseded by an explicit, hash-cited amendment note rather than left as a bare unreconciled conflict; that basis is phase-sequencing only and is suppressed per the calibration's conforming Amendment Re-Review Context entry. No other direct conflict found between requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material negative/boundary/failure paths implied by the requirements are covered: AC-002 (mutated-byte negative self-check), AC-019-AC-021 (PROJECT_CONTEXT_INVALID as a distinguishable third outcome, not silently folded into fallback or valid-present traces), AC-033/AC-035 (usage-error golden negative test; dependency-present-SKIP / unknown-SKIP / fingerprint-drift each independently hard-failing), and AC-040/AC-041 (CI-set and missing-approval refusal of the baseline-promotion script, two independent negative fixtures). Edge Cases section additionally names the stale-baseline-must-not-silently-validate case and the partial per-loop-entry capability-field case."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three Assumptions entries (upstream-epic-merge-status volatility, decision-doc/ADR authority, deterministic-runtime baseline) are each tied to investigation.md evidence and, for the volatile one, to a named mitigation already built into the spec (AC-035's fingerprint-drift hard-fail) rather than left as an open risk with no resolution path. None reads as an unstated design decision masquerading as an assumption."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Security Boundaries B1 (golden-baseline capture/update) is an irreversible-change boundary in scope: Roles and Permissions and REQ-006c require a maintainer-reviewed pull request for any candidate-to-canonical promotion, and this is made testable rather than merely aspirational by AC-018 (baseline manifest fields), AC-040 (static CI-workflow scan for the mutation-capable commands), and AC-041 (two independent runtime-refusal negative fixtures: CI-env-set, missing --approved-by). The boundary is concretely verifiable, not left as an unenforced policy statement."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001-REQ-007 each decompose into specific, individually dispositioned ACs (AC-028's exhaustive F1-F8 x REQ-001/002/003 matrix, AC-029's exhaustive observable x fixture-state judgment table), and every AC/TEST row in acceptance-tests.md is traced to a requirement with a concrete test target. A design-decomposition reviewer is not required to invent fixture scope, event vocabulary, SKIP governance, or baseline-promotion mechanics; those are already fixed here at the specification level."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root (confirmed by the single permitted manifest-external existence check), so the DOMAIN-CONFORMANCE precondition (a `domain/context-map.md` with `Domain-Model-Status: Approved` and a schema-valid `domain/domain-contract.json`) is unmet. Recorded as skipped per the check's explicit skip condition."
+    }
+  ]
+}

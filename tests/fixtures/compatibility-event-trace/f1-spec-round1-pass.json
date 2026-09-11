@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "skill-order",
+    "producer": "skill-order:invocation",
+    "seq": 1,
+    "value": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
+  },
+  {
+    "kind": "approval-checkpoint",
+    "producer": "approval-checkpoint:reserve",
+    "seq": 2,
+    "value": {
+      "stage": "spec",
+      "role": "spec-reviewer-a"
+    }
+  },
+  {
+    "kind": "approval-checkpoint",
+    "producer": "approval-checkpoint:reserve",
+    "seq": 3,
+    "value": {
+      "stage": "spec",
+      "role": "spec-reviewer-b"
+    }
+  },
+  {
+    "kind": "review-loop-presence",
+    "producer": "review-loop-presence:stage-dispatch",
+    "seq": 4,
+    "value": "spec"
+  },
+  {
+    "kind": "done-transition",
+    "producer": "done-transition:assert-terminal",
+    "seq": 5,
+    "value": "PASS"
+  }
+]

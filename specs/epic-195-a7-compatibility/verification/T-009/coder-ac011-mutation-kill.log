@@ -1,0 +1,59 @@
+AC-011/TEST-011 mutation-kill proof (2026-08-20 cross-model panelist
+remediation, finding 2): the panelist's finding was that no assertion in
+either twin performed a byte comparison for AC-011 ("emit-run-record.sh
+no-flag output unchanged") -- the only prior evidence was
+verification/T-009/baseline.sha256, which carries no reproducible "$
+<command>" line. A new case, TEST-011, was added to both
+tests/emit-run-record-feature-scope.tests.{sh,ps1}, comparing the no-flag
+v1 output byte-for-byte against a newly committed golden fixture
+(tests/fixtures/emit-run-record/v1-no-flag.{sh,ps1}.golden.json), with
+only the two genuinely dynamic fields (run_id, generated -- both
+wall-clock derived) normalized to a fixed placeholder before comparison.
+
+GREEN (current tree, both twins): see coder-acceptance-rerun-2026-08-20.log
+-- 51 passed / 0 failed in both runtimes, including
+"ok: AC-011: no-flag output is byte-identical to the committed v1 golden
+(run_id/generated normalized)".
+
+RED (mutation-kill, proving TEST-011 actually discriminates): a
+single-space mutation was applied to each twin's own v1-only code path
+(never the v2 path, to keep the mutation scoped exactly to what AC-011
+covers), the suite re-run, the mutation reverted via `git checkout --`
+immediately after capturing the FAIL, and the suite re-run again to
+confirm return to GREEN.
+
+--- .sh mutation (plugins/sdd-quality-loop/scripts/emit-run-record.sh,
+    v1 heredoc only, ~line 373) ---
+-  "track": "${track}",
++  "track":  "${track}",   (single extra space)
+
+$ bash tests/emit-run-record-feature-scope.tests.sh 2>&1 | grep -E "AC-011|AC-033 matrix no flags|AC-025|passed,"
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (.schema = sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (has("effort") = false)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (has("capability") = false)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+FAIL: AC-011: no-flag output diverged from the committed v1 golden byte-for-byte: 6c6
+emit-run-record-feature-scope.tests.sh: 50 passed, 1 failed
+
+--- .ps1 mutation (plugins/sdd-quality-loop/scripts/emit-run-record.ps1,
+    v1-only $record block, ~line 259) ---
+-        track = $Track
++        track = "$Track "   (trailing space appended to the value)
+
+$ pwsh -NoProfile -File tests/emit-run-record-feature-scope.tests.ps1 2>&1 | grep -E "AC-011|AC-033 matrix no flags|AC-025|passed,"
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (False)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (False)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+FAIL: AC-011: no-flag output diverged from the committed v1 golden byte-for-byte (normalized length=638, golden length=637)
+emit-run-record-feature-scope.tests.ps1: 50 passed, 1 failed
+
+Result: in both twins, the mutation turns ONLY the new AC-011/TEST-011
+assertion red; every structural assertion that already existed
+(AC-033 matrix no flags, AC-025) stays green, confirming those pre-existing
+checks would not have caught this class of drift and that TEST-011 closes
+exactly the gap the panelist named. Both mutations were reverted via
+`git checkout -- <path>` immediately after capture; `git status --porcelain`
+on both files confirmed a clean tree before continuing (see
+coder-acceptance-rerun-2026-08-20.log for the post-revert GREEN re-run,
+51/0 both twins).

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a2-r2-reviewer-b-seq768",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a2-r2-reviewer-b-768",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "580cce4d0f10ccf11667f90fd9d0286ab9b735fc257379bbc051d5ea6e7a4be5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-2/precheck-result.json",
+      "sha256": "d70a8c34ca399b33dccbb096bc877ee578d5404e428aec0a67d37223a5d58cfd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-2/integrated-summary.json",
+      "sha256": "c36047951bee3d70cae3cb6a660ee171218d5d25ea1ef8df573c8b72d943e574"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 AMBIGUITY Major (positional-argument vs. named-flag wording for check-risk-upgrade's new input) is resolved consistently: requirements.md REQ-002 body (:349-353), AC-007/008/009 (:777-779), Main Workflows step 2 (:981-985) and step 6 (:1010-1016), and Field Definitions (:902-904) all now name the same `--capability-reasons`/`-CapabilityReasons` flag, never a bare second positional argument. Other load-bearing terms (check-id grammar `^[a-z0-9][a-z0-9-]*$` at requirements.md:841-864, the three capability_enforcement states, the payload/control-file distinction at investigation.md INV-020) are each defined with a citation two implementers could apply identically. No remaining term/state/input in requirements.md or acceptance-tests.md was found to admit two reasonable, materially different implementations."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:47-55 (a dated 2026-08-23 note inside the still-under-review Overview) asserts that `tasks.md` and `traceability.md` \"have since been authored and reviewed as this feature's canonical siblings, and implementation-phase evidence now exists — including the T-001 cross-model verdicts,\" and that references to tasks.md or completed implementation-phase events in this package are \"references to real, existing artifacts.\" acceptance-tests.md AC-010's row (:35) relies on exactly this claim, citing \"T-001 cross-model verdicts 2026-08-21\" and \"tasks.md's own Protected Files item 3\" as normative evidence for a scope decision. This directly conflicts with: (a) this same requirements.md's header (`Spec-Review-Status: Pending`, line 3) and AC-024 (:794, \"this package does not write Approved/Passed anywhere\" and both review-status fields read Pending), (b) AC-023 (:793, the registration commit creates no file outside `specs/epic-194-a6-lite-integration/**`), and (c) acceptance-tests.md's own governing framing (:18-22, \"no suite file exists yet... `Status` below is `Planned` for every row\"). The document repeatedly invokes AGENTS.md's Required Workflow as authoritative for phase sequencing (requirements.md:44-45, :966), under which tasks.md/traceability.md and implementation-phase quality-gate evidence (T-001) cannot legitimately exist while this package's own Spec-Review-Status is still Pending in an active review round. A downstream reader cannot determine which of these two mutually exclusive states of the world is true: this is precisely the specification-stage responsibility (the conflict is between the Phase-1 artifacts themselves, not something design or task review can resolve, since they would have to guess which framing to trust), and it is Critical because it is exactly the calibration's \"unsafe or unauthorized workflow boundary\" contradiction class: it asserts, in the artifact currently being spec-reviewed, that later-phase work already occurred before the approval gate this same package still awaits."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md REQ-006 (:600-664) fixes a twelve-item fixture inventory (a)-(l) covering eligible/ineligible Capability matches, v1-Registry backward compatibility, schema-valid Summary consumption, unmapped/grammar-invalid/symlink-escaping/partial-pair check-ids, unknown-catalog-token rejection, disabled-legacy vs. active-enforcement absent-Summary states, `full_upgrade_required: true`, a supplied-but-invalid `--capability-reasons` fragment, and an ineligible-with-no-reasons synthetic trigger. acceptance-tests.md AC-022/TEST-022 (:47, :77-86) cross-checks that every fixture maps to at least one AC and every testable AC (AC-002/007/008/011/015/016/026/027/028/030) has a fixture. Material negative/boundary/failure paths implied by requirements.md's own Edge Cases section (:1018-1102) are each represented by a named fixture."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions (:1143-1166) states four assumptions, each paired with an explicit re-verification obligation (A2/A3/A4 schema stability re-checked before spec review closes; A5's field-naming/aggregation-rule treated as provisional pending A5's own Passed status; lite-gate protection status re-verified at implementation-start; no live Capability Pack exists, so fixtures are synthetic). Open Questions (:1167-1196) records OQ-001/002/003 as CLOSED/RESOLVED by a named orchestrator ruling, each with the resolving text inline. The one deliberately-partial cross-epic item, Blocker [B5]/AC-029 (:799, investigation.md :682-694), is explicitly recorded as a decision-with-a-named-owner (A5's own addendum must adopt A6's stated contract) rather than left as an open ambiguity, and explicitly states this package's own advancement is not blocked on it. No assumption was found left unresolved without an explicit decision-needed marker."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md AC-024 (:794) nominally tests the approval boundary (Spec-Review-Status/Impl-Review-Status both read `Pending`, no `Approved`/`Passed` written), which would ordinarily satisfy this check. However, requirements.md's own Overview dated note (:47-55) asserts that Phase 2/3 activity — tasks.md, traceability.md authorship and review, and T-001 implementation-phase cross-model quality-gate verdicts (also relied on by AC-010, acceptance-tests.md:35) — already occurred for this same feature while that same Spec-Review-Status gate is still open in the current review round. A gate whose own governing document admits, in-band, that the work it is supposed to block has already happened is not a testable approval boundary: AC-024 checks only the literal string value of a status field, not whether design/build activity was actually withheld until approval, and the package provides no reconciling mechanism (no note explaining how a since-reverted or re-opened Spec-Review-Status is consistent with retained downstream artifacts). This is Critical per the calibration's \"unsafe or unauthorized workflow boundary\" class: it leaves the specification's central governance boundary unverifiable rather than merely under-specified."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same phase-state conflict identified under CONTRADICTION (requirements.md:47-55 vs. :793-794 and acceptance-tests.md:18-22) leaves a design/task-decomposition reviewer unable to determine, from this package alone, whether `tasks.md`/`traceability.md` already exist with authoritative content that must be respected (per the dated note and AC-010's T-001 citation) or must be authored fresh from this spec, `Planned`-status, with no suite file existing yet (per Non-goals, Roles and Permissions :923-932, and acceptance-tests.md's own governing framing). A design reviewer forced to guess which of these two states is real would be inventing product/process behavior this package should have stated unambiguously — exactly the gap DOWNSTREAM-READINESS exists to catch, independent of whether the underlying claim is a genuine workflow violation or an authoring error in this specific document."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Verified directly: no `domain/` directory exists at the repository root of this worktree (`/Users/jrmag/Projects/active/sdd-forge-wt-epic-194`) — a Glob for `domain/*` returned no matches. Per the check's own skip condition (domain/ absent), DOMAIN-CONFORMANCE is recorded as skipped rather than evaluated."
+    }
+  ]
+}

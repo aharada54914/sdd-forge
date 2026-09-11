@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "bc596b776cc08b7a5479be198a18c942ea715f89e3bdd25af35f6d3460f2400f",
+  "acceptance_sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "b36dd5f77622e3e7d2dbb9cdd4a8f86bc01f9d224e0fd2beb8485b958a7591c9",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-08-25T07:10:08Z"
+}

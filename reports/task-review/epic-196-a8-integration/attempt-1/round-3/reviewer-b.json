@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0646",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0646",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/integrated-summary.json",
+        "sha256": "4a327bfece1b9345c5b68c278164d50f9b3cd75f7ac498ad06c3c7cbf984bec5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/precheck-result.json",
+        "sha256": "14b581dd3a63a0cbd269d5f2a915ce14e7f4c5bef5350d18286bf77950274f9f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+        "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+        "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+        "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+        "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+        "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+        "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md",
+        "sha256": "72b6e2b3cce08f52944bbf054f3c3ae10a5d8f3da612bf24b675eff90b03a818"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md",
+        "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+        "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks' Risk tiers match their scope per risk-classification-policy.md's sentinel-surface list. T-002 (high, check-installed-plugin-drift, Security Boundary B2/read-only drift detector on plugin/config cache), T-004 (high, extends the existing security-relevant tests/cli-hook-enforcement.ps1 regression asset), T-005 (high, Security Boundary B1 core: nonce ledger, Ed25519 signing verification, classification-mismatch guard), and T-008 (high, live-host semantic-cell classification plus the HUMAN APPLY STEP seeding the real Trusted-Signer Registry and two-party signing) each touch an access-control/security-boundary-adjacent surface named in security-spec.md's B1-B5 table, none is UI-copy/docs/test-only despite the high tier. T-001/T-003/T-006/T-007 (medium) touch no auth/payment/PII/migration/API-contract sentinel surface and are correctly not high. No under- or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle branch does not apply to any task. All four Risk: high tasks (T-002, T-004, T-005, T-008) carry, in their own Done When lists, a 'TDD evidence' item requiring RED (failing case per named error code/state) and GREEN (full suite) evidence, plus 'An independent quality-gate verdict records PASS' (the sdd-evaluator role, a distinct agent from the implementer, per this framework's own review-context launch boundary), plus a 'Requirement-traceability evidence (high tier)' item citing risk-gate-matrix.md's own required-check-id set for the high tier. Both required items (Red->Green evidence, independent review verdict) are present for every high-risk task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When item counts: T-001=6, T-002=5, T-003=6, T-004=4, T-005=7, T-006=6, T-007=6, T-008=8 (none exceeds 8). No task's Scope section spans more than two-to-three tightly-coupled implementation areas (each task authors one cohesive suite/script plus its own registration/seed steps), and no title implies multiple sequential phases. T-005's original 12-item Done When was already split into the current T-005 (7 items)/T-008 (8 items) pair in round 1's remediation, unchanged since; no new oversizing or fragmentation is introduced by this round's T-007 Depends-On/Blockers edit. No group of 3+ tasks reduces to a single-function/single-file rename pattern."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task pairs happy-path ACs with dedicated error/edge-path test cases: T-002/TEST-023 (not_installed vs installed_synced vs installed_drifted, preflight-vs-verify mode distinction, AC-023) and TEST-022's independent negative-lifecycle case (AC-022); T-005/TEST-026-027 exercise every one of ~18 named ERR_* codes and the classification-mismatch/replay guard (AC-026, AC-027) individually, not just the discharged happy path; T-007/TEST-025, TEST-029, TEST-030 each include a deliberately mutated-copy fixture that must be correctly rejected; T-008/TEST-013-014 cover both Codex flag states and both Copilot cell states, and TEST-015 covers all three SKIP-representation states (missing/valid pre-merge/stale post-merge). requirements.md's own Edge Cases section (unavailable headless contract, Codex-disabled, Copilot-subagent non-firing, live-host FAIL result, preflight-vs-verify not_installed) is reachable through AC-005/AC-013/AC-014/AC-015/AC-023, each already assigned to a task above."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column labels (integration / static-doc-review / regression / live-host proof / automated aggregate validator) match each row's described scope: multi-CLI or multi-file comparisons are labeled integration (e.g. AC-002-004, AC-007-009, AC-012, AC-022), pure single-document parsing is labeled static/doc-review (e.g. AC-010, AC-021, AC-025, AC-029, AC-030), and the cross-cutting five-record aggregator (AC-028) is labeled as its own aggregate-validator category rather than mislabeled unit/integration. No row in acceptance-tests.md or tasks.md uses the words 'unit' or 'end-to-end'/'e2e' (grep-confirmed), so no unit-scope-vs-multi-module or e2e-scope-vs-partial-workflow mismatch exists. Every AC-NNN row (all 30) is its own acceptance-criterion reference by construction."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit top-level Rollback field: T-002 ('revert this task's commit(s); nothing protected is written directly'), T-004 ('revert this task's commit(s); the file's pre-existing 101 lines are restored exactly'), T-005 (revert leaves the trusted-signer registry seeded empty, 'changes no signed security claim'), T-008 (revert before vs. after the human apply step is addressed separately, including whether now-signed records and registry entries need hand-reverting). infra-spec.md's own Rollback section corroborates a matching per-artifact revert procedure (Phase 1 files, additive suite extensions, live-host records, and the nonce-ledger consumption marker each get an explicit revert path)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every genuinely two-task file share is Blockers-ordered: the shared skip-allowlist manifest and the shared trusted-signer registry and the shared validate-live-host-proof test file are each created by one task and extended only by T-008, whose Blockers field (T-001, T-005) covers both. Advisory, non-blocking observation (not a defect under this check's own Blockers-based test): the shared tests/run-all.sh/.ps1 array and the staged CI-workflow-candidate/manifest-hash pair are each appended by six tasks (T-001, T-002, T-003, T-005, T-006, T-007) in a fixed order, but only the T-002-on-T-003 and (as of this round) the T-006..T-005..-on-T-007 edges carry a matching Blockers entry; the remaining edges (T-001-on-T-002, T-003-on-T-005, T-005-on-T-006) rely on the Global Constraints section's own documented serialized-append order rather than a per-task Blockers entry. This is the identical, unchanged-since-round-1 pattern this package cites as matching an established convention from a prior, already-reviewed feature's own tasks.md, and this round's T-007 correction only strengthens (never weakens) T-007's own coverage of it -- it introduces no new gap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round 2's finding is closed: T-007's Depends On now explicitly reads 'functional' and states the identical basis given for T-003-on-T-002 ('this task's own Test-registration procedure proof Done When requires every one of those tasks' suite-registration entries... to already exist'), and T-007's Blockers field now reads exactly T-001, T-002, T-003, T-005, T-006, matching its own Depends On list with no omission (T-004 and T-008 are correctly excluded, since T-004 extends an already-registered file and T-008 registers no new suite pair, so T-007's own registration check does not require either). No spurious or missing blocker found elsewhere in the graph (T-003-on-T-002, T-008-on-{T-001,T-005} remain justified and unchanged); no cycle is introduced. Advisory, non-blocking observation on prose only (not a per-task Blockers/Depends-On defect this check governs): the Global Constraints section's framing -- 'this ordering is followed even where two adjacent tasks in the chain have no functional dependency on each other' -- was already imprecise for the T-002-on-T-003 edge before this round, and is now imprecise for a second edge (T-006-on-T-007) after this round's correction, since both are now explicitly functional rather than serialized-only; the per-task Depends On/Blockers fields themselves remain internally accurate and are the authoritative source, so this is a documentation-precision note, not a structural dependency defect."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001 through T-008) author net-new test-infrastructure/verification surfaces (fixtures, drivers, a validator, static checks, draft records); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": []
+}

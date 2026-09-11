@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 3,
+  "requirements_sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5",
+  "acceptance_sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb",
+  "design_sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8",
+  "tasks_sha256": "72b6e2b3cce08f52944bbf054f3c3ae10a5d8f3da612bf24b675eff90b03a818",
+  "traceability_sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2",
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7",
+    "infra-spec.md": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb",
+    "security-spec.md": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "Round-2 remediation: T-007's dependency reclassified from serialized-only to functional and its Blockers populated to match its own Done When",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0645",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0645",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/dependency-graph.json",
+          "sha256": "165a539f312b76dcfaa4b43823548e56f4b7a41138a32c0f1cdf28d189814d47"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/precheck-result.json",
+          "sha256": "14b581dd3a63a0cbd269d5f2a915ce14e7f4c5bef5350d18286bf77950274f9f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+          "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+          "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md",
+          "sha256": "72b6e2b3cce08f52944bbf054f3c3ae10a5d8f3da612bf24b675eff90b03a818"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md",
+          "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0646",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0646",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/integrated-summary.json",
+          "sha256": "4a327bfece1b9345c5b68c278164d50f9b3cd75f7ac498ad06c3c7cbf984bec5"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-3/precheck-result.json",
+          "sha256": "14b581dd3a63a0cbd269d5f2a915ce14e7f4c5bef5350d18286bf77950274f9f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+          "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+          "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md",
+          "sha256": "72b6e2b3cce08f52944bbf054f3c3ae10a5d8f3da612bf24b675eff90b03a818"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md",
+          "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "task-orch-epic-196-a8-integration-a1r3",
+  "timestamp": "2026-08-08T15:49:25Z"
+}

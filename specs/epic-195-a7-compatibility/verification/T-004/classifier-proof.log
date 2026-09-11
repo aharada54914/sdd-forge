@@ -1,0 +1,11 @@
+VIOLATE ANSI: remove escape-sequence stripping from the diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI or wrapped diagnostic did not match
+ANSI_VIOLATED_EXIT_CODE=2
+VIOLATE WRAP: remove newline compaction from the diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI or wrapped diagnostic did not match
+WRAP_VIOLATED_EXIT_CODE=2
+RESTORE: run the delivered ANSI/wrapped diagnostic classifier
+CLASSIFIER-SELFTEST: ANSI and wrapped diagnostic matched
+RESTORED_EXIT_CODE=0
+CLASSIFIER-PROOF PASS: violation failed and restored classifier passed
+EXIT_CODE=0

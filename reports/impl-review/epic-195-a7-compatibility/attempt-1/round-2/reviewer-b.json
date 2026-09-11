@@ -1,0 +1,83 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0328",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0328",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f4ac38324d4ea976d9f6f1bac538fcfc06438b1031fa53a9e0fd16eb6a137824"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "3ba46d96b3a132f9a38be614532de5942ece5bfdb050ed66e3f05915cbb10946"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "15730cae3b8dabe15ccb3258265c7f6c5a341629ee6412d4f5d41c11b121ac43"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-1/round-2/precheck-result.json", "sha256": "41d337575db75aed0c1c7d493c67f351ac9d6c48275ae26d1333695e76e5f74e"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-1/round-2/integrated-summary.json", "sha256": "83ab7a44b39824e77c13b22bb8f19c4382969f5adb0ffb003ddde8423e547cf0"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural/technology decision in design.md carries explicit rationale. Examples: Design Decisions 'Suite placement' justifies the loop-consistency/loop-escalation split by citing decision doc §3.1 and existing suite ownership (INV-005); 'capability_applicability starts on quality-gate only' is justified by a cited-evidence (WFI-011) argument that no other loop entry reads workflow.capability_enforcement; 'F7/F8 are N/A, not SKIP' is justified by ADR-0016 Decision item 2 and decision doc §19; the golden-baseline location (OQ-003) is justified by the existing specs/<feature>/verification/ convention with concrete precedent citations. No inline decision found stated as a bare 'we will use X' without a because/since clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Open Questions section states OQ-001 (Epic A5 caller-contract suite home), OQ-002 (PROJECT_CONTEXT_INVALID fixture-state framing), and OQ-003 (golden-baseline path) are 'all three resolved by this design (Design Decisions, above)... none carries forward as an open recommendation.' Each resolution is traced to a specific Design Decisions paragraph (suite placement; 'OQ-002 resolved'; 'Golden-baseline location (OQ-003, resolved)'), and requirements.md marks the same three OQ-001/002/003 entries '(resolved)' with matching resolution text. No unresolved open question remains that requires an owner/Blocks-Implementation/Resolution-Path field."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present, so the absent-investigation Major-finding branch does not apply. requirements.md/design.md Assumptions (identical text) list three assumptions: (1) Epic A1/A3/A5-unmerged, A4-passed-spec-review-unmerged, A6-in-active-spec-review status, grounded in frontend-spec.md's Dependencies table (explicit per-epic status citations) and cross-referenced against investigation.md's sibling-worktree audit (Source paragraph, investigation.md:3-10); (2) ADR-0010/0016/0023 and decision doc §4/§6/§19 remain authoritative and unrevised — a reasonable default for a Phase-1 spec building on already-approved governing documents; (3) jq/bash/PowerShell remain the deterministic runtimes, explicitly grounded in INV-005/INV-007 (investigation.md:37,39)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's Constraint Compliance section (lines 988-999) covers 8 named constraints comprehensively (no new loop-inventory entry, no new suite file, assert_terminal/assert_artifacts_schema unmodified, emit-run-record.sh byte-identical, REQ-007 degradation, PROJECT_CONTEXT_INVALID distinguishability, golden-baseline write protection, cross-epic citation drift) with no gaps found there. However, design.md's own Compatibility Matrix (F4 row, REQ-002 column) states AC-007's disposition as 'SKIP-with-activation \u2192 AC-007 (until Epic A1 **and** Epic A4 both merge)' -- this directly contradicts requirements.md's own AC-007 text, which states the activation condition is 'Epic A4 merged to main' (a single dependency, no Epic A1 clause: '...until Epic A4's Facet Manifest exists, activation condition \"Epic A4 merged to main\" (REQ-007)'), and it also contradicts design.md's own worked REQ-007 skip-allowlist-manifest/v1 JSON example (Data Plan), whose AC-007 entry lists only a single {epic: A4, issue: 192} dependency with activation_condition: 'merged(A4)' -- no merged(A1) clause. A Phase 2/3 implementer following the Compatibility Matrix table versus the manifest JSON example (or requirements.md's own AC-007 definition) would build two non-interoperable activation conditions for the identical assertion, exactly the kind of silent drift REQ-007's own fingerprint-drift mechanism (AC-035c) is designed to catch elsewhere in this same package. This is not owned by precheck (design_req_drift: false only checks hash/status drift, not AC-level cross-section contradiction) and is not duplicated by any other check in this report."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This is a Phase 1 test-infrastructure specification with no runtime service (design.md External Integrations: 'None'; Deployment/CI Plan: 'No CI change in this task'); requirements.md's Goals/AC sections contain no response-time, throughput, concurrency, latency, or SLA numeric threshold for this epic's own deliverable."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 971-986) names the deployment target (repository CI, GitHub Actions test.yml, unmodified by this task; local dev per infra-spec.md Environments table), states 'No CI change in this task' and describes the future-task CI-pipeline-change pattern (tests/run-all.sh/.ps1 + test.yml registration, INV-005 precedent), and states migration execution order is not applicable since Data Plan declares no schema changes (MIGRATION-PLANNED check). The staged/incremental-activation mechanism functionally equivalent to a feature flag (REQ-007's SKIP allowlist manifest with per-entry activation_condition gates, and the Compatibility Matrix's ASSERT/SKIP-with-activation/N-A disposition per row) is fully specified in Data Plan and Test Strategy item 8, and is cross-referenced from the Deployment/CI Plan section's own text ('CI's own job step never calls capture-golden-baseline.sh --write-candidate or promote-golden-baseline.sh... AC-040's static check... AC-031... registered as a separate, non-gating job'). No schema change exists in this task's own scope, so the migration-execution-order clause does not trigger a Major finding."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states 'Existing Data Affected: none' and 'Migration Strategy: No migration required. Every schema-shaped change this design proposes for a future implementation task is additive and optional with a documented backward-compatible default' -- per this check's own instruction, 'If Data Plan states \"No data changes,\" emit PASS for this check,' which this satisfies (functionally equivalent explicit 'No migration required' statement with detailed additive-only rationale)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section states: 'None. Every target in this package is internal to the repository (existing scripts, schemas, templates, and the future golden baseline).' The only externally-adjacent reference in the document is the 'live model call' mentioned in AC-030/AC-031 and Design Decisions 'Structural-comparison seam' -- this refers to the already-existing, already-productionized sdd-bootstrap-interviewer generation mechanism (the same LLM-driven spec-generation flow this repository's workflow already runs today), not a new third-party integration this design introduces; AC-031's own live-model refresh test is explicitly deferred as a separate, non-gating future-task test, consistent with this Phase 1 package's spec-only scope. No cross-service API call requiring its own contract/failure-behaviour table is newly introduced by this design."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every row of design.md's Components table maps to an explicit requirements.md REQ (loop-inventory.json/loop-driver.sh/loop-escalation.tests.sh/loop-consistency.tests.sh/emit-run-record.sh extensions -> REQ-003; install/uninstall extension -> REQ-001; golden-baseline scripts -> REQ-006; fixture-matrix builder -> REQ-005; compatibility-event-trace/v1 schema -> REQ-003; REQ-007 SKIP allowlist manifest -> REQ-007); the two 'existing, unmodified' rows (contracts/*.schema.json, sdd-bootstrap-interviewer templates) are read-only comparison targets, not new components. requirements.md's Goals (REQ-001 through REQ-007) and all three User Stories are each covered by dedicated design.md sections (Architecture diagram, Compatibility Matrix, Data Plan, API/Contract Plan, Test Strategy). No unrequested component, data model, or endpoint was found; no Goal/User Story is left uncovered."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "High-risk surfaces (B1 golden-baseline write-authority, B2 shared-registry blast radius, B3 REQ-007 allowlist fail-open closure, B4 cross-epic fingerprint-citation drift, B5 structural-comparison tamper-resistance) each have a concrete, correctly-cited validation path (AC-040/AC-041, AC-008/AC-009/AC-011, AC-035, AC-035c, AC-030/AC-031 respectively). However, the Compatibility Matrix's own Disposition legend requires every SKIP-with-activation cell to cite '<AC-id> (a named SKIP degrading per that AC's own REQ-007 allowlist-manifest entry... until its activation_condition evaluates true)' -- i.e., the assertion's own AC, not the manifest-shape-defining AC-034. Design.md's F3 row (REQ-002 column) and F3/F4 rows (REQ-003 column) instead cite 'SKIP-with-activation \u2192 AC-034's F3/F4 entry', violating this self-stated rule: AC-034 defines the skip-allowlist-manifest/v1 schema's own shape (requirements.md: 'lists every upstream-dependent assertion... each row's own dependencies field...'), not a substantive assertion with its own activation_condition. For the REQ-003 cells the correct citation exists and should have been used (AC-010/AC-025, the quality-gate-outcome capability_applicability assertion driven by TEST-019, requirements.md AC-010/AC-025) but is not cited. For F3's REQ-002 (structural, Context-present-advisory) cell, no acceptance criterion anywhere in requirements.md or acceptance-tests.md defines what the advisory-state structural assertion actually checks -- AC-005 covers only Context-absent generation (F1/F2), AC-007 covers only Context-present-required (F4/F6) Facet-reference-absence -- yet the Observable\u00d7fixture-state judgment table (design.md, immediately below the Compatibility Matrix) marks F3's 'Generated-artifact structure' observable as 'structural', asserting a comparison exists. F3's REQ-002 structural risk surface therefore has no concretely named verification path at all, and the F3/F4 REQ-003 risk surface's stated path points to the wrong acceptance criterion."
+    }
+  ]
+}

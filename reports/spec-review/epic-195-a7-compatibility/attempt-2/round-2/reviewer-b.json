@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0332",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0332",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-2/integrated-summary.json", "sha256": "2f99ccbe8cd108857bd9291a6e579d7445c1cf207bd8a3f73eb3777ba12ba92e"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-2/precheck-result.json", "sha256": "c6cc0ebe6778e2860e32627b1c3be32da0d87453c988139e81bc09cedcb322ce"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "5a2c278d8d9583a2b8d7f7b8096e38b02fc66d56f48849a80bcc7a18a8deef42"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's AC-007 track ambiguity is resolved. requirements.md:340-344 now reads 'Context-present, full-track/legacy-seven-layer, capability_enforcement: required fixture (F4 only — never F6, the lite-track/lite-three-file counterpart ... AC-043 below)'; acceptance-tests.md:11 mirrors: 'Context-present-required, full-track only (F4 — never F6, see AC-043)'. No implementer ambiguity remains about which fixture AC-007 targets."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflicts found in the reviewed artifacts. AC-005's full-track (requirements.md:316-321) and lite-track (requirements.md:322-333) clauses, AC-042's F3 clause (requirements.md:655-671), and AC-043's F5/F6 clauses (requirements.md:672-694) each scope a distinct, non-overlapping fixture row with consistent gating conditions (AC-043's compound Epic A1+A6 gate mirrors AC-021's compound Epic A1+A5 precedent, requirements.md:453-458); no two ACs assert incompatible outcomes for the same fixture state."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's F5/F6 (lite-track, Context-present) REQ-002 structural-assertion gap is closed. requirements.md:672-694 adds AC-043 (F5-advisory/F6-required clauses, independently checkable per lines 690-694); acceptance-tests.md:47 adds the mirrored TEST-043 row, explicitly stating it 'closes the F5/F6×REQ-002 structural-assertion gap.' Both boundary rows now have a citable AC/TEST target matching AC-005/AC-042's format."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:839-856 states three explicit Assumptions with an explicit re-verification commitment before Phase 2/3 (matching investigation.md:79-86 Safety constraints and AC-035's fingerprint-drift hard-fail). All three prior Open Questions (requirements.md:858-877, OQ-001/002/003) are marked '(resolved)' with explicit resolution text and citation; no undecided item remains unmarked."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline canonical-promotion human-approval boundary (REQ-006c) is concretely testable. requirements.md:628-637 (AC-041) specifies two independent negative fixtures (CI env var set → non-zero exit, no read/write; --approved-by omitted/empty → non-zero exit, no canonical write); requirements.md:619-627 (AC-040) adds a static CI-workflow-text scan; requirements.md:833 (Security Boundaries B1) documents the same authorization requirement (maintainer-reviewed PR only)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-034's SKIP-candidate enumeration ('AC-004, AC-007, AC-019–AC-021, AC-042, AC-043, and any Context-present REQ-003 assertion', requirements.md:572-587) omits AC-036 and AC-037. acceptance-tests.md:40-41 explicitly types TEST-036/TEST-037 as 'named SKIP until Epic A5 merges'; Non-goals (requirements.md:252) groups AC-036 with the already-enumerated AC-004/AC-021 as sharing the identical Epic-A5-caller-insertion-point gate; AC-016 (requirements.md:413-421) mandates every upstream-dependent assertion read its SKIP entry from this manifest, with no Context-present restriction in its own text. A Phase 2/3 implementer following AC-034's literal enumeration would omit manifest entries for AC-036/037; their designed SKIP output would then trip AC-035(b)'s own 'unknown SKIP' hard-fail (requirements.md:588-598), undermining the fail-open closure REQ-007 exists to provide. This is the same class of citation-completeness gap this round's remedy just fixed for AC-042/043 (round-1 DOWNSTREAM-READINESS finding), left unaddressed for AC-036/037 — a design reviewer cannot resolve this without inventing the missing manifest entries."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory is present in this worktree; per this check's own skip condition (domain/ absent, or context-map/contract missing/invalid), the check is recorded as skipped."
+    }
+  ]
+}

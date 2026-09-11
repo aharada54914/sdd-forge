@@ -1,0 +1,39 @@
+{
+  "schema": "live-host-proof-test-cases/v1",
+  "named_error_cases": [
+    "ERR_MISSING_CELL",
+    "ERR_SCHEMA_INVALID",
+    "ERR_CELL_RUNTIME_MISMATCH",
+    "ERR_FEATURE_CONFIG_MISMATCH",
+    "ERR_NONCE_UNKNOWN",
+    "ERR_NONCE_REUSED",
+    "ERR_NONCE_CELL_MISMATCH",
+    "ERR_NONCE_ISSUED_AFTER_SESSION",
+    "ERR_NONCE_EXPIRED",
+    "ERR_NONCE_DUPLICATE_LEDGER_ENTRY",
+    "ERR_ISSUER_SIGNATURE_INVALID",
+    "ERR_HASH_MISMATCH",
+    "ERR_DIGEST_MISMATCH",
+    "ERR_SIGNATURE_INVALID",
+    "ERR_SIGNER_UNTRUSTED",
+    "ERR_SIGNER_IDENTITY_MISMATCH",
+    "ERR_SIGNER_KEY_COLLISION",
+    "ERR_SYNTHETIC_SUBSTITUTION",
+    "ERR_STALE_SKIP"
+  ],
+  "aggregate_cases": [
+    "all-five-pass-discharged",
+    "valid-premerge-skip-pending",
+    "mixed-pass-skip-pending",
+    "fail-verdict-hard-failure",
+    "atomic-all-or-none",
+    "idempotent-repeat",
+    "lock-contention"
+  ],
+  "signature_cases": [
+    "missing-reviewer-signature",
+    "operator-signature-replayed-as-reviewer",
+    "malformed-public-key",
+    "malformed-signature"
+  ]
+}

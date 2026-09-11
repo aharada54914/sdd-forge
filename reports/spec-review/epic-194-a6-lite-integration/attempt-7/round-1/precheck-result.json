@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 7,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "226a43a2d3be398822ec445842d8078ff48f4d1a21156cfeff519f1f012de727",
+  "acceptance_sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "ac364ca9189ca9d5ca3a1a4a3eab37d2871493a13b39632b52eb804169a2947f",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-08-28T00:39:16Z"
+}

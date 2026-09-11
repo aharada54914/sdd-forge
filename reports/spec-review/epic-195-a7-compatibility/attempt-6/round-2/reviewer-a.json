@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0789",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0789",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-2/precheck-result.json",
+      "sha256": "a8427572803fd63ed9d372da1730c6dd1a9317acae42eee5c228041c997d25a1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "8c2abdee404aa093feae6e0d636909fb5d8855e155d4503c70ed4329a1fb9ad5"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "fe2ffc3c28899e5e10e2d478216b81ed4d8fe4609ec482887cffacf8a006b96f"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "2ee8681ec48f95e522187161a5b30467635a40468623f94faa6e5e2b01cbb3e4"
+    }
+  ],
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each decompose into concretely measurable ACs (byte-for-byte capture comparisons, named event kinds with fixed producer/ordering/value-normalization rules, hash-pinned function bodies, an allowlist grammar with only two boolean primitives). No in-scope requirement is left as an unmeasurable intent statement."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-NNN goal has multiple bound ACs both in requirements.md's Acceptance Criteria section and acceptance-tests.md's Requirement column. No orphaned goal found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Round-1's missing-pointer defect on AC-026/TEST-026 is closed: requirements.md:520-529 now carries a 'Known-unsatisfied, do not read this criterion in isolation' pointer to OQ-004/Risks, and acceptance-tests.md:30 carries the matching 'integration (named SKIP until AC-009's pinned assert_terminal hash is formally amended)' Test Type plus an '(OQ-004)' pointer, correctly copying the two-part AC-036/AC-037 form as investigation.md:433-436 claims. But the remedy introduces a new, unaddressed contradiction: AC-034 (requirements.md:609-624) enumerates every allowlist-governed SKIP candidate -- AC-004, AC-007, AC-019-021, AC-036, AC-037, AC-042, AC-043, and 'any Context-present REQ-003 assertion' -- and AC-026 is deliberately excluded from that list (confirmed by investigation.md:438-442), and AC-026 is not itself a Context-present assertion, so it falls under no clause of AC-034 either. Meanwhile AC-035(b) (requirements.md:625-635) requires the suite to hard-fail -- never SKIP, never pass -- whenever 'any SKIP-shaped line in suite output does not match an allowlist entry (unknown SKIP)'. TEST-026 is now specified to emit exactly such a permanently un-allowlisted SKIP-shaped line until a human formally amends AC-009's hash. Neither requirements.md nor acceptance-tests.md states how TEST-026's own designed SKIP escapes AC-035(b)'s unknown-SKIP hard-fail, or scopes AC-035(b) to exclude it. A task author implementing TEST-035 literally from AC-035(b) and TEST-026 literally from its own row would build two suite behaviors that cannot both hold: either TEST-035 hard-fails the whole compatibility suite the instant TEST-026 legitimately SKIPs, or TEST-035 must silently special-case TEST-026 with no textual basis for doing so. This is a fresh defect introduced by the remedy itself. Separately, the appended precision correction to OQ-004/Risks is judged accurate -- 'always last' does hold (the emit is assert_terminal's final act) while the actually-violated clause is design.md's 'exactly once per round at the instant it evaluates' firing condition -- and appending rather than rewriting is an acceptable treatment here since each appended block explicitly supersedes 'the sentence/entry above' and AC-026's own point-of-use disclosure already uses the corrected framing, so a reader relying on AC-026 alone never sees the imprecise version."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly exclude implementing Epics A1-A6, authoring Phase 2/3 test code, registering a ninth loop id, re-specifying Epic A5's deferred suite in full, and any edit to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/**."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries fixes B1 and B2; Roles and Permissions names Maintainer/implementer/CI duties precisely; AC-018/AC-040/AC-041 give concrete, testable enforcement of the write-boundary constraint."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each named risk has a validation surface: the Critical drift risk via AC-034/AC-035's fingerprint-drift hard-fail; the High shared-surface risk via fixing field names in design.md before Phase 2/3; the Medium check-sdd-structure deviation via a self-documenting preflight signal; the High Done-transition ordering risk via OQ-004's disclosure, now reachable from AC-026 and TEST-026 at the point of use."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory or domain/context-map.md is present in the allowed-input manifest, and requirements.md carries no Bounded-Context: field; the check's skip condition applies."
+    }
+  ],
+  "verdict": "NEEDS_WORK"
+}

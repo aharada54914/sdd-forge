@@ -21,6 +21,19 @@
 #   TEST-017 — runtime budget: measured wall-clock printed in the summary
 #     line, self-FAIL above LOOP_SUITE_BUDGET_SECONDS, threshold-0 negative
 #     self-check.
+#   TEST-018 (T-006 / Issue #195 / epic-195-a7-compatibility REQ-003,
+#     AC-022/AC-023/AC-024/AC-026/AC-032) — drives a single Context-absent
+#     spec-review round (F1: greenfield fixture, round 1, PASS/none) through
+#     the shared driver and asserts the observed skill-order,
+#     review-loop-presence, and approval-checkpoint event kinds match a
+#     committed golden trace via assert_event_trace (the single oracle
+#     T-005 authored); done-transition is asserted last in the round's own
+#     event sub-sequence, recorded by assert_terminal itself, at its own
+#     comparison call site, per design.md's per-kind producer table
+#     (T-005 cycle-2: an earlier cycle had this event recorded from the
+#     test case instead, behind an incorrect byte-identity lock on
+#     assert_terminal — see this task's implementation report,
+#     "Specification Differences").
 #
 # OQ-5 (task-review-precheck.sh:219-222, require_persisted_pass reading
 # impl-review artifacts for stage "impl"): read-only inspected during this
@@ -423,6 +436,171 @@ else
   loop_validator_skip "TEST-010.3"
   loop_validator_skip "TEST-010.4"
   loop_validator_skip "TEST-010.5"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-018 (T-006 / AC-022, AC-023, AC-024, AC-026, AC-032): Context-absent
+# round event trace vs. golden trace, via assert_event_trace
+# ---------------------------------------------------------------------------
+echo "=== TEST-018: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ==="
+
+EVENT_TRACE_GOLDEN="${REPO_ROOT}/tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json"
+
+EVENT_FEATURE="loop-consistency-event-$$"
+if loop_fixture_init greenfield "$EVENT_FEATURE"; then
+  ok "TEST-018.1: loop_fixture_init (Context-absent event-trace fixture) succeeds"
+  CLEANUP_ROOTS+=("$LOOP_FIXTURE_ROOT")
+else
+  fail "TEST-018.1: loop_fixture_init (Context-absent event-trace fixture) failed"
+fi
+EVENT_ROOT="${LOOP_FIXTURE_ROOT:-}"
+LOOP_FIXTURE_ROOT="$EVENT_ROOT"; LOOP_FIXTURE_FEATURE="$EVENT_FEATURE"
+export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
+
+if loop_validator_capability_probe; then
+if drive_review_round spec 1 1 PASS none; then
+  ok "TEST-018.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green"
+else
+  fail "TEST-018.2 (AC-032): Context-absent round failed to drive spec-review round 1"
+fi
+
+if assert_terminal spec-review PASS; then
+  ok "TEST-018.3: observed end state PASS matches the loop-inventory terminal"
+else
+  fail "TEST-018.3: observed end state does not match the loop-inventory terminal (PASS)"
+fi
+# done-transition:assert-terminal (AC-026): recorded by assert_terminal
+# itself, at its own comparison call site, per design.md's per-kind
+# producer table (T-005 cycle-2: the earlier byte-identity lock on
+# assert_terminal was itself the defect -- see this task's implementation
+# report, "Specification Differences").
+
+if assert_event_trace "$EVENT_TRACE_GOLDEN"; then
+  ok "TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via assert_event_trace"
+else
+  fail "TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace does not match the recorded golden trace"
+fi
+else
+  loop_validator_skip "TEST-018.2"
+  loop_validator_skip "TEST-018.3"
+  loop_validator_skip "TEST-018.4"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-018.5 (T-008 / Issue #195 / epic-195-a7-compatibility AC-036; OQ-001
+# item (a)) -- anchor-fingerprint drift check against the live
+# sdd-bootstrap-interviewer/SKILL.md, adopting Epic A5's own design.md item
+# 10(a) fixture directly (FP-A5-CALLER-CONTRACT-10:
+# specs/epic-193-a5-capability-resolver/design.md:1886-1915). Recomputes,
+# against a given file, (i) the sha256 of a fixed inclusive line-range
+# window (LF-normalized, joined by a single \n, no trailing newline -- this
+# package's own Cross-epic fingerprint algorithm, design.md Design
+# Decisions) and (ii) a given heading's own 1-based ordinal position among
+# every ##/### heading in that file, in document order -- item 10(a)'s own
+# two-part check ("replacing an earlier revision's bare heading-text-still-
+# exists check, which could not detect the heading moving to a different
+# position while its own text stayed unchanged").
+#
+# TEST-018.5a/.5b prove the checker function itself first, against
+# deliberately-constructed positive/negative fixtures (Scope: "a
+# deliberately drifted anchor window ... before the implementation") -- .5b
+# moves the identical heading text to a different ordinal position without
+# changing its own immediate neighboring lines, the exact regression A5's
+# own design text names as this revision's own proof case. Both assertions
+# are unconditionally live (they test only this suite's own checker, never
+# Epic A5's own unmerged code) and gate pass/fail normally.
+#
+# TEST-018.5c then runs the SAME checker against the live SKILL.md,
+# comparing to A5's own recorded citation (sha256:
+# d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64, ordinal
+# 3). AC-036's own Test Type (acceptance-tests.md) fixes this as a named
+# SKIP until Epic A5 merges -- design.md Test Strategy item 6 places
+# activation at "once Epic A5's caller insertion point is implemented," not
+# merely once the digest happens to still match (the window legitimately
+# changes once A5's own caller-integration lands there), so this comparison
+# is reported for provenance only and never gates pass/fail. A local ad hoc
+# probe (specs/epic-193-a5-capability-resolver/ presence in this tree)
+# stands in for the activation condition until T-010's own allowlist
+# manifest exists (tasks.md T-008 Scope).
+# ---------------------------------------------------------------------------
+echo "=== TEST-018.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+
+_a5_anchor_fingerprint_check() {
+  # $1=file $2=start-line $3=end-line $4=expected-sha256 $5=expected-heading-line $6=expected-ordinal
+  local file="$1" start="$2" end="$3" expected_sha="$4" expected_heading="$5" expected_ordinal="$6"
+  local window actual_sha ordinal
+  [[ -f "$file" ]] || return 1
+  window="$(sed -n "${start},${end}p" "$file" | sed 's/\r$//')" || return 1
+  actual_sha="$(printf '%s' "$window" | _loop_sha256_text)" || return 1
+  ordinal="$(grep -nE '^#{2,3} ' "$file" | cut -d: -f2- | grep -nFx -m1 "$expected_heading" | cut -d: -f1)" || true
+  if [[ "$actual_sha" == "$expected_sha" && "$ordinal" == "$expected_ordinal" ]]; then
+    echo "MATCH sha256=$actual_sha ordinal=$ordinal"
+    return 0
+  else
+    echo "DRIFT sha256=$actual_sha (expected $expected_sha) ordinal=${ordinal:-absent} (expected $expected_ordinal)"
+    return 1
+  fi
+}
+
+A5_ANCHOR_DIR="$(mktemp -d "${TMPDIR:-/tmp}/a5-anchor.XXXXXX")"
+CLEANUP_ROOTS+=("$A5_ANCHOR_DIR")
+cat > "${A5_ANCHOR_DIR}/skill-good.md" <<'A5EOF'
+# Heading Zero
+
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+A5EOF
+A5_GOOD_WINDOW="$(sed -n '3,7p' "${A5_ANCHOR_DIR}/skill-good.md" | sed 's/\r$//')"
+A5_GOOD_SHA="$(printf '%s' "$A5_GOOD_WINDOW" | _loop_sha256_text)"
+
+if _a5_anchor_fingerprint_check "${A5_ANCHOR_DIR}/skill-good.md" 3 7 "$A5_GOOD_SHA" "### Full-Profile Layer Interview" 2 >/dev/null; then
+  ok "TEST-018.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal"
+else
+  fail "TEST-018.5a (positive self-check): the anchor-fingerprint checker rejected a non-drifted window and ordinal"
+fi
+
+# Negative fixture (Scope: "a deliberately drifted anchor window"): line 2
+# (blank in skill-good.md) becomes a new heading here, and lines 3-7 are
+# otherwise byte-identical to skill-good.md's own lines 3-7 -- the exact
+# "heading moved to a different position without changing its own immediate
+# neighboring lines" regression A5's own design text names as this
+# revision's own proof case. A sha256-only comparison of the SAME window
+# (3-7) would wrongly report a MATCH here (the window bytes are identical);
+# only the ordinal check (the target heading is now 3rd, not 2nd, among all
+# ##/### headings) detects this drift -- proving why item 10(a) requires
+# both halves, not sha256 alone.
+cat > "${A5_ANCHOR_DIR}/skill-drifted.md" <<'A5EOF'
+# Heading Zero
+## Extra Section (inserted -- shifts the ordinal, window untouched)
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+A5EOF
+if _a5_anchor_fingerprint_check "${A5_ANCHOR_DIR}/skill-drifted.md" 3 7 "$A5_GOOD_SHA" "### Full-Profile Layer Interview" 2 >/dev/null; then
+  fail "TEST-018.5b (negative self-check): the anchor-fingerprint checker did NOT detect a heading relocated ahead of an otherwise byte-identical window (sha256-only would have missed this)"
+else
+  ok "TEST-018.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window"
+fi
+
+A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
+  "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
+  "### Full-Profile Layer Interview" 3 2>&1)" || true
+if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
+  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
+      "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
+      "### Full-Profile Layer Interview" 3 >/dev/null; then
+    ok "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
+  else
+    fail "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
+  fi
+else
+  echo "SKIP: TEST-018.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: ${A5_LIVE_RESULT}"
 fi
 
 # ---------------------------------------------------------------------------

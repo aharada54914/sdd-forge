@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a7-r1b-reviewer-b-seq904",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a7-r1b-reviewer-b-904",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "226a43a2d3be398822ec445842d8078ff48f4d1a21156cfeff519f1f012de727"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "180ecaa9aa14b05ead8babbd4d24439bcad4a0b31c892d549bbf08143f5e310b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "ccba1c282f5bf3d12971748d8ef56d048dc9db413174709b204938fd32add524"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-7/round-1/precheck-result.json", "sha256": "bd3ac339a51b2ba577d4dba6043c9bab4c5f691652c71b6bd7249a7912f78b98"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-7/round-1/integrated-summary.json", "sha256": "0705bb83ae3447a8e797cde7bdcc77cb3979f4e2268bcfb76883e74e3b3d1271"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements.md's terms, grammars, and shapes are concrete throughout (e.g. the check-id grammar ^[a-z0-9][a-z0-9-]*$ vs. the reason-token grammar [a-z0-9][a-z0-9_-]* at requirements.md:386-387 are distinct and each internally consistent with their own catalog vocabularies). The amendment's own new text (requirements.md:380-391 REQ-002 input-state-2 parenthetical; :662-673 REQ-006 item (i); acceptance-tests.md AC-027 row) states the eligible:true+malformed-upgrade_reasons obligation, the falsy-treated-as-absent rule, and the exit-2 assertion unconditionally and without ambiguity. Legacy content byte-identical (modulo the amendment's own additions and status/pointer lines) to the attempt-6 PASS-bound text is TYPE-H shielded; no new ambiguity is introduced by the amendment itself."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between the amendment's unconditional Step-2b validation (requirements.md:380-391, REQ-006 item (i) at :662-673, AC-027 acceptance-tests.md row) and the AC-007 byte-identical guarantee, which requirements.md:379 and AC-027 (requirements.md:841) both scope explicitly to the second-argument-omitted case only. The Security Boundaries section (requirements.md:1188-1196) names the supplied-but-invalid fragment exit-2 rule consistently with REQ-002. Investigation.md's seventh amendment entry (:2060-2184) states the placement delta (validation historically inside the eligible==false branch) was a known, disclosed conformance gap, not a spec self-contradiction, and its closing update records that gap as since closed by a landed commit — this is a disclosed provenance fact, not a live contradiction in the reviewed text."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The fixture-inventory gap a prior run of this round found (the eligible:true-with-malformed-upgrade_reasons negative path unnamed in REQ-006's inventory or the AC table) is remedied in the artifacts under review: REQ-006 item (i) (requirements.md:662-673) now names the case explicitly ('including, per the 2026-08-28 amendment's unconditional step-2b validation, a shape-invalid upgrade_reasons on an eligible: true entry...which MUST assert exit 2'), and acceptance-tests.md's AC-027 row states the identical fixture obligation plus the falsy-treated-as-absent companion pin. REQ-002's own prose (requirements.md:380-391) states the validation applies to 'any array entry' rather than being conditioned on eligible, so the case is covered at the requirement level independent of the Edge Cases section not separately restating it."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section (requirements.md:1211-1380) states each open assumption with an explicit resolution path and citation (A5-not-yet-Passed risk, REQ-006 fixture-grounding split with per-fixture live/synthetic classification, lite-gate/SKILL.md protection re-verification obligation). The amendment's own new assumption-adjacent claim — that the validation-placement delta was a known, disclosed gap rather than a silent defect — is resolved within investigation.md's seventh entry itself (closing update, :2166-2184), which records the stage-2 fix as landed via a named commit and human-apply, with regression fixtures (TEST-013ag/ah, TEST-013ai/aj) cited by commit."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-copy protected-file application boundary (REQ-002/REQ-005, requirements.md:422-440, :617-621) and its AC-010/AC-031 exact-set/hash/post-copy verification contract are stated testably, not left as an unbounded governance gesture. The amendment's own authorization is likewise a testable boundary: investigation.md's seventh entry records a verbatim, dated owner approval ('design.md 2b/2c を amendment レーンで追認する', 2026-08-28) tied to an adjudication ticket (RT-20260828-001.yml, full sha256 given) and a full remediation-commit hash, meeting the calibration's Amendment Re-Review Context evidence bar (full hashes, document fingerprints, verbatim dated approval, and commit/sha256 citations for the referenced later-phase artifacts)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amendment's additions give downstream reviewers a concrete, unconditional validation rule (requirements.md:380-391), a named fixture obligation (REQ-006 item (i), AC-027), and a fully-cited provenance trail for the already-implemented remediation and its still-open placement delta (investigation.md :2060-2184), so a design/implementation reviewer does not need to invent behavior to resolve the amendment's scope. This does not require re-verifying design.md itself, which is out of this gate's Phase-1 scope per the calibration's Gate Responsibility section."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory, domain/context-map.md, or domain/domain-contract.json is in this reviewer's allowed-input manifest or referenced as approved/schema-valid anywhere in the reviewed requirements.md/acceptance-tests.md/investigation.md text, so the Domain-Model-Status: Approved precondition cannot be established from the evidence available to this review. Recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

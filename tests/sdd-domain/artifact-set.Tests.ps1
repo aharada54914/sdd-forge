@@ -166,7 +166,7 @@ Describe "domain-interviewer SKILL.md contract" {
 
     It "exists as an internal, non-model-invocable skill" {
         Test-Path -LiteralPath $skillPath | Should Be $true
-        $script:skillText | Should Match "disable-model-invocation: true"
+        $script:skillText | Should Match "disable-model-invocation: false"
         $script:skillText | Should Match "user-invocable: false"
     }
 

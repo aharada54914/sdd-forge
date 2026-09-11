@@ -1,0 +1,41 @@
+T-002 acceptance suite, both runtimes. Evidence for both the unit-tests and
+the acceptance-tests contract checks; the TDD Red->Green pair those two checks
+also carry lives in verification/T-002/red-bash.log and green-bash.log, captured
+at implementation time and unchanged since.
+
+$ sh -c 
+      bash tests/golden-baseline-contract.tests.sh
+      sh_rc=$?
+      echo
+      echo "$ pwsh -NoProfile -File tests/golden-baseline-contract.tests.ps1"
+      pwsh -NoProfile -File tests/golden-baseline-contract.tests.ps1
+      ps_rc=$?
+      [ "$sh_rc" -eq 0 ] && [ "$ps_rc" -eq 0 ]
+ok: capture and promote commands are executable
+ok: default capture matches canonical and is read-only
+ok: write-candidate writes an exact candidate without changing canonical
+ok: manifest records the pinned SHA, fixed environment, and every target/script hash
+ok: CI-set refuses with no file touched
+ok: approved-by-omitted refuses with no file touched
+ok: default capture exits non-zero on drift
+ok: guarded promotion copies candidate to canonical
+ok: manifest/counterpart mismatches fail closed
+ok: candidate output is gitignored
+10 passed, 0 failed
+
+$ pwsh -NoProfile -File tests/golden-baseline-contract.tests.ps1
+ok: capture and promote commands exist
+ok: default capture matches canonical and is read-only
+ok: write-candidate writes an exact candidate without changing canonical
+ok: manifest records the pinned SHA, fixed environment, and every target/script hash
+promote-golden-baseline: promotion is forbidden when CI is non-empty
+ok: CI-set refuses with no file touched
+Usage: promote-golden-baseline.ps1 <candidate-path> --approved-by <human-identifier>
+ok: approved-by-omitted refuses with no file touched
+ok: default capture exits non-zero on drift
+ok: guarded promotion copies candidate to canonical
+ok: manifest/counterpart mismatches fail closed
+ok: candidate output is gitignored
+10 passed, 0 failed
+
+exit status: 0

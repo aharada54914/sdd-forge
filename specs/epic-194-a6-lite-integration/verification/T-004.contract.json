@@ -1,0 +1,152 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-194-a6-lite-integration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437",
+  "created": "2026-07-22T16:37:08Z",
+  "comment": "Default-FAIL verification contract for T-004 (high, tdd). Populated after the independent quality-gate evaluator (identity ledger seq0329, reports/quality-gate/epic-194-a6-lite-integration/T-004.md, VERDICT: PASS) independently re-ran all 10 T-004 suites (60/60) and independently reproduced RED by disabling the full_upgrade_required backstop and the NEW-01 grammar check, confirming failure, then restoring a clean tree with matching hashes. stack:shell waives the three compile-oriented checks {lint, typecheck, build}: this task's Planned Files are a Markdown skill file (plugins/sdd-lite/skills/lite-gate/SKILL.md) plus bash/PowerShell test scripts, and no lint/typecheck/build toolchain is configured in this repository for either. unit-tests and acceptance-tests share the same evidence (verification/T-004.{red,green}.log) because T-004's own 5 suite pairs simultaneously exercise unit-level simulator behavior and the task's own acceptance criteria (AC-011..018, AC-026, AC-030) in the same assertions -- there is no separate acceptance-only fixture set for this task. regression evidence (verification/qg/T-004/regression-{sh,ps1}.log) re-runs T-001/T-002/T-003's own suites, since T-004's own tests/run-all.sh/.ps1 edit is the only shared-file touch this task makes with those tasks' own registration. requirement-traceability evidence is against specs/epic-194-a6-lite-integration/traceability.json, a machine-readable companion to the already-frozen traceability.md authored at this contract's own authoring time (mirrors the specs/epic-159-pillar-d/traceability.json precedent) -- it is not itself a change to any frozen artifact, and it covers this feature's REQ-002..REQ-006 (REQ-001 is Deferred per traceability.md's own Deferred Requirements section and carries no task or evidence). KNOWN, DOCUMENTED, NON-BLOCKING CONDITION (not a T-004 defect): plugins/sdd-quality-loop/scripts/check-workflow-state.sh currently exits 1 for this feature due to a pre-existing gap in that script's own task-lifecycle status regex, which does not recognize the Blocked lifecycle state T-001/T-002/T-003 legitimately carry pending a separate, already-reported R-10 human-copy guard-gap decision (tasks.md T-001's own Blocker addendum documents this in full, with the exact grep evidence). This is a feature-wide, human-decision-blocked governance-tooling gap unrelated to and unaffected by T-004's own change; it is not cited here as a basis for withholding any of this contract's checks, but it is why T-004's own Status remains Implementation Complete rather than Done pending that script's own one-line human-applied fix.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured in this repository for Markdown skill files or shell/PowerShell test scripts (stack: shell).",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command applies to Markdown/shell/PowerShell files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "specs/epic-194-a6-lite-integration/verification/T-004.red.log",
+      "green_evidence": "specs/epic-194-a6-lite-integration/verification/T-004.green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; this task extends a self-contained skill Process and a bounded, local command-discovery contract only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "specs/epic-194-a6-lite-integration/verification/T-004.red.log",
+      "green_evidence": "specs/epic-194-a6-lite-integration/verification/T-004.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-004/regression-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain applies to Markdown/shell/PowerShell files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-004/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-004/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; lite-gate is an agent-executed skill Process, not a runnable service.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task edits an agent-facing skill Process document and test scripts only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-004/traceability-check.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

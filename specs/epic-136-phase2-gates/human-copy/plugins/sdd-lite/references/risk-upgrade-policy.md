@@ -7,13 +7,28 @@ It is local only: it never retrieves issue content or follows a URL.
 ## Input and result contract
 
 Both `check-risk-upgrade.sh` and `check-risk-upgrade.ps1` accept one path to
-UTF-8 source text.
+UTF-8 source text, and an optional second argument (`--capability-reasons
+<fragment-path>` / `-CapabilityReasons <fragment-path>`, epic-194-a6-lite-
+integration T-002, REQ-002).
 
 - A policy match prints `full-required: <primary-id>; triggers=<ordered-ids>`
   and exits 10.
 - No match prints `lite-eligible` and exits 0.
-- A missing, unreadable, NUL-containing, or malformed UTF-8 input prints
-  `risk-upgrade: input unavailable` and exits 2.
+- A missing, unreadable, NUL-containing, or malformed UTF-8 primary source
+  input prints `risk-upgrade: input unavailable` and exits 2.
+- When the second argument is supplied and the named fragment is
+  unreadable, not valid JSON, missing its `capabilities` key, has a
+  non-array `capabilities` value, has any entry missing `id` or
+  `eligible`, has any entry whose `upgrade_reasons` is present, truthy
+  and not an array, or has any `upgrade_reasons` element that is not a
+  non-empty string matching `[a-z0-9][a-z0-9_-]*`, the script prints
+  `risk-upgrade: capability-reasons fragment invalid` and exits 2 --
+  distinct from the primary-source-unavailable diagnostic above, and
+  never silently degraded to "no Capability-derived trigger." The two
+  `upgrade_reasons` conditions apply to EVERY entry regardless of its
+  `eligible` value (design.md Processing step 2b as amended 2026-08-28,
+  RT-20260828-001); a present-but-falsy `upgrade_reasons` value (`false`,
+  `0`, `""`, `[]`, `null`) is treated as absent on both runtimes.
 
 Only ASCII `A` through `Z` are normalized to lowercase. CRLF and CR normalize
 to LF; each run of ASCII space, tab, or LF normalizes to one ASCII space.
@@ -23,10 +38,10 @@ boundary and underscore is not. Bounded `design token` and `design tokens`
 phrases are excluded without suppressing a separate trigger such as
 `token-value`, `design-token`, or `token` followed by a non-ASCII character.
 
-## Ordered trigger matrix
+## Ordered trigger matrix (unchanged, keyword-derived)
 
-The first matching row is the primary diagnostic. All matching IDs are emitted
-in this exact order.
+The first matching row is the primary diagnostic when any keyword row
+matches. All matching IDs are emitted in this exact order.
 
 | Order | ID | Trigger | Exclusion |
 |---:|---|---|---|
@@ -37,15 +52,63 @@ in this exact order.
 | 5 | `SECRET` | whole-token `secret` or `secrets` | No substring such as `secretion`. |
 | 6 | `GITHUB_ACTIONS` | `github actions` separated by normalized whitespace | No substring such as `github-actionable`. |
 
+This table is unchanged by T-002: no new keyword row is added, and no
+Predicate-DSL/Registry-matching logic of the script's own is introduced
+(requirements.md AC-009).
+
+## Capability-derived trigger source (new, T-002, REQ-002)
+
+When `--capability-reasons`/`-CapabilityReasons` is supplied and the named
+fragment is valid, its shape is:
+
+```json
+{
+  "capabilities": [
+    {"id": "durable-workflow-svc", "eligible": false,
+     "upgrade_reasons": ["durable_workflow"]},
+    {"id": "internal-tool-only", "eligible": false,
+     "upgrade_reasons": []}
+  ]
+}
+```
+
+Every entry with `eligible: false` contributes, in fragment array order:
+its own `upgrade_reasons` tokens if the array is non-empty, or else a
+single synthetic token `ineligible:<id>` -- an entry with `eligible: false`
+and no named reason still produces a non-empty trigger, never silently
+nothing. An entry with `eligible: true` contributes nothing -- but its
+`upgrade_reasons`, like every entry's, is still shape/grammar-validated
+before eligibility is consulted (amended step 2b, above). Each token
+inside `upgrade_reasons` is already validated upstream (by whatever
+produced the fragment) against the lite-upgrade-reason-catalog; what this
+script does not re-validate is catalog MEMBERSHIP alone -- the fragment's
+shape, its readability, and each element's reason-token grammar are
+validated eagerly here.
+
+## Merge order
+
+`all_triggers = keyword_triggers ++ capability_triggers` -- keyword-derived
+tokens (today's six-row scan) always precede Capability-derived tokens.
+When the second argument is omitted entirely, `capability_triggers` is
+always empty and behavior is byte-identical to the pre-T-002 script
+(requirements.md AC-007); this is the only condition that guarantee
+applies to. The primary id (`full-required: <primary-id>`) is the first
+entry of the merged list: unchanged from today whenever any keyword row
+matches, and equal to the first Capability-derived token only when no
+keyword row matches but at least one Capability-derived token does.
+
 ## Workflow use
 
-`lite-spec` passes the complete user-supplied source body to a checker before
-creating any lite artifact. An opaque URL is input-unavailable unless its body
-was already read into a local UTF-8 source file.
+`lite-spec` passes the complete user-supplied source body to a checker
+before creating any lite artifact, and (T-003, REQ-005) additionally
+assembles a Capability-derived trigger fragment from every matched,
+ineligible Registry Capability and supplies it as the second argument. An
+opaque URL is input-unavailable unless its body was already read into a
+local UTF-8 source file.
 
-`ship` passes the selected complete `## T-NNN` block followed by that feature's
-`requirements.md` to a checker whenever lite could otherwise be selected. A
-risk match always selects full, including when `--lite` was requested. Missing
-task-block or requirements input stops with the input-unavailable diagnostic;
-it never falls back to the lite gate. `--full` is a deliberate override and
-does not invoke the scan.
+`ship` passes the selected complete `## T-NNN` block followed by that
+feature's `requirements.md` to a checker whenever lite could otherwise be
+selected. A risk match always selects full, including when `--lite` was
+requested. Missing task-block or requirements input stops with the
+input-unavailable diagnostic; it never falls back to the lite gate.
+`--full` is a deliberate override and does not invoke the scan.

@@ -1,0 +1,51 @@
+Cycle 1 Major #3: the delivered RED was a preflight missing-asset RED, not the
+malformed-corpus RED tasks.md:683 requires. This audits the replacement capture
+rather than trusting it -- it must contain the coherent malformed case running
+through the real assertion path, exactly one PowerShell survivor, a 115/1
+summary and a non-zero harness exit, and its survivor must be the same case the
+current harness now kills in both runtimes. A hand-edited log would not satisfy
+all four simultaneously with the current harness output format.
+
+$ sh -c 
+      set -u
+      red=specs/epic-195-a7-compatibility/verification/T-004/malformed-corpus-red.log
+      cur=specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.log
+      echo "--- survivor lines in the RED capture ---"
+      grep -n "^MUTATION-SURVIVED" "$red"
+      echo "--- summary and exit in the RED capture ---"
+      grep -nE "^(MUTATION SUMMARY|EXIT_CODE)" "$red"
+      echo "--- the same case in the current, post-fix log ---"
+      grep -n "corpus-and-template-bad-heading" "$cur"
+      echo
+      n_surv=$(grep -c "^MUTATION-SURVIVED" "$red")
+      ps_surv=$(grep -c "^MUTATION-SURVIVED: corpus-and-template-bad-heading \[ps1\] exit=0" "$red")
+      summary=$(grep -c "^MUTATION SUMMARY: 115 killed, 1 survived" "$red")
+      exitline=$(grep -c "^EXIT_CODE=1" "$red")
+      kills=$(grep -c "^MUTATION-KILLED: corpus-and-template-bad-heading" "$cur")
+      red_sh_kill=$(grep -c "^MUTATION-KILLED: corpus-and-template-bad-heading \[sh\]" "$red")
+      echo "survivors=$n_surv (expect 1)"
+      echo "survivor is the pwsh coherent-malformed case at exit=0: $ps_surv (expect 1)"
+      echo "bash killed the same case in the RED capture: $red_sh_kill (expect 1)"
+      echo "115/1 summary present: $summary (expect 1); EXIT_CODE=1 present: $exitline (expect 1)"
+      echo "post-fix kills of that case in both runtimes: $kills (expect 2)"
+      [ "$n_surv" -eq 1 ] && [ "$ps_surv" -eq 1 ] && [ "$red_sh_kill" -eq 1 ] \
+        && [ "$summary" -eq 1 ] && [ "$exitline" -eq 1 ] && [ "$kills" -eq 2 ] \
+        && echo "MALFORMED-RED: genuine pre-fix capture of the required malformed-corpus case"
+
+--- survivor lines in the RED capture ---
+88:MUTATION-SURVIVED: corpus-and-template-bad-heading [ps1] exit=0 expected=FAIL: full requirements.md canonicalizes without parse fallback
+--- summary and exit in the RED capture ---
+256:MUTATION SUMMARY: 115 killed, 1 survived
+257:EXIT_CODE=1
+--- the same case in the current, post-fix log ---
+88:MUTATION-KILLED: corpus-and-template-bad-heading [sh] exit=1 evidence=FAIL: full requirements.md canonicalizes without parse fallback
+89:MUTATION-KILLED: corpus-and-template-bad-heading [ps1] exit=1 evidence=FAIL: full requirements.md canonicalizes without parse fallback
+
+survivors=1 (expect 1)
+survivor is the pwsh coherent-malformed case at exit=0: 1 (expect 1)
+bash killed the same case in the RED capture: 1 (expect 1)
+115/1 summary present: 1 (expect 1); EXIT_CODE=1 present: 1 (expect 1)
+post-fix kills of that case in both runtimes: 2 (expect 2)
+MALFORMED-RED: genuine pre-fix capture of the required malformed-corpus case
+
+exit status: 0

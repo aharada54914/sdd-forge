@@ -17,17 +17,26 @@
 # cut would report confident conclusions about material they never saw,
 # which is worse than a failed run that says so plainly.
 #
-# Per-file elision (only when --max-bytes is set): a single evidence file --
-# either one under the reviewed task's own verification/<task_id>/
-# directory, or a path the task's own contract.json names in an "evidence",
-# "red_evidence", or "green_evidence" field, wherever in the repo that path
-# lives -- that exceeds one quarter of --max-bytes is included as its
-# first/last 40 lines plus a marker stating how many bytes were elided from
-# the middle and from which path -- never silently. Spec documents, the
-# task's own contract/evidence.json, the implementation report, and every
-# path the report's "## Outputs" table declares are never elided. If the
-# bundle is still over --max-bytes after elision, this script still fails
-# closed exactly as above.
+# Per-file elision (only when --max-bytes is set, and only when the whole
+# bundle exceeds it): a two-tier, budget-driven cut. Tier one is the
+# reviewed task's own verification/<task_id>/ evidence directory plus every
+# path the task's own contract.json names in an "evidence", "red_evidence",
+# or "green_evidence" field, wherever in the repo that path lives -- the
+# task's own raw log/tool-output noise. Tier two -- used ONLY once every
+# tier-one candidate has been through the loop below and the bundle is
+# STILL over --max-bytes -- is the CURRENT worktree content of every path
+# the implementation report's "## Outputs" table declares. Within each
+# tier, the largest remaining candidate is cut first, to its first/last 40
+# lines plus a marker stating how many bytes were elided from the middle
+# and from which path -- never silently -- re-measuring the bundle after
+# every single cut and stopping the moment it fits. Tier two is never
+# touched while tier one could still reduce the bundle: a reviewer told to
+# judge material "as it stands" should lose incidental log noise before
+# losing any of the source under review, and only ever as much of either as
+# the cap forces. Spec documents, the task's own contract/evidence.json,
+# and the implementation report are in neither tier -- never elided, at any
+# bundle size. If the bundle is still over --max-bytes after both tiers are
+# exhausted, this script still fails closed exactly as above.
 #
 # Security (design.md §6):
 #   * Fail-closed consent gate: exits non-zero without writing output unless
@@ -263,11 +272,18 @@ if (-not $ConsentKind) {
 #      panelists already raised about source code, one level over). See
 #      Get-PpiContractEvidencePaths.
 #   4. the reviewed task's own implementation report
-#   5. the CURRENT content of every path the report's "## Outputs" table
-#      declares -- appended below, after Invoke-DeclaredOutputsCompleteness
-#      Check resolves each row (see $script:PpiDeclaredContent and
-#      Add-PpiDeclaredOutputContent), reusing that single resolution rather
-#      than re-reading paths a second, differently-behaved way.
+#   5. the CURRENT worktree content of every path the report's "## Outputs"
+#      table declares -- appended below, after
+#      Invoke-DeclaredOutputsCompletenessCheck resolves each row (see
+#      $script:PpiDeclaredContent and Add-PpiDeclaredOutputContent). The
+#      completeness check may still consult the declaration commit to
+#      decide whether a row was ever true, but that historical blob is
+#      never what lands in the bundle: a row whose worktree hash no longer
+#      matches the declared one still contributes its worktree bytes, plus
+#      an in-bundle notice that the report's declaration is stale; a row
+#      absent from the worktree entirely contributes no content, only a
+#      notice -- reviewing material a panelist is told to judge "as it
+#      stands" must never be quietly historical.
 # --input is unchanged for a literal FILE argument (still read verbatim --
 # this is the shape used by secret-sanitization fixtures, and is orthogonal
 # to feature/task composition). --input is retained as the completeness
@@ -406,17 +422,39 @@ $script:PpiSeenRelPaths = New-Object System.Collections.Generic.HashSet[string]
 # elision can fix that, so refusing to write is correct -- identical in
 # spirit to failing closed when there were no elidable candidates at all.
 #
-# Scope: elision applies ONLY to files pulled in by step 3 below (the
-# reviewed task's own verification/<task_id>/ evidence directory). Spec
-# documents (step 1), the task's own contract/evidence.json (step 2), the
-# implementation report (step 4), and every declared-outputs row (step 5
-# -- this is precisely "a source file named in the Outputs table") are
-# never elided: those are the bundle's actual claims and their supporting
-# source, not raw log noise, and truncating any of them would gut the
-# bundle's whole purpose. Head/tail size stays a fixed line count (not
-# proportional to the cap) -- this exists purely for reviewer legibility
-# (show a log's setup and its final summary), never as a byte dial; the
-# byte-target job stays entirely with --max-bytes and the budget loop.
+# Scope, two tiers. Tier one (elidable first -- see $script:PpiElidableIndex)
+# is step 3 (the reviewed task's own verification/<task_id>/ evidence
+# directory) plus step 3b (contract-declared evidence found elsewhere in
+# the repo) -- the task's own raw log/tool-output noise. Tier two (elidable
+# only once tier one's own budget loop has run and the bundle is STILL over
+# cap -- see $script:PpiDeclaredElidableIndex, built by
+# Add-PpiDeclaredOutputContent/Build-PpiDeclaredContent below) is step 5,
+# every declared-outputs row -- the source the report's claims are actually
+# about. That ordering is the point: a reviewer told to judge review
+# material "as it stands" should lose incidental log noise long before
+# losing any of the source under review, and only ever as much of either as
+# the cap actually forces. It took a real production bundle to justify
+# cutting declared-outputs content at all -- a 263,703-byte whole-repo
+# CHANGELOG.md, 25% of the bundle, for a task that appended a handful of
+# lines to it -- but that file is still review material, so it is the LAST
+# thing this loop will touch, not the first.
+#
+# Spec documents (step 1), the task's own contract/evidence.json (step 2),
+# and the implementation report (step 4) are in NEITHER tier -- never
+# elided, at any bundle size. A cut requirements.md or design.md cannot be
+# reviewed against its own acceptance criteria, and a cut implementation
+# report is the very thing under review; unlike a declared-outputs row --
+# one file among several, each independently readable -- these are
+# singular per-bundle documents where head/tail elision would routinely
+# remove the exact criteria or Outputs table a panelist needs to judge the
+# rest of the bundle by. A third tier for either was considered and
+# rejected for that reason: there is no partial version of "the criteria
+# this task is judged against" that stays meaningful once cut.
+#
+# Head/tail size stays a fixed line count (not proportional to the cap) --
+# this exists purely for reviewer legibility (show a log's setup and its
+# final summary), never as a byte dial; the byte-target job stays entirely
+# with --max-bytes and the budget loop, in both tiers.
 $script:PpiElideLines = 40
 
 # One file's content, elided to its first/last $PpiElideLines lines plus a
@@ -556,7 +594,12 @@ if ((Get-Item $InputPath).PSIsContainer) {
                 $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $depResult.Candidate))
                 $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $depBytes; AbsPath = $depResult.Candidate; RelPath = $depPath }
             } else {
-                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but no file exists there]`n"
+                # WFI-059: name the join that was actually attempted, not just
+                # "there". The base is the literal token <project-root>, not an
+                # absolute path: the sanitize step below redacts every absolute
+                # path before this bundle reaches a vendor, so an absolute form
+                # would always reach the reviewer as "[PATH_REDACTED]".
+                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but no file exists at <project-root>/$depPath]`n"
             }
             $script:PpiSeenRelPaths.Add($depPath) | Out-Null
         }
@@ -598,6 +641,25 @@ function Build-PpiStep3Content {
     return $content
 }
 
+# $script:PpiDeclaredRows accumulates one record per "## Outputs" row
+# Invoke-DeclaredOutputsCompletenessCheck resolves (step 5 below):
+# RowPath, the resolved worktree Candidate ($null when there is none),
+# and Staleness ("" | "StaleHash" | "Missing"). Populated in both --input
+# modes: a literal-file --input can still name a task with its own
+# implementation report and Outputs table. Populated once -- it never
+# depends on any elision decision, only on what
+# Invoke-DeclaredOutputsCompletenessCheck resolved.
+# $script:PpiDeclaredElidableIndex is the SAME PSCustomObject
+# (Bytes/AbsPath/RelPath) shape $script:PpiElidableIndex uses, but only
+# for rows that carry real content -- never for a "Missing" row, which has
+# nothing to elide. $script:PpiDeclaredContent itself is (re)built from
+# $script:PpiDeclaredRows by Build-PpiDeclaredContent below, once with an
+# empty elide-set (tier two's own "as if elision never existed" version)
+# and, only if tier one's own loop leaves the bundle still over cap, again
+# with one more RelPath added each time -- largest tier-two candidate
+# first, exactly mirroring Build-PpiStep3Content's shape for tier one.
+$script:PpiDeclaredRows = New-Object System.Collections.Generic.List[object]
+$script:PpiDeclaredElidableIndex = @()
 $script:PpiDeclaredContent = ""
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
@@ -636,10 +698,10 @@ $script:PpiDeclaredContent = ""
 # every caller that predates this convention, e.g. this script's own
 # existing test fixtures).
 #
-# Declaration-commit fallback (staleness of shared, living files): a row
-# that is absent, or hash-mismatched, under ProjectRoot after both roots
-# have been tried is not necessarily a lie -- CHANGELOG.md and a feature's
-# own tasks.md are declared as whole-file hashes but are shared files every
+# Declaration-commit check (staleness of shared, living files): a row that
+# is absent, or hash-mismatched, under ProjectRoot after both roots have
+# been tried is not necessarily a lie -- CHANGELOG.md and a feature's own
+# tasks.md are declared as whole-file hashes but are shared files every
 # sibling task edits after this report was written, so an accurate
 # declaration goes stale the moment the next task commits. Rather than
 # recording a commit in the report schema, the "declaration commit" (the
@@ -653,11 +715,99 @@ $script:PpiDeclaredContent = ""
 # translation. A row that only matched under InputRoot has no such form and
 # is never retried this way -- see Invoke-DeclaredOutputsCompletenessCheck.
 # Every acceptance via this path prints a distinct stderr notice (never
-# silent); it must never become a way for a check to quietly stop verifying
-# content it claims to verify.
+# silent).
+#
+# This check decides ONE thing only: whether the row was ever true (was the
+# declaration accurate as of the commit that wrote it), which keeps the
+# build failing exactly as before for a row satisfiable by neither the
+# worktree nor the declaration commit. It must never become a way for a
+# check to quietly stop verifying content it claims to verify -- and, as of
+# the fix below, it must never become a way for a REVIEW BUNDLE to carry
+# historical bytes as if they were current ones either. A row accepted
+# through this path is content-wise handled by Add-PpiDeclaredOutputContent
+# as "StaleHash" (worktree file exists, gets served, hash mismatch is
+# called out in-bundle) or "Missing" (no worktree file at all, no content
+# to serve, called out in-bundle) -- never by reading the declaration-
+# commit blob into the bundle.
 
 $script:PpiDeclCommitChecked = $false
 $script:PpiDeclCommit = $null
+
+# Parse a report's ## Outputs section into the same record shape the sh twin's
+# _ppi_extract_declared_output_rows emits: "ROW<TAB>path<TAB>hash" for a data
+# row, "UNPARSEABLE<TAB>line" for a line that begins like one and is not.
+#
+# One parser, two consumers: the completeness check below and the WFI-058
+# anchor scan. Keeping them on one function is the point -- an anchor computed
+# from a different row set than the authorization boundary reads would drift
+# silently the first time either copy of the regex was touched.
+function Get-PpiDeclaredOutputRows {
+    param([string[]]$Lines)
+
+    $records = New-Object System.Collections.Generic.List[string]
+    $inOutputs = $false
+    foreach ($rawLine in $Lines) {
+        $line = ([string]$rawLine).TrimEnd("`r")
+        if ($line -eq "## Outputs") { $inOutputs = $true; continue }
+        if ($line -match "^## ") {
+            if ($inOutputs) { break }
+            continue
+        }
+        if (-not $inOutputs) { continue }
+
+        # Neither cell boundary is anchored tight against the backtick that
+        # closes it: real annotated rows put the free text in either
+        # position -- AFTER the hash, still inside that same cell, e.g.
+        # "| `path` | `hash` (drifted -- extended by `sha1` ...) |"
+        # (epic-193 T-004, caught by a panelist), or BETWEEN the path and
+        # the column separator, e.g. "| `path` (added) | `hash` |"
+        # (epic-195 T-005, found by running this exact fix against all
+        # seven real corpus bundles, not reasoning from the shape in
+        # isolation). "[^|]*" between the two captures tolerates the
+        # second case; requiring a full "\|\s*$" at either boundary -- the
+        # sh twin's old exact-backtick-count parser's, and this regex's own
+        # first draft -- rejected one or the other for the same reason: an
+        # annotation breaking a strict "nothing else in this cell"
+        # assumption.
+        $m = [regex]::Match($line, '^\| `([^`]*)`[^|]*\| `([^`]*)`')
+        if (-not $m.Success) {
+            # A line that begins like a data row ("| `") but does not fully
+            # match is never silently dropped -- the header row, the `---`
+            # separator row, blank lines, and stray prose never begin that
+            # way, so this cannot mistake ordinary table furniture for a
+            # failed parse. Nothing about this row's declared path/hash is
+            # known, so there is nothing to check completeness against --
+            # unlike a verified-absent row (declaration-commit fallback
+            # below), NOTHING was checked here at all, which this project
+            # treats as a strictly worse gap, not a milder one. Fails the
+            # build exactly like every other gap kind -- never silently
+            # skipped.
+            if ($line -match '^\| `') {
+                $records.Add("UNPARSEABLE`t" + ($line -replace "`t", " "))
+            }
+            continue
+        }
+        $records.Add("ROW`t" + $m.Groups[1].Value + "`t" + $m.Groups[2].Value)
+    }
+    return $records.ToArray()
+}
+
+# Fingerprint of a report's ## Outputs section, used to decide WHEN that
+# section last changed. Row extraction is reused verbatim so the fingerprint
+# tracks exactly the rows the authorization boundary reads -- reflowed prose
+# or an edited heading elsewhere in the report does not move the anchor.
+function Get-PpiOutputsFingerprint {
+    param([string[]]$Lines)
+
+    $joined = (@(Get-PpiDeclaredOutputRows -Lines $Lines) -join "`n")
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($joined)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+        return ([BitConverter]::ToString($sha.ComputeHash($bytes)) -replace '-', '').ToLower()
+    } finally {
+        $sha.Dispose()
+    }
+}
 
 # Lazily derive & cache the declaration commit. Computed at most once per
 # invocation (a report with no git history, or no git binary at all, still
@@ -674,9 +824,54 @@ function Get-PpiDeclarationCommit {
     if ($LASTEXITCODE -ne 0) { return $null }
 
     $reportRelPath = "reports/implementation/$Feature/$TaskId.md"
-    $result = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $result) { return $null }
-    $script:PpiDeclCommit = [string]$result
+    $reportAbsPath = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
+
+    # WFI-058: anchor to the last commit that changed the report's ## Outputs
+    # SECTION, not the last commit that touched the report FILE. The two are
+    # the same event only until something edits the report for an unrelated
+    # reason -- a machine-readable header line, an addendum, a status word --
+    # after the declared outputs have legitimately drifted. When that happens
+    # the file-anchored lookup lands PAST the drift, every previously
+    # tolerated row stops verifying, and bundle preparation fail-closes on a
+    # tree that was fine the day before. Measured on epic-194: commit
+    # 8456b861 added "- Task ID:" header lines to three reports whose Outputs
+    # rows had already drifted through the owner-approved apply chain, and
+    # the next bundle build refused with nine hash mismatches.
+    #
+    # Walk the report's own history newest-first and keep the OLDEST
+    # consecutive commit whose Outputs section still equals the current one:
+    # that is where this section's content was introduced, and it is the tree
+    # state the declared hashes were written against.
+    #
+    # The historical blob is compared as PARSED ROWS, not as bytes, so the
+    # encoding drift that "git show" through the PowerShell pipeline can
+    # introduce cannot move the anchor. The hash comparison itself still goes
+    # through the byte-exact temp-file path in
+    # Test-DeclaredOutputAtDeclarationCommit below.
+    $anchor = $null
+    if (Test-Path -LiteralPath $reportAbsPath) {
+        $currentFp = Get-PpiOutputsFingerprint -Lines (Get-Content -Encoding Utf8 -LiteralPath $reportAbsPath)
+        foreach ($commit in @(& git -C $ProjectRoot log --format='%H' -- $reportRelPath 2>$null)) {
+            $commitId = ([string]$commit).Trim()
+            if (-not $commitId) { continue }
+            $blob = @(& git -C $ProjectRoot show "${commitId}:${reportRelPath}" 2>$null)
+            if ($LASTEXITCODE -ne 0) { break }
+            if ((Get-PpiOutputsFingerprint -Lines $blob) -ne $currentFp) { break }
+            $anchor = $commitId
+        }
+    }
+
+    # No commit carries the current section (the table itself is edited but
+    # uncommitted): keep the historical file anchor rather than losing the
+    # fallback entirely. A wrong anchor still cannot admit anything -- the row
+    # is re-hashed against that commit's tree either way.
+    if (-not $anchor) {
+        $fallback = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
+        if ($LASTEXITCODE -eq 0 -and $fallback) { $anchor = ([string]$fallback).Trim() }
+    }
+    if (-not $anchor) { return $null }
+
+    $script:PpiDeclCommit = $anchor
     return $script:PpiDeclCommit
 }
 
@@ -713,7 +908,7 @@ function Test-DeclaredOutputAtDeclarationCommit {
     if ($actualHash -ne $RowHash) { return $false }
 
     $shortCommit = $commit.Substring(0, [Math]::Min(7, $commit.Length))
-    [Console]::Error.WriteLine("prepare-panelist-input: declared output verified at declaration commit ${shortCommit}: ${RowPath} (drifted since)")
+    [Console]::Error.WriteLine("prepare-panelist-input: declared output verified at declaration commit ${shortCommit} (last ## Outputs change): ${RowPath} (drifted since)")
     return $true
 }
 
@@ -723,16 +918,44 @@ function Test-DeclaredOutputAtDeclarationCommit {
 # used again here, unchanged, by Invoke-DeclaredOutputsCompletenessCheck
 # below.)
 
-# Append the CURRENT content the completeness check just verified for one
-# declared-outputs row into $script:PpiDeclaredContent -- reusing
-# Invoke-DeclaredOutputsCompletenessCheck's own resolution (candidate
-# worktree file, or the declaration-commit blob) rather than re-reading the
-# row a second, differently-behaved way. Skips a row already pulled in by
-# the spec-document/task-verification/implementation-report composition
-# above (see $script:PpiSeenRelPaths) -- comparison is only meaningful for
-# project-root-relative rows (ProjectRelative = $true); a row that only
-# matched under --input has no comparable identity in that set and is never
-# deduplicated.
+# Record one declared-outputs row into $script:PpiDeclaredRows (and, when
+# it carries real content, into $script:PpiDeclaredElidableIndex -- tier
+# two's own elidable candidate set). Invoke-DeclaredOutputsCompletenessCheck
+# decides only whether the row was ever true (build-gate job, unchanged);
+# this function decides what a reviewer actually reads, and it reads from
+# the worktree candidate whenever one exists -- NEVER the declaration-
+# commit blob, which would hand a panelist code that no longer exists in
+# the tree it is asked to review. This function itself no longer builds
+# $script:PpiDeclaredContent -- Build-PpiDeclaredContent does, from the
+# rows recorded here, so tier two's own budget loop can rebuild it more
+# than once, exactly as Build-PpiStep3Content already does for tier one.
+# Skips a row already pulled in by the spec-document/task-verification/
+# implementation-report composition above (see $script:PpiSeenRelPaths) --
+# comparison is only meaningful for project-root-relative rows
+# (ProjectRelative = $true); a row that only matched under --input has no
+# comparable identity in that set and is never deduplicated. -Staleness
+# selects which case this call is:
+#   ""          a normal match -- the declared hash was verified directly
+#               against the worktree candidate. No notice needed.
+#   "StaleHash" the worktree candidate exists but its hash no longer
+#               matches the declared one (only the declaration-commit blob
+#               matched it, via Test-DeclaredOutputAtDeclarationCommit).
+#               Served content is still $Candidate -- the CURRENT worktree
+#               bytes -- plus an in-bundle notice that the report's
+#               declared hash for this path is stale, so the reviewer
+#               knows both what the code is now and that the report
+#               describing it is out of date. Both notices (stale-hash and
+#               elided) can land on the same row -- see
+#               Build-PpiDeclaredContent, which prints the staleness
+#               header once and independently decides whether the BODY
+#               that follows it is whole or elided; the two never share a
+#               line, so eliding one never overwrites the other.
+#   "Missing"   no worktree candidate exists at all -- the row matched only
+#               at the declaration commit. There is no current content to
+#               serve; falling back to the declaration-commit blob here
+#               would silently hand the reviewer a file that has been
+#               deleted. Instead this appends only a notice, and -- having
+#               no candidate -- is never a tier-two elision candidate.
 function Add-PpiDeclaredOutputContent {
     param(
         [string]$RowPath,
@@ -740,29 +963,67 @@ function Add-PpiDeclaredOutputContent {
         [bool]$ProjectRelative,
         [string]$ProjectRoot,
         [string]$Feature,
-        [string]$TaskId
+        [string]$TaskId,
+        [string]$Staleness = ""
     )
 
     if ($ProjectRelative -and $script:PpiSeenRelPaths.Contains($RowPath)) {
         return
     }
 
+    $script:PpiDeclaredRows.Add([PSCustomObject]@{
+        RowPath   = $RowPath
+        Candidate = $Candidate
+        Staleness = $Staleness
+    }) | Out-Null
+
     if ($Candidate) {
-        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate
-        $script:PpiDeclaredContent += "# ---- $RowPath (declared output) ----`n$content`n"
-    } else {
-        $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
-        $tempFile = [IO.Path]::GetTempFileName()
-        try {
-            & git -C $ProjectRoot show "${commit}:${RowPath}" > $tempFile 2>$null
-            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $tempFile
-        } finally {
-            Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
-        }
-        $script:PpiDeclaredContent += "# ---- $RowPath (declared output, at declaration commit $commit) ----`n$content`n"
+        $bytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate))
+        $script:PpiDeclaredElidableIndex += [PSCustomObject]@{ Bytes = $bytes; AbsPath = $Candidate; RelPath = $RowPath }
     }
 
     if ($ProjectRelative) { $script:PpiSeenRelPaths.Add($RowPath) | Out-Null }
+}
+
+# Rebuilds $script:PpiDeclaredContent from scratch from
+# $script:PpiDeclaredRows, given the set of RelPaths ($ElideSet) that
+# should be elided THIS attempt -- mirrors Build-PpiStep3Content's shape
+# exactly, one tier over. A row with no worktree Candidate ("Missing") is
+# never in $ElideSet (it has no $script:PpiDeclaredElidableIndex entry to
+# be sorted into) and always renders its own fixed notice body. Every
+# other row renders its staleness header (if any) followed by either its
+# whole content or, when its RowPath is in $ElideSet,
+# Get-PpiElidedContent's head/tail/marker body -- the SAME function tier
+# one uses, so the marker text and byte-accounting are identical between
+# tiers.
+function Build-PpiDeclaredContent {
+    param([string[]]$ElideSet)
+    $content = ""
+    foreach ($row in $script:PpiDeclaredRows) {
+        switch ($row.Staleness) {
+            "StaleHash" {
+                $header = "# ---- $($row.RowPath) (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----"
+            }
+            "Missing" {
+                $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+                $header = "# ---- $($row.RowPath) (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit $commit, the path no longer exists in the current tree) ----"
+            }
+            default {
+                $header = "# ---- $($row.RowPath) (declared output) ----"
+            }
+        }
+
+        if (-not $row.Candidate) {
+            $content += "$header`n[no current content: this declared output does not exist in the worktree]`n"
+        } elseif ($ElideSet -contains $row.RowPath) {
+            $body = Get-PpiElidedContent -FilePath $row.Candidate -Label $row.RowPath
+            $content += "$header`n$body`n"
+        } else {
+            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $row.Candidate
+            $content += "$header`n$body`n"
+        }
+    }
+    return $content
 }
 
 function Invoke-DeclaredOutputsCompletenessCheck {
@@ -772,20 +1033,14 @@ function Invoke-DeclaredOutputsCompletenessCheck {
     if (-not (Test-Path -LiteralPath $implReportPath)) { return }
 
     $gaps = New-Object System.Collections.Generic.List[string]
-    $inOutputs = $false
-    foreach ($rawLine in (Get-Content -Encoding Utf8 $implReportPath)) {
-        $line = $rawLine.TrimEnd("`r")
-        if ($line -eq "## Outputs") { $inOutputs = $true; continue }
-        if ($line -match "^## ") {
-            if ($inOutputs) { break }
+    foreach ($record in @(Get-PpiDeclaredOutputRows -Lines (Get-Content -Encoding Utf8 $implReportPath))) {
+        $fields = $record -split "`t", 3
+        if ($fields[0] -eq "UNPARSEABLE") {
+            $gaps.Add("declared output row could not be parsed: " + $fields[1])
             continue
         }
-        if (-not $inOutputs) { continue }
-
-        $m = [regex]::Match($line, '^\| `([^`]*)` \| `([^`]*)` \|\s*$')
-        if (-not $m.Success) { continue }
-        $rowPath = $m.Groups[1].Value
-        $rowHash = $m.Groups[2].Value.ToLower()
+        $rowPath = $fields[1]
+        $rowHash = ([string]$fields[2]).ToLower()
         if ([string]::IsNullOrEmpty($rowPath)) { continue }
 
         if (-not (Test-DeclaredOutputCanonicalPath $rowPath)) {
@@ -819,7 +1074,7 @@ function Invoke-DeclaredOutputsCompletenessCheck {
                 # (see Test-DeclaredOutputAtDeclarationCommit).
                 if (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash) {
                     Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
-                        -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+                        -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -Staleness "Missing"
                     continue
                 }
                 $gaps.Add("declared output missing from bundle: $rowPath")
@@ -831,8 +1086,8 @@ function Invoke-DeclaredOutputsCompletenessCheck {
         if ($actualHash -ne $rowHash) {
             if ($rowIsProjectRelative -and
                 (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash)) {
-                Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
-                    -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+                Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $candidate -ProjectRelative $true `
+                    -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -Staleness "StaleHash"
                 continue
             }
             $gaps.Add("declared output hash mismatch: $rowPath")
@@ -941,25 +1196,32 @@ $($script:PpiSanitizedContent)
 "@
 }
 
-# ── Size guard (fail-closed, --max-bytes only) -- budget-driven elision ─────
-# Compose the bundle whole (empty elide-set) and measure it -- the exact
-# bytes that would be written and sent to a panelist, not an approximation.
+# ── Size guard (fail-closed, --max-bytes only) -- two-tier budget-driven
+# elision ─────────────────────────────────────────────────────────────────
+# Compose the bundle whole (empty elide-sets, both tiers) and measure it --
+# the exact bytes that would be written and sent to a panelist, not an
+# approximation. A bundle that already fits never touches either tier's
+# build function again after this first call, so it is byte-for-byte what
+# it would be with no elision logic in this script at all.
 
 $elideSet = @()
 $step3Content = Build-PpiStep3Content -ElideSet $elideSet
+$declaredElideSet = @()
+$script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
 Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
 $bundle = Get-PpiBundlePreview
 $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
 
 $elidedCount = 0
+$declaredElidedCount = 0
 if ($MaxBytes) {
     $maxBytesInt = [long]$MaxBytes
 
     if ($bundleBytes -gt $maxBytesInt) {
-        # Over cap with nothing elided yet. Elide elidable candidates one
-        # at a time, LARGEST FIRST, recomputing the actual sanitized
-        # bundle size after each (never estimated), stopping the moment
-        # it fits.
+        # Tier one: the task's own verification/<task_id>/ evidence plus
+        # contract-declared evidence. Elide candidates one at a time,
+        # LARGEST FIRST, recomputing the actual sanitized bundle size
+        # after each (never estimated), stopping the moment it fits.
         $sortedCandidates = $script:PpiElidableIndex | Sort-Object -Property Bytes -Descending
         foreach ($cand in $sortedCandidates) {
             $elideSet += $cand.RelPath
@@ -971,21 +1233,44 @@ if ($MaxBytes) {
             if ($bundleBytes -le $maxBytesInt) { break }
         }
 
+        # Tier two: declared-outputs rows -- the source under review.
+        # Reached ONLY when tier one's own loop above (every candidate
+        # offered a chance to help, stopping early the moment it was
+        # enough) still leaves the bundle over cap. Same largest-first,
+        # re-measure-after-each, stop-the-moment-it-fits shape as tier
+        # one, over $script:PpiDeclaredElidableIndex instead -- see the
+        # file header and the "Scope, two tiers" comment above
+        # $script:PpiElideLines for why this tier exists and why it is
+        # never tried first.
         if ($bundleBytes -gt $maxBytesInt) {
-            # Exhausted every elidable candidate (or there were none) and
-            # the bundle is still over cap -- the degenerate case where
-            # even every elidable file's own head/tail/marker floor,
-            # summed with the content that is never elided, still exceeds
-            # --max-bytes. No further elision is possible; refusing to
-            # write is the only honest outcome, identical in shape to the
-            # no-elidable-candidates case this replaces.
+            $sortedDeclaredCandidates = $script:PpiDeclaredElidableIndex | Sort-Object -Property Bytes -Descending
+            foreach ($dcand in $sortedDeclaredCandidates) {
+                $declaredElideSet += $dcand.RelPath
+                $declaredElidedCount++
+                $script:PpiDeclaredContent = Build-PpiDeclaredContent -ElideSet $declaredElideSet
+                Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
+                $bundle = Get-PpiBundlePreview
+                $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+                if ($bundleBytes -le $maxBytesInt) { break }
+            }
+        }
+
+        if ($bundleBytes -gt $maxBytesInt) {
+            # Exhausted every elidable candidate in BOTH tiers (or there
+            # were none) and the bundle is still over cap -- the
+            # degenerate case where even every elidable file's own
+            # head/tail/marker floor, summed with the content that is
+            # never elided, still exceeds --max-bytes. No further elision
+            # is possible; refusing to write is the only honest outcome,
+            # identical in shape to the no-elidable-candidates case this
+            # replaces.
             $rawContentBytes = [System.Text.Encoding]::UTF8.GetByteCount("$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)")
             $declaredContentBytes = [System.Text.Encoding]::UTF8.GetByteCount($script:PpiDeclaredContent)
-            [Console]::Error.WriteLine("prepare-panelist-input: sanitized bundle exceeds --max-bytes for ${Feature}/${TaskId} even after eliding $elidedCount elidable file(s) (${bundleBytes} > ${maxBytesInt} bytes) — refusing to write a silently-truncated bundle.")
+            [Console]::Error.WriteLine("prepare-panelist-input: sanitized bundle exceeds --max-bytes for ${Feature}/${TaskId} even after eliding $elidedCount task-evidence file(s) and $declaredElidedCount declared-output file(s) (${bundleBytes} > ${maxBytesInt} bytes) — refusing to write a silently-truncated bundle.")
             [Console]::Error.WriteLine("  spec documents + task verification + implementation report: ${rawContentBytes} bytes")
             [Console]::Error.WriteLine("  of which declared-outputs content:                          ${declaredContentBytes} bytes")
             [Console]::Error.WriteLine("  sanitized bundle (header + content) that would have been written: ${bundleBytes} bytes")
-            [Console]::Error.WriteLine("Every elidable verification-directory file is already cut to its head/tail; reduce input size further (e.g. split the report itself or a declared-outputs source) and retry, or omit --max-bytes to bypass the guard.")
+            [Console]::Error.WriteLine("Every elidable verification-directory file and every elidable declared-output file is already cut to its head/tail; reduce input size further (e.g. split the report itself) and retry, or omit --max-bytes to bypass the guard.")
             exit 1
         }
     }

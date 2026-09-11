@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 3,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "e49d1b7d52e6c9861fe6b88ac6ad2cda4c7d30979251c904738f2b1a9b02ab02",
+  "requirements_sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390",
+  "acceptance_sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d",
+  "design_sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78",
+  "traceability_sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d",
+  "layer_sha256": {"ux-spec.md":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba","frontend-spec.md":"bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67","infra-spec.md":"63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9","security-spec.md":"4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+  "input_sha256": "9ac537e9ecfa4dc360f9966733134bec75f01da178e13e0c287be47214a53500",
+  "generated_at": "2026-08-08T14:42:25Z"
+}

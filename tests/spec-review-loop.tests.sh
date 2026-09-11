@@ -307,6 +307,78 @@ jq '.reviewers[0].allowed_input_manifest += [{"path":"/elsewhere/random.md","sha
 mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
 
+# A sealed contract is evidence about the past. Validating any of its entries
+# against the live working tree is a category error, and investigation.md is the
+# entry where that error is fatal: it is BY DESIGN the document that accumulates
+# the amendment record across stages, so it legitimately grows after a round is
+# sealed. Comparing live bytes to the correctly-pinned ones mismatched and
+# refused --reset with "previous terminal contract is invalid" -- permanently,
+# because nothing can un-grow the file. Reproduced on epic-195. The live-vs-
+# pinned question belongs to check-workflow-state.sh, which asks it deliberately
+# and carries the amendment-record growth tolerance for exactly this file.
+pin_investigation() {
+  local directory="$1" sha tmp file
+  sha="$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')"
+  for file in reviewer-a.json reviewer-b.json; do
+    tmp="${directory}/${file}.tmp"
+    jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
+      '.allowed_input_manifest += [{path:$path,sha256:$sha}]' "${directory}/${file}" > "${tmp}"
+    mv "${tmp}" "${directory}/${file}"
+  done
+  tmp="${directory}/spec-review-contract.tmp"
+  jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
+    '.reviewers[].allowed_input_manifest += [{path:$path,sha256:$sha}]' \
+    "${directory}/spec-review-contract.json" > "${tmp}"
+  mv "${tmp}" "${directory}/spec-review-contract.json"
+}
+
+cleanup
+mkdir -p "${SPEC_DIR}"
+printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
+printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+"${PRECHECK}" "${FEATURE}" 1 1
+SEALED="${REPORT_ROOT}/attempt-1/round-1"
+write_contract "${SEALED}" PASS none
+pin_investigation "${SEALED}"
+sealed_investigation_sha="$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "a terminal contract that pins investigation.md must validate while the file is untouched"
+
+# The real shape: the amendment record grows after the seal. The pin is still
+# correct evidence; only the present moved on.
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '\n## Amendment Re-Review Context\n\n- Recorded after the round was sealed.\n' >> "${SPEC_DIR}/investigation.md"
+[[ "$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')" != "${sealed_investigation_sha}" ]] ||
+  fail "growth fixture did not actually change investigation.md, so it proves nothing"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "investigation.md growing after the seal must not invalidate the sealed contract"
+
+# The mirror image: a contract that never pinned investigation.md must not be
+# invalidated by the file appearing in the tree afterwards either.
+rm -rf "${REPORT_ROOT}/attempt-2"
+rm -f "${SPEC_DIR}/investigation.md"
+write_contract "${SEALED}" PASS none
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "baseline: a contract with no investigation.md pin must validate"
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '# Investigation\n\n- Created after the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "an investigation.md created after the seal must not invalidate an unpinning contract"
+
+# Deriving from the contract must not mean trusting whatever it says: the
+# reviewers have to agree on the bytes they read.
+rm -rf "${REPORT_ROOT}/attempt-2"
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "${SPEC_DIR}/investigation.md"
+write_contract "${SEALED}" PASS none
+pin_investigation "${SEALED}"
+tmp_contract="${SEALED}/spec-review-contract.tmp"
+jq --arg path "${SPEC_DIR}/investigation.md" \
+  '(.reviewers[1].allowed_input_manifest[] | select(.path == $path) | .sha256) = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"' \
+  "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
 cleanup
 mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
 printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"

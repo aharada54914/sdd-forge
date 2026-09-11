@@ -5,6 +5,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
+# shellcheck source=tests/lib/fixture-matrix-builder.sh
+source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
 ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
 PASS=0
 FAIL=0
@@ -1825,6 +1827,35 @@ for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
 ' "${_ab_root}/cursor/mcp.json" 2>/dev/null || { fail "corrupt vscode JSON (ab): Cursor registration did not continue"; _ab_ok=0; }
 rm -rf "$_ab_root"
 [[ $_ab_ok -eq 1 ]] && ok "corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues"
+
+# ---------------------------------------------------------------------------
+# T-003 context-presence invariant: FilesOnly output is byte-identical whether
+# an otherwise identical source fixture has project-context.yaml or not.
+# ---------------------------------------------------------------------------
+_t003_absent="$(build_fixture absent absent disabled-legacy valid none)"
+_t003_present="$(build_fixture present absent advisory valid none)"
+_t003_absent_source="${_t003_absent}/source"
+_t003_present_source="${_t003_present}/source"
+_t003_absent_install="${_t003_absent}/installed"
+_t003_present_install="${_t003_present}/installed"
+clone_fixture "$SOURCE_FIXTURE" "$_t003_absent_source"
+clone_fixture "$SOURCE_FIXTURE" "$_t003_present_source"
+mkdir -p "${_t003_present_source}/sdd"
+cp -p "${_t003_present}/sdd/project-context.yaml" "${_t003_present_source}/sdd/project-context.yaml"
+_t003_failed=0
+bash "$INSTALLER" --source-directory "$_t003_absent_source" --install-root "$_t003_absent_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
+bash "$INSTALLER" --source-directory "$_t003_present_source" --install-root "$_t003_present_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
+if [[ "${T003_MUTATE_CONTEXT_INVARIANT:-}" == install-sh ]]; then
+    _t003_mutated_file="$(find "$_t003_present_install" -type f -print -quit)"
+    printf 'mutation\n' >> "$_t003_mutated_file"
+fi
+if [[ $_t003_failed -eq 0 ]] && diff -qr "$_t003_absent_install" "$_t003_present_install" >/dev/null; then
+    ok "T-003 install output is unaffected by project-context presence"
+else
+    fail "T-003 install output changed with project-context presence"
+fi
+_fixture_matrix_cleanup "$_t003_absent"
+_fixture_matrix_cleanup "$_t003_present"
 
 # ---------------------------------------------------------------------------
 # Summary

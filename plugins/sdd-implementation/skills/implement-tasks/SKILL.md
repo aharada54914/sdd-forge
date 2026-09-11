@@ -1,7 +1,7 @@
 ---
 name: implement-tasks
 description: Batch-implement all approved tasks in dependency order, then auto-transition to quality-gate when every task reaches Implementation Complete. Use after sdd-bootstrap-interviewer and before quality-gate.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 

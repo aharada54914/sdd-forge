@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 5,
+  "round": 1,
+  "requirements_sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d",
+  "acceptance_sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8",
+  "design_sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383",
+  "tasks_sha256": "80dba0cd7dea38fa6047a238acb6500048074a9cf5141fccff09cf0da444e3fd",
+  "traceability_sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67",
+    "infra-spec.md": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9",
+    "security-spec.md": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Post-implementation provenance re-binding (attempt 5, round 1). No specification document was edited for this round. The attempt-4 round-1 binding went stale because four reviewed inputs changed underneath it after that round sealed: requirements.md f8dd9574 -> 3b97c757 and acceptance-tests.md 7b62c339 -> 7f170017 (the human-approved frozen-document amendment, commits a5681c67 / 27843332 / 47cb338a), design.md 2e7c0c46 -> 3dacbe7a (the impl-stage round-2 Global Constraints amendment pointer, commit 41dac120), and tasks.md 383b9fea -> 80dba0cd. Both reviewers were launched blind against the current bytes with ledger reservations seq0781 (reviewer A) and seq0782 (reviewer B); reviewer B received only the check-IDs-and-counts integrated-summary.json. Reviewer A returned one Major (SINGLE-CONCERN, T-011: registration housekeeping under REQ-005 bundled with authoring the two new AC-040/AC-041 security tests under REQ-006). Reviewer B returned one Major (SCOPE-DISJOINT, T-004: shares tests/run-all.sh/.ps1 with T-002 and T-003 but its Blockers field enforces no ordering against either). NEEDS_WORK, 0 Critical / 2 Major / 0 Minor. Both findings would require editing the review-frozen, hash-bound tasks.md body, so they are reported for human decision rather than remediated here.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "with-findings",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-epic-195-a7-compatibility-a5r1",
+  "timestamp": "2026-08-25T03:10:00Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt5r1-seq0781",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0781",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-1/dependency-graph.json",
+          "sha256": "d917d154907231a03b6170c2dab949aa44d4e9dd97255a68b5b4c2f0b8f1c191"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+          "sha256": "af08c09508a5e01eed3f008c209eb61251f294c3a8ac445d1e6306f9ac10b085"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "80dba0cd7dea38fa6047a238acb6500048074a9cf5141fccff09cf0da444e3fd"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt5r1-seq0782",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0782",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-1/integrated-summary.json",
+          "sha256": "ea81614d24f0eaca03e4012b390198ff6e4b193df637442c53d8049bca2bcc6d"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json",
+          "sha256": "af08c09508a5e01eed3f008c209eb61251f294c3a8ac445d1e6306f9ac10b085"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "80dba0cd7dea38fa6047a238acb6500048074a9cf5141fccff09cf0da444e3fd"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    }
+  ]
+}

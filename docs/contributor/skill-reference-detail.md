@@ -585,7 +585,7 @@ Use the workflow-retrospective skill for specs/reservation/
 
 **目的**
 
-critical タスクの意味的検証を単一ベンダーに依存せず、複数の独立 LLM ベンダーによる並列盲目検証で補強します。`disable-model-invocation: true`（ユーザーが明示起動）。CI では実行しません。
+critical タスクの意味的検証を単一ベンダーに依存せず、複数の独立 LLM ベンダーによる並列盲目検証で補強します。`disable-model-invocation: false` / `user-invocable: false`（ship の Step 4 委譲から起動、WFI-054）。CI では実行しません。
 
 **2層分離**
 

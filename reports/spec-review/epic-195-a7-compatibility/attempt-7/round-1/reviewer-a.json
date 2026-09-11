@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0797",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0797",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
+      "sha256": "fe37da8623c5545a6fb3fc84983e5d98f2f8021ba603b46f3d80f96d8587dfd7"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "670aeb76586e8552d02cdbb2e5e5ad023334230dd1967dfcb53b701cddb9ae56"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-026 fixes producer, firing point, ordering rule, and test binding (TEST-018/TEST-019), and explicitly discloses the known-unsatisfied firing condition with the mechanism. A verifier can decide pass/fail and the documented exception without ambiguity. Independent enumeration of the Amendment Re-Review Context section's five previously-abbreviated tokens (2 commit hashes, 3 document digests) confirmed each now has a full, prefix-matching, cross-referenced value present in the section, so no phase-sequencing/workflow-boundary Critical arises from this round's amendment bookkeeping."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-026 traces to REQ-003 (acceptance-tests.md row 30, Requirement column); OQ-004 and the paired High Risk entry close the loop between the goal-level ordering/firing claim and its acceptance criterion. No goal in the reviewed surface found without a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-026's producer/ordering/value-normalization language plus its disclosed known-failure state and TEST-026's Notes-column (OQ-004) pointer together give a concrete, externally checkable pass/fail condition and a documented, non-silent exception rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's Safety constraints section and requirements.md's Medium Risk entry on the deliberate 4-file/no-Phase-2 scope deviation explicitly bound this package against otherwise-plausible scope creep."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The AC-009 hash-pin governance constraint is explicit and material: OQ-004 states the AC-026 firing-condition defect 'resolves together with a formal amendment of AC-009's recorded hash, which is a human procedure rather than a Phase-2/3 task decision', and the Risks register names the same approval boundary ('must not be made unilaterally')."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Risks register states a validation surface for each named risk: the Critical drift risk names AC-035c's fingerprint-drift hard-fail as the surface that turns silent drift loud; the High AC-026 risk names OQ-004's disclosure as the control since 'no automated check detects the deviation.'"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain context map or domain contract is present in this review's allowed input manifest, and no approved domain model is evidenced within the reviewed package; the check's explicit skip condition applies."
+    }
+  ],
+  "verdict": "PASS"
+}

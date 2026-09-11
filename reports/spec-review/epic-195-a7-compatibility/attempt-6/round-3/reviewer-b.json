@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0792",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0792",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-3/integrated-summary.json",
+      "sha256": "49d1a477ae195e927ec9377e3473dc991081d96b3ed52f2fc1b6ff2919b08b12"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-3/precheck-result.json",
+      "sha256": "b50495fd8edfa5a9cf572b51d2ec468c82f2a285c3f5ed176bbb0efc5150bccd"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "0e207d9ffdcb3ba22612f5694e63d1f357d62b794a0bec3933a525878a847609"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms/states (F1-F8, ASSERT/SKIP-with-activation/N-A dispositions, six canonical event kinds, Context-present-invalid variant) are each fixed by name, table (AC-028, AC-029), or field definition; no residual ambiguity found that would cause two implementers to diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Commit 8bf1cda0 withdraws the SKIP framing consistently across both documents: acceptance-tests.md AC-026/TEST-026 row (line 30) Test Type is plain 'integration' with no SKIP annotation, and requirements.md AC-026 (lines 520-532) states the criterion 'carries no SKIP disposition and is not governed by AC-034's allowlist,' matching TEST-026's covering TEST-018 (Context-absent, no upstream dependency). AC-035(b)'s unknown-SKIP hard-fail has nothing to trip on. The known-unsatisfied disclosure (requirements.md AC-026 bolded sentence; acceptance-tests.md Notes '(OQ-004)' pointer) survives in both documents in isolation, so round 1's original defect is not reintroduced. Both round-2 Criticals (this reviewer's CONTRADICTION and reviewer A's AC-OBSERVABLE) are closed."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section (requirements.md lines 849-867) plus AC-019-AC-021 (F3-invalid/F4-invalid negative variants), AC-002/AC-035/AC-041 negative self-checks, and AC-033's capability-only golden negative test cover material negative/boundary/failure paths implied by the requirements."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions section (requirements.md lines 879-896) is explicit and re-verification-gated; OQ-001-OQ-003 are resolved in-package; OQ-004 (requirements.md lines 919-952, Risks lines 984-1000) is explicitly left open as a decision needed before the fix (a human hash-amendment to AC-009), not silently assumed away."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "investigation.md's 'Round-5 extension (2026-08-25)' sub-entry (lines 480-541), part of the single '## Amendment Re-Review Context' section whose body spec-review-calibration.md (lines 79-110) requires to meet the full evidence bar including 'a verbatim, dated quotation of the human's approval statement... not a paraphrase or summary,' self-discloses at lines 484-488: 'this authorization reached this session relayed in English by the orchestrating caller, not as a verbatim source-language ruling string like the approvals quoted earlier in this entry.' Every other authorization in the same entry (base entry and Round-2/3/4 extensions) is a quoted, dated, source-language (Japanese) statement attributed directly to the human; Round-5's quotation is, by its own admission, an intermediary's relay/rendering, not the human's own statement. Calibration (lines 102-106): 'If ... the approval quotation is missing, paraphrased, or undated, the declaration does not apply: judge phase-sequencing exactly as the default Phase-1 calibration above requires, with no benefit of the doubt.' requirements.md's Overview (lines 37-49) and Non-goals (lines 250-256) both point readers at this entry as 'the authoritative framing' legitimizing citations of tasks.md/design.md/traceability.md/security-spec.md and T-005/T-006 implementation facts while Spec-Review-Status remains Pending; a downstream design/task reviewer relying on that pointer inherits an unverified assumption that this workflow boundary was cleared, when by the calibration's own strict, no-benefit-of-the-doubt text it was not. This is a spec-review-only judgment (the calibration's Amendment Re-Review Context rule applies exclusively to this gate) and is Critical per the calibration's own class: 'unsafe or unauthorized workflow boundary... that makes the specification unreviewable.' Per this session's own operating context, a message 'relayed by the orchestrating caller' is precisely the kind of agent-relayed instruction that is never itself authorization."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Apart from the APPROVAL-BOUNDARY defect above, the ACs (AC-001-AC-043), design.md pointers (Compatibility Matrix, per-kind producer table, allowlist grammar), and the fingerprint/allowlist mechanism give a design reviewer a complete, non-invented contract for every observable and gating condition named."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md carrying an approved Domain-Model-Status, and no domain/domain-contract.json, is present in the allowed manifest or referenced by requirements.md/acceptance-tests.md/investigation.md; the skip condition applies, consistent with reviewer A's SKIP recorded in integrated-summary.json."
+    }
+  ],
+  "verdict": "BLOCKED"
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 4,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "acc16be197d72bc0b13bcbf6840bdff7a215d50a13531481791ed6dde70512d2",
+  "acceptance_sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "ab9e165cac7b287db4eae687f77ad5b7c48fdd07e58a64444bc844ac380f3ec4",
+  "edit_summary": "Round 2's three findings closed. (1) Roles and Permissions now lists all four contracts/ paths the A2 Phase 2 edit touches, each with its own protection status and application route, per path rather than aggregated or counted - contracts/capability-registry.json, the path both reviewers found missing, is stated explicitly. (2) Adopted the rule: never refer to a set except by enumerating it; both amended passages were grep-checked for counts, positional forms and 'both'/'former' before commit. (3) REQ-006 fixture split: fixtures (d) and (e) re-grounded on capability-summary.schema.json's own required_lite_checks (A4-owned, shipped as required, INV-005) and on the absence of any capability-summary.yaml because A5's Resolver has not shipped; fixture (j) moved to the fragment bucket beside fixture (i) per REQ-006's own 'a fragment entry' wording; fixture (a) and the required_lite_checks half of fixture (f) keep the Registry lite_policy rationale, re-verified.",
+  "reset": false,
+  "generated_at": "2026-08-25T04:24:41Z"
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0329",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0329",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json", "sha256": "c4d92bc5612804567848f66baccfdd9f8b21dcd0eb082efd1a8aba6527e032ad"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "2ce298e5c6f9ef242683b8946cb02e3e036349d831b676658f38944b1114fe3c"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "b93bb7985d757c6ef1674a89e16d7e499ea8ac46222d77fe1d94053d94ab5938"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md Goals REQ-001-REQ-007 (lines 92-227) each resolve into concrete, measurable acceptance criteria: REQ-001 -> AC-002 (requirements.md:279-283, byte-mutation negative check), AC-003 (284-296), AC-038 (634-642, canonical target inventory); REQ-003's six event kinds each fix producer/ordering/value-normalization and trace to AC-022-AC-027 (456-501). This round's added criterion, AC-042 (651-667), gives an exact, independently measurable comparison target for F3 (required-file count, frontmatter, required headings, status field names against AC-005's full-track file set), closing the gap this attempt exists to close."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Requirement column (rows for AC-001 through AC-042, acceptance-tests.md:5-46) maps every AC back to one of REQ-001-REQ-007, and requirements.md's Goals section (lines 90-227) contains no REQ without at least one matching AC, e.g. REQ-002 -> AC-005/AC-006/AC-007/AC-030/AC-031/AC-042 (acceptance-tests.md:9,10,11,34,35,46); REQ-007 -> AC-004/AC-007/AC-016/AC-019-021/AC-034/AC-035/AC-042 (acceptance-tests.md:8,11,20,23-25,38,39,46)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Sampled ACs describe externally observable outcomes rather than intent: AC-002 (requirements.md:279-283) fixes an exact negative-mutation failure condition; AC-019 (432-441) fixes a distinct named stop event (PROJECT_CONTEXT_INVALID); AC-042 (651-667) fixes an exact structural-identity comparison (file count, frontmatter, headings, status fields) with a named SKIP/activation condition. No AC in the reviewed set states only vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md:229-255) explicitly excludes implementing Epics A1-A6, authoring test code/fixtures/registry edits, registering a ninth loop-inventory id, and re-specifying Epic A5's deferred suite in full; line 254-255 explicitly excludes any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table B1/B2 (requirements.md:804-807) fixes auth/authz for golden-baseline writes and shared-registry edits; Roles and Permissions (719-746) fixes maintainer-only canonical-write approval; REQ-006c/AC-018/AC-041 (189-207, 423-431, 624-633) fix the candidate-to-canonical approval boundary and the script's own runtime refusal guards; REQ-007/AC-034/AC-035 (208-227, 569-594) fix the SKIP/activation-condition governance constraint including the new AC-042's own Epic-A1-merge gate (651-667)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section's Critical entry (requirements.md:854-861, unmerged-upstream-epic drift) names AC-034/AC-035's allowlist and fingerprint-drift hard-fail (569-594) as its validation surface; the High entry (862-868, shared cross-epic surface blast radius) names AC-008/AC-009/AC-011/AC-012 (348-364, 374-384) fixing exact additive field shapes and byte-identical guarantees as its validation surface. No high-risk claim in the Risks section lacks a cited AC/validation path."
+    }
+  ]
+}

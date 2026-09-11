@@ -1,0 +1,87 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-impl-reviewer-a-a1r2-seq324",
+  "host_session_id": "SESS-impl-a-epic-196-a8-integration-a1r2-seq324",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "08556eb2728d4ee63bf50bd29f47cf72150ca47916e6a740ed4f58303919b4a0"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-2/precheck-result.json", "sha256": "d91bb815f7503441c4b5813d50d1889fee132d26ba95059effa49f9268f667c7"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-1/integrated-summary.json", "sha256": "71658c8025559e950d314e55d174bfbd96ba050e53e85f736c1310d43db1e83b"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 29-87) contains a mermaid flowchart with 6 subgraphs (REQ001-REQ006) and 15 named nodes with explicit dependency/integration edges (e.g. HANDOFF-->CANARY-->LIVE, LIVE-->AGGREGATE, MATRIX-->CI3), satisfying element 1 (component boundaries) with more than a one-sentence description. Element 2 (integration with existing components) is shown directly in the diagram: CI3 node is explicitly labeled 'existing 3-OS CI matrix (INV-014)' with MATRIX-->CI3, and SYN is labeled 'tests/cli-hook-enforcement.ps1 (extended, synthetic half)' referencing an existing file being extended. Element 3 (technology per layer) is carried via node labels' file extensions (.sh/.ps1/.json) and is made unambiguous document-wide by Global Constraints ('sh, bash, and PowerShell remain the deterministic runtimes this repository's existing suites already assume... this epic introduces no new runtime dependency') and the immediately-following Components table's Language column; the feature has no frontend layer at all (Design System Compliance: 'no UI surface'; requirements.md Security Boundaries: 'no user-facing entry point'), so 'data'/'infra'/script-runtime choices are the only applicable layers and are named. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Built the directed graph from every edge in the ## Architecture mermaid diagram (HANDOFF->CANARY->LIVE; MATRIX->LOCAL, MATRIX->CI3, MATRIX->DRIFT; SYN->FLAG, SYN->SUBAGENT; FLAG->LIVE; LIVE->AGGREGATE; AGGREGATE-.->REQ003 (Done-gate annotation to its own containing subgraph, not a component-to-component dependency edge); CLASS-.classifies.->{HANDOFF,MATRIX,SYN,LIVE,PATHFIX,DRIFT}; RECORD-.->{LIVE,AGGREGATE}) plus the ## Cross-Layer Dependencies section's textual dependency statements (all unidirectional, mostly onto external/other-Epic artifacts). No node has an inbound edge from a node it also has an outbound edge to; no cycle exists. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md lines 188-216) now carries all three required labeled sub-fields with substantive content: 'Data Entities:' (line 190, enumerates every new JSON file: live-host-verification-record/v1 per-cell records, nonce-ledger.json, raw capture files, a8-skip-allowlist.json, a8-expected-hook-config-digests.json, a8-trusted-signers.json, plus the four schema-shaped outputs cross-runtime-handoff-trace/v1, install-uninstall-matrix-result/v1, path-lineending-fixture-result/v1, installed-plugin-drift-report/v1); 'Existing Data Affected:' (line 202, names the read-only comparison targets — hook-config files, ~/.codex/config.toml MCP block, Epic A1's nonce-ledger.json entries — and states no existing file's content is altered by any other component); 'Migration Strategy:' (line 211, 'No migration required' with rationale that every entity is net-new and the one existing-data write, consumed_by_record, is additive metadata on an already-append-only structure). This resolves round-1's DATA-COVERAGE Major FAIL. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md lines 908-996) lists every new script/check this feature introduces (tests/cross-runtime-handoff.tests.sh/.ps1, tests/install-uninstall-matrix.tests.sh/.ps1, check-installed-plugin-drift.sh/.ps1, validate-live-host-proof.sh/.ps1, tests/path-lineending-regression.tests.sh/.ps1, and the live-host proof capture process), each with its CLI-flag contract (the HTTP-method equivalent for a script-based feature), request/response shape (the named Data Plan schemas each script emits, e.g. cross-runtime-handoff-trace/v1, installed-plugin-drift-report/v1), and exit-code/error-code contract (named ERR_* codes for validate-live-host-proof). No existing endpoint/script is deprecated or breaking-changed by this package: the one existing artifact touched, tests/cli-hook-enforcement.ps1, is explicitly stated in the Components table as adding new assertions 'in the SAME file, preserving its existing assertions unmodified', and Non-goals/Constraint Compliance confirm the package is additive-only. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 1375-1391) exists and: (1) names both trust boundaries the feature crosses, matching requirements.md's table (B1: live-host hook-activation handshake session; B2: installed-cache drift check read-only boundary); (2) states the auth/authz mechanism at each — B1 via the fortified live-host-verification-record/v1 schema's nonce/hash/session-ID/digest/timestamp fields plus two-party operator+independent-reviewer Ed25519 attestation, the AC-027 classification-mismatch/replay static check, and the validate-live-host-proof aggregate gate; B2 via check-installed-plugin-drift's read-only-only API contract (no write flag exists); (3) addresses PII/data classification by explicit reference to requirements.md's own Security Boundaries table, which states 'none (repository fixtures/session transcripts only; no production credentials or user data touched)' for both boundaries; (4) addresses the relevant OWASP-class concerns for this feature's actual attack surface — replay (nonce reuse/expiry, ERR_NONCE_REUSED/ERR_NONCE_EXPIRED), forgery/broken authentication (ERR_SIGNATURE_INVALID, ERR_SIGNER_IDENTITY_MISMATCH, ERR_SIGNER_KEY_COLLISION), and broken access control (B2's read-only-by-construction interface) are all named in the same section or its direct cross-references (Data Plan Signing Contract, Schema Validation Rules). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'test-infrastructure specification (Phase 1 — no code)', not fullstack. design.md contains no ## Frontend Plan or ## Backend Plan section (confirmed via full section-header scan: Technical Summary, Architecture, Components, Protected-File Statement, Layer Specifications, Design System Compliance, Cross-Layer Dependencies, ADR Change Log, Data Plan, API/Contract Plan, Test Strategy, Live-Host Semantic Matrix, Direct-Invocation De-Spoofing, SKIP Allowlist Activation Gate, Automated/Manual Classification Table, Path/Line-Ending Regression Matrix, Design Decisions, Global Constraints, Security Boundaries, External Integrations, Deployment/CI Plan, Constraint Compliance, Assumptions, Open Questions, Risks — none named Frontend Plan or Backend Plan). The package is explicitly declared UI-less ('no UI surface', Design System Compliance) and has 'no user-facing entry point' (requirements.md Security Boundaries), closest to the cli/library verification-tooling category among the check's enumerated skip values; frontend-backend consistency does not apply."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 998-1104) has 11 numbered items covering more than one test level with concrete planned evidence: item 4 is the unit/direct-invocation-level check (extends tests/cli-hook-enforcement.ps1's synthetic guard-contract assertions in isolation, AC-012); items 1, 2, 3, 6, 7 are integration-level fixture drives across REQ-001/002/004/005 naming exact script files and their emitted schema artifacts; item 5 is the critical-journey/E2E-equivalent verification path for this no-UI feature (the live-host proof session dispatch, AC-015/AC-028, landing under tests/hook-activation-live-proof/<matrix_cell>.json); item 10 is the aggregate acceptance gate (validate-live-host-proof, wired as Done gate + release gate). Every item cites specific AC-NNN numbers, naming concrete command/script names, report paths (tests/hook-activation-live-proof/...), and named error codes — satisfying the acceptance-criteria-to-verification traceability requirement without requiring test execution. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in ## Architecture and ## API / Contract Plan (design.md has no ## Frontend Plan/## Backend Plan) is defined somewhere in design.md: filesystem-artifact nodes (FIX, HANDOFF, MATRIX, SYN, LIVE, AGGREGATE, PATHFIX, DRIFT, plus a8-skip-allowlist.json/nonce-ledger.json/raw capture files/a8-expected-hook-config-digests.json/a8-trusted-signers.json) all have matching rows in ## Components (lines 90-104); schema/record nodes (RECORD = live-host-verification-record/v1, CANARY = canary_case sub-object) are defined in ## Data Plan (lines 218-819); CLASS (Classification table) is a literal self-reference to design.md's own ## Automated / Manual Classification Table (lines 1226-1264); FLAG and SUBAGENT (Codex plugin_hooks flag matrix, Copilot subagent case) are defined in ## Live-Host Semantic Matrix (lines 1106-1132) and ## Direct-Invocation De-Spoofing (lines 1134-1175); LOCAL (local macOS run) is defined in ## Test Strategy item 2; CI3 (existing 3-OS CI matrix) is an established existing system component cited by its own investigation.md finding ID (INV-014). No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 177-186) now proposes ADR-0028 ('Ed25519 signing and a maintainer-committed trusted-signer registry for live-host verification records') at docs/adr/0028-live-host-proof-ed25519-signing.md. Verified by direct read: the file exists (150 lines) and its content substantively matches the citation — Context/Decision/Consequences sections cover exactly the Ed25519 algorithm choice, domain-separated signing targets, and Trusted-Signer Registry design.md's Data Plan Signing Contract specifies, and its own Consequences section explicitly states 'design.md's ## ADR Change Log is updated to cite this ADR instead of \"None,\" closing the impl-review ADR-PRESENT (Major) finding from attempt-1/round-1.' This resolves round-1's ADR-PRESENT Major FAIL (design.md previously proposed no ADR for the new Ed25519 signing/trusted-key mechanism it introduces). No other new technology choice, integration pattern, or architectural departure in this package lacks ADR/precedent coverage: the SKIP Allowlist Activation Gate and Classification Table both explicitly state they reuse Epic A7's already-established governance conventions rather than introducing new architecture. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified independently: no design-system/ directory exists at the repository root (`ls design-system/` returns 'No such file or directory'). Per the check's applicability condition, this check is skipped and recorded as PASS. design.md's own ## Design System Compliance section (lines 130-133, 'Not applicable. This is internal test-infrastructure specification work with no UI surface.') is consistent with this skip, though not required once the directory-absence condition is confirmed."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified independently: no domain/ directory exists at the repository root (`ls domain/` and `cat domain/context-map.md` both return 'No such file or directory'), so no Approved Domain-Model-Status / schema-valid domain-contract.json can exist. Per the check's applicability condition, this check is skipped and recorded as PASS."
+    }
+  ]
+}

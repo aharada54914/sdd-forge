@@ -1,6 +1,47 @@
 # Changelog
 
-## Unreleased
+## v1.17.0 (2026-08-27)
+
+### Security
+
+- **ガードが `git apply` / `patch` / `git am` を素通ししていた問題（WFI-048）**:
+  R-10 の保護は「動詞＋コマンドライン上の対象」を前提にしており、対象を
+  **参照先ファイルの中**に書くコマンドを一切見ていなかった。staged patch を
+  適用すれば、`Edit` が拒否した保護ファイルの書き換えがそのまま通る。実際に
+  `2b8e528a` はこの経路で main に到達している。`docs/ci-staging/README.md` の
+  「人間が検証してから適用する」という規約は、ガードだけが強制していた。
+  - patch applier に対しては **patch を実際に読み**、`---` / `+++` ヘッダが
+    宣言する全対象を `_is_protected_gate_file` に通す。読めない・unified diff
+    として解釈できない patch は fail closed。`git am` は書き込み動詞の語彙に
+    無いため、独立したゲートとして評価する。
+  - 検査系フラグ（`--check` / `--stat` / `--numstat` / `--summary` /
+    `--dry-run`）は免除。何も変更しないうえ、README が人間に指示している検証
+    手順そのもの。セグメント単位判定なので迂回には使えない。
+  - **トークンに埋没したパス**（`open('<path>','a')` のように後方一致が届かない
+    形）も検出する。従来の末尾一致テストが先に走るため、判定が緩む方向には
+    決して動かない。境界文字クラスは真陽性ではなく**偽陽性コーパス**に対して
+    決めており、バックティックは
+    `tests/guard-staging-exemption.tests.sh` の散文ケースを誤検知したため除外。
+  - `python3 <script>` のようにスクリプトが実行時に対象を決める形は**原理的に
+    閉じない**ため、覆ったとは扱わず開いたまま記録している。パリティスイートが
+    ALLOW を表明しているので、動詞一括禁止に踏み込んだ実装はそこで落ちる。
+  - 実測: 復元可能な 14 形状が 14/14 ALLOW → **0/14**、誤 DENY 0、
+    py/js/ps1 の三双子で判定不一致 0。既存ガードスイート 12 本の
+    コマンドペイロード 64 個中 63 個で判定の反転 0。
+
+### Changed
+
+- **委譲先スキルが誰からも呼べなかった問題（WFI-054）**: 20 の委譲先スキルが
+  `user-invocable: false` と `disable-model-invocation: true` を**両方**持って
+  いた。前者が人間を、後者がモデルを拒むため、`ship` と `bootstrap` は
+  `quality-gate`・`implement-tasks`・`cross-model-verify`・3 つのレビュー
+  ループを含む下位段のどれにも到達できなかった。委譲先は
+  `disable-model-invocation: false` を明示する形に統一し、
+  `tests/validate-repository.ps1` は**明示されていないこと**と
+  **`true` と `user-invocable: false` の同時指定**の両方を hard failure と
+  するようになった。人間の入口 6 本（`bootstrap` / `ship` / `diagnose` /
+  `domain-model` / `fix-by-review-ticket` / `sdd-sudo`）は `true` のままで、
+  モデルがワークフローを自発的に開始することは引き続きできない。
 
 ### Fixed
 
@@ -359,6 +400,172 @@
 
 ### Added
 
+- **Epic A7 orchestration-event trace: TEST-018 (Issue #195, T-006)**: wired
+  T-005's `_loop_trace_emit`/`Write-LoopTraceEvent` collector into the
+  shared driver's own named producer call sites — `skill-order:invocation`
+  (each stage-script invocation), `approval-checkpoint:reserve` (each
+  `_loop_reserve_review_context`/`Invoke-LoopReserveReviewContext` call),
+  and `review-loop-presence:stage-dispatch` (`drive_review_round`/
+  `Invoke-DriveReviewRound`'s own successful dispatch) — and added
+  `TEST-018` to `tests/loop-consistency.tests.sh` (`TEST-019` on the
+  PowerShell twin, where the case number `018` was already taken by a
+  pre-existing, unrelated same-turn-edit-plus-reset regression), driving a
+  single Context-absent spec-review round and comparing the observed trace
+  against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json`, via
+  `assert_event_trace`/`Test-EventTrace`. `done-transition:assert-terminal`
+  is recorded from the test case itself, immediately after its own
+  `assert_terminal`/`Test-LoopTerminal` call, rather than inside that
+  function, to keep `tests/loop-inventory.tests.{sh,ps1}`'s own `TEST-009.2`
+  byte-identity regression lock on `assert_terminal`/`Test-LoopTerminal`
+  intact.
+
+- **Epic A7 orchestration-event trace: TEST-019 (Issue #195, T-007)**: added
+  `TEST-019` to `tests/loop-escalation.tests.sh`/`.ps1` (no case-number
+  collision on either twin — both suites' own next available case after
+  the pre-existing `TEST-018` prefix-collision case genuinely is `019`),
+  asserting a Context-absent (F1) `quality-gate-outcome` +
+  `done-transition` event trace against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-quality-gate-escalation-blocked.json`,
+  via `assert_event_trace`/`Test-EventTrace`: three real
+  `quality-gate-outcome:escalation` decisions recorded from the test case
+  itself immediately after each real decision (this suite's own
+  `check-quality-gate-cycle-limit.sh`/`.ps1` Escalate-Human decision,
+  `next_tier: "human"`, plus `select-agent-model.sh`/`.ps1`'s
+  lightweight->standard and standard->strong decisions — design.md's own
+  producer table names both scripts as this producer's call sites), then
+  exactly one `quality-gate-outcome:capability-applicability` event (F1's
+  own `disabled-legacy` fixture state, always last within the kind), then
+  `done-transition:assert-terminal` recorded from the test case itself,
+  immediately after its own `assert_terminal`/`Test-LoopTerminal` call on
+  the chain's real `terminal-tier` `BLOCKED` outcome — the same
+  T-006-established pattern, keeping `assert_terminal`/`Test-LoopTerminal`
+  byte-identical. The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
+  leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
+  AC-027) is a named `SKIP` until Epic A1 merges — that producer's own
+  call site is design.md's own explicitly-cited future task, unwired
+  anywhere in the tree — with both fixture variants genuinely constructed
+  via T-001's `build_fixture` so the `SKIP` is not a hand-waved
+  placeholder.
+
+- **Epic A7 deferred Epic A5 fixture assertions (Issue #195, T-008)**:
+  authored Epic A5's own three deferred `resolve-project-context-caller-
+  contract` fixture assertions (design.md item 10(a)/(b)/(c), OQ-001)
+  inside the existing `TEST-018`/`TEST-019` suites, never a new suite
+  file: `TEST-018.5`/`TEST-019.5` (anchor-fingerprint drift, AC-036) in
+  `tests/loop-consistency.tests.{sh,ps1}`, and `TEST-019.10`/`TEST-019.11`
+  (Resolver-non-invocation spy-harness, AC-004/AC-021; REQ-002
+  Block-surfaces-not-fallback, AC-037) in
+  `tests/loop-escalation.tests.{sh,ps1}`. Each sub-case's own checker
+  mechanism is proven first against a deliberately-constructed
+  negative fixture (a heading relocated ahead of an otherwise
+  byte-identical anchor window; a spy that would report a false
+  negative; a Block that silently falls back with no
+  `skip-stop-message:stop` event) — these self-checks are unconditionally
+  live and gate pass/fail normally. The production-fixture comparison
+  itself remains a named `SKIP` in every sub-case, per tasks.md T-008's
+  own Scope and acceptance-tests.md's own Test Type column ("named SKIP
+  until Epic A5 merges" / "until Epic A1 AND Epic A5 merge"): a local ad
+  hoc probe (`specs/epic-193-a5-capability-resolver/` presence in the
+  tree) stands in for `merged(A5)` until T-010's own allowlist manifest
+  exists. The anchor-fingerprint sub-case's informational recomputation
+  against the live `sdd-bootstrap-interviewer/SKILL.md` found the digest
+  has already drifted from Epic A5's own recorded citation
+  (`FP-A5-CALLER-CONTRACT-10`) even though the heading's own ordinal
+  position has not — reported for provenance only, since AC-036's own
+  activation condition is unmet regardless.
+
+- **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
+  `emit-run-record.sh`/`.ps1` with `--capability-enforcement
+  <disabled-legacy|advisory|required>`/`--capability-block-id <id>`
+  (`-CapabilityEnforcement`/`-CapabilityBlockId` on the PowerShell twin),
+  gated by a new `emit_capability` flag independent of the existing
+  `emit_v2` (`--effort-*`) gating. The no-flag `sdd-run-record/v1` heredoc
+  stays byte-identical (AC-011); `--effort-*`-only output is unchanged
+  `v2` with no `capability` key; `--capability-enforcement` supplied
+  without any `--effort-*` flag is a usage error (non-zero exit, no
+  `$out` file written, AC-033); both families together add an additive
+  `capability` object (`{enforcement, block_id}`, `block_id` `null` when
+  not supplied) alongside the existing `effort` object (AC-012).
+  `tests/emit-run-record-feature-scope.tests.{sh,ps1}` gain the
+  four-flag-combination matrix plus the capability-only golden negative
+  and a case-sensitive mis-cased-enum rejection case.
+
+- **Epic A7 canonical event-trace schema (Issue #195, T-005)**: extended
+  the existing `loop-inventory/v1` registry and shared Bash/PowerShell
+  loop driver in place rather than building a new mechanism — added an
+  additive, optional `capability_applicability` field to the `quality-gate`
+  entry only (registry stays at 8 entries) and three new driver functions,
+  `_loop_trace_emit`/`assert_capability_applicability`/`assert_event_trace`
+  (`Write-LoopTraceEvent`/`Test-CapabilityApplicability`/`Test-EventTrace`
+  on the PowerShell twin), implementing the `compatibility-event-trace/v1`
+  collector/comparator contract. `assert_terminal`/`assert_artifacts_schema`
+  stay byte-identical to their pre-task form; `tests/loop-inventory.tests.{sh,ps1}`
+  gain `TEST-008`/`TEST-009` covering the field shape, the trace lifecycle
+  reset, monotonic sequencing, all four trace-identity mismatch dimensions,
+  and comparator purity.
+
+- **Epic A7 structural compatibility suite (Issue #195, T-004)**: added
+  offline Bash and PowerShell structural gates for the full seven-file and
+  lite three-file profiles, a versioned recorded-response corpus, and strict
+  Markdown AST canonicalizers that sort frontmatter keys while preserving
+  heading level/order. Malformed frontmatter and unsupported headings fail
+  closed; F3/F4/F5/F6 remain dependency-citing named skips. Registered both
+  suites in the live aggregate runners and staged the protected CI workflow
+  candidate under the feature's checksum-bound `human-copy/` bundle.
+
+- **Epic A7 byte-identical compatibility suite (Issue #195, T-003)**: added
+  Bash and PowerShell F1/F2 compatibility suites that compare all nine
+  canonical targets across two fixed-environment invocations, cover the six
+  legacy CLI-priority cells, and self-check one-byte drift detection. Extended
+  the install/uninstall twins with project-context presence invariants and
+  registered the new suites directly in both live aggregate runners.
+
+- **Epic A7 compatibility fixture matrix (Issue #195, T-001)**: added
+  sourced Bash and PowerShell `build_fixture` helpers for the F1-F4
+  project-context combinations and the six Context-absent CLI cells. Each
+  invocation returns a fresh, physically normalized temporary root outside
+  the repository; invalid F3/F4 fixtures remain valid YAML while failing the
+  named project-context content validator through the schema field alone.
+
+- **Epic 194 T-001 human-copy runner, promoted to its canonical path (#194)**:
+  the feature-scoped `apply-protected-files.ps1` runner and its twin
+  `.sh`/`.ps1` contract checks (exact four-target payload, ordinal
+  control/digest handling, recursive payload enumeration, anchored no-follow
+  publication, hash and post-copy verification) now live at their real
+  `specs/epic-194-a6-lite-integration/human-copy/` destination -- the R-10
+  guard's `human-copy/` staging exemption was re-confirmed live, so the
+  earlier non-protected `drafts/`/`PROPOSED/*.PROPOSED` holding pens are
+  retired. T-002's (`check-risk-upgrade.sh`/`.ps1`, `risk-upgrade-policy.md`)
+  and T-003's (`lite-spec/SKILL.md`) already-tested payload, and a staged
+  `.github/workflows/test.yml` CI-registration candidate for all four of this
+  epic's tasks, are staged alongside it pending a human apply step (see
+  `specs/epic-194-a6-lite-integration/human-copy/README.md`).
+
+- **Epic 194 T-002 `check-risk-upgrade` Capability-derived trigger merge,
+  staged (#194)**: `check-risk-upgrade.sh`/`.ps1` gain an optional
+  `--capability-reasons <fragment-path>` / `-CapabilityReasons
+  <fragment-path>` second argument -- omitted, the script stays
+  byte-identical to today; supplied-and-valid, every matched
+  `eligible:false` Capability's own `upgrade_reasons` tokens (or, if empty,
+  a synthetic `ineligible:<id>` token) merge into `triggers=`, keyword-derived
+  tokens first; supplied-but-unreadable/malformed/shape-invalid, the script
+  fails closed (`exit 2`, no trigger output), distinct from the omitted-argument
+  case. `risk-upgrade-policy.md` documents the extended two-source contract.
+  Staged at its canonical `specs/epic-194-a6-lite-integration/human-copy/`
+  path pending the human apply step (T-001's runner); not yet applied to the
+  live `plugins/sdd-lite/**` path.
+
+- **Epic 194 T-003 `lite-spec`'s Risk-Upgrade Gate, Capability-derived Block,
+  staged (#194)**: `lite-spec/SKILL.md`'s Risk-Upgrade Gate section gains a
+  pre-generation step that assembles every Registry Capability matched
+  against a Project-Context-declared component into T-002's own
+  trigger-fragment shape and passes it to the extended `check-risk-upgrade`,
+  Blocking (`exit 10`, `full-required: ...`, non-overridable by `--lite`)
+  before any `specs/<feature>/` file is created -- the existing `ship`-time
+  recheck remains an unmodified, independent second stage. Staged at its
+  canonical `specs/epic-194-a6-lite-integration/human-copy/` path pending
+  the human apply step; not yet applied to the live path.
 - **WFI 起草へのなぜなぜ分析（5 Whys）の組込み**: WFI テンプレートと
   workflow-retrospective の起草手順に `## Why-Why Analysis` セクション
   （friction → 根本原因の因果チェーン、各段の証拠引用、症状の言い換え・
@@ -881,6 +1088,30 @@
   no-wildcard ルールにより CI で一度も実行されない — REQ-005 が塞ぐために
   存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
   リリース済みの履歴として書き換えない。
+
+### 追加
+
+- **`lite-gate` の Capability Summary 消費と Registry-sourced チェック実行 (Issue #194, epic-194-a6-lite-integration T-004)**:
+  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の Process に Step 2a
+  (`full_upgrade_required` バックストップ)と Step 2b(コマンド発見契約
+  経由の Registry-sourced チェック実行)を、既存 Step 2 と Step 3 の間に
+  挿入(直接編集、`guard-invariants.json` で編集直前に非保護を再確認)。
+  Project Context が無い場合(disabled-legacy)は空リストで継続、
+  アクティブな `capability_enforcement` 下で Summary が無ければ
+  `VERDICT: FAIL`(disabled-legacy とは明確に区別)。Summary は A4/A5
+  所有のバリデータで検証(再実装しない)、`full_upgrade_required: true`
+  は Step 2b 実行前にブロック。未マップな Registry-sourced check-id は
+  `N/A` ではなく常に `VERDICT: FAIL`。新規コマンド発見契約は
+  check-id 文法・シンボリックリンク脱出・パストラバーサル・
+  単一ランタイムメンバーのみのペアをすべて fail-closed で拒否する
+  (安全性強化 NEW-01)。`lite-gate/SKILL.md` は agent 向けプローズの
+  ため、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.{sh,ps1}`
+  という文書化されたアルゴリズムの参照シミュレータを新規追加し、5つの
+  新規スイート(`tests/lite-gate-summary-consumption`,
+  `-summary-absent`, `-summary-invalid`, `-full-upgrade-backstop`,
+  `-summary-absent-active-enforcement`、各 `.sh`/`.ps1`)がこれを検証する
+  (両ランタイム合計58アサーション)。`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイート群を直接登録(第4/最終位置)。
 
 ## v1.14.0 (2026-08-05)
 

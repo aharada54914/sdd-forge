@@ -1,0 +1,113 @@
+T-004 acceptance suite, both runtimes, run by the gate host rather than read
+from the implementer's green-sh.log / green-ps1.log. Evidence for both the
+unit-tests and the acceptance-tests contract checks: the structural-compatibility
+twins ARE the acceptance surface REQ-002's AC-005/006/007/030/042/043 name, and
+this repository has no separate unit layer beneath them.
+
+$ sh -c 
+      bash tests/structural-compatibility.tests.sh
+      sh_rc=$?
+      echo
+      echo "$ pwsh -NoProfile -File tests/structural-compatibility.tests.ps1"
+      pwsh -NoProfile -File tests/structural-compatibility.tests.ps1
+      ps_rc=$?
+      echo
+      echo "bash exit=$sh_rc pwsh exit=$ps_rc"
+      [ "$sh_rc" -eq 0 ] && [ "$ps_rc" -eq 0 ]
+
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+SKIP: F4/AC-007 (Epic A4 ): Reserved-reference absence awaits Epic A4
+SKIP: F3/AC-042 (Epic A1 ): structural identity awaits Epic A1
+SKIP: F5/AC-043 (A1+A6 ): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6 ): compound dependency not merged
+PASS: Bash aggregate runner registers this shipped suite
+40 passed, 0 failed
+
+$ pwsh -NoProfile -File tests/structural-compatibility.tests.ps1
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+SKIP: F4/AC-007 (Epic A4): Reserved-reference absence awaits Epic A4
+SKIP: F3/AC-042 (Epic A1): structural identity awaits Epic A1
+SKIP: F5/AC-043 (A1+A6): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6): compound dependency not merged
+PASS: PowerShell aggregate runner registers this shipped suite
+40 passed, 0 failed
+
+bash exit=0 pwsh exit=0
+
+exit status: 0

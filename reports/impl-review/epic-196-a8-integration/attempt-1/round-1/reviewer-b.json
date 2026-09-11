@@ -1,0 +1,85 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-impl-reviewer-b-a1r1-seq323",
+  "host_session_id": "SESS-impl-b-epic-196-a8-integration-a1r1-seq323",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "a8b14ac80fa578d36d14a1c0371419c02a920d7aef2c3b15b1a5b57bce835f5a"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-1/precheck-result.json", "sha256": "cbef490647d366c36108e36750cc9fbc68f5e5ea3cf450e516cd6e69ba5d5161"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-1/integrated-summary.json", "sha256": "71658c8025559e950d314e55d174bfbd96ba050e53e85f736c1310d43db1e83b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Decisions throughout design.md carry explicit rationale, notably under '## Design Decisions' (design.md:1253-1318) and the recurring 'resolves the X gap' annotations across the Data Plan (e.g. design.md:343,383,423,478,572,824,1073,1101,1144). Examples: SKIP-governance reuse '...rather than defining a second, competing SKIP mechanism' (1282-1294); live-host proof-bundle fortification '...because an editable, self-attested JSON record with only a freeform transcript excerpt and a self-reported verdict cannot, by construction, discharge ADR-0019's own...defense claim' (1295-1305); FilesOnly exclusion '...because its own behavior...has no cross-runtime dimension to verify' (1313-1318). One isolated technology pick, the Ed25519 signing algorithm (design.md:588), has no explicit 'because' clause, but it is a standard, unambiguous default for asymmetric message signing with no implementation ambiguity, so it does not meet the Finding Evidence Gate's concrete-failure-mode bar for FAIL."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' (1410-1423) carries forward OQ-001 and OQ-002 from requirements.md (744-763). OQ-001 names its owner ('the Phase 2/3 implementer', requirements.md:751) and resolution path ('confirmed empirically by the Phase 2/3 implementer before any automated E2E path is built around it', requirements.md:750-752), and design.md's Design Decisions (1255-1266) confirm it does not block Phase 2/3 from starting (classification table/Test Strategy already accommodate either outcome). OQ-002 is explicitly marked '(resolved)' in both requirements.md (753-763) and design.md (1413-1423). Neither entry uses the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels, but owner, blocking status, and concrete resolution action are unambiguous in prose, so no downstream ambiguity results."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (21 INV-xxx findings). design.md's '## Assumptions' (1403-1408) points to requirements.md's own Assumptions (718-742): Epic A1 unmerged status cites INV-005/INV-007 and Epic A7's own REQ-007 SKIP-governance precedent; Epic A5/A7 unmerged status cites INV-008/INV-009 (INV-008 itself documents a live instance of the exact drift risk named, reinforcing the grounding); decision-doc/ADR-0019-as-unrevised-source is a reasonable default for an in-repo authoritative document; .gitattributes/installer/hook-config-files-as-stable-surfaces cites INV-010/INV-011/INV-016/INV-022."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has a '## Constraint Compliance' section (1393-1401), so the Primary/TYPE-D path applies. Its sole content is a CI-resilience convention ('bash 3.2 array safety, macOS $TMPDIR, Windows jq.exe CRLF, no real-validator probing') carried verbatim from Epic A7's own precedent -- a constraint not itself named in requirements.md. requirements.md's own Security Boundaries table (710-713) names two concrete constraints -- B1 (a genuine, real installed-toolchain session is required; synthetic/fixture-only results never accepted) and B2 (the drift check must stay read-only, never remediate) -- neither of which is mentioned anywhere inside the '## Constraint Compliance' section. Both ARE addressed with concrete mechanisms elsewhere in the same design.md, under the differently-named '## Security Boundaries' section (1342-1358) and reinforced in '## API / Contract Plan' (875-963) and '## Global Constraints' (1320-1340) -- so the constraint is not absent from the design as a whole (the Severity Reference's bar for Critical), only absent from the one section this check inspects. Concrete failure mode: a reader or downstream gate auditing only '## Constraint Compliance' for security-constraint coverage, as the check instructs, would incorrectly conclude none exists. Recommend the Constraint Compliance section explicitly cross-reference or restate B1/B2 compliance."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A targeted scan (response time / throughput / concurrency / latency / SLA / numeric-ms thresholds) across Goals, Acceptance Criteria, Field Definitions, and Security Boundaries returns no matches."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' (1370-1391) names the deployment target (existing .github/workflows/test.yml 3-OS matrix, INV-014, reusing the cli-hook-enforcement/main test job pattern), the CI pipeline changes (new steps for REQ-001/REQ-003-synthetic/REQ-004/REQ-005, and REQ-002's matrix with the local-macOS/CI-3-OS split documented in the job's own step name), and an incremental-gating/feature-flag-equivalent strategy (the SKIP Allowlist Activation Gate: live-host proof is NOT a required CI gate before Epic A1 merges, becomes a required Done gate and release gate once Epic A1 merges, machine-detected by the allowlist's own activation predicate, 1144-1191). No database schema changes exist in this feature (see MIGRATION-PLANNED), so migration-execution-order is not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan (183-874) declares only new file-based JSON record schemas (e.g. live-host-verification-record/v1, installed-plugin-drift-report/v1) -- no database tables/columns. The template's 'Data Entities:'/'Existing Data Affected:' fields are confirmed absent from design.md (independently verified, and cross-checked against manual-precheck-note.md's own legacy-field scan, item 4), so this check's applicability trigger (declared schema/column/table changes) is not met -- functionally equivalent to 'No data changes' for database-migration purposes."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' (1360-1368) names Claude Code CLI, Codex CLI, and GitHub Copilot CLI (purpose: read-only-observed CLI sessions for the cross-runtime/live-host proof surfaces) and the existing gh-authenticated GitHub API path (unchanged installer behavior). The contract is explicitly disclosed as not-yet-confirmed rather than assumed (OQ-001; AC-005, acceptance-tests.md; Design Decisions 1255-1266) -- a deliberate, stated deferral to Phase 2/3 empirical confirmation, consistent with investigation.md's Safety constraints (never assert an unconfirmed capability as true). Failure/unavailability behavior for the two runtimes with a known non-firing mode is concretely defined in the Live-Host Semantic Matrix (1073-1099: Codex-disabled-expected-unavailable, Copilot-subagent-expected-unavailable cells) and the Classification Table (1193-1227)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components-table entry traces to a specific REQ-001-REQ-007/AC; components that could otherwise look like scope creep (nonce-ledger, expected-digest-manifest, trusted-signers JSON files) are directly required by requirements.md's own AC-026 text (495-506: nonce-issuance ledger, expected-digest manifest, two-party attestation keyed to registered trusted keys). Non-goals are repeatedly reaffirmed in design.md (no new CI topology, no new guard-invariants, no re-specification of Epic A1's canonicalizer or Epic A5's caller-contract fixture, 1320-1340), and AC-029's own self-check names this discipline explicitly. All seven REQ items and all three User Stories map to design content (Technical Summary 6-27; Test Strategy 965-1071). No design-system contract applies (internal test-infrastructure, no UI, design.md:130-134)."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization changes (hook-activation-handshake live-host proof and its nonce/signing scheme) and cross-service integration failure behaviour (Codex/Copilot non-firing cases). Concrete validation paths are named: plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1} (API/Contract Plan 906-948) with a defined default-path contract and an enumerated error-code list, wired as 'this epic's own Done gate and as a release gate' (Deployment/CI Plan 1379-1391); acceptance-tests.md TEST-015/TEST-026/TEST-027/TEST-028 name the concrete evidence artifacts; Test Strategy items 8 and 10 (1037-1062) name the classification-mismatch guard and the aggregate Done-gate check specifically."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the repository root (confirmed directly: `ls domain` returned 'No such file or directory'), so this check's applicability condition (an Approved domain/context-map.md plus a schema-valid domain-contract.json) is not met."
+    }
+  ]
+}

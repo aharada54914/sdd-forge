@@ -1,7 +1,7 @@
 ---
 name: visual-verify-loop
 description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups, ux-spec states, and — when the project carries one — the design-system contract (tokens and ui-patterns), iterates fixes up to five times, and saves final screenshots as evidence under reports/visual-evidence/. Non-blocking; verdicts stay with quality-gate and human review.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 

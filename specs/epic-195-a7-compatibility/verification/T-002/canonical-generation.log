@@ -1,0 +1,7 @@
+pinned_merge=a8d65c7316f53787121874968e14878bc90c75aa
+pinned_first_parent=50b20364e996432cb06061df03ffb4d173c27fa6
+golden baseline candidate written: specs/epic-195-a7-compatibility/verification/golden-baseline/candidate/current
+golden baseline promoted by sudo-2026-08-08T16:33:11Z
+golden baseline matches canonical
+golden baseline matches canonical
+canonical_manifest_sha256=d6b535c5a3a9e359170c1ced5acc45ef5cfa4871414919d7c08dc4b306982aae

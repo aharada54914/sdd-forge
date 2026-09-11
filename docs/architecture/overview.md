@@ -110,7 +110,7 @@ flowchart TD
 
 ### スキルの可視性
 
-全 26 スキルが `disable-model-invocation: true` を持ち、モデルが勝手にスキルを起動することはありません。さらに内部スキルは `user-invocable: false` を持ち、スラッシュコマンドメニューにも現れません。**ユーザーに見える公開コマンドは次の 6 つだけ**です。
+入口 6 スキルが `disable-model-invocation: true` を持ち、モデルが勝手に起動することはありません（人間のタイプが起点）。内部スキルは `user-invocable: false` でメニューに現れず、`disable-model-invocation: false` で ship / bootstrap の委譲からのみ起動されます（WFI-054）。**ユーザーに見える公開コマンドは次の 6 つだけ**です。
 
 | 公開コマンド | 役割 |
 |---|---|

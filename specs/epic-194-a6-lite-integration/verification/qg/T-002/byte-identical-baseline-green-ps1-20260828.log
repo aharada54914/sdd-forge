@@ -1,0 +1,26 @@
+# command: pwsh -NoProfile -File tests/check-risk-upgrade-byte-identical.tests.ps1
+# captured-utc: 2026-08-28T11:02:31Z
+# cwd: /Users/jrmag/Projects/active/sdd-forge-wt-e194done
+# branch: epic-194/qg-20260828
+# HEAD: 02a679f50bc258a0d59c024bb41e4f2fd6a8e868
+
+ok: TEST-007-clean: exit code identical (0)
+ok: TEST-007-clean: stdout byte-identical
+ok: TEST-007-auth: exit code identical (10)
+ok: TEST-007-auth: stdout byte-identical
+ok: TEST-007-token: exit code identical (10)
+ok: TEST-007-token: stdout byte-identical
+ok: TEST-007-mcp: exit code identical (10)
+ok: TEST-007-mcp: stdout byte-identical
+ok: TEST-007-api: exit code identical (10)
+ok: TEST-007-api: stdout byte-identical
+ok: TEST-007-secret: exit code identical (10)
+ok: TEST-007-secret: stdout byte-identical
+ok: TEST-007-github-actions: exit code identical (10)
+ok: TEST-007-github-actions: stdout byte-identical
+ok: TEST-007-unavailable: exit code identical (2)
+ok: TEST-007-unavailable: stdout byte-identical
+
+Results: 16 passed, 0 failed
+
+exit: 0

@@ -1,7 +1,7 @@
 ---
 name: spec-review-loop
 description: Independently review Phase 1 requirements and acceptance tests before implementation-policy review. Persists a validated specification review verdict.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -18,7 +18,8 @@ spec-review-loop <feature-slug> [--edit-summary="..."] [--reset]
 ```
 
 Invoked internally by `sdd-bootstrap-interviewer` after Phase 1; not a
-user-facing command (`disable-model-invocation: true`, `user-invocable: false`).
+user-facing command (`user-invocable: false`, `disable-model-invocation: false`
+-- a human cannot start it out of order, and the model must be able to reach it).
 Reached by entering at `/sdd-bootstrap:bootstrap` and following this file. The
 argument shape above is what the orchestrator supplies, not a slash command.
 

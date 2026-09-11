@@ -224,9 +224,10 @@ if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
   assert_run_out_eq '.model_ids.main' 'unknown' 'AC-021: v1 field model_ids.main unchanged in v2 shape'
   assert_run_out_eq '(.effort.main | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort)' 'true' 'AC-021: effort.main has exactly the three subfields'
   assert_run_out_eq '(.effort.reviewers | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort)' 'true' 'AC-021: effort.reviewers has exactly the three subfields'
+  assert_run_out_eq 'has("capability")' 'false' 'AC-033 matrix effort-only: existing v2 shape has no capability key'
   assert_run_out_eq '.metrics.tasks.total' '1' 'AC-021: v1 metrics object unchanged in v2 shape'
 else
-  fail "AC-021 setup: emit-run-record did not produce a run record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+  fail "AC-033 matrix effort-only: emitter did not produce the expected v2 record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
 fi
 
 # --- AC-022 (TEST-022): effort_requested recorded whenever its flag is
@@ -331,8 +332,9 @@ esac
 #     "effort" key), and an EXISTING, already-committed pre-feature v1
 #     record (never rewritten by this task) still carries schema v1. -------
 run_emit feat-e025
-assert_run_out_eq '.schema' 'sdd-run-record/v1' 'AC-025: no --effort-* flag supplied emits v1 schema, unchanged'
-assert_run_out_eq 'has("effort")' 'false' 'AC-025: v1 shape has no effort key at all'
+assert_run_out_eq '.schema' 'sdd-run-record/v1' 'AC-033 matrix no flags: emits the unchanged v1 schema'
+assert_run_out_eq 'has("effort")' 'false' 'AC-033 matrix no flags: v1 shape has no effort key at all'
+assert_run_out_eq 'has("capability")' 'false' 'AC-033 matrix no flags: v1 shape has no capability key at all'
 
 PRE_FEATURE_V1_RECORD="$REPO_ROOT/reports/runs/RUN-20260705T023011Z-sdd-forge-mcp.json"
 if [ -f "$PRE_FEATURE_V1_RECORD" ]; then
@@ -341,6 +343,154 @@ if [ -f "$PRE_FEATURE_V1_RECORD" ]; then
     || fail "AC-025: the pre-feature v1 record fixture no longer reads as schema v1"
 else
   fail "AC-025 setup: expected pre-feature v1 record fixture not found: $PRE_FEATURE_V1_RECORD"
+fi
+
+# --- AC-011 (TEST-011): the actual byte-identity lock. The AC-033-matrix
+#     "no flags" case above (assert_run_out_eq, AC-025) only checks schema/
+#     key-presence -- it is structural, not byte-level, and would pass
+#     unchanged if the v1 heredoc's whitespace, key order, or punctuation
+#     drifted. This case compares the full no-flag output byte-for-byte
+#     against a committed golden fixture, with only the two fields that are
+#     genuinely dynamic per invocation (run_id, generated -- both derive
+#     from wall-clock `date`, plugins/sdd-quality-loop/scripts/emit-run-record.sh:124-125)
+#     normalized to a fixed placeholder first; every other byte (quoting,
+#     indentation, key order, spacing, trailing newline) must match exactly. -
+GOLDEN_V1_SH="$REPO_ROOT/tests/fixtures/emit-run-record/v1-no-flag.sh.golden.json"
+run_emit feat-e011
+if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
+  NORMALIZED_V1_SH="$WORK/v1-no-flag.normalized.json"
+  sed -e 's/"run_id": ".*"/"run_id": "TEST-011-NORMALIZED"/' \
+      -e 's/"generated": ".*"/"generated": "TEST-011-NORMALIZED"/' \
+      "$RUN_OUT" > "$NORMALIZED_V1_SH"
+  if cmp -s "$NORMALIZED_V1_SH" "$GOLDEN_V1_SH"; then
+    ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
+  else
+    fail "AC-011: no-flag output diverged from the committed v1 golden byte-for-byte: $(diff "$NORMALIZED_V1_SH" "$GOLDEN_V1_SH" | head -10)"
+  fi
+else
+  fail "AC-011 setup: emitter did not produce the expected v1 record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+fi
+
+# ============================================================================
+# epic-195-a7-compatibility T-009: capability run-record payload
+# (REQ-003; AC-011, AC-012, AC-033). The two compatibility rows above cover
+# no flags and effort-only. These cases complete the four-row matrix and lock
+# the optional block_id, exact capability-only error, and case-sensitive enum.
+# ============================================================================
+
+# Capability-only is not a supported v2 shape because existing v2 consumers
+# require effort attribution. It must fail before creating a run record.
+run_emit feat-capability-only --capability-enforcement advisory
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-enforcement requires at least one --effort-* flag" ]; then
+  ok 'AC-033 matrix capability-only: exact usage error, exit 1, and no output record'
+else
+  fail "AC-033 matrix capability-only: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
+fi
+
+# --capability-block-id without --capability-enforcement reaches a SECOND,
+# distinct usage-error branch, evaluated before the capability-only check
+# above. It is a live rejection path on a Security Boundary B2 file and was
+# previously unasserted in both twins, so nothing detected a change to its
+# exit status or its diagnostic. Lock both, plus the absence of any record.
+# Asserted twice: alone, and alongside an --effort-* flag, so the rejection is
+# attributable to the missing --capability-enforcement rather than to the v2
+# gate that the capability-only case above already covers.
+run_emit feat-capability-blockid-only --capability-block-id resolver-no-match
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-block-id requires --capability-enforcement" ]; then
+  ok 'block-id-only: exact usage error, exit 1, and no output record'
+else
+  fail "block-id-only: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
+fi
+
+run_emit feat-capability-blockid-effort --effort-main high --capability-block-id resolver-no-match
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-block-id requires --capability-enforcement" ]; then
+  ok 'block-id-only with an effort flag: still the block-id diagnostic, exit 1, no output record'
+else
+  fail "block-id-only with an effort flag: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
+fi
+
+# json_string() is this script's ONLY jq call site, and its result is
+# interpolated straight into the capability heredoc. The script has no
+# `set -e`, so before the guard this case drives, a missing or failing jq made
+# the command substitution yield the empty string: the emitter wrote
+# '  "block_id": ' -- a syntactically invalid run record -- printed
+# 'emit-run-record: wrote ...', and exited 0. That is silent corruption of the
+# cross-epic shared surface this task's high-risk rationale names. Drive the
+# exact condition with a stub jq that always fails, and require a loud,
+# non-zero abort that leaves no record behind.
+JQ_STUB_DIR="$WORK/jq-stub"
+mkdir -p "$JQ_STUB_DIR"
+cat > "$JQ_STUB_DIR/jq" <<'JQSTUBEOF'
+#!/bin/sh
+echo "stub jq: deliberately unavailable" >&2
+exit 127
+JQSTUBEOF
+chmod +x "$JQ_STUB_DIR/jq"
+emit_fixture feat-capability-jqfail
+set +e
+JQFAIL_STDERR="$(cd "$WORK" && PATH="$JQ_STUB_DIR:$PATH" sh "$SCRIPT" feat-capability-jqfail --track lite \
+  --effort-main high --effort-control-main flag --effort-applied-main high \
+  --capability-enforcement advisory --capability-block-id resolver-no-match 2>&1 1>/dev/null)"
+JQFAIL_EXIT=$?
+set -e
+JQFAIL_OUT="$(find "$WORK/reports/runs" -name 'RUN-*-feat-capability-jqfail.json' | head -n 1)"
+if [ "$JQFAIL_EXIT" -ne 0 ] && [ -z "$JQFAIL_OUT" ]; then
+  ok "block_id serialization: a failing jq aborts non-zero and writes no record (exit=$JQFAIL_EXIT)"
+else
+  fail "block_id serialization: a failing jq produced exit=$JQFAIL_EXIT and record=${JQFAIL_OUT:-<none>}, expected a non-zero exit and no record"
+fi
+
+# Both flag families produce v2 with the existing effort object and an exact,
+# additive capability sibling. A supplied block identifier is preserved.
+run_emit feat-capability-both \
+  --effort-main high --effort-control-main flag --effort-applied-main high \
+  --capability-enforcement advisory --capability-block-id resolver-no-match
+if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
+  assert_run_out_eq '.schema' 'sdd-run-record/v2' 'AC-033 matrix both: schema remains v2'
+  assert_run_out_eq 'has("effort")' 'true' 'AC-033 matrix both: effort sibling is present'
+  assert_run_out_eq '((.capability // {}) | keys | sort) == (["block_id","enforcement"] | sort)' 'true' 'AC-012 matrix both: capability has exactly enforcement and block_id'
+  assert_run_out_eq '.capability.enforcement' 'advisory' 'AC-012 matrix both: enforcement is persisted'
+  assert_run_out_eq '.capability.block_id' 'resolver-no-match' 'AC-012 matrix both: supplied block_id is persisted'
+else
+  fail "AC-033 matrix both: emitter did not produce a record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+fi
+
+# Caller-supplied identifiers must remain valid JSON and round-trip exactly in
+# both twins, including characters that require JSON escaping.
+SPECIAL_BLOCK_ID='resolver-"quoted"\path'
+run_emit feat-capability-escaped \
+  --effort-main high --effort-control-main flag --effort-applied-main high \
+  --capability-enforcement advisory --capability-block-id "$SPECIAL_BLOCK_ID"
+if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
+  assert_run_out_eq '.capability.block_id' "$SPECIAL_BLOCK_ID" 'AC-012 block_id: JSON-sensitive characters round-trip exactly'
+else
+  fail "AC-012 block_id escaping: emitter did not produce a record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+fi
+
+# block_id is optional in the capability object and serializes as JSON null
+# when the flag is absent.
+run_emit feat-capability-null \
+  --effort-main high --effort-control-main flag --effort-applied-main high \
+  --capability-enforcement required
+if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
+  assert_run_out_eq '.capability.enforcement' 'required' 'AC-012 optional block_id: enforcement is persisted'
+  assert_run_out_eq '.capability.block_id' 'null' 'AC-012 optional block_id: omitted value serializes as null'
+else
+  fail "AC-012 optional block_id: emitter did not produce a record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+fi
+
+# Enum matching is exact and case-sensitive; a PowerShell-default-style
+# case-insensitive alias would violate the lowercase-only API contract.
+run_emit feat-capability-miscased \
+  --effort-main high --capability-enforcement Advisory
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-enforcement must be one of disabled-legacy|advisory|required (got: Advisory)" ]; then
+  ok 'case-sensitivity: mis-cased --capability-enforcement is rejected fail-closed'
+else
+  fail "case-sensitivity: unexpected result for mis-cased capability value (exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR)"
 fi
 
 # --- AC-026 (TEST-026): document conformance -- report template, validator,

@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-194-a6-impl-review-a3-r2-reviewer-b-seq796",
+  "host_session_id": "SESS-epic-194-a6-impl-review-a3-r2-reviewer-b-796",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-2/precheck-result.json", "sha256": "45623a0b26eabf9e8fa01f8dec9546691d829b94418b14a67e616825f10c4a8a"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-2/integrated-summary.json", "sha256": "4c8bfcafb757f096148098148cae9cef219dfad8e05b92b5c438cc5c204ace42"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md", "sha256": "00d322ad45c8547750b5224cd190b232036e1ec21d3ec2f598b0e09e7ebfb02d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md", "sha256": "7bbb44e22eee2081c0f785eef6fbc656947a3ea92d3c789fd5542399ee306024"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md", "sha256": "9cd381b6ba414692608d15d093e0b2e415b326d59f48cbd3c2726ef48b879608"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "346a1b11ba9ba8801c0f9d100f31f9589258dbe0b6c3b50f2902466276201a67"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every technology/architecture decision in design.md carries a stated rationale (Design Decisions section: field-naming, catalog seed, merge ordering, no-revalidation, Step 2b no-op/unmapped rules, OQ-002 candidate selection). The newest decision -- changing the human-copy runner itself (Protected-File Statement point 5, commit cf631ea748b86fc94f7570907669dc71ae563bfd) instead of documenting the T-001 panel's found gap as sanctioned design -- is justified with a measured problem statement (investigation.md fifth entry, 'What was measured before the second ruling was sought') and an explicit human ruling superseding an earlier, narrower one ('現在の挙動を文書化するでよい' superseded in scope by '君の推奨案で進めよ'), both verbatim and dated. Non-blocking observation, not a finding: point 5's second paragraph corrects point 4's scope by a forward note rather than by editing point 4's own text; design.md states this is deliberate (frozen-section growth-only editing discipline, investigation.md 'Amendment Re-Review Context') and reconciles the two passages explicitly in the same place a reader would meet the ambiguity, so it does not rise to a defect. The manifest excludes the runner script itself (apply-protected-files.ps1), so this check judges point 5's internal documentary consistency, not the runner's actual code; that limitation is disclosed here rather than assumed away."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Open Questions section states OQ-001/OQ-002/OQ-003 are all CLOSED/RESOLVED by a named owner (orchestrator ruling, 2026-07-22), with the resolved behavior stated normatively in Architecture/API Contract Plan/Design Decisions rather than left as an unruled parameterization. No open item lacks an owner, a blocks-implementation statement, or a resolution path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (required) and all three ## Assumptions bullets are grounded: (1) A2 schema-fragment sourcing, corrected 2026-08-25 and grounded in investigation.md INV-003 re-verified against the live contract file, with the stale premise's supersession recorded in the Amendment Re-Review Context's third entry; (2) A5 naming/aggregation reasoning, cited to INV-004 and explicitly flagged as accepted risk pending A5's own Passed status; (3) lite-gate/SKILL.md's unprotected status, explicitly stated to be re-verified (not assumed) at future implementation-start time. No non-trivial, ungrounded assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a ## Constraint Compliance section (primary path). requirements.md has no dedicated Constraints section and no 'must not'/'shall not'/numeric-threshold/'compliant with'/'compatible with' language (grep across the full document found none), so there is no requirements.md constraint left unaddressed. design.md's two Constraint Compliance bullets (line-count and type-safety/error-handling) are project-template constraints, both addressed with a stated rationale specific to this Phase-1, documentation-only package."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (no response-time, throughput, concurrency, latency, or SLA language located by targeted search of the document)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Deployment / CI Plan names the deployment surface (CI's existing generate-gate-capabilities.py --check drift cycle, unmodified), the CI pipeline change (a staged append to .github/workflows/test.yml, the fifth declared human-copy payload target, installed only by a human running the feature-scoped anchored runner -- cross-referenced to security-spec.md B5 and infra-spec.md's CI/CD Sequence, both of which independently corroborate the same staged/human-apply mechanism), and states explicitly, with the 2026-08-25 scoping paragraph, that this feature's own commits leave the live workflow file byte-unchanged. Migration/execution-order concerns for the Registry v1.1 schema key are addressed by the field being optional with a documented default ([]), which is what removes any deploy-before/after-migrate ordering hazard (Data Plan; Test Strategy item 2, lite-policy-v1-compat); the live application of that schema edit is explicitly out of this Phase-1 package's own build scope, owned by a future A2 task, with stated rationale (Cross-Layer Dependencies, Protected-File Statement closing paragraph) rather than left silently unaddressed. No feature-flag strategy is named because none applies -- this package ships no incrementally-rolled-out runtime feature, only additive, backward-compatible contract/script extensions."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan declares only additive JSON-contract schema/catalog growth (a new optional Registry key defaulting to [], two catalogs growing by non-removed, non-renamed tokens), not a relational-database column/table change. The migration/compatibility rule is stated explicitly (Data Plan default-value discussion; requirements.md REQ-001 item 3, 'Migration rule'; Test Strategy item 2, a dedicated v1-compat fixture). Rollback is documented in infra-spec.md's ## Rollback section: unprotected/data-file changes revert by git revert; protected-path changes (including the R-10-protected Registry/catalog files) revert only by a human re-running the anchored runner against a corrected staged payload -- the same recovery path design.md's Protected-File Statement point 5 names ('Recovery is re-running the runner after fixing the cause'). No data-volume concern applies; the affected artifacts are small, versioned JSON contract files, not >10k-row tables."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## External Integrations section states 'None' and the rest of the document is consistent with that: every artifact read or extended (Registry, Capability Summary, sdd-lite scripts/skills, A2's evaluate-predicate CLI) is internal to this repository, owned by sibling Foundation epics in the same monorepo, not a third-party service or cross-service API call."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Goals (REQ-001 through REQ-005/REQ-006) each map onto a corresponding design.md section (Architecture, Data Plan, API/Contract Plan, Test Strategy), and design.md introduces no component, data model, or endpoint without a requirements.md trace -- the human-copy runner itself, the one artifact this package's own Phase-1 scope actually builds beyond documentation, is traced to REQ-002/REQ-005 and AC-031. No design-system contract applies (no UI surface; Design System Compliance states 'Not applicable')."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two distinct gaps in the validation path for the Protected-File Statement's point 5 (per-target atomic publish, no cross-target transaction/rollback, live-state failure reporting, added by commit cf631ea748b86fc94f7570907669dc71ae563bfd), a high-risk surface (protected-file tampering / partial-batch data-integrity failure, security-spec.md's own B5 STRIDE row). (1) design.md Test Strategy item 17's 2026-08-25 extension names four of point 5's properties individually but omits the fifth: 'A failure before the copy phase begins reports instead that no live file was modified' (Protected-File Statement point 5, final sentence) has no corresponding named property in item 17's list. Item 17's own stated rationale for the extension -- 'a future implementation task could satisfy every traceable criterion for this runner and never build a fixture for the property point 5 exists to guarantee' -- applies identically to this omitted property: a future task can satisfy every criterion item 17 now names and still never build a fixture for the pre-copy-phase failure-reporting behavior. requirements.md AC-031 and acceptance-tests.md's AC-031 row are not independently extended either (both still describe only the exact-set/hash/post-copy-verification contract of points 1-4), relying entirely on their own cross-reference to design.md's Test Strategy item 17 -- which makes item 17's own completeness the sole guarantee, and it is incomplete by this one property. (2) security-spec.md's B5 STRIDE row (line 74) and Security Tests row (line 188, citing 'Test Strategy item 17') were last amended by commit 23fe659f57685c5e7dde304035ce8887658d86bc (2026-08-25, CI-workflow scoping), which predates cf631ea7 (the commit that added point 5 and extended item 17). Neither row mentions per-target atomic publish, the explicit no-rollback/non-transactional acknowledgment, or live-state failure reporting -- the B5 STRIDE row's mitigation text still reads only 'three-way exact-set verification, per-target hash verification before copy, and post-copy re-verification,' and the Security Tests row still describes item 17 using its pre-extension wording. B5 is explicitly the STRIDE row for 'a cp that silently fails partway, installs bytes that do not match the reviewed, hash-verified payload' -- precisely the scenario point 5 was added to mitigate -- so the security layer's own documented mitigation and validation path for this named Tampering risk is stale relative to design.md's current, human-ruled contract. A security reviewer or implementer working from security-spec.md alone would not learn that the runner must report installed/failed/not-attempted state on failure, nor that a fixture for that behavior is required."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists at the project root (verified: `test -d domain` under the worktree root), so DOMAIN-CONFORMANCE does not apply."
+    }
+  ]
+}

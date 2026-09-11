@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-196-a8-integration",
+  "attempt": 3,
+  "round": 2,
+  "impl_review_status_field": "Passed",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "b3cd3bc5a0b4a908b1bac518c80149f55bc95f4a5d01388c46a5d2f8a9a0c261",
+  "requirements_sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5",
+  "acceptance_sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb",
+  "layer_sha256": {"ux-spec.md":"c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286","frontend-spec.md":"cd8048b30777d10869b6144c23845eb8a7656e12f01d2ee2159df13b531acd82","infra-spec.md":"57d2fe6b722691d06e34ccb7325c30bc045eced805376974c974aa348835f9e4","security-spec.md":"2b707290e5ea1c5e7267687d82ff18f6cbcf91a74134c388c0f4022795d6e5e4"},
+  "input_sha256": "6103aa6dc89645fab024b337d025045ea531875015cb29d51fbe205b8427afbc",
+  "generated_at": "2026-08-18T16:24:17Z"
+}

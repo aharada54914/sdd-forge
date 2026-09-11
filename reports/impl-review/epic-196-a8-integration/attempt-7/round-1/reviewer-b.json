@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-impl-reviewer-b-a7r1-seq796",
+  "host_session_id": "SESS-impl-b-epic-196-a8-integration-a7r1-seq796",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/precheck-result.json", "sha256": "ed8a162154389d0c4d5935f4fb2523fcc6252db3d9576be34389cde585957c44"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/integrated-summary.json", "sha256": "7314fb8a34da2c73b70049c51b81c356761c3dee4d64270cc734f53cb3248fff"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This is a provenance re-review (attempt 7 round 1) after investigation.md/design.md/security-spec.md moved; TYPE-H convergence applies. Independent re-read of the current design.md confirms every inline decision still carries a because/since-equivalent rationale: Ed25519 signing ties to ADR-0028/ADR-0008's own bar for signature-verification decisions (ADR Change Log); RFC 8785 JCS canonicalization plus domain-separated signing targets close the previously-cited Blocker sub-finding on undefined canonicalization/signing target/algorithm/key source (Signing Contract); the sh/PowerShell thin-wrapper choice cites the repository's own sdd-hook-guard multi-runtime-wrapper precedent (Components table); the 24-hour nonce TTL is justified as chosen to cover a same-day human-attended session without leaving a captured nonce indefinitely replayable (Raw Capture / Nonce Ledger section); 'no new CI topology' is justified by reuse of the existing 3-OS matrix (Global Constraints). This content is substantively unchanged from what the prior attempt-6 round-1 impl-review PASS bound (reports/impl-review/epic-196-a8-integration/attempt-6/round-1/reviewer-b.json), modulo the status-line and file-relocation changes the orchestrator's task framing names; no new unjustified decision was introduced."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Open Questions section (lines 839-858) still carries OQ-001 and OQ-002 in substantively the same shape the prior attempt-6 round-1 PASS evaluated: OQ-001 names its owner (the Phase 2/3 implementer) and its resolution path (confirm the per-CLI headless/non-interactive contract empirically before any automated E2E path is built around it), and design.md's own Design Decisions section (current lines ~1502-1513) restates it as partially resolved and deliberately deferred to Phase 2/3, not silently dropped. OQ-002 is marked resolved with the resolution stated directly in both requirements.md and design.md's Coverage Scope table / Design Decisions. Neither question blocks implementation with no resolution path, and neither lacks a named owner. As with the prior attempt-6 PASS this check bound (reports/impl-review/epic-196-a8-integration/attempt-6/round-1/reviewer-b.json), the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels are absent, but the substantive content required by the check is present."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (654 lines) at its current path, so the 'no investigation.md plus more than one non-trivial assumption' trigger does not apply. design.md's Assumptions section (current lines 1672-1697) is grounded exactly as the prior attempt-6 PASS found: the Epic A1 entry cites the verifiable Epic A1 merge date (2026-08-08) and is marked superseded rather than silently left stale; the Epic A5/Epic A7 entries are marked still current with re-verification deferred per investigation.md's own Safety constraints; the decision-doc/ADR-0019/.gitattributes/installer-stability entries are marked unchanged against requirements.md's own Assumptions section. requirements.md's own Assumptions section (lines 791+) likewise traces its Epic A1 supersession to the same verifiable merge fact. All entries trace to either investigation.md or an explicitly-stated human-authorized amendment; no ungrounded non-trivial assumption was found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a ## Constraint Compliance section (current lines 1650-1671; primary/TYPE-D path applies, independently re-verified against the current file, not merely carried by convergence). It addresses both constraints requirements.md's Security Boundaries table names (B1: a genuine installed-toolchain session is required, a synthetic/fixture-only result is never accepted; B2: the drift check stays read-only, no auto-remediation) with concrete enforcement mechanisms (the fortified live-host-verification-record/v1 schema plus the AC-027 classification-mismatch check and the aggregate validate-live-host-proof gate for B1; check-installed-plugin-drift's own read-only API contract with no write flag for B2), plus the repository's own CI-resilience convention carried by explicit citation. A grep of requirements.md for must not / shall not / within N ms / maximum N / compliant with / compatible with returned only internal document-formatting constraints already governed by REQ-006/REQ-007 process discipline, not an unaddressed performance/security/regulatory/compatibility constraint. No constraint in requirements.md is left without a compliance statement."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A grep for response time / throughput / concurrency / latency / SLA / numeric-ms thresholds across the current requirements.md returned no performance requirement; this remains internal test-infrastructure specification work (design.md Feature Type header) with no response-time, throughput, concurrency, or latency threshold anywhere in Goals, Acceptance Criteria, or Security Boundaries."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Deployment / CI Plan (current lines 1617-1649) names the deployment target (the existing .github/workflows/test.yml 3-OS matrix, reusing the cli-hook-enforcement/main test job pattern), the CI pipeline changes required (new steps registered into the existing matrix, explicitly never a new workflow file per Global Constraints), and the activation-gate mechanics functioning as this feature's rollout-gating equivalent (the AC-006 two-clause SKIP Allowlist Activation Gate versus the already-activated AC-015/AC-016 single-clause gate). Data Plan states no migration required, so migration-execution-order does not apply. infra-spec.md's Deployment Topology and CI/CD Sequence sections (current file, read in full) restate this concretely, including the human-copy staging convention required for touching the protected test.yml file. This matches the prior attempt-6 round-1 PASS finding on this check in substance."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan (current lines 252-280) states: no migration required. Every data entity named is a net-new file with no prior version to migrate from; the one write this package performs against existing data (marking consumed_by_record on an existing nonce-ledger entry) is additive metadata on an already-append-only structure Epic A1 itself defines, not a schema migration. No column/table schema change to any existing database is declared anywhere in Data Entities or Existing Data Affected. This independently satisfies the check's 'No data changes' PASS condition against the current file content (TYPE-D check, verified directly rather than by convergence)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## External Integrations (current lines 1607-1616) names Claude Code CLI, Codex CLI, and GitHub Copilot CLI, each consumed read-only with an explicit no-additional-network-calls statement. Failure behaviour per integration is specified via the Live-Host Semantic Matrix's Expected Done-condition result column (e.g. the Codex-disabled-expected-unavailable cell maps to a correctly-detected fail-closed/unavailable result; the Copilot-subagent-expected-unavailable cell maps to a correctly-detected, already-documented non-firing state). No explicit CLI API/SDK version is pinned, but this remains a disclosed, justified deferral: investigation.md's Safety constraints forbid asserting an unconfirmed headless/invocation contract (INV-021), and design.md's OQ-001/Classification Table architect both the automated and manual-required outcomes explicitly rather than leaving the gap silent. This matches the prior attempt-6 round-1 PASS finding on this check in substance."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table (current lines 88-104) maps to a named REQ (REQ-001 through REQ-006) or an AC that requires it directly. requirements.md's Goals section (lines 117-231) names REQ-001 through REQ-007; each of REQ-001 through REQ-006 has a corresponding Architecture subgraph and Components-table entry, and REQ-007 is explicitly addressed as a process-integrity discipline (design.md Technical Summary, and infra-spec.md's own reasoned N/A for a seventh CI-registered artifact) rather than a silently-omitted capability. Design System Compliance is explicitly N/A (no UI surface), matching ux-spec.md's and frontend-spec.md's own N/A determinations; no design-system/ contract exists in this repository for this feature to violate. No out-of-scope component or endpoint was found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization changes (B1-B5 trust boundaries, Signing Contract) and cross-service integration failure behaviour (three external CLIs, live-host proof). Concrete validation paths are named: the aggregate validate-live-host-proof check with named, enumerated error codes as both a Done gate and a release gate (design.md API/Contract Plan; Test Strategy items 5 and 10); security-spec.md's Security Tests table (current lines 199-209), read in full, names per boundary the exact test scenario, expected result, and AC reference for B1 through B5. No high-risk surface lacks a named, concrete validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists at the project root (verified via a read-only existence check). This check applies only when domain/context-map.md records an Approved domain-model status and a schema-valid domain-contract.json exists; neither condition can be met without the directory. Independently re-verified against the current worktree state (TYPE-D check)."
+    }
+  ]
+}

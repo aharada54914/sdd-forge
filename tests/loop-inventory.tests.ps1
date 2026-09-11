@@ -1,7 +1,7 @@
 # loop-inventory.tests.ps1 - PowerShell twin of loop-inventory.tests.sh,
 # byte-equivalent in coverage (T-001 / Issue #141 / epic-159-pillar-a REQ-001).
 # See loop-inventory.tests.sh for the full checklist description (TEST-001,
-# TEST-002, TEST-003, TEST-004, TEST-017).
+# TEST-002, TEST-003, TEST-004, TEST-008, TEST-009, TEST-017).
 $ErrorActionPreference = "Stop"
 
 $startEpoch = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
@@ -16,6 +16,7 @@ $validator = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/validate-revi
 $runAllSh = Join-Path $repoRoot "tests/run-all.sh"
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
 $testYml = Join-Path $repoRoot ".github/workflows/test.yml"
+$loopDriver = Join-Path $repoRoot "tests/lib/loop-driver.ps1"
 
 $script:passCount = 0
 $script:failCount = 0
@@ -103,6 +104,39 @@ function Test-Registration([string]$InvPath) {
         }
     }
     return $true
+}
+
+function Test-CapabilityApplicabilityShape([string]$InvPath) {
+    $filter = @'
+(.loops | length) == 8 and
+([.loops[] | select(has("capability_applicability"))] | length) == 1 and
+(.loops[] | select(.id == "quality-gate") | .capability_applicability) == {
+  "disabled-legacy": "not-applicable (disabled-legacy)",
+  "advisory": "advisory",
+  "required": "required"
+}
+'@
+    $null = & jq -e $filter $InvPath 2>$null
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Get-FunctionBodySha256([string]$Path, [string]$FunctionName) {
+    $lines = [IO.File]::ReadAllLines($Path)
+    $captured = [Collections.Generic.List[string]]::new()
+    $capture = $false
+    foreach ($line in $lines) {
+        if (-not $capture -and $line -cmatch ("^function " + [regex]::Escape($FunctionName) + "(?:\s|\{)")) {
+            $capture = $true
+        }
+        if ($capture) {
+            $captured.Add($line)
+            if ($line -eq "}") { break }
+        }
+    }
+    if ($captured.Count -eq 0) { return "" }
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($captured -join "`n") + "`n")
+    $hash = [Security.Cryptography.SHA256]::Create().ComputeHash($bytes)
+    return ([BitConverter]::ToString($hash) -creplace '-', '').ToLowerInvariant()
 }
 
 # ---------------------------------------------------------------------------
@@ -342,6 +376,209 @@ foreach ($basename in $canonicalBasenames) {
         }
     } else {
         Write-Output "SKIP: TEST-004.2 $basename.ps1 not yet on disk (later Pillar-A task)"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# TEST-008 (AC-008/AC-009): capability applicability + legacy compatibility
+# ---------------------------------------------------------------------------
+Write-Output "=== TEST-008: quality-gate capability applicability ==="
+
+$legacyInventory = Join-Path $work "loop-inventory.pre-epic-195.json"
+& jq 'del(.loops[].capability_applicability)' $inventoryPath | Set-Content -LiteralPath $legacyInventory -Encoding utf8
+if (Test-Registration $legacyInventory) {
+    Ok "TEST-008.1: a pre-epic-195 copy without capability_applicability remains base-valid"
+} else {
+    Fail "TEST-008.1: a pre-epic-195 copy without capability_applicability is not base-valid"
+}
+
+if (Test-CapabilityApplicabilityShape $inventoryPath) {
+    Ok "TEST-008.2: only quality-gate carries the exact three-state applicability mapping"
+} else {
+    Fail "TEST-008.2: quality-gate does not carry the exact three-state applicability mapping"
+}
+
+$badCapabilityInventory = Join-Path $work "loop-inventory.bad-capability.json"
+& jq '(.loops[] | select(.id == "quality-gate") | .capability_applicability) = {
+  "disabled-legacy": "disabled", "advisory": "advisory", "required": "required"
+}' $inventoryPath | Set-Content -LiteralPath $badCapabilityInventory -Encoding utf8
+if (Test-CapabilityApplicabilityShape $badCapabilityInventory) {
+    Fail "TEST-008.3 (negative self-check): an incorrect applicability value passed validation"
+} else {
+    Ok "TEST-008.3 (negative self-check): an incorrect applicability value is rejected"
+}
+
+# ---------------------------------------------------------------------------
+# TEST-009 (AC-009): trace API, normalization, purity, and non-regression
+# ---------------------------------------------------------------------------
+Write-Output "=== TEST-009: event trace API + legacy helper non-regression ==="
+
+$expectedArtifactsSha = "0734964255324b2f23be7639f86f1175552e50d908c3556f454838e7fc7d9d7a"
+$expectedTerminalSha = "460467af4a0b89af0b1cc0cb1ec94aa022dec00a81abbcd00924288727367757"
+if ((Get-FunctionBodySha256 $loopDriver "Test-ArtifactsSchema") -eq $expectedArtifactsSha) {
+    Ok "TEST-009.1: Test-ArtifactsSchema remains byte-identical"
+} else {
+    Fail "TEST-009.1: Test-ArtifactsSchema changed"
+}
+if ((Get-FunctionBodySha256 $loopDriver "Test-LoopTerminal") -eq $expectedTerminalSha) {
+    Ok "TEST-009.2: Test-LoopTerminal remains byte-identical"
+} else {
+    Fail "TEST-009.2: Test-LoopTerminal changed"
+}
+
+$mutatedDriver = Join-Path $work "loop-driver.mutated.ps1"
+$mutatedText = [IO.File]::ReadAllText($loopDriver).Replace(
+    'return ($expected -eq $Observed)',
+    'return ($expected -ceq $Observed)'
+)
+[IO.File]::WriteAllText($mutatedDriver, $mutatedText, [Text.UTF8Encoding]::new($false))
+if ((Get-FunctionBodySha256 $mutatedDriver "Test-LoopTerminal") -eq $expectedTerminalSha) {
+    Fail "TEST-009.3 (negative self-check): a deliberately changed legacy function was accepted"
+} else {
+    Ok "TEST-009.3 (negative self-check): a deliberately changed legacy function is rejected"
+}
+
+. $loopDriver
+$traceApiReady = $true
+foreach ($functionName in @("Write-LoopTraceEvent", "Test-CapabilityApplicability", "Test-EventTrace")) {
+    if (Get-Command $functionName -CommandType Function -ErrorAction SilentlyContinue) {
+        Ok "TEST-009.4: $functionName is available"
+    } else {
+        Fail "TEST-009.4: $functionName is unavailable"
+        $traceApiReady = $false
+    }
+}
+
+if ($traceApiReady) {
+    $script:_LOOP_EVENT_TRACE = '[{"kind":"stale","producer":"stale","seq":99,"value":"stale"}]'
+    $script:_LOOP_EVENT_SEQ = 99
+    $initialized = Initialize-LoopFixture -Profile greenfield -Feature trace-reset 2>$null
+    if ($initialized -and $script:_LOOP_EVENT_TRACE -eq '[]' -and $script:_LOOP_EVENT_SEQ -eq 0) {
+        Ok "TEST-009.5: Initialize-LoopFixture resets the trace and sequence per fixture"
+    } else {
+        Fail "TEST-009.5: Initialize-LoopFixture did not reset the trace and sequence"
+    }
+    if ($script:LoopFixtureRoot) { Remove-Item -Recurse -Force $script:LoopFixtureRoot -ErrorAction SilentlyContinue }
+
+    $capabilityOk = Test-CapabilityApplicability -LoopId quality-gate -FixtureState advisory -Observed advisory
+    $capabilityEventOk = ($script:_LOOP_EVENT_TRACE | & jq -e '
+      length == 1 and .[0].kind == "quality-gate-outcome" and
+      .[0].producer == "quality-gate-outcome:capability-applicability" and
+      .[0].seq == 1 and .[0].value == {"applicability":"advisory"}
+    ' 2>$null)
+    if ($capabilityOk -and $LASTEXITCODE -eq 0 -and $capabilityEventOk) {
+        Ok "TEST-009.6: capability applicability compares exactly and emits one canonical event"
+    } else {
+        Fail "TEST-009.6: capability applicability comparison/event emission is incorrect"
+    }
+    if (Test-CapabilityApplicability -LoopId quality-gate -FixtureState unknown -Observed unknown 2>$null) {
+        Fail "TEST-009.7: an unknown fixture state was accepted"
+    } else {
+        Ok "TEST-009.7: an unknown fixture state is rejected"
+    }
+    if (Test-CapabilityApplicability -LoopId quality-gate -FixtureState advisory -Observed Advisory 2>$null) {
+        Fail "TEST-009.7: a mis-cased observed applicability was accepted"
+    } else {
+        Ok "TEST-009.7: applicability comparison is case-sensitive"
+    }
+
+    $script:_LOOP_EVENT_TRACE = '[]'
+    $script:_LOOP_EVENT_SEQ = 0
+    $skillPathJson = & jq -cn --arg value (($script:SddLoopRepoRoot -creplace '\\', '/') + '/plugins/sdd-review-loop/SKILL.md') '$value'
+    $null = Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillPathJson)
+    $null = Write-LoopTraceEvent -Kind review-loop-presence -Producer review-loop-presence:stage-dispatch -ValueJson '"spec"'
+    $null = Write-LoopTraceEvent -Kind approval-checkpoint -Producer approval-checkpoint:reserve `
+        -ValueJson '{"stage":"quality","role":"sdd-evaluator","run_id":"ignored"}'
+    $null = Write-LoopTraceEvent -Kind quality-gate-outcome -Producer quality-gate-outcome:escalation `
+        -ValueJson '{"next_tier":"human","wall_clock":"ignored"}'
+    $null = Write-LoopTraceEvent -Kind quality-gate-outcome -Producer quality-gate-outcome:capability-applicability `
+        -ValueJson '{"applicability":"required","wall_clock":"ignored"}'
+    $null = Write-LoopTraceEvent -Kind skip-stop-message -Producer skip-stop-message:skip -ValueJson '"SKIP: cited upstream issue"'
+    $null = Write-LoopTraceEvent -Kind skip-stop-message -Producer skip-stop-message:stop -ValueJson '"PROJECT_CONTEXT_INVALID"'
+    $null = Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson '"Done"'
+    $sequenceOk = $script:_LOOP_EVENT_TRACE | & jq -e '[.[].seq] == [1,2,3,4,5,6,7,8]' 2>$null
+    if ($LASTEXITCODE -eq 0 -and $sequenceOk) {
+        Ok "TEST-009.8: the collector assigns one trace-wide monotonic sequence"
+    } else {
+        Fail "TEST-009.8: collector sequence is not trace-wide and monotonic"
+    }
+
+    $traceBeforeBadJson = $script:_LOOP_EVENT_TRACE
+    $seqBeforeBadJson = $script:_LOOP_EVENT_SEQ
+    $badJsonAccepted = Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson '{bad-json' 2>$null
+    if ($badJsonAccepted) {
+        Fail "TEST-009.9: invalid event value JSON was accepted"
+    } elseif ($script:_LOOP_EVENT_TRACE -eq $traceBeforeBadJson -and $script:_LOOP_EVENT_SEQ -eq $seqBeforeBadJson) {
+        Ok "TEST-009.9: invalid event JSON is rejected without consuming sequence state"
+    } else {
+        Fail "TEST-009.9: invalid event JSON changed trace or sequence state"
+    }
+
+    $goldenTrace = Join-Path $work "golden-trace.json"
+    & jq -n '[
+      {kind:"skill-order", producer:"skill-order:invocation", seq:1,
+        value:"plugins/sdd-review-loop/SKILL.md"},
+      {kind:"review-loop-presence", producer:"review-loop-presence:stage-dispatch", seq:2, value:"spec"},
+      {kind:"approval-checkpoint", producer:"approval-checkpoint:reserve", seq:3,
+        value:{stage:"quality", role:"sdd-evaluator"}},
+      {kind:"quality-gate-outcome", producer:"quality-gate-outcome:escalation", seq:4,
+        value:{next_tier:"human"}},
+      {kind:"quality-gate-outcome", producer:"quality-gate-outcome:capability-applicability", seq:5,
+        value:{applicability:"required"}},
+      {kind:"skip-stop-message", producer:"skip-stop-message:skip", seq:6,
+        value:"SKIP: cited upstream issue"},
+      {kind:"skip-stop-message", producer:"skip-stop-message:stop", seq:7,
+        value:"PROJECT_CONTEXT_INVALID"},
+      {kind:"done-transition", producer:"done-transition:assert-terminal", seq:8, value:"Done"}
+    ]' | Set-Content -LiteralPath $goldenTrace -Encoding utf8
+    $traceSnapshot = $script:_LOOP_EVENT_TRACE
+    $seqSnapshot = $script:_LOOP_EVENT_SEQ
+    if ((Test-EventTrace -GoldenTracePath $goldenTrace) -and
+        $script:_LOOP_EVENT_TRACE -eq $traceSnapshot -and $script:_LOOP_EVENT_SEQ -eq $seqSnapshot) {
+        Ok "TEST-009.10: comparator normalizes values, matches the golden trace, and is pure"
+    } else {
+        Fail "TEST-009.10: comparator failed normalization, identity, or purity"
+    }
+
+    foreach ($mutation in @("kind", "producer", "value", "count")) {
+        $mutatedTrace = Join-Path $work "golden-trace.$mutation.json"
+        switch ($mutation) {
+            "kind" { & jq '.[0].kind = "review-loop-presence"' $goldenTrace | Set-Content -LiteralPath $mutatedTrace -Encoding utf8 }
+            "producer" { & jq '.[4].producer = "quality-gate-outcome:escalation"' $goldenTrace | Set-Content -LiteralPath $mutatedTrace -Encoding utf8 }
+            "value" { & jq '.[7].value = "Implementation Complete"' $goldenTrace | Set-Content -LiteralPath $mutatedTrace -Encoding utf8 }
+            "count" { & jq 'del(.[7])' $goldenTrace | Set-Content -LiteralPath $mutatedTrace -Encoding utf8 }
+        }
+        if (Test-EventTrace -GoldenTracePath $mutatedTrace 2>$null) {
+            Fail "TEST-009.11: $mutation mismatch was accepted"
+        } else {
+            Ok "TEST-009.11: $mutation mismatch is rejected"
+        }
+    }
+
+    $eventTraceBody = [IO.File]::ReadAllLines($loopDriver)
+    $insideEventTrace = $false
+    $callsAppender = $false
+    foreach ($line in $eventTraceBody) {
+        if ($line -cmatch '^function Test-EventTrace(?:\s|\{)') { $insideEventTrace = $true }
+        if ($insideEventTrace -and $line -cmatch 'Write-LoopTraceEvent') { $callsAppender = $true }
+        if ($insideEventTrace -and $line -eq '}') { break }
+    }
+    if (-not $callsAppender) {
+        Ok "TEST-009.12: Test-EventTrace is a pure reader and never calls the appender"
+    } else {
+        Fail "TEST-009.12: Test-EventTrace calls the trace appender"
+    }
+
+    $misCasedRepoRoot = ($script:SddLoopRepoRoot -creplace '\\', '/').ToUpperInvariant()
+    $script:_LOOP_EVENT_TRACE = & jq -cn --arg value ($misCasedRepoRoot + '/plugins/sdd-review-loop/SKILL.md') `
+        '[{kind:"skill-order", producer:"skill-order:invocation", seq:1, value:$value}]'
+    $misCasedPathGolden = Join-Path $work "golden-trace.mis-cased-path.json"
+    & jq -n '[{kind:"skill-order", producer:"skill-order:invocation", seq:1,
+      value:"plugins/sdd-review-loop/SKILL.md"}]' | Set-Content -LiteralPath $misCasedPathGolden -Encoding utf8
+    if (Test-EventTrace -GoldenTracePath $misCasedPathGolden 2>$null) {
+        Fail "TEST-009.13: a mis-cased repository path was canonicalized as a match"
+    } else {
+        Ok "TEST-009.13: path canonicalization is case-sensitive"
     }
 }
 

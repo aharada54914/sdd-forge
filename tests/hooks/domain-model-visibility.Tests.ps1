@@ -9,8 +9,9 @@ Set-StrictMode -Version Latest
 #      public-entry convention) but still carries
 #      `disable-model-invocation: true`.
 #   2. Every other sdd-domain skill built so far (domain-interviewer,
-#      domain-reverse) carries BOTH `user-invocable: false` AND
-#      `disable-model-invocation: true` -- scanned from their actual
+#      domain-reverse) carries `user-invocable: false` AND
+#      `disable-model-invocation: false` (delegated stages must be reachable
+#      by the delegating skill's model, WFI-054) -- scanned from their actual
 #      frontmatter, not asserted by assumption.
 #
 # Pester 3.4.0 / Windows PowerShell 5.1 only on this host: uses
@@ -144,8 +145,8 @@ Describe "Every other sdd-domain skill built so far is internal (contrast with d
                 Test-FrontmatterHasKeyValue -FrontmatterLines $fm -Key "user-invocable" -Value "false" | Should Be $true
             }
 
-            It "carries disable-model-invocation: true" {
-                Test-FrontmatterHasKeyValue -FrontmatterLines $fm -Key "disable-model-invocation" -Value "true" | Should Be $true
+            It "carries disable-model-invocation: false (delegated stage, WFI-054)" {
+                Test-FrontmatterHasKeyValue -FrontmatterLines $fm -Key "disable-model-invocation" -Value "false" | Should Be $true
             }
         }
     }

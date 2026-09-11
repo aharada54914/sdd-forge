@@ -1,0 +1,32 @@
+Fail: /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/structural-compatibility.tests.ps1:25
+Line |
+  25 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/lib/markdown-ast-canonicalizer.ps1
+Fail: /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/structural-compatibility.tests.ps1:25
+Line |
+  25 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/fixtures/structural-fixture-corpus/f1-full.json
+Fail: /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/structural-compatibility.tests.ps1:25
+Line |
+  25 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/fixtures/structural-fixture-corpus/f2-lite.json
+Fail: /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/structural-compatibility.tests.ps1:25
+Line |
+  25 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/fixtures/structural-fixture-corpus/f3-advisory.json
+Fail: /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/structural-compatibility.tests.ps1:25
+Line |
+  25 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/tests/fixtures/structural-fixture-corpus/f4-required.json
+0 passed, 5 failed
+EXIT_CODE=1

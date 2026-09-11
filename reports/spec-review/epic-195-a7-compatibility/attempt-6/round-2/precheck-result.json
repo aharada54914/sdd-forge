@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2ee8681ec48f95e522187161a5b30467635a40468623f94faa6e5e2b01cbb3e4",
+  "acceptance_sha256": "8c2abdee404aa093feae6e0d636909fb5d8855e155d4503c70ed4329a1fb9ad5",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "7b9aa1dfa2a31d805d4e58547856b4ad7ef529ee0fc77995553c229eb8932544",
+  "edit_summary": "Round-1 remedies, all three Majors. TEST-026's Test Type column now carries the package's own annotation form copied from AC-036/AC-037 (the REQ-003-only precedent): 'integration (named SKIP until AC-009's pinned assert_terminal hash is formally amended)', with an (OQ-004) pointer at the end of Notes. AC-026 gains a pointer sending a verifier who reads the criterion in isolation to OQ-004 and the paired High risk. The allowlist-governed variant was deliberately not copied because skip-allowlist-manifest.json does not exist yet. Also appended: a precision correction to this session's own OQ-004 and Risks wording, which said the 'always last' ordering rule was unsatisfied when the clause actually violated is the producer's 'exactly once per round at the instant it evaluates' firing condition; original wording left in place with the correction beneath it. Zero deletions in investigation.md (57/0) and requirements.md (29/0); acceptance-tests.md 1/1, a table cell being unappendable.",
+  "reset": false,
+  "generated_at": "2026-08-25T09:13:36Z"
+}

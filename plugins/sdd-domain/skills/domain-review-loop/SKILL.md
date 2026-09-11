@@ -1,7 +1,7 @@
 ---
 name: domain-review-loop
 description: Independently review the domain/ artifact set (strategic + tactical) before human approval of Domain-Model-Status. Persists a validated domain review verdict and detects post-approval drift.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -22,7 +22,8 @@ value.
 ```
 
 Invoked internally by `domain-model` (T-004); not a user-facing command
-(`disable-model-invocation: true`, `user-invocable: false`).
+(`user-invocable: false`, `disable-model-invocation: false` -- a human cannot
+start it out of order, and the model must be able to reach it).
 
 ## Preconditions
 

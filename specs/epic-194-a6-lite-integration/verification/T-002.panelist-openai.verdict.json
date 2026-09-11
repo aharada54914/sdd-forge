@@ -1,0 +1,31 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json checks: unit-tests and acceptance-tests",
+      "note": "The required checks claim REQ-002/REQ-006 pass, but their pinned evidence and green_evidence files cover only TEST-013 fragment validation. They do not contain the current TEST-007, TEST-008/009, or TEST-014 PowerShell evidence, so the contract does not substantiate the full cross-runtime acceptance scope it certifies."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json regression; verification/T-002/regression-20260828-excerpt.log authoritative tail",
+      "note": "The contract records the required regression check as passing, while its cited evidence explicitly reports two failing suites and a nonzero full-run result. Labeling those failures designed-red does not make the required regression execution pass; the contract and evidence disagree."
+    },
+    {
+      "severity": "Major",
+      "ref": "tests/check-risk-upgrade-byte-identical.tests.sh assert_identical; tests/check-risk-upgrade-byte-identical.tests.ps1 Assert-Identical",
+      "note": "AC-007 requires byte-identical stdout, but both twins compare normalized strings: Bash command substitution strips trailing newlines, and PowerShell joins output records without preserving original line terminators or the final newline. Changes limited to stdout newline bytes could therefore pass, so the byte-identity requirement is not fully tested."
+    }
+  ],
+  "blind": true,
+  "input_digest": "d6481a72c5c79e66ce48ddc9516af86a13704d977af49f42df64ac555e76feb4",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+  }
+}

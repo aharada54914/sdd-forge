@@ -1,0 +1,20 @@
+T-001 Critical regression RED: ordinal control names and lowercase digest grammar
+Date: 2026-08-08
+
+Command:
+pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1 -SecurityRegression case-sensitive -RunnerUnderTest specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1
+
+Exit: 1
+Results: 25 passed, 11 failed
+
+Critical-specific failures (TEST-008a..g; the other four failures are the old
+runner's missing real-CLI post-copy seam):
+- the control classifier was absent / treated manifest.sha256 as MANIFEST.sha256;
+- the real CLI ignored the mis-cased control, exited successfully, and changed
+  live targets;
+- uppercase SHA-256 text was accepted, exited successfully, and changed live
+  targets instead of failing the lowercase grammar.
+
+This RED used the unchanged protected runner solely as the deliberately broken
+baseline. It did not apply anything to this repository; all test roots were
+disposable fixtures.

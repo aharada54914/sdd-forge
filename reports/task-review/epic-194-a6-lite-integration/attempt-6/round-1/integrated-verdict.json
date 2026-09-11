@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 6,
+  "round": 1,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "BLOCKED",
+  "run_id": "task-orch-epic-194-a6-lite-integration-a6r1"
+}

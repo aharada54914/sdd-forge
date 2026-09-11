@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-196-a8-integration",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "598dcf737dc2544fc81b59e84a0b1ad201ee4201d03edc38ef9f21b068cd29cf",
+  "acceptance_sha256": "0324cdaa476f9657a5380fdfe788d156d62640bd74c409c05e8d4b5b41b074ad",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "42a86cf272a24a09456f01815b99fff53b5125ae45e0c82c006d691d538d9be8",
+  "edit_summary": "Both spec-review attempt 3 round 1 findings remediated across every swept sibling statement (commit fa861f510d5bbd6485a4d21ac209487865876bd0), under the human's 2026-08-23 frozen-document approval. Finding A (REQ-TESTABILITY Critical, Classification Table scope): arbitrated by reading design.md's own table, which declares itself exhaustive over every check REQ-001 through REQ-005 name and holds rows for AC-001-AC-024 plus one AC-028 row and none for AC-025/AC-026/AC-027/AC-029/AC-030, so the twenty-five-check scope is the truth; requirements.md's REQ-007 wording and AC-025 wording narrowed to that set, acceptance-tests.md's closing paragraph no longer claims the table covers every check in this document (original wording preserved as a dated quotation), and the five REQ-006/REQ-007 process-check rows AC-025/AC-026/AC-027/AC-029/AC-030 re-attributed from the table to this document; design.md unchanged because it already stated the surviving scope. Finding B (CONTRADICTION Major, phase framing and structure-check expectation): all nine counted per-feature files now exist, so requirements.md's Phase-1-only paragraph, requirements.md's Medium Risks bullet, and investigation.md's INV-018 are each amended to record zero expected missing: lines instead of six, with every original claim preserved verbatim as a dated quotation rather than erased. investigation.md's Amendment Re-Review Context extended with fa861f51 and the per-document SHA-256s in commit 09751348fd0d32a767093afe10836041f2c248ef, before this precheck. design.md, tasks.md, traceability.md and the layer specifications deliberately untouched: they carry sibling phase-framing statements but are hash-pinned by the impl attempt-5 and task attempt-2 round-3 PASS contracts.",
+  "reset": false,
+  "generated_at": "2026-08-24T00:25:59Z"
+}

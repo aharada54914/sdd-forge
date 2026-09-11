@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 6,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "ac197966d3d9b66b23c18337873d7e5960d04d8c8af167e5fd0af20e0ec83e6e",
+  "acceptance_sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "d18acb3514048b086ebeeeaa3d9f037107ad37152c3286e3232322ea3ced0a23",
+  "edit_summary": "Closed attempt 6 round 1's Critical CONTRADICTION (reviewer B): the AC-024 dated qualifier asserted as current fact that requirements.md carried the passed value for Spec-Review-Status, which a --reset falsifies. It now anchors to commit 7e282bb1 (the task-review attempt 4 round 2 clean PASS, at which check-workflow-state reported ok), states what each of the three headers read at that commit, and explicitly disclaims any claim about later commits, noting that a --reset returns a header to the pending value for the duration of a round and that each live header line is authoritative over the note. Reviewer A had recorded the same observation and declined to fail it under the Finding Evidence Gate; both readings are persisted in round 1 and neither was suppressed. numstat 17/8.",
+  "reset": false,
+  "generated_at": "2026-08-25T12:27:06Z"
+}
