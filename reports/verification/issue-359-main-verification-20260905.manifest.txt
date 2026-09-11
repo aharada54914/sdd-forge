@@ -1,0 +1,8 @@
+collection-layer.tests.sh.out sha256=f40eab983465eb600c8a9c6d881e0676ebe437fb611151134c69729060b790aa
+collection-layer.tests.sh.exit=0
+collection-layer.tests.ps1.out sha256=5469d63df61173d440b9d7d707d4c6458644ad02320b11eaf58d6617a6d3500a
+collection-layer.tests.ps1.exit=1
+run-panelist-effort.tests.sh.out sha256=29aad001c8a0eda7583e4e122d244b58cd1757b5bbc46535367bf4dc2c1d3455
+run-panelist-effort.tests.sh.exit=0
+run-panelist-effort.tests.ps1.out sha256=6ac83ac0f56720c7c98a1d8c34d2db2e150d7584fcdf48f382c3447a998dcb45
+run-panelist-effort.tests.ps1.exit=0

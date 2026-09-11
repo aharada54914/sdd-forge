@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a085c1-5958-7153-ba20-afdcb65e5a3b",
+  "host_session_id": "01a085c1-5958-7153-ba20-afdcb65e5a3b",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "a7e9299a560f0ede540e0778bc79e71e3dc2756687da70c07784577f3cae8b61"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "079567e6ef2ec31c96c77d4e635f1097e06ae74757bb668dd56050620d90f11a"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-2/round-1/precheck-result.json",
+      "sha256": "0a11b7412b20be6d07d4a934a492d59c78a00bbdaf28e0064ad0c7669f99fa0c"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-2/round-1/integrated-summary.json",
+      "sha256": "6b01da7359e478679d68396ca62f685dfc19cdb3798a3ed378d442030b0795eb"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The RT-20260909-002 amendment defines the response selector, exact allowed members, runtime restriction, nonce syntax and equality, byte-exact patch/envelope, isolated rejection categories, legacy compatibility, and caller-authored-evidence limitation (requirements.md:24-81). These provide concrete adapter behavior without requiring the design reviewer to invent acceptance semantics. Conflicting cleanup guarantees are assessed separately under CONTRADICTION."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "REQ-010 explicitly permits a sentinel to remain when cleanup is denied or unconfirmed, with SENTINEL_CLEANUP_UNCONFIRMED and subsequent stale-start recovery (requirements.md:1112-1162); AC-032 and TEST-032 require this branch. However, REQ-011 still requires sentinel state to be byte-identical before and after every invocation whether the hook fires or not (requirements.md:1278-1281), and the sentinel field definition promises absent-before/absent-after with 'never a lasting mutation' (requirements.md:1951-1960). The amendment retains cleanup and non-mutation guarantees (requirements.md:69-73) without explicitly superseding these conflicting statements. A verifier cannot both accept the required failed-cleanup fixture with a lingering sentinel and enforce unconditional unchanged state. This is a specification-level conflict between required observable outcomes, not an implementation choice; Critical is justified because the acceptance obligations cannot simultaneously hold. Explicitly supersede the unconditional sentinel guarantees with the three-branch AC-032 contract throughout the package."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amendment's independent acceptance rows cover missing members, explicit invalid selectors across all runtimes, strict boolean handling, malformed and mismatched nonces, extra members including plugin flags, duplicate JSON members at any depth, malformed JSON, raw-result types, exact-envelope mutations, case sensitivity, legacy compatibility, and cleanup duplicate rejection (acceptance-tests.md:20-129). Existing TEST-032 separately retains failed-cleanup and stale-start coverage; TEST-044 through TEST-046 cover malformed, duplicate-identity, and empty approver registries."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001 and OQ-002 have explicit provisional resolutions in REQ-006 and REQ-001, with implementation-policy confirmation identified; OQ-003 records the phase-deferral decision (requirements.md:2297-2309; investigation.md:412-433). Shared guard inventory and call-site observations carry task-start re-verification instructions (requirements.md:2264-2287). The amendment explicitly treats exact host-envelope matching as an activation condition and unavailable observations as unresolved, rather than assuming synthetic success establishes live enforcement (requirements.md:75-105). Approval provenance is assessed separately under APPROVAL-BOUNDARY."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The package declares a post-implementation repair, preserves historical Passed/Done evidence, and introduces a 'human-authorized recovery admission' allowing scoped reviews despite an unavailable handshake (requirements.md:11-22,83-105; acceptance-tests.md:3-9,135-139), while Spec-Review-Status is Pending (requirements.md:3). The completely read investigation.md contains no exact '## Amendment Re-Review Context' section and therefore supplies none of the calibration-required amendment commit hashes, amended-document fingerprints, dated verbatim human approval quotation, or later-phase artifact pins. Under spec-review-calibration.md's Amendment Re-Review Context rules, the phase-sequencing exception does not apply. A downstream reviewer cannot establish that this post-implementation amendment and recovery admission have the required durable authorization; accepting the prose declaration would substitute an unqualified assertion for the specified approval boundary. This belongs to specification review because it governs whether the amended package may unlock later reviews, and is Critical because it changes a workflow admission boundary without the required approval evidence. Add a conforming declaration covering this amendment and its referenced later-phase evidence."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The adapter behavior is sufficiently specified, but the package is not ready for implementation-policy handoff: requirements.md:1112-1162 and AC-032 allow unresolved sentinel cleanup, whereas requirements.md:1278-1281 and1951-1960 require unconditional unchanged/absent-after state. A design reviewer would have to choose which required product outcome to discard. This is the same underlying cleanup contradiction reported above, not an additional independent defect. Resolving precedence between observable requirements belongs to specification review; Major reflects the resulting blocked downstream decision."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check found no domain/ directory, so the role's explicit skip condition applies."
+    }
+  ]
+}

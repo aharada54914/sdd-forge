@@ -1,0 +1,768 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -14,1 +14,2 @@
+ repository_root=$2
++admission_raw_repository_root=$repository_root
+@@ -134,1 +135,362 @@
++# Lexical prerequisite only: held-parent acquisition must still establish
++# no-follow/exact-name identity. Never infer that from this string check.
++admission_root_syntax_is_safe() {
++  local raw=$1 tail
++  case "$raw" in
++    [A-Za-z]:[\\/]*) tail=${raw:3}; tail=${tail//\\//} ;;
++    \\\\*)
++      tail=${raw:2}; tail=${tail//\\//}
++      # UNC needs both server and share. Device namespaces are not roots.
++      [[ "$tail" == */* && "$tail" != \?/* && "$tail" != ./* ]] || return 1 ;;
++    /*) tail=${raw:1} ;;
++    *) return 1 ;;
++  esac
++  [[ "$tail" != /* && "$tail" != */ && "$tail" != *//* ]] || return 1
++  case "/$tail/" in
++    */./*|*/../*) return 1 ;;
++  esac
++  return 0
++}
++
++# Caller must validate/hash a safe immutable snapshot, then use that same
++# snapshot for this raw check and subsequent whole-object JSON parsing.
++admission_adr_json_members() {
++  jq -Rse '
++    ltrimstr("\uFEFF") as $raw |
++    # A raw lexical pass retains repeated keys that ordinary jq object parsing
++    # would collapse. All inner groups are noncapturing; capture 0 is the token.
++    "[ \t\r\n]*(\"(?:[^\"\\\\\\x00-\\x1f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"|-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\\[\\]:,])" as $pattern |
++    reduce ($raw | match($pattern; "g")) as $match (
++      {"end":0, stack:[{kind:"root",phase:"value",keys:{}}]};
++      if $match.offset != .end then error("ADR JSON invalid token") else . end |
++      .end = ($match.offset + $match.length) |
++      $match.captures[0].string as $token |
++      ((.stack|length)-1) as $i |
++      .stack[$i] as $frame |
++      if $frame.phase == "colon" then
++        if $token != ":" then error("ADR JSON member has no colon")
++        else .stack[$i].phase = "value" end
++      elif $frame.phase == "comma-or-end" then
++        (if $frame.kind == "object" then "}" else "]" end) as $close |
++        if $token == $close then .stack |= .[:-1]
++        elif $token != "," then error("ADR JSON missing separator")
++        else .stack[$i].phase = (if $frame.kind == "object" then "key" else "value" end) end
++      elif $frame.phase == "key-or-end" and $token == "}" then .stack |= .[:-1]
++      elif $frame.phase == "value-or-end" and $token == "]" then .stack |= .[:-1]
++      elif $frame.phase == "key" or $frame.phase == "key-or-end" then
++        if ($token|startswith("\"")|not) then error("ADR JSON key is not a string")
++        else
++          # Decode only one string, not an object. Unicode-escaped aliases
++          # therefore collide, while keys in sibling objects stay independent.
++          ($token|fromjson) as $key |
++          if ($frame.keys|has($key)) then error("ADR JSON duplicate decoded member")
++          else .stack[$i].keys[$key] = true | .stack[$i].phase = "colon" end
++        end
++      elif $frame.phase != "value" and $frame.phase != "value-or-end" then
++        error("ADR JSON trailing content")
++      else
++        .stack[$i].phase = (if $frame.kind == "root" then "done" else "comma-or-end" end) |
++        if $token == "{" then .stack += [{kind:"object",phase:"key-or-end",keys:{}}]
++        elif $token == "[" then .stack += [{kind:"array",phase:"value-or-end",keys:{}}]
++        elif (["}","]",":",","]|index($token)) != null then error("ADR JSON missing value")
++        else . end
++      end
++    ) |
++    if ($raw[.end:]|test("^[ \t\r\n]*$")|not) then error("ADR JSON trailing invalid token")
++    elif (.stack|length) != 1 or .stack[0].phase != "done" then error("ADR JSON incomplete")
++    else true end
++  ' "$1" >/dev/null
++}
++
++# POSIX acquisition backend. No pathname check followed by an independent read.
++# This backend deliberately has no weaker fallback when dir-fd support is absent.
++adr_read_bound_file() {
++  is_canonical_path "$1" || return 1
++  command -v python3 >/dev/null 2>&1 || return 1
++  python3 -I - "$admission_raw_repository_root" "$1" <<'PY'
++import os
++import stat
++import sys
++
++def darwin_mount(fd):
++    # STATFS64 layout from Darwin sys/mount.h; no pathname lookup is used.
++    # This metadata classifies a crossing, but does not authorize one.
++    import ctypes
++    if sys.platform != 'darwin' or ctypes.sizeof(ctypes.c_void_p) != 8:
++        raise ValueError('unsupported Darwin ABI')
++    class Statfs64(ctypes.Structure):
++        _fields_ = [
++            ('bsize', ctypes.c_uint32), ('iosize', ctypes.c_int32),
++            ('blocks', ctypes.c_uint64), ('bfree', ctypes.c_uint64),
++            ('bavail', ctypes.c_uint64), ('files', ctypes.c_uint64),
++            ('ffree', ctypes.c_uint64), ('fsid', ctypes.c_int32 * 2),
++            ('owner', ctypes.c_uint32), ('type', ctypes.c_uint32),
++            ('flags', ctypes.c_uint32), ('subtype', ctypes.c_uint32),
++            ('typename', ctypes.c_char * 16),
++            ('mounted_on', ctypes.c_char * 1024),
++            ('mounted_from', ctypes.c_char * 1024),
++            ('extended_flags', ctypes.c_uint32),
++            ('reserved', ctypes.c_uint32 * 7),
++        ]
++    if (ctypes.sizeof(Statfs64) != 2168 or
++            Statfs64.fsid.offset != 48 or
++            Statfs64.extended_flags.offset != 2136):
++        raise ValueError('Darwin statfs ABI mismatch')
++    library = ctypes.CDLL('/usr/lib/libSystem.B.dylib', use_errno=True)
++    query = library.fstatfs64
++    query.argtypes = [ctypes.c_int, ctypes.POINTER(Statfs64)]
++    query.restype = ctypes.c_int
++    result = Statfs64()
++    ctypes.set_errno(0)
++    if query(fd, ctypes.byref(result)) != 0:
++        raise OSError(ctypes.get_errno(), 'descriptor mount query failed')
++    raw_type = bytes(result.typename)
++    if not raw_type or len(raw_type) == 16:
++        raise ValueError('invalid filesystem type')
++    return {
++        'fsid': tuple(result.fsid),
++        'type': raw_type.decode('ascii', errors='strict'),
++        'owner': int(result.owner),
++        'flags': int(result.flags),
++        'extended_flags': int(result.extended_flags),
++    }
++
++def darwin_root_data_mounts(root_fd, data_fd):
++    # Identification prerequisite ONLY. Association, mapping and ACL stability
++    # must be established separately before permitting a crossing.
++    # Darwin sys/mount.h MNT_VISFLAGMASK; command/unknown flags are not states.
++    visible_flags = 0xdff0f7ff
++    readonly, local, rootfs = 0x1, 0x1000, 0x4000
++    union, ignore_ownership = 0x20, 0x00200000
++    root_data_volume = 0x1
++    root_mount, data_mount = darwin_mount(root_fd), darwin_mount(data_fd)
++    for mount in (root_mount, data_mount):
++        if (mount['type'] != 'apfs' or mount['owner'] != 0 or
++                not (mount['flags'] & local) or
++                mount['flags'] & ~visible_flags or
++                mount['flags'] & (union | ignore_ownership) or
++                mount['fsid'] == (0, 0)):
++            raise ValueError('unsupported root/Data filesystem')
++    if (root_mount['flags'] & (readonly | rootfs) != (readonly | rootfs) or
++            root_mount['extended_flags'] != 0):
++        raise ValueError('unidentified read-only root filesystem')
++    if (data_mount['flags'] & rootfs or
++            data_mount['extended_flags'] != root_data_volume or
++            data_mount['fsid'] == root_mount['fsid']):
++        raise ValueError('unidentified root Data filesystem')
++    # Equality to ROOT_DATA_VOL also rejects FSKIT and unknown extended flags.
++    # Do not hardcode host fsids or use mounted_on/mounted_from pathname text.
++    return root_mount, data_mount
++
++def read_bound(root, relative):
++    if os.name != 'posix':
++        raise ValueError('unsupported backend')
++    if not root.startswith('/') or root.startswith('//'):
++        raise ValueError('invalid root')
++    roots = [] if root == '/' else root[1:].split('/')
++    parts = roots + relative.split('/')
++    if any(part in ('', '.', '..') or '\\' in part for part in parts):
++        raise ValueError('invalid component')
++    if (os.open not in os.supports_dir_fd or
++            os.scandir not in os.supports_fd):
++        raise ValueError('unavailable capability')
++    # Attribute absence is a rejection; zero-valued fallback flags are unsafe.
++    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
++    directory_flags = flags | os.O_DIRECTORY
++    held = []
++    try:
++        held.append(os.open('/', directory_flags))
++        for index, name in enumerate(parts):
++            parent = held[-1]
++            directory = index < len(parts) - 1
++            child = os.open(name, directory_flags if directory else flags,
++                            dir_fd=parent)
++            held.append(child)
++            opened = os.fstat(child)
++            expected_type = stat.S_ISDIR if directory else stat.S_ISREG
++            if not expected_type(opened.st_mode):
++                raise ValueError('invalid object type')
++            # One dirent supplies BOTH name and inode; a later pathname stat
++            # could instead observe a restored wrong-case object (ABA).
++            entry_inode = None
++            with os.scandir(parent) as entries:
++                for entry in entries:
++                    if entry.name == name:
++                        entry_inode = entry.inode()
++                        break
++            if entry_inode is None:
++                raise ValueError('entry spelling mismatch')
++            if (os.fstat(parent).st_dev != opened.st_dev or
++                    entry_inode != opened.st_ino):
++                if sys.platform == 'darwin':
++                    parent_mount = darwin_mount(parent)
++                    child_mount = darwin_mount(child)
++                    if parent_mount['fsid'] != child_mount['fsid']:
++                        # The held slash anchor, not an arbitrary parent, must
++                        # identify the read-only root. This still does not bind
++                        # a logical source entry to its physical destination.
++                        darwin_root_data_mounts(held[0], child)
++                        # Classification only; no return/continue authorizes it.
++                        raise ValueError('Darwin mount crossing requires binding')
++                # INCOMPLETE: mount/firmlink mapping requires a native backend.
++                # Do not publish this staged reader as full transport support
++                # or fall back to the old split name/stat check.
++                raise ValueError('entry binding unavailable')
++        chunks = []
++        while True:
++            chunk = os.read(held[-1], 65536)
++            if not chunk:
++                break
++            chunks.append(chunk)
++        return b''.join(chunks)
++    finally:
++        # Attempt every close even if an individual close fails.
++        close_failed = False
++        for descriptor in reversed(held):
++            try:
++                os.close(descriptor)
++            except OSError:
++                close_failed = True
++        if close_failed:
++            raise OSError('close failed')
++
++try:
++    content = read_bound(sys.argv[1], sys.argv[2])
++    sys.stdout.buffer.write(content)
++    sys.stdout.buffer.flush()
++except Exception:
++    sys.stderr.write('ADR input acquisition failed\n')
++    sys.exit(1)
++PY
++}
++
++# RT-20260908-004: restricted line grammar; not a general Markdown parser.
++adr_declared_paths() {
++  local design_file=$1
++  LC_ALL=C awk '
++    function width(s, i, ch, n) {
++      n = 0
++      while (substr(s, i + n, 1) == ch) n++
++      return n
++    }
++    function escaped(s, i, n) {
++      n = 0
++      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
++      return n % 2
++    }
++    {
++      line = $0
++      sub(/\r$/, "", line)
++      match(line, /^ */)
++      indent = RLENGTH
++      rest = substr(line, indent + 1)
++      ch = substr(rest, 1, 1)
++      if (fence != "") {
++        if (indent <= 3 && ch == fence) {
++          n = width(rest, 1, ch)
++          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
++        }
++        next
++      }
++      if (indent >= 4 || rest ~ /^\t/) next
++      if (ch == "\140" || ch == "~") {
++        n = width(rest, 1, ch)
++        if (n >= 3) { fence = ch; fence_width = n; next }
++      }
++      i = 1
++      while (i <= length(line)) {
++        if (substr(line, i, 1) != "\140") { i++; continue }
++        n = width(line, i, "\140")
++        if (escaped(line, i)) { i += n; continue }
++        j = i + n
++        closed = 0
++        while (j <= length(line)) {
++          if (substr(line, j, 1) != "\140") { j++; continue }
++          m = width(line, j, "\140")
++          if (!escaped(line, j) && m == n) { closed = 1; break }
++          j += m
++        }
++        if (!closed) break
++        value = substr(line, i + n, j - i - n)
++        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/)
++          print value
++        i = j + n
++      }
++    }
++  ' "$design_file" | LC_ALL=C sort -u
++}
++
++# One private lifetime owns the bytes used for hash, presence and binding.
++# Returns the verified array; a failed command cannot publish partial authority.
++verify_adr_precheck_binding() (
++  [[ "$stage:$role" == impl:impl-reviewer-a ||
++     "$stage:$role" == impl:impl-reviewer-b ]] || return 1
++  local pc_rel=$1 pc_hash=$2 pc_abs actual design_rel design_hash declared
++  local snapshot_dir extension
++  local adr_set declared_set invocation_set rows adr_path adr_hash
++  command -v iconv >/dev/null 2>&1 || return 1
++  umask 077
++  snapshot_dir=$(mktemp -d "${TMPDIR:-/tmp}/sdd-adr-admission.XXXXXX") || return 1
++  trap 'status=$?; rm -f -- "$snapshot_dir/precheck.json" "$snapshot_dir/design.md" "$snapshot_dir/adr.md" || status=1;
++    rmdir -- "$snapshot_dir" || status=1; exit "$status"' EXIT
++  trap 'exit 129' HUP
++  trap 'exit 130' INT
++  trap 'exit 143' TERM
++  pc_abs="$snapshot_dir/precheck.json"
++  adr_read_bound_file "$pc_rel" > "$pc_abs" || return 1
++  actual=$(sha256_file "$pc_abs") || return 1
++  [[ "$actual" == "$pc_hash" ]] || return 1
++  iconv -f UTF-8 -t UTF-8 "$pc_abs" >/dev/null 2>&1 || return 1
++  admission_adr_json_members "$pc_abs" || return 1
++  extension=$(jq -ers 'if length == 1 and (.[0] | type == "object") then
++    .[0] | if has("adr_inputs") then "present" else "absent" end
++    else error("precheck must contain exactly one object") end' "$pc_abs") || return 1
++  if [[ "$extension" == absent ]]; then printf '[]\n'; return 0; fi
++  jq -e --arg p "$pc_rel" --arg h "$pc_hash" '[.allowed_input_manifest[] |
++    select(.path | test("^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$"))] |
++    length == 1 and .[0].path == $p and .[0].sha256 == $h' "$manifest" >/dev/null || return 1
++  # Validate primitive types before interpolation, sorting or set comparison.
++  jq -e --arg f "$feature" --arg p "$pc_rel" '
++    type == "object" and .schema == "impl-review-precheck/v1" and
++    .feature == $f and
++    (.attempt | type == "number" and . >= 1 and . == floor) and
++    (.round | type == "number" and . >= 1 and . == floor) and
++    ($p == ("reports/impl-review/" + $f + "/attempt-" +
++      (.attempt | tostring) + "/round-" + (.round | tostring) + "/precheck-result.json")) and
++    (.design_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
++    (.adr_inputs | type == "array" and all(.[];
++      type == "object" and keys == ["path", "sha256"] and
++      (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++      (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
++    ([.adr_inputs[].path] == ([.adr_inputs[].path] | sort | unique))
++  ' "$pc_abs" >/dev/null || return 1
++  design_rel="specs/$feature/design.md"
++  design_hash=$(jq -er '.design_sha256' "$pc_abs") || return 1
++  jq -e --arg p "$design_rel" --arg h "$design_hash" '
++    [.allowed_input_manifest[] | select(.path == $p)] |
++    length == 1 and .[0].sha256 == $h
++  ' "$manifest" >/dev/null || return 1
++  adr_read_bound_file "$design_rel" > "$snapshot_dir/design.md" || return 1
++  actual=$(sha256_file "$snapshot_dir/design.md") || return 1
++  [[ "$actual" == "$design_hash" ]] || return 1
++  iconv -f UTF-8 -t UTF-8 "$snapshot_dir/design.md" >/dev/null 2>&1 || return 1
++  declared=$(adr_declared_paths "$snapshot_dir/design.md") || return 1
++  declared_set=$(printf '%s' "$declared" | jq -Rsc 'split("\n") | map(select(length > 0))') || return 1
++  adr_set=$(jq -cS '.adr_inputs' "$pc_abs") || return 1
++  jq -e --argjson wanted "$declared_set" '[.adr_inputs[].path] == $wanted' \
++    "$pc_abs" >/dev/null || return 1
++  invocation_set=$(jq -cS '[.allowed_input_manifest[] |
++    select(.path | startswith("docs/adr/"))] | sort_by(.path)' "$manifest") || return 1
++  [[ "$invocation_set" == "$adr_set" ]] || return 1
++  rows=$(jq -r '.[] | [.path, .sha256] | @tsv' <<< "$adr_set") || return 1
++  if [[ -n "$rows" ]]; then
++    while IFS=$'\t' read -r adr_path adr_hash; do
++      adr_read_bound_file "$adr_path" > "$snapshot_dir/adr.md" || return 1
++      actual=$(sha256_file "$snapshot_dir/adr.md") || return 1
++      [[ "$actual" == "$adr_hash" ]] || return 1
++    done <<< "$rows"
++  fi
++  printf '%s\n' "$adr_set"
++)
++
+ path_is_authorized() {
+@@ -489,3 +851,22 @@
+ [[ -n "$precheck_rel" ]] && precheck_abs="$repository_root/$precheck_rel"
+ 
++# Inspect pinned, already role-authorized prechecks even if no ADR was listed.
++# Absence keeps the legacy allowlist; null is presence and must fail verification.
++verified_adr_inputs='[]'
++if [[ "$stage:$role" == impl:impl-reviewer-a || "$stage:$role" == impl:impl-reviewer-b ]]; then
++  admission_root_syntax_is_safe "$admission_raw_repository_root" ||
++    fail PATH 'implementation review requires an unambiguous absolute repository root'
++  adr_probe_rows=$(jq -r '.allowed_input_manifest[] |
++    select(.path | test("^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$")) |
++    [.path, .sha256] | @tsv' "$manifest") || fail CONTRACT 'cannot inspect ADR precheck entries'
++  if [[ -n "$adr_probe_rows" ]]; then
++    while IFS=$'\t' read -r adr_probe_rel adr_probe_hash; do
++      path_is_authorized "$stage" "$role" "$feature" "$adr_probe_rel" "$adr_probe_hash" ||
++        fail PATH 'ADR precheck is outside the reviewer scope'
++      verified_adr_inputs=$(verify_adr_precheck_binding "$adr_probe_rel" "$adr_probe_hash") ||
++        fail CONTRACT 'ADR precheck, design or complete input binding is invalid'
++    done <<< "$adr_probe_rows"
++  fi
++fi
++
+ while IFS=$'\t' read -r path expected_hash; do
+@@ -496,2 +877,7 @@
+-  path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash" ||
+-    fail PATH "$role contains a real but role-unlisted path: $path"
++  if ! path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"; then
++    # Only the complete verified set can extend the role's existing allowlist.
++    jq -e --arg p "$path" --arg h "$expected_hash" '
++      any(.[]; .path == $p and .sha256 == $h)
++    ' <<< "$verified_adr_inputs" >/dev/null ||
++      fail PATH "$role contains a real but role-unlisted path: $path"
++  fi
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -82,1 +82,309 @@
++# This is a lexical prerequisite, not the held-handle acquisition guarantee.
++function Assert-AdrRepositoryRootSyntax([string]$RawRoot) {
++    $tail = $null
++    if ($IsWindows) {
++        if ($RawRoot -cmatch '^[A-Za-z]:[\\/]') {
++            $tail = $RawRoot.Substring(3).Replace('\', '/')
++        }
++        elseif ($RawRoot.StartsWith('\\', [StringComparison]::Ordinal)) {
++            $tail = $RawRoot.Substring(2).Replace('\', '/')
++            if (-not $tail.Contains('/') -or $tail.StartsWith('?/', [StringComparison]::Ordinal) -or
++                $tail.StartsWith('./', [StringComparison]::Ordinal)) {
++                throw 'Invalid repository share root syntax'
++            }
++        }
++    }
++    elseif ($RawRoot.StartsWith('/', [StringComparison]::Ordinal)) {
++        $tail = $RawRoot.Substring(1)
++    }
++    if ($null -eq $tail -or $tail.StartsWith('/', [StringComparison]::Ordinal) -or
++        $tail.EndsWith('/', [StringComparison]::Ordinal) -or $tail.Contains('//') -or
++        ('/' + $tail + '/') -cmatch '/[.]{1,2}/') {
++        throw 'Implementation review requires an unambiguous absolute repository root'
++    }
++}
++
++# Validate raw JSON before ConvertFrom-Json can erase repeated members.
++# Input must be decoded from the SAME safe byte snapshot the caller hashes.
++function Assert-AdrAdmissionJsonMembers([string]$Text) {
++    $tokens = [regex]::new('\G(?:"(?:[^"\\\x00-\x1f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\[\]:,])')
++    $space = [regex]::new('\G[ \t\r\n]*')
++    # Explicit frames avoid a new recursion-depth limit; keys belong to one
++    # object instance, not a global path map (array siblings may repeat keys).
++    $frames = [Collections.Generic.List[object]]::new()
++    $frames.Add([pscustomobject]@{ Kind='root'; Phase='value'; Keys=$null })
++    $offset = 0
++    while ($offset -lt $Text.Length) {
++        $offset += $space.Match($Text, $offset).Length
++        if ($offset -eq $Text.Length) { break }
++        $match = $tokens.Match($Text, $offset)
++        if (-not $match.Success) { throw 'ADR JSON has an invalid token' }
++        $token = $match.Value
++        $offset += $match.Length
++        $frame = $frames[$frames.Count - 1]
++        if ($frame.Phase -ceq 'colon') {
++            if ($token -cne ':') { throw 'ADR JSON member has no colon' }
++            $frame.Phase = 'value'
++            continue
++        }
++        if ($frame.Phase -ceq 'comma-or-end') {
++            $closing = if ($frame.Kind -ceq 'object') { '}' } else { ']' }
++            if ($token -ceq $closing) {
++                $frames.RemoveAt($frames.Count - 1)
++                continue
++            }
++            if ($token -cne ',') { throw 'ADR JSON missing separator' }
++            $frame.Phase = if ($frame.Kind -ceq 'object') { 'key' } else { 'value' }
++            continue
++        }
++        if ($frame.Phase -ceq 'key-or-end' -and $token -ceq '}') {
++            $frames.RemoveAt($frames.Count - 1)
++            continue
++        }
++        if ($frame.Phase -ceq 'value-or-end' -and $token -ceq ']') {
++            $frames.RemoveAt($frames.Count - 1)
++            continue
++        }
++        if ($frame.Phase -ceq 'key' -or $frame.Phase -ceq 'key-or-end') {
++            if (-not $token.StartsWith('"', [StringComparison]::Ordinal)) {
++                throw 'ADR JSON object key is not a string'
++            }
++            # Parse one isolated string, never a whole object with duplicate
++            # keys. Array wrapping preserves the empty string in PS5.1.
++            $decoded = @(ConvertFrom-Json -InputObject ('[' + $token + ']') -ErrorAction Stop)
++            if ($decoded.Count -ne 1 -or $decoded[0] -isnot [string]) {
++                throw 'ADR JSON key decoding failed'
++            }
++            if (-not $frame.Keys.Add($decoded[0])) { throw 'ADR JSON duplicate decoded member' }
++            $frame.Phase = 'colon'
++            continue
++        }
++        if ($frame.Phase -cne 'value' -and $frame.Phase -cne 'value-or-end') {
++            throw 'ADR JSON has trailing content'
++        }
++        # Consume this value at its parent before descending into a container.
++        if ($frame.Kind -ceq 'root' -and $token -cne '{') {
++            throw 'ADR precheck JSON root must be an object'
++        }
++        # A comma requires a value/key, so trailing commas cannot close it.
++        $frame.Phase = if ($frame.Kind -ceq 'root') { 'done' } else { 'comma-or-end' }
++        if ($token -ceq '{') {
++            $keys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++            $frames.Add([pscustomobject]@{ Kind='object'; Phase='key-or-end'; Keys=$keys })
++        } elseif ($token -ceq '[') {
++            $frames.Add([pscustomobject]@{ Kind='array'; Phase='value-or-end'; Keys=$null })
++        } elseif ($token -ceq '}' -or $token -ceq ']' -or $token -ceq ':' -or $token -ceq ',') {
++            throw 'ADR JSON value missing or container mismatched'
++        }
++    }
++    if ($frames.Count -ne 1 -or $frames[0].Phase -cne 'done') {
++        throw 'ADR JSON is empty or incomplete'
++    }
++}
++
++# Hash and interpret one read, never a hash-then-reopen pair. The caller must
++# check path safety first; this reader does not establish atomic no-follow.
++function Read-AdrAdmissionSnapshot([string]$Path) {
++    $bytes = [IO.File]::ReadAllBytes($Path)
++    $decoder = [Text.UTF8Encoding]::new($false, $true)
++    $text = $decoder.GetString($bytes)
++    $hasher = [Security.Cryptography.SHA256]::Create()
++    try {
++        $digest = [BitConverter]::ToString($hasher.ComputeHash($bytes)).Replace('-', '').ToLowerInvariant()
++    } finally {
++        $hasher.Dispose()
++    }
++    return [pscustomobject]@{ Path=$Path; Sha256=$digest; Text=$text; Bytes=$bytes }
++}
++
++# Check every component before opening content; no LinkType-only shortcut.
++function Test-AdrBoundFilePath {
++    param([string]$Root, [string]$Relative)
++    if (-not (Test-CanonicalPath $Relative)) { return $false }
++    $current = $Root
++    $components = $Relative.Split('/')
++    for ($index = 0; $index -lt $components.Length; $index++) {
++        $component = $components[$index]
++        $matches = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
++            Where-Object { [string]::Equals($_.Name, $component, [StringComparison]::Ordinal) })
++        if ($matches.Count -ne 1) { return $false }
++        $item = $matches[0]
++        if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
++            return $false
++        }
++        if ($index -lt $components.Length - 1) {
++            if (-not $item.PSIsContainer) { return $false }
++        }
++        else {
++            if ($item -isnot [IO.FileInfo] -or $item.PSIsContainer -or
++                ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) {
++                return $false
++            }
++            if (-not $IsWindows) {
++                # FileInfo/Leaf also describe POSIX devices; require lstat type.
++                $statProperty = $item.PSObject.Properties['UnixStat']
++                if ($null -eq $statProperty -or $null -eq $statProperty.Value -or
++                    -not [string]::Equals([string]$statProperty.Value.ItemType,
++                        'File', [StringComparison]::Ordinal)) {
++                    return $false
++                }
++            }
++        }
++        $current = $item.FullName
++    }
++    # The consuming hash/read must still fail closed on access/open failure.
++    return $true
++}
++
++# RT-20260908-004: the same restricted byte-oriented line grammar as Bash.
++function Get-AdrDeclaredPaths {
++    param([byte[]]$DesignBytes)
++    # Latin-1 preserves each byte, including a BOM; the grammar is ASCII only.
++    # ReadAllText would strip a BOM and diverge from LC_ALL=C awk at fences.
++    $text = [Text.Encoding]::GetEncoding(28591).GetString($DesignBytes)
++    $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    function Get-AdrRunWidth([string]$Line, [int]$Start, [char]$Delimiter) {
++        $width = 0
++        while (($Start + $width) -lt $Line.Length -and $Line[$Start + $width] -ceq $Delimiter) { $width++ }
++        return $width
++    }
++    function Test-AdrRunEscaped([string]$Line, [int]$Start) {
++        $slashes = 0
++        while ($Start -gt 0 -and $Line[$Start - 1] -ceq [char]92) { $slashes++; $Start-- }
++        return (($slashes % 2) -ne 0)
++    }
++    $fence = [char]0
++    $fenceWidth = 0
++    foreach ($rawLine in $text.Split([char]10)) {
++        $line = $rawLine
++        if ($line.Length -gt 0 -and $line[$line.Length - 1] -ceq [char]13) {
++            $line = $line.Substring(0, $line.Length - 1)
++        }
++        $indent = 0
++        while ($indent -lt $line.Length -and $line[$indent] -ceq [char]32) { $indent++ }
++        $rest = $line.Substring($indent)
++        $first = [char]0
++        if ($rest.Length -gt 0) { $first = $rest[0] }
++        if ($fence -cne [char]0) {
++            if ($indent -le 3 -and $first -ceq $fence) {
++                $width = Get-AdrRunWidth $rest 0 $fence
++                if ($width -ge $fenceWidth -and $rest.Substring($width) -cmatch '^[ \t]*$') {
++                    $fence = [char]0
++                }
++            }
++            continue
++        }
++        if ($indent -ge 4 -or $first -ceq [char]9) { continue }
++        if ($first -ceq [char]96 -or $first -ceq [char]126) {
++            $width = Get-AdrRunWidth $rest 0 $first
++            if ($width -ge 3) { $fence = $first; $fenceWidth = $width; continue }
++        }
++        $i = 0
++        while ($i -lt $line.Length) {
++            if ($line[$i] -cne [char]96) { $i++; continue }
++            $width = Get-AdrRunWidth $line $i ([char]96)
++            if (Test-AdrRunEscaped $line $i) { $i += $width; continue }
++            $j = $i + $width
++            $closed = $false
++            while ($j -lt $line.Length) {
++                if ($line[$j] -cne [char]96) { $j++; continue }
++                $closeWidth = Get-AdrRunWidth $line $j ([char]96)
++                if ($closeWidth -eq $width -and -not (Test-AdrRunEscaped $line $j)) {
++                    $closed = $true
++                    break
++                }
++                $j += $closeWidth
++            }
++            if (-not $closed) { break }
++            $value = $line.Substring($i + $width, $j - $i - $width)
++            if ($width -eq 1 -and $value -cmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$') {
++                [void]$paths.Add($value)
++            }
++            $i = $j + $width
++        }
++    }
++    [string[]]$result = @($paths)
++    [Array]::Sort($result, [StringComparer]::Ordinal)
++    return $result
++}
++
++# Extension-only; return no authority until every binding has been checked.
++function Get-VerifiedAdrPrecheckBinding {
++    param($Invocation, [string]$Root, [string]$Feature, [string]$Stage, [string]$Role,
++        $PrecheckSnapshot, $Precheck)
++    if ($Stage -cne 'impl' -or $Role -cnotin @('impl-reviewer-a', 'impl-reviewer-b')) {
++        throw 'ADR extension is restricted to implementation reviewers'
++    }
++    $entries = @($Invocation.allowed_input_manifest | Where-Object {
++        $_.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
++    })
++    if ($entries.Count -ne 1) { throw 'ADR binding requires exactly one precheck' }
++    $entry = $entries[0]
++    $pcPath = Join-Path $Root $entry.path
++    if ($PrecheckSnapshot.Path -cne $pcPath -or $PrecheckSnapshot.Sha256 -cne $entry.sha256) {
++        throw 'ADR precheck hash mismatch'
++    }
++    # The caller supplies the object parsed from this exact checked snapshot.
++    $pc = $Precheck
++    if ($pc -isnot [Collections.IDictionary]) { throw 'ADR precheck must be an object' }
++    foreach ($key in @('schema', 'feature', 'attempt', 'round', 'design_sha256', 'adr_inputs')) {
++        if ($pc.Keys -cnotcontains $key) { throw "Missing exact precheck field: $key" }
++    }
++    if ($pc.schema -isnot [string] -or $pc.feature -isnot [string] -or
++        $pc.schema -cne 'impl-review-precheck/v1' -or $pc.feature -cne $Feature -or
++        -not (Test-JsonInteger $pc.attempt) -or $pc.attempt -lt 1 -or
++        -not (Test-JsonInteger $pc.round) -or $pc.round -lt 1) {
++        throw 'Invalid ADR precheck identity'
++    }
++    $expectedPc = "reports/impl-review/$Feature/attempt-$($pc.attempt)/round-$($pc.round)/precheck-result.json"
++    if ($entry.path -cne $expectedPc -or $pc.design_sha256 -isnot [string] -or
++        $pc.design_sha256 -cnotmatch '^[0-9a-f]{64}$' -or $pc.adr_inputs -isnot [array]) {
++        throw 'Invalid ADR precheck path, design hash or array'
++    }
++    $verified = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    $previous = $null
++    foreach ($adr in $pc.adr_inputs) {
++        if ($adr -isnot [Collections.IDictionary] -or
++            -not (Test-ExactKeys $adr @('path', 'sha256')) -or
++            $adr.path -isnot [string] -or $adr.sha256 -isnot [string] -or
++            $adr.path -cnotmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$' -or
++            $adr.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++            throw 'Malformed ADR binding'
++        }
++        if ($null -ne $previous -and [string]::CompareOrdinal($previous, $adr.path) -ge 0) {
++            throw 'ADR bindings must be unique and ordinal sorted'
++        }
++        $verified.Add($adr.path, $adr.sha256)
++        $previous = $adr.path
++    }
++    $designRel = "specs/$Feature/design.md"
++    $designEntries = @($Invocation.allowed_input_manifest | Where-Object { $_.path -ceq $designRel })
++    if ($designEntries.Count -ne 1 -or $designEntries[0].sha256 -cne $pc.design_sha256 -or
++        -not (Test-AdrBoundFilePath $Root $designRel)) { throw 'Missing or unsafe bound design' }
++    $designPath = Join-Path $Root $designRel
++    $designSnapshot = Read-AdrAdmissionSnapshot $designPath
++    if ($designSnapshot.Sha256 -cne $pc.design_sha256) {
++        throw 'ADR design hash mismatch'
++    }
++    $declared = @(Get-AdrDeclaredPaths $designSnapshot.Bytes)
++    if ($declared.Count -ne $verified.Count) { throw 'ADR declaration set mismatch' }
++    foreach ($path in $declared) {
++        if (-not $verified.ContainsKey($path)) { throw 'Undeclared ADR binding' }
++    }
++    $invocationAdrs = @($Invocation.allowed_input_manifest | Where-Object {
++        $_.path.StartsWith('docs/adr/', [StringComparison]::Ordinal)
++    })
++    if ($invocationAdrs.Count -ne $verified.Count) { throw 'Invocation ADR set mismatch' }
++    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($adr in $invocationAdrs) {
++        if (-not $seen.Add($adr.path) -or -not $verified.ContainsKey($adr.path) -or
++            $verified[$adr.path] -cne $adr.sha256) { throw 'Invocation ADR binding mismatch' }
++        if (-not (Test-AdrBoundFilePath $Root $adr.path)) { throw 'Unsafe ADR file path' }
++        if ((Get-FileHash -LiteralPath (Join-Path $Root $adr.path) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $adr.sha256) {
++            throw 'ADR file hash mismatch'
++        }
++    }
++    return ,$pc.adr_inputs
++}
++
+ function Test-AuthorizedPath {
+@@ -524,1 +832,45 @@
++    # Validate raw entries before inspecting any declaration-source file.
++    $adrRawPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($entry in $inputs) {
++        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path', 'sha256')) -or
++            $entry.path -isnot [string] -or -not (Test-CanonicalPath $entry.path) -or
++            -not $adrRawPaths.Add($entry.path) -or $entry.sha256 -isnot [string] -or
++            $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++            Fail-ReviewContext 'CONTRACT' 'Invalid raw input entry before ADR binding'
++        }
++    }
++    $verifiedAdrInputs = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    if ($document.stage -ceq 'impl' -and $document.role -cin @('impl-reviewer-a', 'impl-reviewer-b')) {
++        Assert-AdrRepositoryRootSyntax $RepositoryRoot
++        $adrProbeEntries = @($inputs | Where-Object {
++            $_.path -cmatch '^reports/impl-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json$'
++        })
++        foreach ($entry in $adrProbeEntries) {
++            if (-not (Test-AuthorizedPath $document.stage $document.role $document.feature $entry.path $entry.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs) -or
++                -not (Test-AdrBoundFilePath $root $entry.path)) {
++                Fail-ReviewContext 'PATH' 'Unsafe or role-unlisted ADR precheck'
++            }
++            $adrProbePath = Join-Path $root $entry.path
++            $adrProbeSnapshot = Read-AdrAdmissionSnapshot $adrProbePath
++            if ($adrProbeSnapshot.Sha256 -cne $entry.sha256) {
++                Fail-ReviewContext 'HASH' 'ADR precheck hash mismatch'
++            }
++            $adrProbeText = $adrProbeSnapshot.Text
++            # Permit a single leading UTF-8 BOM; it remains in the raw hash.
++            if ($adrProbeText.Length -gt 0 -and $adrProbeText[0] -ceq [char]0xfeff) {
++                $adrProbeText = $adrProbeText.Substring(1)
++            }
++            Assert-AdrAdmissionJsonMembers $adrProbeText
++            $adrProbe = ConvertFrom-Json -InputObject $adrProbeText -AsHashtable
++            if ($adrProbe -isnot [Collections.IDictionary]) {
++                Fail-ReviewContext 'CONTRACT' 'ADR precheck must be an object'
++            }
++            # Null is not absence; the extension verifier rejects it.
++            if ($adrProbe.Keys -ccontains 'adr_inputs') {
++                $boundAdrs = Get-VerifiedAdrPrecheckBinding $document $root $document.feature $document.stage $document.role $adrProbeSnapshot $adrProbe
++                foreach ($adr in $boundAdrs) { $verifiedAdrInputs.Add($adr.path, $adr.sha256) }
++            }
++        }
++    }
++
+     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+@@ -533,3 +885,5 @@
++        $adrAuthorized = $verifiedAdrInputs.ContainsKey($input.path) -and
++            $verifiedAdrInputs[$input.path] -ceq $input.sha256
+         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
+             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
+-            -not (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)) {
++            (-not $adrAuthorized -and -not (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs))) {

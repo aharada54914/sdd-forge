@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0862d-8dfa-7713-ba38-fe47a722f947",
+  "host_session_id": "01a0862d-8dfa-7713-ba38-fe47a722f947",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "d303c649816d525ba3be93a45f3ec0f5b1320da404a0850554125efa08ac5660"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-3/round-2/precheck-result.json",
+      "sha256": "1312d9a4576cdf751d59c8646a3af0ef0c21668cb1f626f1505cc62ad90e03c4"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Within the reserved amendment scope, requirements.md defines exact decoded patch/result text, schema selection, required members, nonce syntax and binding, typed execution status, rejection categories and exit codes. AC-027/AC-032 and the RT002 test rows provide concrete success, isolated rejection, legacy compatibility and cleanup assertions. All allowed inputs were read completely and their hashes verified; precheck pins agree. Reservation sequence 976 extends 975, the predecessor matches, the record hash recomputes correctly, and the supplied validator evidence declares identity_unique=yes."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The operation-bound denial amendment maps to AC-027 and TEST-027-RT002 rows; cleanup preservation maps to AC-032, TEST-032 and cleanup-specific RT002 rows. The authorized shared-CI amendment maps to AC-028 and TEST-028/TWIN/DRIVER/CI/FILE/MANIFEST/PRESERVE/FRESH. The repair-exit observation separately requires fresh native dispatch and installed-path verification."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md specifies exact response exits and diagnostics, positive and negative output assertions, byte-exact template checks, independent registration failures, retired-artifact absence, inventory preservation and stale-baseline rejection. TEST-032 distinguishes confirmed cleanup from failed or unconfirmed cleanup without claiming unconditional sentinel absence."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's RT002 recovery boundary admits only the named repair and scoped provenance reviews; it excludes ordinary bootstrap, unrelated work, integration and quality-gate completion. Synthetic verifier evidence remains separate from native activation and A8 cross-runtime proof. Shared CI edits require a separately reviewed and explicitly authorized change."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amendment preserves protective enforcement, independent reviews, reservations, hashes, schemas, cycle limits and human anchored publication. It forbids denial retries through another executor and explicitly disclaims cryptographic host attestation or replay-ledger guarantees. investigation.md's Amendment Re-Review Context supplies a full amendment commit, document fingerprints, dated verbatim approvals and referenced-artifact provenance; only phase-sequencing suppression applies. Dated precedence resolves the identified legacy cleanup and shared-workflow summaries."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-027-RT002 covers adapter fallback, duplicate-member parsing, nonce mismatch and malformed syntax, execution status, extra fields and altered denial envelopes. TEST-032 retains cleanup-failure and stale-start validation. TEST-028 branches cover registration loss, shared-CI weakening and baseline drift. Native repair activation remains an explicitly separate required observation; this review establishes no execution or activation result."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted root-directory probe confirmed domain/ is absent; the explicit skip condition applies."
+    }
+  ]
+}

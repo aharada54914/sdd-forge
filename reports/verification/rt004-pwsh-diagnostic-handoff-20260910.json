@@ -1,0 +1,19 @@
+{
+  "decision": ["Prepare DATA-only diagnostic patch; human applies protected source after independent review. Preserve rejection, tests, and all prior FAIL records."],
+  "unresolved": ["PowerShell current ADR positive fixture fails with masked runtime exception. Cause unknown; possible input contract mismatch or PowerShell runtime type/scoping difference. Static syntax success does not distinguish them."],
+  "evidence": ["Human static analysis: PowerShell 7.6.2, syntax errors 0, 173 informational/warning diagnostics; source SHA256 4825a5b0c893dd4bf7a6b713d73133caa826a22571d613ae72e7a367ad64baa0.", "Current-only driver: 8 pass, 6 fail; complete ADR driver: 186 pass, 127 fail. No integration authorized by these results."],
+  "next_action": ["SUPERSEDED: do not apply rt004-pwsh-exception-location-candidate-20260910.patch. Follow current_update below. The original decision, unresolved and evidence arrays are historical, not current instructions."],
+  "current_update": {
+    "date": "2026-09-10",
+    "authority": "reports/verification/rt004-pwsh-summary-date-diagnosis-20260910.md",
+    "applied_source_sha256": "291ee7531594757d6ebc04c144bb8b35938f7715ae76665c9bdf723df09b1ff5",
+    "cause": "PowerShell 7.6.2 deserializes the valid generated_at timestamp into DateTime. Human applied the independently reviewed narrow predicate repair; the original-path current-ADR suite now passes 14/0, including an agent rerun after application.",
+    "workflow_result": "Original workflow-only suite: 137 passed / 0 failed, exit 0, session 36040. Previous 85/52 remains historical. Review-context boundary and round-2 contract suites also exited 0.",
+    "remaining_failure": "Complete ADR driver session 87962 terminated exit 1: 249 passed / 64 failed (includes 137 workflow passes, admission subset 112/64). Valid ADR inputs are role-unlisted, whereas malformed extensions are accepted into synthetic fixture ledgers. Admission candidate integration remains pending; workflow-only success is not ticket completion.",
+    "applied_human_patch": "reports/verification/rt004-pwsh-history-diagnostic-candidate-20260910.patch",
+    "applied_patch_sha256": "ff1521b564442bead8e0d9b0a74553faa17e5019bdd79bb71ab5dc5f5078b520",
+    "human_backup": "/tmp/sdd-rt004-diagnostic.1r71bx",
+    "next_action": "Finish existing admission/precheck candidate integration and independent review. Both test sessions are terminal; do not poll or restart unchanged suites. Preserve positive controls and historical failures. Do not use renamed executables or alternate executors to bypass protection. Timestamp matrix, PowerShell read-boundary coverage, formal review, CI and main integration remain incomplete.",
+    "parallel_dependency": "RT001 ordinary review entry depends on RT002 handshake repair. The authorized RT002 recovery route admits only repair-specific reviews and retains all other prerequisites; it is not permission for unrelated bootstrap or integration. RT001 scope amendment already has human approval."
+  }
+}

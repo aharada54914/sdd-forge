@@ -1,0 +1,7 @@
+{
+  "nonce": "dfae3fda0d2dae4a815bcd10f74434bc",
+  "executed": false,
+  "runtime": "codex-cli",
+  "observation": "Actual tool call was blocked. Host output does not expose plugin_hooks_enabled or denied_by_plugin_hooks; neither is invented.",
+  "raw_result": "Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+\n*** End Patch"
+}

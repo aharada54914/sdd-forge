@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a40f30c7431397e7ec5ace116fbce8480de4712013c17c6ef2a02373610046ff",
+  "acceptance_sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "46b36669b30d731d48bdeaca293a429b5d7ad42b58151137ebe898e88e561056",
+  "edit_summary": "Resolve round-1 findings: explicit completion ordering and both timeout branches, observed unset/empty effective defaults, preserve gate exit 2 for empty verdicts, and reverify protected membership at each review/implementation boundary.",
+  "reset": false,
+  "generated_at": "2026-09-07T16:33:36Z"
+}

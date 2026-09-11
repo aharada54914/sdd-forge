@@ -1,0 +1,17 @@
+{
+  "ticket": "RT-20260909-003",
+  "changes": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "sha256": "c5bf089a5b8b643d99c40c9d8eedd8bc62af4e49bdf32f9943d86dde5cf267e8",
+      "old": "  [[ \"$requirements_sha\" != \"$prior_requirements_sha\" || \"$acceptance_sha\" != \"$prior_acceptance_sha\" ]] \\\n    || fail \"reviewed inputs are unchanged from the prior round\"",
+      "new": "  if [[ \"$requirements_sha\" == \"$prior_requirements_sha\" && \"$acceptance_sha\" == \"$prior_acceptance_sha\" ]]; then\n    # Compare live bytes only after validating the complete historical evidence.\n    prior_root=\"$(recorded_repo_root \"$prior_contract\")\"\n    prior_investigation_sha=\"$(jq -r --arg investigation \"specs/${feature}/investigation.md\" \\\n      --arg repo \"${repo_root}/\" --arg alias \"${repo_root_alias}/\" --arg recorded \"${prior_root:+$prior_root/}\" \\\n      \"$jq_relative_path\"'\n      [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $investigation) | .sha256] | unique |\n      if length == 1 then .[0] else \"\" end' \"$prior_contract\")\"\n    investigation=\"${spec_dir}/investigation.md\"\n    is_sha256 \"$prior_investigation_sha\" && [[ -f \"$investigation\" && ! -L \"$investigation\" ]] ||\n      fail \"reviewed inputs are unchanged or prior investigation is unavailable\"\n    current_investigation_sha=\"$(sha256 \"$investigation\")\"\n    is_sha256 \"$current_investigation_sha\" && [[ \"$current_investigation_sha\" != \"$prior_investigation_sha\" ]] ||\n      fail \"reviewed inputs are unchanged from the prior round\"\n  fi"
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "sha256": "bccb01fe61e171568a2bc8daca56c397fd8ae9922216cba4b4dce3a40bc1fb51",
+      "old": "  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {\n    Fail 'reviewed inputs are unchanged from the prior round'\n  }",
+      "new": "  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {\n    # Historical evidence is fully validated before live bytes are compared.\n    $investigationPath = Join-Path $specDir 'investigation.md'\n    $priorInvestigationHashes = @($priorData.reviewers | ForEach-Object {\n      $_.allowed_input_manifest | Where-Object { Test-OrdinalEqual $_.path $investigationPath } | ForEach-Object { $_.sha256 }\n    } | Select-Object -Unique)\n    if ($priorInvestigationHashes.Count -ne 1 -or -not (Test-IsSha256 $priorInvestigationHashes[0]) -or\n        -not (Test-Path -LiteralPath $investigationPath -PathType Leaf) -or (Test-IsSymlink $investigationPath)) {\n      Fail 'reviewed inputs are unchanged or prior investigation is unavailable'\n    }\n    $currentInvestigationSha = Get-Sha256File $investigationPath\n    if (-not (Test-IsSha256 $currentInvestigationSha) -or (Test-OrdinalEqual $currentInvestigationSha $priorInvestigationHashes[0])) {\n      Fail 'reviewed inputs are unchanged from the prior round'\n    }\n  }"
+    }
+  ]
+}

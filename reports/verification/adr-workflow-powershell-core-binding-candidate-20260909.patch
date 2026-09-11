@@ -1,0 +1,100 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -985,1 +985,96 @@
++# ADR history core binding. Does not read current ADR bytes or grant admission.
++# The full history caller must also validate identities, manifests and summaries.
++function Get-AdrHistoryCoreBinding($Contract, $Precheck) {
++    function Get-ExactAdrField($Object, [string]$Name) {
++        if ($Object -isnot [pscustomobject]) { throw 'ADR record must be an object' }
++        $properties = @($Object.PSObject.Properties | Where-Object {
++            [string]::Equals($_.Name, $Name, [StringComparison]::Ordinal)
++        })
++        if ($properties.Count -ne 1) { throw "ADR field missing: $Name" }
++        # Preserve JSON [] and singleton arrays in Windows PowerShell 5.1.
++        return ,($properties[0].Value)
++    }
++    function Test-AdrDigest($Value) {
++        return ($Value -is [string] -and $Value -cmatch '\A[0-9a-f]{64}\z')
++    }
++    function Get-AdrCanonicalEntries($Entries) {
++        if ($Entries -isnot [array]) { throw 'ADR entries must be an array' }
++        $serialized = [Collections.Generic.List[string]]::new()
++        $previous = $null
++        foreach ($entry in $Entries) {
++            if ($entry -isnot [pscustomobject] -or
++                @($entry.PSObject.Properties).Count -ne 2) { throw 'ADR entry shape invalid' }
++            $path = Get-ExactAdrField $entry 'path'
++            $hash = Get-ExactAdrField $entry 'sha256'
++            if ($path -isnot [string] -or
++                $path -cnotmatch '\Adocs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md\z' -or
++                -not (Test-AdrDigest $hash)) { throw 'ADR entry path or hash invalid' }
++            if ($null -ne $previous -and
++                [StringComparer]::Ordinal.Compare($previous, $path) -ge 0) {
++                throw 'ADR entries must be sorted and unique'
++            }
++            $previous = $path
++            # Both values are restricted ASCII without JSON escape characters.
++            $serialized.Add('{"path":"' + $path + '","sha256":"' + $hash + '"}')
++        }
++        return '[' + [string]::Join(',', $serialized.ToArray()) + ']'
++    }
++    function Get-AdrCanonicalLayers($Layers) {
++        if ($Layers -isnot [pscustomobject]) { throw 'ADR layers must be an object' }
++        $properties = @($Layers.PSObject.Properties)
++        if ($properties.Count -eq 0) { return '{}' }
++        if ($properties.Count -ne 4) { throw 'ADR layer key count invalid' }
++        $parts = [Collections.Generic.List[string]]::new()
++        # ASCII key order matches jq -cS, independently of locale.
++        foreach ($name in @('frontend-spec.md','infra-spec.md','security-spec.md','ux-spec.md')) {
++            $hash = Get-ExactAdrField $Layers $name
++            if (-not (Test-AdrDigest $hash)) { throw 'ADR layer hash invalid' }
++            $parts.Add('"' + $name + '":"' + $hash + '"')
++        }
++        return '{' + [string]::Join(',', $parts.ToArray()) + '}'
++    }
++    if ($Contract -isnot [pscustomobject] -or
++        ($null -ne $Precheck -and $Precheck -isnot [pscustomobject])) {
++        throw 'ADR history records must be objects'
++    }
++    $contractPresent = @($Contract.PSObject.Properties.Name) -ccontains 'adr_inputs'
++    $precheckPresent = $null -ne $Precheck -and
++        @($Precheck.PSObject.Properties.Name) -ccontains 'adr_inputs'
++    if ($contractPresent -ne $precheckPresent) { throw 'one-sided ADR extension' }
++    if (-not $contractPresent) {
++        # The caller still rejects ADR-like paths in every legacy manifest.
++        return [pscustomobject]@{ Extended=$false; EntriesJson='[]' }
++    }
++    $entries = Get-AdrCanonicalEntries (Get-ExactAdrField $Precheck 'adr_inputs')
++    if ((Get-AdrCanonicalEntries (Get-ExactAdrField $Contract 'adr_inputs')) -cne $entries) {
++        throw 'ADR saved sets disagree'
++    }
++    $pins = [Collections.Generic.List[string]]::new()
++    foreach ($name in @('design_sha256','requirements_sha256','acceptance_sha256')) {
++        $pin = Get-ExactAdrField $Precheck $name
++        $other = Get-ExactAdrField $Contract $name
++        if (-not (Test-AdrDigest $pin) -or -not (Test-AdrDigest $other) -or $pin -cne $other) {
++            throw 'ADR core pins disagree'
++        }
++        $pins.Add($pin)
++    }
++    # Extended records explicitly bind an empty or complete layer map.
++    $layerJson = @(
++        (Get-AdrCanonicalLayers (Get-ExactAdrField $Precheck 'layer_sha256')),
++        (Get-AdrCanonicalLayers (Get-ExactAdrField $Contract 'layer_sha256')))
++    if ($layerJson[0] -cne $layerJson[1]) { throw 'ADR saved layer pins disagree' }
++    $material = [string]::Join(':', $pins.ToArray())
++    if ($layerJson[0] -cne '{}') { $material += ':' + $layerJson[0] }
++    $material += ':adr_inputs/v1:' + $entries
++    $hasher = [Security.Cryptography.SHA256]::Create()
++    try {
++        $digest = [BitConverter]::ToString($hasher.ComputeHash(
++            [Text.Encoding]::ASCII.GetBytes($material))).Replace('-', '').ToLowerInvariant()
++    } finally { $hasher.Dispose() }
++    $recordedDigest = Get-ExactAdrField $Precheck 'input_sha256'
++    if (-not (Test-AdrDigest $recordedDigest) -or $recordedDigest -cne $digest) {
++        throw 'ADR saved input digest mismatch'
++    }
++    return [pscustomobject]@{ Extended=$true; EntriesJson=$entries }
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

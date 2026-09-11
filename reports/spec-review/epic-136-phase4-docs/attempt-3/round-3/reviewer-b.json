@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a07e27-e3a4-7802-9ac3-23544ef661ff",
+  "host_session_id": "01a07e27-e3a4-7802-9ac3-23544ef661ff",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "1e5b761e90a4e71e1477667209581a5a48b3e395fd0495c21a5730ecddc6e991"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-3/precheck-result.json",
+      "sha256": "7a6552ad5224f064c3d40a1174d5be91b2266135367082d8ae5cef4ff020d729"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-3/integrated-summary.json",
+      "sha256": "c8ff7742104b1706e505940b2a418a7de1f28c57828cd2525ba72cb61582b29d"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:43-77 defines configuration, runtime-specific termination and outcome parity; :171 defines the authoritative completion re-check. acceptance-tests.md:38-42 and :61-66 make fallback behavior and both boundary orderings observable."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:93 distinguishes runner timeout exit 1 from empty-input gate exit 2. BL-003 and the precedence rule at :184-190 explicitly supersede INV-005's historical number and INV-017's exemption. acceptance-tests.md:90-95 agrees. The runtime asymmetry is explicitly reconciled with outcome parity at requirements.md:64-75."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-003 covers unset, empty, explicit and invalid configuration, including effective fallback expiry. TEST-004 covers hangs, POSIX escalation, descendant cleanup and both completion-race orderings across runtimes. TEST-005/006 cover absent verdicts and both remaining-input sets; TEST-011 preserves absent/error regression coverage."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-002 records vendor rate-limit behavior as an external limitation; AC-003/005/011 resolve timeout value, disposition and verification. AC-013/014 resolve MCP-source and residual-risk questions. requirements.md:192-240 supplies dated, hash-identified human source observations for protected-target membership, limits their meaning and requires refreshed evidence at later consumption boundaries."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "BL-005 at requirements.md:186 requires human application for matching protected targets and blocks unavailable or denied application. :194-204 preserves manifest isolation and explicitly denies interpreting source observations as authorization. :227-234 classifies both shell runners as protected and retains BL-002's prohibition on gate edits."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001 through REQ-006 have observable acceptance tests. Non-goals and BL-001 through BL-005 distinguish documentation corrections, timeout behavior, preserved gate logic and application authority. requirements.md:190 requires sibling reconciliation before implementation authorization. No missing product decision blocks implementation-policy review."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check confirmed that domain/ is absent; the explicit skip condition applies."
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -985,1 +985,94 @@
++# Called for each of the four ADR-extended saved manifests. Snapshot hashes and
++# canonical core/ADR validation are prerequisites owned by the history caller.
++function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
++    [string]$Feature, [int]$Attempt, [int]$Round, [string]$RepositoryRoot,
++    [string]$RecordedRoot, [string]$PrecheckHash, [string]$SummaryHash,
++    [string]$PreviousSummaryHash) {
++    if ($Role -cnotin @('impl-reviewer-a','impl-reviewer-b') -or
++        $Manifest -isnot [array]) { throw 'ADR manifest role or array invalid' }
++    $roundRoot = "reports/impl-review/$Feature/attempt-$Attempt/round-$Round"
++    $pcPath = "$roundRoot/precheck-result.json"
++    $designPath = "specs/$Feature/design.md"
++    $summaryPath = "$roundRoot/integrated-summary.json"
++    $previousPath = "reports/impl-review/$Feature/attempt-$Attempt/round-$($Round-1)/integrated-summary.json"
++    $calibration = 'plugins/sdd-review-loop/references/reviewer-calibration.md'
++    $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($name in @('requirements.md','acceptance-tests.md','investigation.md',
++        'design.md','ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
++        [void]$allowed.Add("specs/$Feature/$name")
++    }
++    [void]$allowed.Add($calibration)
++    [void]$allowed.Add($pcPath)
++    if ($Role -ceq 'impl-reviewer-b') { [void]$allowed.Add($summaryPath) }
++    if ($Role -ceq 'impl-reviewer-a' -and $Round -gt 1) { [void]$allowed.Add($previousPath) }
++    $adrs = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    foreach ($entry in $Precheck.adr_inputs) { $adrs.Add($entry.path, $entry.sha256) }
++    $normalized = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    $raw = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    foreach ($entry in $Manifest) {
++        if ($entry -isnot [pscustomobject] -or
++            @($entry.PSObject.Properties.Name) -cnotcontains 'path' -or
++            @($entry.PSObject.Properties.Name) -cnotcontains 'sha256' -or
++            $entry.path -isnot [string] -or $entry.path.Length -eq 0 -or
++            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z') {
++            throw 'ADR manifest entry invalid'
++        }
++        $relative = Get-RepositoryRelativePath $entry.path $RepositoryRoot $RecordedRoot
++        if ($null -eq $relative -or $relative -cmatch '(^|/)[.]{1,2}(/|$)' -or
++            $normalized.ContainsKey($relative)) { throw 'ADR manifest path invalid or duplicated' }
++        # Detect all ADR-like aliases before relocation; only raw canonical
++        # declarations may use this branch. Case-insensitive detection rejects
++        # mis-cased aliases rather than granting them authority.
++        if ($entry.path.Replace('\','/') -imatch '(^|/)docs/adr/') {
++            if (-not $adrs.ContainsKey($entry.path) -or $adrs[$entry.path] -cne $entry.sha256) {
++                throw 'ADR manifest member is undeclared or differs from precheck'
++            }
++        } elseif (-not $allowed.Contains($relative)) { throw 'ADR manifest violates role isolation' }
++        $normalized.Add($relative, $entry.sha256)
++        $raw.Add($entry.path, $entry.sha256)
++    }
++    # Precheck/design must have exact raw canonical entries, not relocated aliases.
++    if (-not $raw.ContainsKey($pcPath) -or $raw[$pcPath] -cne $PrecheckHash -or
++        -not $raw.ContainsKey($designPath) -or $raw[$designPath] -cne $Precheck.design_sha256) {
++        throw 'ADR manifest precheck or design pin invalid'
++    }
++    $required = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
++    $required.Add("specs/$Feature/requirements.md", $Precheck.requirements_sha256)
++    $required.Add("specs/$Feature/acceptance-tests.md", $Precheck.acceptance_sha256)
++    foreach ($pin in $Precheck.layer_sha256.PSObject.Properties) {
++        $required.Add("specs/$Feature/$($pin.Name)", $pin.Value)
++    }
++    if ($Role -ceq 'impl-reviewer-b') { $required.Add($summaryPath, $SummaryHash) }
++    if ($Role -ceq 'impl-reviewer-a' -and $Round -gt 1) {
++        $required.Add($previousPath, $PreviousSummaryHash)
++    }
++    foreach ($pin in $required.GetEnumerator()) {
++        if ($pin.Value -cnotmatch '\A[0-9a-f]{64}\z' -or
++            -not $normalized.ContainsKey($pin.Key) -or $normalized[$pin.Key] -cne $pin.Value) {
++            throw 'ADR manifest required pin missing or inconsistent'
++        }
++    }
++    if (-not $normalized.ContainsKey($calibration)) { throw 'ADR manifest calibration missing' }
++    foreach ($pin in $adrs.GetEnumerator()) {
++        if (-not $raw.ContainsKey($pin.Key) -or $raw[$pin.Key] -cne $pin.Value) {
++            throw 'ADR manifest omits declared input'
++        }
++    }
++    return [pscustomobject]@{ Raw=$raw; Normalized=$normalized }
++}
++function Test-AdrHistoryManifestSuperset($Actual, $Bound, [string]$Feature) {
++    foreach ($entry in $Bound.Raw.GetEnumerator()) {
++        if (-not $Actual.Raw.ContainsKey($entry.Key) -or
++            $Actual.Raw[$entry.Key] -cne $entry.Value) { return $false }
++    }
++    $layers = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($name in @('ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
++        [void]$layers.Add("specs/$Feature/$name")
++    }
++    foreach ($entry in $Actual.Normalized.GetEnumerator()) {
++        if (-not $Bound.Normalized.ContainsKey($entry.Key) -and
++            -not $layers.Contains($entry.Key)) { return $false }
++    }
++    return $true
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

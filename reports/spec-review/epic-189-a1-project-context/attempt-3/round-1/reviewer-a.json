@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a08618-6daa-78b2-b994-b079bdd53dbd",
+  "host_session_id": "01a08618-6daa-78b2-b994-b079bdd53dbd",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "d303c649816d525ba3be93a45f3ec0f5b1320da404a0850554125efa08ac5660"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "abd35dd920fbb5935577659f65462ed2fb23ae3be138d6673944426f1484cf67"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json",
+      "sha256": "48b25b925d07af0e253db96a880aebdc2e30e959bdc4f297e10ac4aae878b7de"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-011 specify observable schema, output, validation, publication and routing behavior. The RT002 amendment defines exact response bytes, adapter selection, nonce/type constraints and named failure exits; its acceptance rows isolate these faults."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every numbered goal has matching AC/TEST mappings. RT002 maps to AC-027/AC-032 and their amendment rows; the shared-CI amendment maps to AC-028 and TEST-028's registration, absence, preservation and freshness cases."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance outcomes specify byte equality, schema acceptance/rejection, exact diagnostics, file-state observations and registration inventory checks. The dated cleanup precedence distinguishes confirmed absence from unconfirmed cleanup while preserving unconditional sidecar integrity."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals separate A1 verification logic from A8 live cross-runtime proof. Recovery admission explicitly excludes ordinary bootstrap, unrelated work, integration and quality-gate completion; shared-CI publication requires a separately reviewed and explicitly authorized change."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The amendment re-review declaration does not satisfy calibration item 4. requirements.md:23-24 references existing later-phase evidence in tests/guard-invariants-epic-a1.tests.sh:536-542 and its .ps1 twin:401-406, but investigation.md:455 onward supplies neither artifact's SHA-256 nor an explicit commit binding for those artifacts. File:line citations support factual claims but do not meet item 4's specific commit-or-SHA requirement. Consequently the declaration cannot suppress phase-sequencing findings while Spec-Review-Status is Pending. A downstream reviewer cannot establish which implemented evidence the amended contract references. This is this specification gate's amendment-admission boundary, not a demand to execute tests or inspect implementation. Critical follows the calibration's unauthorized workflow-boundary classification. Bind both referenced test artifacts explicitly in the declaration and resubmit; no outside-manifest inspection was performed."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-014/019/020/023/030/033/036/043 plan validation of approval, weakening, protection and publication risks. RT002 retains legacy and cleanup regressions, rejects malformed or mismatched evidence, disclaims cryptographic host attestation, and requires a fresh native installed-path verification before recovery exit."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted existence probe confirmed that root domain/ is absent; the check's explicit skip condition applies."
+    }
+  ]
+}

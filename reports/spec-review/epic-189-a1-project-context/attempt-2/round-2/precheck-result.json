@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "c99ae8bafce9f17da9db189188e3f76337e540c40489e9f290981cf39e2e3434",
+  "acceptance_sha256": "079567e6ef2ec31c96c77d4e635f1097e06ae74757bb668dd56050620d90f11a",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "dd2999e3ffdf0cf2b8a88e7d55ecedfd1515e28e800503b008a0eb88bf83bf05",
+  "edit_summary": "RT-20260909-002: committed amendment and human authorization pins added; cleanup precedence clarified; deleted staged workflow disclosed by deletion commit without restoring it or claiming acceptance completion.",
+  "reset": false,
+  "generated_at": "2026-09-09T11:30:27Z"
+}

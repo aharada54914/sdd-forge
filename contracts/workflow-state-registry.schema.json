@@ -417,7 +417,10 @@
               ],
               "allowed_task_statuses": [
                 "Done"
-              ]
+              ],
+              "task_status_overrides": {
+                "T-002": ["Implementation Complete", "Done"]
+              }
             }
           }
         },

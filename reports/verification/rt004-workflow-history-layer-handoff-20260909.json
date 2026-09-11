@@ -1,0 +1,20 @@
+{
+  "decision": [
+    "Extend only RT004 approved candidate data; keep actual protected validators and prior review records unchanged.",
+    "Require saved precheck layer pins across all four manifests and reviewer-A-only previous-summary pins before historical opening."
+  ],
+  "evidence": [
+    "reports/verification/rt004-workflow-history-layer-bindings-20260909.md",
+    "Bash candidate SHA256 2ca0f5c7cd7e55b0484a5c683355d1098b3cde5ffe5d7071ce3f2ea9ae142b0f; 7 hunk anchors/counts/offsets verified; 372 added lines.",
+    "Original Bash validator hash unchanged; diff check exit 0; candidate runtime not executed."
+  ],
+  "unresolved": [
+    "PS5.1 workflow equivalent and complete positive/negative fixtures; terminal producer semantics; filesystem/race/duplicate-key boundaries.",
+    "Independent security/contract review before protected human application, actual tests, formal gates and CI remain incomplete. Entire issue/PR goal remains active."
+  ],
+  "next_action": [
+    "Prepare PS5.1 workflow historical/current ADR candidate preserving existing evidence semantics.",
+    "Build coherent extended positive fixture data and corruption variants for original consumers; do not execute copied candidate code.",
+    "Reconcile integrated verdict rules with actual producer/validator evidence before independent review."
+  ]
+}

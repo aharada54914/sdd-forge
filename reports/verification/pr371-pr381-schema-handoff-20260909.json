@@ -1,0 +1,25 @@
+{
+  "decision": [
+    "Keep PR381 hardened Phase R schema and corrected metadata mapping; actual skill synthesis example conforms.",
+    "Do not duplicate T002 Windows repair or cherry-pick PR371 over PR381 hardened artifacts.",
+    "Preserve all protected-file boundaries and historical failed evidence from the RT004 handoff."
+  ],
+  "unresolved": [
+    "New cross-critique reproduction: missing proposed_severity and missing/blank scope evidence are accepted. 5 controls passed, 5 expected-rejection checks failed. No implementation attempted; locate governing approved task before repair (main review-cross-critique/tasks.md is absent).",
+    "All seven PRs remain open at previously recorded heads; full integration goal is not complete.",
+    "RT-20260909-001 requires explicit frozen needs-contract amendment approval before POSIX required-status enforcement repair.",
+    "Issue346 still requires three-run evidence and human promotion/standalone/retirement decision.",
+    "RT004 protected candidate all-consumer snapshot continuity, formal gates and human application remain pending; RT005 formal gate remains pending."
+  ],
+  "evidence": [
+    "reports/verification/pr381-cross-critique-missing-fields-20260909.md contains fixed-head fixture, mutation recipe and full failing output; recovery schema/prompts/test driver have no endpoint diff from PR381 head.",
+    "reports/verification/pr371-pr381-evaluation-compatibility-20260909.md: 17 new pinned-schema checks passed, exit0; no persistent regression or full PR PASS claimed.",
+    "PR381 pinned head 3971c93a5705dc15f86ba56cc62118613e4b19db; PR371 pinned head 9e39c396f4ca8f9abe3c9aabb090868ada17b53f.",
+    "git diff --check exit0; no commit/push/merge/close."
+  ],
+  "next_action": [
+    "Obtain scoped RT001 approval, then amend contract through formal review and implement without removing any existing required check.",
+    "Continue remaining PR371 cross-critique and issue acceptance audit; do not equate schema success with real reviewer execution.",
+    "Continue approved RT004 and RT005 lanes within recorded protection and review boundaries."
+  ]
+}

@@ -1,0 +1,180 @@
+diff --git a/specs/workflow-state-registry.json b/specs/workflow-state-registry.json
+--- a/specs/workflow-state-registry.json
++++ b/specs/workflow-state-registry.json
+@@ -183,10 +183,13 @@
+         "allowed_task_statuses": [
+           "Done"
+-        ]
++        ],
++        "task_status_overrides": {
++          "T-002": ["Implementation Complete", "Done"]
++        }
+       }
+     },
+     {
+       "feature": "sdd-forge-refactor",
+diff --git a/contracts/workflow-state-registry.schema.json b/contracts/workflow-state-registry.schema.json
+--- a/contracts/workflow-state-registry.schema.json
++++ b/contracts/workflow-state-registry.schema.json
+@@ -418,10 +418,13 @@
+               "allowed_task_statuses": [
+                 "Done"
+-              ]
++              ],
++              "task_status_overrides": {
++                "T-002": ["Implementation Complete", "Done"]
++              }
+             }
+           }
+         },
+         {
+           "const": {
+             "feature": "sdd-domain",
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -1287,3 +1287,59 @@
+-validate_legacy() {
++# Schema-pinned task overrides admit lifecycle, never a quality-gate verdict.
++validate_legacy_task_overrides() {
++  local feature=$1 file=$2 entry=$3 rows task_id approval status
++  rows=$(LC_ALL=C awk '
++    function finish() {
++      if (id != "") {
++        if (approvals != 1 || statuses != 1 ||
++            index(approval, "\t") || index(status, "\t")) bad = 1
++        else print id "\t" approval "\t" status
++      }
++      id = ""; approvals = 0; statuses = 0
++    }
++    { sub(/\r$/, "") }
++    /^[ \t]*##([^#]|$)/ {
++      finish()
++      if ($0 ~ /^## T-[0-9][0-9][0-9]([ \t]|$)/) {
++        id = substr($0, 4, 5)
++        if (seen[id]++) bad = 1
++      }
++      next
++    }
++    /^Approval:/ {
++      if (id == "") bad = 1
++      approvals++; approval = $0
++      sub(/^Approval:[ \t]*/, "", approval)
++      sub(/[ \t]+\(.*$/, "", approval)
++      sub(/[ \t]+$/, "", approval)
++    }
++    /^Status:/ {
++      if (id == "") bad = 1
++      statuses++; status = $0
++      sub(/^Status:[ \t]*/, "", status)
++      sub(/[ \t]+$/, "", status)
++    }
++    END { finish(); if (bad || seen["T-002"] != 1) exit 1 }
++  ' "$file") || diagnostic "$feature" legacy-state "task identity or lifecycle fields are malformed"
++  while IFS=$'\t' read -r task_id approval status; do
++    [[ "$approval" == Approved ]] ||
++      diagnostic "$feature" legacy-state "reopening contract requires Approved tasks"
++    jq -e --arg id "$task_id" --arg status "$status" '
++      (.legacy.task_status_overrides[$id] // .legacy.allowed_task_statuses)
++      | index($status) != null
++    ' <<<"$entry" >/dev/null ||
++      diagnostic "$feature" legacy-state "task lifecycle is broader than the migration record"
++  done <<<"$rows"
++}
++
++validate_legacy() {
+   local feature="$1" dir="$2" entry="$3" stage file header key value
+@@ -1307,3 +1359,10 @@
+   done
++  if jq -e '.legacy | has("task_status_overrides")' <<<"$entry" >/dev/null; then
++    [[ -f "$dir/tasks.md" && ! -L "$dir/tasks.md" && -r "$dir/tasks.md" ]] ||
++      diagnostic "$feature" legacy-state "task plan is missing, linked, or unreadable"
++    validate_legacy_task_overrides "$feature" "$dir/tasks.md" "$entry"
++    return
++  fi
+   if [[ -f "$dir/tasks.md" ]]; then
+     while IFS= read -r value; do
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -1478,2 +1478,64 @@
++# The exact legacy schema const controls which task can reopen.
++function Test-LegacyTaskOverrides([string]$Feature, [string]$Tasks, $Entry) {
++    $item = Get-Item -LiteralPath $Tasks -ErrorAction SilentlyContinue
++    if (-not $item -or $item.PSIsContainer -or
++        ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
++        Stop-WorkflowState $Feature "legacy-state" "task plan is missing, linked, or unreadable"
++    }
++    $records = [Collections.Generic.List[object]]::new()
++    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    $current = $null
++    foreach ($line in [IO.File]::ReadAllLines($Tasks)) {
++        if ($line -cmatch '^[ \t]*##([^#]|$)') {
++            $current = $null
++            if ($line -cmatch '^## (T-[0-9]{3})(?:[ \t]|$)') {
++                $id = $Matches[1]
++                if (-not $seen.Add($id)) {
++                    Stop-WorkflowState $Feature "legacy-state" "duplicate task identity"
++                }
++                $current = [pscustomobject]@{ Id = $id; Approvals = 0; Statuses = 0; Approval = ''; Status = '' }
++                $records.Add($current)
++            }
++            continue
++        }
++        if ($line -cmatch '^Approval:') {
++            if ($null -eq $current) { Stop-WorkflowState $Feature "legacy-state" "orphan approval" }
++            $current.Approvals++
++            $current.Approval = (($line -creplace '^Approval:[ \t]*', '') -creplace '[ \t]+\(.*$', '').TrimEnd([char[]]" `t")
++        }
++        if ($line -cmatch '^Status:') {
++            if ($null -eq $current) { Stop-WorkflowState $Feature "legacy-state" "orphan status" }
++            $current.Statuses++
++            $current.Status = ($line -creplace '^Status:[ \t]*', '').TrimEnd([char[]]" `t")
++        }
++    }
++    if (-not $seen.Contains('T-002')) { Stop-WorkflowState $Feature "legacy-state" "reopening task is absent" }
++    foreach ($record in $records) {
++        if ($record.Approvals -ne 1 -or $record.Statuses -ne 1 -or
++            $record.Approval.Contains("`t") -or $record.Status.Contains("`t")) {
++            Stop-WorkflowState $Feature "legacy-state" "task lifecycle fields are malformed"
++        }
++        if ($record.Approval -cne 'Approved') {
++            Stop-WorkflowState $Feature "legacy-state" "reopening contract requires Approved tasks"
++        }
++        $allowed = @($Entry.legacy.allowed_task_statuses)
++        if ($record.Id -ceq 'T-002') { $allowed = @($Entry.legacy.task_status_overrides.'T-002') }
++        if ($allowed -cnotcontains $record.Status) {
++            Stop-WorkflowState $Feature "legacy-state" "task lifecycle is broader than the migration record"
++        }
++    }
++}
++
+ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
+     $stages = @(
+@@ -1498,3 +1560,7 @@
+     $tasks = Join-Path $Directory "tasks.md"
++    if (@($Entry.legacy.PSObject.Properties.Name) -ccontains 'task_status_overrides') {
++        Test-LegacyTaskOverrides $Feature $tasks $Entry
++        return
++    }
+     if (Test-Path $tasks -PathType Leaf) {
+         foreach ($match in [regex]::Matches([IO.File]::ReadAllText($tasks), "(?m)^Approval:\s*([^\r\n(]+)")) {
+diff --git a/tests/workflow-state-registry.tests.sh b/tests/workflow-state-registry.tests.sh
+--- a/tests/workflow-state-registry.tests.sh
++++ b/tests/workflow-state-registry.tests.sh
+@@ -106,3 +106,3 @@
+                     "allowed_missing_stages", "allowed_noncanonical_statuses",
+                     "allowed_task_approvals", "allowed_task_statuses",
+-                    "retrospective_sources"]) | length == 0) and
++                    "retrospective_sources", "task_status_overrides"]) | length == 0) and
+           has("introduced_before_commit") and has("reason") and has("owner") and
+           has("allowed_missing_stages") and has("allowed_noncanonical_statuses") and
+           has("allowed_task_approvals") and has("allowed_task_statuses") and
+@@ -129,2 +129,5 @@
+           (.allowed_task_statuses |
+             string_array(["Planned", "In Progress", "Implementation Complete", "Done", "Blocked"])) and
++          (if has("task_status_overrides") then
++            .task_status_overrides == {"T-002":["Implementation Complete","Done"]}
++          else true end) and
+           (if has("retrospective_sources") then
+             .retrospective_sources | type == "array" and

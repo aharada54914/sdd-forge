@@ -1,0 +1,18 @@
+{
+  "decision": [
+    "User supplied workflow-state: ok, exit 0 for the requested PR245 check; human-reported PR-head evidence only.",
+    "User explicitly approved PR381 full candidate and manifest synchronization preserving all existing CI checks, plus additional T006 verification and re-review.",
+    "User explicitly approved a separate issue359 ticket for collection-layer.tests.ps1 stdin EOF consumption and obsolete CL012c expectation update."
+  ],
+  "unresolved": [
+    "Protected file application restrictions remain; no bypass.",
+    "No new quality gate, main merge, or issue closure established.",
+    "PR245 isolation-suite exit141 unresolved."
+  ],
+  "evidence": ["Latest user message", "docs/review-tickets/RT-20260809-002.yml in /private/tmp/pr381-verify.7id2mX/worktree"],
+  "next_action": [
+    "Implement approved T006 candidate reconciliation in its existing worktree only; preserve unrelated changes.",
+    "Prepare separate issue359 ticket; do not mix it into RT-20260906-001 or implement a second task concurrently.",
+    "Primary reviews candidate changes, then tester verifies and fresh quality gate evaluates."
+  ]
+}

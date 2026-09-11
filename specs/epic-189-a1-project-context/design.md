@@ -1,6 +1,96 @@
 # Design: epic-189-a1-project-context
 
 Impl-Review-Status: Passed
+
+## RT-20260909-002 design amendment (2026-09-09)
+
+Human authorization in this conversation: "RT002限定の設計3文書の改訂・正式再レビューの承認".
+This dated amendment is limited to REQ-010 / AC-027 / AC-032. It preserves
+the preceding status and all historical evidence; that status is retained
+for provenance-review entry and is NOT approval of this amendment until a
+new independent review passes. Requirements.md's RT002 amendment is the
+governing response and cleanup contract; its exact decoded JSON templates
+and acceptance-tests.md's RT002 matrix are normative, not illustrative.
+
+### Dispatch and evidence design
+
+Keep the protected Python verifier and existing thin wrappers. The verifier
+does not issue native writes or manufacture host evidence. The trusted agent
+session requests a new challenge and performs exactly one native dispatch,
+recording the entire returned raw response without normalization or reuse.
+For Codex, emission substitutes the newly generated 32-lowercase-hex nonce
+into the exact Add File template in requirements.md; the embedded nonce and
+top-level nonce must be identical. Claude and Copilot templates stay unchanged.
+
+Parse recorded JSON with duplicate-member rejection at every object depth
+before mode or runtime adapter evaluation. In --verify-response, presence of
+the schema member selects version dispatch BEFORE legacy runtime dispatch:
+only sdd-codex-host-denial/v1 is accepted, with exactly schema, runtime, nonce,
+executed and raw_result. Both CLI and recorded runtime must be codex-cli;
+executed must be boolean false; raw_result must equal the whole normative
+denial envelope and echoed operation. Compare decoded text exactly, without
+trimming, newline tolerance, Unicode normalization or substring acceptance.
+Require expected, recorded and echoed nonce equality. An explicit invalid
+schema rejects without legacy fallback; plugin flags are forbidden extras.
+No-schema records keep the existing three-runtime predicates. Missing legacy
+Codex flag metadata means insufficient evidence, not observed disabled hooks.
+
+Response malformed/duplicate JSON uses 61; an otherwise valid response with
+nonce mismatch uses 62, or executed true uses 63; other adapter structural,
+type, schema or signature errors use 64, as defined by the governing contract.
+Every rejection emits CAPABILITY_RUNTIME_UNAVAILABLE, never HOOK_ACTIVE.
+Isolated-fault regressions pin each category without relaxing existing
+multi-fault precedence. Cleanup never selects the response adapter: its
+existing predicates and nonce syntax remain; duplicate JSON uses 71 and
+cannot emit SENTINEL_CLEANUP_CONFIRMED.
+
+### Cleanup, trust and supersession
+
+For an initially absent sentinel: denied write leaves it absent; executed
+write plus confirmed successful cleanup leaves it absent; missing, failed or
+denied cleanup leaves absence unproven and may leave it present, requiring
+SENTINEL_CLEANUP_UNCONFIRMED alongside CAPABILITY_RUNTIME_UNAVAILABLE. Cleanup
+never changes the original executed-write verdict into HOOK_ACTIVE. The next
+invocation records one stale-start cleanup attempt before its new challenge
+and proceeds regardless of that cleanup outcome. Approval sidecars remain
+byte-identical in every branch. No privileged or direct-script cleanup exists.
+
+The nonce-bearing Codex sentinel is canary content, never approval content;
+legacy empty/placeholder descriptions do not define the new template. Exact
+transcript matching is content binding, NOT cryptographic host attestation,
+plugin-origin proof or persistent replay prevention. A caller can forge a
+plain evidence file; freshness and single consumption depend on the trusted
+session's actual dispatch. A new host response that differs stays unavailable.
+
+This section supersedes the old Codex plugin_hooks prerequisite in the
+handshake CLI subsection and Assumptions, the empty/placeholder sentinel
+inventory description, and unconditional sentinel cleanup/non-mutation
+summaries in Test Strategy and Security Boundaries B7. These retained passages
+are historical for the new adapter; no-schema legacy predicates are retained.
+The matching dated infra/security amendments govern their retained summaries.
+Requirements and acceptance tests remain the authority on all unchanged
+behavior. No independent review may apply unchanged-content convergence to
+this amendment or its changed semantics.
+
+### Verification and activation sequence
+
+Carry every RT002 acceptance row into original-path regression verification,
+including exact emitted bytes, each missing/extra/duplicate member, schema
+types, executed types, runtime combinations, outer/inner nonce errors and
+whole-envelope mutations. Retain legacy three-runtime success, cleanup,
+stale-start and sidecar non-mutation tests; run both original shell and
+PowerShell wrappers. Before implementation, persist the required field /
+counterpart / failing-mismatch-test preflight for schema/runtime, nonce,
+executed, raw_result and verdict meaning. Fixture success is not live proof.
+
+Require fresh specification, design and task provenance review of this
+repair, preserving independent identities, hashes, schemas and cycle limits.
+Protected production application remains human-operated through the permitted
+path. Recheck actual host and original installed verifier hashes at consumption;
+version drift requires verification of that actual installation. Only a NEW
+challenge, ONE native dispatch and original installed-path verification of its
+unaltered response yielding HOOK_ACTIVE end recovery-only admission. A8 live
+cross-runtime acceptance, CI and ordinary integration are not satisfied here.
 Feature Type: schema + security-infrastructure (canonicalization, HMAC
 approval sidecar, protected-file registration, hook-guard extension,
 track-selection contract migration) — no UI, no new plugin, no Provider
@@ -284,9 +374,9 @@ REQ-007's self-protection batch) and is now recorded in ADR-0025, rather
 than left as an undocumented extension of ADR-0011.
 
 Every other design decision this epic makes is already recorded in
-`docs/adr/0016-workflow-axes-separation.md`, `0018-provider-binding-separation.md`,
-`0019-approval-sidecar-protection.md`, `0020-conditional-predicate-dsl.md`,
-and `0023-track-selection-contract-migration.md` — this design implements
+`docs/adr/0016-workflow-axes-separation.md`, `docs/adr/0018-provider-binding-separation.md`,
+`docs/adr/0019-approval-sidecar-protection.md`, `docs/adr/0020-conditional-predicate-dsl.md`,
+and `docs/adr/0023-track-selection-contract-migration.md` — this design implements
 those five ADRs' decisions (plus the new ADR-0025, above), it does not make
 any other new decision requiring its own ADR. The one genuinely new
 artifact this design introduces without a direct ADR citation —
@@ -696,8 +786,17 @@ detector compares against the two-person threshold (AC-046's zero-identity
 boundary). AC-044's parameterized positive/negative conformance suite
 (TEST-044) validates fixtures against THIS schema body; the landed
 artifact (T-004) is byte-consistent with it. The live
-`sdd/approver-registry.yaml` and this schema file are both REQ-007
-protected-registration targets (Protected-File Statement).
+`sdd/approver-registry.yaml` is a REQ-007 protected-registration target.
+The schema file is not an A1 protected-registration target: this matches
+the Components table above, the canonical `human-copy/PROTECTED-MANIFEST.md`
+Inventory (rows 01-28, registry data at row 19), and the explicit T-009
+dependency declaration in `tasks.md:2093-2098`. This corrects the conflicting
+"both" statement during the authorized RT002 design remediation on 2026-09-09;
+it does not remove any existing protection entry or change REQ-007's inventory.
+Recheck the current canonical inventory and actual shared guard registration
+before review or implementation consumes this classification. An unrelated
+shared guard may impose additional protection; this A1 scope statement is not
+an authorization to bypass it or a computed runtime protection verdict.
 
 ### Canonicalization procedure (REQ-003, revised — closes M10/M11)
 
@@ -1825,3 +1924,102 @@ the STILL-live (about-to-be-superseded) anchor immediately before
 a staged candidate computed against a stale predecessor fails this
 re-check and is never published, rather than silently publishing an
 incorrect provenance chain.
+
+## RT002 AC reference repair (2026-09-09)
+
+Human authorization: "14件のACと既存設計・テストの対応を精査し、根拠のある参照を補う範囲拡張を承認する".
+This additive crosswalk supplements the earlier RT002-only amendment without
+changing any requirement, acceptance criterion, runtime behavior or historical
+verdict. All TEST entries below refer to the existing Planned contracts in
+acceptance-tests.md, not measured test results. The named design sections and
+line evidence precede this append-only section; recheck locations against the
+reviewed input snapshot if earlier text changes. The retained Passed header
+does not approve this new content. New independent review remains required.
+
+| AC / existing test contract | Existing design anchor | Required assertion and coverage boundary |
+|---|---|---|
+| AC-002 / TEST-002 (acceptance-tests.md:163) | Project Context schema, design.md:531 | Resolve each of the eight ADR-0020 paths against the schema: artifact_kinds, runtime_classes, characteristics.pii, characteristics.ui, characteristics.auto_update, characteristics.local_persistence, distribution_channels and data_classification. These properties appear in the schema; the per-path fixture, not visual inspection alone, is the required proof. |
+| AC-004 / TEST-004 (acceptance-tests.md:165) | Provider Binding schema, design.md:645 | The provider property is a nonempty string with no enum. Bind the invented-provider positive fixture to this definition; no provider vocabulary is introduced. |
+| AC-006 / TEST-006 (acceptance-tests.md:167) | Canonicalization, design.md:792; scalar resolution, design.md:1528 | Bind the YAML 1.2 core-schema promise to each on/off/yes/no scalar remaining a string. Generic parser rejection tests do not substitute for these positive cases. |
+| AC-010 / TEST-010 (acceptance-tests.md:171) | Approval sidecar schema, design.md:665 | Bind the full-field positive fixture, including non-null second_approval and effective_at, and separate short-HMAC and uppercase-HMAC negatives to the required fields and lowercase 64-hex pattern. |
+| AC-011 / TEST-011 (acceptance-tests.md:172) | HMAC preimage and signing, design.md:856; key matrix, design.md:1262 | Verify the staged signed candidate by independent recomputation and include the staged approved-context snapshot and manifest. Exhausting all key-resolution steps must produce a nonzero exit and no staged artifact. Staging-only behavior and key lookup alone are not the complete round-trip proof. |
+| AC-015 / TEST-015 (acceptance-tests.md:176) | Validator component, design.md:224; publication validation, design.md:919 | Bind separate valid null-effective_at and elapsed-effective_at positive cases with correct hash/HMAC and registered, distinct approvers. The existing premature-effective_at negative in Test Strategy item 6 does not prove these successes. |
+| AC-018 / TEST-018 (acceptance-tests.md:179) | Registry-to-detector flow, design.md:163; verdict shape, design.md:718; Security Boundaries B4 | The existing requirement supplies the classification missing from the generic verdict shape: for a weakening change, two registered identities require two-person approval; one identity yields two_person_required false and cooldown_hours 24. Bind both fixtures; no new classification rule or zero-identity waiver is introduced. |
+| AC-020 / TEST-020 (acceptance-tests.md:181) | HMAC preimage and signing; publication validation; Security Boundaries B4 | Bind the existing solo-approver weakening contract: effective_at is signing time plus 24 hours, second_approval is null, and validation rejects before and accepts after that time. General cooldown language and date-time typing are not substitutes for generation and validation assertions. |
+| AC-022 / TEST-022 (acceptance-tests.md:183) | Protected-File Statement, design.md:350 | The six-file staged batch requires a separate live SHA-256 before/after comparison across the epic's agent commits: guard-invariants.json, generate-guard-invariants.py and the four generated outputs. Staged-tree --check alone is insufficient. Do not conflate this boundary with a later explicitly human-applied live update. |
+| AC-024 / TEST-024 (acceptance-tests.md:185) | Track Detection component, design.md:198; Constraint Compliance, design.md:1821 | Inspect PLUGIN-CONTRACTS.md for all four present-context cases (lite/full promotion, lite/lite no-op, full/lite error-stop, full/full no-op), placed before the compatibility fallback. Consumer behavior tests alone do not establish document order. |
+| AC-025 / TEST-025 (acceptance-tests.md:186) | Test Strategy item 10e, design.md:1430; stricter-only rule, design.md:1821 | This is sdd-ship's instance of AC-039's common matrix: valid signed full context plus --lite stops with an error; lite context plus --full promotes. It does not replace the other consumers' independent cases. |
+| AC-028 / TEST-028 (acceptance-tests.md:189) | Test Strategy item 11, design.md:1452; Deployment / CI Plan, design.md:1772 | Twin self-registration and the staged/live/post-copy workflow proof are the historical design mapping, NOT present satisfaction. The specific per-feature workflow snapshot required by requirements.md:1605 was deleted, as disclosed in investigation.md:513. The conflict remains unresolved; see the boundary below. |
+| AC-029 / TEST-029 (acceptance-tests.md:190) | Test Strategy item 12, design.md:1460; deterministic CI lane, design.md:1772 | Retain every declared condition: no real LLM/gh/sdd-sudo; every mktemp fixture root immediately pwd -P-normalized; no possibly-empty Bash array expanded under set -u. A declaration is not execution evidence. |
+| AC-041 / TEST-041 (acceptance-tests.md:202) | Provider Binding schema, design.md:642 and design.md:650; optional-field explanation, design.md:658 | Bind both an adapter_paths array-of-glob-strings fixture and a fixture omitting the field. A1 accepts the optional array without interpreting A3's glob or diff/WARN semantics. |
+
+### AC-028 historical conflict (superseded by the authorized amendment below)
+
+investigation.md:513 records deletion of the per-feature workflow snapshot and
+its manifest entry by commit c8ac93a27e2f8fc351100fb8fa76958781532797, to avoid
+stale snapshots overwriting shared CI. That absence is not proof of AC-028.
+This reference repair does not restore the file, substitute the live workflow
+hash, waive registration, or amend requirements.md or acceptance-tests.md.
+The historical Test Strategy and Deployment / CI Plan references above remain
+subject to this explicit unresolved conflict. A reference-presence precheck
+success must not be represented as semantic coverage or resolution of it.
+Resolving the governing requirement needs separately authorized specification
+change and specification review before dependent design approval. No
+unchanged-content convergence waiver applies to this new section.
+
+### Authorized AC-028 design resolution (2026-09-09; pending fresh review)
+
+Human authorization: "その他の設計変更も承認する". The Shared CI registration
+amendment in requirements.md now governs REQ-011 / AC-028 and supersedes the
+historical conflict and AC-028 crosswalk row above, the architecture's workflow
+staging edge, Test Strategy item 11 and Deployment / CI Plan wherever they
+require this feature's complete workflow snapshot or its manifest entry.
+The other thirteen crosswalk rows retain their assertions. Source line numbers
+in the earlier crosswalk are historical snapshot locators, not current offsets;
+resolve by AC/TEST identifier and named design section in each reviewed input.
+
+The registration verifier takes the canonical workflow, both run-all drivers,
+the enumerated REQ-011 test twins and feature bundle inventory as inputs.
+It checks each script/runtime pair independently and rejects either retired
+workflow artifact. TEST-028 supplies the positive matrix; TEST-028-TWIN,
+TEST-028-DRIVER, TEST-028-CI, TEST-028-FILE and TEST-028-MANIFEST cover isolated
+negative branches. Existing absence assertions are located in
+tests/guard-invariants-epic-a1.tests.sh:536-542 and its .ps1 twin:401-406;
+these are source references, not a claim that the expanded tests have run.
+
+For a separately authorized shared CI edit, compare a hash-bound current
+baseline and candidate structurally: all job/step invocation, matrix,
+dependency, execution-condition and required-check inventory entries must be
+retained. A changed existing entry is rejected pending explicit fresh review,
+even if intended as an equivalent optimization. New entries cannot replace old
+ones or weaken their required success. TEST-028-PRESERVE includes mandatory
+POSIX full-suite success; TEST-028-FRESH rejects baseline drift before applying
+the candidate. No change is published through the retired per-feature snapshot.
+Recheck actual shared registration and protection membership immediately before
+review/implementation consumes it. No guarded file is edited by this design
+amendment, and no fixture is evidence of live CI success.
+
+Frozen T-013/REQ-011 task and traceability mappings remain historical until
+formal task provenance re-review. New specification and implementation-policy
+reviews are required; no old Passed header approves these amended bytes.
+
+## Design System Compliance
+
+Applicability evidence for the authorized RT002 provenance repair, recorded
+2026-09-09T13:12:04.001Z: a read-only Node `fs.lstatSync` probe of
+`/Users/jrmag/sdd-forge/design-system` returned `ENOENT`; the repository-root
+`design-system/` entry was absent, including no dangling symlink at that path.
+This supports the absent-directory branch of
+`plugins/sdd-review-loop/agents/impl-reviewer-a.md:243-247`, not an inferred
+`ds_profile` setting. No browser-UI exemption or configured profile is claimed.
+
+Re-run that root-entry probe immediately before the next review consumes this
+claim and record its result with the current design hash in the precheck
+evidence. If the entry appears or the probe fails for a reason other than
+`ENOENT`, stop and resolve applicability instead of reusing this observation.
+If a design system applies, bind its required inputs through an authorized
+review contract and supply the version, token groups and component rationale
+before review. Reviewers receive this declaration as part of their hash-bound
+design input; it does not authorize additional filesystem reads outside their
+reserved input boundary. The prior round's FAIL is retained pending genuine
+re-review, and its contract must not be rewritten to bind these new bytes.

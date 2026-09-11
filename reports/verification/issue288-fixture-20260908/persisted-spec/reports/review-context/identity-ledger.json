@@ -1,0 +1,23 @@
+{
+  "schema": "review-identity-ledger/v1",
+  "records": [
+    {
+      "sequence": 1,
+      "stage": "implementation",
+      "role": "implementer",
+      "run_id": "fixture-implementation",
+      "host_session_id": "fixture-implementation-session",
+      "previous_record_sha256": "",
+      "record_sha256": "429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5"
+    },
+    {
+      "sequence": 2,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "fixture-spec-run",
+      "host_session_id": "fixture-spec-session",
+      "previous_record_sha256": "429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5",
+      "record_sha256": "17c83785ac909ed7d25b50475966acfdd5946d9649e642fda127b26295f88acf"
+    }
+  ]
+}

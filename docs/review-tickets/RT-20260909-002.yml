@@ -1,0 +1,44 @@
+ticket_id: RT-20260909-002
+status: open
+type: contract-mismatch
+severity: major
+review_cycles: 0
+target:
+  feature: epic-189-a1-project-context
+  task: T-008
+  files:
+    - plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py
+    - tests/check-hook-activation-handshake.tests.sh
+    - tests/check-hook-activation-handshake.tests.ps1
+summary: "Codex host denial capture and handshake evidence contract disagree"
+problem: |
+  The real host rejected the canary apply_patch, but its response does not
+  expose plugin_hooks_enabled or denied_by_plugin_hooks. The verifier
+  requires both, classifying absent metadata as PLUGIN_HOOKS_DISABLED.
+  A rejection was observed; configuration-disabled was not observed.
+  See rt001-hook-response-20260909.json; do not invent missing booleans.
+expected_fix:
+  - "Define and independently review a narrow host-response capture contract; distinguish an observed guard denial from proof of a plugin configuration flag."
+  - "Preserve fail-closed behavior, explicit contradiction rejection, existing runtime contracts and cleanup handling. No partial-text or arbitrary-error acceptance."
+  - "Bind any additional raw-response signature to the exact canary operation and a freshly emitted nonce present in the echoed operation. Old stored denials cannot serve as new live proof."
+  - "Add rejecting and positive regression cases before production repair, retaining old suites; require original-path verification and fresh host dispatch after reviewed human application if protected."
+  - "Preserve historical Done and PASS evidence. This repair is not A8 live cross-runtime acceptance and must not waive formal reviews or CI. The later explicit semantic_recovery_amendment admits only repair-specific reviews despite the unavailable handshake; the ordinary bootstrap stop rule remains unchanged."
+references:
+  - reports/verification/rt001-hook-response-20260909.json
+  - reports/verification/hook-evidence-contract-repair-20260909.md
+  - specs/epic-189-a1-project-context/tasks.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision:
+  date: "2026-09-09"
+  source: "Explicit user approval in this conversation"
+  quote: "フック証跡契約の限定修正については承認する"
+  scope: "Limited hook evidence contract repair and its rejection regressions; no protection bypass, fabricated evidence, historical verdict rewrite or unrelated changes."
+  pending_conditions: "Independent contract review, protected application through the permitted human path when needed, regression verification and formal re-review remain required."
+  semantic_recovery_amendment:
+    date: "2026-09-09"
+    source: "Explicit user approval in this conversation after the blocked audit"
+    quote: "今回の操作に対するSDDガードの実拒否の証明」で満たせるようにする判定契約の変更と、復旧専用レビュー経路の承認する"
+    scope: "For this repair, authorize actual operation-bound SDD guard denial as the Codex activation criterion, without asserting plugin origin. Authorize a recovery-only independent review entry for this contract repair; all other entry prerequisites remain unchanged."
+    contract: reports/verification/hook-recovery-entry-contract-20260909.md
+    conditions: "No historical PASS rewrite, fabricated flags, protection bypass or admission of unrelated tasks. Fresh host challenge and original-path verification must succeed before ordinary entry resumes."

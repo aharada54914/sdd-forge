@@ -1,0 +1,48 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -500,6 +500,21 @@
+   current="$repository_root"
+   IFS='/' read -r -a components <<< "$path"
+   for component in "${components[@]}"; do
++    if [[ "$stage" == impl ]]; then
++      # Reject stationary case aliases; this is not atomic acquisition.
++      (
++        unset GLOBIGNORE
++        shopt -s nullglob dotglob
++        exact_entry=false
++        for entry in "$current"/*; do
++          if [[ "${entry##*/}" == "$component" ]]; then
++            exact_entry=true
++            break
++          fi
++        done
++        "$exact_entry"
++      ) || fail PATH "$role input has no exact-name directory entry: $path"
++    fi
+     current="$current/$component"
+     [[ ! -L "$current" ]] ||
+       fail PATH "$role input traverses a symbolic link: $path"
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -541,6 +541,19 @@
+         }
+         $current = $root
+         foreach ($component in $input.path.Split('/')) {
++            if ($document.stage -ceq 'impl') {
++                # Reject stationary case aliases; this is not atomic acquisition.
++                $exactEntry = $false
++                foreach ($entry in [IO.Directory]::EnumerateFileSystemEntries($current)) {
++                    if ([StringComparer]::Ordinal.Equals([IO.Path]::GetFileName($entry), $component)) {
++                        $exactEntry = $true
++                        break
++                    }
++                }
++                if (-not $exactEntry) {
++                    Fail-ReviewContext 'PATH' "$($document.role) input has no exact-name directory entry: $($input.path)"
++                }
++            }
+             $current = Join-Path $current $component
+             if (Test-Path -LiteralPath $current) {
+                 # A hardlink is a regular input, not a redirected path. Limit

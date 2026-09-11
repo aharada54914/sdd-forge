@@ -34,6 +34,36 @@ function Assert-ExitCode {
     }
 }
 
+function Write-SafeDiagnostic {
+    param(
+        [string]$Label,
+        [string]$Text,
+        [int]$MaxInputChars = 2048,
+        [int]$MaxOutputChars = 4096
+    )
+
+    $normalized = if ($null -eq $Text) { "" } else { $Text.Trim() }
+    if ($normalized.Length -gt $MaxInputChars) {
+        $normalized = $normalized.Substring(0, $MaxInputChars) + "…"
+    }
+
+    $escaped = $normalized | ConvertTo-Json -Compress -EscapeHandling EscapeNonAscii
+    if ($escaped.StartsWith('"') -and $escaped.EndsWith('"') -and $escaped.Length -ge 2) {
+        $escaped = $escaped.Substring(1, $escaped.Length - 2)
+    }
+
+    if ($escaped.Length -gt $MaxOutputChars) {
+        $escaped = $escaped.Substring(0, $MaxOutputChars) + "…"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($escaped)) {
+        Write-Host "diagnostic: $Label <empty>"
+        return
+    }
+
+    Write-Host "diagnostic: $Label $escaped"
+}
+
 # Standard digest used in fixture verdicts
 $DIGEST = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 $DIGEST2 = "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
@@ -173,6 +203,7 @@ if ($env:STUB_DEADLINE_FILE) {
 }
 if ($env:STUB_CALLED_FILE) { Set-Content -Path $env:STUB_CALLED_FILE -Value "called" }
 if ($env:STUB_PID_FILE) { Set-Content -Path $env:STUB_PID_FILE -Value $PID }
+$null = [Console]::In.ReadToEnd()
 
 if ($env:STUB_MODE -eq "hang") {
     $childStdout = "$($env:STUB_CHILD_PID_FILE).stdout"
@@ -192,6 +223,8 @@ $completeAtEpochMs = if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
 } elseif ($env:STUB_COMPLETE_AT_EPOCH_MS) {
     [long]$env:STUB_COMPLETE_AT_EPOCH_MS
 } else { 0 }
+$stubWaitEndEpochMs = -1
+$stubOutputCompleteEpochMs = -1
 if ($completeAtEpochMs -gt 0) {
     if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
         # Use a kernel wait instead of Start-Sleep (which has shown large
@@ -207,6 +240,14 @@ if ($completeAtEpochMs -gt 0) {
         $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
         if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
     }
+    $stubWaitEndEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    if ($env:STUB_STAGE_TIMING_FILE) {
+        try {
+            Set-Content -Encoding Utf8 -Path "$($env:STUB_STAGE_TIMING_FILE).wait-end" -Value $stubWaitEndEpochMs
+        } catch {
+            # Keep boundary diagnostics from changing the verdict path.
+        }
+    }
 }
 @{
     schema = "cross-model-verdict/v1"
@@ -220,6 +261,14 @@ if ($completeAtEpochMs -gt 0) {
     input_digest = ("a" * 64)
     consent = @{ kind = "human-flag"; ref = "test fixture" }
 } | ConvertTo-Json -Compress -Depth 5
+$stubOutputCompleteEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+if ($env:STUB_STAGE_TIMING_FILE) {
+    try {
+        Set-Content -Encoding Utf8 -Path "$($env:STUB_STAGE_TIMING_FILE).output-complete" -Value $stubOutputCompleteEpochMs
+    } catch {
+        # Keep boundary diagnostics from changing the verdict path.
+    }
+}
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 
 if ($IsWindows) {
@@ -609,16 +658,19 @@ try {
             $caseName = "boundary-$($runner.Name)-$iteration"
             $caseRoot = Join-Path $workDir "$caseName/specs"
             $startFile = Join-Path $workDir "$caseName.stub-start"
+            $stageTimingFile = Join-Path $workDir "$caseName.stage-timing.json"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
             Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$nearBoundaryBudgetSec" `
                 -SpecRoot $caseRoot -StubEnvironment @{
                     STUB_COMPLETE_BEFORE_DEADLINE_MS = "$nearBoundaryMarginMs"
+                    STUB_STAGE_TIMING_FILE            = $stageTimingFile
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
                 }
             $elapsed = (Get-MonotonicMilliseconds) - $started
+            $runnerExitObservedEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
             $stubLaunchMs = -1
             if (Test-Path $startFile) {
@@ -627,12 +679,38 @@ try {
                     $stubLaunchMs = $stubStartEpoch - $invokedAt
                 }
             }
+            $waitEndEpochMs = -1
+            try {
+                $waitEndPath = "$stageTimingFile.wait-end"
+                if (Test-Path $waitEndPath) {
+                    $parsedWaitEndEpochMs = [long]0
+                    if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $waitEndPath)".Trim(), [ref]$parsedWaitEndEpochMs)) {
+                        $waitEndEpochMs = $parsedWaitEndEpochMs
+                    }
+                }
+            } catch {
+                $waitEndEpochMs = -1
+            }
+            $outputCompleteEpochMs = -1
+            try {
+                $outputCompletePath = "$stageTimingFile.output-complete"
+                if (Test-Path $outputCompletePath) {
+                    $parsedOutputCompleteEpochMs = [long]0
+                    if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $outputCompletePath)".Trim(), [ref]$parsedOutputCompleteEpochMs)) {
+                        $outputCompleteEpochMs = $parsedOutputCompleteEpochMs
+                    }
+                }
+            } catch {
+                $outputCompleteEpochMs = -1
+            }
             $runnerDeadline = if (Test-Path $deadlineFile) { "$(Get-Content -Raw -LiteralPath $deadlineFile)".Trim() } else { "missing" }
-            $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
-            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs wait_end_ms=$waitEndEpochMs output_complete_ms=$outputCompleteEpochMs runner_exit_observed_ms=$runnerExitObservedEpochMs"
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs wait_end_ms=$waitEndEpochMs output_complete_ms=$outputCompleteEpochMs runner_exit_observed_ms=$runnerExitObservedEpochMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
+                Write-SafeDiagnostic -Label "TEST-004(c) runner=$($runner.Name) iteration=$iteration stage timing" -Text $detail
+                Write-SafeDiagnostic -Label "TEST-004(c) runner=$($runner.Name) iteration=$iteration panelist output" -Text $script:panelistOutput
                 Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
             }
         }

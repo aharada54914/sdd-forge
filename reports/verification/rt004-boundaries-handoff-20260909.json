@@ -1,0 +1,22 @@
+{
+  "decision": [
+    "Continue explicitly approved RT-20260908-004 independently of PR381 pending amendments.",
+    "Added thirteen shared lexical fixture modes; preserved all earlier cases and historical failures."
+  ],
+  "unresolved": [
+    "ADR admission runtime remains unimplemented; human-application patch is incomplete.",
+    "Protection denial must not be retried via alternate paths or wrappers.",
+    "PR381 four PowerShell registration-consumer scope and frozen CI needs amendment still await explicit approval.",
+    "Formal reviews, native mandatory CI, all merges and remaining issue completion are unproven."
+  ],
+  "evidence": [
+    "reports/verification/rt004-lexer-boundaries-20260909.md",
+    "148 real admission executions on macOS: 84 passed, 64 failed; handle 46560 terminal exit 1.",
+    "/tmp/rt004-lexer-boundaries-20260909.log",
+    "Seven open PRs retain existing heads; all listed Actions checks terminal."
+  ],
+  "next_action": [
+    "Complete approved RT004 runtime patch as human-application data, preserving the protected application boundary, then obtain independent review and actual human application.",
+    "Extend full precheck and downstream fixtures and rerun all admission cases after implementation; negative baseline passes alone prove no parser behavior."
+  ]
+}

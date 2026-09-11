@@ -1,0 +1,234 @@
+diff --git a/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh b/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
+--- a/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
++++ b/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
+@@ -1,1 +1,210 @@
+-# Shared predecessor-verdict validation for the review-loop prechecks.
++# RT-20260908-004: scoped declaration inputs, never caller-selected ADR reads.
++persisted_adr_safe_file() {
++  local relative=$1 current=$repo_root component entry found
++  local -a components
++  [[ "$relative" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || return 1
++  [[ "$relative" != */ && "$relative" != *//* ]] || return 1
++  IFS=/ read -r -a components <<< "$relative"
++  for component in "${components[@]}"; do
++    [[ "$component" != . && "$component" != .. ]] || return 1
++    [[ -d "$current" && ! -L "$current" && -r "$current" && -x "$current" ]] || return 1
++    found=false
++    for entry in "$current"/* "$current"/.[!.]* "$current"/..?*; do
++      if [[ "${entry##*/}" == "$component" ]]; then found=true; break; fi
++    done
++    [[ "$found" == true ]] || return 1
++    current="$current/$component"
++    [[ ! -L "$current" ]] || return 1
++  done
++  [[ -f "$current" && -r "$current" && ! -L "$current" ]]
++}
++
++# Same restricted byte grammar as admission; not general Markdown parsing.
++persisted_adr_declared_paths() {
++  LC_ALL=C awk '
++    function width(s, i, ch, n) {
++      n = 0
++      while (substr(s, i + n, 1) == ch) n++
++      return n
++    }
++    function escaped(s, i, n) {
++      n = 0
++      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
++      return n % 2
++    }
++    {
++      line = $0
++      sub(/\r$/, "", line)
++      match(line, /^ */)
++      indent = RLENGTH
++      rest = substr(line, indent + 1)
++      ch = substr(rest, 1, 1)
++      if (fence != "") {
++        if (indent <= 3 && ch == fence) {
++          n = width(rest, 1, ch)
++          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
++        }
++        next
++      }
++      if (indent >= 4 || rest ~ /^\t/) next
++      if (ch == "\140" || ch == "~") {
++        n = width(rest, 1, ch)
++        if (n >= 3) { fence = ch; fence_width = n; next }
++      }
++      i = 1
++      while (i <= length(line)) {
++        if (substr(line, i, 1) != "\140") { i++; continue }
++        n = width(line, i, "\140")
++        if (escaped(line, i)) { i += n; continue }
++        j = i + n
++        closed = 0
++        while (j <= length(line)) {
++          if (substr(line, j, 1) != "\140") { j++; continue }
++          m = width(line, j, "\140")
++          if (!escaped(line, j) && m == n) { closed = 1; break }
++          j += m
++        }
++        if (!closed) break
++        value = substr(line, i + n, j - i - n)
++        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/)
++          print value
++        i = j + n
++      }
++    }
++  ' "$1" | LC_ALL=C sort -u
++}
++
++# Extension-only material: sorted layer keys, path/sha256 ADR key order,
++# sorted ASCII paths, compact separators, and no trailing newline.
++persisted_adr_input_hash() {
++  local design=$1 requirements=$2 acceptance=$3 layers=$4 adrs=$5 material
++  [[ "$design" =~ ^[0-9a-f]{64}$ && "$requirements" =~ ^[0-9a-f]{64}$ &&
++     "$acceptance" =~ ^[0-9a-f]{64}$ ]] || return 1
++  layers=$(jq -csSe '
++    select(length == 1) | .[0] | select(type == "object") |
++    select(length == 0 or keys ==
++      ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]) |
++    select(all(.[]; type == "string" and length == 64 and test("^[0-9a-f]{64}$")))
++  ' <<< "$layers") || return 1
++  if [[ "$layers" != '{}' ]]; then
++    material=$(printf '%s:%s:%s:%s' "$design" "$requirements" "$acceptance" "$layers") || return 1
++  else
++    material=$(printf '%s:%s:%s' "$design" "$requirements" "$acceptance") || return 1
++  fi
++  printf '%s:adr_inputs/v1:%s' "$material" "$adrs" | sha256_stream
++}
++
++
++# Current PASS only; historical NEEDS_WORK must not require current ADR hashes.
++persisted_adr_pass_paths() {
++  local contract=$1 attempt=$2 round=$3 design_reviewed=$4 design_current=$5
++  local relative_root="reports/impl-review/${FEATURE}/attempt-${attempt}/round-${round}"
++  local contract_relative="$relative_root/impl-review-contract.json"
++  local precheck="$relative_root/precheck-result.json" design="specs/${FEATURE}/design.md"
++  local has_extension recorded actual_paths recorded_paths path digest before after
++  local bound_design bound_requirements bound_acceptance layers input_hash precheck_hash
++  [[ "$contract" == "$contract_relative" || "$contract" == "$repo_root/$contract_relative" ]] ||
++    fail "noncanonical ADR contract location"
++  persisted_adr_safe_file "$contract_relative" || fail "unsafe ADR contract path"
++  persisted_adr_safe_file "$precheck" || fail "unsafe ADR precheck path"
++  has_extension=$(jq -sr '
++    if length != 2 or (all(.[]; type == "object") | not) then
++      error("expected contract and precheck objects")
++    elif (.[0] | has("adr_inputs")) != (.[1] | has("adr_inputs")) then
++      error("one-sided ADR extension")
++    else .[0] | has("adr_inputs") end
++  ' "$contract" "$repo_root/$precheck") || fail "invalid ADR extension pairing"
++  if [[ "$has_extension" == false ]]; then printf '[]\n'; return 0; fi
++  local reviewer_a="$relative_root/reviewer-a.json" reviewer_b="$relative_root/reviewer-b.json"
++  for path in "$reviewer_a" "$reviewer_b"; do
++    persisted_adr_safe_file "$path" || fail "unsafe persisted ADR reviewer output"
++  done
++  precheck_hash=$(sha256 "$repo_root/$precheck") || fail "cannot hash ADR precheck"
++  recorded=$(jq -cne --arg feature "$FEATURE" --argjson attempt "$attempt" --argjson round "$round" \
++    --slurpfile contracts "$contract" --slurpfile prechecks "$repo_root/$precheck" \
++    --slurpfile outputs_a "$repo_root/$reviewer_a" --slurpfile outputs_b "$repo_root/$reviewer_b" \
++    --arg pc "$precheck" --arg pc_hash "$precheck_hash" --arg design "$design" --arg repo "${repo_root}/" '
++    def digest: type == "string" and length == 64 and test("^[0-9a-f]{64}$");
++    def relative_path:
++      if startswith($repo) then .[($repo | length):]
++      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
++      else . end;
++    def adr_set:
++      type == "array" and
++      all(.[]; type == "object" and keys == ["path","sha256"] and
++        (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
++        (.sha256 | digest)) and
++      ([.[].path] == ([.[].path] | sort | unique));
++    def normalized_manifest:
++      map(.path as $raw | (.path | relative_path) as $relative |
++        if ($relative | startswith("docs/adr/")) and $raw != $relative then
++          error("ADR output path must be raw canonical relative")
++        else {path:$relative,sha256:.sha256} end) | sort_by(.path);
++    select(all([$contracts,$prechecks,$outputs_a,$outputs_b][];
++      length == 1 and (.[0] | type == "object"))) |
++    $contracts[0] as $c | $prechecks[0] as $p |
++    select($c.adr_inputs | adr_set) | select($p.adr_inputs | adr_set) |
++    select($c.adr_inputs == $p.adr_inputs) |
++    select($p.schema == "impl-review-precheck/v1" and $p.feature == $feature and
++      $p.attempt == $attempt and $p.round == $round and
++      ($p.design_sha256 | digest) and ($p.requirements_sha256 | digest) and
++      ($p.acceptance_sha256 | digest) and ($p.input_sha256 | digest)) |
++    select($c.schema == "impl-review-contract/v1" and $c.stage == "impl" and
++      $c.feature == $feature and $c.attempt == $attempt and $c.round == $round and
++      $c.verdict == "PASS") |
++    select($c.design_sha256 == $p.design_sha256 and
++      $c.requirements_sha256 == $p.requirements_sha256 and
++      $c.acceptance_sha256 == $p.acceptance_sha256 and
++      $c.layer_sha256 == $p.layer_sha256) |
++    select(($c.reviewers | map(.role) | sort) == ["impl-reviewer-a","impl-reviewer-b"]) |
++    select(all($c.reviewers[]; . as $r |
++      (if .role == "impl-reviewer-a" then $outputs_a[0] else $outputs_b[0] end) as $o |
++      $o.schema == ($r.role + "/v1") and $o.stage == "impl" and $o.role == $r.role and
++      ($o.run_id | type == "string" and length > 0) and $o.run_id == $r.run_id and
++      ($o.host_session_id | type == "string" and length > 0) and $o.host_session_id == $r.host_session_id and
++      ($o.allowed_input_manifest | type == "array") and
++      (($o.allowed_input_manifest | normalized_manifest) == ($r.allowed_input_manifest | normalized_manifest)))) |
++    select(all($c.reviewers[];
++      .allowed_input_manifest as $m |
++      ([$m[] | select((.path | relative_path) == $pc) | .sha256] == [$pc_hash]) and
++      (($p.layer_sha256 + {"design.md":$p.design_sha256,
++        "requirements.md":$p.requirements_sha256,"acceptance-tests.md":$p.acceptance_sha256}) |
++        to_entries | all(.[]; . as $pin |
++          [$m[] | select((.path | relative_path) == ("specs/"+$feature+"/"+$pin.key)) | .sha256] == [$pin.value])) and
++      (([$m[] | select(.path | startswith("docs/adr/")) | {path:.path,sha256:.sha256}] |
++        sort_by(.path)) == $p.adr_inputs))) |
++    $p.adr_inputs | map({path:.path,sha256:.sha256})
++  ') || fail "inconsistent ADR persisted bindings"
++  bound_design=$(jq -er '.design_sha256' "$repo_root/$precheck") || fail "missing ADR design pin"
++  [[ "$bound_design" == "$design_reviewed" || "$bound_design" == "$design_current" ]] ||
++    fail "ADR design differs beyond permitted lifecycle normalization"
++  persisted_adr_safe_file "$design" || fail "unsafe ADR design path"
++  before=$(sha256 "$repo_root/$design") || fail "cannot hash current ADR design"
++  [[ "$before" == "$design_current" ]] || fail "design changed during predecessor checks"
++  actual_paths=$(persisted_adr_declared_paths "$repo_root/$design") || fail "cannot derive current ADR declarations"
++  recorded_paths=$(jq -r '.[].path' <<< "$recorded") || fail "cannot read ADR declarations"
++  [[ "$actual_paths" == "$recorded_paths" ]] || fail "persisted ADR set differs from design"
++  if [[ -n "$recorded_paths" ]]; then
++    while IFS= read -r path; do
++      persisted_adr_safe_file "$path" || fail "unsafe persisted ADR input"
++      digest=$(sha256 "$repo_root/$path") || fail "cannot hash persisted ADR input"
++      jq -e --arg path "$path" --arg digest "$digest" \
++        'any(.[]; .path == $path and .sha256 == $digest)' <<< "$recorded" >/dev/null ||
++        fail "current ADR differs from reviewed input"
++    done <<< "$recorded_paths"
++  fi
++  bound_requirements=$(jq -er '.requirements_sha256' "$repo_root/$precheck") || fail "missing ADR requirements pin"
++  bound_acceptance=$(jq -er '.acceptance_sha256' "$repo_root/$precheck") || fail "missing ADR acceptance pin"
++  layers=$(jq -c '.layer_sha256' "$repo_root/$precheck") || fail "missing ADR layer pins"
++  input_hash=$(persisted_adr_input_hash "$bound_design" "$bound_requirements" \
++    "$bound_acceptance" "$layers" "$recorded") || fail "cannot verify ADR input material"
++  jq -e --arg expected "$input_hash" '.input_sha256 == $expected' "$repo_root/$precheck" >/dev/null ||
++    fail "persisted ADR input material mismatch"
++  persisted_adr_safe_file "$design" || fail "ADR design path changed"
++  after=$(sha256 "$repo_root/$design") || fail "cannot recheck ADR design"
++  [[ "$after" == "$before" ]] || fail "ADR design changed during validation"
++  persisted_adr_safe_file "$precheck" || fail "ADR precheck path changed"
++  [[ "$(sha256 "$repo_root/$precheck")" == "$precheck_hash" ]] || fail "ADR precheck changed during validation"
++  jq -c 'map(.path)' <<< "$recorded"
++}
++# Shared predecessor-verdict validation for the review-loop prechecks.
+@@ -6,1 +215,1 @@
+-#   functions: fail, sha256, reviewed_sha256
++#   functions: fail, sha256, sha256_stream, reviewed_sha256
+@@ -103,1 +312,6 @@
+-  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
++  local verified_adr_paths='[]'
++  if [[ "$stage" == "impl" ]]; then
++    verified_adr_paths=$(persisted_adr_pass_paths "$contract" "$stored_attempt" "$stored_round" \
++      "$design_hash" "$design_current_hash") || fail "persisted ADR validation failed"
++  fi
++  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
+@@ -105,1 +319,2 @@
+-    --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" '
++    --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" \
++    --argjson verified_adrs "$verified_adr_paths" '
+@@ -136,1 +351,2 @@
+-       ($path == $calibration) or
++       ($stage == "impl" and any($verified_adrs[]; . == $path)) or
++       ($path == $calibration) or

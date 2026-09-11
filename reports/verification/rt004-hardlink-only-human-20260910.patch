@@ -1,0 +1,16 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -527,7 +527,11 @@
+         foreach ($component in $input.path.Split('/')) {
+             $current = Join-Path $current $component
+             if (Test-Path -LiteralPath $current) {
+-                if ($null -ne (Get-Item -LiteralPath $current -Force).LinkType) {
++                # A hardlink is a regular input, not a redirected path. Limit
++                # this correction to impl review; other stage contracts retain
++                # their existing behavior. Anchored acquisition is still required.
++                $inputItem = Get-Item -LiteralPath $current -Force -ErrorAction Stop
++                if (($inputItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or ($null -ne $inputItem.LinkType -and ($document.stage -cne 'impl' -or $inputItem.LinkType -cne 'HardLink'))) {
+                     Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
+                 }
+             }

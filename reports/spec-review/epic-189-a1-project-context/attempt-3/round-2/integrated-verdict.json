@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 2,
+  "reviewer_a_run_id": "01a0862d-8dfa-7713-ba38-fe47a722f947",
+  "reviewer_b_run_id": "01a08630-d41e-7f42-97c0-3d1b902cb275",
+  "reviewer_a_host_session_id": "01a0862d-8dfa-7713-ba38-fe47a722f947",
+  "reviewer_b_host_session_id": "01a08630-d41e-7f42-97c0-3d1b902cb275",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

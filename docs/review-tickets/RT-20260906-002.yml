@@ -1,0 +1,80 @@
+ticket_id: RT-20260906-002
+status: open
+type: test-gap
+severity: major
+review_cycles: 0
+target:
+  feature: cross-model-verification
+  task: T-005
+  files:
+    - tests/collection-layer.tests.ps1
+summary: "Issue #359: repair collection-layer fixture stdin handling and stale CL-012c expectation"
+problem: |
+  The earlier verification at ca023cc85d9db5d44f63ec77e4d3ff73f3f9bfdf
+  recorded 38 passed / 8 failed in the PowerShell collection-layer suite.
+  A controlled real-runner probe reproduced Broken pipe with a no-drain
+  stub and succeeded with an EOF-consuming stub. This does not prove every
+  historical failure has the same cause.
+  Source inspection of main 4366438f3b243210a4ece5a17f873ca2d920600a
+  still shows transcript fixtures that exit without consuming redirected
+  stdin, and CL-012c requiring disable-model-invocation: true while the
+  shipped skill declares false. No fresh full-suite result at that main
+  commit is asserted here.
+  Ownership: specs/cross-model-verification/design.md:115-116 assigns the
+  collection runners and skill to T-005; tasks.md:181-216 assigns presence
+  and format tests to that task. This ticket is separate from the timeout
+  diagnostic ticket RT-20260906-001 and does not reset its cycle count.
+expected_fix:
+  - "Make the affected collection-layer test CLI fixtures consume redirected standard input through EOF before emitting their synthetic output, on supported platforms. Preserve their output and exit semantics."
+  - "Update CL-012c to assert the approved false frontmatter value rather than true. Preserve an explicit assertion and rejection of the opposite value; do not delete or skip this check."
+  - "Preserve production runners, timeout and margin values, repetitions, all other assertions, and every mandatory CI check. No real external model invocation is authorized by this test repair."
+verification:
+  - "Capture the original failure or verify preserved prior evidence against the exact source; retain historical failures."
+  - "Run both collection-layer suites and both run-panelist-effort suites, recording exact commands, source hashes, exits, counts and skips. Exercise platform-specific fixture behavior on matching CI hosts before integration."
+  - "Demonstrate EOF consumption without changing synthetic output, and that CL-012c rejects true and accepts false. Keep mutation evidence separate from acceptance results."
+  - "Require independent review and the applicable quality gate before resolving the task; main integration and issue-level acceptance are separate conditions for closing #359."
+references:
+  - "https://github.com/aharada54914/sdd-forge/issues/359"
+  - specs/cross-model-verification/tasks.md
+  - specs/cross-model-verification/design.md
+  - specs/cross-model-verification/requirements.md
+  - specs/cross-model-verification/acceptance-tests.md
+  - reports/verification/issue-359-main-verification-20260905.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: >-
+  2026-09-06: The user explicitly approved treating collection-layer.tests.ps1
+  standard-input-to-EOF repair and obsolete CL-012c expectation update as
+  a separate ticket for issue359. The same scope needs no renewed approval.
+  Protected-file restrictions remain: stop if an agent operation is denied;
+  no wrapper, copied-file, renamed-file or alternative-tool bypass.
+verification_status: >-
+  Implementation candidate exists in /tmp/issue359-repair.foCPkp/worktree
+  on base 4366438f3b243210a4ece5a17f873ca2d920600a. Primary inspected
+  the test-only diff; PS source SHA-256 is
+  416ab9cfd98b9390e37c60bf246aff0ea0d89014863739c692a1581e70307b6a.
+  Worker-reported passing logs are not accepted as candidate evidence:
+  the reported source hash differs and the report incorrectly states the
+  Bash suite is absent. Independent scoped verification at the stated
+  workdir and matching after-run PS hash reports PS collection 47/0 exit 0,
+  Bash collection 51/1 exit 1, and both effort suites 28/0 exit 0.
+  Bash CL-021b reports echo Broken pipe at line 667 in echo | grep -qi;
+  a separate narrowly scoped repair approval was requested, not assumed.
+  Primary in-memory evaluation of the actual PS assertion regex passed
+  12 EOF/LF/CRLF and case-sensitive true/false controls (33a217, exit 0).
+  Windows matching-host execution, complete EOF-output equivalence
+  evidence and the applicable quality gate remain pending. Historical
+  Done records and failures remain untouched.
+latest_verification: >-
+  2026-09-08: The old temporary worktree is missing. A durable candidate at
+  /Users/jrmag/.local/share/sdd-forge-issue359-recovery-20260908 was created
+  from main 4366438f3b243210a4ece5a17f873ca2d920600a. The current approved
+  PS candidate hash is 1bc5bbea3c1f601efb954a7a8ffbb1bfa148562694e08bb89613f6c4eda5fbd3;
+  it is not represented as the old 416ab9 candidate. Fresh macOS verification
+  recorded collection PS 47/0, collection Bash 52/0, and effort SH/PS 28/0
+  each, all exit 0. The separately approved RT-20260908-001 Bash repair is
+  included. Before/after candidate hashes match. Full outputs and exact
+  commands are recorded in reports/verification/issue359-main-candidate-20260908.md.
+  Matching Windows execution, EOF/output equivalence and formal gate remain
+  pending; status remains open. This supersedes only the candidate location
+  and latest results, not historical failures or acceptance requirements.

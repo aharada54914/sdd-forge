@@ -1,0 +1,60 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -985,1 +985,56 @@
++# Current summary binds A's actual checks; prior summary is shape-only.
++# Caller supplies safe parsed snapshots and pins their raw hashes in manifests.
++function Test-AdrHistorySummary($Summary, [int]$Attempt, [int]$Round, $ReviewerResult) {
++    if ($Summary -isnot [pscustomobject]) { throw 'ADR summary must be an object' }
++    $fields = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
++    foreach ($property in $Summary.PSObject.Properties) {
++        if ($fields.ContainsKey($property.Name)) { throw 'ADR duplicate summary field' }
++        $fields.Add($property.Name, $property.Value)
++    }
++    $expectedKeys = @('attempt','generated_at','reviewer_a_check_ids',
++        'reviewer_a_fail_count','reviewer_a_pass_count','reviewer_a_skip_count','round','schema')
++    if ($fields.Count -ne $expectedKeys.Count) { throw 'ADR summary key count invalid' }
++    foreach ($key in $expectedKeys) {
++        if (-not $fields.ContainsKey($key)) { throw 'ADR summary field missing or mis-cased' }
++    }
++    function IsNumber($Value) {
++        return ($Value -is [int] -or $Value -is [long] -or
++            $Value -is [double] -or $Value -is [decimal])
++    }
++    if ($fields['schema'] -isnot [string] -or
++        -not [string]::Equals($fields['schema'], 'integrated-summary/v1', [StringComparison]::Ordinal) -or
++        -not (IsNumber $fields['attempt']) -or $fields['attempt'] -ne $Attempt -or
++        -not (IsNumber $fields['round']) -or $fields['round'] -ne $Round -or
++        $fields['generated_at'] -isnot [string] -or $fields['generated_at'].Length -eq 0) {
++        throw 'ADR summary identity invalid'
++    }
++    $checkIds = $fields['reviewer_a_check_ids']
++    if ($checkIds -isnot [array] -or $checkIds.Count -eq 0) { throw 'ADR summary IDs invalid' }
++    $ids = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($id in $checkIds) {
++        if ($id -isnot [string] -or $id.Length -eq 0 -or -not $ids.Add($id)) {
++            throw 'ADR summary IDs must be nonempty and unique'
++        }
++    }
++    $counts = [Collections.Generic.Dictionary[string,long]]::new([StringComparer]::Ordinal)
++    $sum = 0L
++    foreach ($result in @('PASS','FAIL','SKIP')) {
++        $value = $fields['reviewer_a_' + $result.ToLowerInvariant() + '_count']
++        # Bound before integer conversion; rejects NaN, infinity and fractions.
++        if (-not (IsNumber $value) -or -not ($value -ge 0 -and $value -le $ids.Count) -or
++            $value % 1 -ne 0) { throw 'ADR summary counter invalid' }
++        $counts.Add($result, [long]$value)
++        $sum += [long]$value
++    }
++    if ($sum -ne $ids.Count) { throw 'ADR summary total does not equal its ID count' }
++    if ($null -ne $ReviewerResult) {
++        # This result must come from Test-AdrHistoryOutputs, never caller JSON.
++        if (-not $ids.SetEquals($ReviewerResult.Ids)) { throw 'ADR summary IDs disagree with actual reviewer A' }
++        foreach ($result in @('PASS','FAIL','SKIP')) {
++            if ($counts[$result] -ne $ReviewerResult.Counts[$result]) {
++                throw 'ADR summary counters disagree with actual reviewer A'
++            }
++        }
++    }
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

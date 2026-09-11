@@ -1,0 +1,137 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -985,1 +985,133 @@
++# Saved output checks only; the caller must validate safe JSON snapshots,
++# precheck/core pins, four manifests, summaries and current-stage freshness.
++function Test-AdrHistoryOutputs($Contract, $ReviewerA, $ReviewerB, $Verdict,
++    [string]$Feature, [int]$Attempt, [int]$Round) {
++    function Field($Object, [string]$Name) {
++        if ($Object -isnot [pscustomobject]) { throw 'ADR output is not an object' }
++        $exactProperties = @($Object.PSObject.Properties | Where-Object {
++            [string]::Equals($_.Name, $Name, [StringComparison]::Ordinal)
++        })
++        if ($exactProperties.Count -ne 1) { throw "ADR output field missing: $Name" }
++        return ,($exactProperties[0].Value)
++    }
++    function TextEquals($Actual, [string]$Expected) {
++        return ($Actual -is [string] -and
++            [string]::Equals($Actual, $Expected, [StringComparison]::Ordinal))
++    }
++    function Nonempty($Value) {
++        return ($Value -is [string] -and $Value.Length -gt 0)
++    }
++    function CountEquals($Value, [long]$Expected) {
++        # JSON numeric values only; never coerce strings, bools or null.
++        if ($Value -isnot [int] -and $Value -isnot [long] -and
++            $Value -isnot [double] -and $Value -isnot [decimal]) { return $false }
++        return ($Value -ge 0 -and $Value -eq $Expected)
++    }
++    function CheckIdentity($Object, [string]$Schema) {
++        if (-not (TextEquals (Field $Object 'schema') $Schema) -or
++            -not (TextEquals (Field $Object 'feature') $Feature) -or
++            -not (TextEquals (Field $Object 'stage') 'impl') -or
++            -not (CountEquals (Field $Object 'attempt') $Attempt) -or
++            -not (CountEquals (Field $Object 'round') $Round) -or
++            -not (Nonempty (Field $Object 'run_id'))) { throw 'ADR output identity invalid' }
++    }
++    CheckIdentity $Contract 'impl-review-contract/v1'
++    CheckIdentity $Verdict 'integrated-verdict/v1'
++    if (-not (TextEquals (Field $Verdict 'run_id') (Field $Contract 'run_id'))) {
++        throw 'ADR integrated run ID mismatch'
++    }
++    $bound = Field $Contract 'reviewers'
++    if ($bound -isnot [array] -or $bound.Count -ne 2) { throw 'ADR reviewer pair invalid' }
++    $roles = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
++    $runs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    $sessions = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    foreach ($reviewer in $bound) {
++        $role = Field $reviewer 'role'
++        $run = Field $reviewer 'run_id'
++        $session = Field $reviewer 'host_session_id'
++        if ((-not (TextEquals $role 'impl-reviewer-a') -and
++             -not (TextEquals $role 'impl-reviewer-b')) -or
++            -not (Nonempty $run) -or -not (Nonempty $session)) {
++            throw 'ADR reviewer reservation identity invalid'
++        }
++        if ($roles.ContainsKey($role) -or -not $runs.Add($run) -or
++            -not $sessions.Add($session)) { throw 'ADR reviewer identities must be distinct' }
++        $roles.Add($role, $reviewer)
++    }
++    $totals = @{ Critical=0L; Major=0L; Minor=0L }
++    $results = [Collections.Generic.List[object]]::new()
++    foreach ($pair in @(
++        [pscustomobject]@{ Output=$ReviewerA; Role='impl-reviewer-a' },
++        [pscustomobject]@{ Output=$ReviewerB; Role='impl-reviewer-b' })) {
++        $output = $pair.Output
++        $role = $pair.Role
++        $reservation = $roles[$role]
++        if (-not (TextEquals (Field $output 'schema') ($role + '/v1')) -or
++            -not (TextEquals (Field $output 'stage') 'impl') -or
++            -not (TextEquals (Field $output 'role') $role) -or
++            -not (TextEquals (Field $output 'run_id') (Field $reservation 'run_id')) -or
++            -not (TextEquals (Field $output 'host_session_id') (Field $reservation 'host_session_id'))) {
++            throw 'ADR reviewer output identity mismatch'
++        }
++        $checks = Field $output 'checks'
++        if ($checks -isnot [array] -or $checks.Count -eq 0) { throw 'ADR reviewer checks invalid' }
++        # Fixed ADR-extension v1 profile; ordinal and positional comparison.
++        $expectedIds = if (TextEquals $role 'impl-reviewer-a') {
++            @('ARCH-COVERAGE','NO-CIRCULAR-DEPS','DATA-COVERAGE','API-COVERAGE',
++              'SECURITY-COVERAGE','FRONTEND-BACKEND-CONSISTENCY','TEST-STRATEGY-COVERAGE',
++              'NO-UNDEFINED-COMPONENT','ADR-PRESENT','DESIGN-SYSTEM-CONFORMANCE','DOMAIN-CONFORMANCE')
++        } else {
++            @('DECISION-JUSTIFIED','OPEN-QUESTIONS-RESOLVABLE','ASSUMPTIONS-VALID',
++              'NO-REQ-CONTRADICTION','PERF-ADDRESSED','DEPLOYMENT-CONCRETE','MIGRATION-PLANNED',
++              'INTEGRATION-IDENTIFIED','DESIGN-WITHIN-SCOPE','VERIFICATION-PATH-CONCRETE','DOMAIN-CONFORMANCE')
++        }
++        if ($checks.Count -ne $expectedIds.Count) { throw 'ADR required check count mismatch' }
++        for ($index = 0; $index -lt $expectedIds.Count; $index++) {
++            if (-not (TextEquals (Field $checks[$index] 'id') $expectedIds[$index])) {
++                throw 'ADR required check sequence mismatch'
++            }
++        }
++        $ids = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++        $counts = @{ PASS=0L; FAIL=0L; SKIP=0L }
++        $critical = 0L
++        foreach ($check in $checks) {
++            $id = Field $check 'id'
++            $result = Field $check 'result'
++            if (-not (Nonempty $id) -or -not $ids.Add($id)) { throw 'ADR duplicate or empty check ID' }
++            if (-not (TextEquals $result 'PASS') -and -not (TextEquals $result 'FAIL') -and
++                -not (TextEquals $result 'SKIP')) { throw 'ADR check result invalid' }
++            $counts[$result]++
++            if (TextEquals $result 'FAIL') {
++                $severity = Field $check 'severity'
++                if (-not (TextEquals $severity 'Critical') -and
++                    -not (TextEquals $severity 'Major') -and
++                    -not (TextEquals $severity 'Minor')) { throw 'ADR check severity invalid' }
++                $totals[$severity]++
++                if (TextEquals $severity 'Critical') { $critical++ }
++            }
++        }
++        $expected = if ($critical -gt 0) { 'BLOCKED' }
++            elseif ($counts.FAIL -gt 0) { 'NEEDS_WORK' } else { 'PASS' }
++        if (-not (TextEquals (Field $output 'verdict') $expected)) { throw 'ADR reviewer verdict mismatch' }
++        $results.Add([pscustomobject]@{ Ids=$ids; Counts=$counts; Verdict=$expected })
++    }
++    $expectedIntegrated = if ($totals.Critical -gt 0) { 'BLOCKED' }
++        elseif ($totals.Major -gt 0 -or ($totals.Minor -gt 0 -and $Round -lt 3)) { 'NEEDS_WORK' }
++        elseif ($totals.Minor -gt 0) { 'PASS-with-warnings' } else { 'PASS' }
++    foreach ($record in @($Contract, $Verdict)) {
++        if (-not (TextEquals (Field $record 'verdict') $expectedIntegrated) -or
++            -not (TextEquals (Field $record 'reviewer_a_verdict') $results[0].Verdict) -or
++            -not (TextEquals (Field $record 'reviewer_b_verdict') $results[1].Verdict)) {
++            throw 'ADR integrated reviewer verdict mismatch'
++        }
++        foreach ($severity in @('Critical','Major','Minor')) {
++            $name = 'findings_' + $severity.ToLowerInvariant()
++            if (-not (CountEquals (Field $record $name) $totals[$severity])) {
++                throw 'ADR aggregate findings disagree with actual reviewer checks'
++            }
++        }
++    }
++    # The caller compares A's exact ID set and counters with current summary.
++    return $results[0]
++}
+ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {

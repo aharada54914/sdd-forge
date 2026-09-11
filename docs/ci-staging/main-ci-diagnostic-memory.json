@@ -1,0 +1,23 @@
+{
+  "decision": [
+    "Preserve timeout, margin, repetition count, assertions and required CI.",
+    "User explicitly approved RT-20260906-001 diagnostic logs only for already-Done T-002 on 2026-09-06; comment correction excluded."
+  ],
+  "unresolved": [
+    "Run 33975094357 completed: 23 successful jobs, failed Windows test and required-checks; zero live jobs.",
+    "Final local suite completed 54 passed / 10 failed, exit 1; GPT boundary diagnostics expose Broken pipe. PR400 Windows job101392202970 completed60/4 with explicit 2-second timeout diagnostics for GPT1/2/3 and Gemini5; scheduling root cause remains unproved. Whole run33998162792 remains live; quality gate pending.",
+    "Claude CLI auth status currently returns loggedIn false and exit 1.",
+    "Issue 194 evidence-file exception remains unapproved."
+  ],
+  "evidence": [
+    "reports/verification/main633dcdf6-ci-regression-20260906.md",
+    "docs/review-tickets/RT-20260906-001.yml",
+    "tests/cross-model.tests.ps1 now emits bounded JSON-escaped fixture output only in the existing TEST-004(c) failure branch; primary actual-branch probe preserved failure exit and silent success."
+  ],
+  "next_action": [
+    "Retain open RT-20260906-001 and the final diagnostic-only diff; do not describe local 54/10 as passing or as proven pre-existing failure.",
+    "Wait on same run33998162792; latest API snapshot has only test (macos-latest) at Test cross-model gate (bash) and version-gates (windows-latest) at Test bump-version.sh loop-gate prerequisite (pwsh) live. No retry just for green. The question requesting stage-timestamp logging is unanswered; retain wait-return, output-completion and process-exit timing as a proposed next diagnostic, not an implemented or newly approved change. Do not implement behavioral changes under logging-only approval.",
+    "PR399 run33994414714 completed SUCCESS at ccba716fc8c4f0e865f3beb00ce4be54c55f581c; primary confirmed25successful checks. SDD review/integration remain unproved. Issue66 comment records unmet Claude/Codex installer criterion; no issue closure.",
+    "A8 ledger exists (902 records, final hash34f2a99e240f3842ed438767bd597aef20b7a5b241e83b7f1291ec4fd1b60011); do not call it missing. Fresh host-issued reviewer identity acquisition/reservation remains unresolved; existence and hash-shaped fields do not prove host authenticity or full ledger validity."
+  ]
+}

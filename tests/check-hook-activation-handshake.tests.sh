@@ -228,6 +228,20 @@ rc=$?
 assert_exit "$rc" 65 "TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)"
 assert_json_field "$WORK/out" "d['reason']" "PLUGIN_HOOKS_DISABLED" "TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE"
 
+# Missing or invalid capture metadata is not an observed disabled flag.
+for metadata in '{}' '{"plugin_hooks_enabled":null}' '{"plugin_hooks_enabled":"true"}'; do
+  "$PY" -c 'import json,sys; d=json.loads(sys.argv[1]); d.update(nonce=sys.argv[2],executed=False); print(json.dumps(d))' "$metadata" "$NONCE_CX" > "$T027/cx-metadata.json"
+  (cd "$T027" && run_hh --verify-response --nonce "$NONCE_CX" --recorded-result cx-metadata.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 65 "RT-20260909-002: incomplete flag evidence still fails closed ($metadata)"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT-20260909-002: incomplete flag evidence never activates ($metadata)"
+  if grep -F 'not proof that plugin hooks are disabled' "$WORK/err" >/dev/null; then
+    pass "RT-20260909-002: diagnostic distinguishes missing evidence from disabled configuration ($metadata)"
+  else
+    fail "RT-20260909-002: diagnostic incorrectly infers disabled configuration ($metadata)"
+  fi
+done
+
 cat > "$T027/cx-unrecognized.json" <<EOF
 {"nonce": "$NONCE_CX", "executed": false, "plugin_hooks_enabled": true}
 EOF
@@ -577,6 +591,277 @@ if [ -f "$ROOT/tests/check-hook-activation-handshake.tests.ps1" ]; then
 else
   fail "self-registration: tests/check-hook-activation-handshake.tests.ps1 twin exists"
 fi
+
+# RT-20260909-002: versioned host evidence, never fixture-as-live proof.
+HOST_NONCE=0123456789abcdef0123456789abcdef
+"$PY" - "$T027/host-denial.json" "$HOST_NONCE" <<'PY'
+import json
+import sys
+nonce = sys.argv[2]
+patch = "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:" + nonce + "\n*** End Patch"
+raw = (
+    "Script error:\nCommand blocked by PreToolUse hook: "
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. "
+    "These are part of the enforcement chain and cannot be bypassed by sudo.. Command: " + patch
+)
+with open(sys.argv[1], "w", encoding="utf-8") as stream:
+    json.dump(dict(schema="sdd-codex-host-denial/v1", runtime="codex-cli",
+                   nonce=nonce, executed=False, raw_result=raw), stream)
+PY
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-denial.json --runtime codex-cli)
+rc=$?
+assert_exit "$rc" 0 "RT002 exact versioned operation-bound denial accepted"
+assert_json_field "$WORK/out" "d['status']" "HOOK_ACTIVE" "RT002 exact denial status"
+
+# Mutate one raw-envelope property per case; never dispatch these fixtures.
+for mutation in prefix quote suffix truncate guard guard-ja target guard-case target-case extra-operation old-patch trailing-newline leading-newline crlf null boolean number array object; do
+  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$mutation" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+raw = evidence["raw_result"]
+variants = {
+    "prefix": "untrusted: " + raw,
+    "quote": '"' + raw + '"',
+    "suffix": raw + " extra",
+    "truncate": raw[:-1],
+    "guard": raw.replace("SDD deterministic gate:", "Other deterministic gate:"),
+    "guard-ja": raw.replace("SDD決定論ゲート:", "別の決定論ゲート:"),
+    "target": raw.replace("sdd/.hook-canary-sentinel", "sdd/other-sentinel"),
+    "guard-case": raw.replace("SDD deterministic gate:", "sdd deterministic gate:"),
+    "target-case": raw.replace("sdd/.hook-canary-sentinel", "SDD/.hook-canary-sentinel"),
+    "extra-operation": raw.replace("*** End Patch", "*** Add File: sdd/extra\n+extra\n*** End Patch"),
+    "old-patch": raw.replace("+sdd-hook-challenge:" + evidence["nonce"], "+"),
+    "trailing-newline": raw + "\n",
+    "leading-newline": "\n" + raw,
+    "crlf": raw.replace("\n", "\r\n"),
+    "null": None, "boolean": False, "number": 0, "array": [], "object": {},
+}
+evidence["raw_result"] = variants[sys.argv[3]]
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-mutated.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 64 "RT002 raw envelope rejected: $mutation"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 raw envelope reason: $mutation"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 raw envelope cannot activate: $mutation"
+done
+
+# Individually exercise required keys, types, contradictions and nonce binding.
+for mutation in missing:schema missing:runtime missing:nonce missing:executed missing:raw_result executed:null executed:string executed:true executed:zero executed:one nonce:outer nonce:inner nonce:malformed runtime:claude-code runtime:copilot-cli cli:claude-code cli:copilot-cli extra:plugin_hooks_enabled:true extra:plugin_hooks_enabled:false extra:denied_by_plugin_hooks:true extra:denied_by_plugin_hooks:false extra:arbitrary:true; do
+  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$mutation" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+parts = sys.argv[3].split(":")
+kind, value = parts[:2]
+if kind == "missing":
+    del evidence[value]
+elif kind == "executed":
+    evidence[kind] = {"null": None, "string": "false", "true": True, "zero": 0, "one": 1}[value]
+elif kind == "nonce":
+    if value == "inner":
+        evidence["raw_result"] = evidence["raw_result"].replace(evidence["nonce"], "f" * 32)
+    else:
+        evidence["nonce"] = "f" * 32 if value == "outer" else "INVALID"
+elif kind == "runtime":
+    evidence[kind] = value
+elif kind == "extra":
+    evidence[value] = json.loads(parts[2])
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  expected=64; runtime=codex-cli
+  case "$mutation" in
+    executed:true) expected=63 ;;
+    nonce:outer|nonce:inner) expected=62 ;;
+    cli:*) runtime=${mutation#cli:} ;;
+    missing:schema) expected=65 ;;
+  esac
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-mutated.json --runtime "$runtime")
+  rc=$?
+  assert_exit "$rc" "$expected" "RT002 evidence field rejected: $mutation"
+  reason=UNRECOGNIZED_RESULT
+  case "$mutation" in
+    executed:true) reason=WRITE_EXECUTED ;;
+    nonce:outer|nonce:inner) reason=STALE_CHALLENGE_REJECTED ;;
+    missing:schema) reason=PLUGIN_HOOKS_DISABLED ;;
+  esac
+  assert_json_field "$WORK/out" "d['reason']" "$reason" "RT002 evidence field reason: $mutation"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 evidence field cannot activate: $mutation"
+done
+
+for flag in plugin_hooks_enabled denied_by_plugin_hooks; do
+  for value in 'null' '"false"' '1' '[]' '{}'; do
+    "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$flag" "$value" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+evidence[sys.argv[3]] = json.loads(sys.argv[4])
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+    (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-mutated.json --runtime codex-cli)
+    rc=$?
+    assert_exit "$rc" 64 "RT002 extra flag rejected: $flag=$value"
+    assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 extra flag reason: $flag=$value"
+    assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 extra flag cannot activate: $flag=$value"
+  done
+done
+
+# Matching malformed values must fail syntax validation, not just mismatch checks.
+for invalid_nonce in ABCDEF0123456789ABCDEF0123456789 0123456789abcdef0123456789abcde 0123456789abcdef0123456789abcdef0 z123456789abcdef0123456789abcdef; do
+  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$invalid_nonce" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+evidence["raw_result"] = evidence["raw_result"].replace(evidence["nonce"], sys.argv[3])
+evidence["nonce"] = sys.argv[3]
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$invalid_nonce" --recorded-result host-mutated.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 64 "RT002 self-consistent invalid nonce rejected: $invalid_nonce"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 invalid nonce reason: $invalid_nonce"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 invalid nonce cannot activate: $invalid_nonce"
+done
+
+# An explicit selector must not fall through to an otherwise valid legacy record.
+for mutation in uppercase short long nonhex null number; do
+  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$mutation" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+nonce = evidence["nonce"]
+assert len(nonce) == 32
+variants = {"uppercase": nonce.upper(), "short": nonce[:-1], "long": nonce + "0",
+            "nonhex": "z" + nonce[1:], "null": None, "number": 0}
+evidence["nonce"] = variants[sys.argv[3]]
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-mutated.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 64 "RT002 outer-only invalid nonce rejected: $mutation"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 outer-only nonce reason: $mutation"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 outer-only nonce cannot activate: $mutation"
+done
+
+for selector in 'null' 'true' 'false' '1' '[]' '{}' '"unknown"' '"sdd-codex-host-denial/v1"'; do
+  "$PY" -c 'import json,sys; print(json.dumps(dict(schema=json.loads(sys.argv[1]),nonce=sys.argv[2],executed=False,guard_emit_mode="exit",exit_code=2)))' "$selector" "$HOST_NONCE" > "$T027/selector.json"
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result selector.json --runtime claude-code)
+  rc=$?
+  assert_exit "$rc" 64 "RT002 explicit selector cannot enter legacy Claude verifier: $selector"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 Claude selector reason: $selector"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 selector rejected status: $selector"
+done
+
+for runtime in codex-cli copilot-cli; do
+  for selector in 'null' 'true' 'false' '1' '[]' '{}' '"unknown"' '"sdd-codex-host-denial/v1"'; do
+    "$PY" -c 'import json,sys; obj=dict(schema=json.loads(sys.argv[1]),nonce=sys.argv[2],executed=False); obj.update(dict(plugin_hooks_enabled=True,denied_by_plugin_hooks=True) if sys.argv[3]=="codex-cli" else dict(permissionDecision="deny")); print(json.dumps(obj))' "$selector" "$HOST_NONCE" "$runtime" > "$T027/selector.json"
+    (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result selector.json --runtime "$runtime")
+    rc=$?
+    assert_exit "$rc" 64 "RT002 explicit selector cannot enter legacy $runtime verifier: $selector"
+    assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 $runtime selector reason: $selector"
+    assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 selector rejected status for $runtime: $selector"
+  done
+done
+
+(cd "$T027" && run_hh --emit-challenge)
+rc=$?
+assert_exit "$rc" 0 "RT002 nonce-bound challenge emitted"
+assert_json_field "$WORK/out" "d['tool_call_template']['codex-cli']['tool_input']['patch'] == '*** Begin Patch\\n*** Add File: sdd/.hook-canary-sentinel\\n+sdd-hook-challenge:' + d['nonce'] + '\\n*** End Patch'" "True" "RT002 emitted patch binds exact fresh nonce and bytes"
+
+for member in schema runtime nonce executed raw_result nested executed-true-first executed-false-first; do
+  "$PY" - "$T027/host-denial.json" "$T027/response-duplicate.json" "$member" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+member = sys.argv[3]
+payload = json.dumps(evidence)
+if member == "nested":
+    duplicate = '"extra":{"key":0,"key":1}'
+elif member.startswith("executed-"):
+    del evidence["executed"]
+    payload = json.dumps(evidence)
+    duplicate = '"executed":true,"executed":false' if member == "executed-true-first" else '"executed":false,"executed":true'
+else:
+    duplicate = json.dumps(member) + ':' + json.dumps(evidence[member])
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    stream.write(payload[:-1] + ',' + duplicate + '}')
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result response-duplicate.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 61 "RT002 response duplicate rejected: $member"
+  assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 response duplicate reason: $member"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 response duplicate cannot activate: $member"
+done
+
+for pair in 'true,false' 'false,true'; do
+  first=${pair%,*}; second=${pair#*,}
+  printf '{"nonce":"%s","executed":%s,"executed":%s}\n' "$HOST_NONCE" "$first" "$second" > "$T027/cleanup-duplicate.json"
+  (cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-duplicate.json)
+  rc=$?
+  assert_exit "$rc" 71 "RT002 duplicate cleanup executed rejected: $pair"
+  assert_json_field "$WORK/out" "d['reason']" "CLEANUP_RESULT_UNREADABLE" "RT002 duplicate cleanup reason: $pair"
+  assert_json_field "$WORK/out" "d['cleanup_status']" "SENTINEL_CLEANUP_UNCONFIRMED" "RT002 duplicate cleanup cannot confirm: $pair"
+done
+
+printf '{"nonce":"%s","executed":true,"extra":{"key":0,"key":1}}\n' "$HOST_NONCE" > "$T027/cleanup-duplicate.json"
+(cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-duplicate.json)
+rc=$?
+assert_exit "$rc" 71 "RT002 nested cleanup duplicate rejected"
+assert_json_field "$WORK/out" "d['reason']" "CLEANUP_RESULT_UNREADABLE" "RT002 nested cleanup duplicate reason"
+assert_json_field "$WORK/out" "d['cleanup_status']" "SENTINEL_CLEANUP_UNCONFIRMED" "RT002 nested cleanup duplicate cannot confirm"
+
+printf '{"nonce":"%s","executed":false,"plugin_hooks_enabled":true,"denied_by_plugin_hooks":true,"denied_by_plugin_hooks":true}\n' "$HOST_NONCE" > "$T027/response-duplicate.json"
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result response-duplicate.json --runtime codex-cli)
+rc=$?
+assert_exit "$rc" 61 "RT002 no-schema legacy duplicate rejected"
+assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 legacy duplicate reason"
+assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 legacy duplicate cannot activate"
+
+for runtime in claude-code copilot-cli; do
+  "$PY" - "$T027/host-denial.json" "$T027/other-runtime.json" "$runtime" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+evidence["runtime"] = sys.argv[3]
+evidence.update(dict(guard_emit_mode="exit", exit_code=2) if sys.argv[3] == "claude-code"
+                else dict(permissionDecision="deny"))
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result other-runtime.json --runtime "$runtime")
+  rc=$?
+  assert_exit "$rc" 64 "RT002 new schema with both runtimes $runtime rejected"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 both runtimes $runtime reason"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 both runtimes $runtime cannot activate"
+done
+
+"$PY" - "$T027/host-denial.json" "$T027/truncated-response.json" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    payload = json.dumps(json.load(stream))
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    stream.write(payload[:-1])
+PY
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result truncated-response.json --runtime codex-cli)
+rc=$?
+assert_exit "$rc" 61 "RT002 truncated new response JSON rejected"
+assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 truncated JSON reason"
+assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 truncated JSON cannot activate"
 
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"

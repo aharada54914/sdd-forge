@@ -1,0 +1,311 @@
+diff --git a/plugins/sdd-review-loop/scripts/task-review-precheck.ps1 b/plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+--- a/plugins/sdd-review-loop/scripts/task-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+@@ -11,1 +11,295 @@
+-function Fail([string]$Message) { throw "task-review-precheck: $Message" }
++function Fail([string]$Message) { throw "task-review-precheck: $Message" }
++function Test-AdrBoundFilePath {
++    param([string]$Root, [string]$Relative)
++    if ($Relative -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$' -or
++        $Relative.EndsWith('/', [StringComparison]::Ordinal) -or
++        $Relative.Contains('//') -or $Relative -cmatch '(^|/)[.]{1,2}(/|$)') {
++        return $false
++    }
++    $rootItem = Get-Item -LiteralPath $Root -Force -ErrorAction Stop
++    if (-not $rootItem.PSIsContainer -or
++        ($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
++        return $false
++    }
++    $current = $Root
++    $components = $Relative.Split('/')
++    for ($index = 0; $index -lt $components.Length; $index++) {
++        $component = $components[$index]
++        $matches = @(Get-ChildItem -LiteralPath $current -Force -ErrorAction Stop |
++            Where-Object { [string]::Equals($_.Name, $component, [StringComparison]::Ordinal) })
++        if ($matches.Count -ne 1) { return $false }
++        $item = $matches[0]
++        if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
++            return $false
++        }
++        if ($index -lt $components.Length - 1) {
++            if (-not $item.PSIsContainer) { return $false }
++        }
++        else {
++            if ($item -isnot [IO.FileInfo] -or $item.PSIsContainer -or
++                ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) {
++                return $false
++            }
++            if (-not $IsWindows) {
++                # FileInfo/Leaf also describe POSIX devices; require lstat type.
++                $statProperty = $item.PSObject.Properties['UnixStat']
++                if ($null -eq $statProperty -or $null -eq $statProperty.Value -or
++                    -not [string]::Equals([string]$statProperty.Value.ItemType,
++                        'File', [StringComparison]::Ordinal)) {
++                    return $false
++                }
++            }
++        }
++        $current = $item.FullName
++    }
++    # The consuming hash/read must still fail closed on access/open failure.
++    return $true
++}
++
++# RT-20260908-004: the same restricted byte-oriented line grammar as Bash.
++function Get-AdrDeclaredPaths {
++    param([string]$DesignPath)
++    # Latin-1 preserves each byte, including a BOM; the grammar is ASCII only.
++    # ReadAllText would strip a BOM and diverge from LC_ALL=C awk at fences.
++    $text = [Text.Encoding]::GetEncoding(28591).GetString([IO.File]::ReadAllBytes($DesignPath))
++    $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++    function Get-AdrRunWidth([string]$Line, [int]$Start, [char]$Delimiter) {
++        $width = 0
++        while (($Start + $width) -lt $Line.Length -and $Line[$Start + $width] -ceq $Delimiter) { $width++ }
++        return $width
++    }
++    function Test-AdrRunEscaped([string]$Line, [int]$Start) {
++        $slashes = 0
++        while ($Start -gt 0 -and $Line[$Start - 1] -ceq [char]92) { $slashes++; $Start-- }
++        return (($slashes % 2) -ne 0)
++    }
++    $fence = [char]0
++    $fenceWidth = 0
++    foreach ($rawLine in $text.Split([char]10)) {
++        $line = $rawLine
++        if ($line.Length -gt 0 -and $line[$line.Length - 1] -ceq [char]13) {
++            $line = $line.Substring(0, $line.Length - 1)
++        }
++        $indent = 0
++        while ($indent -lt $line.Length -and $line[$indent] -ceq [char]32) { $indent++ }
++        $rest = $line.Substring($indent)
++        $first = [char]0
++        if ($rest.Length -gt 0) { $first = $rest[0] }
++        if ($fence -cne [char]0) {
++            if ($indent -le 3 -and $first -ceq $fence) {
++                $width = Get-AdrRunWidth $rest 0 $fence
++                if ($width -ge $fenceWidth -and $rest.Substring($width) -cmatch '^[ \t]*$') {
++                    $fence = [char]0
++                }
++            }
++            continue
++        }
++        if ($indent -ge 4 -or $first -ceq [char]9) { continue }
++        if ($first -ceq [char]96 -or $first -ceq [char]126) {
++            $width = Get-AdrRunWidth $rest 0 $first
++            if ($width -ge 3) { $fence = $first; $fenceWidth = $width; continue }
++        }
++        $i = 0
++        while ($i -lt $line.Length) {
++            if ($line[$i] -cne [char]96) { $i++; continue }
++            $width = Get-AdrRunWidth $line $i ([char]96)
++            if (Test-AdrRunEscaped $line $i) { $i += $width; continue }
++            $j = $i + $width
++            $closed = $false
++            while ($j -lt $line.Length) {
++                if ($line[$j] -cne [char]96) { $j++; continue }
++                $closeWidth = Get-AdrRunWidth $line $j ([char]96)
++                if ($closeWidth -eq $width -and -not (Test-AdrRunEscaped $line $j)) {
++                    $closed = $true
++                    break
++                }
++                $j += $closeWidth
++            }
++            if (-not $closed) { break }
++            $value = $line.Substring($i + $width, $j - $i - $width)
++            if ($width -eq 1 -and $value -cmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$') {
++                [void]$paths.Add($value)
++            }
++            $i = $j + $width
++        }
++    }
++    [string[]]$result = @($paths)
++    [Array]::Sort($result, [StringComparer]::Ordinal)
++    return $result
++}
++# Return JSON as a scalar to preserve both empty and singleton arrays.
++function Get-AdrPrecheckInputsJson {
++    param([string]$Root, [string]$DesignRelative, [string]$ExpectedDesign)
++    if ($ExpectedDesign -cnotmatch '^[0-9a-f]{64}$' -or
++        -not (Test-AdrBoundFilePath $Root $DesignRelative)) {
++        Fail 'unsafe design ADR authority'
++    }
++    $designPath = Join-Path $Root $DesignRelative
++    $before = (Get-FileHash -LiteralPath $designPath -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
++    if ($before -cne $ExpectedDesign) { Fail 'design changed before ADR collection' }
++    $entries = [Collections.Generic.List[object]]::new()
++    foreach ($path in @(Get-AdrDeclaredPaths $designPath)) {
++        if (-not (Test-AdrBoundFilePath $Root $path)) { Fail "unsafe ADR input: $path" }
++        $digest = (Get-FileHash -LiteralPath (Join-Path $Root $path) -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
++        if ($digest -cnotmatch '^[0-9a-f]{64}$') { Fail 'invalid ADR digest' }
++        $entries.Add([ordered]@{path=$path;sha256=$digest})
++    }
++    if (-not (Test-AdrBoundFilePath $Root $DesignRelative)) { Fail 'design path changed during collection' }
++    $after = (Get-FileHash -LiteralPath $designPath -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
++    if ($after -cne $ExpectedDesign) { Fail 'design changed during ADR collection' }
++    return ConvertTo-Json -InputObject ($entries.ToArray()) -Depth 4 -Compress
++}
++# Only extension material uses this canonical order; legacy evidence is untouched.
++function Get-AdrLayerJson {
++    param($Layers)
++    if ($null -eq $Layers -or ($Layers -isnot [pscustomobject] -and
++        $Layers -isnot [Collections.IDictionary])) { Fail 'invalid layer object' }
++    $names = if ($Layers -is [Collections.IDictionary]) { @($Layers.Keys) }
++             else { @($Layers.PSObject.Properties.Name) }
++    $expected = @('frontend-spec.md','infra-spec.md','security-spec.md','ux-spec.md')
++    if ($names.Count -ne 0 -and $names.Count -ne 4) { Fail 'invalid layer key count' }
++    foreach ($name in $names) {
++        if ($name -isnot [string] -or $expected -cnotcontains $name) { Fail 'invalid layer key' }
++    }
++    $canonical = [ordered]@{}
++    if ($names.Count -gt 0) {
++        foreach ($name in $expected) {
++            if ($names -cnotcontains $name) { Fail 'missing layer key' }
++            $value = if ($Layers -is [Collections.IDictionary]) { $Layers[$name] }
++                     else { $Layers.PSObject.Properties[$name].Value }
++            if ($value -isnot [string] -or $value.Length -ne 64 -or $value -cnotmatch '^[0-9a-f]{64}$') {
++                Fail 'invalid layer digest'
++            }
++            $canonical[$name] = $value
++        }
++    }
++    return ConvertTo-Json -InputObject $canonical -Compress
++}
++
++# Current PASS predecessor only; not historical NEEDS_WORK progress validation.
++function Get-PersistedAdrJson {
++  param($Entries)
++  if ($Entries -isnot [array]) { Fail 'invalid persisted ADR array' }
++  $normalized = [Collections.Generic.List[object]]::new()
++  $previous = $null
++  foreach ($entry in $Entries) {
++    if ($null -eq $entry -or $entry -isnot [pscustomobject]) { Fail 'invalid persisted ADR entry' }
++    $keys = @($entry.PSObject.Properties.Name)
++    if ($keys.Count -ne 2 -or $keys -cnotcontains 'path' -or $keys -cnotcontains 'sha256' -or
++        $entry.path -isnot [string] -or $entry.sha256 -isnot [string] -or
++        $entry.path -cnotmatch '\Adocs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md\z' -or
++        $entry.sha256.Length -ne 64 -or $entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z') {
++      Fail 'invalid persisted ADR fields'
++    }
++    if ($null -ne $previous -and [StringComparer]::Ordinal.Compare($previous, $entry.path) -ge 0) {
++      Fail 'persisted ADR entries must be sorted and unique'
++    }
++    $previous = $entry.path
++    $normalized.Add([ordered]@{path=$entry.path;sha256=$entry.sha256})
++  }
++  return ConvertTo-Json -InputObject ($normalized.ToArray()) -Compress -Depth 4
++}
++function Get-PersistedAdrPassPaths {
++  param([string]$RepoRoot, $Contract, [string]$FeatureName,
++        [string]$DesignReviewedHash, [string]$DesignCurrentHash)
++  $relativeRoot = "reports/impl-review/$FeatureName/attempt-$($Contract.attempt)/round-$($Contract.round)"
++  $precheckRelative = "$relativeRoot/precheck-result.json"
++  $designRelative = "specs/$FeatureName/design.md"
++  if (-not (Test-AdrBoundFilePath $RepoRoot "$relativeRoot/impl-review-contract.json") -or
++      -not (Test-AdrBoundFilePath $RepoRoot $precheckRelative)) { Fail 'unsafe persisted ADR contract/precheck' }
++  $precheckPath = Join-Path $RepoRoot $precheckRelative
++  $precheckHash = (Get-FileHash -LiteralPath $precheckPath -Algorithm SHA256).Hash.ToLowerInvariant()
++  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json -NoEnumerate
++  if ($precheck -isnot [pscustomobject]) { Fail 'persisted ADR precheck must be an object' }
++  $contractHasAdr = @($Contract.PSObject.Properties.Name) -ccontains 'adr_inputs'
++  $precheckHasAdr = @($precheck.PSObject.Properties.Name) -ccontains 'adr_inputs'
++  if ($contractHasAdr -ne $precheckHasAdr) { Fail 'one-sided persisted ADR extension' }
++  if (-not $contractHasAdr) { return }
++  if ($precheck.schema -cne 'impl-review-precheck/v1' -or $precheck.feature -cne $FeatureName -or
++      $precheck.attempt -isnot [long] -or $precheck.round -isnot [long] -or
++      $precheck.attempt -ne $Contract.attempt -or $precheck.round -ne $Contract.round) {
++    Fail 'persisted ADR precheck identity mismatch'
++  }
++  $recorded = Get-PersistedAdrJson $precheck.adr_inputs
++  if ((Get-PersistedAdrJson $Contract.adr_inputs) -cne $recorded) { Fail 'persisted ADR sets disagree' }
++  foreach ($field in @('design_sha256','requirements_sha256','acceptance_sha256')) {
++    if ($precheck.$field -isnot [string] -or $precheck.$field.Length -ne 64 -or
++        $precheck.$field -cnotmatch '\A[0-9a-f]{64}\z' -or
++        $Contract.$field -isnot [string] -or $Contract.$field -cne $precheck.$field) {
++      Fail 'persisted ADR core pins disagree'
++    }
++  }
++  $layers = Get-AdrLayerJson $precheck.layer_sha256
++  if ((Get-AdrLayerJson $Contract.layer_sha256) -cne $layers) { Fail 'persisted ADR layer pins disagree' }
++  foreach ($reviewer in $Contract.reviewers) {
++    $letter = switch -CaseSensitive ($reviewer.role) { 'impl-reviewer-a' { 'a' } 'impl-reviewer-b' { 'b' } default { Fail 'invalid persisted ADR reviewer role' } }
++    $outputRelative = "$relativeRoot/reviewer-$letter.json"
++    if (-not (Test-AdrBoundFilePath $RepoRoot $outputRelative)) { Fail 'unsafe persisted ADR reviewer output' }
++    $output = Get-Content -LiteralPath (Join-Path $RepoRoot $outputRelative) -Raw | ConvertFrom-Json -NoEnumerate
++    if ($output -isnot [pscustomobject] -or $output.schema -cne "$($reviewer.role)/v1" -or
++        $output.stage -cne 'impl' -or $output.role -cne $reviewer.role) { Fail 'persisted ADR output identity mismatch' }
++    foreach ($field in @('run_id','host_session_id')) {
++      if ($output.$field -isnot [string] -or [string]::IsNullOrWhiteSpace($output.$field) -or
++          $output.$field -cne $reviewer.$field) { Fail 'persisted ADR output provenance mismatch' }
++    }
++    $manifests = @()
++    foreach ($source in @($reviewer, $output)) {
++      if ($source.allowed_input_manifest -isnot [array]) { Fail 'invalid persisted ADR output manifest' }
++      $map = [Collections.Generic.SortedDictionary[string,string]]::new([StringComparer]::Ordinal)
++      foreach ($entry in $source.allowed_input_manifest) {
++        if ($entry.path -isnot [string] -or $entry.sha256 -isnot [string]) { Fail 'invalid persisted ADR output pin' }
++        $relative = Get-ManifestRelativePath $entry.path $RepoRoot
++        if ($null -eq $relative -or $map.ContainsKey($relative)) { Fail 'invalid or duplicate persisted ADR output path' }
++        if ($relative.StartsWith('docs/adr/', [StringComparison]::Ordinal) -and $entry.path -cne $relative) { Fail 'ADR output path must be raw canonical relative' }
++        $map.Add($relative, $entry.sha256)
++      }
++      $canonical = @($map.Keys | ForEach-Object { [ordered]@{path=$_;sha256=$map[$_]} })
++      $manifests += ConvertTo-Json -InputObject $canonical -Compress -Depth 4
++    }
++    if ($manifests[0] -cne $manifests[1]) { Fail 'persisted ADR output manifest differs from reservation' }
++    # The checks below bind the now-identical reservation and output to the precheck.
++    $entries = @($reviewer.allowed_input_manifest)
++    $documentPins = [ordered]@{
++      'requirements.md' = $precheck.requirements_sha256
++      'acceptance-tests.md' = $precheck.acceptance_sha256
++    }
++    foreach ($layer in $precheck.layer_sha256.PSObject.Properties) { $documentPins[$layer.Name] = $layer.Value }
++    foreach ($document in $documentPins.Keys) {
++      $expectedPath = "specs/$FeatureName/$document"
++      $pins = @($entries | Where-Object { $_.path -is [string] -and (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $expectedPath })
++      if ($pins.Count -ne 1 -or $pins[0].sha256 -isnot [string] -or $pins[0].sha256 -cne $documentPins[$document]) {
++        Fail "persisted ADR reviewer document binding mismatch: $document"
++      }
++    }
++    $pcPins = @($entries | Where-Object { $_.path -is [string] -and (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $precheckRelative })
++    $designPins = @($entries | Where-Object { $_.path -is [string] -and (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $designRelative })
++    if ($pcPins.Count -ne 1 -or $pcPins[0].sha256 -cne $precheckHash -or
++        $designPins.Count -ne 1 -or $designPins[0].sha256 -cne $precheck.design_sha256) {
++      Fail 'reviewer lacks exact persisted ADR precheck/design binding'
++    }
++    $adrMap = [Collections.Generic.SortedDictionary[string,object]]::new([StringComparer]::Ordinal)
++    foreach ($entry in $entries) {
++      if ($entry.path -isnot [string]) { Fail 'invalid reviewer manifest path type' }
++      if (-not $entry.path.StartsWith('docs/adr/', [StringComparison]::Ordinal)) { continue }
++      if ($adrMap.ContainsKey($entry.path)) { Fail 'duplicate reviewer ADR entry' }
++      $adrMap.Add($entry.path, [pscustomobject]@{path=$entry.path;sha256=$entry.sha256})
++    }
++    if ((Get-PersistedAdrJson @($adrMap.Values)) -cne $recorded) { Fail 'incomplete reviewer ADR set' }
++  }
++  if ($precheck.design_sha256 -cne $DesignReviewedHash -and
++      $precheck.design_sha256 -cne $DesignCurrentHash) { Fail 'persisted ADR design changed beyond lifecycle fields' }
++  $actual = Get-AdrPrecheckInputsJson $RepoRoot $designRelative $DesignCurrentHash
++  if ($actual -cne $recorded) { Fail 'current design-derived ADR inputs differ from review' }
++  $material = "$($precheck.design_sha256):$($precheck.requirements_sha256):$($precheck.acceptance_sha256)"
++  if ($layers -cne '{}') { $material += ':' + $layers }
++  $material += ':adr_inputs/v1:' + $recorded
++  $inputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($material))).ToLowerInvariant()
++  if ($precheck.input_sha256 -isnot [string] -or $precheck.input_sha256 -cne $inputHash) {
++    Fail 'persisted ADR input hash mismatch'
++  }
++  if (-not (Test-AdrBoundFilePath $RepoRoot $precheckRelative) -or
++      (Get-FileHash -LiteralPath $precheckPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $precheckHash) {
++    Fail 'persisted ADR precheck changed during validation'
++  }
++  foreach ($entry in $precheck.adr_inputs) { $entry.path }
++}
+@@ -182,1 +476,5 @@
+-  $manifest = @($reviewers | ForEach-Object { @($_.allowed_input_manifest) })
++  $verifiedAdrPaths = @()
++  if (Test-OrdinalEqual $Stage 'impl') {
++    $verifiedAdrPaths = @(Get-PersistedAdrPassPaths $repoRoot $contract $FeatureName $DesignHash $DesignCurrentHash)
++  }
++  $manifest = @($reviewers | ForEach-Object { @($_.allowed_input_manifest) })
+@@ -191,1 +489,2 @@
+-        -not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath)
++        (-not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath) -and
++         -not ((Test-OrdinalEqual $Stage 'impl') -and $verifiedAdrPaths -ccontains $_.path))

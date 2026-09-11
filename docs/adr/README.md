@@ -263,3 +263,4 @@ must never rely on a bare legacy number.
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
+| 0034 | Review input acquisition before schema dispatch | Proposed |

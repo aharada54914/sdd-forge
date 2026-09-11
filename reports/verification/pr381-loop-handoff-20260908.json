@@ -1,0 +1,21 @@
+{
+  "decision": [
+    "Preserve all mandatory checks and frozen FAIL evidence. PR381 loop registration now queries actual runner --list, requiring exit 0 and exact path membership; no formal gate status changed."
+  ],
+  "unresolved": [
+    "PR381 helper, storage relocation and bump-version registration repairs locally verified. Formal review/QG and complete CI remain pending. Full POSIX run TERMINATED exit 1 with 43 failing suites. After terminal, installed exact CI dependencies; adversarial contracts now passes exit 0, leaving 42 other baseline failures unresolved. No whole-run PASS. Existing fixture risk-check warnings and platform/A5 SKIPs remain uncovered.",
+    "Additional failures in the same full run include A6 stale CI mirror, deterministic-lane candidate missing posix-regression, review-context-boundary stale line citation, design-system-contract CI reachability, and multiple static registration consumers. Keep all failures; do not generalize every failure as registration or weaken CI assertions. PR390 and PR394 Windows tests and required-checks fail; no merge."
+  ],
+  "evidence": [
+    "reports/verification/pr381-bump-registration-20260909.md: full suite Red 13/5 to Green 18/0; five registration controls; bash syntax and whitespace exit 0.",
+    "reports/verification/pr381-posix-baseline-20260909.md contains terminal 43-suite failure list and full-log hash c0a7f8cdee888b03f42d4dee1a0c273cc6b81ecfaece673014a233dd508a4b0e. Session 75815 finished; do not poll it again. Post-dependency rerun log /tmp/pr381-posix-20260909.WaPopD/adversarial-after-ci-deps.log exits 0. Workflow-state/parity passed; bump-version 18/0, generator 30/0/0, final guard-r10 PowerShell 60/0. Registration predicate evidence: tests/agent-model-routing.tests.sh:1131, tests/agent-capabilities-v2.tests.sh:305, tests/render-agent-frontmatter.tests.sh:602.",
+    "reports/verification/pr381-registration-sweep-20260909.md: 37 matching static-registration lines in 35 files; candidate sites, not proven failure count. Preserve each consumer's uniqueness, twins, CI wiring and hashes. No candidate-source changes during full run.",
+    "reports/verification/pr381-wfi034-storage-relocation-20260908.md: patch hashes unchanged; no stale path references; Bash and PowerShell actual workflow-state exit 0; whitespace exit 0. No protected payload applied.",
+    "reports/verification/pr381-loop-helper-repair-20260908.md: TDD 23/3 to 26/0; concurrent driver 26/0, consistency 33/0, inventory 76/0, escalation 32/0. Syntax and whitespace exit 0. No formal status changes.",
+    "reports/verification/pr381-loop-registration-20260908.md",
+    "PR381 recovery tests/loop-inventory.tests.sh sha256 327c391bb42f89f8be733601998bbdb58b6d33ae0f1b0cd897161b447089a62f; 76 pass 0 fail; syntax and whitespace pass"
+  ],
+  "next_action": [
+    "Diagnose the remaining 42 failures from the terminal log, preserving registration uniqueness/order/twins/CI and all live job checks. Confirm approved review-ticket scope before further test/source edits; no current process remains to poll. Complete current-artifact independent gates and native CI before merge."
+  ]
+}

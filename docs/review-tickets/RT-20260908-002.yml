@@ -1,0 +1,48 @@
+ticket_id: RT-20260908-002
+status: open
+type: bug
+severity: major
+review_cycles: 0
+target:
+  feature: cross-model-verification
+  task: T-005
+  files:
+    - plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1
+    - tests/collection-layer.tests.ps1
+summary: "Issue #359: Gemini PowerShell still greedily merges transcript JSON objects"
+problem: |
+  Main-based candidate 4366438f3b243210a4ece5a17f873ca2d920600a retains
+  [regex]::Match($raw, '\{[\s\S]*\}') at run-panelist-gemini.ps1:192.
+  A source-bound read-only PowerShell reproduction extracted that actual
+  regex from the file. A distractor JSON followed by a valid verdict causes
+  ConvertFrom-Json to reject additional text at line 2, position 0; the
+  single-object control succeeds. Tool result e0fb50, 2026-09-08, exit 0
+  means successful defect reproduction, NOT passing product acceptance.
+  GPT shell/PowerShell and Gemini shell use candidate scanning instead.
+  Existing collection CL-019 through CL-023 exercise GPT, not this Gemini
+  extraction path, so their passing results do not prove this defect fixed.
+expected_fix:
+  - "Port the existing GPT PowerShell candidate-selection behavior to Gemini PowerShell: balanced objects respecting quoted strings and escapes, last matching schema candidate, informative rejection diagnostics."
+  - "Retain the existing downstream blind/digest/verdict checks, Google vendor identity, output paths, timeout behavior, and failure-without-verdict behavior. No acceptance weakening or real external model invocation."
+  - "Add Gemini-specific regression coverage for single verdict, distractor plus real verdict, repeated verdicts, fenced JSON, embedded braces/escapes, malformed JSON, and no matching schema."
+verification:
+  - "Reproduce the defect through the unchanged real Gemini runner with a synthetic CLI before repair; retain that failing product result."
+  - "Run new regressions plus both collection suites and related effort suites after repair; compare output verdict identity and fail-closed behavior."
+  - "Complete operator and language-feature case-sensitivity parity sweeps; execute Windows-specific fixtures on Windows before integration."
+  - "Require independent quality verification and all required CI before integration or issue closure."
+references:
+  - https://github.com/aharada54914/sdd-forge/issues/359
+  - specs/cross-model-verification/tasks.md
+  - specs/cross-model-verification/design.md
+  - specs/cross-model-verification/requirements.md
+  - specs/cross-model-verification/acceptance-tests.md
+  - reports/verification/issue359-acceptance-map-20260908.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: >-
+  On 2026-09-08 the user explicitly approved this production repair ticket
+  ("本体修正チケットの承認する"). Approval covers this ticket's Gemini
+  PowerShell runner repair and regression tests, independently of the
+  earlier test-only tickets. Required verification remains unchanged.
+  If protected-file enforcement denies an operation, stop that operation
+  and request human application; do not bypass through another path or tool.

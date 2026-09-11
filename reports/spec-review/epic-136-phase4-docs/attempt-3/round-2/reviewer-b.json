@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a07cbd-e7fe-7a80-b5c9-434b95741ecc",
+  "host_session_id": "01a07cbd-e7fe-7a80-b5c9-434b95741ecc",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "a40f30c7431397e7ec5ace116fbce8480de4712013c17c6ef2a02373610046ff"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-2/precheck-result.json",
+      "sha256": "d7e3ccaa27b4ea48ee282744c21eca7a14596a8c73db4634a94a2abf860e89db"
+    },
+    {
+      "path": "reports/spec-review/epic-136-phase4-docs/attempt-3/round-2/integrated-summary.json",
+      "sha256": "6058670bce471a64d8b288731393bfb5f1160d6bbfcbd211c9baed7aed1ddba8"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001 through REQ-006 define the affected runners, configuration, failure dispositions, documentation surfaces, and verification outcomes. Edge Case 6 explicitly distinguishes actual completion before the post-deadline re-check from a child still running at that decision. AC-003 and AC-012 fix the default at 600 seconds and require observation of both fallback branches."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-006 and TEST-006 consistently distinguish runner timeout exit 1, insufficient-diversity gate exit 1 with aggregate FAIL, and empty-input gate exit 2 without an aggregate. Requirements.md:184-190 explicitly supersedes INV-005's historical empty-set number and INV-017's protection exemption. AC-004 defines runtime parity by outcome and explicitly excludes a PowerShell soft-termination branch."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-003 covers unset, empty, explicit positive, zero, negative, and non-numeric configuration across all four runners, including non-invocation for invalid inputs and observed fallback expiry. TEST-004 covers hung processes, POSIX escalation, descendant cleanup, and both established completion orderings across runtimes. TEST-005 and TEST-006 cover absent timeout verdicts and both resulting gate input sets."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Requirements.md:186 (BL-005) requires re-checking every proposed target against current PROTECTED_GATE_SUFFIXES at specification review and recording the source hash and matching targets. The permitted package supplies a dated assertion about two shell runners, but no source hash or complete current target comparison; investigation.md:150-166 contains the explicitly superseded historical comparison. The guard sources are outside this role's allowlist, so the required current check cannot be completed within this invocation. A downstream reviewer cannot establish the complete current human-application scope from the supplied evidence. This belongs to specification review because BL-005 explicitly makes the check due at this gate; the missing shared-state evidence is Major, rather than proof of an actual unauthorized write. Supply the complete current comparison and source fingerprint in an authorized, hash-pinned investigation record and relaunch with updated manifest/precheck evidence."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "BL-005 explicitly prohibits agent writes to protected targets, requires the approved human-application workflow for matches, and blocks unavailable or denied application without allowing bypass. BL-002 prohibits gate changes regardless of the actor. These boundaries are concrete; their outstanding current membership verification is recorded under ASSUMPTIONS-RESOLVABLE. Launch chain arithmetic, all six input hashes, and precheck document pins match. Sequence 961 is a disclosed consumed reservation and does not invalidate sequence 965."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The package supplies the product behavior needed for implementation-policy review: timeout scope and default, validation errors, termination outcomes, race precedence, verdict publication rules, gate propagation, documentation coverage, and explicit non-goals. Selecting implementation and fixture details does not require inventing these outcomes. This check does not discharge the blocking BL-005 evidence requirement."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The permitted project-root existence check found no domain/ directory, so the explicit skip condition applies."
+    }
+  ]
+}

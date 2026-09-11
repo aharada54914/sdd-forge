@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "root:pr400_impl_a4r1_b",
+  "host_session_id": "root:pr400_impl_a4r1_b",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "201bfc543ab25d9bc9cef31e30abe2dd467b321a899a7b795916a04fcb9cad7b"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e2b40c38cf9a0550370f7dbb3ddec43ca93b976f91d157fd195edb7751b1ca29"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/design.md",
+      "sha256": "39165bf1d7d70b8df0686a7e6c62c4eabe041ac8d0aa2ccaa3d53c125e501182"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "ffe399694729998eebe365e045808f9c8fe622e3172680c8bcdf75e54b5f3bb1"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "78eb03b891bf624db91dff8b85364d28436a496a7f0f70f5906ea8f0aa536795"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase4-docs/attempt-4/round-1/precheck-result.json",
+      "sha256": "5aa86680efaa57c624ced89af7977dcfbc19692c6c25b351cb6b6948669155de"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase4-docs/attempt-4/round-1/integrated-summary.json",
+      "sha256": "1b706b973d0935ed056bb627f06560243fcbb609f840b66f47f02963846eb948"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:26-30 places supervision in the component owning the child and explains preservation of the downstream failure contract; :89-108 explains moving deadline/process ownership into the existing Python helper and keeping the supervisor outside the vendor process group; :175-210 justifies the Unix-specific I/O change using the synchronous-input hazard while preserving Windows command resolution. Configuration and scope decisions have reasons at :222 and :283-289. Proposed ADR existence belongs to reviewer A and is not duplicated here."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-H: A blocking implementation decision remains unresolved without an owner or concrete resolution path. design.md:158-165 explicitly says root exit cannot establish descendant termination and calls the concrete descendant-cleanup mechanism a design-review prerequisite. The subsequently selected mechanism at :175-205 resolves I/O ownership, but its timeout path still only requests tree termination and observes fixture liveness; it does not select how descendants remain identifiable and terminable after their root exits or when tree enumeration skips them, limitations acknowledged at :170-173. security-spec.md:21-27 explicitly requires this prerequisite to be resolved before implementation review passes. A competent implementer must therefore still invent a mechanism central to AC-004's no-orphan outcome. Resolve and assign this substantive open decision, with its implementation-blocking status and concrete resolution path. This is not a finding for the absent legacy Open Questions heading."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-H: Current protection classification is not grounded for this review's complete target set. requirements.md:186 and :194-203 require refreshed, source-hash-bound classification at every design-review boundary, and :234 requires additional targets to be classified before consumption. The bound observation at requirements.md:206-240 is expressly collected for specification review and classifies runners, policy, threat model and the untouched gate. design.md:40, :45-46 and :255 additionally include the shared helper and both test suites, but the reviewed package contains neither a refreshed design-review observation nor source-backed classification of those additional targets. Merely labeling the helper protected at design.md:40 and infra-spec.md:24 does not supply the required observation. This can misassign which implementation changes require human application and leaves BL-005's present review prerequisite unsatisfied. Obtain and bind the prescribed current evidence; no unlisted guard source was inspected. [LEGACY COMPAT] The absent standalone Assumptions heading is itself only advisory."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The legacy design has no Constraint Compliance section, so the fallback content check applies. BL-001 is covered at design.md:67-69, :136, :210 and :327; BL-002 at :28 and :341; BL-003 at :30 and :326; BL-004 at :328 and :342; BL-005's required policy is stated at :279 and :340, with its missing current evidence reported separately under ASSUMPTIONS-VALID. design.md:212-220 preserves configuration and exit-code requirements, :70-108 and :148-165 preserve the actual-process-state boundary rule, and :317/:329 preserve both effective-default assertions. The unresolved descendant mechanism is reported once under OPEN-QUESTIONS-RESOLVABLE."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "REQ-002/AC-003's configurable 600-second bound is specified at design.md:212-220. Shell launch-inclusive monotonic timing and bounded cleanup are described at :89-108; PowerShell remaining-budget waits and bounded I/O/cleanup at :140-205. design.md:321-324 names TEST-004's one-second bound, ten-second elapsed ceiling and both boundary orderings. design.md:317/:329 separately require effective unset/empty deadlines and expiry. These provide concrete planned evidence for the numeric targets; no live test execution was required for this review."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:332-336 states no new CI step and identifies the existing test job and tests/run-all.sh. The normative infra-spec.md:3-15 identifies the three-OS matrix and required timeout/default/boundary coverage, while :17-29 identifies operator-local plugin distribution, repository-only documents/tests and invocation-time environment configuration. infra-spec.md:31-39 defines rollback and its security/documentation consequences. No incremental rollout or schema migration is introduced. Current CI-registration claims were not independently inspected outside the manifest."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:253-264 explicitly states No data changes, preserves cross-model-verdict/v1, identifies the environment variable as configuration rather than stored data, and excludes migration, backfill and retention changes. infra-spec.md:31-39 supplies the corresponding migration-free rollback."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The existing vendor CLI boundary is explicitly identified at design.md:51-210 and security-spec.md:31-35. design.md:118-136 requires preservation of actual CLI arguments and existing validation, :228-241 gives absent/error/timeout/rate-limit/malformed-output behavior, and :259-262 names the unchanged cross-model-verdict/v1 contract. Vendor versions are deliberately unpinned under requirements.md:162 and design.md:241/:285, with rate-limit behavior documented as a limitation. The three MCP servers at design.md:249 are documentation subjects, not newly introduced API calls."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:297 explicitly maps all six requirements to acceptance criteria, and :299-330 covers TEST-001 through TEST-014. The shared helper and Unix I/O changes serve REQ-002's invocation bound and AC-004's process cleanup; their rationale is given at :89-108 and :175-210. The policy and threat-model deliverables at :224-251 cover both OWASP/MCP mapping and all runtime trust surfaces. No new service, endpoint, persistent schema or UI is introduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The security surfaces have named planned evidence: design.md:317-329 covers invalid-configuration non-invocation, fallback expiry, both actual-child-state boundary orderings, descendant cleanup, no verdict and both gate input sets. design.md:203-205 additionally requires Unix stdin-backpressure and concurrent-output fixtures. security-spec.md:75-91 maps B1-B4 to TEST-003/004/005/006/007/009/010, and design.md:301-314 includes the remaining documentary criteria. These concrete validation paths do not resolve the implementation mechanism or protection-evidence findings above."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: the permitted project-root directory-existence check found no domain/ directory. Launch identity was verified from the quoted reservation and manifest: sequence 969 follows tip 968; previous_record_sha256 matches; the recomputed record hash is 925b1984f21d1960620f4208599be39d41f125443c6453a3b25e8924deab05a7; identity_unique=yes was provided. All eleven substantive hashes and precheck document hashes match. The round-1 integrated summary was read only as counts/check IDs; no raw reviewer output, ledger or unlisted substantive input was read. An initial read-only Ruby hash command was rejected by the protection hook; ordinary explicit shasum checks subsequently succeeded without changing files."
+    }
+  ]
+}

@@ -2,13 +2,32 @@
 
 Impl-Review-Status: Passed
 
+## Authorized amendment — 2026-09-08
+
+This is the human-authorized PR #400 specification amendment, not an assertion
+that provenance re-binding alone permits frozen-content edits. Prior review
+attempts remain unchanged. The retained status is a lifecycle field; it does
+not authorize implementation until the amended design and layer inputs pass
+a fresh review attempt. Changed content receives substantive review, without
+the unchanged-content TYPE-H convergence allowance.
+
+The governing requirements/acceptance revision passed specification review at
+`reports/spec-review/epic-136-phase4-docs/attempt-3/round-3/`. Its BL-003,
+BL-005 and TEST-003/004/006/012 supersede inconsistent historical claims in
+investigation INV-005/017 and in the unreconciled task-stage artifacts. Tasks
+and traceability must be reconciled and re-reviewed before further implementation.
+The dated source evidence in requirements' BL-005 is source observation only,
+not a runtime protection verdict or write authorization. Refresh evidence at
+the consuming review/implementation boundary; a denied source probe requires
+human evidence, never another route around the denial.
+
 ## Architecture Overview
 
 Two independent streams sharing one release. They touch disjoint files and can land in either order.
 
 **Stream A (#133)** adds a wall-clock bound to the panelist invocation and completes the failure taxonomy in the policy document. The bound goes in the four runner scripts — the only place that owns the child process. It deliberately does **not** go in `check-cross-model` (BL-002): that gate reads verdict files off disk and never invokes a panelist (INV-004), so a timeout there would be a bound on the wrong thing.
 
-The design's central choice is that a timeout must be **indistinguishable downstream from a CLI error**. Nothing after the runner needs to learn a new state: exit 1 with no verdict file already flows through `check-cross-model` → missing verdict → diversity unmet → gate fails (INV-005). Introducing a distinct "timed out" signal would mean touching the gate, the aggregate schema, and the policy's consensus rules to carry information no consumer acts on differently.
+The design's central choice is that a timeout must be **indistinguishable downstream from a CLI error**: runner exit 1 with no verdict. The gate's own result depends on its remaining input set: one otherwise-valid Anthropic verdict with insufficient diversity produces exit 1 and aggregate FAIL; an empty set produces exit 2 and no aggregate (requirements BL-003; TEST-006). Neither permits consensus PASS. The historical INV-005 exit-1 quotation does not override this distinction. No gate or aggregate schema changes are in scope.
 
 **Stream B (#134)** appends two sections to `docs/THREAT-MODEL.md`: an OWASP LLM Top 10 / MCP cross-reference table, and coverage of the five runtime trust surfaces the addendum names. It edits no code.
 
@@ -18,6 +37,7 @@ The design's central choice is that a timeout must be **indistinguishable downst
 |---|---|---|
 | `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh` | Existing (extended) | wrap the `codex` invocation (`:216-220`) in the bounded-wait helper; read `SDD_PANELIST_TIMEOUT`; extend the header comment block (`:13-15`) with the timeout case |
 | `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh` | Existing (extended) | same, around `:137-142` |
+| `plugins/sdd-quality-loop/scripts/lib/panelist-common.sh` | Existing (extended, protected) | shared shell process-group supervisor; preserve explicit stdin forwarding and group-wide cleanup; reconcile actual child-state re-check with Edge Case 6 |
 | `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1` | Existing (extended) | replace `-Wait` with a bounded `WaitForExit` (`:184-195`) |
 | `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1` | Existing (extended) | same |
 | `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` | Existing (extended) | new "Panelist Failure Taxonomy" section; `:28-31` unchanged; the `:202-210` block (now `:203-211`) carries only the human-ratified exit-code correction (BL-003 posture preserved; tasks.md ruling 2026-08-07) |
@@ -30,48 +50,77 @@ The design's central choice is that a timeout must be **indistinguishable downst
 
 ### The bounded-wait pattern (shell)
 
-`timeout(1)` is not available — verified by `command -v timeout gtimeout`, both empty on the specification host (requirements Edge Case 1). The portable pattern this repository already uses for a deadline is `install.sh:758-781`: compute `$(( $(date +%s) + N ))` and poll with `kill -0`. Stream A applies the same shape to a child process:
+GNU `timeout` is not a dependency (requirements Edge Case 1). The 2026-09-08
+source observation supersedes the old inline-shell sketch: the runner sources
+`lib/panelist-common.sh`, whose `_sdd_run_bounded` starts a Python supervisor
+with `os.setsid()`, forwards stdin explicitly with `<&0`, waits for the vendor
+through `subprocess.call`, and publishes a completion status. See
+`plugins/sdd-quality-loop/scripts/lib/panelist-common.sh:45-83` and
+`run-panelist-gpt.sh:205-207`. This is existing implementation, not proof that
+the amended boundary tests pass.
 
-```sh
-_sdd_run_bounded() {                      # usage: _sdd_run_bounded <seconds> <cmd...>
-    _bw_limit="$1"; shift
-    # setsid puts the child in its own process group so the kill below reaches
-    # any grandchild the vendor CLI spawned. Signalling a bare PID would leave
-    # that grandchild orphaned holding the API session (Edge Case 2) — the
-    # attempt-2 review finding. Where setsid is unavailable, fall back to a bare
-    # invocation and record that the no-orphan guarantee is not available there.
-    setsid "$@" &                          # child inherits the caller's redirections
-    _bw_pid=$!
-    _bw_deadline=$(( $(date +%s) + _bw_limit ))
-    while kill -0 "$_bw_pid" 2>/dev/null; do
-        if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
-            # Edge Case 6 — the deadline is not atomic with completion. Re-check
-            # liveness once more before treating expiry as authoritative, so a
-            # child that finished inside this very interval is reported by its
-            # own exit code rather than as a timeout.
-            kill -0 "$_bw_pid" 2>/dev/null || break
-            # Negative pid = the whole process group, so descendants die too.
-            kill -TERM "-$_bw_pid" 2>/dev/null || kill -TERM "$_bw_pid" 2>/dev/null
-            sleep 2
-            kill -0 "$_bw_pid" 2>/dev/null && \
-                { kill -KILL "-$_bw_pid" 2>/dev/null || kill -KILL "$_bw_pid" 2>/dev/null; }
-            wait "$_bw_pid" 2>/dev/null
-            return 124
-        fi
-        sleep 1
-    done
-    wait "$_bw_pid"                        # propagates the child's real exit code
-}
-```
+The amended supervisor contract is:
+
+1. Retain the dedicated session/process group on every POSIX host, including
+   macOS through Python's `os.setsid()`. Never fall back to a bare vendor PID.
+   If group setup fails, do not launch the vendor outside supervision.
+2. Preserve the existing explicit stdin forwarding, scratch-file ownership,
+   CLI arguments and output-validation path. The shared helper, not duplicated
+   inline runner implementations, owns the shell deadline and cleanup.
+3. At deadline indication, re-check the actual vendor child's exit state.
+   A supervisor/output marker is evidence only if it follows an observed vendor
+   exit; marker absence alone cannot prove that the vendor remains alive.
+   Capture the real child status and complete output before the success path.
+   Do not add a sleep to turn an already-established c2 timeout into c1 success.
+4. Once the child is observed alive at that re-check, commit to timeout. Send
+   TERM to the known process group, allow the existing two-second cleanup
+   grace, then test the **group**, not only the supervisor PID, for survivors
+   and send KILL to the group. Reap the direct child/supervisor. Leader exit
+   must not skip escalation while a descendant remains.
+5. Exercise both vendor exit/re-check orderings and descendant cleanup through
+   TEST-004. Treat cleanup failure as failure with no verdict, never success;
+   a return code alone does not prove that descendants were terminated.
+
+The current group-wide escalation is grounded in
+`lib/panelist-common.sh:103-115`; preserve that safety property. The existing
+post-deadline sleep/marker logic (`:87-101`) is a remediation target, not the
+normative definition of Edge Case 6.
+
+**Selected shell mechanism (proposed for fresh review).** Keep Python embedded
+in the existing helper, but make it the single owner of the vendor's `Popen`
+object and monotonic deadline. Start the vendor with `start_new_session=True`,
+leaving the supervisor outside the vendor group so group KILL does not kill
+the process responsible for reaping and reporting. Preserve inherited file
+descriptors and explicit stdin forwarding. Start the deadline before launch;
+pass only its remaining duration to `Popen.wait(timeout=...)`. On
+`TimeoutExpired`, call the same object's `poll()` immediately: a return code
+is the observed child exit, whereas `None` commits to timeout. Do not inspect
+a status marker or add a settling sleep at this branch.
+
+After committing to timeout, retain the original group identity and signal
+that group with TERM, then KILL after the existing two-second grace if the
+group survives. Poll/reap the direct child during cleanup; its exit does not
+cancel the group check. Bound the final reap/cleanup observation to two more
+seconds rather than performing an unbounded final wait. A remaining process,
+permission error or other cleanup failure returns failure with no verdict and
+an accurate diagnostic; it cannot claim successful termination. Preserve the
+runner's internal-124-to-exit-1 mapping. The shell caller waits for this
+supervisor instead of running a second, marker-based deadline algorithm.
+
+This selects process ownership, not a passed implementation. See proposed
+ADR `docs/adr/0033-panelist-supervisor-process-ownership.md`; TEST-004 still
+must establish both actual boundary orderings against the resulting runner.
 
 `SIGTERM` first, then `SIGKILL` after a 2-second grace — resolving the requirements' Assumption about signal handling explicitly rather than assuming the vendor CLI is well-behaved. Return code 124 is `timeout(1)`'s conventional timeout code, used here only as an internal marker; the caller maps it to the runner's exit 1.
 
 Call-site shape at `run-panelist-gpt.sh:216-220`, preserving the existing redirections and the scratch-file ordering that Edge Case 3 depends on:
 
 ```sh
-if ! _sdd_run_bounded "$_panelist_timeout" \
+if _sdd_run_bounded "$_panelist_timeout" \
         "$_codex_cmd" --model "$model" --effort "$effort" --no-project-doc \
         < "$_combined" > "$_raw_output" 2>&1; then
+    : # continue to the existing validation and verdict-write path
+else
     _rc=$?
     if [ "$_rc" -eq 124 ]; then
         printf 'run-panelist-gpt: codex CLI exceeded SDD_PANELIST_TIMEOUT=%ss; terminated\n' \
@@ -84,26 +133,81 @@ if ! _sdd_run_bounded "$_panelist_timeout" \
 fi
 ```
 
-Both branches exit 1 and neither reaches the verdict-write step, which is what AC-005 asserts. BL-001 holds by construction: the non-124 branch is byte-identical in behaviour to today's handler.
+Both failure branches exit 1 and neither reaches the verdict-write step, which is what AC-005 asserts. Capture the command's status immediately in `else`: using `if ! ...` would instead capture the negated status 0 and lose the timeout/non-zero distinction. This is a design sketch, not a replacement CLI argument list; retain the actual runner's arguments and verify BL-001 with the unchanged regression cases.
 
 ### The bounded-wait pattern (PowerShell)
 
-`Start-Process … -Wait` has no timeout parameter (INV-003). Replace `-Wait` with `-PassThru` and a bounded wait:
+The original INV-003 unbounded baseline is historical. The current GPT runner
+already starts an absolute deadline before `Start-Process -PassThru`, restores
+the caller's deadline environment value, and clamps the remaining wait to
+Int32 milliseconds (`run-panelist-gpt.ps1:242-260`). Preserve launch time inside
+the budget and preserve that environment restoration.
 
-```powershell
-$proc = Start-Process -FilePath $CodexCmd -ArgumentList $codexArgs `
-    -RedirectStandardInput $combinedFile -RedirectStandardOutput $rawOutput `
-    -RedirectStandardError (Join-Path $scratch "stderr.txt") -PassThru -NoNewWindow
-if (-not $proc.WaitForExit($PanelistTimeout * 1000)) {
-    $proc.Kill($true)                      # $true = kill the whole process tree
-    $proc.WaitForExit()
-    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")
-    exit 1
-}
-if ($proc.ExitCode -ne 0) { <# unchanged #> exit 1 }
-```
+The amended wait contract is:
 
-`Kill($true)` terminates the process tree, matching the shell side's escalation intent.
+1. Compute remaining time from the same deadline on every wait. Use a bounded
+   Int32 wait chunk; expiration of a clamped chunk before the actual deadline
+   is not a timeout. Recompute and continue, without restarting the budget.
+2. At actual deadline indication, refresh and read the real process exit state.
+   An already-exited child follows c1 only with exit 0 and complete valid
+   output. A still-live child commits to c2; later exit cannot undo timeout.
+3. Request tree termination on c2 and retain exit 1/no verdict on every cleanup
+   error. Do not call the parameterless `WaitForExit()` on a possibly-live
+   process: that overload waits indefinitely. Cleanup waiting must itself be
+   bounded within TEST-004(a)'s total elapsed limit.
+4. Do not infer descendant termination from the root's `HasExited` or
+   `WaitForExit` result. TEST-004 must independently observe the fixture's
+   child and descendant identities through termination, including a root that
+   exits first. Unobserved or surviving descendants cannot pass acceptance.
+5. Complete output collection before validation on the success path; observing
+   the root exit alone is not an output-completion assertion. The concrete
+   output-drain and descendant-cleanup mechanism remains a design-review
+   prerequisite, not a claim that the current implementation satisfies it.
+
+These constraints replace the earlier unsafe sketch, not the acceptance
+criteria. Microsoft's [WaitForExit documentation](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.waitforexit?view=net-9.0)
+distinguishes bounded waits from indefinite waiting and output completion.
+Its [Kill documentation](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.kill?view=net-9.0)
+states that termination is asynchronous, root exit does not establish descendant
+exit, and descendants whose details cannot be inspected can be skipped.
+Therefore `Kill($true)` alone is not proof of the no-orphan requirement.
+
+**Selected I/O ownership (proposed for fresh review).** Preserve the Windows
+native `Start-Process` launch/redirection path, including its existing command
+resolution. On Unix, replace that cmdlet's redirected launch with an explicitly
+owned `System.Diagnostics.Process` using `UseShellExecute=false`. Preserve
+the resolved executable, effective argument string, working directory and
+environment; do not add a shell interpreter or change CLI argument semantics.
+Open the existing scratch output/error files and start concurrent
+`BaseStream.CopyToAsync` transfers from both redirected output streams. Start
+the input-file-to-stdin copy concurrently, closing stdin when it finishes.
+The runner owns all three transfer tasks and streams; it must not synchronously
+write the bundle before starting the bounded process wait.
+
+This OS distinction is grounded in PowerShell 7.6.2's
+[Start-Process source](https://github.com/PowerShell/PowerShell/blob/v7.6.2/src/Microsoft.PowerShell.Commands.Management/commands/management/Process.cs#L1937-L1955):
+Unix uses managed redirection and calls `WriteToStandardInput` before returning;
+that method writes synchronously (lines 2169-2178). Windows uses the native
+creation path with inherited file handles (lines 2181-2186). Thus replacing
+only the later wait does not bound a Unix CLI that refuses to read stdin.
+
+Observe process completion and all three transfer results separately. After
+child exit, allow at most two seconds for owned I/O tasks to settle and flush
+the output files before validation. A fault or incomplete transfer yields
+exit 1/no verdict, not a truncated success. On timeout, retain the committed
+timeout classification, request tree termination, and allow at most four
+seconds total for cleanup and transfer cancellation/disposal; never wait
+indefinitely on a task after cancellation. Do not label cancellation itself
+as proof that the process or descendants exited. On Windows, file-handle
+redirection needs no managed drain task; the child/descendant liveness tests
+still apply. Tests must also exercise a Unix stub that never reads stdin
+with an input larger than the pipe buffer, and concurrent large stdout/stderr,
+so neither input backpressure nor a full output pipe bypasses the deadline.
+
+This design narrows the necessary launch rewrite to the platform with the
+observed synchronous-input hazard. Replacing both platforms with a new native
+launcher is rejected here because it would unnecessarily change Windows CLI
+resolution. The normal/nonzero/absent-CLI regressions remain unchanged.
 
 ### Configuration contract
 
@@ -148,7 +252,7 @@ Section 1 has **two independently verified deliverables**, not one. REQ-004 name
 
 ## Data Plan
 
-**No data changes.** This feature introduces no database, no persisted schema, and no new document format. The complete set of artifacts it writes or edits is the Components table above: four runner scripts, two Markdown documents, and two test suites.
+**No data changes.** This feature introduces no database, no persisted schema, and no new document format. The complete set of artifacts it writes or edits is the Components table above: four runner scripts, their existing shared shell helper, two Markdown documents, and two test suites.
 
 Two existing on-disk artifacts are read or written by code this feature touches, and neither changes shape:
 
@@ -172,7 +276,7 @@ The authoritative treatment is `security-spec.md`, which is a normative layer of
 
 Authorization and data classification:
 
-- **No protected gate file is written.** BL-005, verified against `guard-invariants.generated.js:5` (INV-017). `check-cross-model.*` is untouched (BL-002).
+- **Protected targets require human application.** BL-005's dated evidence identifies both shell panelist runners as protected. Before review/implementation, obtain current source-hash-bound target evidence as BL-005 prescribes; if the necessary inspection is denied, request human evidence. Human-applied changes must be exact reviewed bytes, with before/after hashes and retained backup. Missing application or verification blocks implementation; broad approval never disables the hook. `check-cross-model.*` remains untouched (BL-002). INV-017 is historical, not a current exemption.
 - **No `SDD_SUDO` interaction.** This feature neither reads, creates, nor requires it.
 - **No secret is read, written, or transported.** `SDD_PANELIST_TIMEOUT` is a non-secret integer. Vendor credentials remain entirely inside the vendor CLI's own configuration and are never handled here — including on the kill path, where the design terminates a process and never inspects its environment.
 
@@ -197,7 +301,7 @@ Requirement-to-criterion roll-up, so no `REQ-*` is reachable only through prose:
 | AC-001 | TEST-001 | Policy taxonomy section (`## API & Contract Plan`, taxonomy table) | all five failure-mode names, each with exit code, verdict-file state and propagation |
 | AC-002 | TEST-002 | Same section, rate-limit row | states rate-limiting is not separately handled; deliberately a stated limitation, not a guarantee |
 | AC-003 | TEST-003 | Item 1 below | 7 sub-cases; invalid values exit 2 **before** the CLI is invoked |
-| AC-004 | TEST-004 | Item 2 below | sub-cases (a)/(b)/(c); wall-clock bound, SIGKILL escalation, boundary re-check |
+| AC-004 | TEST-004 | Item 2 below | sub-cases (a)/(b)/(c1)/(c2); wall-clock bound, SIGKILL escalation, both proven boundary orderings |
 | AC-005 | TEST-005 | Item 3 below | exit 1 **and** no verdict JSON |
 | AC-006 | TEST-006 | Item 4 below | composed with `check-cross-model`; the test that closes the issue's stated concern |
 | AC-007 | TEST-007 | Stream B deliverable 1 | ten OWASP identifiers, every disposition cell non-empty |
@@ -205,24 +309,24 @@ Requirement-to-criterion roll-up, so no `REQ-*` is reachable only through prose:
 | AC-009 | TEST-009 | Stream B deliverable 2 | five surface identifiers by literal string |
 | AC-010 | TEST-010 | Stream B deliverable 2 | `--dangerously-bypass-hook-trust` named, with what it forfeits |
 | AC-011 | TEST-011 | Item 5 below | both suites pass, pre-existing cases unmodified |
-| AC-012 | TEST-012 | Item 7 below | the asserted default is read from the script, not hard-coded in the test |
+| AC-012 | TEST-012 | Item 7 below | independently required 600 seconds agrees with source default and observed unset/empty runtime deadlines |
 | AC-013 | TEST-013 | Stream B deliverable 1a | all three MCP server names with a trust posture each |
 | AC-014 | TEST-014 | Stream B deliverable 2 | residual-risk entry for the unbounded panelist, marked closed, naming `SDD_PANELIST_TIMEOUT` |
 
 1. **AC-003 — configuration parsing.** Seven sub-cases per runner: unset, empty, `600`, `1`, `0`, `-5`, `abc`.
-   - **First four** (unset, empty, `600`, `1`): the runner proceeds to invoke the CLI. `1` is a **valid** bound, not an invalid one — it is the same value item 2's timeout sub-cases depend on being accepted.
+   - **First four** (unset, empty, `600`, `1`): the runner proceeds to invoke the CLI. `1` is a valid bound. For unset and empty separately, observe the actual timeout duration used by each runner and exercise expiry, exit 1, no verdict and process/descendant cleanup. The observation must equal the source-derived default and satisfy the independently required 600 seconds. Source inspection or CLI invocation alone cannot satisfy TEST-003/012. A controllable clock/wait fixture may accelerate elapsed time but must execute the runner's real deadline decision, not inject a success/timeout result.
    - **Last three** (`0`, `-5`, `abc`): exit 2 **before** the CLI is invoked, asserted by a stub that records whether it was called at all.
 
    Stated as four-plus-three rather than three-plus-three because an earlier draft of this line wrote "first three / last three" against a seven-item list, leaving `1` unclassified — contradicting both item 2 below and the Configuration contract table above, which classify `1` as valid. Spec review caught that arithmetic at the requirements layer (`acceptance-tests.md:43`, both round-2 reviewers independently), but this document kept the stale phrasing; both impl reviewers then caught it here, independently, at attempt 2 round 1.
-2. **AC-004 — the bound actually bounds.** Three sub-cases after spec-review round 1, because one was not enough:
+2. **AC-004 — the bound actually bounds.** Four sub-cases, including both boundary orderings required by the amended specification:
    - **(a)** `SDD_PANELIST_TIMEOUT=1` plus a stub that sleeps 30s. Assert elapsed wall-clock ≤ 10s and that the stub's PID is gone afterwards. The liveness assertion distinguishes a real kill from a parent that merely returned.
    - **(b)** the same, but the stub installs `trap '' TERM`. Only the `SIGKILL` escalation can end it, so this is the sub-case that proves the escalation branch exists. A plain `sleep` stub dies on the first `SIGTERM` and can never reach it — which meant the original single case would have passed against a broken or absent escalation.
-   - **(c)** `SDD_PANELIST_TIMEOUT=2` with a stub exiting *successfully* at ~2s, repeated ≥ 5 times. Asserts the boundary re-check above: a child that finished inside the expiry interval must be reported by its own exit code, never as a timeout.
+   - **(c1)/(c2)** Keep `SDD_PANELIST_TIMEOUT=2`. For each of the four runners, establish each ordering at least five times: (c1) deadline indicated, then actual child exit 0 and complete valid output before the post-deadline re-check; (c2) deadline indicated while the child is still alive at the re-check. Record deadline, output completion, actual process completion/state, re-check and runner result. c1 requires exit 0, intact verdict and no timeout; c2 requires exit 1, no verdict and no surviving child/descendant. Synchronization may hold the observation boundary but cannot replace the decision or extend the production bound. Approximate timing, an output marker alone, missing ordering evidence, discarded failures, favorable-sample retries or increased timeout cannot pass. An unestablished ordering is a failing/incomplete test.
 3. **AC-005 — no partial verdict.** After a timeout, assert exit 1 **and** that the output directory contains no verdict JSON for that task.
-4. **AC-006 — the gate actually fails.** Compose 2 and 3 with `check-cross-model` over the resulting verdict directory; assert non-zero and no consensus PASS. This is the only test that demonstrates the issue's stated `critical`-verification concern is closed.
+4. **AC-006 — the gate actually fails.** Compose 2 and 3 with each gate implementation and both remaining input sets: one otherwise-valid Anthropic verdict gives exit 1 and aggregate FAIL; empty input gives exit 2 and no aggregate. Assert no consensus PASS in both, with the runner itself exiting 1 and publishing no verdict. Match policy propagation to these outcomes without editing either gate (BL-002/003).
 5. **BL-001 — behaviour preservation.** The existing absent-CLI and non-zero-exit cases must pass **unmodified**. If an existing case needs editing to accommodate the timeout, that is evidence BL-001 was broken.
 6. **BL-004 — parity, with one deliberate exception.** Every case above exists in both `tests/cross-model.tests.sh` and `.ps1`, **except AC-004 sub-case (b)**, which the PowerShell suite carries **none of, deliberately**. PowerShell's termination step cannot be survived — `Process.Kill` maps to `TerminateProcess`, which is untrappable — so no stub behaviour would let a (b) sub-case verify anything (a) does not already verify; writing one would be a test that cannot fail. BL-004 is therefore satisfied at the level of **outcome** (both runtimes must end the child and leave no orphan), not by mirroring a POSIX signal model onto a platform with no equivalent. This carve-out is stated in `requirements.md:67,75` and tabulated in `acceptance-tests.md:64-68`; spec review round 3 blocked an earlier draft that got this wrong, so it is restated here rather than left to inference.
-7. **AC-012 — the default is not duplicated.** The `600` the tests assert is **derived from the runner script at test time**, not written as a literal in the test — e.g. by extracting the `${SDD_PANELIST_TIMEOUT:-600}` default from the script's own source and comparing against that. A test that carries its own copy of the constant keeps passing after someone changes the script's default, which turns the test from a guard into a decoration. This is the one case where a literal-string assertion is *wrong*: everywhere else in this plan the literal is the point (item 8), but here the literal is the defect. TEST-012 is the check.
+7. **AC-012 — source, product requirement and runtime agree.** Derive each source default, independently check it against AC-003's 600-second requirement, then compare it to the effective deadline for each unset/empty run in item 1. Exercise real expiry and cleanup. A wrong or missing fallback must fail even when CLI invocation succeeds and source text still declares the correct value. Source changes cannot redefine acceptance; explicit-value tests cannot replace either fallback test.
 8. **Stream B** is verified by literal-string assertions per REQ-004/REQ-005 — ten OWASP identifiers (TEST-007), **the three MCP server names `sdd-forge-mcp`, `local-env-mcp` and `ci-mcp` (TEST-013)**, five surface identifiers (TEST-009), and `--dangerously-bypass-hook-trust` by name (AC-010, TEST-010). Deliberately literal: a heading-level check would pass against an empty section, which is the text-marker failure mode recorded as FP-02 in the `epic-136-phase3` retrospective. TEST-013 is listed separately from TEST-007 on purpose — they verify the two halves of REQ-004, and collapsing them is exactly how the MCP deliverable went missing from this plan in the first place.
 
 ## Deployment & CI Plan
@@ -233,7 +337,7 @@ Stack for the verification contract is `shell` (shell, PowerShell and Markdown o
 
 ## Global Constraints
 
-- No file listed in `PROTECTED_GATE_SUFFIXES` is written (BL-005, INV-017). Confirmed by direct read of `guard-invariants.generated.js:5`; every target of this feature is absent from those 42 entries, so no `human-copy` staging round applies.
+- BL-005's current-evidence and human-application boundary applies to every target. Both shell runners are protected in the dated human evidence embedded in requirements. No absence from that observation grants a general exemption. Recheck at the next consumption boundary, preserve exact reviewed hashes, and stop the affected operation if the hook denies it. INV-017's no-protection conclusion is superseded.
 - `check-cross-model.*` is not edited (BL-002).
 - Shell and PowerShell runners change together in the same commit (BL-004).
 - No version literal outside `scripts/bump-version.sh` changes.

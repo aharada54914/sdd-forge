@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase4-docs",
+  "run_id": "pr400-impl-a4r1-integration-20260907T235051Z",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 4,
+  "findings_critical": 0,
+  "findings_major": 4,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

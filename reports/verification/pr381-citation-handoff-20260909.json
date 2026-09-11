@@ -1,0 +1,17 @@
+{
+  "decision": [
+    "PR381 recovery checkout is authoritative; preserve uncommitted recovery work. Citation-only correction does not authorize ADR extension or weakening any check. No formal status changed."
+  ],
+  "unresolved": [
+    "41 of the original 43 failing POSIX-baseline suites remain unresolved after adversarial-review-contracts dependency repair and review-context-boundary citation repair. Full baseline remains FAIL; formal gates and native CI/merge pending.",
+    "Registration consumers, A6 stale mirror, deterministic-lane candidate job-set loss and design-system CI reachability remain. Verify exact approval scope before edits."
+  ],
+  "evidence": [
+    "reports/verification/pr381-boundary-citations-20260909.md: 31 citation anchors and 22 runtime cases passed; syntax/whitespace passed; only citation positions differ from HEAD in two files.",
+    "PR381 recovery base 3971c93a5705dc15f86ba56cc62118613e4b19db. Session 95611 TERMINATED exit 0. Sessions 75815 and 83024 also terminal; do not poll or restart them.",
+    "Earlier detailed evidence: reports/verification/pr381-posix-baseline-20260909.md and pr381-loop-handoff-20260908.json. Their historical counts are superseded by this handoff, not erased."
+  ],
+  "next_action": [
+    "Inspect the remaining 41 failing suite diagnostics and approved scope for actual-runner registration consumer repair. Preserve exact membership, order/uniqueness, PowerShell twins and all CI assertions. Complete independent review and mandatory native CI before merge."
+  ]
+}

@@ -1,0 +1,43 @@
+ticket_id: RT-20260908-005
+status: open
+type: bug
+severity: major
+review_cycles: 0
+target:
+  feature: sdd-forge-mcp
+  stage: verification
+  files:
+    - mcp/sdd-forge-mcp/tests/golden/shell-runner.ts
+    - mcp/sdd-forge-mcp/tests/golden/environment-dependence.test.ts
+    - specs/workflow-state-registry.json
+    - contracts/workflow-state-registry.schema.json
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+    - tests/workflow-state-t002-reopening.tests.py
+    - tests/workflow-state-registry.tests.sh
+summary: "Do not suppress golden comparison on mixed environment and content failures"
+problem: |
+  shell-runner.ts:145-162 returns checkout-dependent causes when all own
+  failures are bundle summaries and at least one orphaned-commit detail
+  exists, but ignores other bundle detail failures. A same-bundle artifact
+  hash mismatch plus orphaned commit therefore suppresses the strict
+  comparison, contrary to its documented contract at lines 138-143.
+  A direct invocation against freshly compiled current source reproduced
+  this false suppression. Existing seven golden/control tests still pass.
+expected_fix:
+  - "Keep strict comparison whenever any non-environment bundle failure detail is present; preserve the existing environment-only exception and diagnostics."
+  - "Add mixed-detail negative controls, including same-bundle and separate-bundle failures and both detail orders, retaining all existing controls."
+  - "Do not change product parser, historical evidence, snapshots, review verdicts or CI requirements. The 2026-09-08 scope extension permits only the bounded T-002 reopening contract and its two workflow-state consumers."
+  - "Keep the legacy feature-wide status list Done-only. Add an exact schema-bound T-002 status override allowing only Implementation Complete and Done; require a unique canonical task ID and Approved approval. Reject other tasks, malformed or duplicate identity, other states, and registry broadening."
+verification:
+  - "First record new negative controls failing on current source; then require them and the existing controls to pass."
+  - "Run TypeScript compilation and the live and recorded golden tests; distinguish local macOS results from native Windows."
+  - "Run independent review and the applicable formal gate before resolving this ticket; carry the correction into integration rather than restoring older branch tests."
+  - "Run real Bash and PowerShell workflow-state consumers against positive and refusal fixtures, including LF/CRLF and case variants; preserve existing registry/workflow-state suites. Complete formal review before integration."
+references:
+  - reports/verification/pr371-mixed-bundle-failure-20260908.md
+  - reports/verification/rt005-mixed-failure-fix-20260908.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision: "2026-09-08: User explicitly approved: テスト補助関数の限定修正と、この複合失敗を検出する回帰テスト追加を承認する。 Scope remains the two target files and the verification requirements above."
+scope_extension: "2026-09-08: User explicitly approved: T-002 に限定した再開契約の修正・拒否ケースの回帰テスト・正式レビューまで、範囲拡張を承認する。 This supersedes the earlier two-file scope limit only for the listed reopening-contract files; no protection-hook bypass or historical PASS reconstruction is authorized."

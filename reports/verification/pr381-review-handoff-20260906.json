@@ -1,0 +1,22 @@
+{
+  "decision": [
+    "Keep historical T-005 FAIL verdicts; the approved extra attempt is not unlimited.",
+    "Review four PR381 registration changes against actual --list output, preserving all other assertions."
+  ],
+  "unresolved": [
+    "generate-gate-capabilities actual suite result is fail=1 and designed-red=1; dropping posix-regression is not a PASS.",
+    "Formal spec reviewer launch requires host-issued identity reservation before context creation; no available documented tool provides preallocation.",
+    "Issue 61 is CLOSED, so its manual precheck fallback does not apply."
+  ],
+  "evidence": [
+    "PR381 worktree /private/tmp/pr381-verify.7id2mX/worktree HEAD 3971c93a5705dc15f86ba56cc62118613e4b19db; diff inspected in tool 235451.",
+    "capability-registry-schema fail() exits 1, verified in f82fbc; all four new checks reject nonzero list commands by construction.",
+    "GitHub issue 61 closedAt 2026-07-05T07:41:49Z, tool ebd2ca.",
+    "PR376 CI 34019702840 and PR398 CI 34019704668 remain pending at this observation."
+  ],
+  "next_action": [
+    "Tester pr381_four_validation: independently run four suites and actual-block negative controls; do not edit product sources or mark formal gate PASS.",
+    "Primary: inspect fresh CI results and preserve mandatory checks before merging dependency PRs.",
+    "Resolve the formal host identity launch capability before T-005 reviewer launch."
+  ]
+}

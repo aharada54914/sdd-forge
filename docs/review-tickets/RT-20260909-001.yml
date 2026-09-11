@@ -1,0 +1,70 @@
+ticket_id: RT-20260909-001
+status: open
+type: incomplete-implementation
+severity: critical
+review_cycles: 0
+target:
+  feature: epic-136-phase3
+  task: T-003
+  files:
+    - .github/workflows/test.yml
+    - specs/epic-136-phase3/requirements.md
+    - specs/epic-136-phase3/design.md
+    - specs/epic-136-phase3/acceptance-tests.md
+    - specs/epic-136-phase3/tasks.md
+    - specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml
+    - tests/deterministic-lane-selfcheck.tests.sh
+summary: "PR381: complete POSIX lane is absent from required-status enforcement"
+problem: |
+  Recovery checkout 3971c93a5705dc15f86ba56cc62118613e4b19db defines
+  posix-regression in .github/workflows/test.yml:24, but required-checks
+  at lines 1162-1203 neither needs it nor checks its result. The active
+  main rulesets require the three test matrix contexts and required-checks,
+  not the POSIX context. A failure isolated to this lane is consequently
+  outside required-status enforcement. This is a demonstrated graph gap,
+  not a claim that an unsafe merge has occurred.
+  Frozen Phase3 AC-017 requires needs membership byte-unchanged
+  (requirements.md:475-483; acceptance-tests.md:37; design.md:445-450;
+  tasks.md:789-790). Repairing the omission directly under that existing
+  contract would violate its literal condition. The current deterministic
+  selfcheck confirms equality despite both graphs sharing this omission.
+expected_fix:
+  - "Authorize a scoped contract amendment: preserve all existing required dependencies and their failure checks, and additionally require posix-regression success. Do not drop or rename existing jobs or weaken isolation from optional sibling workflows."
+  - "Propagate the amendment by BL-001/REQ-004/AC-017/TEST-017/needs identifier sweep through all feature artifacts. Preserve historical rounds and use formal new review bindings, never retrofit PASS records."
+  - "Add posix-regression to required-checks.needs and explicitly reject every result other than success. Preserve existing matrix/runtime coverage, commands, dependency pins and timeouts."
+  - "Refresh the Phase3 draft from the final workflow while retaining its deterministic step names and four required suite registrations; retain all live jobs and commands."
+  - "Reconcile manifest-bound applied workflow mirrors and dependent A2 candidates under their existing approved repair scope. Do not overwrite unrelated PENDING staged feature changes."
+verification:
+  - "Before repair, reproduce the absent dependency and absent result check independently; keep the RED evidence."
+  - "Exercise the actual aggregator with success, failure, cancelled, skipped and missing POSIX result; only all-success may pass. Independently mutate away dependency and result check and prove each is detected."
+  - "Verify every pre-existing mandatory dependency and result assertion remains enforced; compare job and command coverage, not only names."
+  - "Run deterministic-lane selfcheck, mirror freshness, generator candidate/manifest tests, complete POSIX inventory and native mandatory CI. Designed-red and SKIP are not PASS evidence."
+  - "Complete required specification/provenance re-reviews and independent quality verification before integration or issue closure."
+references:
+  - reports/verification/pr381-ci-reachability-audit-20260909.md
+  - specs/epic-136-phase3/requirements.md
+  - specs/epic-136-phase3/design.md
+  - specs/epic-136-phase3/acceptance-tests.md
+  - specs/epic-136-phase3/tasks.md
+auto_fix_allowed: false
+requires_human_decision: false
+human_decision:
+  date: "2026-09-09"
+  source: "Explicit user approval in this conversation"
+  approved_scope: >-
+    Preserve every existing mandatory dependency and check; additionally
+    require successful completion of the full POSIX test inventory.
+    Specification amendment, implementation, regression tests and formal
+    re-review are authorized. Historical evidence remains unchanged.
+  pending_conditions: >-
+    Keep this ticket open until scoped verification succeeds. Formal review,
+    quality verification and mandatory CI remain prerequisites to integration.
+    Protected-file denial requires human application, not bypass.
+human_decision_requested: >-
+  Approve replacing the frozen byte-unchanged needs condition with
+  preservation of every existing mandatory dependency plus mandatory
+  posix-regression success, including the scoped specification amendment,
+  implementation, regression tests and formal re-review. Existing broad
+  CI implementation approval is retained but is not silently treated as
+  approval to supersede this specific frozen contract. Protected-file
+  denial requires human application, not bypass.

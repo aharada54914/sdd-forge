@@ -32,6 +32,479 @@ sha256_stream() {
   elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}'
   else diagnostic "neither sha256sum nor shasum is available"; fi
 }
+# Caller must validate/hash a safe immutable snapshot, then use that same
+# snapshot for this raw check and subsequent whole-object JSON parsing.
+workflow_adr_json_members() {
+  jq -Rse '
+    ltrimstr("\uFEFF") as $raw |
+    # A raw lexical pass retains repeated keys that ordinary jq object parsing
+    # would collapse. All inner groups are noncapturing; capture 0 is the token.
+    "[ \t\r\n]*(\"(?:[^\"\\\\\\x00-\\x1f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"|-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|true|false|null|[{}\\[\\]:,])" as $pattern |
+    reduce ($raw | match($pattern; "g")) as $match (
+      {"end":0, stack:[{kind:"root",phase:"value",keys:{}}]};
+      if $match.offset != .end then error("ADR JSON invalid token") else . end |
+      .end = ($match.offset + $match.length) |
+      $match.captures[0].string as $token |
+      ((.stack|length)-1) as $i |
+      .stack[$i] as $frame |
+      if $frame.phase == "colon" then
+        if $token != ":" then error("ADR JSON member has no colon")
+        else .stack[$i].phase = "value" end
+      elif $frame.phase == "comma-or-end" then
+        (if $frame.kind == "object" then "}" else "]" end) as $close |
+        if $token == $close then .stack |= .[:-1]
+        elif $token != "," then error("ADR JSON missing separator")
+        else .stack[$i].phase = (if $frame.kind == "object" then "key" else "value" end) end
+      elif $frame.phase == "key-or-end" and $token == "}" then .stack |= .[:-1]
+      elif $frame.phase == "value-or-end" and $token == "]" then .stack |= .[:-1]
+      elif $frame.phase == "key" or $frame.phase == "key-or-end" then
+        if ($token|startswith("\"")|not) then error("ADR JSON key is not a string")
+        else
+          # Decode only one string, not an object. Unicode-escaped aliases
+          # therefore collide, while keys in sibling objects stay independent.
+          ($token|fromjson) as $key |
+          if ($frame.keys|has($key)) then error("ADR JSON duplicate decoded member")
+          else .stack[$i].keys[$key] = true | .stack[$i].phase = "colon" end
+        end
+      elif $frame.phase != "value" and $frame.phase != "value-or-end" then
+        error("ADR JSON trailing content")
+      else
+        .stack[$i].phase = (if $frame.kind == "root" then "done" else "comma-or-end" end) |
+        if $token == "{" then .stack += [{kind:"object",phase:"key-or-end",keys:{}}]
+        elif $token == "[" then .stack += [{kind:"array",phase:"value-or-end",keys:{}}]
+        elif (["}","]",":",","]|index($token)) != null then error("ADR JSON missing value")
+        else . end
+      end
+    ) |
+    if ($raw[.end:]|test("^[ \t\r\n]*$")|not) then error("ADR JSON trailing invalid token")
+    elif (.stack|length) != 1 or .stack[0].phase != "done" then error("ADR JSON incomplete")
+    else true end
+  ' "$1" >/dev/null
+}
+workflow_adr_safe_file() {
+  local relative=$1 current=$REPO_ROOT component entry found
+  local -a components
+  [[ "$relative" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || return 1
+  [[ "$relative" != */ && "$relative" != *//* ]] || return 1
+  IFS=/ read -r -a components <<< "$relative"
+  for component in "${components[@]}"; do
+    [[ "$component" != . && "$component" != .. ]] || return 1
+    [[ -d "$current" && ! -L "$current" && -r "$current" && -x "$current" ]] || return 1
+    found=false
+    for entry in "$current"/* "$current"/.[!.]* "$current"/..?*; do
+      if [[ "${entry##*/}" == "$component" ]]; then found=true; break; fi
+    done
+    [[ "$found" == true ]] || return 1
+    current="$current/$component"
+    [[ ! -L "$current" ]] || return 1
+  done
+  [[ -f "$current" && -r "$current" && ! -L "$current" ]]
+}
+
+workflow_adr_input_hash() {
+  local design=$1 requirements=$2 acceptance=$3 layers=$4 adrs=$5 material
+  [[ "$design" =~ ^[0-9a-f]{64}$ && "$requirements" =~ ^[0-9a-f]{64}$ &&
+     "$acceptance" =~ ^[0-9a-f]{64}$ ]] || return 1
+  layers=$(jq -csSe '
+    select(length == 1) | .[0] | select(type == "object") |
+    select(length == 0 or keys ==
+      ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]) |
+    select(all(.[]; type == "string" and length == 64 and test("^[0-9a-f]{64}$")))
+  ' <<< "$layers") || return 1
+  if [[ "$layers" != '{}' ]]; then
+    material=$(printf '%s:%s:%s:%s' "$design" "$requirements" "$acceptance" "$layers") || return 1
+  else
+    material=$(printf '%s:%s:%s' "$design" "$requirements" "$acceptance") || return 1
+  fi
+  printf '%s:adr_inputs/v1:%s' "$material" "$adrs" | sha256_stream
+}
+
+
+# ADR historical binding is checked BEFORE a verified opening can return.
+# Optional prechecks may be absent, but a case alias or dangling link is
+# not absence. Keep case-folding local to the alias comparison only.
+workflow_adr_precheck_presence() (
+  local relative=$1 entry name presence=absent alias_seen=false
+  local LC_ALL=C
+  shopt -u nocasematch
+  workflow_adr_safe_file "$relative/impl-review-contract.json" || return 1
+  for entry in "$REPO_ROOT/$relative"/* "$REPO_ROOT/$relative"/.[!.]* "$REPO_ROOT/$relative"/..?*; do
+    [[ -e "$entry" || -L "$entry" ]] || continue
+    name=${entry##*/}
+    if [ "$name" = precheck-result.json ]; then
+      workflow_adr_safe_file "$relative/precheck-result.json" || return 1
+      presence=present
+    elif (shopt -s nocasematch; [[ "$name" == precheck-result.json ]]); then
+      alias_seen=true
+    fi
+  done
+  [[ "$presence" == present || "$alias_seen" == false ]] || return 1
+  printf '%s\n' "$presence"
+)
+# No current design or ADR contents are read here: this is saved-state agreement.
+# Caller owns snapshot_dir and verified_adr_bindings in its stage subshell.
+workflow_adr_history_bindings() {
+  local feature=$1 attempt=$2 round=$3
+  local relative="reports/impl-review/$feature/attempt-$attempt/round-$round"
+  local contract precheck pair_file present snapshot='' path hash now recorded_root adrs input_hash
+  local previous_relative="" previous_file=/dev/null previous_hash=""
+  local precheck_presence final_precheck_presence
+  local -a files
+  command -v iconv >/dev/null 2>&1 ||
+    diagnostic "$feature" stage-provenance "ADR strict UTF-8 runtime unavailable"
+  umask 077
+  snapshot_dir=$(mktemp -d "${TMPDIR:-/tmp}/sdd-adr-snapshot.XXXXXX") ||
+    diagnostic "$feature" stage-provenance "ADR snapshot allocation failed"
+  trap 'status=$?; for name in impl-review-contract.json precheck-result.json reviewer-a.json reviewer-b.json integrated-summary.json integrated-verdict.json previous-integrated-summary.json; do
+    rm -f -- "$snapshot_dir/$name" || status=1
+  done; rmdir -- "$snapshot_dir" || status=1; exit "$status"' EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  files=(impl-review-contract.json reviewer-a.json reviewer-b.json integrated-summary.json integrated-verdict.json)
+  # A missing legacy precheck is allowed; a linked or nonregular existing one is not.
+  precheck_presence=$(workflow_adr_precheck_presence "$relative") ||
+    diagnostic "$feature" stage-provenance "ADR optional precheck path is unsafe"
+  if [[ "$precheck_presence" == present ]]; then
+    files+=(precheck-result.json)
+  fi
+  for path in "${files[@]}"; do
+    workflow_adr_safe_file "$relative/$path" ||
+      diagnostic "$feature" stage-provenance "ADR evidence path is unsafe"
+    cat -- "$REPO_ROOT/$relative/$path" > "$snapshot_dir/$path" ||
+      diagnostic "$feature" stage-provenance "ADR evidence snapshot read failed"
+    iconv -f UTF-8 -t UTF-8 "$snapshot_dir/$path" >/dev/null 2>&1 ||
+      diagnostic "$feature" stage-provenance "ADR evidence UTF-8 is invalid"
+    workflow_adr_json_members "$snapshot_dir/$path" ||
+      diagnostic "$feature" stage-provenance "ADR evidence JSON members are invalid"
+    hash=$(sha256_file "$snapshot_dir/$path") ||
+      diagnostic "$feature" stage-provenance "ADR evidence snapshot hash failed"
+    snapshot="$snapshot$hash:$path
+"
+  done
+  contract="$snapshot_dir/impl-review-contract.json"
+  precheck="$snapshot_dir/precheck-result.json"
+  pair_file=$precheck
+  [[ -f "$pair_file" ]] || pair_file=/dev/null
+  present=$(jq -sr '
+    if length < 1 or length > 2 or (all(.[]; type == "object") | not) then error("invalid ADR objects")
+    elif (.[0]|has("adr_inputs")) != (if length == 2 then .[1]|has("adr_inputs") else false end)
+      then error("one-sided ADR extension")
+    else .[0]|has("adr_inputs") end
+  ' "$contract" "$pair_file") || diagnostic "$feature" stage-provenance "ADR extension pairing is invalid"
+  if [[ "$present" == false ]]; then
+    jq -se '
+      all(.[]; all(..|objects|select(has("path"))|.path;
+        type == "string" and (gsub("\\\\";"/")|test("(^|/)docs/adr/";"i")|not)))
+    ' "$contract" "$snapshot_dir/reviewer-a.json" "$snapshot_dir/reviewer-b.json" >/dev/null ||
+      diagnostic "$feature" stage-provenance "ADR input has no binding extension"
+    adrs='[]'
+  else
+  if (( round > 1 )); then
+    previous_relative="reports/impl-review/$feature/attempt-$attempt/round-$((round-1))/integrated-summary.json"
+    previous_file="$snapshot_dir/previous-integrated-summary.json"
+    workflow_adr_safe_file "$previous_relative" ||
+      diagnostic "$feature" stage-provenance "ADR previous summary path is unsafe"
+    cat -- "$REPO_ROOT/$previous_relative" > "$previous_file" ||
+      diagnostic "$feature" stage-provenance "ADR previous summary snapshot read failed"
+    iconv -f UTF-8 -t UTF-8 "$previous_file" >/dev/null 2>&1 ||
+      diagnostic "$feature" stage-provenance "ADR previous summary UTF-8 is invalid"
+    workflow_adr_json_members "$previous_file" ||
+      diagnostic "$feature" stage-provenance "ADR previous summary JSON members are invalid"
+    previous_hash=$(sha256_file "$previous_file") ||
+      diagnostic "$feature" stage-provenance "ADR previous summary cannot be hashed"
+  fi
+  hash=$(sha256_file "$precheck") || diagnostic "$feature" stage-provenance "ADR precheck hash failed"
+  recorded_root=$(recorded_repo_root "$contract") || diagnostic "$feature" stage-provenance "ADR recorded root cannot be read"
+  [[ "$recorded_root" != __INVALID__ ]] || diagnostic "$feature" stage-provenance "ADR recorded root is ambiguous"
+  adrs=$(jq -cse --arg feature "$feature" --arg stage impl \
+    --argjson attempt "$attempt" --argjson round "$round" \
+    --arg pc "$relative/precheck-result.json" --arg pc_hash "$hash" \
+    --arg design "specs/$feature/design.md" \
+    --arg previous_path "$previous_relative" --arg previous_hash "$previous_hash" \
+    --slurpfile previous "$previous_file" \
+    --arg summary_hash "$(sha256_file "$snapshot_dir/integrated-summary.json")" \
+    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" '
+    def digest: type == "string" and test("^[0-9a-f]{64}$") and length == 64;
+    def nonempty: type == "string" and length > 0;
+    def adr_set:
+      type == "array" and
+      all(.[]; type == "object" and keys == ["path","sha256"] and
+        (.path|type == "string" and test("\\Adocs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md\\z")) and
+        (.sha256|digest)) and ([.[].path] == ([.[].path]|sort|unique));
+    def relative_path:
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
+      else . end;
+    def allowed($role; $path):
+      ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
+      ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
+      ($path == ("specs/" + $feature + "/requirements.md")) or
+      ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
+      ($path == ("specs/" + $feature + "/investigation.md")) or
+      ($stage == "impl" and
+        ($path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md"))) or
+      ($stage == "task" and
+        ($path == ("specs/" + $feature + "/tasks.md") or
+         $path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/traceability.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md"))) or
+      ($path == (if $stage == "spec" then
+                   "plugins/sdd-review-loop/references/spec-review-calibration.md"
+                 else "plugins/sdd-review-loop/references/reviewer-calibration.md" end)) or
+      ($path == ($round_root + "/precheck-result.json")) or
+      ($role == ($stage + "-reviewer-b") and $path == ($round_root + "/integrated-summary.json")) or
+      ($stage == "impl" and $role == "impl-reviewer-a" and $round > 1 and
+       $path == ($attempt_root + "/round-" + (($round-1)|tostring) + "/integrated-summary.json")) or
+      ($stage == "task" and $role == "task-reviewer-a" and
+       $path == ($round_root + "/dependency-graph.json")) or
+      ($stage == "task" and $role == "task-reviewer-b" and
+       ($path == "plugins/sdd-quality-loop/references/risk-gate-matrix.md" or
+        $path == "plugins/sdd-quality-loop/references/risk-classification-policy.md"));
+
+    def layer($path):
+      any(["ux-spec.md","frontend-spec.md","infra-spec.md","security-spec.md"][];
+        $path == ("specs/"+$feature+"/"+.));
+    def summary_shape($s;$expected_round):
+      ($s|type=="object" and keys==["attempt","generated_at","reviewer_a_check_ids",
+        "reviewer_a_fail_count","reviewer_a_pass_count","reviewer_a_skip_count","round","schema"]) and
+      $s.schema=="integrated-summary/v1" and $s.attempt==$attempt and $s.round==$expected_round and
+      ($s.generated_at|nonempty) and
+      ($s.reviewer_a_check_ids|type=="array" and length>0 and all(.[];nonempty) and
+        length==(unique|length)) and
+      all([$s.reviewer_a_fail_count,$s.reviewer_a_pass_count,$s.reviewer_a_skip_count][];
+        type=="number" and .>=0 and .==floor) and
+      ($s.reviewer_a_fail_count+$s.reviewer_a_pass_count+$s.reviewer_a_skip_count)==
+        ($s.reviewer_a_check_ids|length);
+    def manifest($m;$role;$p):
+      ($m|type == "array") and
+      all($m[]; type == "object" and (.path|nonempty) and (.sha256|digest)) and
+      ([$m[].path|relative_path] as $paths |
+        all($paths[]; . != null and (test("(^|/)\\.\\.?(/|$)")|not)) and
+        ($paths|length) == ($paths|unique|length)) and
+      all($m[]; .path as $raw | ($raw|relative_path) as $rel |
+        if ($raw|gsub("\\\\";"/")|test("(^|/)docs/adr/";"i"))
+        then any($p.adr_inputs[]; .path == $raw)
+        else allowed($role;$rel) end) and
+      ([$m[]|select(.path == $pc)|.sha256] == [$pc_hash]) and
+      ([$m[]|select(.path == $design)|.sha256] == [$p.design_sha256]) and
+      ([$m[]|select((.path|relative_path) == ("specs/"+$feature+"/requirements.md"))|.sha256] == [$p.requirements_sha256]) and
+      ([$m[]|select((.path|relative_path) == ("specs/"+$feature+"/acceptance-tests.md"))|.sha256] == [$p.acceptance_sha256]) and
+      all($p.layer_sha256|to_entries[];
+        . as $pin |
+        ([$m[]|select((.path|relative_path)==("specs/"+$feature+"/"+$pin.key))|.sha256]==[$pin.value])) and
+      (if $role=="impl-reviewer-a" and $round>1 then
+        ([$m[]|select((.path|relative_path)==$previous_path)|.sha256]==[$previous_hash])
+       else true end) and
+      ([$m[]|select((.path|relative_path) == "plugins/sdd-review-loop/references/reviewer-calibration.md")]|length)==1 and
+      (if $role=="impl-reviewer-b" then
+        ([$m[]|select((.path|relative_path) == ($pc|sub("precheck-result.json$";"integrated-summary.json")))|.sha256] == [$summary_hash])
+       else true end) and
+      ([$m[]|select(.path|startswith("docs/adr/"))|{path,sha256}]|sort_by(.path)) == $p.adr_inputs;
+    def norm: map({path,sha256})|sort_by(.path);
+    def superset($actual;$bound):
+      ($actual|norm) as $a | ($bound|norm) as $b |
+      (($b-$a)|length)==0 and all(($a-$b)[]; .path|relative_path|layer(.));
+    def failures: [.checks[]|select(.result=="FAIL")];
+    def expected:
+      failures as $f | if any($f[];.severity=="Critical") then "BLOCKED"
+      elif ($f|length)>0 then "NEEDS_WORK" else "PASS" end;
+    # Fixed ADR-extension v1 lists; do not derive historical policy from outputs.
+    def check_ids($role):
+      if $role=="impl-reviewer-a" then
+        ["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE",
+         "SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE",
+         "NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"]
+      else
+        ["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID",
+         "NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED",
+         "INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"]
+      end;
+    def review($r;$bound;$role;$schema):
+      $r.schema==$schema and $r.stage=="impl" and $r.role==$role and
+      ($r.run_id|nonempty) and ($r.host_session_id|nonempty) and
+      $r.run_id==$bound.run_id and $r.host_session_id==$bound.host_session_id and
+      ($r.checks|type=="array" and length>0) and
+      ([$r.checks[].id]==check_ids($role)) and
+      all($r.checks[]; (.id|nonempty) and (.result=="PASS" or .result=="FAIL" or .result=="SKIP")) and
+      ([$r.checks[].id]|length)==([$r.checks[].id]|unique|length) and
+      all($r|failures|.[]; .severity=="Critical" or .severity=="Major" or .severity=="Minor") and
+      $r.verdict==($r|expected);
+    select(length==6 and all(.[];type=="object")) |
+    .[0] as $c | .[1] as $p | .[2] as $a | .[3] as $b | .[4] as $s | .[5] as $v |
+    select(($c.adr_inputs|adr_set) and ($p.adr_inputs|adr_set) and $c.adr_inputs==$p.adr_inputs) |
+    select($p.schema=="impl-review-precheck/v1" and $p.feature==$feature and
+      $p.attempt==$attempt and $p.round==$round and
+      ($p.design_sha256|digest) and ($p.requirements_sha256|digest) and
+      ($p.acceptance_sha256|digest) and ($p.input_sha256|digest)) |
+    select($c.schema=="impl-review-contract/v1" and $c.feature==$feature and $c.stage=="impl" and
+      $c.attempt==$attempt and $c.round==$round and ($c.run_id|nonempty) and
+      $c.design_sha256==$p.design_sha256 and $c.requirements_sha256==$p.requirements_sha256 and
+      $c.acceptance_sha256==$p.acceptance_sha256 and $c.layer_sha256==$p.layer_sha256) |
+    select(($c.reviewers|type=="array") and
+      ([$c.reviewers[].role]|sort)==["impl-reviewer-a","impl-reviewer-b"] and
+      ([$c.reviewers[].run_id]|all(nonempty) and (unique|length)==2) and
+      ([$c.reviewers[].host_session_id]|all(nonempty) and (unique|length)==2)) |
+    ($c.reviewers[]|select(.role=="impl-reviewer-a")) as $ca |
+    ($c.reviewers[]|select(.role=="impl-reviewer-b")) as $cb |
+    select(review($a;$ca;"impl-reviewer-a";"impl-reviewer-a/v1") and
+      review($b;$cb;"impl-reviewer-b";"impl-reviewer-b/v1")) |
+    select(manifest($ca.allowed_input_manifest;$ca.role;$p) and
+      manifest($cb.allowed_input_manifest;$cb.role;$p) and
+      manifest($a.allowed_input_manifest;$a.role;$p) and
+      manifest($b.allowed_input_manifest;$b.role;$p) and
+      superset($a.allowed_input_manifest;$ca.allowed_input_manifest) and
+      superset($b.allowed_input_manifest;$cb.allowed_input_manifest)) |
+    select(([$ca.allowed_input_manifest[],$cb.allowed_input_manifest[],
+      $a.allowed_input_manifest[],$b.allowed_input_manifest[]] |
+      map({path:(.path|relative_path),sha256}) |
+      map(select(.path|layer(.))) | group_by(.path) |
+      all(.[]; (map(.sha256)|unique|length)==1))) |
+    select((if $round>1 then
+      ($previous|length)==1 and summary_shape($previous[0];$round-1)
+      else ($previous|length)==0 end)) |
+    select(summary_shape($s;$round) and
+      ($s.reviewer_a_check_ids|sort)==([$a.checks[].id]|sort) and
+      $s.reviewer_a_fail_count==([$a.checks[]|select(.result=="FAIL")]|length) and
+      $s.reviewer_a_pass_count==([$a.checks[]|select(.result=="PASS")]|length) and
+      $s.reviewer_a_skip_count==([$a.checks[]|select(.result=="SKIP")]|length)) |
+    (($a|failures)+($b|failures)) as $f |
+    ([$f[]|select(.severity=="Critical")]|length) as $critical |
+    ([$f[]|select(.severity=="Major")]|length) as $major |
+    ([$f[]|select(.severity=="Minor")]|length) as $minor |
+    (if $critical>0 then "BLOCKED" elif $major>0 or ($minor>0 and $round<3) then "NEEDS_WORK"
+      elif $minor>0 then "PASS-with-warnings" else "PASS" end) as $expected |
+    select($v.schema=="integrated-verdict/v1" and $v.feature==$feature and $v.stage=="impl" and
+      $v.attempt==$attempt and $v.round==$round and $v.run_id==$c.run_id) |
+    select(all([$c,$v][];
+      .verdict==$expected and .findings_critical==$critical and .findings_major==$major and
+      .findings_minor==$minor and .reviewer_a_verdict==$a.verdict and .reviewer_b_verdict==$b.verdict)) |
+    $p.adr_inputs|map({path,sha256})
+  ' "$contract" "$precheck" "$snapshot_dir/reviewer-a.json" \
+    "$snapshot_dir/reviewer-b.json" "$snapshot_dir/integrated-summary.json" \
+    "$snapshot_dir/integrated-verdict.json") ||
+    diagnostic "$feature" stage-provenance "ADR historical binding or review identity is inconsistent"
+  input_hash=$(workflow_adr_input_hash \
+    "$(jq -er .design_sha256 "$precheck")" "$(jq -er .requirements_sha256 "$precheck")" \
+    "$(jq -er .acceptance_sha256 "$precheck")" "$(jq -c .layer_sha256 "$precheck")" "$adrs") ||
+    diagnostic "$feature" stage-provenance "ADR input material is invalid"
+  jq -e --arg expected "$input_hash" '.input_sha256==$expected' "$precheck" >/dev/null ||
+    diagnostic "$feature" stage-provenance "ADR input digest mismatch"
+  fi
+  now=''
+  for path in "${files[@]}"; do
+    workflow_adr_safe_file "$relative/$path" || diagnostic "$feature" stage-provenance "ADR evidence path changed"
+    hash=$(sha256_file "$REPO_ROOT/$relative/$path") || diagnostic "$feature" stage-provenance "ADR evidence rehash failed"
+    now="$now$hash:$path
+"
+  done
+  if [[ "$present" == true ]] && (( round > 1 )); then
+    workflow_adr_safe_file "$previous_relative" ||
+      diagnostic "$feature" stage-provenance "ADR previous summary path changed"
+    hash=$(sha256_file "$REPO_ROOT/$previous_relative") ||
+      diagnostic "$feature" stage-provenance "ADR previous summary cannot be rehashed"
+    [[ "$hash" == "$previous_hash" ]] ||
+      diagnostic "$feature" stage-provenance "ADR previous summary changed during validation"
+  fi
+  [[ "$snapshot" == "$now" ]] || diagnostic "$feature" stage-provenance "ADR evidence changed during validation"
+  final_precheck_presence=$(workflow_adr_precheck_presence "$relative") ||
+    diagnostic "$feature" stage-provenance "ADR optional precheck path changed"
+  [[ "$final_precheck_presence" == "$precheck_presence" ]] ||
+    diagnostic "$feature" stage-provenance "ADR optional precheck presence changed"
+  verified_adr_bindings=$adrs
+}
+# Same restricted byte grammar as admission; not general Markdown parsing.
+workflow_adr_declared_paths() {
+  LC_ALL=C awk '
+    function width(s, i, ch, n) {
+      n = 0
+      while (substr(s, i + n, 1) == ch) n++
+      return n
+    }
+    function escaped(s, i, n) {
+      n = 0
+      while (i > 1 && substr(s, i - 1, 1) == "\\") { n++; i-- }
+      return n % 2
+    }
+    {
+      line = $0
+      sub(/\r$/, "", line)
+      match(line, /^ */)
+      indent = RLENGTH
+      rest = substr(line, indent + 1)
+      ch = substr(rest, 1, 1)
+      if (fence != "") {
+        if (indent <= 3 && ch == fence) {
+          n = width(rest, 1, ch)
+          if (n >= fence_width && substr(rest, n + 1) ~ /^[ \t]*$/) fence = ""
+        }
+        next
+      }
+      if (indent >= 4 || rest ~ /^\t/) next
+      if (ch == "\140" || ch == "~") {
+        n = width(rest, 1, ch)
+        if (n >= 3) { fence = ch; fence_width = n; next }
+      }
+      i = 1
+      while (i <= length(line)) {
+        if (substr(line, i, 1) != "\140") { i++; continue }
+        n = width(line, i, "\140")
+        if (escaped(line, i)) { i += n; continue }
+        j = i + n
+        closed = 0
+        while (j <= length(line)) {
+          if (substr(line, j, 1) != "\140") { j++; continue }
+          m = width(line, j, "\140")
+          if (!escaped(line, j) && m == n) { closed = 1; break }
+          j += m
+        }
+        if (!closed) break
+        value = substr(line, i + n, j - i - n)
+        if (n == 1 && value ~ /^docs\/adr\/[0-9][0-9][0-9][0-9]-[a-z0-9][a-z0-9-]*[.]md$/)
+          print value
+        i = j + n
+      }
+    }
+  ' "$1" | LC_ALL=C sort -u
+}
+
+# Current PASS only. Declaration changes are authorization failures, not staleness.
+workflow_adr_current_declarations() {
+  local feature=$1 contract=$2 bindings=$3
+  local design="specs/$feature/design.md" before after actual recorded present
+  present=$(jq -sr '
+    if length != 1 or (.[0]|type) != "object" then error("invalid ADR contract")
+    else .[0]|has("adr_inputs") end
+  ' "$contract") || diagnostic "$feature" stage-provenance "ADR contract cannot be read"
+  [[ "$present" == false ]] && return 0
+  workflow_adr_safe_file "$design" ||
+    diagnostic "$feature" stage-provenance "ADR current design path is unsafe"
+  before=$(sha256_file "$REPO_ROOT/$design") ||
+    diagnostic "$feature" stage-provenance "ADR current design cannot be hashed"
+  actual=$(workflow_adr_declared_paths "$REPO_ROOT/$design") ||
+    diagnostic "$feature" stage-provenance "ADR declarations cannot be derived"
+  recorded=$(jq -r '.[].path' <<< "$bindings") ||
+    diagnostic "$feature" stage-provenance "ADR verified declarations cannot be read"
+  [[ "$actual" == "$recorded" ]] ||
+    diagnostic "$feature" stage-provenance "ADR current design declarations differ from saved bindings"
+  workflow_adr_safe_file "$design" ||
+    diagnostic "$feature" stage-provenance "ADR current design path changed"
+  after=$(sha256_file "$REPO_ROOT/$design") ||
+    diagnostic "$feature" stage-provenance "ADR current design cannot be rehashed"
+  [[ "$before" == "$after" ]] ||
+    diagnostic "$feature" stage-provenance "ADR current design changed during declaration verification"
+}
 # plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
 # evolve normally over time, but historical review evidence under reports/
 # records the sha256 that was current when that evidence was produced. A
@@ -529,6 +1002,9 @@ manifest_has_hash() {
 # check for any other input.
 manifest_has_hash_for_file() {
   local contract="$1" suffix="$2" file="$3" recorded_root="$4" current pin plugins_relative historical
+  # JSON reads use the captured contract; Git uses the original evidence identity.
+  # Unchanged callers retain their original identity without dynamic scope.
+  local evidence_identity="${5-$1}"
   current="$(sha256_file "$file")"
   manifest_has_hash "$contract" "$suffix" "$current" "$recorded_root" && return 0
   case "${suffix#/}" in
@@ -545,7 +1021,7 @@ manifest_has_hash_for_file() {
   # identical drift on risk-gate-matrix.md is correctly tolerated by
   # plugins_hash_matches -- the two functions must agree on this class.
   plugins_git_history_available || return 0
-  pin="$(plugins_pin_commit "$contract")" || return 1
+  pin="$(plugins_pin_commit "$evidence_identity")" || return 1
   plugins_relative="${suffix#/}"
   historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
   manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
@@ -789,6 +1265,10 @@ validate_passed_stage() {
   # still be available in that case: the flag names the slot, not "this
   # stage is currently broken".
   stage_is_being_opened "$stage" "$feature" "$best_attempt" "$best_round" || true
+  # Preserve opening state in the caller; keep snapshots through all later reads.
+  (
+  local snapshot_dir='' verified_adr_bindings='[]'
+  local contract_identity="$root/attempt-$best_attempt/round-$best_round/${stage}-review-contract.json"
   [[ -n "$best" ]] || diagnostic "$feature" stage-provenance "$stage PASS has no integrated verdict"
   local contract="$(dirname "$best")/${stage}-review-contract.json"
   local round_dir="$(dirname "$best")"
@@ -803,6 +1283,14 @@ validate_passed_stage() {
     jq -e . "$candidate" >/dev/null 2>&1 ||
       diagnostic "$feature" stage-provenance "$stage reviewer evidence is malformed"
   done
+  if [[ "$stage" == impl ]]; then
+    workflow_adr_history_bindings "$feature" "$best_attempt" "$best_round"
+    contract="$snapshot_dir/impl-review-contract.json"
+    best="$snapshot_dir/integrated-verdict.json"
+    reviewer_a="$snapshot_dir/reviewer-a.json"
+    reviewer_b="$snapshot_dir/reviewer-b.json"
+    summary="$snapshot_dir/integrated-summary.json"
+  fi
   if ! jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .feature == $feature and .stage == $stage and .attempt == $attempt and
@@ -842,6 +1330,9 @@ validate_passed_stage() {
     ([.reviewers[]?.host_session_id] | all(type == "string" and length > 0) and (unique|length)==2)
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage review contract identity is invalid"
+  if [[ "$stage" == impl ]]; then
+    workflow_adr_current_declarations "$feature" "$contract" "$verified_adr_bindings"
+  fi
   local recorded_root
   recorded_root="$(recorded_repo_root "$contract")"
   [[ "$recorded_root" != "__INVALID__" ]] ||
@@ -849,6 +1340,7 @@ validate_passed_stage() {
   jq -e --arg feature "$feature" --arg stage "$stage" \
     --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
     --arg recorded "${recorded_root:+$recorded_root/}" \
+    --argjson verified_adrs "$verified_adr_bindings" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     def relative_path:
       gsub("\\\\"; "/") |
@@ -877,6 +1369,7 @@ validate_passed_stage() {
          $path == ("specs/" + $feature + "/frontend-spec.md") or
          $path == ("specs/" + $feature + "/infra-spec.md") or
          $path == ("specs/" + $feature + "/security-spec.md"))) or
+      ($stage == "impl" and any($verified_adrs[]; .path == $path)) or
       ($path == (if $stage == "spec" then
                    "plugins/sdd-review-loop/references/spec-review-calibration.md"
                  else "plugins/sdd-review-loop/references/reviewer-calibration.md" end)) or
@@ -915,6 +1408,20 @@ validate_passed_stage() {
     case "$manifest_relative" in
       "specs/$feature/requirements.md"|"specs/$feature/design.md"|"specs/$feature/tasks.md"|"specs/$feature/traceability.md"|"specs/$feature/acceptance-tests.md") continue ;;
     esac
+    if [[ "$stage" == impl && "$manifest_relative" == docs/adr/* ]]; then
+      workflow_adr_safe_file "$manifest_relative" ||
+        diagnostic "$feature" stage-provenance "ADR manifest input path is unsafe"
+    fi
+    if [[ "$stage" == impl ]]; then
+      case "$manifest_relative" in
+        "${round_dir#"$REPO_ROOT/"}/precheck-result.json") manifest_file="$snapshot_dir/precheck-result.json" ;;
+        "${round_dir#"$REPO_ROOT/"}/integrated-summary.json") manifest_file="$snapshot_dir/integrated-summary.json" ;;
+        "reports/impl-review/$feature/attempt-$best_attempt/round-$((best_round-1))/integrated-summary.json")
+          if [[ -f "$snapshot_dir/previous-integrated-summary.json" ]]; then
+            manifest_file="$snapshot_dir/previous-integrated-summary.json"
+          fi ;;
+      esac
+    fi
     [[ -f "$manifest_file" && ! -L "$manifest_file" && -r "$manifest_file" ]] ||
       diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
     case "$manifest_relative" in
@@ -924,7 +1431,7 @@ validate_passed_stage() {
       # (an entry that was never recorded is never visited by this loop at
       # all, so a missing declaration can't hide behind this tolerance).
       plugins/*)
-        plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract" ||
+        plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract_identity" ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
       # Tolerated STANDALONE (no --opening needed): the amendment
       # re-review lane's own oscillation, where a downstream stage's
@@ -937,7 +1444,7 @@ validate_passed_stage() {
       "specs/$feature/investigation.md")
         current_hash="$(sha256_file "$manifest_file")"
         if [[ "$current_hash" != "$manifest_hash" ]]; then
-          if investigation_amendment_reconciles "$manifest_file" "$manifest_hash" "$contract"; then
+          if investigation_amendment_reconciles "$manifest_file" "$manifest_hash" "$contract_identity"; then
             print_investigation_amendment_notice "$feature" "$stage" "$manifest_relative" "$manifest_hash" "$current_hash"
           else
             diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale"
@@ -947,6 +1454,10 @@ validate_passed_stage() {
         [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
     esac
+    if [[ "$stage" == impl && "$manifest_relative" == docs/adr/* ]]; then
+      workflow_adr_safe_file "$manifest_relative" ||
+        diagnostic "$feature" stage-provenance "ADR manifest input path changed"
+    fi
   done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")
   jq -e --slurpfile verdict "$best" --arg stage "$stage" '
     .attempt == $verdict[0].attempt and .round == $verdict[0].round and
@@ -967,6 +1478,7 @@ validate_passed_stage() {
   # yields an empty array, so $precheck[0] is null and `// []` below treats it
   # as nothing to adjudicate rather than as a violation.
   local round_precheck="$round_dir/precheck-result.json"
+  [[ "$stage" != impl ]] || round_precheck="$snapshot_dir/precheck-result.json"
   [[ -f "$round_precheck" ]] || round_precheck=/dev/null
 
   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
@@ -1138,6 +1650,8 @@ validate_passed_stage() {
     calibration="$REPO_ROOT/plugins/sdd-review-loop/references/reviewer-calibration.md"
   fi
   precheck="$root/attempt-$best_attempt/round-$best_round/precheck-result.json"
+  local precheck_identity="$precheck"
+  [[ "$stage" != impl ]] || precheck="$snapshot_dir/precheck-result.json"
   [[ -f "$calibration" && ! -L "$calibration" && -f "$precheck" && ! -L "$precheck" ]] ||
     diagnostic "$feature" stage-provenance "$stage required review inputs are missing"
   # Same per-path disambiguation. The calibration doc's own plugins/
@@ -1148,16 +1662,16 @@ validate_passed_stage() {
   local calibration_hash precheck_hash calibration_manifest_ok precheck_manifest_ok
   calibration_hash="$(sha256_file "$calibration")"
   calibration_manifest_ok=0
-  manifest_has_hash_for_file "$contract" "/${calibration#"$REPO_ROOT/"}" "$calibration" "$recorded_root" &&
+  manifest_has_hash_for_file "$contract" "/${calibration#"$REPO_ROOT/"}" "$calibration" "$recorded_root" "$contract_identity" &&
     calibration_manifest_ok=1
   precheck_hash="$(sha256_file "$precheck")"
   precheck_manifest_ok=0
-  manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash" "$recorded_root" &&
+  manifest_has_hash "$contract" "/${precheck_identity#"$REPO_ROOT/"}" "$precheck_hash" "$recorded_root" &&
     precheck_manifest_ok=1
   diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
     "$stage reviewer manifests omit required inputs" "$contract" "$recorded_root" \
     "$calibration_manifest_ok" "/${calibration#"$REPO_ROOT/"}" "$calibration_hash" \
-    "$precheck_manifest_ok" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash"
+    "$precheck_manifest_ok" "/${precheck_identity#"$REPO_ROOT/"}" "$precheck_hash"
   if [[ "$stage" == impl ]]; then
     local design="$feature_dir/design.md"
     [[ -f "$design" && ! -L "$design" ]] ||
@@ -1286,6 +1800,54 @@ validate_passed_stage() {
         "${layer_omit_triples[@]}"
     fi
   fi
+  )
+}
+
+# Schema-pinned task overrides admit lifecycle, never a quality-gate verdict.
+validate_legacy_task_overrides() {
+  local feature=$1 file=$2 entry=$3 rows task_id approval status
+  rows=$(LC_ALL=C awk '
+    function finish() {
+      if (id != "") {
+        if (approvals != 1 || statuses != 1 ||
+            index(approval, "\t") || index(status, "\t")) bad = 1
+        else print id "\t" approval "\t" status
+      }
+      id = ""; approvals = 0; statuses = 0
+    }
+    { sub(/\r$/, "") }
+    /^[ \t]*##([^#]|$)/ {
+      finish()
+      if ($0 ~ /^## T-[0-9][0-9][0-9]([ \t]|$)/) {
+        id = substr($0, 4, 5)
+        if (seen[id]++) bad = 1
+      }
+      next
+    }
+    /^Approval:/ {
+      if (id == "") bad = 1
+      approvals++; approval = $0
+      sub(/^Approval:[ \t]*/, "", approval)
+      sub(/[ \t]+\(.*$/, "", approval)
+      sub(/[ \t]+$/, "", approval)
+    }
+    /^Status:/ {
+      if (id == "") bad = 1
+      statuses++; status = $0
+      sub(/^Status:[ \t]*/, "", status)
+      sub(/[ \t]+$/, "", status)
+    }
+    END { finish(); if (bad || seen["T-002"] != 1) exit 1 }
+  ' "$file") || diagnostic "$feature" legacy-state "task identity or lifecycle fields are malformed"
+  while IFS=$'\t' read -r task_id approval status; do
+    [[ "$approval" == Approved ]] ||
+      diagnostic "$feature" legacy-state "reopening contract requires Approved tasks"
+    jq -e --arg id "$task_id" --arg status "$status" '
+      (.legacy.task_status_overrides[$id] // .legacy.allowed_task_statuses)
+      | index($status) != null
+    ' <<<"$entry" >/dev/null ||
+      diagnostic "$feature" legacy-state "task lifecycle is broader than the migration record"
+  done <<<"$rows"
 }
 
 validate_legacy() {
@@ -1306,6 +1868,12 @@ validate_legacy() {
         diagnostic "$feature" legacy-state "$stage status is broader than the migration record"
     fi
   done
+  if jq -e '.legacy | has("task_status_overrides")' <<<"$entry" >/dev/null; then
+    [[ -f "$dir/tasks.md" && ! -L "$dir/tasks.md" && -r "$dir/tasks.md" ]] ||
+      diagnostic "$feature" legacy-state "task plan is missing, linked, or unreadable"
+    validate_legacy_task_overrides "$feature" "$dir/tasks.md" "$entry"
+    return
+  fi
   if [[ -f "$dir/tasks.md" ]]; then
     while IFS= read -r value; do
       value="${value#Approval: }"; value="${value%% (*}"

@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "epic-189-a1-project-context",
+  "run_id": "01a08618-6daa-78b2-b994-b079bdd53dbd",
+  "host_session_id": "01a08618-6daa-78b2-b994-b079bdd53dbd",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "193d09632d68ebd9b558671b86a8672c1b329348a1c4c506b21b29be8e5b0229",
+  "sequence": 974,
+  "previous_record_sha256": "caadcce7ef8d186b6e94252b8ea58045a34646370b24ddfa169ce00ef5930357",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "d303c649816d525ba3be93a45f3ec0f5b1320da404a0850554125efa08ac5660"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "abd35dd920fbb5935577659f65462ed2fb23ae3be138d6673944426f1484cf67"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json",
+      "sha256": "48b25b925d07af0e253db96a880aebdc2e30e959bdc4f297e10ac4aae878b7de"
+    }
+  ]
+}

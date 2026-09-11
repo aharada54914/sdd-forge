@@ -52,7 +52,7 @@ None
 ## T-002 tasks.md 状態機械パーサー + シェル等価ゴールデンテスト
 
 Approval: Approved
-Status: Done
+Status: Implementation Complete
 Risk: high
 Risk Rationale: get_task_state の判定は quality gate 判断の入力源であり、check-task-state.sh との不一致は品質ゲートの誤通過を招く（REQ-005、Issue #60 リスク欄）。
 Required Workflow: tdd

@@ -8,6 +8,168 @@ Decisions) — Epic A1 itself
 Investigation: specs/epic-189-a1-project-context/investigation.md
 (INV-001..INV-015, OQ-001..OQ-003)
 
+## Shared CI registration amendment (2026-09-09; pending fresh review)
+
+Human authorization: "その他の設計変更も承認する", following the disclosed
+AC-028 stale-workflow conflict. This section governs REQ-011 / AC-028 and
+supersedes this feature's references to staging a complete shared
+`.github/workflows/test.yml` in its human-copy bundle. Other protected-file
+publication and all mandatory checks remain unchanged. No historical verdict
+is upgraded by this amendment.
+
+The canonical live workflow is the registration source of truth. The per-feature
+workflow file AND its MANIFEST.sha256 entry must remain absent. The historical
+deletion and its reason are recorded in investigation.md:513 and
+RT-20260811-002; existing absence assertions are in
+tests/guard-invariants-epic-a1.tests.sh:536-542 and its .ps1 twin:401-406.
+Recheck these shared-state facts against the exact reviewed checkout, and again
+immediately before consuming them at implementation/integration time.
+
+For every new script covered by REQ-011, verify both test twins exist and are
+directly registered in their corresponding run-all driver, and verify both
+runtime invocations in the canonical live CI workflow. Record checkout identity
+and workflow SHA-256 with the registration evidence; a hash alone is not proof
+of registration or execution. Missing twins, driver entries or CI invocations
+fail independently. Passing via a newly disabled job/step, reduced matrix,
+weakened dependency/condition, or removal of an existing mandatory check is
+forbidden. Existing POSIX full-suite success remains mandatory.
+
+If shared CI needs editing, use a separately reviewed, explicitly authorized
+shared-workflow change based on the current canonical file, not this feature's
+retired snapshot. Bind its baseline hash and compare the complete job/step,
+matrix, dependency and condition inventory before/after. Any baseline drift
+invalidates that approval input and requires a fresh comparison and review.
+No guard bypass or automatic protected-file publication is authorized.
+
+This precedence also applies to historical workflow-staging statements in
+Human-copy procedure, Roles and Responsibilities and Main Workflows below;
+design.md's architecture, Test Strategy item 11 and Deployment / CI Plan;
+infra-spec.md's CI publication sequence; and the frozen tasks.md/traceability.md
+REQ-011 and T-013 mappings. Those historical task/evidence records are retained,
+not retroactively satisfied. Their provenance must be formally re-reviewed
+before a new completion decision can rely on the amended contract.
+
+## RT-20260909-002 amendment (2026-09-09; pending fresh review)
+
+This section is normative for the repair of REQ-010 / AC-027 / AC-032 only.
+It supersedes the Codex plugin-origin prerequisite in REQ-010, its Overview
+and Assumptions repetitions, and any inference that missing plugin metadata
+proves disabled hooks. The original no-schema adapter remains legacy.
+INV-001..INV-015 and OQ-001..OQ-003 remain retained historical investigation.
+INV-015's distinction between fixture verification and live observation remains
+binding; its historical lack of live observation is not a current host verdict.
+No historical Passed, Done, review record or evidence is retroactively changed.
+The existing Passed header describes the historical review until the original
+precheck legally resets it for a new attempt; it is not approval of this text.
+
+### Versioned Codex response contract
+
+Only --verify-response selects this adapter. A record with a schema member
+must select exactly "sdd-codex-host-denial/v1" before runtime dispatch.
+Its only allowed and required members are schema, runtime, nonce, executed,
+raw_result. CLI runtime and recorded runtime must both equal "codex-cli".
+The nonce is exactly 32 lowercase hexadecimal characters; it must equal the
+expected CLI nonce and the nonce in the echoed operation. executed is strictly
+boolean false. raw_result is a string. No plugin flag is inferred or added.
+
+The following JSON strings define exact UTF-8 text after JSON decoding.
+Replace only <nonce> with the generated nonce. Neither has a terminal newline.
+Do not trim, normalize Unicode, convert line endings or accept substring matches.
+
+Emitted tool_call_template.codex-cli.tool_input.patch:
+
+```json
+"*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+Required complete raw_result:
+
+```json
+"Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+The emitted patch and top-level challenge use the same newly generated nonce.
+Claude and Copilot challenge templates and no-schema runtime predicates remain
+unchanged. Explicit unknown, null or wrong-type schema never falls back to a
+legacy adapter, even when legacy-success fields are present. Extra members,
+including either plugin flag with any value, reject. Duplicate JSON member
+names at any depth reject before adapter dispatch.
+
+On an otherwise valid new record, executed true uses WRITE_EXECUTED (63);
+a syntactically valid mismatched outer or echoed nonce uses
+STALE_CHALLENGE_REJECTED (62). Structural/type/schema/signature errors use
+UNRECOGNIZED_RESULT (64). Malformed or duplicate-member response JSON uses
+RECORDED_RESULT_UNREADABLE (61). All these failures report
+CAPABILITY_RUNTIME_UNAVAILABLE, never HOOK_ACTIVE. Isolate each fault in its
+own test; existing precedence outside these isolated cases is not relaxed.
+For a valid record, exit 0 and HOOK_ACTIVE apply.
+
+No-schema Codex missing-flag rejection keeps its existing exit/category;
+its diagnostic must describe insufficient evidence, not assert disabled hooks.
+No-schema Claude/Copilot acceptance is unchanged except duplicate rejection.
+Cleanup does not select the new response adapter: retain its legacy predicates,
+stale-start recovery, nonce syntax and the branch-specific guarantees below. Duplicate
+cleanup members use CLEANUP_RESULT_UNREADABLE (71), never
+SENTINEL_CLEANUP_CONFIRMED. Retain all existing tests under AC-032.
+
+### Cleanup guarantee precedence (2026-09-09; round-1 findings)
+
+REQ-010's Sentinel cleanup contract and AC-032 / TEST-032 are the governing
+three-outcome contract. The live approval sidecars remain byte-identical in
+EVERY outcome. For a fresh, initially absent sentinel: (a) a denied write
+never creates it; (b) an executed write followed by confirmed successful
+cleanup leaves it absent, with the successful cleanup result recorded;
+(c) missing, failed or denied cleanup leaves absence unproven and may leave
+the sentinel present. Case (c) MUST report SENTINEL_CLEANUP_UNCONFIRMED with
+CAPABILITY_RUNTIME_UNAVAILABLE, never silently claim successful cleanup or
+turn the original executed-write result into HOOK_ACTIVE. The next invocation
+records one stale-start cleanup attempt before its new challenge and proceeds
+with that challenge regardless of the stale-cleanup outcome, as REQ-010
+already requires. No direct script write or guard bypass is introduced.
+
+This dated clarification supersedes the unconditional sentinel-state wording
+in REQ-011's TEST-032 summary, the sdd/.hook-canary-sentinel field definition,
+Main Workflows step 4, the sentinel non-mutation Edge Case and Security Boundaries
+B6 below: "byte-identical", "absent-before/absent-after" and "never a lasting
+mutation" apply to the sentinel only in the qualifying branches above, not
+case (c). It does not narrow the unconditional protection of approval sidecars.
+The original AC-032 / TEST-032 cleanup-failure and stale-start fixtures remain
+mandatory; successful cleanup cannot be inferred from an attempted delete.
+
+### Trust boundary and narrowly authorized recovery
+
+This is exact content binding, not cryptographic host attestation or a
+persistent replay ledger. A forged caller-authored file is not detectable by
+this verifier. The trusted session must record its own native tool response
+verbatim after consuming one newly emitted challenge once. A matching file
+alone does not establish freshness, single use, plugin provenance or live
+cross-runtime enforcement. Synthetic tests remain A1 verification-logic
+evidence only; A8's mandatory live cross-runtime proof remains outstanding.
+At review, record current host/original-verifier hashes and the available
+handshake evidence, explicitly retaining unavailable or mismatching results.
+An unavailable/mismatching handshake does not close the narrowly authorized
+repair-review entry below; it is not a passing precheck or live activation.
+At activation, the fresh native dispatch must match the exact template;
+otherwise activation remains unavailable. Never normalize into acceptance.
+
+The human-authorized recovery admission applies only to RT-20260909-002
+contract/candidate/regression/application-helper review and its scoped new
+specification, design and task provenance reviews. Disclose the unavailable
+handshake; all other prechecks, reviewer independence, identity reservations,
+hashes, schemas and cycle limits remain mandatory. No ordinary bootstrap,
+unrelated task work, quality-gate completion or integration is admitted by it.
+Protective enforcement remains active. A denied action cannot be retried by
+another executor or renamed executable. Protected publication remains human,
+using the existing required anchored application path, not a bypass.
+
+Activation requires all scoped provenance reviews first, original-path suites
+and both wrappers successful, then one NEW native challenge/dispatch and its
+unmodified response verified by the actual installed-path verifier. Record
+hashes and results; a different installed version requires human application
+and verification at that path. Fixture GREEN is not this exit condition.
+Retire this recovery admission by dated addendum only after successful exit.
+No historical review is relabeled PASS, and only quality-gate can decide Done.
+
 ## Overview
 
 `docs/ai-dlc-foundation-decision-v2.md` §19 defines Epic A1 as the epic that
@@ -1092,8 +1254,9 @@ package; REQ↔Test correspondence in the interim is carried by
   INV-012): every new script REQ-003..REQ-007, REQ-010 introduces gets a
   `.sh`+`.ps1` test-twin pair under `tests/`, registered directly in
   `tests/run-all.sh`/`.ps1` (both unprotected, INV-012), with the
-  `.github/workflows/test.yml` step registration staged via human-copy
-  (protected, INV-011). Mandatory cases across the suites (expanded — this
+  canonical live `.github/workflows/test.yml` registration verified under
+  the Shared CI registration amendment above (protected, INV-011; no
+  per-feature workflow snapshot). Mandatory cases across the suites (expanded — this
   list supersedes any prior draft's shorter list; each bullet is its own
   independent fixture/assertion, not a shared "one case covers the
   category" shortcut; new AC/TEST numbers AC-030..AC-043/TEST-030..TEST-043
@@ -1482,12 +1645,17 @@ named, diagnosable error instead.
   those cases — never `HOOK_ACTIVE` when a genuine, fresh denial was not
   actually observed for the runtime under test. (REQ-010)
 - AC-028: every REQ-003..REQ-007, REQ-010 script has a `.sh`+`.ps1` test
-  twin registered directly in `tests/run-all.sh`/`.ps1` (self-registration
-  grep), with its `.github/workflows/test.yml` step staged under
-  `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
-  + a `MANIFEST.sha256` entry, mirroring epic-159-pillar-c's AC-027
-  three-part proof shape (staged-candidate / live-unchanged /
-  post-copy-registered). (REQ-011)
+  twin registered directly in its corresponding `tests/run-all.sh`/`.ps1`
+  driver and invoked in the canonical live `.github/workflows/test.yml`.
+  Missing each twin, driver entry or runtime CI invocation fails separately.
+  Both the per-feature human-copy workflow file and its MANIFEST.sha256 entry
+  remain absent; reintroducing either fails. Any shared CI change retains all
+  existing mandatory checks, POSIX full-suite success, job/step invocations,
+  matrices, dependencies and conditions; stale baseline evidence or any
+  deletion/disablement/reduction fails pending fresh review, never passes by
+  skipping work. TEST-028 and its branch-specific rows define the assertions.
+  This replaces, not claims satisfaction of, the retired three-part snapshot
+  proof. (REQ-011; Shared CI registration amendment)
 - AC-029: no suite this epic adds invokes a real LLM, `gh`, or `sdd-sudo`;
   every mktemp fixture root is `pwd -P`-normalized immediately after
   creation (macOS `$TMPDIR` symlink resilience, matching

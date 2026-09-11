@@ -1,0 +1,6 @@
+{
+  "decision": ["Keep all existing checks. Correct stale citation line numbers only; no new atomic-acquisition requirement."],
+  "unresolved": ["Formal review, remaining required checks, native Windows distinction, RT002 recovery exit, CI and main integration remain incomplete."],
+  "evidence": ["Original applied hashes match the human report. Full ADR session 42816 exited 0: 448 passed, 0 failed.", "Boundary initially failed on stale :667 citation; references and anchor numbers corrected with ordinary apply_patch. Rerun exited 0: 32 anchors and 22 behavioral cases.", "Round-2 suite exited 0 with four cases; shared registry hash preserved.", "reports/verification/rt004-adr-binding-applied-results-20260911.md"],
+  "next_action": ["Continue RT004 remaining required checks and genuine review before resolving ADR-PRESENT; no test processes remain live from these runs."]
+}

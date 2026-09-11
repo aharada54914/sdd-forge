@@ -1,0 +1,23 @@
+{
+  "decision": [
+    "T006 generator missing-field repair and regressions are approved; preserve all checks and use only two-file human mirror apply, no live protection overwrite",
+    "PR400 main-reconciliation merge committed and pushed; keep Draft until fresh CI and formal task gates pass"
+  ],
+  "unresolved": [
+    "T006 both suites exit1: 23 pass, 0 fail, 1 designed-red for stale protected mirror workflow; human apply pending",
+    "PR400 formal T002 quality gate and required sensitive-task independent verification remain pending",
+    "PR371 agent inference about absence of main-side fixes was rejected; inspect correct compare direction before acting"
+  ],
+  "evidence": [
+    "PR400 head8fa3eb8561d6f59b692ec574900f87e181145928 pushed, run34033392134 queued and existing15minuteheartbeat resumed",
+    "Merged local cross-model64/0; delegated ci148/0/local51/0/alltypechecks; primary sddforge247/0 exit0 b85ab4 with sameNode24 and systemBash",
+    "HomebrewBash5.3.9 child96121 sample blocked in heredoc_write/write; exact own test processes terminated, interruptedrun notPASS",
+    "T006 candidate generator now344e035ea9313d0d39a1972e9c1084d9cfaf8afa6e31802222fe9df44c3b1757 identicallive/mirror; candidate manifestcb7eb6800d988664e934bda35e62ce62efc421dc518a226bed66377d02be5025; seven hashes and six mirror bytecomparisons verified545378",
+    "T006 fresh Bash0bc58f andPS9fb839 remain23/0/1exit1; README exacttwo-targethumancommands provided"
+  ],
+  "next_action": [
+    "Receive human mirror apply output using /private/tmp/pr381-verify.7id2mX/worktree/specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/README.md current handoff, then verify and run authorized formal gate",
+    "Inspect PR400 exact new CI run; no rerun merely for timeout, no main merge without gates",
+    "Preserve root unstaged/untracked files; root no longer in an active merge"
+  ]
+}

@@ -260,8 +260,10 @@ if (Test-Path $skill) {
     $sc = Get-Content $skill -Raw
     if ($sc -match "name: cross-model-verify") { ok "CL-012b: SKILL.md has name frontmatter" }
     else { fail "CL-012b: SKILL.md missing name frontmatter" }
-    if ($sc -match "disable-model-invocation: true") { ok "CL-012c: SKILL.md has disable-model-invocation: true" }
-    else { fail "CL-012c: SKILL.md missing disable-model-invocation: true" }
+    if ($sc -cmatch '(?m)^disable-model-invocation:[ \t]*false[ \t]*\r?$') { ok "CL-012c: SKILL.md has disable-model-invocation: false" }
+    else { fail "CL-012c: SKILL.md missing disable-model-invocation: false" }
+    if ($sc -cnotmatch '(?m)^disable-model-invocation:[ \t]*true[ \t]*\r?$') { ok "CL-012e: SKILL.md explicitly rejects disable-model-invocation: true" }
+    else { fail "CL-012e: SKILL.md should not contain disable-model-invocation: true" }
     if ($sc -imatch "blind" -and $sc -imatch "parallel") { ok "CL-012d: SKILL.md mentions blind and parallel" }
     else { fail "CL-012d: SKILL.md should document blind/parallel isolation" }
 } else {
@@ -325,10 +327,10 @@ function New-TranscriptStub {
     # contain arbitrary multi-line JSON/text that isn't safe to hand
     # through New-StubCli's -ShBody sh-idiom translator.
     param([string]$BinDir, [string]$Name, [string]$Transcript)
-    $shBody = "#!/bin/sh`ncat << 'TRANSCRIPT_EOF'`n$Transcript`nTRANSCRIPT_EOF`nexit 0`n"
+    $shBody = "#!/bin/sh`ncat >/dev/null`ncat << 'TRANSCRIPT_EOF'`n$Transcript`nTRANSCRIPT_EOF`nexit 0`n"
     New-StubCli -BinDir $BinDir -Name $Name -ShBody $shBody
     if (-not ($IsLinux -or $IsMacOS)) {
-        $workerBody = "Write-Output @'`n$Transcript`n'@`nexit 0`n"
+        $workerBody = "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output @'`n$Transcript`n'@`nexit 0`n"
         Set-Content -Path (Join-Path $BinDir "$Name-worker.ps1") -Value $workerBody
     }
 }
@@ -342,9 +344,9 @@ function New-TranscriptStub {
 Write-Host "=== CL-014: run-panelist-gpt unparseable-output hardening ==="
 
 $cl014Bin = Join-Path $Work "cl014-bin"
-New-StubCli -BinDir $cl014Bin -Name "codex" -ShBody "#!/bin/sh`nprintf 'usage: codex [OPTIONS]\n'`nexit 0`n"
+New-StubCli -BinDir $cl014Bin -Name "codex" -ShBody "#!/bin/sh`ncat >/dev/null`nprintf 'usage: codex [OPTIONS]\n'`nexit 0`n"
 if (-not ($IsLinux -or $IsMacOS)) {
-    Set-Content -Path (Join-Path $cl014Bin "codex-worker.ps1") -Value "Write-Output 'usage: codex [OPTIONS]'`nexit 0`n"
+    Set-Content -Path (Join-Path $cl014Bin "codex-worker.ps1") -Value "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output 'usage: codex [OPTIONS]'`nexit 0`n"
 }
 
 $cl014 = Join-Path $Work "cl014"
@@ -387,9 +389,9 @@ if (-not (Test-Path "$cl014/specs/feat/verification/T-014.panelist-openai.verdic
 Write-Host "=== CL-015: run-panelist-gemini unparseable-output hardening ==="
 
 $cl015Bin = Join-Path $Work "cl015-bin"
-New-StubCli -BinDir $cl015Bin -Name "gemini" -ShBody "#!/bin/sh`nprintf 'No input provided via stdin.\n'`nexit 0`n"
+New-StubCli -BinDir $cl015Bin -Name "gemini" -ShBody "#!/bin/sh`ncat >/dev/null`nprintf 'No input provided via stdin.\n'`nexit 0`n"
 if (-not ($IsLinux -or $IsMacOS)) {
-    Set-Content -Path (Join-Path $cl015Bin "gemini-worker.ps1") -Value "Write-Output 'No input provided via stdin.'`nexit 0`n"
+    Set-Content -Path (Join-Path $cl015Bin "gemini-worker.ps1") -Value "[Console]::In.ReadToEnd() | Out-Null`nWrite-Output 'No input provided via stdin.'`nexit 0`n"
 }
 
 $cl015 = Join-Path $Work "cl015"

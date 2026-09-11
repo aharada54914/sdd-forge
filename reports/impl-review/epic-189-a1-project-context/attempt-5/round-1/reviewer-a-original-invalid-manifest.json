@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a08638-58e7-7181-a1f3-00bbe36c83ac",
+  "host_session_id": "01a08638-58e7-7181-a1f3-00bbe36c83ac",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4baf94b"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/design.md",
+      "sha256": "7ff9e12e80a6bec6189548d2f2c06b3fa41068a59e3d3059094efdfb75c3a1a2"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/ux-spec.md",
+      "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+      "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/infra-spec.md",
+      "sha256": "db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/security-spec.md",
+      "sha256": "d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-189-a1-project-context/attempt-5/round-1/precheck-result.json",
+      "sha256": "2f35c4c5c2d8921279c480ba87f66d7a61d9da1188f7bd6ce353534defe37690"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) — no UI, no new plugin, no Provider integration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Architecture and Components define content, signing, validation, weakening detection, publication, handshake and consumer boundaries. INV-003 through INV-007 and INV-015 establish integration with existing signing, guard and CI mechanisms. frontend-spec.md Technology Stack and infra-spec.md Deployment Topology supply runtime and infrastructure choices."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. Signing, publication and validation data flows do not themselves establish circular component dependencies."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:391 defines Data Entities, including content schemas, sidecars, registry, snapshots and transaction records; design.md:516 identifies Existing Data Affected; design.md:526 gives Migration Strategy and its rationale. The dated RT002 amendment defines the additional versioned response record."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md API / Contract Plan specifies document schemas and CLI contracts for canonicalization, signing, validation, weakening detection, publication and handshake. Its dated RT002 amendment defines schema-first dispatch, exact response members, nonce and transcript matching, rejection categories and preserved legacy behavior against the normative requirements templates."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Conflicting protection requirements remain within the current design: design.md:789-790 declares contracts/approver-registry.schema.json a REQ-007 protected-registration target, but the exhaustive Protected-File Statement table at design.md:277-287 excludes that schema and design.md:306 fixes the total at 28 entries. An implementation following the enumerated inventory leaves the schema unprotected; adding it instead violates the stated exact inventory and AC-021 count. Resolve the schema's protection status consistently across the declaration, inventory and corresponding acceptance contract. This is a current contract contradiction, not a finding based solely on historical divergence."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: non-fullstack schema and CLI security-infrastructure feature. ux-spec.md and frontend-spec.md explicitly establish that no browser UI, API client or client state is introduced."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Test Strategy covers unit fixtures, signing/validation and publication integration, acceptance verification, wrapper parity and named test artifacts. Its RT002 amendment retains original suites and adds exact rejection assertions; its Authorized AC-028 design resolution maps registration, preservation and baseline-drift branches to TEST-028 and the named negative rows in acceptance-tests.md. Planned fixture evidence is explicitly distinguished from fresh native activation and A8 verification."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Architecture and contract components are defined in design.md Components or named contract subsections. Existing guard, generator, publisher precedent and track consumers are identifiable through investigation.md INV-002 through INV-007, INV-011 and INV-015. Reserved resolver/projection paths are explicitly identified as future handoffs."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "BLOCKED by required evidence outside the manifest. design.md:360 lists docs/adr/0025-human-copy-transactional-bundle.md for the new transaction pattern, and design.md:376-380 references five existing ADRs. None is an allowed input. Investigation supplies historical pins for the existing ADRs but no current existence verification or ADR-0025 pin. The launch explicitly forbids unlisted ADR reads. Supply a corrected manifest or authorized bound existence evidence; this review does not assert that those files are absent."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "BLOCKED by unavailable applicability evidence. design.md contains no Design System Compliance section recording the exact exemption 'N/A — ds_profile: none', and the allowed inputs do not establish whether the project has a design-system directory. The review boundary permits only a root domain directory existence probe, so checking design-system would exceed the reservation. Supply authorized applicability evidence and, if applicable, the design-system inputs. No-UI declarations alone do not establish the specified exemption."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the explicitly permitted root domain/ existence probe confirmed that the directory is absent."
+    }
+  ]
+}

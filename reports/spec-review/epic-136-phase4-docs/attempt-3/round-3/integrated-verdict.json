@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 3,
+  "round": 3,
+  "reviewer_a_run_id": "01a07e23-8b0f-7831-a345-29351d94be5a",
+  "reviewer_b_run_id": "01a07e27-e3a4-7802-9ac3-23544ef661ff",
+  "reviewer_a_host_session_id": "01a07e23-8b0f-7831-a345-29351d94be5a",
+  "reviewer_b_host_session_id": "01a07e27-e3a4-7802-9ac3-23544ef661ff",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

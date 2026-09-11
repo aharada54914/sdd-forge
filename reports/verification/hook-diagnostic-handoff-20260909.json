@@ -1,0 +1,22 @@
+{
+  "decision": [
+    "User approved limited hook evidence contract repair; tracked as RT-20260909-002 for A1 T-008 without altering historical Done or frozen evidence.",
+    "Independent adversarial review rejected treating raw named-guard denial alone as proof of plugin-origin under current contract. Only diagnostic text repair selected; no acceptance or predicate change.",
+    "Protected production edit was blocked; no bypass or copied-validator execution. Human-only reviewed application helper is ready."
+  ],
+  "unresolved": [
+    "Original verifier unchanged. Two original-path tests contain regression additions; RED Bash94/3 and PowerShell93/3 complete. No GREEN yet.",
+    "Human diagnostic application needed. Formal entry still requires authentic plugin-origin evidence or explicit semantic/recovery contract amendment; this patch alone does not unblock it."
+  ],
+  "evidence": [
+    "reports/verification/hook-evidence-contract-repair-20260909.md",
+    "reports/verification/hook-diagnostic-human-20260909.patch",
+    "reports/verification/hook-diagnostic-human-apply-20260909.sh",
+    "Baseline Bash88/0 and PowerShell87/0; bash -n0, git apply --check0, helper --check0; final git diff --check0.",
+    "Independent candidate review /root/hook_contract_security_review: no blocking findings, ordinary static review only."
+  ],
+  "next_action": [
+    "Have human run helper --apply and return complete output; verify GREEN on original paths without editing installed cache.",
+    "Retain raw historical failure, all original acceptance checks, and A8 live-proof distinction. Do not declare formal PASS, close ticket, or merge until required gates succeed."
+  ]
+}

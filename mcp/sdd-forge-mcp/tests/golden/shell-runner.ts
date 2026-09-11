@@ -132,8 +132,8 @@ const EVIDENCE_BUNDLE_SUMMARY = /^T-\d+ evidence bundle failed validation: /;
 /**
  * Returns the environment-dependent detail lines behind a shell failure, but
  * ONLY when the failure is attributable to them alone: every own-failure line
- * must be an evidence-bundle summary, and at least one detail line must name an
- * environment-dependent cause.
+ * must be an evidence-bundle summary, and every other failure detail must name
+ * an environment-dependent cause, with at least one such cause present.
  *
  * Deliberately narrow. If the shell also reports a status/approval failure, or
  * the bundle failed for a content reason the parser *can* see (a sha256
@@ -155,9 +155,14 @@ export function environmentDependentBundleFailures(
   const causes: string[] = [];
   for (const rawLine of combinedOutput.split("\n")) {
     const match = /^ - (.+)$/.exec(rawLine);
-    if (match?.[1] !== undefined && ENVIRONMENT_DEPENDENT_DETAIL.test(match[1])) {
-      causes.push(match[1]);
+    if (match?.[1] === undefined || EVIDENCE_BUNDLE_SUMMARY.test(match[1])) {
+      continue;
     }
+    // A content failure anywhere in the run keeps the whole comparison strict.
+    if (!ENVIRONMENT_DEPENDENT_DETAIL.test(match[1])) {
+      return [];
+    }
+    causes.push(match[1]);
   }
   return causes;
 }

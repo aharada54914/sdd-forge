@@ -1,0 +1,13 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -1811,3 +1811,8 @@
+         }
+-    } catch { Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed" }
++    } catch {
++        if ($Stage -ceq 'impl') {
++            try { [Console]::Error.WriteLine(('ADR_EXCEPTION type={0} line={1}' -f ($_.Exception.GetType().FullName -creplace '[^A-Za-z0-9_.+]', '_'), [int]$_.InvocationInfo.ScriptLineNumber)) } catch {}
++        }
++        Stop-WorkflowState $Feature "stage-provenance" "$Stage review evidence is malformed"
++    }
+     $reviewerAPath = Join-Path $latest.File.DirectoryName "reviewer-a.json"

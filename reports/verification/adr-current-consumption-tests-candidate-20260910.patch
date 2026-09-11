@@ -1,0 +1,141 @@
+diff --git a/tests/impl-review-adr-inputs.tests.sh b/tests/impl-review-adr-inputs.tests.sh
+--- a/tests/impl-review-adr-inputs.tests.sh
++++ b/tests/impl-review-adr-inputs.tests.sh
+@@ -263,1 +263,89 @@
++# Fixture DATA only: exercise the original validators' current-PASS consumer.
++current_adr_fixture() {
++  local stage=$1 mode=$2
++  extended_history_fixture "$stage" equal-layer || return 1
++  python3 - "$stage" "$mode" <<'PY'
++import hashlib
++import json
++import pathlib
++import re
++import sys
++
++stage = pathlib.Path(sys.argv[1])
++mode = sys.argv[2]
++root = stage.parents[4]
++rel = stage.relative_to(root).as_posix()
++def read(name):
++    return json.loads((stage / name).read_text(encoding="utf-8"))
++def save(name, obj):
++    (stage / name).write_text(json.dumps(obj, indent=2) + "\n", encoding="utf-8")
++def digest(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++design = root / "specs/workflow-state-integrity/design.md"
++old = design.read_text(encoding="utf-8")
++original = "docs/adr/0002-repository-workflow-state-integrity.md"
++assert old.count("`" + original + "`") == 1, "fixture ADR declaration drift"
++text = old.replace("`" + original + "`", "Synthetic ADR declaration below")
++adr = "docs/adr/0001-current-fixture.md"
++entries = []
++if mode != "current-empty":
++    target = root / adr
++    target.parent.mkdir(parents=True, exist_ok=True)
++    target.write_text("# Synthetic ADR\n", encoding="utf-8")
++    entries = [{"path": adr, "sha256": digest(target)}]
++    text += "\n`" + adr + "`\n"
++design.write_text(text, encoding="utf-8")
++# Keep historical core design pins: spec opening permits non-ADR design
++# growth, but must not permit a changed ADR authorization set.
++pc = read("precheck-result.json")
++pc["adr_inputs"] = entries
++compact = json.dumps(entries, separators=(",", ":"), ensure_ascii=True)
++material = ":".join(pc[k] for k in
++                    ("design_sha256", "requirements_sha256", "acceptance_sha256"))
++pc["input_sha256"] = hashlib.sha256((material + ":adr_inputs/v1:" + compact).encode("ascii")).hexdigest()
++save("precheck-result.json", pc)
++a = read("reviewer-a.json")
++a["verdict"] = "NEEDS_WORK" if mode == "current-own-opening" else "PASS"
++for check in a["checks"]:
++    if check["id"] == "ADR-PRESENT" and mode != "current-own-opening":
++        check.update(result="PASS", severity="Minor", finding="Synthetic valid ADR")
++failures = sum(c["result"] == "FAIL" for c in a["checks"])
++summary = read("integrated-summary.json")
++summary.update(reviewer_a_fail_count=failures, reviewer_a_pass_count=8-failures, reviewer_a_skip_count=3)
++save("integrated-summary.json", summary)
++b = read("reviewer-b.json")
++for reviewer in (a, b):
++    manifest = [x for x in reviewer["allowed_input_manifest"]
++                if x["path"] != "specs/workflow-state-integrity/ux-spec.md"]
++    for item in manifest:
++        if item["path"] in (rel + "/precheck-result.json", rel + "/integrated-summary.json"):
++            item["sha256"] = digest(root / item["path"])
++    reviewer["allowed_input_manifest"] = manifest + entries
++save("reviewer-a.json", a)
++save("reviewer-b.json", b)
++contract = read("impl-review-contract.json")
++contract["adr_inputs"] = entries
++for reviewer in contract["reviewers"]:
++    source = a if reviewer["role"] == "impl-reviewer-a" else b
++    reviewer["allowed_input_manifest"] = source["allowed_input_manifest"]
++for name, obj in (("impl-review-contract.json", contract),
++                  ("integrated-verdict.json", read("integrated-verdict.json"))):
++    obj.update(verdict=a["verdict"], reviewer_a_verdict=a["verdict"], findings_major=failures)
++    save(name, obj)
++if mode == "current-add":
++    design.write_text(text + "\n`docs/adr/0003-unadmitted-fixture.md`\n", encoding="utf-8")
++elif mode in ("current-remove", "current-own-opening"):
++    design.write_text(text.replace("`" + adr + "`", "Removed declaration"), encoding="utf-8")
++elif mode == "current-parent-link":
++    directory = root / "docs/adr"
++    retained = root / "same-content-adr"
++    directory.rename(retained)
++    directory.symlink_to(retained, target_is_directory=True)
++    assert directory.is_symlink() and digest(root / adr) == entries[0]["sha256"]
++assert read("impl-review-contract.json")["verdict"] == a["verdict"]
++assert read("integrated-verdict.json")["verdict"] == a["verdict"]
++assert len(a["checks"]) == len(b["checks"]) == 11
++PY
++}
++
+ workflow_history_checks() {
+@@ -264,1 +352,1 @@
+-  local runtime mode dir stage file rc expect baseline_ok
++  local runtime mode dir stage file rc expect baseline_ok opening current_ok
+@@ -277,1 +365,3 @@
+   elif [[ "${1:-}" == --late-contract-only ]]; then
++    history_modes=(legacy late-contract-control late-contract-missing late-contract-rescue)
++  elif [[ "${1:-}" == --current-adr-only ]]; then
+@@ -278,1 +368,1 @@
+-    history_modes=(legacy late-contract-control late-contract-missing late-contract-rescue)
++    history_modes=(legacy current-singleton current-empty current-add current-remove current-parent-link current-own-opening)
+@@ -280,1 +370,2 @@
+     history_modes+=(late-contract-control late-contract-missing late-contract-rescue)
++    history_modes+=(current-singleton current-empty current-add current-remove current-parent-link current-own-opening)
+@@ -288,1 +379,2 @@
+     baseline_ok=false
++    current_ok=false
+@@ -324,1 +416,2 @@
+       expect=1
++      opening=impl:1:3
+@@ -326,1 +419,12 @@
+         legacy) expect=0 ;;
++        current-*)
++          current_adr_fixture "$stage" "$mode" || return 1
++          # Fixture history has spec attempt 1, rounds 1 and 2. Do not
++          # silently test an invalid opening if that fixture history grows.
++          [[ -f "$dir/reports/spec-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" ]] || return 1
++          [[ ! -d "$dir/reports/spec-review/workflow-state-integrity/attempt-1/round-3" ]] || return 1
++          [[ ! -d "$dir/reports/spec-review/workflow-state-integrity/attempt-2" ]] || return 1
++          opening=spec:1:3
++          if [[ "$mode" == current-singleton || "$mode" == current-empty ]]; then expect=0; fi
++          if [[ "$mode" == current-own-opening ]]; then opening=impl:1:3; expect=0; fi
++          ;;
+@@ -680,1 +784,1 @@
+-          --registry "$dir/specs/workflow-state-registry.json" --feature workflow-state-integrity --opening impl:1:3 > "$dir/output.log" 2>&1 || rc=$?
++          --registry "$dir/specs/workflow-state-registry.json" --feature workflow-state-integrity --opening "$opening" > "$dir/output.log" 2>&1 || rc=$?
+@@ -683,1 +787,1 @@
+-          --registry "$dir/specs/workflow-state-registry.json" --feature workflow-state-integrity --opening impl:1:3 > "$dir/output.log" 2>&1 || rc=$?
++          --registry "$dir/specs/workflow-state-registry.json" --feature workflow-state-integrity --opening "$opening" > "$dir/output.log" 2>&1 || rc=$?
+@@ -685,1 +789,3 @@
+       if [[ "$mode" == legacy && "$rc" == 0 ]]; then baseline_ok=true; fi
++      if [[ "$mode" == current-* ]]; then printf 'Diagnostic: %s %s\n' "$runtime" "$mode"; cat "$dir/output.log"; fi
++      if [[ "$mode" == current-singleton && "$rc" == 0 ]]; then current_ok=true; fi
+@@ -692,1 +798,2 @@
+       case "$mode" in
++        current-*) check_baseline_ok=$current_ok ;;
+@@ -739,1 +846,1 @@
+-if [[ "${1:-}" == --workflow-only || "${1:-}" == --history-pin-only || "${1:-}" == --late-contract-only ]]; then
++if [[ "${1:-}" == --workflow-only || "${1:-}" == --history-pin-only || "${1:-}" == --late-contract-only || "${1:-}" == --current-adr-only ]]; then

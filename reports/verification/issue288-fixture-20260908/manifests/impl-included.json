@@ -1,0 +1,25 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "f",
+  "run_id": "fixture-impl-run",
+  "host_session_id": "fixture-impl-session",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "484cf6b9ba21c5d80b07a07ed9aee1909e3c72289250589df6472084ce778cad",
+  "previous_record_sha256": "429de3c70cb0b8c5bbbaa7b57ed17c4b51fffad765e20efc0465e583429fdae5",
+  "sequence": 2,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/f/design.md",
+      "sha256": "79fae5d110a507b67118b3263f3125b40b8ca9ab94cb268bd41febdaa54c6c45"
+    },
+    {
+      "path": "specs/f/investigation.md",
+      "sha256": "79fae5d110a507b67118b3263f3125b40b8ca9ab94cb268bd41febdaa54c6c45"
+    }
+  ]
+}
