@@ -125,3 +125,23 @@ this limited digest repair; this is not an independent whole-PR verdict.
 Still pending: bringing #371's MCP files into #381 through integration,
 combined-suite verification, independent review and latest-head CI. No
 historical review verdict, receipt, or Issue completion claim was changed.
+
+## Combined branch verification
+
+Merged #371 head `07724142d29f37d4c9cb2ec3afa7b93da7db90e7` into this
+branch. Reconciled all eight conflicted paths: the three contracts retain
+the hardened #381 constraints plus the restored #371 features; the old
+report stays explicitly stale; producer instructions retain the currentness
+CLI and canonical binary diff command; ADRs retain the corrected source
+attribution and now describe the actual nullable host telemetry contract.
+No review verdict or identity was promoted to current.
+
+The first MCP invocation could not start because this worktree lacked tsc.
+After `npm ci --prefix mcp/sdd-forge-mcp` (204 packages audited, zero reported
+vulnerabilities), ran the combined branch: `npm test --prefix
+mcp/sdd-forge-mcp` passed all 263 tests, zero failed/skipped; typecheck exit 0;
+the Bash adversarial contract suite passed; whitespace check exit 0.
+These results include both branches' regression suites, not separate
+pre-integration passes. Latest merged-head CI and independent review remain
+required before a main merge. The unrelated untracked Issue #288 report
+was not included.
