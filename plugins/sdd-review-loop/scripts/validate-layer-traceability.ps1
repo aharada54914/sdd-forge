@@ -23,18 +23,18 @@ $inTraceabilityTable = $false
 $layerSpecIndex = -1
 foreach ($rawLine in Get-Content -LiteralPath $Path) {
     $line = $rawLine.TrimEnd()
-    if ($line.StartsWith('## ', [StringComparison]::Ordinal) -or [string]::IsNullOrWhiteSpace($line)) {
+    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) {
         $inTraceabilityTable = $false
         $layerSpecIndex = -1
         continue
     }
-    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) { continue }
 
     $cells = @($line.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
     if (-not $inTraceabilityTable) {
-        $requirementIndex = [Array]::IndexOf($cells, 'Requirement')
+        $hasRequirementHeader = $cells.Count -gt 0 -and
+            ($cells[0] -ceq 'Requirement' -or $cells[0] -ceq 'REQ-ID')
         $candidateLayerSpecIndex = [Array]::IndexOf($cells, 'Layer Spec')
-        if ($requirementIndex -eq 0 -and $candidateLayerSpecIndex -ge 0) {
+        if ($hasRequirementHeader -and $candidateLayerSpecIndex -ge 0) {
             $inTraceabilityTable = $true
             $layerSpecIndex = $candidateLayerSpecIndex
         }

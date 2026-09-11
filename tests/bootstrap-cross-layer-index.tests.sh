@@ -39,10 +39,10 @@ assert_absent "$DESIGN" '^## (Frontend|Backend) Plan$' "TEST-007 removes legacy 
 
 assert_contains "$TRACEABILITY" 'Requirement.*Layer Spec.*Test ID' "TEST-008 Layer Spec traceability column"
 trace_header=$(grep -m 1 '^| Requirement |' "$TRACEABILITY")
-if [ "$trace_header" = '| Requirement | Design | Layer Spec | Code Target | Test ID | Status |' ]; then
-  pass "TEST-008 canonical six-column traceability contract"
+if [ "$trace_header" = '| Requirement | Investigation | Design | Layer Spec | Code Target | Test ID | Status |' ]; then
+  pass "TEST-008 traceability retains investigation provenance"
 else
-  fail "TEST-008 canonical six-column traceability contract"
+  fail "TEST-008 traceability retains investigation provenance"
 fi
 assert_contains "$TRACEABILITY" '^## Layer Coverage$' "TEST-008 layer coverage summary"
 assert_contains "$TRACEABILITY" 'ux-spec\.md#[a-z0-9-]+' "TEST-008 canonical UX anchor example"
@@ -112,6 +112,78 @@ if command -v pwsh >/dev/null 2>&1; then
 else
   printf 'SKIP: TEST-008 PowerShell validator parity (pwsh unavailable)\n'
 fi
+
+if python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+    "$ROOT/specs/ci-mcp/traceability.md" "$ROOT/specs/ci-mcp/requirements.md"; then
+  pass "TEST-008 existing REQ-ID traceability header remains valid"
+else
+  fail "TEST-008 existing REQ-ID traceability header remains valid"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+  if pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+      -Path "$ROOT/specs/ci-mcp/traceability.md" -RequirementsPath "$ROOT/specs/ci-mcp/requirements.md"; then
+    pass "TEST-008 PowerShell existing REQ-ID traceability header remains valid"
+  else
+    fail "TEST-008 PowerShell existing REQ-ID traceability header remains valid"
+  fi
+fi
+
+printf '# Requirements\n\nREQ-001\n' > "$TMP_WORK/header-requirements.md"
+for bad_header in 'req-id' 'REQ-id' 'Notes | REQ-ID'; do
+  printf '| %s | Layer Spec |\n|---|---|\n| REQ-001 | ux-spec.md#journey |\n' "$bad_header" > "$TMP_WORK/bad-header.md"
+  if python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+      "$TMP_WORK/bad-header.md" "$TMP_WORK/header-requirements.md" > /dev/null 2>&1; then
+    fail "TEST-008 rejects noncanonical or displaced header: $bad_header"
+  else
+    pass "TEST-008 rejects noncanonical or displaced header: $bad_header"
+  fi
+  if command -v pwsh >/dev/null 2>&1; then
+    if pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+        -Path "$TMP_WORK/bad-header.md" -RequirementsPath "$TMP_WORK/header-requirements.md" > /dev/null 2>&1; then
+      fail "TEST-008 PowerShell rejects noncanonical or displaced header: $bad_header"
+    else
+      pass "TEST-008 PowerShell rejects noncanonical or displaced header: $bad_header"
+    fi
+  fi
+done
+
+for boundary in '# Notes' '## Notes' '### Notes' '#### Notes' '##### Notes' '###### Notes'; do
+  for next_layer in 'security-spec.md#access' 'invalid-anchor'; do
+    expected=0
+    [ "$next_layer" = 'invalid-anchor' ] && expected=1
+    printf '%s\n' \
+      '| Requirement | Layer Spec |' '|---|---|' \
+      '| REQ-001 | ux-spec.md#journey |' "$boundary" \
+      '| Requirement | Notes |' '|---|---|' \
+      '| REQ-001 | supplementary prose, not a layer anchor |' \
+      '### Next traceability table' \
+      '| Requirement | Notes | Layer Spec |' '|---|---|---|' \
+      "| REQ-001 | independent column layout | $next_layer |" \
+      > "$TMP_WORK/table-boundary.md"
+    python3 "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+      "$TMP_WORK/table-boundary.md" "$TMP_WORK/header-requirements.md" \
+      > "$TMP_WORK/boundary.log" 2>&1
+    actual=$?
+    if [ "$actual" -eq "$expected" ] && { [ "$expected" -eq 0 ] || grep -F 'invalid Layer Spec for REQ-001: invalid-anchor' "$TMP_WORK/boundary.log" >/dev/null; }; then
+      pass "TEST-008 table boundary $boundary, next layer $next_layer"
+    else
+      cat "$TMP_WORK/boundary.log"
+      fail "TEST-008 table boundary $boundary, next layer $next_layer"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+      pwsh -NoProfile -File "$ROOT/plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1" \
+        -Path "$TMP_WORK/table-boundary.md" -RequirementsPath "$TMP_WORK/header-requirements.md" \
+        > "$TMP_WORK/boundary.log" 2>&1
+      actual=$?
+      if [ "$actual" -eq "$expected" ] && { [ "$expected" -eq 0 ] || grep -F 'invalid Layer Spec for REQ-001: invalid-anchor' "$TMP_WORK/boundary.log" >/dev/null; }; then
+        pass "TEST-008 PowerShell table boundary $boundary, next layer $next_layer"
+      else
+        cat "$TMP_WORK/boundary.log"
+        fail "TEST-008 PowerShell table boundary $boundary, next layer $next_layer"
+      fi
+    fi
+  done
+done
 
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
