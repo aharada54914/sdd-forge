@@ -19,8 +19,8 @@ diff_sha256:     {{DIFF_SHA256}}
 created_at:      {{ISO8601_UTC}}
 skill_version:   {{SKILL_GIT_SHA_OR_DESCRIBE}}
 reviewer_run_ids:
-  - reviewer_a: {{RUN_ID_A}}
-  - reviewer_b: {{RUN_ID_B}}
+  reviewer_a: {{RUN_ID_A}}
+  reviewer_b: {{RUN_ID_B}}
 ```
 
 ### Stale judgement rules

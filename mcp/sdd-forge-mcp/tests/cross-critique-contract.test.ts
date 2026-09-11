@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Ajv } from "ajv";
+import { load } from "js-yaml";
 
 // Compiled tests live under mcp/sdd-forge-mcp/dist-test/tests/.
 const schema = JSON.parse(readFileSync(new URL("../../../../contracts/cross-critique.v1.schema.json", import.meta.url), "utf8"));
@@ -42,4 +43,27 @@ test("concerns remain allowed for support but cannot reject findings", () => {
   const record = { ...verdict(), basis: { kind: "concern" }, scope: { assessment: "unclear" } };
   assert.equal(accepts(record), true);
   assert.equal(accepts({ ...record, verdict: "PROPOSE-REJECT" }), false);
+});
+
+test("filled report template conforms to its metadata contract", () => {
+  const root = new URL("../../../../", import.meta.url);
+  const contract = JSON.parse(readFileSync(new URL("contracts/adversarial-review-report.v1.schema.json", root), "utf8"));
+  const check = new Ajv({ strict: false, validateFormats: false }).compile(contract);
+  const template = readFileSync(new URL("skills/adversarial-review/templates/report-template.md", root), "utf8");
+  const block = template.match(/```yaml\n([\s\S]*?)\n```/);
+  assert.ok(block, "metadata YAML block must exist");
+  const values: Record<string, string> = {
+    MERGE_BASE_SHA: "a".repeat(40), HEAD_SHA: "b".repeat(40),
+    DIFF_SHA256: "c".repeat(64), ISO8601_UTC: "2026-09-11T00:00:00Z",
+    SKILL_GIT_SHA_OR_DESCRIBE: "d".repeat(40), RUN_ID_A: "reviewer-a-001", RUN_ID_B: "reviewer-b-001",
+  };
+  const rendered = block[1].replace(/\{\{([A-Z0-9_]+)\}\}/g, (_, key: string) => {
+    assert.ok(Object.hasOwn(values, key), `unknown placeholder: ${key}`);
+    return JSON.stringify(values[key]);
+  });
+  const metadata = load(rendered);
+  assert.equal(check(metadata), true, JSON.stringify(check.errors));
+  assert.equal(check({ ...(metadata as Record<string, unknown>), reviewer_run_ids: [
+    { reviewer_a: values.RUN_ID_A }, { reviewer_b: values.RUN_ID_B },
+  ] }), false, "legacy array shape must remain rejected");
 });
