@@ -129,6 +129,54 @@ fi
 # ---------------------------------------------------------------------------
 # TEST-006 (AC-006): drive_review_round — spec-review rounds 1->3
 # ---------------------------------------------------------------------------
+echo "=== helper regression: traceability contract and manifest allocation ==="
+TRACE_VALIDATOR="${REPO_ROOT}/plugins/sdd-review-loop/scripts/validate-layer-traceability.py"
+if python3 "$TRACE_VALIDATOR" "${GF_ROOT}/specs/${FEATURE_GF}/traceability.md" "${GF_ROOT}/specs/${FEATURE_GF}/requirements.md"; then
+  ok "helper: generated traceability satisfies the real layer contract"
+else
+  fail "helper: generated traceability violates the real layer contract"
+fi
+TRACE_NEG="${SEED_ROOT}/traceability-negative.md"
+sed 's/| Requirement |/| req-id |/' "${GF_ROOT}/specs/${FEATURE_GF}/traceability.md" > "$TRACE_NEG"
+if python3 "$TRACE_VALIDATOR" "$TRACE_NEG" "${GF_ROOT}/specs/${FEATURE_GF}/requirements.md" 2> "${SEED_ROOT}/trace-negative.log"; then
+  fail "helper: mis-cased traceability header accepted"
+elif grep -F 'no requirement rows found' "${SEED_ROOT}/trace-negative.log" >/dev/null; then
+  ok "helper: mis-cased traceability header rejected by real validator"
+else
+  fail "helper: mis-cased header rejected for an unexpected reason"
+fi
+
+# Inject allocation failure only; jq records whether construction was reached.
+# Run in conditional context to ensure correctness does not rely on errexit.
+if (
+  LOOP_FIXTURE_ROOT="$GF_ROOT"
+  mktemp() { printf '%s\n' "${SEED_ROOT}/must-not-write"; return 73; }
+  jq() { printf 'called\n' >> "${SEED_ROOT}/jq-after-allocation.log"; command jq "$@"; }
+  if _loop_review_context_call spec spec-reviewer-a "$FEATURE_GF" '[]' check; then exit 1; fi
+  [[ ! -e "${SEED_ROOT}/must-not-write" ]] || exit 1
+  # Only the two ledger reads before allocation may call jq.
+  [[ "$(wc -l < "${SEED_ROOT}/jq-after-allocation.log" | tr -d ' ')" == 2 ]]
+) 2> "${SEED_ROOT}/allocation-failure.log"; then
+  ok "helper: allocation failure returns before manifest construction"
+else
+  fail "helper: allocation failure did not stop manifest construction"
+fi
+
+# Enforce the portable template while delegating allocation to real mktemp.
+if (
+  LOOP_FIXTURE_ROOT="$GF_ROOT"
+  mktemp() {
+    [[ "$1" == *XXXXXX ]] || return 74
+    command mktemp "$@"
+  }
+  manifest="$(_loop_manifest_array "specs/${FEATURE_GF}/requirements.md" "specs/${FEATURE_GF}/acceptance-tests.md")" || exit 1
+  _loop_review_context_call spec spec-reviewer-a "$FEATURE_GF" "$manifest" check
+); then
+  ok "helper: portable manifest allocation reaches the real validator"
+else
+  fail "helper: portable manifest allocation or real validation failed"
+fi
+
 echo "=== TEST-006: drive_review_round (spec-review rounds 1->3) ==="
 
 SPEC_PRECHECK_SH="${REPO_ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
