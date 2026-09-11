@@ -20,11 +20,12 @@ test("report currentness rejects changed head, base, diff, and report bytes", ()
     const base = git("rev-parse", "HEAD").toString().trim();
     git("checkout", "-b", "feature");
     writeFileSync(join(repo, "change.txt"), "change\n");
-    git("add", "change.txt");
+    writeFileSync(join(repo, "change.bin"), Buffer.from([0, 1, 2, 255]));
+    git("add", "change.txt", "change.bin");
     git("commit", "-m", "feature");
     const head = git("rev-parse", "HEAD").toString().trim();
     const metadata = { schema_version: "adversarial-review-report.v1", merge_base_sha: base,
-      head_sha: head, diff_sha256: hash(git("diff", "--no-ext-diff", "--no-textconv", `${base}..${head}`)),
+      head_sha: head, diff_sha256: hash(git("diff", "--binary", "--no-ext-diff", "--no-textconv", `${base}..${head}`)),
       created_at: "2026-09-11T00:00:00Z", skill_version: head,
       reviewer_run_ids: { reviewer_a: "run-a", reviewer_b: "run-b" } };
     const render = (value: unknown) => `# Review\n\n\`\`\`yaml\n${JSON.stringify(value)}\n\`\`\`\n`;

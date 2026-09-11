@@ -92,7 +92,7 @@ in the review receipt or PR metadata as `report_sha256`. Pass that saved digest
 above; do not recompute it from the current report to make verification pass.
 The digest is external to avoid a self-referential hash inside the report.
 Record `diff_sha256` from the bytes of
-`git diff --no-ext-diff --no-textconv MERGE_BASE_SHA..HEAD_SHA`.
+`git diff --binary --no-ext-diff --no-textconv MERGE_BASE_SHA..HEAD_SHA`.
 Exit 0 and `status: current` are required; nonzero (including unavailable Git,
 missing files or invalid metadata) cannot satisfy the lane. This command does
 not launch agents, change review verdicts, or modify repository files. The same

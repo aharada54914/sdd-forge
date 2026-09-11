@@ -30,7 +30,7 @@ try {
   const base = git("merge-base", head, baseTip).toString().trim();
   if (metadata.head_sha !== head) throw new Error("head-mismatch");
   if (metadata.merge_base_sha !== base) throw new Error("merge-base-mismatch");
-  const diff = git("diff", "--no-ext-diff", "--no-textconv", `${base}..${head}`);
+  const diff = git("diff", "--binary", "--no-ext-diff", "--no-textconv", `${base}..${head}`);
   if (metadata.diff_sha256 !== hash(diff)) throw new Error("diff-digest-mismatch");
   process.stdout.write(JSON.stringify({ status: "current", head_sha: head, merge_base_sha: base,
     report_sha256: values["report-sha256"] }) + "\n");
