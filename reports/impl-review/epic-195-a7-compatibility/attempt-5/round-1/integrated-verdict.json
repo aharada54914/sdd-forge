@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "impl-orch-epic-195-a7-compatibility-a5r1-20260911",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 5,
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

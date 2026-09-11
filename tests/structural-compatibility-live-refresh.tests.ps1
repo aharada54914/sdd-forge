@@ -238,6 +238,7 @@ function Invoke-SelfTest {
 set -euo pipefail
 [[ $# -eq 4 && $1 == -p && $3 == --output-format && $4 == json ]] || exit 64
 prompt=$2
+case "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" in auth-failure) exit 78 ;; service-failure) exit 69 ;; esac
 state=F1; file=f1-full.json
 if [[ "$prompt" == *"fixture_state=F2"* ]]; then state=F2; file=f2-lite.json; fi
 printf "%s\n%s\n%s\n" "$1" "$3" "$4" > "$STRUCTURAL_REFRESH_STUB_CAPTURE"
@@ -248,6 +249,7 @@ if [[ "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" == bad-payload ]]; then jq -cn '{
 payload="$(jq -c '{artifacts:.artifacts}' "$STRUCTURAL_REFRESH_STUB_CORPUS/$file")"
 if [[ "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" == bad-heading ]]; then payload="$(jq -c '.artifacts[0].content += "\n## Unexpected live heading\n"' <<<"$payload")"; fi
 jq -cn --arg result "$payload" '{result:$result,modelUsage:{"claude-test":{}}}'
+if [[ "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" == output-then-failure ]]; then exit 74; fi
 '@
     [IO.File]::WriteAllText($stub, $stubText, $Utf8NoBom)
     & chmod '+x' $stub
@@ -265,6 +267,23 @@ jq -cn --arg result "$payload" '{result:$result,modelUsage:{"claude-test":{}}}'
     $script:SelfTestFailed = 0
     try {
         $script:SuppressRefreshFailure = $true
+        foreach ($failureCase in @('auth-failure', 'service-failure', 'output-then-failure')) {
+            foreach ($targetState in @('existing', 'absent')) {
+                $targetPath = Join-Path $scratch 'f1-full.json'
+                Remove-Item -LiteralPath $targetPath -Force -ErrorAction SilentlyContinue
+                if ($targetState -ceq 'existing') { Copy-Item -LiteralPath (Join-Path $Corpus 'f1-full.json') -Destination $targetPath }
+                $env:STRUCTURAL_REFRESH_STUB_CASE = $failureCase
+                $ok = Invoke-Refresh F1 $scratch
+                $preserved = -not (Test-Path -LiteralPath $targetPath)
+                if ($targetState -ceq 'existing') {
+                    $preserved = (Test-Path -LiteralPath $targetPath) -and
+                        (Get-FileHash -Algorithm SHA256 -LiteralPath $targetPath).Hash -ceq
+                        (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Corpus 'f1-full.json')).Hash
+                }
+                if ((-not $ok) -and $preserved) { Pass "$failureCase preserves $targetState target" }
+                else { Fail "$failureCase preserves $targetState target" }
+            }
+        }
         Copy-Item -LiteralPath (Join-Path $Corpus 'f1-full.json') -Destination (Join-Path $scratch 'f1-full.json')
         $before = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $scratch 'f1-full.json')).Hash
         $env:STRUCTURAL_REFRESH_STUB_CASE = 'bad-heading'

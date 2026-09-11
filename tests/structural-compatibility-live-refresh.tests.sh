@@ -229,6 +229,7 @@ self_test() {
     'set -euo pipefail' \
     '[[ $# -eq 4 && $1 == -p && $3 == --output-format && $4 == json ]] || exit 64' \
     'prompt=$2' \
+    'case "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" in auth-failure) exit 78 ;; service-failure) exit 69 ;; esac' \
     'state=F1; file=f1-full.json' \
     'if [[ "$prompt" == *"fixture_state=F2"* ]]; then state=F2; file=f2-lite.json; fi' \
     'printf "%s\n%s\n%s\n" "$1" "$3" "$4" > "$STRUCTURAL_REFRESH_STUB_CAPTURE"' \
@@ -239,6 +240,7 @@ self_test() {
     'payload="$(jq -c '\''{artifacts:.artifacts}'\'' "$STRUCTURAL_REFRESH_STUB_CORPUS/$file")"' \
     'if [[ "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" == bad-heading ]]; then payload="$(jq -c '\''.artifacts[0].content += "\n## Unexpected live heading\n"'\'' <<<"$payload")"; fi' \
     'jq -cn --arg result "$payload" '\''{result:$result,modelUsage:{"claude-test":{}}}'\''' \
+    'if [[ "${STRUCTURAL_REFRESH_STUB_CASE:-valid}" == output-then-failure ]]; then exit 74; fi' \
     >"$stub"
   chmod +x "$stub"
 
@@ -253,6 +255,20 @@ self_test() {
 
   cp "$CORPUS/f1-full.json" "$scratch/f1-full.json"
   local before after rc
+  local failure_case target_state
+  for failure_case in auth-failure service-failure output-then-failure; do
+    for target_state in existing absent; do
+      rm -f "$scratch/f1-full.json"
+      if [[ "$target_state" == existing ]]; then cp "$CORPUS/f1-full.json" "$scratch/f1-full.json"; fi
+      rc=0
+      run_refresh F1 "$failure_case" "$scratch" >"$test_root/$failure_case-$target_state.log" 2>&1 || rc=$?
+      if [[ "$rc" -eq 1 ]] && {
+        [[ "$target_state" == existing ]] && cmp -s "$CORPUS/f1-full.json" "$scratch/f1-full.json" ||
+        [[ "$target_state" == absent && ! -e "$scratch/f1-full.json" ]];
+      }; then pass "$failure_case preserves $target_state target"; else fail "$failure_case preserves $target_state target"; fi
+    done
+  done
+  cp "$CORPUS/f1-full.json" "$scratch/f1-full.json"
   before="$(shasum -a 256 "$scratch/f1-full.json" | awk '{print $1}')"
   set +e
   run_refresh F1 bad-heading "$scratch" >"$test_root/bad-existing.log" 2>&1
