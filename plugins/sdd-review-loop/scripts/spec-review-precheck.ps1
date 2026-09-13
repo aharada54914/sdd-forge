@@ -488,7 +488,19 @@ if ($roundInt -gt 1) {
   $priorRequirementsSha = [string]$priorData.requirements_sha256
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
   if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {
-    Fail 'reviewed inputs are unchanged from the prior round'
+    # Historical evidence is fully validated before live bytes are compared.
+    $investigationPath = Join-Path $specDir 'investigation.md'
+    $priorInvestigationHashes = @($priorData.reviewers | ForEach-Object {
+      $_.allowed_input_manifest | Where-Object { Test-OrdinalEqual $_.path $investigationPath } | ForEach-Object { $_.sha256 }
+    } | Select-Object -Unique)
+    if ($priorInvestigationHashes.Count -ne 1 -or -not (Test-IsSha256 $priorInvestigationHashes[0]) -or
+        -not (Test-Path -LiteralPath $investigationPath -PathType Leaf) -or (Test-IsSymlink $investigationPath)) {
+      Fail 'reviewed inputs are unchanged or prior investigation is unavailable'
+    }
+    $currentInvestigationSha = Get-Sha256File $investigationPath
+    if (-not (Test-IsSha256 $currentInvestigationSha) -or (Test-OrdinalEqual $currentInvestigationSha $priorInvestigationHashes[0])) {
+      Fail 'reviewed inputs are unchanged from the prior round'
+    }
   }
 }
 

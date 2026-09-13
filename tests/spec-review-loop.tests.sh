@@ -379,6 +379,60 @@ jq --arg path "${SPEC_DIR}/investigation.md" \
 mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
 
+# An investigation-only remedy is a changed reviewed input, not a replay.
+remedy_lanes=(bash)
+if command -v pwsh >/dev/null 2>&1; then
+  remedy_lanes+=(pwsh)
+else
+  echo "SKIP: investigation remedy PowerShell lane requires pwsh"
+fi
+remedy_failures=0
+remedy_next() {
+  if [[ "${remedy_lane}" == pwsh ]]; then
+    "${remedy_command[@]}" "${FEATURE}" 1 2 -EditSummary "$1"
+  else
+    "${remedy_command[@]}" "${FEATURE}" 1 2 --edit-summary="$1"
+  fi
+}
+for remedy_lane in "${remedy_lanes[@]}"; do
+  remedy_command=("${PRECHECK}")
+  if [[ "${remedy_lane}" == pwsh ]]; then
+    remedy_command=(pwsh -NoProfile -File "${ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1")
+  fi
+  cleanup
+  mkdir -p "${SPEC_DIR}"
+  printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
+  printf '# Acceptance\n' > "${SPEC_DIR}/acceptance-tests.md"
+  printf '# Investigation\n' > "${SPEC_DIR}/investigation.md"
+  "${remedy_command[@]}" "${FEATURE}" 1 1
+  SEALED="${REPORT_ROOT}/attempt-1/round-1"
+  write_contract "${SEALED}" NEEDS_WORK Major
+  expect_failure remedy_next "unbound investigation"
+  pin_investigation "${SEALED}"
+  expect_failure remedy_next "unchanged investigation"
+  mv "${SPEC_DIR}/investigation.md" "${SPEC_DIR}/investigation.saved"
+  expect_failure remedy_next "missing investigation"
+  ln -s "${SPEC_DIR}/investigation.saved" "${SPEC_DIR}/investigation.md"
+  printf '\n- Reference hash supplied.\n' >> "${SPEC_DIR}/investigation.saved"
+  expect_failure remedy_next "symlinked investigation"
+  rm "${SPEC_DIR}/investigation.md"
+  mv "${SPEC_DIR}/investigation.saved" "${SPEC_DIR}/investigation.md"
+  cp "${SEALED}/spec-review-contract.json" "${SEALED}/contract.saved"
+  jq --arg path "${SPEC_DIR}/investigation.md" \
+    '(.reviewers[1].allowed_input_manifest[] | select(.path == $path) | .sha256) = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"' \
+    "${SEALED}/contract.saved" > "${SEALED}/spec-review-contract.json"
+  expect_failure remedy_next "inconsistent investigation pins"
+  mv "${SEALED}/contract.saved" "${SEALED}/spec-review-contract.json"
+  if remedy_next "investigation reference remedy"; then
+    echo "ok: ${remedy_lane} investigation-only remedy admitted after negative cases"
+    expect_failure remedy_next "replay"
+  else
+    echo "FAIL: ${remedy_lane} changed previously reviewed investigation must authorize the next round" >&2
+    remedy_failures=$((remedy_failures + 1))
+  fi
+done
+[[ "${remedy_failures}" == 0 ]] || fail "investigation remedy lanes failed: ${remedy_failures}"
+
 cleanup
 mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
 printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
