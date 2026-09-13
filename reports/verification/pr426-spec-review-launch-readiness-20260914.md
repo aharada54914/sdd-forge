@@ -119,3 +119,64 @@ host-issued reviewer identity and the current ledger tip, and pass reservation
 before the named reviewer is launched. This reconciliation does not authorize
 retrying the previously denied PR409 launch through another interpreter or
 weakening protected-write rejection. Requirements remain Pending.
+
+## Native host allocation investigation
+
+Read-only inspection on 2026-09-14 checked `codex exec --help`,
+`codex app-server --help`, `codex app-server generate-json-schema --help`,
+and `claude --help`. No reviewer process, thread, reservation or model turn
+was started by this investigation. Caller-supplied Claude `--session-id` is
+not evidence of host issuance.
+
+The [official App Server documentation](https://learn.chatgpt.com/docs/app-server)
+distinguishes `thread/start`, which creates a thread and returns its identity,
+from `turn/start`, which begins generation. It also specifies that
+`thread/start` loads instruction sources. Therefore allocation before generation
+is supported, but that alone does not establish reservation before host-context
+creation. The installed `spec-review-loop/SKILL.md` independent reviewer step 2
+explicitly requires reservation immediately before starting the host context;
+its sequential boundary also requires host-issued identities in that reservation.
+
+No documented allocation-only operation satisfying both conditions was found
+in this bounded inspection. This is not proof that every possible host lacks
+such an operation. Do not relabel thread creation as a reservation or retrofit
+a reserved identity onto an already-started reviewer. A supported allocation
+receipt or an explicit, reviewed lifecycle-contract correction remains needed
+before this path can be used for formal review. No Pending status was changed.
+
+CI run `34769319508` for `bed697aea067f3b644a6c488da6fb4116a6d09d2`
+was still in progress: 23 jobs succeeded and `version-gates (windows-latest)`
+was executing `Test validate-capability-registry suite (pwsh)`. This snapshot
+is not an all-checks-success result and does not satisfy merge prerequisites.
+
+## Latest-head CI terminal result
+
+Run `34769319508` subsequently completed with `conclusion: success` for exact
+head `bed697aea067f3b644a6c488da6fb4116a6d09d2`. All 25 returned jobs succeeded,
+including the final aggregate check. This supersedes only the earlier CI
+snapshots, not the unresolved formal-review launch condition or required approval.
+No reviewer was launched, no verdict changed, and no merge or Issue closure
+was performed. Result: https://github.com/aharada54914/sdd-forge/actions/runs/34769319508
+
+## Human-applied lifecycle repair and fresh validation
+
+The human repair batch subsequently applied the allocation-before-execution
+contract to this branch and the installed 1.17.0 skill. Both files have SHA-256
+`b816d5a7f09d458ecd9cab3cf23b7a2f52433ddde3badf80b3ff8d22bf46dad9`.
+This supersedes the old requirement to reserve before context allocation:
+an empty idle allocation is now allowed, but the first review turn still requires
+host-issued identity evidence and successful reservation in that exact context.
+
+Fresh `bash tests/spec-review-loop.tests.sh` against this worktree exited 0.
+Log: `/tmp/sdd-pr426-applied-launch-contract-20260914.log`.
+The test covers persisted-state, hashes, replay, reset and path admission; it
+does not prove a real host's allocation/identity lifecycle. A local review of
+the changed contract found no Critical issue; no independent gate is claimed.
+
+Available tool metadata was searched for agent/session allocation. The current
+agent-spawn and task-creation interfaces start work; no callable idle-allocation
+operation returning both required host identities was identified. That is a
+bounded capability observation, not proof that no external host can support it.
+No reviewer was launched, no identity reserved, and requirements remain Pending.
+CI for the subsequent repair commit must be checked separately from the old
+successful run above. The PR is not ready to merge on fixture evidence alone.
