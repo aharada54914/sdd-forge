@@ -23,8 +23,10 @@ is deterministically capped and refuses a round in which the reviewed document
 did not change (INV-002, INV-003), the merged verdict is recomputed from raw
 severities by three independent validators so nothing downstream can move it
 (INV-014), the orchestrator is forbidden from waiving findings (INV-015), and
-the cost-saving mechanism the source protocol depends on — resuming the same
-agent — is structurally unavailable under the identity ledger (INV-012).
+the source protocol's same-agent continuation has no established in-gate
+authorization or measured cost here (INV-012, 2026-09-14 correction).
+Duplicate-reservation rejection does not by itself prove that every form of
+continuation is impossible; see `design.md` C3 and OQ-6.
 
 This feature modifies the gate that decides whether work is acceptable. An
 unforced choice here becomes a contract nobody agreed to. So the requirements

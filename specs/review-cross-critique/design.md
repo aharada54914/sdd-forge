@@ -45,7 +45,7 @@ here so no candidate shape below has to restate them.
 |---|---|---|
 | C1 | A raw reviewer report is refused in **any** role's manifest, unconditionally, before role authorization is even consulted | `validate-review-context-set.sh:57-61`, applied at `:287-288`; stated as having no exception at `review-context-boundary.md:134-136` |
 | C2 | `stage:role` is a closed enumeration of nine pairs; an unknown pair fails at launch, and `path_is_authorized` defaults to `return 1` | `validate-review-context-set.sh:189-192`, `:126` |
-| C3 | A reservation requires a globally-unique `run_id` **and** `host_session_id`; a resumed session cannot reserve | `validate-review-context-set.sh:234-235`, `:262-265`, chain check at `:260-261` |
+| C3 | An existing identity cannot be reserved twice; verification of its persisted record is a separate operation, not authorization for cross-critique continuation | At main `08baf03a`, `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:368-400`, especially `:377-379`. Reverify these shared-code references at review and implementation time. |
 | C4 | Rounds are capped at 3 by a shell script, not by prose | `spec-review-precheck.sh:35` |
 | C5 | A round is refused unless a reviewed document changed since the prior round | `spec-review-precheck.sh:286-287`; `--edit-summary` at `:36-38` |
 | C6 | A round directory is write-once; replay is refused | `spec-review-precheck.sh:138`, `:314` |
@@ -56,13 +56,13 @@ here so no candidate shape below has to restate them.
 Two of these deserve a sentence of consequence, because they are the ones most
 likely to be discovered late.
 
-**C3 kills the source protocol's cost model.** `skills/adversarial-review/SKILL.md:37`
-runs cross-critique by resuming the same two agents — "context preserved — no
-re-reading cost". Inside `sdd-review-loop` that reservation fails at
-`validate-review-context-set.sh:262-265`. A cross-critique participant is
-therefore a fresh context that re-reads every input, which is exactly the cost the
-source protocol was designed to avoid. Any cost argument that assumes resumption
-is wrong here.
+**C3 does not establish a continuation contract or its cost.** The validator
+distinguishes a new reservation from verification of an existing record. Its
+duplicate-reservation rejection does not decide whether an already-running
+reviewer may receive new inputs after its blind verdict. That launch/input
+boundary is OQ-6, not permission to bypass the ledger or the blind-pass boundary.
+ADR-0026 Decision 2 proposes continuation but remains Proposed. Neither a
+mandatory fresh launch nor a zero-cost continuation follows from C3 alone.
 
 **C8 makes "synthesis" almost inert by default.** Severity is the only input to
 all four derivations. A `SEVERITY_CHANGE` verdict changes nothing unless a
@@ -133,8 +133,10 @@ Stated as alternatives with consequences, not as a recommendation.
 **Shape A — a sub-phase inside a round, after both verdicts are persisted.**
 The round counter never sees it, so C4 and C5 are untouched and the human's
 three-edit budget is preserved. Blind independence of the first pass is intact by
-construction. Cost: two extra fresh-context launches per triggering round (C3),
-each re-reading the full input set. Its verdicts cannot move the merged verdict
+construction. If OQ-6 selects two fresh-context critics, this adds two launches
+per triggering round, each re-reading the full input set. A continuation model
+would need its own authorization and cost evidence; C3 does not select either
+model. Its verdicts cannot move the merged verdict
 without also changing C8's four derivations. It cannot prevent a round-3 BLOCKED
 that a severity re-calibration would have avoided, because the verdict is already
 computed by the time it runs (requirements Edge Case 5).
@@ -270,7 +272,7 @@ decision appears here without an attributed human resolution.
 | OQ-3 number of exchanges | **UNRESOLVED** | human | the source protocol runs exactly one (`adversarial-review/SKILL.md:37`); no default assumed |
 | OQ-4 round-counter placement | **UNRESOLVED** | human | Shapes A / B / C with consequences; C4, C5, C6 stated as the constraints each must survive |
 | OQ-5 blind independence | **UNRESOLVED** | human | Shapes α / β / γ with consequences; the evasion-by-renaming option is refused on the record |
-| OQ-6 fresh vs resumed context | **UNRESOLVED** | human | C3 shows resumption is unavailable, so the real question is whether the re-read cost is accepted or the participant is exempted from the ledger |
+| OQ-6 fresh vs resumed context | **UNRESOLVED** | human | Specify the launch/input authorization and identity evidence for the chosen continuation or fresh-context model; verify its cost assumptions. C3 alone does not select either model or authorize a ledger exemption. ADR-0026 Decision 2 is a proposal, not a resolved decision. |
 | OQ-7 verdicts vs synthesis | **UNRESOLVED** | human | C8 shows the change is all-four-derivations or nothing; TEST-010c fails on a silent resolution |
 | OQ-8 disagreement handling | **UNRESOLVED** | human | C9 shows the orchestrator cannot be the tie-breaker as currently written; TEST-010d fails on a silent resolution |
 | OQ-9 verdict spelling | **UNRESOLVED** | human | TEST-011b/c pass under either spelling and fail under a mixture, so the decision can be made late without re-work |
