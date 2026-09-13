@@ -916,3 +916,6 @@ assert_rejected_both wfi038-unratified-section-name \
   "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
 
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'
+
+# Feature-wide scratch-root regression is mandatory, including PowerShell.
+python3 "$ROOT/tests/review-scratch-history.tests.py" --repo "$ROOT"

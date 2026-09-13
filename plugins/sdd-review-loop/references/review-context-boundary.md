@@ -21,8 +21,8 @@ wins and this document is the defect.
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
    ledger **as it stands before the reservation** (`:449`, and again under the
-   reservation lock at `:596`).
-2. Append the reserved record to the ledger (`:605-615`).
+   reservation lock at `:758`).
+2. Append the reserved record to the ledger (`:768-778`).
 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
    chain facts the validator proved before printing (WFI-037):
    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
@@ -48,7 +48,7 @@ and the appended record is the *extension*.
 | `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:276`, `:451`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
 | `previous_record_sha256` | must equal the last record's `record_sha256` (`:451`) | **yes** — via the caller-quoted line; this is the chain |
 | `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:277`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:278`); equality against the ledger **before** the append (`:449`, `:596`) | **NO — see below** |
+| `identity_ledger_sha256` | hex-format (`:278`); equality against the ledger **before** the append (`:449`, `:758`) | **NO — see below** |
 | `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:521-534`) | **yes** — and read nothing outside it |
 | `allowed_input_manifest[].sha256` | equality against the file on disk (`:538`) | **yes** — this is the substantive integrity check |
 | `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:254`, `:458-471`) | **yes** |
@@ -97,7 +97,7 @@ quoted line and its own manifest — with no file read outside the manifest:
 3. `<record_sha256>` recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
    from your manifest's own fields — the same construction the validator
-   uses at `:374` and `:590`. (evidence: caller-quoted line + manifest)
+   uses at `:374` and `:752`. (evidence: caller-quoted line + manifest)
 4. `identity_unique=yes` — the validator refuses to print the line unless
    your `run_id`/`host_session_id` pair appears exactly once: nowhere
    before the append on a reservation, exactly one persisted record on a
@@ -208,3 +208,21 @@ Closed, and listed here so they are not re-derived from an old copy of this file
   message exists in `impl-review-precheck.sh` any more, and mode acceptance
   (`impl-review-precheck.sh:69`) now admits `--verify-inputs` and `--provenance-rereview`, so neither
   half of the claim still holds.
+
+## Feature-wide scratch reservations
+
+For quality invocations declaring `scratch_root`, both validators require Python
+3 and check every declared Scratch Root in the feature's implementation reports,
+plus the original invocation evidence for prior evaluator reservations. Equal,
+ancestor and descendant roots are rejected; sibling names sharing only a string
+prefix are allowed. Missing history or conflicting declarations block launch.
+Legacy invocations without a declared root do not assert a historical root.
+Restore missing original evidence; never synthesize it or delete ledger records.
+
+Under the existing ledger lock, a new reservation saves its invocation in
+`reports/review-context/scratch-reservations/<record_sha256>.json` before the
+ledger append. A failed append may leave an orphan snapshot: preserve it and
+investigate the failure, rather than replacing evidence. A persisted identity's
+declared scratch root cannot change on verification. Ledger schema and prior
+record hashes remain unchanged. These are declared-location checks, not proof
+of operating-system isolation or of live host activation.

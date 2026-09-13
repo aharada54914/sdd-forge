@@ -121,7 +121,7 @@ anchors() {
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
 :449 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:596 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:758 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
 :451 validator [[ "$sequence" -eq "$expected_sequence"
@@ -130,7 +130,7 @@ anchors() {
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
 :374 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:590 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:752 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
 :458-471 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
@@ -146,7 +146,7 @@ anchors() {
 :538 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:605-615 validator '.records += [{
+:768-778 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
