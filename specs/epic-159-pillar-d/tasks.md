@@ -469,7 +469,7 @@ Required Workflow: tdd
 
 Security-Sensitive: true
 
-Cross-Model: not enabled
+Cross-Model: enabled
 
 Requirements: REQ-002, REQ-004 (share — AC-016), REQ-005 (share — AC-018/
 AC-019, this task's own #157 leg)
