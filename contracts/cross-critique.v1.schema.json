@@ -1,0 +1,264 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/cross-critique.v1.schema.json",
+  "title": "Cross-Critique Annex v1",
+  "description": "Schema for cross-critique.json — the advisory annex produced by the in-gate cross-critique phase (ADR-0026) and by the pre-PR adversarial-review lane (ADR-0027). The annex never rewrites persisted reviewer verdicts; it annotates them.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "round_id",
+    "status",
+    "created_at",
+    "verdicts"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "review_lane": {
+      "enum": ["sdd-gate", "standalone-adversarial"],
+      "description": "Selects severity vocabulary without converting persisted verdicts. Omission preserves legacy sdd-gate semantics."
+    },
+    "schema_version": {
+      "const": "cross-critique.v1",
+      "description": "Schema identifier. Bump on breaking changes."
+    },
+    "round_id": {
+      "type": "string",
+      "description": "Identifies the round this annex annotates (e.g. 'spec/attempt-1/round-1' or the branch slug for a pre-PR lane run)."
+    },
+    "status": {
+      "enum": ["complete", "unavailable"],
+      "description": "'complete' — the phase ran and all verdicts are present. 'unavailable' — the phase could not run (context lost, API failure, etc.); the loop continues without blocking."
+    },
+    "unavailable_reason": {
+      "type": "string",
+      "description": "Required when status == 'unavailable'. Describes why the phase did not complete."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of annex creation."
+    },
+    "verdicts": {
+      "type": "array",
+      "description": "Per-finding cross-critique verdicts from both reviewers.",
+      "items": {
+        "$ref": "#/definitions/verdict_record"
+      }
+    }
+  },
+  "allOf": [{
+    "if": {
+      "required": ["review_lane"],
+      "properties": { "review_lane": { "const": "standalone-adversarial" } }
+    },
+    "then": {
+      "properties": {
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "proposed_severity": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] } }
+          }
+        }
+      }
+    },
+    "else": {
+      "properties": {
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "proposed_severity": { "enum": ["Critical", "Major", "Minor"] } }
+          }
+        }
+      }
+    }
+  }],
+  "if": {
+    "properties": { "status": { "const": "unavailable" } }
+  },
+  "then": {
+    "required": ["unavailable_reason"]
+  },
+  "definitions": {
+    "verdict_record": {
+      "type": "object",
+      "required": [
+        "target_finding_id",
+        "critic_role",
+        "verdict",
+        "basis",
+        "scope"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "target_finding_id": {
+          "type": "string",
+          "description": "The checks[].id from the persisted reviewer output being critiqued (e.g. 'A-3', 'B-C1')."
+        },
+        "critic_role": {
+          "enum": ["reviewer-a", "reviewer-b"],
+          "description": "Which reviewer produced this verdict."
+        },
+        "verdict": {
+          "enum": [
+            "SUPPORT",
+            "PROPOSE-SEVERITY-CHANGE",
+            "PROPOSE-REJECT",
+            "SUPPLEMENT"
+          ],
+          "description": "Normative verdict vocabulary (ADR-0026 §5). PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE require basis.kind == code_evidence or spec_evidence."
+        },
+        "proposed_severity": {
+          "type": "string",
+          "description": "Required when verdict == PROPOSE-SEVERITY-CHANGE. Root review_lane selects the exact vocabulary: Critical|Major|Minor for absent/sdd-gate; CRITICAL|HIGH|MEDIUM|LOW for standalone-adversarial. No mapping between vocabularies is performed."
+        },
+        "basis": {
+          "$ref": "#/definitions/basis"
+        },
+        "scope": {
+          "$ref": "#/definitions/scope"
+        },
+        "fix_critique": {
+          "type": "string",
+          "description": "Optional. When the finding stands but the proposed fix is wrong, disproportionate, or over-engineered, state the minimal alternative here."
+        }
+      },
+      "allOf": [{
+        "if": {
+          "properties": { "verdict": { "const": "PROPOSE-SEVERITY-CHANGE" } },
+          "required": ["verdict"]
+        },
+        "then": { "required": ["proposed_severity"] }
+      }],
+      "if": {
+        "properties": {
+          "verdict": {
+            "enum": ["PROPOSE-REJECT", "PROPOSE-SEVERITY-CHANGE"]
+          }
+        },
+        "required": ["verdict"]
+      },
+      "then": {
+        "description": "PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE require basis.kind == code_evidence|spec_evidence AND citations must be present. Note: AJV 6+ correctly enforces nested if/then; validate with strict mode enabled.",
+        "properties": {
+          "basis": {
+            "type": "object",
+            "required": ["kind", "citations"],
+            "properties": {
+              "kind": {
+                "enum": ["code_evidence", "spec_evidence"],
+                "description": "PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE require code_evidence or spec_evidence. A concern alone is insufficient to propose rejection or a severity change."
+              },
+              "citations": {
+                "type": "array",
+                "minItems": 1,
+                "description": "At least one citation is required for PROPOSE-REJECT and PROPOSE-SEVERITY-CHANGE."
+              }
+            }
+          }
+        },
+        "required": ["basis"]
+      }
+    },
+    "basis": {
+      "type": "object",
+      "description": "Evidence or concern backing the verdict. Distinguishes decided evidence from unverified concerns (arXiv:2608.18167 §concern classification).",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "if": {
+        "properties": { "kind": { "enum": ["code_evidence", "spec_evidence"] } },
+        "required": ["kind"]
+      },
+      "then": { "required": ["citations"] },
+      "else": { "required": ["claim"] },
+      "properties": {
+        "claim": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "The assertion being raised. Required for concern so its substance is retained even when no citation can be verified. Evidence-backed records may retain their claim in citations instead."
+        },
+        "kind": {
+          "enum": ["code_evidence", "spec_evidence", "concern"],
+          "description": "code_evidence: a file:line citation that directly refutes or confirms the finding. spec_evidence: a requirement/AC/ADR that directly bears on the finding. concern: a plausible objection that could not be verified this session. A concern does not auto-reject or auto-adopt — the finding author must respond with evidence, a withdrawal, or an escalation to human judgement."
+        },
+        "citations": {
+          "type": "array",
+          "description": "Required for code_evidence and spec_evidence. Each citation pins the exact location.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/citation"
+          }
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "description": "A concrete file location and assertion. Also run mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs to require line_end >= line_start; Draft-07 alone cannot compare sibling values.",
+      "required": ["path", "claim", "line_start", "line_end"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "Repo-relative file path."
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "claim": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "The concrete assertion the citation supports (e.g. 'validate-review-context-set.sh:262-265 prevents resumption, so the cost argument is wrong')."
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "description": "Scope judgement for this finding relative to the approved task boundary (arXiv:2608.18167 scope-creep mitigation, issue #348).",
+      "required": ["assessment"],
+      "additionalProperties": false,
+      "properties": {
+        "assessment": {
+          "enum": ["in_scope", "out_of_scope", "unclear"],
+          "description": "in_scope: the finding addresses a behaviour or risk within the approved requirements/acceptance-tests/tasks. out_of_scope: the finding concerns a behaviour outside the approved boundary; implementing it without human approval is scope creep. unclear: the boundary is ambiguous; a human must decide before any fix is requested."
+        },
+        "related_requirements": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^REQ-\\S+$", "not": { "pattern": "\\s" } },
+          "description": "REQ-* IDs from requirements.md that this finding relates to. in_scope requires at least one REQ, AC, or task ID."
+        },
+        "related_acceptance_tests": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^AC-\\S+$", "not": { "pattern": "\\s" } },
+          "description": "AC-* IDs from requirements.md that this finding relates to."
+        },
+        "related_tasks": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^T-\\S+$", "not": { "pattern": "\\s" } },
+          "description": "T-* IDs from tasks.md that this finding relates to."
+        },
+        "evidence": {
+          "type": "string",
+          "description": "File:line or ID reference supporting the scope assessment."
+        }
+      },
+      "if": {
+        "properties": { "assessment": { "const": "in_scope" } }
+      },
+      "then": {
+        "anyOf": [
+          { "required": ["related_requirements"], "properties": { "related_requirements": { "minItems": 1 } } },
+          { "required": ["related_acceptance_tests"], "properties": { "related_acceptance_tests": { "minItems": 1 } } },
+          { "required": ["related_tasks"], "properties": { "related_tasks": { "minItems": 1 } } }
+        ],
+        "description": "in_scope requires at least one of related_requirements, related_acceptance_tests, or related_tasks."
+      }
+    }
+  }
+}

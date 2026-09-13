@@ -1,0 +1,20 @@
+{
+  "schema_version": "adversarial-review-evaluation.v1",
+  "branch_slug": "fix-pr402-guard-mirrors",
+  "created_at": "2026-09-11T06:33:25Z",
+  "report_path": "reports/adversarial-review/fix-pr402-guard-mirrors/report.md",
+  "trigger_reasons": ["workflow_surface", "security_surface"],
+  "reviewer_launch_count": 2,
+  "continuation_status": {"reviewer_a": "resumed", "reviewer_b": "resumed"},
+  "finding_counts": {
+    "phase1_total": 0, "cross_critique_new": 0,
+    "by_severity": {"critical": 0, "high": 0, "medium": 0, "low": 0},
+    "adopted": 0, "rejected": 0
+  },
+  "basis_counts": {"code_evidence": 0, "spec_evidence": 0, "concern": 0},
+  "scope_counts": {"in_scope": 0, "out_of_scope": 0, "unclear": 0},
+  "phase_r": {"ran": false, "not_ran_reason": "Zero adopted findings; no fix was produced by this run."},
+  "token_usage": {"total_tokens": null, "unavailable_reason": "Complete root-plus-reviewer token telemetry is not exposed for this review run."},
+  "duration_ms": null,
+  "notes": "Manual standalone pilot using PR371 skill at c2b7f25 against PR402 at 6b302c2. Pre-launch timestamp not captured; no duration estimate. Native reviewer task IDs are not SDD identity-ledger reservations. Both supplemental runtime probes were denied and never executed; static review and prior CI evidence are distinguished. No gate state, required approval, or Issue completion was changed."
+}
