@@ -96,16 +96,21 @@ today is told a resolved contradiction is unresolved.
 
 ### B5 — the identity ledger
 
-Every reviewer launch is preceded by an append-only, chain-verified reservation
-with a globally unique `run_id` and `host_session_id`
-(`validate-review-context-set.sh:234-235`, `:260-261`, `:262-265`). This is what
-makes "reviewer B ran in a fresh context" auditable rather than asserted.
+The validator distinguishes verification of a persisted reservation from a new
+reservation (`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:368-400`
+at main `08baf03a`). A persisted identity is checked against its ledger record;
+attempting to reserve it again is rejected at `:377-379`. This is identity
+evidence, not by itself proof that a reviewer launched or ran in a fresh context.
 
-It also forecloses the source protocol's cost model: resuming an agent reuses its
-session, and a reused session cannot reserve. So a cross-critique participant is a
-fresh context (OQ-6), and any design that tries to route around the ledger to
-recover the resumption saving is dismantling the audit property that makes the
-blind-pass claim checkable at all.
+**2026-09-14 correction (INV-012 / C3).** At main `08baf03a`,
+`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:368-400`
+separately verifies a persisted identity and rejects a duplicate reservation at
+`:377-379`. This does not authorize post-verdict continuation, but it also does
+not prove that a fresh launch is the only possible design. OQ-6 must specify
+the launch/input boundary and identity evidence before either model is used.
+Reverify these shared-code references at review and implementation time.
+Bypassing reservation, relaxing blind-pass isolation, or treating verification
+as authorization for new inputs remains outside this correction.
 
 ## STRIDE Analysis
 
