@@ -651,6 +651,9 @@ try {
         $archivePath = Join-Path $temporaryRoot "source.tar.gz"
         Download-AuthenticatedArchive -RepositoryName $Repository -RefName $Ref -ArchivePath $archivePath
         & tar -xzf $archivePath -C $temporaryRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
+        }
 
         $sourceRoot = Get-ChildItem -Path $temporaryRoot -Directory |
             Where-Object { Test-Path (Join-Path $_.FullName ".agents/plugins/marketplace.json") } |
