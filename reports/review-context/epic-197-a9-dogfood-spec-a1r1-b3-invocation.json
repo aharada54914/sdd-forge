@@ -1,0 +1,41 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "spec",
+ "role": "spec-reviewer-b",
+ "feature": "epic-197-a9-dogfood",
+ "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b3-seq0963",
+ "host_session_id": "SESS-spec-a1r1-b3-epic-197-a9-dogfood-0963",
+ "read_only": true,
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "07967a206a8d13ae5cdcec6ef38c8b7609c15e738716e512ce668897b4dec5da",
+ "previous_record_sha256": "91775849ade71c5cd8524606c9f30e189ef5c0db154950ba6a5a7e5dd271f0f3",
+ "sequence": 963,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/epic-197-a9-dogfood/requirements.md",
+   "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"
+  },
+  {
+   "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+   "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"
+  },
+  {
+   "path": "specs/epic-197-a9-dogfood/investigation.md",
+   "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
+  },
+  {
+   "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+   "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+  },
+  {
+   "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json",
+   "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"
+  },
+  {
+   "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json",
+   "sha256": "2b98a6b858608370d90992496e61eca1890279d4dd77c7458268cbe34c1a74d9"
+  }
+ ]
+}

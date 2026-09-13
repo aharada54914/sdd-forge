@@ -8631,6 +8631,60 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0944",
       "previous_record_sha256": "da129869e8cc776bbeb9e0d5fe8e46a3068c465415bf9b7a77d59118d05acb63",
       "record_sha256": "bfba486d3d7ffd5b94db7b2388594d37cb118c4d5221bcd88e9347139b666f29"
+    },
+    {
+      "sequence": 960,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a-seq0960",
+      "host_session_id": "SESS-spec-a1r1-a-epic-197-a9-dogfood-0960",
+      "previous_record_sha256": "bfba486d3d7ffd5b94db7b2388594d37cb118c4d5221bcd88e9347139b666f29",
+      "record_sha256": "67537aad8fde2870b3ffe616bfedffbe627ba57b370ff1cc139db3d64069a521"
+    },
+    {
+      "sequence": 961,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b-seq0961",
+      "host_session_id": "SESS-spec-a1r1-b-epic-197-a9-dogfood-0961",
+      "previous_record_sha256": "67537aad8fde2870b3ffe616bfedffbe627ba57b370ff1cc139db3d64069a521",
+      "record_sha256": "ad9535446bd1aaa17df1c1f573053c10111a4cba60e61894204330f21721bc06"
+    },
+    {
+      "sequence": 962,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b2-seq0962",
+      "host_session_id": "SESS-spec-a1r1-b2-epic-197-a9-dogfood-0962",
+      "previous_record_sha256": "ad9535446bd1aaa17df1c1f573053c10111a4cba60e61894204330f21721bc06",
+      "record_sha256": "91775849ade71c5cd8524606c9f30e189ef5c0db154950ba6a5a7e5dd271f0f3"
+    },
+    {
+      "sequence": 963,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b3-seq0963",
+      "host_session_id": "SESS-spec-a1r1-b3-epic-197-a9-dogfood-0963",
+      "previous_record_sha256": "91775849ade71c5cd8524606c9f30e189ef5c0db154950ba6a5a7e5dd271f0f3",
+      "record_sha256": "4a7b96ec9e2156b1855d76ec9a6f78a65877993d179626711a90e995bef7936b"
+    },
+    {
+      "sequence": 964,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-a2-seq0964",
+      "host_session_id": "SESS-spec-a1r1-a2-epic-197-a9-dogfood-0964",
+      "previous_record_sha256": "4a7b96ec9e2156b1855d76ec9a6f78a65877993d179626711a90e995bef7936b",
+      "record_sha256": "fc699e75b54ac0bf4ced95ec6aa8659637158f604351e95d7d5d713247a9c168"
+    },
+    {
+      "sequence": 965,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b4-seq0965",
+      "host_session_id": "SESS-spec-a1r1-b4-epic-197-a9-dogfood-0965",
+      "previous_record_sha256": "fc699e75b54ac0bf4ced95ec6aa8659637158f604351e95d7d5d713247a9c168",
+      "record_sha256": "d59d541ce563b6f6e1b5df9372b1eed654780bc1def0108c8cd007bb3045e551"
     }
   ]
 }
