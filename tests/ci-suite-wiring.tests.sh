@@ -78,7 +78,7 @@ suite=tests/ci-suite-wiring.tests.sh
 printf '%s\n' "$suite" > "$fixture_dir/inventory"
 assert_fallback() {
   local label=$1 expected=$2 body=$3 actual
-  printf 'jobs:\n  test:\n    steps:\n%s\n' "$body" > "$fixture_dir/workflow.yml"
+  printf 'jobs:\n  test:\n%s\n    steps:\n%s\n' "${4:-}" "$body" > "$fixture_dir/workflow.yml"
   actual="$(SUITE_INVENTORY="$fixture_dir/inventory" CI_WORKFLOW="$fixture_dir/workflow.yml" bash "$ROOT/tests/run-ci-unwired.sh" --list)"
   if [[ "$actual" != "$expected" ]]; then
     printf 'FAIL: %s: expected fallback [%s], got [%s]\n' "$label" "$expected" "$actual" >&2
@@ -100,6 +100,20 @@ assert_fallback conditional "$suite" "      - run: |
           if false; then
             bash $suite
           fi"
+assert_fallback disabled-step "$suite" "      - name: disabled
+        if: false
+        run: bash ./$suite"
+assert_fallback disabled-step-after-run "$suite" "      - name: disabled
+        run: bash ./$suite
+        if: false"
+assert_fallback disabled-job "$suite" "      - run: bash ./$suite" "    if: false"
+assert_fallback disabled-job-after-steps "$suite" "      - run: bash ./$suite
+    if: false"
+assert_fallback condition-does-not-leak '' "      - name: disabled
+        if: false
+        run: bash ./$suite
+      - name: enabled
+        run: bash ./$suite"
 assert_fallback direct '' "      - name: execute
         run: bash ./$suite"
 assert_fallback multiline '' "      - name: execute
@@ -115,4 +129,4 @@ assert_fallback syntax-then-execution '' "      - name: execute
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./$suite 2>&1 | tee \"suite.log\""
-printf 'CI suite wiring behavioral controls passed (12 cases)\n'
+printf 'CI suite wiring behavioral controls passed (17 cases)\n'

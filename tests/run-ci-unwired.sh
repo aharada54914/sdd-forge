@@ -34,8 +34,18 @@ wired="$(awk '
     return 1
   }
   function flush() {
-    if (valid) printf "%s", pending
+    if (valid) step_pending = step_pending pending
     pending = ""; valid = 1; block = 0
+  }
+  function flush_step() {
+    # Conditions can follow run in YAML. Decide only after the whole step.
+    # Unknown conditions retain fallback coverage rather than proving execution.
+    if (!conditional) job_pending = job_pending step_pending
+    step_pending = ""; conditional = 0
+  }
+  function flush_job() {
+    if (!job_conditional) printf "%s", job_pending
+    job_pending = ""; job_conditional = 0
   }
   BEGIN { valid = 1 }
   {
@@ -45,13 +55,17 @@ wired="$(awk '
       next
     }
     flush()
+    if (line ~ /^      - / || line ~ /^  [^ ]/) flush_step()
+    if (line ~ /^  [^ ]/) flush_job()
+    if (line ~ /^    if:/) job_conditional = 1
+    if (line ~ /^(        if:|      - if:)/) conditional = 1
     if (line !~ /^(        run:|      - run:)[[:space:]]/) next
     sub(/^(        run:|      - run:)[[:space:]]+/, "", line)
     if (line ~ /^\|[-+]?[[:space:]]*$/) { block = 1; next }
     valid = command(line)
     flush()
   }
-  END { flush() }
+  END { flush(); flush_step(); flush_job() }
 ' "$WORKFLOW")"
 
 for suite in "${registered[@]}"; do
