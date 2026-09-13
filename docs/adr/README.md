@@ -255,7 +255,7 @@ must never rely on a bare legacy number.
 | 0025 | Human-Copy Publisher Transactional Bundle | Accepted |
 | 0025 | Registry Discovery Contract — renumbered to ADR-0029 | (tombstone) |
 | 0025 | Risk-Adaptive Adversarial Review Lane — renumbered to ADR-0027 | (tombstone) |
-| 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
+| 0026 | Risk- and Escalation-Gated Cross-Critique Phase for the Review Loops | Proposed |
 | 0028 | Ed25519 signing and a maintainer-committed trusted-signer registry for live-host verification records | Proposed |
 | 0027 | Risk-Adaptive Adversarial Review Lane | Proposed |
 | 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
