@@ -1128,7 +1128,9 @@ fi
 # here (this suite never writes .github/workflows/test.yml). -------------
 [[ -f "$ROOT/tests/agent-model-routing.tests.ps1" ]] ||
   fail "TEST-027 tests/agent-model-routing.tests.ps1 twin does not exist"
-grep -q 'tests/agent-model-routing\.tests\.sh' "$ROOT/tests/run-all.sh" ||
+# Ask the executable inventory, not the runner's implementation text.
+registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx 'tests/agent-model-routing.tests.sh' <<< "$registered_suites" >/dev/null ||
   fail "TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh"
 grep -q 'tests/agent-model-routing\.tests\.ps1' "$ROOT/tests/run-all.ps1" ||
   fail "TEST-027 tests/agent-model-routing.tests.ps1 not registered in tests/run-all.ps1"

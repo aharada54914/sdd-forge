@@ -557,6 +557,9 @@ try {
             Ok "TEST-004(a): $($runner.Name) returns within the wall-clock bound with no stub or child alive"
         } else {
             Fail "TEST-004(a): $($runner.Name) returns within the wall-clock bound with no stub or child alive"
+            # JSON escaping keeps CLI output from becoming terminal/CI control lines.
+            $diagnostic = $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length))
+            Write-Host ("runner diagnostic: " + (ConvertTo-Json -InputObject $diagnostic -Compress))
         }
         if ($script:panelistExit -eq 1 -and -not (Test-Path $verdict)) {
             Ok "TEST-005: $($runner.Name) timeout exits 1 without a verdict"

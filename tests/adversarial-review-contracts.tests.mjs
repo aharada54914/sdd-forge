@@ -1,0 +1,218 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+import process from "node:process";
+
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const requireFromCiMcp = createRequire(path.join(root, "mcp/ci-mcp/package.json"));
+let Ajv;
+try {
+  Ajv = requireFromCiMcp("ajv/dist/ajv.js");
+} catch {
+  throw new Error("Ajv is unavailable; run `npm ci --prefix mcp/ci-mcp` first");
+}
+
+const load = (relativePath) =>
+  JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+// Draft-07 conditionals routinely require a property declared on an ancestor;
+// keep every other strict check while allowing that standard schema shape.
+const ajv = new Ajv({
+  allErrors: true,
+  strict: true,
+  strictRequired: false,
+  strictTypes: false,
+  validateFormats: false,
+});
+ajv.addKeyword({ keyword: "x-stale-judgement-rules", schemaType: "array" });
+const compile = (name) =>
+  ajv.compile(load(`contracts/${name}.v1.schema.json`));
+const expectValid = (validate, value, label) => {
+  assert.equal(validate(value), true, `${label}: ${ajv.errorsText(validate.errors)}`);
+};
+const expectInvalid = (validate, value, label) => {
+  assert.equal(validate(value), false, `${label}: unexpectedly valid`);
+};
+
+const crossCritique = compile("cross-critique");
+const baseVerdict = {
+  target_finding_id: "A-1",
+  critic_role: "reviewer-b",
+  verdict: "SUPPORT",
+  basis: {
+    kind: "code_evidence",
+    citations: [{ path: "src/example.ts", line_start: 1, line_end: 2, claim: "proves the behavior" }],
+  },
+  scope: { assessment: "in_scope", related_requirements: ["REQ-1"] },
+};
+const annex = {
+  schema_version: "cross-critique.v1",
+  round_id: "example-round",
+  status: "complete",
+  created_at: "2026-08-31T00:00:00Z",
+  verdicts: [baseVerdict],
+};
+expectValid(crossCritique, annex, "complete annex");
+for (const [field, prefix] of [["related_requirements", "REQ"], ["related_acceptance_tests", "AC"], ["related_tasks", "T"]]) {
+  const scoped = (ids) => ({ ...annex, verdicts: [{ ...baseVerdict, scope: { assessment: "in_scope", [field]: ids } }] });
+  expectValid(crossCritique, scoped([`${prefix}-A1`]), `${field} accepts namespaced IDs`);
+  for (const ids of [[], [`${prefix}-`], [`${prefix}-A 1`], [`${prefix}-A1\n`], [`${prefix.toLowerCase()}-1`], [`${prefix}-1`, `${prefix}-1`]]) {
+    expectInvalid(crossCritique, scoped(ids), `${field} rejects empty, malformed, or duplicate IDs`);
+  }
+}
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, verdict: "PROPOSE-SEVERITY-CHANGE" }],
+}, "severity change requires a proposed severity");
+expectValid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, verdict: "PROPOSE-SEVERITY-CHANGE", proposed_severity: "Major" }],
+}, "evidence-backed severity change");
+expectValid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, basis: { kind: "concern", claim: "Investigate a possible regression" } }],
+}, "concern preserves its concrete claim");
+for (const claim of [undefined, "", " \t\n"]) {
+  expectInvalid(crossCritique, {
+    ...annex,
+    verdicts: [{ ...baseVerdict, basis: { kind: "concern", ...(claim === undefined ? {} : { claim }) } }],
+  }, "concern requires a nonblank claim");
+}
+expectInvalid(crossCritique, { ...annex, verdicts: [] }, "empty annex requires an explicit source finding count");
+expectValid(crossCritique, { ...annex, source_finding_count: 0, verdicts: [] }, "completed zero-findings annex");
+for (const count of [1, -1, 0.5, null, "0", false]) {
+  expectInvalid(crossCritique, { ...annex, source_finding_count: count, verdicts: [] }, "empty annex requires numeric zero source findings");
+}
+expectInvalid(crossCritique, { ...annex, source_finding_count: 0 }, "zero source findings cannot accompany verdicts");
+expectValid(crossCritique, { ...annex, source_finding_count: 1 }, "nonempty source review remains supported");
+const missingVerdictsAnnex = { ...annex };
+delete missingVerdictsAnnex.verdicts;
+expectInvalid(crossCritique, missingVerdictsAnnex, "complete annex requires an explicit verdicts array");
+expectInvalid(crossCritique, { ...annex, verdicts: [{}] }, "complete annex rejects a malformed verdict");
+expectInvalid(crossCritique, { ...annex, status: "unavailable", verdicts: [] }, "unavailable annex requires a reason");
+expectInvalid(crossCritique, {
+  ...annex,
+  status: "unavailable",
+  unavailable_reason: "reviewer context lost",
+}, "unavailable annex cannot contain verdicts");
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, basis: { kind: "code_evidence" } }],
+}, "evidence basis needs citations");
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, basis: { kind: "concern", claim: "Unverified concern", citations: baseVerdict.basis.citations } }],
+}, "concern cannot masquerade as cited evidence");
+for (const verdict of ["PROPOSE-REJECT", "PROPOSE-SEVERITY-CHANGE"]) {
+  expectInvalid(crossCritique, {
+    ...annex,
+    verdicts: [{ ...baseVerdict, verdict, proposed_severity: "Major", basis: { kind: "concern", claim: "Unverified concern" } }],
+  }, "concerns cannot justify rejection or severity changes");
+}
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, scope: { assessment: "in_scope", related_requirements: [] } }],
+}, "in-scope references cannot be empty");
+expectInvalid(crossCritique, {
+  ...annex,
+  verdicts: [{ ...baseVerdict, scope: { assessment: "in_scope", related_tasks: ["task one"] } }],
+}, "scope IDs use canonical vocabulary");
+expectValid(crossCritique, {
+  ...annex,
+  status: "unavailable",
+  unavailable_reason: "reviewer context lost",
+  verdicts: [],
+}, "unavailable annex");
+
+const report = compile("adversarial-review-report");
+const reportMetadata = {
+  schema_version: "adversarial-review-report.v1",
+  merge_base_sha: "a".repeat(40),
+  head_sha: "b".repeat(40),
+  diff_sha256: "c".repeat(64),
+  created_at: "2026-08-31T00:00:00Z",
+  skill_version: "v1",
+  reviewer_run_ids: { reviewer_a: "run-a", reviewer_b: "run-b" },
+};
+expectValid(report, reportMetadata, "report metadata");
+expectInvalid(report, { ...reportMetadata, head_sha: "b".repeat(7) }, "abbreviated SHA");
+expectInvalid(report, {
+  ...reportMetadata,
+  reviewer_run_ids: [{ reviewer_a: "run-a" }, { reviewer_b: "run-b" }],
+}, "run IDs must be a mapping");
+
+const historicalReport = fs.readFileSync(
+  path.join(root, "reports/adversarial-review/feat-adversarial-review-enhancements/report.md"),
+  "utf8",
+);
+const field = (name) => {
+  const match = historicalReport.match(new RegExp(`^\\s*${name}:\\s+(\\S+)\\s*$`, "m"));
+  assert.ok(match, `historical report is missing ${name}`);
+  return match[1];
+};
+expectValid(report, {
+  schema_version: field("schema_version"),
+  merge_base_sha: field("merge_base_sha"),
+  head_sha: field("head_sha"),
+  diff_sha256: field("diff_sha256"),
+  created_at: field("created_at"),
+  skill_version: field("skill_version"),
+  reviewer_run_ids: {
+    reviewer_a: field("reviewer_a"),
+    reviewer_b: field("reviewer_b"),
+  },
+}, "checked-in report metadata");
+
+const evaluation = compile("adversarial-review-evaluation");
+const evaluationRecord = load("reports/adversarial-review/feat-adversarial-review-enhancements/evaluation.json");
+expectValid(evaluation, evaluationRecord, "checked-in evaluation");
+for (const duration_ms of [null, 0, 1200]) {
+  expectValid(evaluation, { ...evaluationRecord, duration_ms }, "measured or unavailable duration");
+}
+for (const duration_ms of [-1, 0.5, "unknown"]) {
+  expectInvalid(evaluation, { ...evaluationRecord, duration_ms }, "invalid duration");
+}
+for (const token_usage of [
+  { total_tokens: 0, source: "host complete-run receipt" },
+  { total_tokens: 1234, source: "host complete-run receipt" },
+  { total_tokens: null, unavailable_reason: "host only provides partial usage" },
+]) {
+  expectValid(evaluation, { ...evaluationRecord, token_usage }, "explicit measured or unavailable telemetry");
+}
+for (const token_usage of [
+  { total_tokens: -1, source: "host" },
+  { total_tokens: 1.5, source: "host" },
+  { total_tokens: 1, source: " " },
+  { total_tokens: null },
+  { total_tokens: null, unavailable_reason: "\t" },
+  { total_tokens: 0, unavailable_reason: "missing measurement" },
+  { total_tokens: null, source: "host" },
+  { total_tokens: 1, source: "host", unavailable_reason: "contradiction" },
+]) {
+  expectInvalid(evaluation, { ...evaluationRecord, token_usage }, "telemetry must not invent or mix measurement states");
+}
+expectInvalid(evaluation, { ...evaluationRecord, reviewer_launch_count: 1 }, "two-reviewer minimum");
+expectInvalid(evaluation, {
+  ...evaluationRecord,
+  phase_r: { ran: true, verified_count: 1 },
+}, "completed Phase R needs every outcome count");
+expectValid(evaluation, {
+  ...evaluationRecord,
+  phase_r: { ran: false, not_ran_reason: "No findings eligible for reproduction" },
+}, "skipped Phase R carries an explanation");
+for (const not_ran_reason of [undefined, null, "", " ", "\t\n", "\u3000"]) {
+  expectInvalid(evaluation, {
+    ...evaluationRecord,
+    phase_r: { ran: false, ...(not_ran_reason === undefined ? {} : { not_ran_reason }) },
+  }, "skipped Phase R requires a nonblank explanation");
+}
+
+const template = fs.readFileSync(
+  path.join(root, "skills/adversarial-review/templates/report-template.md"),
+  "utf8",
+);
+assert.match(template, /reviewer_run_ids:\n  reviewer_a:/);
+assert.doesNotMatch(template, /reviewer_run_ids:\n  - reviewer_a:/);
+assert.match(template, /git diff --binary --no-ext-diff --no-textconv/);
+
+process.stdout.write("adversarial-review contract tests passed\n");

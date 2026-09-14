@@ -302,7 +302,9 @@ fi
 
 # --- Self-registration (design.md Test Strategy #7; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern) -------
-if grep -q 'agent-capabilities-v2\.tests\.sh' "$RUN_ALL_SH"; then
+# A failed listing must not pass merely because stdout contains this suite.
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+  grep -Fx 'tests/agent-capabilities-v2.tests.sh' <<< "$registered_suites" >/dev/null; then
   ok "self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh"
 else
   bad "self-registration: agent-capabilities-v2.tests.sh NOT registered in tests/run-all.sh"

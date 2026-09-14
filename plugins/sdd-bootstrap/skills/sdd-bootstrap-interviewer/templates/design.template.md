@@ -47,6 +47,8 @@ custom`); otherwise record exactly `N/A — ds_profile: none`.
 | ux-spec.md | frontend-spec.md | {{view_state_component_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
 | security-spec.md | infra-spec.md | {{control_and_runtime_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
 
+Activation or gate clauses should key off workflow position, not repository state. If repository state is the real trigger, name the owning task.
+
 ## ADR Change Log
 
 | ADR | Decision | Status | Layer Impact | Supersedes | Date |

@@ -253,7 +253,12 @@ emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
 emit_compound_skip F5
 emit_compound_skip F6
 
-assert_true "Bash aggregate runner registers this shipped suite" grep -Fxq '  tests/structural-compatibility.tests.sh' "$REPO_ROOT/tests/run-all.sh"
+if registered_suites="$(bash "$REPO_ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx 'tests/structural-compatibility.tests.sh' <<< "$registered_suites" >/dev/null; then
+  pass "Bash aggregate runner registers this shipped suite"
+else
+  fail "Bash aggregate runner registers this shipped suite"
+fi
 
 printf '%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ "$FAIL" -eq 0 ]]

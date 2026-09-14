@@ -23,6 +23,7 @@
     },
     "branch_slug": {
       "type": "string",
+      "minLength": 1,
       "description": "Slugified branch name; matches the report directory name under reports/adversarial-review/."
     },
     "created_at": {
@@ -32,6 +33,7 @@
     },
     "report_path": {
       "type": "string",
+      "pattern": "^reports/adversarial-review/[^/]+/report\\.md$",
       "description": "Repo-relative path to the corresponding report.md (e.g. reports/adversarial-review/feat-foo/report.md)."
     },
     "trigger_reasons": {
@@ -51,7 +53,7 @@
     },
     "reviewer_launch_count": {
       "type": "integer",
-      "minimum": 0,
+      "minimum": 2,
       "description": "Number of reviewer agent launches during this run. Expected: 2 (Phase 1 A + B); additional launches from Phase R or recovery are included."
     },
     "continuation_status": {
@@ -192,6 +194,7 @@
         },
         "not_ran_reason": {
           "type": "string",
+          "pattern": "\\S",
           "description": "Present when ran == false. Explains why (e.g. 'no fixes landed yet', 'zero adopted findings')."
         },
         "verified_count": {
@@ -216,10 +219,30 @@
           "minimum": 0,
           "description": "V-* findings introduced by fixes, per Phase R."
         }
+      },
+      "if": {
+        "properties": { "ran": { "const": false } },
+        "required": ["ran"]
+      },
+      "then": {
+        "required": ["not_ran_reason"],
+        "not": {
+          "anyOf": [
+            { "required": ["verified_count"] },
+            { "required": ["not_fixed_count"] },
+            { "required": ["partially_fixed_count"] },
+            { "required": ["claim_error_count"] },
+            { "required": ["new_issues_found"] }
+          ]
+        }
+      },
+      "else": {
+        "required": ["verified_count", "not_fixed_count", "partially_fixed_count", "claim_error_count", "new_issues_found"],
+        "not": { "required": ["not_ran_reason"] }
       }
     },
     "token_usage": {
-      "description": "Required for new runs by the producer instructions; optional here solely for historical v1 records. Record the measured total across the entire review run and its source, or null with a reason if complete telemetry is unavailable. Metrics never control the review verdict.",
+      "description": "Required for new runs by producer instructions; optional here for historical v1 records. Record the measured whole-run total and source, or null with a reason when complete telemetry is unavailable. Metrics never control verdicts.",
       "oneOf": [
         {
           "type": "object",

@@ -68,6 +68,10 @@ chmod +x "$pass_validator" "$fail_validator"
 clone_fixture() {
   local name="$1"
   git clone -q "$source_repo" "$TMP/$name"
+  # Clone does not inherit the source repository's local author settings.
+  # Tamper fixtures commit changes even on CI hosts without a global identity.
+  git -C "$TMP/$name" config user.name rollback-test
+  git -C "$TMP/$name" config user.email rollback-test@example.invalid
   printf '%s\n' "$TMP/$name"
 }
 

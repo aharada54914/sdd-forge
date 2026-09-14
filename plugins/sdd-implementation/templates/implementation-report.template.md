@@ -61,6 +61,7 @@ as output paths.
 
 ## Isolation Evidence
 
+- **Scratch Root**: {{scratch_root}}
 - **Run ID**: {{run_id}}
 - **Session ID**: {{session_id}}
 - **Agent Instance ID**: {{agent_instance_id}}
