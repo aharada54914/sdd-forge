@@ -640,13 +640,21 @@ try {
             $elapsed = (Get-MonotonicMilliseconds) - $started
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
             $stubLaunchMs = -1
+            $stubStartEpoch = [long]0
             if (Test-Path $startFile) {
-                $stubStartEpoch = [long]0
                 if ([long]::TryParse("$(Get-Content -Raw -LiteralPath $startFile)".Trim(), [ref]$stubStartEpoch)) {
                     $stubLaunchMs = $stubStartEpoch - $invokedAt
                 }
             }
             $runnerDeadline = if (Test-Path $deadlineFile) { "$(Get-Content -Raw -LiteralPath $deadlineFile)".Trim() } else { "missing" }
+            # Report existing receipts only after the runner returns; do not add
+            # observer work inside the child deadline or change the assertions.
+            $startupInsideBudgetMs = "missing"
+            $parsedDeadline = [long]0
+            if ($stubStartEpoch -gt 0 -and [long]::TryParse($runnerDeadline, [ref]$parsedDeadline)) {
+                $startupInsideBudgetMs = $stubStartEpoch - ($parsedDeadline - $deadlineMs)
+            }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration invoked_at_epoch_ms=$invokedAt stub_start_epoch_ms=$stubStartEpoch startup_inside_budget_ms=$startupInsideBudgetMs"
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             if (Test-Path -LiteralPath $phaseFile) {
