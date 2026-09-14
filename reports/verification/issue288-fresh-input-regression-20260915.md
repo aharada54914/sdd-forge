@@ -57,3 +57,24 @@ anchors were updated to the actual validator lines. Existing history, scratch
 binding, authorization and hash checks remain intact. This is not an independent
 quality-gate PASS. Native CI, required review and safe merge remain outstanding;
 Issue 288 must stay open until those conditions are met.
+
+## PR review follow-up: optional PowerShell discovery
+
+Codex identified that the new driver unconditionally launched pwsh, unlike the
+surrounding shell suite's capability check (PR 429 review comment 4010427611).
+The driver now discovers PowerShell before assembling cases, prints an explicit
+unavailable-runtime message, and always retains Bash. Installed runtime execution
+failures still fail the suite; they are not caught or converted into skips.
+
+Three discovery regression controls cover absent, executable, and nonexecutable
+pwsh. They failed before discovery was implemented and passed after the repair.
+They run from the boundary suite, so the existing POSIX CI inventory includes them.
+A real restricted-PATH run without pwsh executed all 42 Bash regular-file cases:
+exit 0, 42 passed, 0 failed (`/tmp/sdd-pr429-actual-no-pwsh-20260915.log`).
+No validator subprocess was mocked in that run. The temporary search path included
+Bash, jq and system tools; it did not remove or alter installed host tools.
+The full boundary rerun with both installed runtimes completed with exit 0:
+existing boundary cases, three discovery controls, and all 252 driver cases
+(84 each for regular files, hardlinks and symlinks) passed, recorded in
+`/tmp/sdd-pr429-runtime-boundary-20260915.log`.
+Scoped self-review found no Critical finding; formal gate status is unchanged.

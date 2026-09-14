@@ -478,6 +478,7 @@ grep -Fq 'scratch-declaration-v1' "$VALIDATOR" || fail 'missing bound hash formu
 grep -Fq 'scratch_declaration_sha256' "$DOC" || fail 'missing reviewer binding recipe'
 
 # Issue #288: fresh completeness must not rewrite historical input contracts.
+python3 "$ROOT/tests/review-investigation-runtime.tests.py"
 for file_kind in regular hardlink symlink; do
   python3 "$ROOT/tests/review-investigation-completeness.tests.py" \
     --repo "$ROOT" --file-kind "$file_kind"

@@ -2,9 +2,14 @@
 import argparse
 import hashlib
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile
+
+
+def available_runtimes():
+    return ("bash", "pwsh") if shutil.which("pwsh") else ("bash",)
 
 
 def digest(data):
@@ -105,8 +110,11 @@ if __name__ == "__main__":
     parser.add_argument("--file-kind", choices=("regular", "hardlink", "symlink"), default="regular")
     args = parser.parse_args()
     modes = ("reservation", "preflight") if args.mode == "all" else (args.mode,)
+    runtimes = available_runtimes()
+    if "pwsh" not in runtimes:
+        print("SKIP: PowerShell cases (pwsh unavailable); Bash cases remain required", flush=True)
     results = [probe(args.repo.resolve(), runtime, stage, suffix, case, mode, args.file_kind)
-               for mode in modes for runtime in ("bash", "pwsh") for stage in ("spec", "impl", "task")
+               for mode in modes for runtime in runtimes for stage in ("spec", "impl", "task")
                for suffix in ("a", "b")
                for case in (("omitted", "declared", "bad-hash", "historical")
                             if mode == "reservation" else ("omitted", "declared", "bad-hash"))]
