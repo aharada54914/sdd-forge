@@ -239,3 +239,26 @@ a review-time cost, not an infrastructure spend.
   all three resolved by design.md's own Design Decisions section; no
   infrastructure-surface question remains open for this Phase 1 package's
   own scope.
+
+## 2026-09-11 AC-031 manual runtime amendment
+
+This section supersedes Environment's no-network/local-only description for
+the authorized manual AC-031/T-012 refresh only. Gating tests remain offline.
+The live refresh is run manually from the orchestrator session using the
+existing installed/authenticated Claude CLI; it is not a required CI job and
+must not silently substitute recorded output for a failed live invocation.
+
+No new service deployment, credential store, or unattended refresh job is
+introduced. Missing CLI/authentication, service unavailability, nonzero exit,
+or unusable response fails the requested refresh and preserves the affected
+corpus file. --fixture all is sequential, so a completed first fixture can
+remain when the second fails. Report partial completion as failure of the
+overall request, not successful regeneration. Retry only after investigating
+the failed invocation; do not alter baselines to disguise failure.
+
+Evidence: tests/structural-compatibility-live-refresh.tests.sh refresh_one
+and the PowerShell twin's Invoke-Refresh enforce invocation/validation before
+replacement. Both self-tests exercise offline failure preservation. Re-run
+them and inspect the gating runner registrations at the reviewed commit.
+This amendment describes that scoped runtime dependency, not an assertion
+that a live service or real Windows host has been verified.
