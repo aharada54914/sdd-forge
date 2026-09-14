@@ -1216,3 +1216,37 @@ smaller, independently reviewable first change. The Critical risk
 allowlist-manifest fingerprint-drift check (Data Plan; AC-035c), which
 converts an upstream epic's silent contract drift into a hard suite
 failure rather than a passing `SKIP` nobody re-examines.
+
+## 2026-09-11 A7 live-refresh failure and OQ-004 disposition amendment
+
+This amendment governs AC-031/T-012's manual live refresh and OQ-004. It
+supersedes any local-only description insofar as that description includes
+the explicitly authorized manual external refresh. Gating comparisons remain
+offline; this amendment neither authorizes unattended live calls nor changes
+AC-009/AC-026's known-unsatisfied status.
+
+For each requested fixture, a missing CLI, failed authentication, unavailable
+service, nonzero CLI exit (even with apparently valid output), malformed
+response, or structural-validation failure is an error, not SKIP or PASS.
+The command exits nonzero and must not create or replace that fixture's corpus
+file. Already existing bytes remain unchanged. Validation precedes replacement.
+With --fixture all, F1 and F2 are sequential operations, not a transaction:
+a successfully refreshed F1 may remain if F2 subsequently fails. Record which
+fixture completed; do not claim that the entire corpus refreshed successfully.
+
+Evidence: tests/structural-compatibility-live-refresh.tests.sh refresh_one
+checks CLI exit and validate_candidate before mv; its self_test exercises
+authentication, service, and output-then-failure with existing and absent
+targets. The PowerShell twin's Invoke-Refresh and Invoke-SelfTest exercise
+the same boundary. Re-run both --self-test / -SelfTest commands against the
+reviewed commit before relying on the preservation claim. This uses only a
+local stub and proves no actual service availability.
+
+OQ-004 resolution owner: the A7 producer-contract maintainer implementing the
+AC-009/assert_terminal correction and its TEST-026 regression.
+Blocks Implementation: no, for independent compatibility work; yes, for
+claiming AC-026 or final A7 acceptance is satisfied. The concrete closure
+test in Open Questions remains mandatory: exactly one terminal event after
+successful terminal evaluation and none on failed comparison or early return.
+The recorded deferral is not evidence of satisfaction. No freeze, acceptance
+criterion, or historical failed result is relaxed by this disposition.
