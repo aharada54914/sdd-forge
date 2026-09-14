@@ -611,8 +611,17 @@ foreach ($evicted in $repoSharedEvicted) {
     Assert-True ((-not (Test-Path -LiteralPath $snapshotPath)) -and (-not $manifestHasEntry)) "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)"
 }
 
+function Remove-DeterministicStepLabel([string]$Text) {
+    # Only display names changed; preserve commands, OS conditions and ordering.
+    return ($Text -creplace '(?m)^(\s*- name: )"\[deterministic\] ([^"\r\n]+)"\r?$', '$1$2')
+}
+Assert-True ((Remove-DeterministicStepLabel '      - name: "[deterministic] Example"') -ceq '      - name: Example') 'TEST-011 label normalization accepts the exact quoted display prefix'
+Assert-True ((Remove-DeterministicStepLabel '      - name: Example') -ceq '      - name: Example') 'TEST-011 label normalization preserves undecorated names'
+Assert-True ((Remove-DeterministicStepLabel '        run: "[deterministic] Example"') -ceq '        run: "[deterministic] Example"') 'TEST-011 label normalization never rewrites run commands'
+Assert-True ((Remove-DeterministicStepLabel '      - name: "[Deterministic] Example"') -ceq '      - name: "[Deterministic] Example"') 'TEST-011 label normalization does not accept a mis-cased prefix'
 if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
     $ciText = Get-Content -Raw -LiteralPath $liveCi
+    $ciText = Remove-DeterministicStepLabel $ciText
     $checkout = $ciText.IndexOf('uses: actions/checkout')
     $firstValidation = $ciText.IndexOf('Install recorded Claude Code CLI')
     $firstGuardSuite = $ciText.IndexOf('Test hook guards')

@@ -481,7 +481,8 @@ run_test_009() {
     ok "TEST-009 (AC-009, CI-resilience): this suite drives no real validator (non-use declaration)"
   fi
 
-  if grep -qF 'model-freshness-check.tests.sh' "$RUN_ALL_SH" 2>/dev/null; then
+  if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+    grep -Fx 'tests/model-freshness-check.tests.sh' <<< "$registered_suites" >/dev/null; then
     ok "TEST-009 (AC-009): registered in tests/run-all.sh"
   else
     fail "TEST-009 (AC-009): NOT registered in tests/run-all.sh"
@@ -552,7 +553,8 @@ run_test_016() {
     fail "TEST-016 (AC-016): tests/model-freshness-check.tests.ps1 does not exist"
   fi
 
-  if grep -qF 'model-freshness-check.tests.sh' "$RUN_ALL_SH" 2>/dev/null \
+  if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+      grep -Fx 'tests/model-freshness-check.tests.sh' <<< "$registered_suites" >/dev/null \
       && grep -qF 'model-freshness-check.tests.ps1' "$RUN_ALL_PS1" 2>/dev/null; then
     ok "TEST-016 (AC-016): both twins register in tests/run-all.sh AND tests/run-all.ps1"
   else

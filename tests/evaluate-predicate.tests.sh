@@ -201,7 +201,9 @@ assert_schema_error "TEST-040: 'jsonpath' operator token rejected as PREDICATE_S
 # =====================================================================
 # Suite/CI registration self-checks
 # =====================================================================
-if grep -q 'tests/evaluate-predicate.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/evaluate-predicate.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: evaluate-predicate.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: evaluate-predicate.tests.sh NOT registered in tests/run-all.sh"

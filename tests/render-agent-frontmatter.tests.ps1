@@ -430,10 +430,27 @@ Body text unaffected.
     # =======================================================================
     # Self-registration.
     # =======================================================================
-    if (Select-String -Path $runAllSh -Pattern 'render-agent-frontmatter\.tests\.sh' -Quiet) {
-        Test-Ok 'self-registration: render-agent-frontmatter.tests.sh registered in tests/run-all.sh'
+    # The runner loads an external inventory; inspect its public list, not its source.
+    function Test-PosixRegistration($Entries, $ExitCode) {
+        return ($ExitCode -eq 0 -and $Entries -ccontains 'tests/render-agent-frontmatter.tests.sh')
+    }
+    $posixEntries = @(& bash $runAllSh --list)
+    if (Test-PosixRegistration $posixEntries $LASTEXITCODE) {
+        Test-Ok 'self-registration: render-agent-frontmatter.tests.sh registered in POSIX inventory'
     } else {
-        Test-Bad 'self-registration: render-agent-frontmatter.tests.sh NOT registered in tests/run-all.sh'
+        Test-Bad 'self-registration: render-agent-frontmatter.tests.sh NOT registered in POSIX inventory'
+    }
+    foreach ($negative in @(
+        @{ Entries = @(); ExitCode = 0; Name = 'missing entry' },
+        @{ Entries = @('tests/render-agent-frontmatter.tests.sh.bak'); ExitCode = 0; Name = 'near match' },
+        @{ Entries = @('tests/Render-agent-frontmatter.tests.sh'); ExitCode = 0; Name = 'case mismatch' },
+        @{ Entries = @('tests/render-agent-frontmatter.tests.sh'); ExitCode = 1; Name = 'failed listing' }
+    )) {
+        if (Test-PosixRegistration $negative.Entries $negative.ExitCode) {
+            Test-Bad "self-registration accepts $($negative.Name)"
+        } else {
+            Test-Ok "self-registration rejects $($negative.Name)"
+        }
     }
     if ((Test-Path $runAllPs1) -and (Select-String -Path $runAllPs1 -Pattern 'render-agent-frontmatter\.tests\.ps1' -Quiet)) {
         Test-Ok 'self-registration: render-agent-frontmatter.tests.ps1 registered in tests/run-all.ps1'

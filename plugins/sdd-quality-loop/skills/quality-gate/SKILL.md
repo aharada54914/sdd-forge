@@ -207,8 +207,12 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
    Allocate the evaluator a scratch directory of its own and name it in the
-   launch brief: a path used by no implementation context for this feature and
+   launch brief and the invocation record's optional `scratch_root` field: a
+   canonical absolute path used by no implementation context for this feature and
    by no earlier evaluator run. Tell the evaluator to write nothing outside it.
+   When `scratch_root` is present, the deterministic reservation boundary
+   compares it with the current implementation report's `Scratch Root` and
+   rejects equal or ancestor/descendant paths before launch.
    This is not housekeeping (WFI-034). Sharing one scratch root across roles
    puts the implementing agent's intermediates -- a `.bak` of the suite under
    review, per-task append scripts, raw red/green logs -- inside reach of the

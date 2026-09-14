@@ -248,7 +248,9 @@ else
 fi
 
 # --- Suite/CI registration self-check ---------------------------------------
-if grep -qF "tests/facet-manifest-schema.tests.sh" "${REPO_ROOT}/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/facet-manifest-schema.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: tests/run-all.sh lists this suite"
 else
   fail "self-registration: tests/run-all.sh does not list tests/facet-manifest-schema.tests.sh"

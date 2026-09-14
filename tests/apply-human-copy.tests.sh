@@ -1925,7 +1925,9 @@ done
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================
-if grep -q 'apply-human-copy.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/apply-human-copy.tests.sh" <<< "$registered_suites" >/dev/null; then
   pass "self-registration: tests/run-all.sh references apply-human-copy.tests.sh"
 else
   fail "self-registration: tests/run-all.sh references apply-human-copy.tests.sh"

@@ -1149,7 +1149,9 @@ fi
 # Self-registration.
 # ---------------------------------------------------------------------------
 
-if grep -q 'validate-approval-sidecar\.tests\.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/validate-approval-sidecar.tests.sh" <<< "$registered_suites" >/dev/null; then
   pass "self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh"

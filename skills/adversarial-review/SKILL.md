@@ -145,6 +145,13 @@ unavailability reason. Never estimate tokens or substitute zero. This is an
 observability record, not a gate failure or a verdict input. Older v1 records
 without this field remain readable; do not retrofit guessed values into them.
 
+Use full 40-character commit IDs. Compute the target digest without external
+diff drivers so the identity is reproducible across hosts:
+
+```bash
+git diff --binary --no-ext-diff --no-textconv "$merge_base_sha".."$head_sha" | sha256sum
+```
+
 **Minimum required fields at synthesis time:**
 
 ```json
@@ -172,6 +179,15 @@ Set the annex's root `review_lane` to `standalone-adversarial`; severity-change
 proposals use exactly `CRITICAL|HIGH|MEDIUM|LOW`. Do not convert these to the
 SDD gate vocabulary or rewrite the original reviewer verdicts. An absent lane
 retains legacy SDD gate semantics (`Critical|Major|Minor`).
+
+For a completed annex with `verdicts: []`, record `source_finding_count: 0`
+only after reading both original blind-review outputs and confirming they
+contain no findings. Missing or unavailable outputs are not zero findings;
+record the annex as unavailable with its reason instead. A nonempty source
+review cannot become a completed empty annex by dropping its critiques. The
+count is an explicit declaration, not independent verification of those
+outputs; retain the original reports for review. Nonempty historical annexes
+remain readable without this field.
 
 Before using a cross-critique annex as evidence, run the read-only checker
 against the final JSON file (the same command works in Bash and PowerShell):
