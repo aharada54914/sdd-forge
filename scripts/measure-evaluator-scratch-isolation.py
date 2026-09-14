@@ -26,6 +26,14 @@ def overlaps(left: str, right: str) -> bool:
 def measure(repository: Path, feature: str | None) -> dict[str, object]:
     declared = auditable = shared = 0
     context_root = repository / "reports" / "review-context"
+    ledger_path = context_root / "identity-ledger.json"
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8-sig")) if ledger_path.is_file() else {"records": []}
+    reserved = {
+        (record.get("run_id"), record.get("host_session_id"))
+        for record in ledger["records"]
+        if record.get("stage") == "quality" and record.get("role") == "sdd-evaluator"
+    }
+    declarations: dict[tuple[str, str], set[tuple[str, str, str]]] = {}
     for invocation in sorted(context_root.rglob("*.json")) if context_root.is_dir() else []:
         try:
             record = json.loads(invocation.read_text(encoding="utf-8"))
@@ -35,7 +43,11 @@ def measure(repository: Path, feature: str | None) -> dict[str, object]:
             not isinstance(record, dict)
             or record.get("schema") != "review-context-invocation/v2"
             or record.get("stage") != "quality"
+            or record.get("role") != "sdd-evaluator"
         ):
+            continue
+        identity = (record.get("run_id"), record.get("host_session_id"))
+        if identity not in reserved:
             continue
         if feature is not None and record.get("feature") != feature:
             continue
@@ -44,7 +56,15 @@ def measure(repository: Path, feature: str | None) -> dict[str, object]:
         record_feature = record.get("feature")
         if not all(isinstance(value, str) and value for value in (evaluator_root, task_id, record_feature)):
             continue
+        declarations.setdefault(identity, set()).add((record_feature, task_id, evaluator_root))
+
+    # Caller manifests and reservation snapshots describe the same run. Conflicting
+    # declarations cannot supply an auditable denominator by choosing the first copy.
+    for values in declarations.values():
         declared += 1
+        if len(values) != 1:
+            continue
+        record_feature, task_id, evaluator_root = next(iter(values))
         implementation_dir = repository / "reports" / "implementation" / record_feature
         reports = sorted(implementation_dir.glob("*.md")) if implementation_dir.is_dir() else []
         current_report = implementation_dir / f"{task_id}.md"

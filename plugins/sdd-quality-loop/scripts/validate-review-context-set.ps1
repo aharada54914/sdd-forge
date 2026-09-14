@@ -316,7 +316,17 @@ try {
         'previous_record_sha256', 'record_sha256'
     )
     foreach ($record in $records) {
-        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $recordKeys) -or
+        $allowedRecordKeys = @($recordKeys)
+        $boundRecord = $record -is [hashtable] -and $record.ContainsKey('scratch_declaration_sha256')
+        if ($boundRecord) {
+            $allowedRecordKeys += 'scratch_declaration_sha256'
+            if ($record.stage -cne 'quality' -or $record.role -cne 'sdd-evaluator' -or
+                $record.scratch_declaration_sha256 -isnot [string] -or
+                $record.scratch_declaration_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid scratch binding in identity ledger'
+            }
+        }
+        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $allowedRecordKeys) -or
             -not (Test-JsonInteger $record.sequence) -or
             [decimal]$record.sequence -ne $expectedSequence -or
             $record.stage -isnot [string] -or $record.stage -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
@@ -329,6 +339,7 @@ try {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger chain is invalid'
         }
         $canonical = "$($record.sequence)|$($record.stage)|$($record.role)|$($record.run_id)|$($record.host_session_id)|$($record.previous_record_sha256)"
+        if ($boundRecord) { $canonical += "|scratch-declaration-v1|$($record.scratch_declaration_sha256)" }
         if ((Get-Sha256Text $canonical) -cne $record.record_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger record hash is invalid'
         }
@@ -346,7 +357,15 @@ try {
         $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
     } | Select-Object -First 1
 
+    $scratchBinding = ''
+    if ($document.stage -ceq 'quality' -and $document.ContainsKey('scratch_root')) {
+        $scratchBinding = Get-Sha256Text ("$($document.feature)" + "`n" + "$($document.scratch_root)")
+    }
     if ($null -ne $persistedMatch) {
+        if ($persistedMatch.ContainsKey('scratch_declaration_sha256') -and
+            $scratchBinding -cne $persistedMatch.scratch_declaration_sha256) {
+            Fail-ReviewContext 'PATH' 'reserved evaluator scratch binding changed or was omitted'
+        }
         # Verification of an already-reserved identity. The persisted record
         # is authoritative and must match the manifest exactly on every
         # identity field; its own record_sha256 was already proven to
@@ -734,6 +753,13 @@ def declaration(document):
     return feature, scratch
 
 
+def binding(document):
+    feature, scratch = declaration(document)
+    if scratch is None:
+        raise ValueError("bound scratch declaration is missing")
+    return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+
+
 def check(root, invocation, ledger):
     scratch = invocation["scratch_root"]
     feature = invocation["feature"]
@@ -782,8 +808,16 @@ def check(root, invocation, ledger):
     for record in records:
         key = identity(record)
         if key not in histories:
-            raise ValueError("reserved evaluator invocation history is missing; restore original evidence")
+            if "scratch_declaration_sha256" in record:
+                raise ValueError("bound evaluator invocation history is missing; restore original evidence")
+            # Pre-extension records have no persisted scratch assertion. Do not
+            # invent history or block an unrelated feature on an unknown root.
+            continue
         previous_feature, previous_root = histories[key]
+        if "scratch_declaration_sha256" in record:
+            evidence = dict(feature=previous_feature, scratch_root=previous_root)
+            if binding(evidence) != record["scratch_declaration_sha256"]:
+                raise ValueError("reserved evaluator scratch binding mismatch")
         if key == identity(invocation):
             if histories[key] != declaration(invocation):
                 raise ValueError("reserved evaluator scratch declaration changed")
@@ -806,6 +840,7 @@ def main():
     if args.snapshot:
         text = "|".join(str(invocation[key]) for key in
                         ("sequence", "stage", "role", "run_id", "host_session_id", "previous_record_sha256"))
+        text += "|scratch-declaration-v1|" + binding(invocation)
         record_hash = hashlib.sha256(text.encode()).hexdigest()
         directory = safe_path(root, root / "reports/review-context/scratch-reservations")
         directory.mkdir(exist_ok=True)
@@ -832,6 +867,10 @@ if __name__ == "__main__":
     Confirm-FeatureScratchHistory
 
     $recordText = "$($document.sequence)|$($document.stage)|$($document.role)|$($document.run_id)|$($document.host_session_id)|$($document.previous_record_sha256)"
+    if ($scratchBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('scratch_declaration_sha256'))) {
+        $recordText += "|scratch-declaration-v1|$scratchBinding"
+    }
     $recordHash = Get-Sha256Text $recordText
     if ($Reserve) {
         $lockPath = "$ledger.lock"
@@ -865,6 +904,9 @@ if __name__ == "__main__":
                 previous_record_sha256 = $document.previous_record_sha256
                 record_sha256 = $recordHash
             })
+            if ($scratchBinding -cne '') {
+                $ledgerDocument.records[-1]['scratch_declaration_sha256'] = $scratchBinding
+            }
             $json = $ledgerDocument | ConvertTo-Json -Depth 20
             [IO.File]::WriteAllText($temporary, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
             Move-Item -LiteralPath $temporary -Destination $ledger -Force

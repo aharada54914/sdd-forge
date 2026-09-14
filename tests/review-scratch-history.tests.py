@@ -38,21 +38,25 @@ def exercise(source, runtime, case):
             scratch = {"other-equal": "/opt/feature/impl-two", "other-child": "/opt/feature/impl-two/child",
                        "other-parent": "/opt/feature", "other-prefix": "/opt/feature/impl-two-more"}[case]
             expected = 0 if case == "other-prefix" else 1
-        if case.startswith("prior-"):
+        if case.startswith("prior-") or case == "legacy-missing":
             previous = dict(sequence=2, stage="quality", role="sdd-evaluator",
                             run_id="prior", host_session_id="prior-session",
                             previous_record_sha256=first["record_sha256"])
             previous["record_sha256"] = digest(
                 ("2|quality|sdd-evaluator|prior|prior-session|" + first["record_sha256"]).encode())
             records.append(previous)
-            if case != "prior-missing":
+            if case not in ("prior-missing", "legacy-missing"):
                 old = dict(schema="review-context-invocation/v2", feature="f", scratch_root="/opt/history/prior",
                            **{k: v for k, v in previous.items() if k != "record_sha256"})
                 write_json(root / "reports/review-context/old-invocation.json", old)
             scratch = {"prior-equal": "/opt/history/prior", "prior-child": "/opt/history/prior/child",
                        "prior-parent": "/opt/history", "prior-prefix": "/opt/history/prior-more",
-                       "prior-missing": "/tmp/clean-evaluator"}[case]
-            expected = 0 if case == "prior-prefix" else 1
+                       "prior-missing": "/tmp/clean-evaluator", "legacy-missing": "/tmp/clean-evaluator"}[case]
+            if case == "prior-missing":
+                previous["scratch_declaration_sha256"] = digest(b"f\n/opt/history/prior")
+                text = "2|quality|sdd-evaluator|prior|prior-session|" + first["record_sha256"]
+                previous["record_sha256"] = digest((text + "|scratch-declaration-v1|" + previous["scratch_declaration_sha256"]).encode())
+            expected = 0 if case in ("prior-prefix", "legacy-missing") else 1
         write_json(ledger, dict(schema="review-identity-ledger/v1", records=records))
         invocation = dict(schema="review-context-invocation/v2", input_mode="file-manifest",
                           fallback_mode="none", read_only=True, stage="quality", role="sdd-evaluator",
@@ -87,6 +91,26 @@ def exercise(source, runtime, case):
             changed = subprocess.run(command[:-1], capture_output=True, text=True, timeout=40)
             passed = passed and changed.returncode == 1 and "REVIEW_CONTEXT_PATH" in changed.stderr and ledger.read_bytes() == after
             print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: snapshot, unchanged verification, changed-root refusal")
+            omitted = dict(invocation)
+            omitted.pop("scratch_root")
+            write_json(manifest, omitted)
+            omitted_result = subprocess.run(command[:-1], capture_output=True, text=True, timeout=40)
+            passed = passed and omitted_result.returncode == 1 and ledger.read_bytes() == after
+            print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: omitted bound root refused")
+            if case in ("snapshot-tampered", "snapshot-deleted"):
+                if case == "snapshot-tampered":
+                    forged = json.loads(saved[0].read_text())
+                    forged["scratch_root"] = "/tmp/forged"
+                    write_json(saved[0], forged)
+                else:
+                    saved[0].unlink()
+                invocation.update(scratch_root=scratch, run_id="later", host_session_id="later-session",
+                                  sequence=len(records) + 2, identity_ledger_sha256=digest(after),
+                                  previous_record_sha256=json.loads(after)["records"][-1]["record_sha256"])
+                write_json(manifest, invocation)
+                reuse = subprocess.run(command, capture_output=True, text=True, timeout=40)
+                passed = passed and reuse.returncode == 1 and ledger.read_bytes() == after
+                print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: later reuse exit={reuse.returncode}, expected=1")
         return passed
 
 
@@ -98,7 +122,8 @@ def main():
         if not shutil.which(runtime):
             raise SystemExit(f"Missing required runtime: {runtime}")
     cases = ["clean", "other-equal", "other-child", "other-parent", "other-prefix",
-             "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing"]
+             "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
+             "legacy-missing", "snapshot-tampered", "snapshot-deleted"]
     results = [exercise(args.repo, runtime, case) for runtime in ("bash", "pwsh") for case in cases]
     print(f"PASS: {sum(results)}; FAIL: {len(results) - sum(results)}")
     raise SystemExit(0 if all(results) else 1)

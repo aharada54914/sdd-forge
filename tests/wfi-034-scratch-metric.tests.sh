@@ -8,8 +8,9 @@ mkdir -p "$tmp/reports/review-context" "$tmp/reports/implementation/feature-a"
 
 write_invocation() {
   local name=$1 task=$2 scratch=$3
-  jq -n --arg task "$task" --arg scratch "$scratch" '{
-    schema:"review-context-invocation/v2", stage:"quality", feature:"feature-a",
+  jq -n --arg task "$task" --arg scratch "$scratch" --arg name "$name" '{
+    schema:"review-context-invocation/v2", stage:"quality", role:"sdd-evaluator", feature:"feature-a",
+    run_id:$name, host_session_id:($name + "-session"),
     task_id:$task, scratch_root:$scratch
   }' > "$tmp/reports/review-context/$name.json"
 }
@@ -27,6 +28,12 @@ write_invocation unauditable T-003 /tmp/feature-a/evaluator-3
 write_invocation cross-task T-004 /tmp/feature-a/implementation-1/child
 write_report T-004 /tmp/feature-a/implementation-4
 
+jq -s '{schema:"review-identity-ledger/v1", records:map({stage,role,run_id,host_session_id})}' \
+  "$tmp/reports/review-context/"*.json > "$tmp/ledger.json"
+mv "$tmp/ledger.json" "$tmp/reports/review-context/identity-ledger.json"
+cp "$tmp/reports/review-context/distinct.json" "$tmp/reports/review-context/snapshot.json"
+write_invocation pending T-001 /tmp/feature-a/pending
+
 result="$(python3 "$ROOT/scripts/measure-evaluator-scratch-isolation.py" "$tmp" --feature feature-a)"
 [[ "$(jq -r '.metrics.evaluator_scratch_shared_with_implementation' <<<"$result")" == 2 ]] || {
   printf 'FAIL: expected direct and cross-task shared scratch roots: %s\n' "$result" >&2
@@ -42,3 +49,4 @@ result="$(python3 "$ROOT/scripts/measure-evaluator-scratch-isolation.py" "$tmp" 
 }
 
 printf 'WFI-034 scratch metric tests passed\n'
+python3 "$ROOT/tests/evaluator-scratch-metrics.tests.py"

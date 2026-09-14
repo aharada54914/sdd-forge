@@ -98,8 +98,8 @@ anchors() {
 # The declared gate report must be canonical, symlink-free, a regular file
 # under reports/quality-gate/, and hash to the pinned value before any row is
 # read from it.
-:489-504 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
-:489-504 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+:503-518 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:503-518 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
 
 # Its `## Post-Fix Artifacts` rows are the second authorization source.
 :146-152 validator gate_report_output_is_declared() {
@@ -107,8 +107,8 @@ anchors() {
 
 # stage/role must be an authorized pair. The identically-shaped `case` inside
 # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
-:316-318 validator case "$stage:$role" in
-:316-318 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+:318-320 validator case "$stage:$role" in
+:318-320 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
 
 # No rows for the ledger's global-uniqueness check or for the line that prints
 # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
@@ -120,33 +120,33 @@ anchors() {
 
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
-:449 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:758 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:463 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:791 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
-:451 validator [[ "$sequence" -eq "$expected_sequence"
+:465 validator [[ "$sequence" -eq "$expected_sequence"
 
 # The record-hash construction a reviewer is told to recompute: the chain-walk
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
-:374 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:752 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:380 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+:782 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
-:458-471 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
-:458-471 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+:472-485 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:472-485 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
 # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
 # no symlink component. One row per clause the field table claims.
-:521-534 validator is_canonical_path "$path"
-:521-534 validator is_forbidden_review_output "$path"
-:521-534 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+:535-548 validator is_canonical_path "$path"
+:535-548 validator is_forbidden_review_output "$path"
+:535-548 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
 
 # Manifest hash equality against the file on disk.
-:538 validator actual_hash=$(sha256_file "$candidate")
+:552 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:768-778 validator '.records += [{
+:801-811 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
@@ -472,3 +472,7 @@ for pair in "${RCB_RUNTIMES[@]}"; do
 done
 
 printf 'ok: validate-review-context-set reservation/verification boundary is idempotent through merges (TEST-RCB-001..010, bash+pwsh)\n'
+
+# Both runtimes must bind new declarations; the legacy hash recipe stays valid.
+grep -Fq 'scratch-declaration-v1' "$VALIDATOR" || fail 'missing bound hash formula'
+grep -Fq 'scratch_declaration_sha256' "$DOC" || fail 'missing reviewer binding recipe'
