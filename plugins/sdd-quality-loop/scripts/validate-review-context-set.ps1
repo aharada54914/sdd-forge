@@ -426,6 +426,19 @@ try {
     }
 
     $inputs = @($document.allowed_input_manifest)
+    # Issue #288: require current investigation only for a fresh identity,
+    # including preflight without -Reserve. Historical inputs stay historical.
+    if ($null -eq $persistedMatch -and
+        ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl')) {
+        $investigationPath = "specs/$($document.feature)/investigation.md"
+        $investigationFile = Join-Path $RepositoryRoot $investigationPath
+        if (Test-Path -LiteralPath $investigationFile -PathType Leaf) {
+            if (@($inputs | Where-Object { $_.path -ceq $investigationPath }).Count -ne 1) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits existing investigation evidence: $investigationPath"
+            }
+        }
+    }
+
     $implementationReportPath = ''
     $evaluatorOutputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $gateReportOutputs = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
@@ -585,7 +598,9 @@ try {
         foreach ($component in $input.path.Split('/')) {
             $current = Join-Path $current $component
             if (Test-Path -LiteralPath $current) {
-                if ($null -ne (Get-Item -LiteralPath $current -Force).LinkType) {
+                # Hardlinks are regular files, not redirected path components.
+                if (((Get-Item -LiteralPath $current -Force).Attributes -band
+                    [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
                     Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
                 }
             }

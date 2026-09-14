@@ -21,8 +21,8 @@ wins and this document is the defect.
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
    ledger **as it stands before the reservation** (`:463`, and again under the
-   reservation lock at `:791`).
-2. Append the reserved record to the ledger (`:801-811`).
+   reservation lock at `:804`).
+2. Append the reserved record to the ledger (`:814-824`).
 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
    chain facts the validator proved before printing (WFI-037):
    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
@@ -48,11 +48,11 @@ and the appended record is the *extension*.
 | `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:276`, `:465`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
 | `previous_record_sha256` | must equal the last record's `record_sha256` (`:465`) | **yes** — via the caller-quoted line; this is the chain |
 | `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:277`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:278`); equality against the ledger **before** the append (`:463`, `:791`) | **NO — see below** |
-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:535-548`) | **yes** — and read nothing outside it |
-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:552`) | **yes** — this is the substantive integrity check |
-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:254`, `:472-485`) | **yes** |
-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:255-260`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:503-518`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:146-152`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+| `identity_ledger_sha256` | hex-format (`:278`); equality against the ledger **before** the append (`:463`, `:804`) | **NO — see below** |
+| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:548-561`) | **yes** — and read nothing outside it |
+| `allowed_input_manifest[].sha256` | equality against the file on disk (`:565`) | **yes** — this is the substantive integrity check |
+| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:254`, `:485-498`) | **yes** |
+| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:255-260`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:516-531`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:146-152`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
 
 ## `identity_ledger_sha256`: do not re-verify
 
@@ -97,7 +97,7 @@ quoted line and its own manifest — with no file read outside the manifest:
 3. `<record_sha256>` recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
    from your manifest's own fields — the same construction the validator
-   uses at `:380` and `:782`. (evidence: caller-quoted line + manifest)
+   uses at `:380` and `:795`. (evidence: caller-quoted line + manifest)
    For new scratch-bound quality reservations, compute the declaration digest as
    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
    `|scratch-declaration-v1|<declaration digest>` to the original chain text before

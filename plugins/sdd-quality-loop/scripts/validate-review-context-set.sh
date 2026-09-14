@@ -468,6 +468,19 @@ else
   pre_append_tip_sequence=$((expected_sequence - 1))
 fi
 
+# Issue #288: new reviews must bind existing investigation evidence. A
+# persisted identity is historical; a file created later was not its input.
+# Check fresh preflight as well as --reserve, without expanding task inputs.
+if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
+  investigation_path="specs/$feature/investigation.md"
+  if [[ -f "$repository_root/$investigation_path" ]]; then
+    jq -e --arg path "$investigation_path" '
+      any(.allowed_input_manifest[]; .path == $path)
+    ' "$manifest" >/dev/null 2>&1 ||
+      fail PATH "$role omits existing investigation evidence: $investigation_path"
+  fi
+fi
+
 implementation_report_path=''
 if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
   implementation_report_count=0

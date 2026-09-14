@@ -289,6 +289,8 @@ jq '.allowed_input_manifest[0] = {
   sha256:"'"$(sha256 "$bash_repository/specs/f/requirements.md")"'"
 }' "$valid" > "$candidate"
 assert_rejected_both symlink-input "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
+# Restore the fixture: this invalid evidence must not contaminate later reservations.
+rm "$bash_repository/specs/f/investigation.md"
 
 evaluator_manifest="$tmp/evaluator-valid.json"
 make_manifest "$bash_repository" sdd-evaluator "$evaluator_manifest"
