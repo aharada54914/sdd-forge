@@ -499,8 +499,8 @@ Assert-NoTraceback $r 'TEST-HARDEN(n)'
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 
-$RunAllSh = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.sh')
-if ($RunAllSh -match 'check-hook-activation-handshake\.tests\.sh') {
+$RunAllSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -eq 0 -and $RunAllSh -ccontains 'tests/check-hook-activation-handshake.tests.sh') {
   Test-Pass 'self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh'
 } else {
   Test-Fail 'self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh'

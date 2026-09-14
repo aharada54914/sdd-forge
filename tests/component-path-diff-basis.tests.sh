@@ -489,7 +489,8 @@ fi
 # Suite/CI registration self-check
 # ============================================================================
 echo "=== registration self-check ==="
-if grep -q "component-path-diff-basis" "${REPO_ROOT}/tests/run-all.sh" \
+if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+   grep -Fx "tests/component-path-diff-basis.tests.sh" <<< "$registered_suites" >/dev/null \
    && grep -q "component-path-diff-basis" "${REPO_ROOT}/tests/run-all.ps1"; then
   ok "component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1"
 else

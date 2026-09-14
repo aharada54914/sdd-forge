@@ -327,7 +327,8 @@ RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
 TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
 
-if grep -q 'tests/hitl-wfi-terminal\.tests\.sh' "$RUN_ALL_SH" 2>/dev/null \
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+   grep -Fx 'tests/hitl-wfi-terminal.tests.sh' <<< "$registered_suites" >/dev/null \
    && grep -q 'hitl-wfi-terminal\.tests\.sh' "$TEST_YML" 2>/dev/null; then
   ok "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml"
 else

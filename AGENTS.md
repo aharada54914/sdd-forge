@@ -39,6 +39,8 @@ open; once the fix lands, the automated precheck path is again mandatory.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+When a spec or design clause depends on another epic's cross-epic merge state, the review lane must evaluate that condition against the current tree at review time and record whether it contradicts the task plan being approved.
+
 ### Post-review artifact freeze
 
 Once a review gate passes, its hash-bound artifacts are content-frozen except

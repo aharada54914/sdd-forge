@@ -178,11 +178,13 @@ try {
     $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
     $testYml = Join-Path $repoRoot ".github/workflows/test.yml"
 
-    $runAllShContent = if (Test-Path -LiteralPath $runAllSh) { Get-Content -LiteralPath $runAllSh -Raw } else { "" }
+    # run-all.sh loads its inventory externally; query the executable list.
+    $posixEntries = @(& bash $runAllSh --list)
+    $posixListExit = $LASTEXITCODE
     $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
     $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
 
-    if ($runAllShContent.Contains("tests/check-placeholders-brownfield.tests.sh") -and $testYmlContent.Contains("check-placeholders-brownfield.tests.sh")) {
+    if ($posixListExit -eq 0 -and $posixEntries -ccontains 'tests/check-placeholders-brownfield.tests.sh' -and $testYmlContent.Contains("check-placeholders-brownfield.tests.sh")) {
         Ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml"
     } else {
         Fail "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is NOT registered in run-all.sh and/or test.yml"

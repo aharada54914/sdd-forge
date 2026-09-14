@@ -241,13 +241,27 @@ if ((Test-Path -LiteralPath $pluginContracts) -and
     Fail "TEST-005: PLUGIN-CONTRACTS.md does not document the agent-model-capabilities/v2 schema"
 }
 
-# --- Self-registration (mirrors tests/second-approval-mask.tests.sh's
-# established pattern; case-sensitive basename match) ----------------------
-if ((Test-Path -LiteralPath $runAllSh) -and
-    (Select-String -LiteralPath $runAllSh -Pattern "agent-capabilities-v2\.tests\.sh" -CaseSensitive -Quiet)) {
+# The runner loads an inventory file: inspect its actual output, not its source.
+function Test-PosixRegistration($Entries, $ExitCode) {
+    return ($ExitCode -eq 0 -and $Entries -ccontains 'tests/agent-capabilities-v2.tests.sh')
+}
+$posixEntries = @(& bash $runAllSh --list)
+if (Test-PosixRegistration $posixEntries $LASTEXITCODE) {
     Ok "self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh"
 } else {
     Fail "self-registration: agent-capabilities-v2.tests.sh NOT registered in tests/run-all.sh"
+}
+foreach ($probe in @(
+    @{ Entry = 'tests/other.tests.sh'; Code = 0 },
+    @{ Entry = 'tests/agent-capabilities-v2.tests.sh.extra'; Code = 0 },
+    @{ Entry = 'tests/AGENT-capabilities-v2.tests.sh'; Code = 0 },
+    @{ Entry = 'tests/agent-capabilities-v2.tests.sh'; Code = 1 }
+)) {
+    if (Test-PosixRegistration @($probe.Entry) $probe.Code) {
+        Fail "self-registration: invalid inventory accepted ($($probe.Entry), exit $($probe.Code))"
+    } else {
+        Ok "self-registration: invalid inventory rejected ($($probe.Entry), exit $($probe.Code))"
+    }
 }
 if ((Test-Path -LiteralPath $runAllPs1) -and
     (Select-String -LiteralPath $runAllPs1 -Pattern "agent-capabilities-v2\.tests\.ps1" -CaseSensitive -Quiet)) {

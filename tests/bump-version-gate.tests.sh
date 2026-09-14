@@ -356,6 +356,50 @@ run_test_005() {
 # ---------------------------------------------------------------------------
 # TEST-006 (AC-006): CI-resilience + self-registration conformance
 # ---------------------------------------------------------------------------
+assert_self_registered() {
+  local registered_suites
+  # Membership comes from the executable inventory, not runner source text.
+  registered_suites="$(bash "$RUN_ALL_SH" --list)" || return 1
+  grep -Fx -- 'tests/bump-version-gate.tests.sh' <<< "$registered_suites" >/dev/null &&
+    grep -qF 'bump-version-gate.tests.sh' "$TEST_YML" 2>/dev/null
+}
+
+check_registration_controls() {
+  local work
+  work="$(mktemp -d "${TMPDIR:-/tmp}/bump-registration.XXXXXX")" || return 1
+  CLEANUP_ROOTS+=("$work")
+  local RUN_ALL_SH="${work}/runner.sh" TEST_YML="${work}/workflow.yml"
+  local REGISTRATION_LIST REGISTRATION_EXIT=0
+  export REGISTRATION_LIST REGISTRATION_EXIT
+  printf '%s\n' '[[ "$1" == "--list" ]] || exit 9' \
+    'printf "%s\n" "$REGISTRATION_LIST"' 'exit "$REGISTRATION_EXIT"' > "$RUN_ALL_SH"
+  printf '%s\n' 'run: bash tests/bump-version-gate.tests.sh' > "$TEST_YML"
+  REGISTRATION_LIST='tests/bump-version-gate.tests.sh'
+  if assert_self_registered; then
+    ok "TEST-006: dynamic exact registration accepted"
+  else
+    fail "TEST-006: dynamic exact registration rejected"
+  fi
+  # A comment is deliberately present: source text must not imply membership.
+  printf '%s\n' '# bump-version-gate.tests.sh' >> "$RUN_ALL_SH"
+  local control
+  for control in missing near-match failed-list missing-ci; do
+    REGISTRATION_LIST='tests/bump-version-gate.tests.sh'
+    REGISTRATION_EXIT=0
+    case "$control" in
+      missing) REGISTRATION_LIST='' ;;
+      near-match) REGISTRATION_LIST='tests/bump-version-gate.tests.sh.bak' ;;
+      failed-list) REGISTRATION_EXIT=7 ;;
+      missing-ci) printf '%s\n' 'run: echo no suite' > "$TEST_YML" ;;
+    esac
+    if assert_self_registered; then
+      fail "TEST-006: ${control} registration accepted"
+    else
+      ok "TEST-006: ${control} registration rejected"
+    fi
+  done
+}
+
 run_test_006() {
   echo "=== TEST-006 (AC-006): CI-resilience + self-registration ==="
 
@@ -398,8 +442,7 @@ run_test_006() {
     ok "TEST-006 (AC-006, CI-resilience): no unguarded bash array expansion found (set -u empty-array safety)"
   fi
 
-  if grep -qF 'bump-version-gate.tests.sh' "$RUN_ALL_SH" 2>/dev/null \
-      && grep -qF 'bump-version-gate.tests.sh' "$TEST_YML" 2>/dev/null; then
+  if assert_self_registered; then
     ok "TEST-006 (AC-006): bump-version-gate.tests.sh is registered in tests/run-all.sh and .github/workflows/test.yml"
   else
     fail "TEST-006 (AC-006): bump-version-gate.tests.sh is NOT registered in tests/run-all.sh and/or .github/workflows/test.yml"
@@ -415,6 +458,7 @@ run_test_003
 run_test_004
 run_test_005
 run_test_006
+check_registration_controls
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then

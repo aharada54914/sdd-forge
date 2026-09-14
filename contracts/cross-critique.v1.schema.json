@@ -38,9 +38,14 @@
       "format": "date-time",
       "description": "ISO-8601 UTC timestamp of annex creation."
     },
+    "source_finding_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total findings in the original blind reviewer outputs, before cross-critique. Required as explicit zero for a completed empty annex; never infer zero from missing or unavailable reviewer output. This declaration is not independent proof of the source reports."
+    },
     "verdicts": {
       "type": "array",
-      "description": "Per-finding cross-critique verdicts from both reviewers.",
+      "description": "Per-finding cross-critique verdicts from both reviewers. A completed review with no findings has an empty array.",
       "items": {
         "$ref": "#/definitions/verdict_record"
       }
@@ -73,12 +78,30 @@
         }
       }
     }
+  }, {
+    "if": {
+      "required": ["status", "verdicts"],
+      "properties": { "status": { "const": "complete" }, "verdicts": { "maxItems": 0 } }
+    },
+    "then": {
+      "required": ["source_finding_count"],
+      "properties": { "source_finding_count": { "const": 0 } }
+    }
+  }, {
+    "if": {
+      "required": ["source_finding_count"],
+      "properties": { "source_finding_count": { "const": 0 } }
+    },
+    "then": { "properties": { "verdicts": { "maxItems": 0 } } }
   }],
   "if": {
     "properties": { "status": { "const": "unavailable" } }
   },
   "then": {
-    "required": ["unavailable_reason"]
+    "required": ["unavailable_reason"],
+    "properties": {
+      "verdicts": { "maxItems": 0 }
+    }
   },
   "definitions": {
     "verdict_record": {
@@ -166,21 +189,15 @@
       "description": "Evidence or concern backing the verdict. Distinguishes decided evidence from unverified concerns (arXiv:2608.18167 §concern classification).",
       "required": ["kind"],
       "additionalProperties": false,
-      "if": {
-        "properties": { "kind": { "enum": ["code_evidence", "spec_evidence"] } },
-        "required": ["kind"]
-      },
-      "then": { "required": ["citations"] },
-      "else": { "required": ["claim"] },
       "properties": {
-        "claim": {
-          "type": "string",
-          "pattern": "\\S",
-          "description": "The assertion being raised. Required for concern so its substance is retained even when no citation can be verified. Evidence-backed records may retain their claim in citations instead."
-        },
         "kind": {
           "enum": ["code_evidence", "spec_evidence", "concern"],
           "description": "code_evidence: a file:line citation that directly refutes or confirms the finding. spec_evidence: a requirement/AC/ADR that directly bears on the finding. concern: a plausible objection that could not be verified this session. A concern does not auto-reject or auto-adopt — the finding author must respond with evidence, a withdrawal, or an escalation to human judgement."
+        },
+        "claim": {
+          "type": "string",
+          "pattern": "\\S",
+          "description": "Concrete unverified concern; required when kind is concern."
         },
         "citations": {
           "type": "array",
@@ -190,6 +207,19 @@
             "$ref": "#/definitions/citation"
           }
         }
+      },
+      "if": {
+        "properties": {
+          "kind": { "enum": ["code_evidence", "spec_evidence"] }
+        },
+        "required": ["kind"]
+      },
+      "then": {
+        "required": ["citations"]
+      },
+      "else": {
+        "required": ["claim"],
+        "not": { "required": ["citations"] }
       }
     },
     "citation": {
@@ -231,16 +261,22 @@
         "related_requirements": {
           "type": "array",
           "items": { "type": "string", "pattern": "^REQ-\\S+$", "not": { "pattern": "\\s" } },
+          "minItems": 1,
+          "uniqueItems": true,
           "description": "REQ-* IDs from requirements.md that this finding relates to. in_scope requires at least one REQ, AC, or task ID."
         },
         "related_acceptance_tests": {
           "type": "array",
           "items": { "type": "string", "pattern": "^AC-\\S+$", "not": { "pattern": "\\s" } },
+          "minItems": 1,
+          "uniqueItems": true,
           "description": "AC-* IDs from requirements.md that this finding relates to."
         },
         "related_tasks": {
           "type": "array",
           "items": { "type": "string", "pattern": "^T-\\S+$", "not": { "pattern": "\\s" } },
+          "minItems": 1,
+          "uniqueItems": true,
           "description": "T-* IDs from tasks.md that this finding relates to."
         },
         "evidence": {
@@ -253,9 +289,9 @@
       },
       "then": {
         "anyOf": [
-          { "required": ["related_requirements"], "properties": { "related_requirements": { "minItems": 1 } } },
-          { "required": ["related_acceptance_tests"], "properties": { "related_acceptance_tests": { "minItems": 1 } } },
-          { "required": ["related_tasks"], "properties": { "related_tasks": { "minItems": 1 } } }
+          { "required": ["related_requirements"] },
+          { "required": ["related_acceptance_tests"] },
+          { "required": ["related_tasks"] }
         ],
         "description": "in_scope requires at least one of related_requirements, related_acceptance_tests, or related_tasks."
       }

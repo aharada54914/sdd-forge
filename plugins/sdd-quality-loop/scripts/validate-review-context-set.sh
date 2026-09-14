@@ -54,6 +54,24 @@ is_canonical_path() {
     [[ ! "$path" =~ ^[A-Za-z]: ]]
 }
 
+is_canonical_scratch_root() {
+  local path=$1
+  [[ "$path" != *\\* ]] &&
+    [[ "$path" != */ ]] &&
+    [[ ! "$path" =~ (^|/)\.\.?(/|$) ]] &&
+    { [[ "$path" =~ ^/([^/]+/)*[^/]+$ ]] ||
+      [[ "$path" =~ ^[A-Za-z]:/([^/]+/)*[^/]+$ ]]; }
+}
+
+scratch_roots_overlap() {
+  local left=$1 right=$2
+  if [[ "$left" =~ ^[A-Za-z]:/ && "$right" =~ ^[A-Za-z]:/ ]]; then
+    left=$(printf '%s' "$left" | tr '[:upper:]' '[:lower:]')
+    right=$(printf '%s' "$right" | tr '[:upper:]' '[:lower:]')
+  fi
+  [[ "$left" == "$right" || "$left" == "$right/"* || "$right" == "$left/"* ]]
+}
+
 is_forbidden_review_output() {
   local path=$1
   [[ "$path" =~ ^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$ ]] ||
@@ -229,9 +247,10 @@ jq -e '
   type == "object" and
   (
     (.stage == "quality" and
-      (((keys | sort) == ((base_keys + ["task_id"]) | sort)) or
-        ((keys | sort) ==
-          ((base_keys + ["task_id", "gate_report_declaration"]) | sort))) and
+      ((keys | sort) ==
+        ((base_keys + ["task_id"] +
+          (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
+          (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
       (if has("gate_report_declaration") then
         (.gate_report_declaration |
@@ -239,6 +258,13 @@ jq -e '
           ((keys | sort) == ["path", "sha256"]) and
           (.path | type == "string" and length > 0) and
           (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+      else true end) and
+      (if has("scratch_root") then
+        (.scratch_root |
+          type == "string" and
+          (test("^/([^/]+/)*[^/]+$") or test("^[A-Za-z]:/([^/]+/)*[^/]+$")) and
+          (contains("\\") | not) and
+          (test("(^|/)\\.\\.?(/|$)") | not))
       else true end)) or
     (.stage != "quality" and ((keys | sort) == (base_keys | sort)))
   ) and
@@ -273,6 +299,12 @@ previous_record_sha256=$(jq -r '.previous_record_sha256' "$manifest" | tr -d '\r
 bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
+scratch_binding=''
+scratch_root=''
+if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
+  scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
+  scratch_binding=$(printf '%s\n%s' "$feature" "$scratch_root" | sha256_text)
+fi
 # WFI-036. Optional, quality-only, and inert unless present: the contract check
 # above rejects the key outright on any other stage.
 gate_report_declaration_path=''
@@ -321,7 +353,11 @@ jq -e '
       "run_id",
       "sequence",
       "stage"
-    ] | sort)) and
+    ] + (if has("scratch_declaration_sha256") then ["scratch_declaration_sha256"] else [] end) | sort)) and
+    (if has("scratch_declaration_sha256") then
+      .stage == "quality" and .role == "sdd-evaluator" and
+      (.scratch_declaration_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+     else true end) and
     (.sequence | type == "number" and floor == . and . > 0) and
     (.stage | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._:-]*$")) and
     (.role | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._:-]*$")) and
@@ -337,11 +373,14 @@ jq -e '
 
 expected_sequence=1
 expected_previous=''
-while IFS=$'\t' read -r record_sequence record_stage record_role record_run record_session record_previous record_hash; do
+while IFS=$'\t' read -r record_sequence record_stage record_role record_run record_session record_previous record_hash record_binding; do
   [[ "$record_previous" == - ]] && record_previous=''
   [[ "$record_sequence" -eq "$expected_sequence" && "$record_previous" == "$expected_previous" ]] ||
     fail IDENTITY 'canonical identity ledger chain is discontinuous'
   computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous" | sha256_text)
+  if [[ "$record_binding" != - ]]; then
+    computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous|scratch-declaration-v1|$record_binding" | sha256_text)
+  fi
   [[ "$computed_hash" == "$record_hash" ]] ||
     fail IDENTITY 'canonical identity ledger record hash is invalid'
   expected_previous=$record_hash
@@ -353,7 +392,8 @@ done < <(jq -r '.records[] | [
   .run_id,
   .host_session_id,
   (if .previous_record_sha256 == "" then "-" else .previous_record_sha256 end),
-  .record_sha256
+  .record_sha256,
+  (.scratch_declaration_sha256 // "-")
 ] | @tsv' "$ledger" | tr -d '\r')
 
 # A manifest describes either an identity not yet in the ledger (a
@@ -368,6 +408,10 @@ persisted_match=$(jq -c --arg run "$run_id" --arg session "$host_session_id" '
 ' "$ledger")
 
 if [[ -n "$persisted_match" ]]; then
+  persisted_scratch_binding=$(jq -r '.scratch_declaration_sha256 // empty' <<<"$persisted_match")
+  if [[ -n "$persisted_scratch_binding" && "$scratch_binding" != "$persisted_scratch_binding" ]]; then
+    fail PATH 'reserved evaluator scratch binding changed or was omitted'
+  fi
   # Verification of an already-reserved identity. The persisted record is
   # authoritative and must match the manifest exactly on every identity
   # field; its own record_sha256 was already proven to recompute correctly
@@ -439,6 +483,17 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
     fail PATH 'sdd-evaluator implementation report heading does not match task ID'
   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+  if [[ -n "$scratch_root" ]]; then
+    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .+$' "$repository_root/$implementation_report_path" || true)
+    [[ "$implementation_scratch_count" -eq 1 ]] ||
+      fail PATH 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
+    implementation_scratch_root=$(sed -n 's/^- \*\*Scratch Root\*\*: //p' "$repository_root/$implementation_report_path")
+    is_canonical_scratch_root "$implementation_scratch_root" ||
+      fail PATH 'implementation Scratch Root is not a canonical absolute path'
+    if scratch_roots_overlap "$scratch_root" "$implementation_scratch_root"; then
+      fail PATH 'evaluator scratch root overlaps the implementation scratch root'
+    fi
+  fi
 
   # WFI-036. The named gate report is a declaration source, not a manifest
   # input. It is verified in full here -- canonical path, confined to the gate's
@@ -546,7 +601,188 @@ if [[ -n "$precheck_rel" ]]; then
   fi
 fi
 
+check_feature_scratch_history() {
+  [[ "$stage:$role" == quality:sdd-evaluator && -n "$scratch_root" ]] || return 0
+  command -v python3 >/dev/null 2>&1 || fail RUNTIME 'deterministic-runtime-unavailable: python3'
+  python3 - "$manifest" "$repository_root" "$@" <<'SDD_SCRATCH_HISTORY_PY'
+"""Supplement the review validator; called only after its normal checks pass.
+
+Snapshots retain declared roots without changing the identity-ledger/v1 schema.
+This checks recorded locations, not operating-system sandbox enforcement.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def read_json(path):
+    return json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique_object)
+
+
+def safe_path(root, path):
+    relative = path.relative_to(root)
+    current = root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError("scratch history traverses a symbolic link")
+    return path
+
+
+def canonical(value):
+    if not isinstance(value, str) or not re.fullmatch(r"(?:/|[A-Za-z]:/)[^\\\r\n]+", value):
+        raise ValueError("scratch history contains a non-canonical root")
+    if any(part in ("", ".", "..") for part in value.split("/")[1:]):
+        raise ValueError("scratch history contains a non-canonical root")
+    return value.lower() if re.match(r"^[A-Za-z]:/", value) else value
+
+
+def overlap(left, right):
+    left, right = canonical(left), canonical(right)
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+
+
+def identity(document):
+    return tuple(document.get(key) for key in ("stage", "role", "run_id", "host_session_id"))
+
+
+def declaration(document):
+    feature = document.get("feature")
+    if not isinstance(feature, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", feature):
+        raise ValueError("scratch history has no valid feature")
+    scratch = document.get("scratch_root")
+    if scratch is not None:
+        canonical(scratch)
+    return feature, scratch
+
+
+def binding(document):
+    feature, scratch = declaration(document)
+    if scratch is None:
+        raise ValueError("bound scratch declaration is missing")
+    return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+
+
+def check(root, invocation, ledger):
+    scratch = invocation["scratch_root"]
+    feature = invocation["feature"]
+    canonical(scratch)
+    reports = safe_path(root, root / "reports/implementation" / feature)
+    if not reports.is_dir():
+        raise ValueError("feature implementation reports are missing")
+    for report in reports.glob("*.md"):
+        safe_path(root, report)
+        if not report.is_file():
+            raise ValueError("implementation report is not a regular file")
+        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.+)$", report.read_text(encoding="utf-8"), re.M)
+        if len(roots) > 1:
+            raise ValueError("implementation report has duplicate scratch declarations")
+        for other in roots:
+            if overlap(scratch, other):
+                raise ValueError("evaluator scratch root overlaps a feature implementation root")
+
+    records = [record for record in ledger["records"]
+               if record["stage"] == "quality" and record["role"] == "sdd-evaluator"]
+    wanted = {identity(record) for record in records}
+    histories = {}
+    if wanted:
+        for directory, dirs, files in os.walk(safe_path(root, root / "reports"), followlinks=False):
+            for name in dirs:
+                safe_path(root, Path(directory) / name)
+            for name in files:
+                if not name.endswith(".json"):
+                    continue
+                path = safe_path(root, Path(directory) / name)
+                try:
+                    document = read_json(path)
+                except (ValueError, UnicodeError):
+                    if "invocation" in name or "scratch-reservations" in path.parts:
+                        raise ValueError("unreadable invocation history")
+                    continue
+                if not isinstance(document, dict) or document.get("schema") != "review-context-invocation/v2":
+                    continue
+                key = identity(document)
+                if key not in wanted:
+                    continue
+                value = declaration(document)
+                if key in histories and histories[key] != value:
+                    raise ValueError("conflicting scratch declarations for a reserved evaluator")
+                histories[key] = value
+    for record in records:
+        key = identity(record)
+        if key not in histories:
+            if "scratch_declaration_sha256" in record:
+                raise ValueError("bound evaluator invocation history is missing; restore original evidence")
+            # Pre-extension records have no persisted scratch assertion. Do not
+            # invent history or block an unrelated feature on an unknown root.
+            continue
+        previous_feature, previous_root = histories[key]
+        if "scratch_declaration_sha256" in record:
+            evidence = dict(feature=previous_feature, scratch_root=previous_root)
+            if binding(evidence) != record["scratch_declaration_sha256"]:
+                raise ValueError("reserved evaluator scratch binding mismatch")
+        if key == identity(invocation):
+            if histories[key] != declaration(invocation):
+                raise ValueError("reserved evaluator scratch declaration changed")
+        elif previous_feature == feature and previous_root is not None and overlap(scratch, previous_root):
+            raise ValueError("evaluator scratch root overlaps a previously reserved evaluator root")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("manifest", type=Path)
+    parser.add_argument("repository", type=Path)
+    parser.add_argument("--snapshot", action="store_true")
+    args = parser.parse_args()
+    root = args.repository.resolve(strict=True)
+    invocation = read_json(args.manifest)
+    if (invocation.get("stage"), invocation.get("role")) != ("quality", "sdd-evaluator") or "scratch_root" not in invocation:
+        return
+    ledger = read_json(safe_path(root, root / invocation["identity_ledger_path"]))
+    check(root, invocation, ledger)
+    if args.snapshot:
+        text = "|".join(str(invocation[key]) for key in
+                        ("sequence", "stage", "role", "run_id", "host_session_id", "previous_record_sha256"))
+        text += "|scratch-declaration-v1|" + binding(invocation)
+        record_hash = hashlib.sha256(text.encode()).hexdigest()
+        directory = safe_path(root, root / "reports/review-context/scratch-reservations")
+        directory.mkdir(exist_ok=True)
+        destination = safe_path(root, directory / (record_hash + ".json"))
+        # The caller holds the ledger lock. Never replace an earlier snapshot.
+        with destination.open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(invocation, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print(f"REVIEW_CONTEXT_PATH: {error}", file=sys.stderr)
+        raise SystemExit(1)
+SDD_SCRATCH_HISTORY_PY
+}
+
+check_feature_scratch_history || fail PATH 'feature scratch-history check failed'
+
 record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256" | sha256_text)
+if [[ -n "$scratch_binding" && ( -z "$persisted_match" || -n "$persisted_scratch_binding" ) ]]; then
+  record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256|scratch-declaration-v1|$scratch_binding" | sha256_text)
+fi
 if $reserve; then
   lock_dir="$ledger.lock"
   mkdir "$lock_dir" 2>/dev/null ||
@@ -554,13 +790,14 @@ if $reserve; then
   trap 'rm -f "${temp_ledger:-}"; rmdir "${lock_dir:-}" 2>/dev/null || true' EXIT
   [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]] ||
     fail IDENTITY 'canonical identity ledger changed before reservation'
+  check_feature_scratch_history --snapshot || fail PATH 'scratch reservation failed'
   ledger_dir=$(dirname "$ledger")
   temp_ledger=$(mktemp "$ledger_dir/.identity-ledger.XXXXXX") ||
     fail IO 'cannot create identity-ledger transaction'
   jq \
     --arg stage "$stage" --arg role "$role" --arg run "$run_id" \
     --arg session "$host_session_id" --arg previous "$previous_record_sha256" \
-    --arg hash "$record_hash" --argjson sequence "$sequence" \
+    --arg hash "$record_hash" --argjson sequence "$sequence" --arg binding "$scratch_binding" \
     '.records += [{
       sequence:$sequence,
       stage:$stage,
@@ -569,7 +806,7 @@ if $reserve; then
       host_session_id:$session,
       previous_record_sha256:$previous,
       record_sha256:$hash
-    }]' "$ledger" > "$temp_ledger" ||
+    } + (if $binding == "" then {} else {scratch_declaration_sha256:$binding} end)]' "$ledger" > "$temp_ledger" ||
     fail IO 'cannot stage identity-ledger reservation'
   mv "$temp_ledger" "$ledger" ||
     fail IO 'cannot publish identity-ledger reservation'

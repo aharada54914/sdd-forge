@@ -383,7 +383,8 @@ fi
 # =============================================================================
 SIX_SUITES="facet-manifest-schema facet-manifest-semantics capability-summary-schema context-projection-schema facet-manifest-staleness facet-manifest-parity"
 for suite in $SIX_SUITES; do
-  if grep -qF "tests/${suite}.tests.sh" "$REPO_ROOT/tests/run-all.sh"; then
+  if registered_suites="$(bash "$REPO_ROOT/tests/run-all.sh" --list)" &&
+    grep -Fx "tests/${suite}.tests.sh" <<< "$registered_suites" >/dev/null; then
     ok "TEST-033: tests/run-all.sh registers tests/${suite}.tests.sh"
   else
     fail "TEST-033: tests/run-all.sh does NOT register tests/${suite}.tests.sh"
@@ -559,7 +560,8 @@ fi
 # =============================================================================
 # Suite/CI self-registration self-check.
 # =============================================================================
-if grep -qF "tests/facet-manifest-parity.tests.sh" "${REPO_ROOT}/tests/run-all.sh"; then
+if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/facet-manifest-parity.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: tests/run-all.sh lists this suite"
 else
   fail "self-registration: tests/run-all.sh does not list tests/facet-manifest-parity.tests.sh"

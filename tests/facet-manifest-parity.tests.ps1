@@ -374,10 +374,12 @@ if ($canaryResult.ExitCode -ne 0 -and $canaryText.Contains('schema-discovery-fai
 # TEST-033: six-suite registration proof.
 # =============================================================================
 $SixSuites = @('facet-manifest-schema', 'facet-manifest-semantics', 'capability-summary-schema', 'context-projection-schema', 'facet-manifest-staleness', 'facet-manifest-parity')
-$RunAllSh = Get-Content (Join-Path $RepoRoot 'tests/run-all.sh') -Raw
+# Query the external inventory rather than the runner's source text.
+$RunAllSh = @(& bash (Join-Path $RepoRoot 'tests/run-all.sh') --list)
+$RunAllShExit = $LASTEXITCODE
 $RunAllPs1 = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
 foreach ($suite in $SixSuites) {
-    if ($RunAllSh.Contains("tests/$suite.tests.sh")) {
+    if ($RunAllShExit -eq 0 -and $RunAllSh -ccontains "tests/$suite.tests.sh") {
         Ok "TEST-033: tests/run-all.sh registers tests/$suite.tests.sh"
     } else {
         Fail "TEST-033: tests/run-all.sh does NOT register tests/$suite.tests.sh"
