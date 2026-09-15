@@ -49,7 +49,7 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-TrackedFixture {
@@ -241,6 +241,7 @@ function Resolve-ExpectedPlugins {
         foreach ($plugin in @($resolved)) {
             $dependencies = switch ($plugin) {
                 "sdd-bootstrap" { @("sdd-review-loop"); break }
+                "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
                 "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
                 "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
                 default { @() }
@@ -450,6 +451,7 @@ function Invoke-RemoteInstallerScenario {
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins @("sdd-lite")
+Invoke-InstallerScenario -Plugins @("sdd-domain")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins" -SeedExistingInstall
 
@@ -563,15 +565,17 @@ finally {
     }
 }
 
-$invalidFailed = $false
-try {
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path $env:TEMP ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin")
-}
-catch {
-    $invalidFailed = $true
-}
-if (-not $invalidFailed) {
-    throw "Installer accepted an invalid plugin name."
+foreach ($invalidPlugin in @("not-a-plugin", "SDD-DOMAIN", "Sdd-Domain", "SDD-BOOTSTRAP")) {
+    $invalidFailed = $false
+    try {
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -SkipAgentInstall -SkipMcp -Plugins @($invalidPlugin)
+    }
+    catch [System.Management.Automation.ParameterBindingException] {
+        $invalidFailed = $true
+    }
+    if (-not $invalidFailed) {
+        throw "Installer accepted invalid plugin name: $invalidPlugin"
+    }
 }
 
 # ---------------------------------------------------------------------------

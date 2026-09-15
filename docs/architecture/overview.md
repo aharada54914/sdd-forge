@@ -95,9 +95,9 @@ flowchart TD
 | `sdd-implementation` | 承認済みタスクの実装レーン。単発実装・一括実装・バグ診断・視覚検証 | 4 | 0 | 5 | なし |
 | `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 37 | **あり（3ホスト分）** |
 | `sdd-lite` | 社内・部署内アプリ向けの軽量トラック（要件/設計/タスクの 3 ファイル + 軽量ゲート） | 2 | 0 | 2 | なし |
-| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**インストーラ対象外**、下記注記） | 5 | 2（`domain-reviewer-a/b`） | 1 | なし |
+| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**明示指定で導入**、下記注記） | 5 | 2（`domain-reviewer-a/b`） | 1 | なし |
 
-> **`sdd-domain` はインストーラでは導入できません。** `install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` の `--plugins` allowlist は 6 プラグインで、`sdd-domain` を含みません（両 marketplace には v1.15.0 として登録済み）。使う場合は marketplace から個別に導入します。allowlist と marketplace / 可視性契約のどちらを仕様とするかは [Issue #291](https://github.com/aharada54914/sdd-forge/issues/291) で追跡中です。
+> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` は `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録します。既定のインストールには含みません。全体アンインストールは domain を含む全 7 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
 
 合計: スキル **26**、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
 

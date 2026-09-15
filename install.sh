@@ -17,7 +17,7 @@ SOURCE_DIRECTORY=""
 SKIP_MCP=0
 MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 
-VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
 VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # The ~/.codex/config.toml block for each selected MCP is delimited by a
 # per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
@@ -37,7 +37,7 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop,sdd-domain
                                  Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
@@ -127,6 +127,7 @@ while [[ $dependencies_changed -eq 1 ]]; do
         dependencies=()
         case "$plugin" in
             sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+            sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
             sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
             sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
         esac
@@ -756,6 +757,9 @@ REQUIRED_PATHS=(
     "plugins/sdd-review-loop/.claude-plugin/plugin.json"
     "plugins/sdd-review-loop/.codex-plugin/plugin.json"
     "plugins/sdd-review-loop/.plugin/plugin.json"
+    "plugins/sdd-domain/.claude-plugin/plugin.json"
+    "plugins/sdd-domain/.codex-plugin/plugin.json"
+    "plugins/sdd-domain/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
 )

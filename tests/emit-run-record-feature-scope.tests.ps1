@@ -360,8 +360,30 @@ VERDICT: PASS
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
         $normalizedBytes = $utf8NoBom.GetBytes($normalizedText)
         $goldenBytes = [System.IO.File]::ReadAllBytes($goldenV1Ps1)
+        # Git pins this fixture to LF, while the unchanged legacy serializer
+        # writes native newlines. Adapt only the expected fixture, never output.
+        $goldenText = [System.Text.Encoding]::UTF8.GetString($goldenBytes)
+        if ($goldenText.Contains("`r")) { throw 'The committed golden must contain LF only' }
+        $goldenBytes = $utf8NoBom.GetBytes($goldenText.Replace("`n", [Environment]::NewLine))
         $normalizedB64 = [System.Convert]::ToBase64String($normalizedBytes)
         $goldenB64 = [System.Convert]::ToBase64String($goldenBytes)
+        # Exercise both platform expectations on every host. Wrong line
+        # endings and a missing terminal newline must still fail byte equality.
+        foreach ($newline in @("`n", "`r`n")) {
+            $expectedText = $goldenText.Replace("`n", $newline)
+            $expectedB64 = [Convert]::ToBase64String($utf8NoBom.GetBytes($expectedText))
+            $otherNewline = if ($newline -ceq "`n") { "`r`n" } else { "`n" }
+            foreach ($mutation in @(
+                $goldenText.Replace("`n", $otherNewline),
+                $expectedText.Substring(0, $expectedText.Length - $newline.Length)
+            )) {
+                if ([Convert]::ToBase64String($utf8NoBom.GetBytes($mutation)) -cne $expectedB64) {
+                    Ok "AC-011: native newline byte guard rejects changed or missing newline (width=$($newline.Length))"
+                } else {
+                    Fail "AC-011: native newline byte guard accepted a mutation"
+                }
+            }
+        }
         if ($normalizedB64 -ceq $goldenB64) {
             Ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
         } else {

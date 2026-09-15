@@ -202,7 +202,17 @@ try {
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
-    Assert-True 'PowerShell aggregate runner registers this shipped suite' ($Runner -ccontains '    "tests/structural-compatibility.tests.ps1"')
+    # Array entries may use either quote style and an optional trailing comma.
+    # Anchor the whole line so comments and longer paths are not registrations.
+    $RegistrationPattern = '^\s*([''"])tests/structural-compatibility\.tests\.ps1\1\s*,?\s*$'
+    Assert-True 'PowerShell aggregate runner registers this shipped suite exactly once' (@($Runner -cmatch $RegistrationPattern).Count -eq 1)
+    Assert-True 'registration accepts single quotes and trailing comma' ("  'tests/structural-compatibility.tests.ps1'," -cmatch $RegistrationPattern)
+    Assert-True 'registration accepts double quotes without comma' ('    "tests/structural-compatibility.tests.ps1"' -cmatch $RegistrationPattern)
+    Assert-True 'registration rejects a comment-only reference' ('# "tests/structural-compatibility.tests.ps1"' -cnotmatch $RegistrationPattern)
+    Assert-True 'registration rejects a mis-cased path' ('"tests/Structural-compatibility.tests.ps1"' -cnotmatch $RegistrationPattern)
+    Assert-True 'registration rejects a longer path' ('"tests/structural-compatibility.tests.ps1.bak"' -cnotmatch $RegistrationPattern)
+    Assert-True 'registration rejects an absent entry' (@(@('') -cmatch $RegistrationPattern).Count -eq 0)
+    Assert-True 'registration detects duplicate entries' (@(@('"tests/structural-compatibility.tests.ps1"', "'tests/structural-compatibility.tests.ps1',") -cmatch $RegistrationPattern).Count -eq 2)
 }
 finally { Remove-Item -LiteralPath $Temp -Recurse -Force }
 

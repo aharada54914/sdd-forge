@@ -822,9 +822,11 @@ Write-Host ""
 Write-Host "=== TEST-053 (AC-035, QG cycle-1 remediation scan T-005 Major): both tests/run-all.sh and tests/run-all.ps1 list the new suite ==="
 $runAllShPath053 = Join-Path $RepoRoot "tests/run-all.sh"
 $runAllPs1Path053 = Join-Path $RepoRoot "tests/run-all.ps1"
-$runAllShText053 = Get-Content -Raw -LiteralPath $runAllShPath053
+# Query the runner: its suite inventory is no longer embedded in its source.
+$runAllShEntries053 = @(& bash $runAllShPath053 --list)
+$runAllShExit053 = $LASTEXITCODE
 $runAllPs1Text053 = Get-Content -Raw -LiteralPath $runAllPs1Path053
-if ($runAllShText053.Contains("tests/design-sync-scan.tests.sh") -and $runAllPs1Text053.Contains("tests/design-sync-scan.tests.ps1")) {
+if ($runAllShExit053 -eq 0 -and $runAllShEntries053 -ccontains "tests/design-sync-scan.tests.sh" -and $runAllPs1Text053.Contains("tests/design-sync-scan.tests.ps1")) {
     Ok "TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite"
 } else {
     Fail "TEST-053: tests/design-sync-scan.tests.{sh,ps1} is not registered in both tests/run-all.sh and tests/run-all.ps1"

@@ -170,7 +170,8 @@ if (Test-Path "reports/quality-gate") {
         # remainder). The previous unanchored "Task: $tid\b" match saw only
         # the legacy minority and under-counted gate runs.
         $escapedTid = [regex]::Escape($tid)
-        $identityRe = "(?m)^(Task ID|Task):[ \t]*$escapedTid[ \t]*$" +
+        # .NET multiline $ leaves the CR in a CRLF line; consume it explicitly.
+        $identityRe = "(?m)^(Task ID|Task):[ \t]*$escapedTid[ \t]*\r?$" +
             "|(?m)^#[ \t]+Quality Gate Report:?[ \t]*$escapedTid([^0-9]|$)"
         $n = @($featureGateFiles | Where-Object {
             (Get-Content -Raw -Encoding Utf8 $_.FullName) -match $identityRe

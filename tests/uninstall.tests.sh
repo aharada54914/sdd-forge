@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 UNINSTALLER="${REPO_ROOT}/uninstall.sh"
 # shellcheck source=tests/lib/fixture-matrix-builder.sh
 source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
 PASS=0
 FAIL=0
 
@@ -178,6 +178,11 @@ if echo "$_d_logc" | grep -qF "uninstall sdd-ship@sdd-plugins" || echo "$_d_logc
 fi
 if echo "$_d_logc" | grep -qF "marketplace remove"; then
     fail "subset: marketplace must not be removed for a partial uninstall"; _d_ok=0
+fi
+[[ -d "$_d_install" ]] || { fail "subset: shared files removed"; _d_ok=0; }
+[[ -f "${_d_codex}/agents/sdd-investigator.toml" ]] || { fail "subset: shared agent removed"; _d_ok=0; }
+if echo "$_d_logc" | grep -qF "mcp remove"; then
+    fail "subset: shared MCP registration removed"; _d_ok=0
 fi
 rm -rf "$_d_root"
 [[ $_d_ok -eq 1 ]] && ok "subset --plugins unregisters only chosen plugins and keeps the marketplace"
