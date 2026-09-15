@@ -165,6 +165,10 @@ jobs:
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
+      - name: "[deterministic] Test run-record feature scope and CRLF identity"
+        shell: pwsh
+        run: ./tests/emit-run-record-feature-scope.tests.ps1
+
       - name: "[deterministic] Test selected-feature structure validation"
         shell: pwsh
         run: ./tests/structure-check-feature-mode.tests.ps1
