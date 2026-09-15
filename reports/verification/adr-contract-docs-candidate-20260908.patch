@@ -101,10 +101,10 @@ diff --git a/plugins/sdd-review-loop/references/review-context-boundary.md b/plu
 +schema or automatic recovery path; use only an already authorized recovery
 +procedure, preserving old outputs and identity reservations.
 +
-+The identity ledger binds identity fields, not input manifests. This extension
-+establishes cross-artifact consistency, not authenticity against an actor who
-+rewrites every historical input binding. Reviewers still verify the quoted
-+identity evidence as described above and read only their own admitted inputs.
++ADR binding and reservation binding are separate checks. Legacy identity
++receipts do not bind input manifests; input-bound receipts must additionally
++verify their recorded manifest digest. Neither grants access beyond the exact
++admitted inputs or authorizes rewriting historical evidence or reservations.
 +
 +## What still warrants BLOCKED
 +

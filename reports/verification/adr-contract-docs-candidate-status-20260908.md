@@ -1,5 +1,28 @@
 # ADR contract candidate — incomplete, do not apply
 
+## Current status — 2026-09-15 (supersedes application status below)
+
+The historical observations below are retained, not rewritten as passes.
+Runtime producer repair is now committed as `1b80901a`; its applied regression
+results are recorded in `rt004-applied-producer-verification-20260915.md`.
+The five documentation files are still unapplied. The current candidate hash is
+`ba68324881ad654f6bb0a08a8b18806cb670a3cf22ab240a2d5bc2ab3ef741b1`.
+It distinguishes ADR binding from optional input-bound identity receipts, retaining
+legacy semantics. `git apply --check --unidiff-zero` succeeds against current files.
+
+Independent read-only reviewer `/root/rt004_contract_review` found no blocking
+findings after comparing both runtime implementations, including input admission,
+historical versus current hashes, downstream consumption and interrupted outputs.
+This was static review, not an independently rerun test or formal workflow PASS.
+The actual five-file application attempt was rejected by PreToolUse; no protected
+files were modified. No alternate execution path was used.
+
+Only human application remains for this slice. The pinned helper
+`rt004-contract-human-20260915.sh` checks the candidate and every source hash,
+backs up all five sources and applies the checked patch. Its shell syntax passed;
+it has not been executed by the agent. Post-application regression, formal review,
+CI and merge are still required. The ticket is not resolved.
+
 Ticket: RT-20260908-004
 Candidate: `adr-contract-docs-candidate-20260908.patch`
 
