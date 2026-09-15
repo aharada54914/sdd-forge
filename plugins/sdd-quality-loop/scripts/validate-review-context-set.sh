@@ -353,7 +353,12 @@ jq -e '
       "run_id",
       "sequence",
       "stage"
-    ] + (if has("scratch_declaration_sha256") then ["scratch_declaration_sha256"] else [] end) | sort)) and
+    ] + (if has("scratch_declaration_sha256") then ["scratch_declaration_sha256"] else [] end)
+      + (if has("allowed_inputs_sha256") then ["allowed_inputs_sha256"] else [] end) | sort)) and
+    (if has("allowed_inputs_sha256") then
+      (.stage == "spec" or .stage == "impl") and
+      (.allowed_inputs_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+     else true end) and
     (if has("scratch_declaration_sha256") then
       .stage == "quality" and .role == "sdd-evaluator" and
       (.scratch_declaration_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
@@ -373,13 +378,16 @@ jq -e '
 
 expected_sequence=1
 expected_previous=''
-while IFS=$'\t' read -r record_sequence record_stage record_role record_run record_session record_previous record_hash record_binding; do
+while IFS=$'\t' read -r record_sequence record_stage record_role record_run record_session record_previous record_hash record_binding record_inputs; do
   [[ "$record_previous" == - ]] && record_previous=''
   [[ "$record_sequence" -eq "$expected_sequence" && "$record_previous" == "$expected_previous" ]] ||
     fail IDENTITY 'canonical identity ledger chain is discontinuous'
   computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous" | sha256_text)
   if [[ "$record_binding" != - ]]; then
     computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous|scratch-declaration-v1|$record_binding" | sha256_text)
+  fi
+  if [[ "$record_inputs" != - ]]; then
+    computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous|allowed-inputs-v1|$record_inputs" | sha256_text)
   fi
   [[ "$computed_hash" == "$record_hash" ]] ||
     fail IDENTITY 'canonical identity ledger record hash is invalid'
@@ -393,7 +401,8 @@ done < <(jq -r '.records[] | [
   .host_session_id,
   (if .previous_record_sha256 == "" then "-" else .previous_record_sha256 end),
   .record_sha256,
-  (.scratch_declaration_sha256 // "-")
+  (.scratch_declaration_sha256 // "-"),
+  (.allowed_inputs_sha256 // "-")
 ] | @tsv' "$ledger" | tr -d '\r')
 
 # A manifest describes either an identity not yet in the ledger (a
@@ -407,7 +416,19 @@ persisted_match=$(jq -c --arg run "$run_id" --arg session "$host_session_id" '
   [.records[] | select(.run_id == $run and .host_session_id == $session)] | .[0] // empty
 ' "$ledger")
 
+# Canonical paths/hashes cannot contain tab/newline separators. Preserve order.
+input_binding=''
+persisted_input_binding=''
+if [[ "$stage" == spec || "$stage" == impl ]]; then
+  input_text=$(jq -jr '[.allowed_input_manifest[] | .path + "\t" + .sha256] | join("\n")' "$manifest") ||
+    fail CONTRACT 'cannot compute reserved input binding'
+  input_binding=$(printf '%s' "$input_text" | sha256_text)
+fi
 if [[ -n "$persisted_match" ]]; then
+  persisted_input_binding=$(jq -r '.allowed_inputs_sha256 // empty' <<<"$persisted_match")
+  if [[ -n "$persisted_input_binding" && "$input_binding" != "$persisted_input_binding" ]]; then
+    fail HASH 'reserved input manifest changed'
+  fi
   persisted_scratch_binding=$(jq -r '.scratch_declaration_sha256 // empty' <<<"$persisted_match")
   if [[ -n "$persisted_scratch_binding" && "$scratch_binding" != "$persisted_scratch_binding" ]]; then
     fail PATH 'reserved evaluator scratch binding changed or was omitted'
@@ -466,6 +487,19 @@ else
     fail IDENTITY 'invocation does not extend the canonical identity ledger'
   # WFI-037: the record extends the pre-append tip, proven just above.
   pre_append_tip_sequence=$((expected_sequence - 1))
+fi
+
+# Issue #288: new reviews must bind existing investigation evidence. A
+# persisted identity is historical; a file created later was not its input.
+# Check fresh preflight as well as --reserve, without expanding task inputs.
+if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
+  investigation_path="specs/$feature/investigation.md"
+  if [[ -f "$repository_root/$investigation_path" ]]; then
+    jq -e --arg path "$investigation_path" '
+      any(.allowed_input_manifest[]; .path == $path)
+    ' "$manifest" >/dev/null 2>&1 ||
+      fail PATH "$role omits existing investigation evidence: $investigation_path"
+  fi
 fi
 
 implementation_report_path=''
@@ -780,6 +814,9 @@ SDD_SCRATCH_HISTORY_PY
 check_feature_scratch_history || fail PATH 'feature scratch-history check failed'
 
 record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256" | sha256_text)
+if [[ -n "$input_binding" && ( -z "$persisted_match" || -n "$persisted_input_binding" ) ]]; then
+  record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256|allowed-inputs-v1|$input_binding" | sha256_text)
+fi
 if [[ -n "$scratch_binding" && ( -z "$persisted_match" || -n "$persisted_scratch_binding" ) ]]; then
   record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256|scratch-declaration-v1|$scratch_binding" | sha256_text)
 fi
@@ -797,7 +834,7 @@ if $reserve; then
   jq \
     --arg stage "$stage" --arg role "$role" --arg run "$run_id" \
     --arg session "$host_session_id" --arg previous "$previous_record_sha256" \
-    --arg hash "$record_hash" --argjson sequence "$sequence" --arg binding "$scratch_binding" \
+    --arg hash "$record_hash" --argjson sequence "$sequence" --arg binding "$scratch_binding" --arg inputs "$input_binding" \
     '.records += [{
       sequence:$sequence,
       stage:$stage,
@@ -806,7 +843,8 @@ if $reserve; then
       host_session_id:$session,
       previous_record_sha256:$previous,
       record_sha256:$hash
-    } + (if $binding == "" then {} else {scratch_declaration_sha256:$binding} end)]' "$ledger" > "$temp_ledger" ||
+    } + (if $binding == "" then {} else {scratch_declaration_sha256:$binding} end)
+      + (if $inputs == "" then {} else {allowed_inputs_sha256:$inputs} end)]' "$ledger" > "$temp_ledger" ||
     fail IO 'cannot stage identity-ledger reservation'
   mv "$temp_ledger" "$ledger" ||
     fail IO 'cannot publish identity-ledger reservation'
