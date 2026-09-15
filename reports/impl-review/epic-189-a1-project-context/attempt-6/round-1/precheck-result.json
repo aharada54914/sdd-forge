@@ -1,0 +1,16 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 6,
+  "round": 1,
+  "impl_review_status_field": "Passed",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91",
+  "requirements_sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1",
+  "acceptance_sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b",
+  "layer_sha256": {"ux-spec.md":"1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7","frontend-spec.md":"0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771","infra-spec.md":"db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776","security-spec.md":"d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"},
+  "adr_inputs": [{"path":"docs/adr/0011-phase2-handle-relative-protected-copy.md","sha256":"a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"},{"path":"docs/adr/0016-workflow-axes-separation.md","sha256":"c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"},{"path":"docs/adr/0018-provider-binding-separation.md","sha256":"26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"},{"path":"docs/adr/0019-approval-sidecar-protection.md","sha256":"f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"},{"path":"docs/adr/0020-conditional-predicate-dsl.md","sha256":"b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"},{"path":"docs/adr/0023-track-selection-contract-migration.md","sha256":"54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"},{"path":"docs/adr/0025-human-copy-transactional-bundle.md","sha256":"d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"}],
+  "input_sha256": "1f4e0764ddbf6965be890189d228f2c704ba35e06878ef39aacd03b666bb4d56",
+  "generated_at": "2026-09-15T10:54:34Z"
+}

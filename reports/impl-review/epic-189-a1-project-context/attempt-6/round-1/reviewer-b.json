@@ -1,0 +1,150 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "rt002-a1-impl-attempt6-round1-b-20260915",
+  "host_session_id": "rt002-a1-independent-a6r1-b-20260915",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/design.md",
+      "sha256": "9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/ux-spec.md",
+      "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+      "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/infra-spec.md",
+      "sha256": "db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/security-spec.md",
+      "sha256": "d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/precheck-result.json",
+      "sha256": "bcbdec1c5d48a613f365f6389e865019050d031eb7b9b76f97722ed2fb5ac5cf"
+    },
+    {
+      "path": "docs/adr/0011-phase2-handle-relative-protected-copy.md",
+      "sha256": "a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "docs/adr/0019-approval-sidecar-protection.md",
+      "sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"
+    },
+    {
+      "path": "docs/adr/0020-conditional-predicate-dsl.md",
+      "sha256": "b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"
+    },
+    {
+      "path": "docs/adr/0023-track-selection-contract-migration.md",
+      "sha256": "54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"
+    },
+    {
+      "path": "docs/adr/0025-human-copy-transactional-bundle.md",
+      "sha256": "d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"
+    },
+    {
+      "path": "reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/integrated-summary.json",
+      "sha256": "9bd5dc987c31aa07005bfef15720e098ee6dd5edef2cfadafc28ed2f8b1af1f2"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The design supplies rationale for its architectural and technology choices: the transactional publisher addresses the explicitly identified limit of per-target atomic renames (specs/epic-189-a1-project-context/design.md:358); resolved registry, classification-array and Phase-2 decisions and the stdlib-only restricted YAML parser have stated reasons and alternatives (design.md:1475). The RT002 adapter retains the existing verifier and wrappers, explicitly limits transcript matching to content binding, and explains why fresh trusted-session dispatch remains necessary (design.md:15, design.md:59)."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No unresolved implementation-blocking question remains in the Open Questions section. OQ-001 and OQ-002 are expressly resolved by the preceding design decisions; OQ-003 is resolved by following the repository Phase model (specs/epic-189-a1-project-context/design.md:1861, design.md:1475). Their continued identifiers are historical resolution references, not ownerless open decisions."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The assumptions identify investigation-backed guard inventory and exact-match behavior, require task-start re-verification of shared generated state, and ground runtime-denial assumptions in INV-015 with re-verification through Risks (specs/epic-189-a1-project-context/design.md:1837). The approved-snapshot assumption is an explicit internal publisher contract with a documented missing/corrupted-snapshot failure mode, rather than an unsupported git-history assumption. The RT002 amendment expressly supersedes the former Codex plugin_hooks prerequisite and requires current installed-verifier and host verification (design.md:65, design.md:75)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Constraint Compliance addresses the requirement constraints covering schemas, canonicalization, HMAC and identity binding, protected publication, weakening provenance, guard behavior, compatibility, wrappers and CI portability (specs/epic-189-a1-project-context/design.md:1803). The RT002 design explicitly adopts requirements.md and acceptance-tests.md as normative for schema dispatch, exact response matching, rejection categories and cleanup, and identifies the retained historical passages it supersedes (design.md:5, design.md:47). The authorized AC-028 resolution supplies the governing shared-CI policy (design.md:1970), consistent with the corresponding infra/security amendments rather than silently allowing their historical summaries to override the revised contract."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The deployment plan identifies local repository tooling, no runtime deployment or new plugin, shell/PowerShell suite integration, deterministic offline CI evidence and explicit handling of already-human-applied protected changes during rollback (specs/epic-189-a1-project-context/design.md:1781). The dated AC-028 resolution governs shared-CI application, preserving existing checks and requiring fresh source verification instead of publishing an old workflow snapshot (design.md:1970). No incremental service rollout or database migration requires a feature flag or database/application deployment order."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Data Plan defines repository YAML/JSON documents and approval artifacts, not database tables or columns, so the database migration-file and row-volume conditions do not apply (specs/epic-189-a1-project-context/design.md:389). The file-contract transition is nevertheless addressed by migration strategy and by the explicit existing-file validation versus absent-file compatibility behavior (design.md:529, design.md:1803); protected-state rollback obligations are recorded in Deployment / CI Plan (design.md:1781)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The scope introduces no external network service or provider API integration; provider bindings remain a skeleton contract. Native host integrations are identified through the hook-activation CLI contract and its runtime-specific recorded-evidence predicates (specs/epic-189-a1-project-context/design.md:626, design.md:1177). The RT002 amendment specifies the Codex schema selector, runtime agreement, exact nonce/envelope checks and fail-closed diagnostics (design.md:15). Deterministic CI explicitly excludes network, gh and LLM invocation and assigns live cross-runtime proof to A8 (design.md:1781)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Architecture and Components map the schemas, canonicalizer, signer/validator, weakening detector, protected publication, track selection and host handshake to REQ-001 through REQ-011 (specs/epic-189-a1-project-context/design.md:135, design.md:212). Supporting approver-registry and transactional-publisher artifacts are justified by existing approval and multi-target publication requirements (design.md:358). RT002 limits its amendment to REQ-010 / AC-027 / AC-032, and the separately identified AC-028 resolution remains within the authorized CI repair; neither claims A8 live acceptance or broader integration completion (design.md:5, design.md:75, design.md:1970)."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Test Strategy names concrete planned evidence for parser/canonical bytes, HMAC mutations and identity checks, weakening classification, protected inventory, mutation denial, publication failure recovery and compatibility consumers (specs/epic-189-a1-project-context/design.md:1235). RT002 adds explicit original-path regression coverage for exact emitted bytes, missing/extra/duplicate members, type/runtime/schema faults, nonce/envelope mutations, legacy behavior, cleanup and sidecar non-mutation; it also requires persisted mismatch-test preflight and fresh installed-path live evidence before activation (design.md:75). These are concrete verification paths, not claims that this read-only review executed them or completed a quality gate."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "The permitted applicability-only existence probe found no domain/ directory in /Users/jrmag/sdd-forge. Domain-conformance review is therefore not applicable; no unadmitted domain content was read."
+    }
+  ]
+}

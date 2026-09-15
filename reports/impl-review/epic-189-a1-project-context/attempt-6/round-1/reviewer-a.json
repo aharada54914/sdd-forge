@@ -1,0 +1,97 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "rt002-a1-impl-attempt6-round1-a-20260915",
+  "host_session_id": "rt002-a1-independent-a6r1-a-20260915",
+  "allowed_input_manifest": [
+    {"path":"specs/epic-189-a1-project-context/requirements.md","sha256":"0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1"},
+    {"path":"specs/epic-189-a1-project-context/acceptance-tests.md","sha256":"45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"},
+    {"path":"specs/epic-189-a1-project-context/design.md","sha256":"9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91"},
+    {"path":"specs/epic-189-a1-project-context/investigation.md","sha256":"e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"},
+    {"path":"specs/epic-189-a1-project-context/ux-spec.md","sha256":"1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path":"specs/epic-189-a1-project-context/frontend-spec.md","sha256":"0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path":"specs/epic-189-a1-project-context/infra-spec.md","sha256":"db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776"},
+    {"path":"specs/epic-189-a1-project-context/security-spec.md","sha256":"d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/precheck-result.json","sha256":"bcbdec1c5d48a613f365f6389e865019050d031eb7b9b76f97722ed2fb5ac5cf"},
+    {"path":"docs/adr/0011-phase2-handle-relative-protected-copy.md","sha256":"a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"},
+    {"path":"docs/adr/0016-workflow-axes-separation.md","sha256":"c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"},
+    {"path":"docs/adr/0018-provider-binding-separation.md","sha256":"26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"},
+    {"path":"docs/adr/0019-approval-sidecar-protection.md","sha256":"f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"},
+    {"path":"docs/adr/0020-conditional-predicate-dsl.md","sha256":"b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"},
+    {"path":"docs/adr/0023-track-selection-contract-migration.md","sha256":"54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"},
+    {"path":"docs/adr/0025-human-copy-transactional-bundle.md","sha256":"d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) — no UI, no new plugin, no Provider integration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:99-248 defines the schema/canonicalization/signing/validation/weakening-detection/publishing boundaries, their data flow, the existing hook guard, and all five migrated entry points. Components and Design Decisions identify Python core processing, shell/PowerShell wrappers, the JavaScript canonicalization wrapper, JSON Schema and the restricted YAML representation. The four layer specifications refine these boundaries; the RT002 amendment limits the repair and explicitly separates fixture verification from live host activation."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:135-248 describes data-flow and challenge/response interactions rather than an import dependency list. The handshake/agent/guard return path is a protocol exchange, not evidence of a circular implementation dependency."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:389-528 provides Data Entities, Existing Data Affected and Migration Strategy. It identifies context/provider documents, approval sidecars, registry, protected approved-context snapshots, staging manifests and publisher recovery state; distinguishes target-project instances from A1-created artifacts; and explains the new-artifact/no-backfill migration approach and protected registration changes. The schemas and approval-binding fields are expanded in the API / Contract Plan."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:529-1234 specifies the document schemas and command interfaces, including arguments, output structures, failure outcomes, HMAC preimage, canonicalization and track-selection compatibility behavior. The RT002 amendment at design.md:5-92 supplies the exact five-member native response schema, nonce binding, duplicate/unknown schema handling, raw-result parsing and cleanup outcomes. Existing no-schema legacy inputs remain separately defined; provider integration and a new network API are explicitly outside scope."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1767-1780 enumerates B1-B9 with authorization mechanisms, internal data classification and threats: content/approval separation, full write denial, external HMAC-key custody, independent weakening checks, invalid-present fail-closed selection, guard inventory integrity, native canary evidence, held-handle transactional publication and publisher self-protection. security-spec.md adds threat and OWASP coverage. The governing RT002 amendment distinguishes native evidence from forgeable fixture records and refines conditional cleanup without treating local response verification as proof of live activation."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is schema + security-infrastructure, explicitly no UI (design.md:94-97), not fullstack. frontend-spec.md describes command/agent interaction rather than a browser frontend consuming backend endpoints."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1235-1474 names unit fixtures, integration boundaries, acceptance mappings and concrete shell/PowerShell verification drivers, including canonicalization parity, HMAC mutations, weakening classification, staged publication/recovery, consumer combinations and guard matrices. The RT002 amendment and AC reference repair at design.md:1928-2005 connect malformed native responses, nonce mismatches and cleanup outcomes to acceptance evidence. The Shared-CI amendment requires preservation of the current shared baseline and omission/drift checks. Live host activation remains a separate requirement rather than a claimed result of planned fixture tests."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The Architecture and API / Contract Plan components are defined in design.md:212-248, its contract subsections and protected-file inventory: canonicalizer, generator, validator, weakening detector, handshake, publisher, schemas, registry, sentinel, approval snapshots and migrated consumers. The resolver and policy projection are explicitly reserved future components, not assumed A1 implementations. investigation.md's INV-001 through INV-015 evidence supplies the existing guard, protected-copy, contract and consumer context."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:358-387 and its later ADR-0025 reference declare exactly the seven admitted ADR paths. All seven were independently read and their raw hashes matched the invocation and current precheck; the ADR-extended input hash also recomputed to the precheck value. ADR-0011 defines protected-copy primitives; ADR-0016, ADR-0018, ADR-0019, ADR-0020 and ADR-0023 cover workflow axes, provider separation, approval protection, predicate DSL and track migration; new ADR-0025 covers the multi-target transactional publication departure. No linked, unadmitted ADR was read."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:2008-2014 records only a 2026-09-09 absence observation, and design.md:2016-2023 explicitly requires a fresh root-entry probe immediately before the next review, recorded with the current design hash in precheck evidence, while prohibiting reviewers from expanding filesystem access. The admitted attempt-6/round-1/precheck-result.json contains hashes and generated_at but no fresh applicability result, and the section does not record the alternative exact 'N/A — ds_profile: none' declaration. Consequently the evidence required to select the absent-directory exemption is missing; this review cannot establish whether design-system version/token/component coverage is required. This is a Major verification-coverage gap, not an assertion that design-system exists or an invocation/hash failure. Supply the required current, hash-bound applicability evidence through an authorized review input before claiming this check passes."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped in notes: the permitted domain-directory existence check confirmed that the target repository has no domain/ directory. The approved-domain-model applicability condition is therefore absent; no domain files or unlisted substantive inputs were read."
+    }
+  ]
+}

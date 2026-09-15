@@ -1,0 +1,6 @@
+{
+  "decision": ["Preserve historical review outputs; resume authorized repair-only A1 provenance review with ADR-bound fresh attempt 6."],
+  "unresolved": ["A1 attempt6 round1 integrated NEEDS_WORK: one Major applicability-evidence gap; B PASS.", "Latest implementation commit CI fails workflow provenance, loop fixture ADR propagation, MCP mixed-state routing and epic191 mirror freshness; integration is blocked."],
+  "evidence": ["Five human-applied contract document hashes initially matched.", "ADR full suite 520 passed, 0 failed, exit 0; round2 contract four checks passed.", "Boundary regression first failed on stale common:274 and precheck:69 citations; corrected to actual 490 and 187 without changing predicates. Final 32 anchors and 22 runtime checks passed.", "A1 attempt6 round1 precheck and input verification passed; reviewer A reserved sequence980 and launched independently."],
+  "next_action": ["Actual A/B outputs, contracts and reservations are persisted in attempt6/round1; do not rewrite them.", "Use design-round-1-proposed-changes.md for the required human design correction before round2; do not reset merely to evade unchanged-input protection.", "Resolve the bounded test-helper ADR propagation repair and existing MCP/mirror/provenance blockers before requesting CI again. See pr400-ci-29f3c8b1-20260915.md."]
+}

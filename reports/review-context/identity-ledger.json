@@ -8811,6 +8811,24 @@
       "host_session_id": "01a0863f-b335-73d3-92f7-f51867d8a947",
       "previous_record_sha256": "2ceb8bb872dd7cdfea446cfd20880b7369dd0a90ce762d598b4568144be2ffac",
       "record_sha256": "1a54a3c9d27a4cd6e4770e577f5a7629f42a9e79ae9ce9b46095830d4d82e325"
+    },
+    {
+      "sequence": 980,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "rt002-a1-impl-attempt6-round1-a-20260915",
+      "host_session_id": "rt002-a1-independent-a6r1-a-20260915",
+      "previous_record_sha256": "1a54a3c9d27a4cd6e4770e577f5a7629f42a9e79ae9ce9b46095830d4d82e325",
+      "record_sha256": "e26bf8f5ebf2a706b2f277aebb5249c452e9e263502c75a6ab603f1ad97b7c60"
+    },
+    {
+      "sequence": 981,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "rt002-a1-impl-attempt6-round1-b-20260915",
+      "host_session_id": "rt002-a1-independent-a6r1-b-20260915",
+      "previous_record_sha256": "e26bf8f5ebf2a706b2f277aebb5249c452e9e263502c75a6ab603f1ad97b7c60",
+      "record_sha256": "fea020b3de992b565b89f31464ea366994777696ae962b27134f2a7414be017e"
     }
   ]
 }

@@ -1,0 +1,216 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-189-a1-project-context",
+  "run_id": "rt002-a1-impl-attempt6-round1-integration-20260915",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 6,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) — no UI, no new plugin, no Provider integration",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1",
+  "acceptance_sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b",
+  "design_sha256": "9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0011-phase2-handle-relative-protected-copy.md",
+      "sha256": "a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "docs/adr/0019-approval-sidecar-protection.md",
+      "sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"
+    },
+    {
+      "path": "docs/adr/0020-conditional-predicate-dsl.md",
+      "sha256": "b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"
+    },
+    {
+      "path": "docs/adr/0023-track-selection-contract-migration.md",
+      "sha256": "54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"
+    },
+    {
+      "path": "docs/adr/0025-human-copy-transactional-bundle.md",
+      "sha256": "d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7",
+    "frontend-spec.md": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771",
+    "infra-spec.md": "db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776",
+    "security-spec.md": "d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "rt002-a1-impl-attempt6-round1-a-20260915",
+      "host_session_id": "rt002-a1-independent-a6r1-a-20260915",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/investigation.md",
+          "sha256": "e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/precheck-result.json",
+          "sha256": "bcbdec1c5d48a613f365f6389e865019050d031eb7b9b76f97722ed2fb5ac5cf"
+        },
+        {
+          "path": "docs/adr/0011-phase2-handle-relative-protected-copy.md",
+          "sha256": "a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"
+        },
+        {
+          "path": "docs/adr/0016-workflow-axes-separation.md",
+          "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+        },
+        {
+          "path": "docs/adr/0018-provider-binding-separation.md",
+          "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+        },
+        {
+          "path": "docs/adr/0019-approval-sidecar-protection.md",
+          "sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"
+        },
+        {
+          "path": "docs/adr/0020-conditional-predicate-dsl.md",
+          "sha256": "b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"
+        },
+        {
+          "path": "docs/adr/0023-track-selection-contract-migration.md",
+          "sha256": "54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"
+        },
+        {
+          "path": "docs/adr/0025-human-copy-transactional-bundle.md",
+          "sha256": "d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "rt002-a1-impl-attempt6-round1-b-20260915",
+      "host_session_id": "rt002-a1-independent-a6r1-b-20260915",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "0db48b9577fbacf4b67c35ddf26f3f92070f0b4fcf740ee31bc6933deb21a3b1"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "45bd2ff352d22e43ef6511341016245ff85429560df62faffc33d4a4a4baf94b"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "9aea7f51d7d70fcd4c9f1e3ea339c8cdd20f5826010ff2539e31f2d1ba9faf91"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/investigation.md",
+          "sha256": "e2d25e455d69528d9811b513027e9212641048a40da9bc14401af66afda34ee2"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "db2bb526bae5fec34b9cac4ff4fe2e89edfba124f3b1337c0bacd2594861c776"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "d3acb853736e83808d3e13b0131b1ebc050f49742fe658e8ab6080df8ff233e9"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/precheck-result.json",
+          "sha256": "bcbdec1c5d48a613f365f6389e865019050d031eb7b9b76f97722ed2fb5ac5cf"
+        },
+        {
+          "path": "docs/adr/0011-phase2-handle-relative-protected-copy.md",
+          "sha256": "a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb"
+        },
+        {
+          "path": "docs/adr/0016-workflow-axes-separation.md",
+          "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+        },
+        {
+          "path": "docs/adr/0018-provider-binding-separation.md",
+          "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+        },
+        {
+          "path": "docs/adr/0019-approval-sidecar-protection.md",
+          "sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"
+        },
+        {
+          "path": "docs/adr/0020-conditional-predicate-dsl.md",
+          "sha256": "b3c0f05e44c9f56b540c41ecae0f55d3bb0f18ea2a561f93912567d5b16021ba"
+        },
+        {
+          "path": "docs/adr/0023-track-selection-contract-migration.md",
+          "sha256": "54fbbc7f441cbfcc250125c009124c2879301b64d56ba25d53f90d5d449d573c"
+        },
+        {
+          "path": "docs/adr/0025-human-copy-transactional-bundle.md",
+          "sha256": "d930ddc333d05f8c8a35ada83ba51f44ffe84f905c6a76bbac142d41303cd208"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-project-context/attempt-6/round-1/integrated-summary.json",
+          "sha256": "9bd5dc987c31aa07005bfef15720e098ee6dd5edef2cfadafc28ed2f8b1af1f2"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Human applied the five ADR review-contract documents; this provenance re-review uses unchanged current A1 design and seven declared ADRs. Historical verdicts are preserved.",
+  "timestamp": "2026-09-15T11:22:43.530Z"
+}
