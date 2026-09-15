@@ -169,13 +169,21 @@ Rules:
         # the absolute deadline so launch time cannot extend the timeout.
         $remainingMs = $panelistDeadlineEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
         $panelistWaitMs = [int][Math]::Min([Math]::Max($remainingMs, 0), [int]::MaxValue)
-        if (-not $proc.WaitForExit($panelistWaitMs)) {
+        $waitCompleted = $proc.WaitForExit($panelistWaitMs)
+        # Observe this exact handle, not the CLI worker's final output. A process
+        # may exit between the timed wait and HasExited; retain both observations.
+        $waitObservedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $observedExited = $proc.HasExited
+        if (-not $waitCompleted) {
             $proc.Kill($true)
             $proc.WaitForExit()
+            # Logging follows cleanup so it cannot delay termination.
+            [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=0 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=1")
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")
             exit 1
         }
         $proc.WaitForExit()
+        [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=1 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=0")
         if ($proc.ExitCode -ne 0) {
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exited $($proc.ExitCode)")
             Get-Content (Join-Path $scratch "stderr.txt") | ForEach-Object { [Console]::Error.WriteLine($_) }
