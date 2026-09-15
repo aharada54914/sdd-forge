@@ -440,7 +440,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/157
 
 Approval: Approved
 
-Status: Done
+Status: Implementation Complete
 
 Risk: high
 
@@ -469,7 +469,7 @@ Required Workflow: tdd
 
 Security-Sensitive: true
 
-Cross-Model: not enabled
+Cross-Model: enabled
 
 Requirements: REQ-002, REQ-004 (share — AC-016), REQ-005 (share — AC-018/
 AC-019, this task's own #157 leg)
