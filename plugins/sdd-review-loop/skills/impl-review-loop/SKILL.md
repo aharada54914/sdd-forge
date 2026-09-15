@@ -80,6 +80,34 @@ This script produces:
 If the script exits non-zero, halt and display its stderr output. Do not proceed
 to reviewer invocation.
 
+### ADR input binding — applies to both reviewers and the merged contract
+
+New prechecks derive `adr_inputs` from the exact design using the restricted
+declaration grammar in `review-context-boundary.md`; an empty set is `[]`.
+Do not assemble this authority from a caller-supplied list or an ADR glob.
+Include every precheck ADR path/hash pair in BOTH reviewer input manifests
+at STEP 2 and STEP 4, alongside the same current precheck and design pins.
+The precheck's deterministic input digest must include the ADR serialization.
+Run `--verify-inputs` immediately before each launch, then require successful
+identity reservation. A missing member, malformed extension, path defect or
+hash mismatch stops launch even if the invocation contains no ADR entries.
+
+At STEP 5 copy the verified `adr_inputs` array unchanged into the contract.
+Require both reviewer output manifests to contain exactly that ADR set and
+hashes and bind the same precheck and design. Do not infer admission from
+reviewer prose or add missing inputs after the review. Keep the extension
+absent in historical evidence; never retrofit old reservations or FAILs.
+Persisted consumers and task-stage predecessor checks must verify the same
+bindings before this feature can progress. A template change alone is not
+evidence that those checks are implemented.
+
+If either reviewer loses access to a required admitted input, stop this round.
+Preserve its actual output and reservation; do not fabricate check results,
+produce a successful integrated review, or proceed to the next stage. Saved
+interruption diagnostics do not satisfy completed-review validation. Follow
+the interrupted-round rule in `review-context-boundary.md`; it grants no reset
+or identity-reuse permission.
+
 ### STEP 2 — Invoke impl-reviewer-a
 
 Spawn impl-reviewer-a as a fresh agent (no shared context) with:
@@ -286,11 +314,17 @@ When `--reset` is provided:
 
 ## Re-Invocation After Human Edits
 
-When the human edits design.md and re-invokes without `--reset`:
+When the human edits design.md or an ADR bound by the prior round and
+re-invokes without `--reset`:
+- For an ADR-bound prior round, require a changed design or declared ADR
+  path/hash set. Preserve design-only progress for legacy prior rounds.
+- Preserve historical NEEDS_WORK evidence; do not compare its old ADR
+  hashes to corrected current files as a condition of opening the next round.
 - Increment round counter (round 2 or round 3).
 - `--edit-summary` is required; reject without it:
   "impl-review-loop: --edit-summary is required when re-invoking in round 2 or 3.
-  Provide a brief description of the changes made to design.md."
+  Provide a brief description of the changes made to design.md or its bound
+  ADR inputs."
 - Proceed from STEP 1 with the incremented round.
 
 ## Phase 2 Unblock
