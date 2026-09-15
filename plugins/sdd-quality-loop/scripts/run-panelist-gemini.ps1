@@ -187,16 +187,73 @@ Rules:
     }
 
     $raw = Get-Content -Raw -Encoding Utf8 $rawOutput
-    $jsonMatch = [regex]::Match($raw, '\{[\s\S]*\}')
-    if (-not $jsonMatch.Success) {
-        [Console]::Error.WriteLine("run-panelist-gemini: no JSON object found in gemini output")
-        exit 1
+    # Match the GPT runner's candidate selection: echoed objects are not
+    # verdicts, and braces inside quoted strings do not delimit objects.
+    $targetSchema = 'cross-model-verdict/v1'
+    $cleanedOutputText = [regex]::Replace($raw, '```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '')
+    function Get-JsonObjectCandidates([string]$Text) {
+        $candidates = [System.Collections.Generic.List[string]]::new()
+        $i = 0
+        while ($i -lt $Text.Length) {
+            if ($Text[$i] -cne '{') { $i++; continue }
+            $start = $i
+            $depth = 0
+            $inString = $false
+            $escape = $false
+            $closedAt = -1
+            for ($j = $i; $j -lt $Text.Length; $j++) {
+                $c = $Text[$j]
+                if ($inString) {
+                    if ($escape) { $escape = $false }
+                    elseif ($c -ceq '\') { $escape = $true }
+                    elseif ($c -ceq '"') { $inString = $false }
+                } else {
+                    if ($c -ceq '"') { $inString = $true }
+                    elseif ($c -ceq '{') { $depth++ }
+                    elseif ($c -ceq '}') {
+                        $depth--
+                        if ($depth -eq 0) { $closedAt = $j; break }
+                    }
+                }
+            }
+            if ($closedAt -ge 0) {
+                $candidates.Add($Text.Substring($start, $closedAt - $start + 1))
+                $i = $closedAt + 1
+            } else {
+                # A truncated echo must not hide later complete candidates.
+                $i = $start + 1
+            }
+        }
+        # Preserve a one-element list instead of unwrapping it to a string.
+        Write-Output -NoEnumerate $candidates
     }
-
-    try {
-        $verdict = $jsonMatch.Value | ConvertFrom-Json
-    } catch {
-        [Console]::Error.WriteLine("run-panelist-gemini: invalid JSON from gemini: $_")
+    $candidates = Get-JsonObjectCandidates $cleanedOutputText
+    $verdict = $null
+    $rejections = [System.Collections.Generic.List[string]]::new()
+    for ($ci = 0; $ci -lt $candidates.Count; $ci++) {
+        $candidateNum = $ci + 1
+        try { $parsed = $candidates[$ci] | ConvertFrom-Json -ErrorAction Stop }
+        catch {
+            $rejections.Add("candidate ${candidateNum}: parse error: $($_.Exception.Message)")
+            continue
+        }
+        if ($parsed -isnot [System.Management.Automation.PSCustomObject]) {
+            $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
+            continue
+        }
+        if (-not [string]::Equals([string]$parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
+            $rejections.Add("candidate ${candidateNum}: parsed but schema is '$($parsed.schema)' (expected '$targetSchema')")
+            continue
+        }
+        $verdict = $parsed # The last schema-matching candidate wins.
+    }
+    if (-not $verdict) {
+        if ($candidates.Count -eq 0) {
+            [Console]::Error.WriteLine("run-panelist-gemini: no JSON object found in gemini output")
+        } else {
+            [Console]::Error.WriteLine("run-panelist-gemini: no $targetSchema verdict found among $($candidates.Count) candidate JSON object(s) in gemini output")
+            foreach ($rejection in $rejections) { [Console]::Error.WriteLine("  $rejection") }
+        }
         exit 1
     }
 
