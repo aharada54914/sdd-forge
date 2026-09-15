@@ -68,15 +68,22 @@ review, task review, or evaluator context.
    only canonical requirements, acceptance tests, optional investigation,
    `plugins/sdd-review-loop/references/spec-review-calibration.md`, and
    precheck-result paths with hashes.
-2. Start `spec-reviewer-a` in a fresh host context with a new `run_id` and a
-   host-session identifier that is distinct from every other reviewer session.
+2. Obtain fresh host-issued run/session identities for `spec-reviewer-a`.
+   If the host issues them only when allocating a context, allocate an empty,
+   idle context without starting a model turn or supplying review inputs or
+   inherited conversation. Persist the host's identity receipt. This allocation
+   is not a reviewer launch and must not produce findings or consume inputs.
    Build and reserve its invocation manifest through the sequential launch
-   boundary immediately before starting the host context.
+   boundary. Only after successful reservation and `REVIEW_CONTEXT_OK`, start
+   the first reviewer turn in exactly that reserved context. If the host cannot
+   separate identity allocation from execution, stop; do not fabricate IDs,
+   start a provisional review, or reserve an already executed review afterwards.
    Persist its returned raw JSON as `reviewer-a.json`; reviewers themselves have
    no write capability.
 3. Create `integrated-summary.json` containing only check IDs, severities, and
    counts. It must not reproduce any raw finding text.
-4. Start `spec-reviewer-b` in a separate fresh host context. Its allowed-input
+4. Apply the same identity-allocation, reservation, then first-turn sequence
+   to `spec-reviewer-b` in a separate fresh host context. Its allowed-input
    manifest contains only the canonical artifacts, calibration reference,
    precheck result, and that sanitized summary. It must never receive
    `reviewer-a.json`. Build and reserve a new invocation manifest against the
@@ -121,3 +128,15 @@ constraints explicit, and risks connected to a future validation surface. The
 gate must not require design sections, task breakdowns, command execution,
 documentation-update workflows, checkpoint/learning workflows, or live eval
 execution.
+
+## Identity-allocation failure handling
+
+An allocation receipt is host evidence, not a caller-chosen UUID. It must bind
+the host's actual run and session identities and show that review execution has
+not started. Reservation failure must leave that context idle: no reviewer turn,
+no findings, no retry by changing IDs in its receipt. A failed first turn after
+reservation does not release the consumed identity; preserve the reservation
+and receipt and use a new context for a later permitted attempt. Both reviewers
+remain read-only and separately isolated. This ordering does not authorize a
+blocked shell launcher, a same-session fallback, or any guard bypass. Fixture
+tests do not establish that a particular live host implements this lifecycle.

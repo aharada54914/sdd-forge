@@ -47,9 +47,9 @@ is deterministically capped and requires the reviewed document to change between
 rounds (INV-002, INV-003), the merged verdict is recomputed from raw severities
 by three separate validators so no downstream "synthesis" can move it
 (INV-014), the orchestrator is forbidden from waiving findings (INV-015), every
-round artifact is pinned to an exact key set (INV-016), and the cost-saving
-mechanism the source protocol relies on — resuming the same agent — is
-structurally impossible under the identity ledger (INV-012). Fifteen decisions
+round artifact is pinned to an exact key set (INV-016), and same-agent
+continuation requires a launch/input contract not established by reservation
+uniqueness alone (INV-012, 2026-09-14 correction). Fifteen decisions
 are recorded as Open Questions and **none is answered here**.
 
 Four of the six reviewer role files and two of the three target SKILL files are
@@ -261,7 +261,18 @@ it is a hash-bound input.
 
 ### Stream C — the mechanisms a cross-critique phase would have to pass through
 
-#### INV-012: the identity ledger forbids reusing a session, so "resume the same agent" is not available
+#### INV-012: reservation uniqueness does not decide continuation (corrected 2026-09-14)
+
+**Current correction and precedence.** At main `08baf03a`,
+`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:368-400`
+verifies an already-persisted identity without reserving it again; `:377-379`
+rejects a second reservation. Neither branch authorizes cross-critique
+continuation or proves its cost. Reverify these shared-code references at review
+and implementation time. The historical inference below that every critique
+must use a fresh context is superseded by this correction. OQ-6 remains open;
+this correction permits no bypass or new reviewer inputs.
+
+**Historical source excerpts and inference, retained for audit:**
 
 `validate-review-context-set.sh:234-235` requires, of the ledger itself:
 
@@ -415,7 +426,9 @@ decision. Recorded as OQ-9.
 >   own deterministic contracts)
 
 and `SKILL.md:55` ("No subagents") plus `:37` ("Same two agents, resumed")
-describe an orchestration shape the identity ledger forbids (INV-012).
+describe a source orchestration shape, not an authorization to use it inside
+the SDD gates. The earlier claim that identity uniqueness alone forbids that
+shape is superseded by INV-012's 2026-09-14 correction; OQ-6 remains open.
 
 #### INV-019: `skills/adversarial-review` is not wired into any plugin — confirming the sibling issue's premise
 
@@ -693,12 +706,12 @@ but is not what the issue asks for ("A/B に相手の findings を渡し").
 
 ### OQ-6 — fresh context or resumed session, and what does that do to cost?
 
-The identity ledger requires globally unique `run_id` **and** `host_session_id`
-per reservation (INV-012), so the source protocol's "same two agents, resumed"
-is unavailable. A fresh context re-reads every input, which is the cost the
-source protocol's design exists to avoid. Is the cross-critique participant
-exempt from ledger reservation (and if so, what replaces the identity
-guarantee), or is the re-read cost accepted?
+The ledger distinguishes new reservation from verification of a persisted
+identity (INV-012, 2026-09-14 correction). What launch/input authorization and
+identity evidence would permit the proposed same-agent continuation, or what
+fresh-context model is selected instead? What evidence establishes its cost?
+Neither model nor a ledger exemption is selected here. ADR-0026 Decision 2
+remains a proposal requiring resolution of this question before wiring.
 
 ### OQ-7 — how do the four verdicts feed synthesis, and may they move the gate?
 
