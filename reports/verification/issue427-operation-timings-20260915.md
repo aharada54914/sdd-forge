@@ -4,7 +4,9 @@ Worktree: `/Users/jrmag/.local/share/sdd-forge-pr381-main-sync-20260912`
 Branch: `codex/issue427-timeout-measurements`
 Base HEAD: `2eae1bb2f36610448987741ded106bdebeff7d0c`
 
-The uncommitted change to `tests/cross-model.tests.ps1` separates completion
+## Initial test-only diagnostic (historical)
+
+The initial change to `tests/cross-model.tests.ps1` separated completion
 of the wait receipt append, console acquisition, WriteLine and Flush. It
 publishes those numeric observations in the existing final receipt append.
 This adds clock reads inside the deadline: it is NOT zero-overhead evidence.
@@ -14,7 +16,8 @@ verdict requirement and cleanup assertions are unchanged.
 Review correction: the initial diagnostic used stderr, which successful
 runner cleanup would discard. The current version uses the phase receipt
 already collected by the harness, with a strict numeric-key allowlist.
-No product script, approval, review verdict, or task status was modified.
+That initial change modified no product script, approval, review verdict, or
+task status. The runner follow-up below subsequently modified product scripts.
 
 Verification on macOS:
 
@@ -47,6 +50,22 @@ the new numeric output and no changed timeout acceptance or cleanup policy.
 Unresolved: operation timings cannot be recovered if killed before the final
 receipt append. HasExited is a later observation than the timed wait, not an
 exact process-exit timestamp. Additional observation has overhead. Windows
-execution is still required; this diagnostic is not a root-cause fix or a
+execution was still required at that local checkpoint; this diagnostic is not a root-cause fix or a
 reason to merge PR 429. Preserve the unrelated dirty README. Earlier test
 hashes above describe the first diagnostic version, not this follow-up.
+
+## Windows follow-up at cacd384d98716ca00c040d4e62969559381fb598
+
+Windows job 104210111614 in run 34914836949 succeeded: 76 passed, 0 failed.
+The ten boundary cases recorded wait_completed=1, observed_exited=1 and
+cleanup_kill=0. Both deliberate hangs recorded the complementary timeout
+values 0, 0 and 1. Retrieved job log SHA-256:
+`0c28d4572d850c0967b554c6d416789f05f789fc6dd602ea4cfd21371bddce17`.
+Source: https://github.com/aharada54914/sdd-forge/actions/runs/34914836949/job/104210111614
+
+The output_end minus wait_end intervals were GPT 12, 13, 13, 15, 94 ms and
+Gemini 15, 12, 12, 26, 33 ms, in iteration order. No failing boundary was
+captured. Variable runner load and measurement overhead prevent attributing
+the improvement over earlier runs to a root-cause repair. Issue 427 stays open.
+This job success is not a claim that the complete run or a later head passed.
+The separate task/quality-evidence review finding remains unresolved.
