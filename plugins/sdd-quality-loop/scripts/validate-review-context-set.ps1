@@ -326,6 +326,15 @@ try {
                 Fail-ReviewContext 'IDENTITY' 'invalid scratch binding in identity ledger'
             }
         }
+        $inputBoundRecord = $record -is [hashtable] -and $record.ContainsKey('allowed_inputs_sha256')
+        if ($inputBoundRecord) {
+            $allowedRecordKeys += 'allowed_inputs_sha256'
+            if (($record.stage -cne 'spec' -and $record.stage -cne 'impl') -or
+                $record.allowed_inputs_sha256 -isnot [string] -or
+                $record.allowed_inputs_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid input binding in identity ledger'
+            }
+        }
         if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $allowedRecordKeys) -or
             -not (Test-JsonInteger $record.sequence) -or
             [decimal]$record.sequence -ne $expectedSequence -or
@@ -340,6 +349,7 @@ try {
         }
         $canonical = "$($record.sequence)|$($record.stage)|$($record.role)|$($record.run_id)|$($record.host_session_id)|$($record.previous_record_sha256)"
         if ($boundRecord) { $canonical += "|scratch-declaration-v1|$($record.scratch_declaration_sha256)" }
+        if ($inputBoundRecord) { $canonical += "|allowed-inputs-v1|$($record.allowed_inputs_sha256)" }
         if ((Get-Sha256Text $canonical) -cne $record.record_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger record hash is invalid'
         }
@@ -361,7 +371,17 @@ try {
     if ($document.stage -ceq 'quality' -and $document.ContainsKey('scratch_root')) {
         $scratchBinding = Get-Sha256Text ("$($document.feature)" + "`n" + "$($document.scratch_root)")
     }
+    # Same ordered ASCII path<TAB>hash lines as Bash, without a final newline.
+    $inputBinding = ''
+    if ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl') {
+        $inputText = @($document.allowed_input_manifest | ForEach-Object { "$($_.path)`t$($_.sha256)" }) -join "`n"
+        $inputBinding = Get-Sha256Text $inputText
+    }
     if ($null -ne $persistedMatch) {
+        if ($persistedMatch.ContainsKey('allowed_inputs_sha256') -and
+            $inputBinding -cne $persistedMatch.allowed_inputs_sha256) {
+            Fail-ReviewContext 'HASH' 'reserved input manifest changed'
+        }
         if ($persistedMatch.ContainsKey('scratch_declaration_sha256') -and
             $scratchBinding -cne $persistedMatch.scratch_declaration_sha256) {
             Fail-ReviewContext 'PATH' 'reserved evaluator scratch binding changed or was omitted'
@@ -886,6 +906,10 @@ if __name__ == "__main__":
         ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('scratch_declaration_sha256'))) {
         $recordText += "|scratch-declaration-v1|$scratchBinding"
     }
+    if ($inputBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('allowed_inputs_sha256'))) {
+        $recordText += "|allowed-inputs-v1|$inputBinding"
+    }
     $recordHash = Get-Sha256Text $recordText
     if ($Reserve) {
         $lockPath = "$ledger.lock"
@@ -921,6 +945,9 @@ if __name__ == "__main__":
             })
             if ($scratchBinding -cne '') {
                 $ledgerDocument.records[-1]['scratch_declaration_sha256'] = $scratchBinding
+            }
+            if ($inputBinding -cne '') {
+                $ledgerDocument.records[-1]['allowed_inputs_sha256'] = $inputBinding
             }
             $json = $ledgerDocument | ConvertTo-Json -Depth 20
             [IO.File]::WriteAllText($temporary, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
