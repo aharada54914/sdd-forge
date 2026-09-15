@@ -648,15 +648,15 @@ function Publish-LoopImplRoundA {
     $feature = $script:LoopFixtureFeature
     $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
     switch ($Severity) {
-        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 6 }
-        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
-        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
-        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 11 }
+        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 10 }
+        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 10 }
+        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 10 }
         default { Write-Error "Publish-LoopImplRoundA: unknown severity: $Severity"; return $false }
     }
     $checkSeverity = if ($Severity -eq "none") { "Minor" } else { $Severity }
 
-    $summaryJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
+    $summaryJq = '["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
     & jq -n --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "integrated-summary.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
@@ -692,7 +692,10 @@ function Publish-LoopImplRoundA {
         $manifestJson = $manifestJson | & jq -c --arg p ($priorSummary -replace '\\', '/') --arg s $priorSha '. + [{path:$p,sha256:$s}]'
     }
 
-    $reviewerAJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    $reviewerAJq = '["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"] as $ids | {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    # Persist repository-relative paths required by the ADR evidence contract.
+    $manifestJson = $manifestJson | & jq -c --arg root (($script:LoopFixtureRoot -replace '\\', '/') + '/') 'map(.path |= ltrimstr($root))'
+    if ($LASTEXITCODE -ne 0) { throw 'impl reviewer A manifest path normalization failed' }
     & jq -n --arg verdict $aVerdict --argjson manifest $manifestJson --arg result $aResult --arg severity $checkSeverity $reviewerAJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
@@ -744,17 +747,20 @@ function Publish-LoopImplRoundBContract {
         $lsha = Get-LoopSha256 $lpath
         $manifestBJson = $manifestBJson | & jq -c --arg p $lpath --arg s $lsha '. + [{path:$p,sha256:$s}]'
     }
-    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids | {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest,verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    $reviewerBJq = '["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID","NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED","INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"] as $ids | {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest,verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    $manifestBJson = $manifestBJson | & jq -c --arg root (($script:LoopFixtureRoot -replace '\\', '/') + '/') 'map(.path |= (gsub("\\\\"; "/") | ltrimstr($root)))'
+    if ($LASTEXITCODE -ne 0) { throw 'impl reviewer B manifest path normalization failed' }
     & jq -n --argjson manifest $manifestBJson $reviewerBJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
     $manifestAJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")) -join "`n"
-    $contractJq = '{schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,design_sha256:$design_sha256,layer_sha256:$layer_sha256,reviewers:[{role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
+    $contractJq = '{schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,design_sha256:$design_sha256,layer_sha256:$layer_sha256,adr_inputs:$precheck[0].adr_inputs,reviewers:[{role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
     & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
         --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
         --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha `
         --arg design_sha256 $designSha --argjson layer_sha256 $layerSha `
+        --slurpfile precheck $precheckPath `
         --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson $contractJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "impl-review-contract.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }

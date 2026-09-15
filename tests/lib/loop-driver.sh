@@ -863,16 +863,16 @@ _loop_emit_impl_round_a() {
   feature="$LOOP_FIXTURE_FEATURE"
   round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
-    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
-    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
-    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Major" ;;
-    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Minor" ;;
+    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=11; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=10; check_severity="Critical" ;;
+    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=10; check_severity="Major" ;;
+    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=10; check_severity="Minor" ;;
     *) echo "_loop_emit_impl_round_a: unknown severity: ${severity}" >&2; return 1 ;;
   esac
 
   jq -n --argjson attempt 1 --argjson round "$round" \
     --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
-    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+    ["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
      reviewer_a_check_ids:$ids,
      reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
@@ -914,9 +914,11 @@ _loop_emit_impl_round_a() {
     manifest_json="$(jq -c --arg p "$prior_summary" --arg s "$(_loop_sha256 "$prior_summary")" '. + [{path:$p,sha256:$s}]' <<<"$manifest_json")"
   fi
 
+  # Persist repository-relative paths required by the ADR evidence contract.
+  manifest_json="$(jq -c --arg root "${LOOP_FIXTURE_ROOT}/" 'map(.path |= ltrimstr($root))' <<<"$manifest_json")" || return 1
   jq -n --arg verdict "$a_verdict" --argjson manifest "$manifest_json" \
     --arg result "$a_result" --arg severity "$check_severity" '
-    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+    ["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
      allowed_input_manifest:$manifest, verdict:$verdict,
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
@@ -982,8 +984,9 @@ _loop_emit_impl_round_b_contract() {
     lsha="$(_loop_sha256 "$lpath")"
     manifest_b_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_b_json")"
   done
+  manifest_b_json="$(jq -c --arg root "${LOOP_FIXTURE_ROOT}/" 'map(.path |= ltrimstr($root))' <<<"$manifest_b_json")" || return 1
   jq -n --arg result PASS --arg severity Minor '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
+    ["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID","NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED","INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:'"$manifest_b_json"',verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
@@ -995,13 +998,14 @@ _loop_emit_impl_round_b_contract() {
     --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
     --arg a_verdict "$a_verdict" --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
     --arg design_sha256 "$design_sha" --argjson layer_sha256 "$layer_sha" \
+    --slurpfile precheck "$precheck_path" \
     --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" '
     {schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,
      run_id:"fixture-orchestrator",verdict:$verdict,
      reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
      findings_critical:$critical,findings_major:$major,findings_minor:$minor,
      requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,
-     design_sha256:$design_sha256,layer_sha256:$layer_sha256,
+     design_sha256:$design_sha256,layer_sha256:$layer_sha256,adr_inputs:$precheck[0].adr_inputs,
      reviewers:[
        {role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},
        {role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}
