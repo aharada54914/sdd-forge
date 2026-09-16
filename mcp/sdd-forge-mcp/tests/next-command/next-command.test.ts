@@ -250,6 +250,56 @@ test("quality-gate: every Approved task is Implementation Complete", () => {
   }
 });
 
+test("quality-gate: mixed Done and Implementation Complete tasks target the first Implementation Complete task in document order", () => {
+  const tasks: TaskFixture[] = [
+    { id: "T-001", approved: true, status: "Done" },
+    { id: "T-002", approved: true, status: "Implementation Complete" },
+    { id: "T-003", approved: true, status: "Implementation Complete" },
+  ];
+  const tempRoot = setupSingleFeatureRoot("feat-quality-gate-mixed", {
+    requirements: requirementsMd("Passed"),
+    design: designMd("Passed"),
+    tasks: tasksMd("Passed", tasks),
+  });
+  try {
+    const qualityReportContents = ["Task ID: T-001", "", "VERDICT: PASS", ""].join("\n");
+    writeFile(tempRoot.dir, "reports/quality-gate/T-001.md", qualityReportContents);
+    const contractContents = JSON.stringify({ task_id: "T-001", risk: "low", checks: [] });
+    writeFile(tempRoot.dir, "specs/feat-quality-gate-mixed/verification/T-001.contract.json", contractContents);
+    writeFile(
+      tempRoot.dir,
+      "specs/feat-quality-gate-mixed/verification/T-001.evidence.json",
+      JSON.stringify({
+        task_id: "T-001",
+        risk: "low",
+        quality_report: "reports/quality-gate/T-001.md",
+        verification_contract: "specs/feat-quality-gate-mixed/verification/T-001.contract.json",
+        git_commit: "a".repeat(40),
+        artifacts: [
+          { path: "reports/quality-gate/T-001.md", sha256: sha256Hex(qualityReportContents) },
+          { path: "specs/feat-quality-gate-mixed/verification/T-001.contract.json", sha256: sha256Hex(contractContents) },
+        ],
+      }),
+    );
+    writeFile(
+      tempRoot.dir,
+      "reports/implementation/feat-quality-gate-mixed-T-002.md",
+      ["# Implementation Report", "", "Task ID: T-002", ""].join("\n"),
+    );
+    writeFile(
+      tempRoot.dir,
+      "reports/implementation/feat-quality-gate-mixed-T-003.md",
+      ["# Implementation Report", "", "Task ID: T-003", ""].join("\n"),
+    );
+
+    const result = getNextSddCommand(tempRoot.root, "feat-quality-gate-mixed");
+    const data = assertOkPhase(result, "quality-gate");
+    assert.match(data.nextCommand, /^\/sdd-quality-loop:quality-gate specs\/feat-quality-gate-mixed\/tasks\.md#T-002$/);
+  } finally {
+    tempRoot.cleanup();
+  }
+});
+
 test("done: every Approved task is Done", () => {
   const tasks: TaskFixture[] = [{ id: "T-001", approved: true, status: "Done" }];
   const tempRoot = setupSingleFeatureRoot("feat-done", {
