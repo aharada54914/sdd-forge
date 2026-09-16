@@ -341,7 +341,7 @@ discussion and Open Questions is historical; this dated OQ-001 amendment and
 OQ-002 govern ownership for the next review.
 
 Characteristic amendment (2026-09-17, owner ruling retained from 2026-09-04):
-the eight-component decomposition remains unchanged except for the approved
+the nine-component decomposition remains unchanged except for the approved
 additive scoped override mechanism. The single `mcp` component may therefore
 mark `mcp/ci-mcp` credential-bearing, and the approved release-automation rule
 may mark release-write, without splitting components or broadening ownership.
