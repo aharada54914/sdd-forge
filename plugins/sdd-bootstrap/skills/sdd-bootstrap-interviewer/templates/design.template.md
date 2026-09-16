@@ -13,9 +13,9 @@ Feature Type: {{project_or_feature_type}}
 
 ## Components
 
-| Component | Responsibility | Technology | New/Existing |
-|---|---|---|---|
-| {{component_name}} | {{responsibility}} | {{technology}} | {{new_or_existing}} |
+| Component | Responsibility (Owns / Does Not Own) | Public Contract & Encapsulated Knowledge | State, Failure & Change Blast Radius | Technology | New/Existing |
+|---|---|---|---|---|---|
+| {{component_name}} | {{responsibility_and_non_responsibility}} | {{contract_and_hidden_knowledge}} | {{state_and_failure_blast_radius}} | {{technology}} | {{new_or_existing}} |
 
 ## Layer Specifications
 
