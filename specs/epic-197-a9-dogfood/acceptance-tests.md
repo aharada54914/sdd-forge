@@ -33,15 +33,22 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-027 | REQ-006 | TEST-027 | operational | every PR in one bounded full release cycle passed advisory Gate | Planned |
 | AC-028 | REQ-008 | TEST-028 | end-to-end | one real post-promotion feature completes under facet-hybrid/required | Planned |
 | AC-029 | REQ-010 | TEST-029 | process | friction WFI references recorded, or literal `none` when zero | Planned |
+| AC-030 | REQ-004 | TEST-030 | contract | exactly the two approved overrides present (ci-mcp credential-bearing; release-automation release-write) and read by characteristic tests | Planned |
+| AC-031 | REQ-004 | TEST-031 | negative | unknown-characteristic, out-of-scope, and no-op overrides each reject | Planned |
 | AC-032 | REQ-003 | TEST-032 | ownership | each component includes tracked paths and recomputed ownership digest equals recorded digest | Planned |
 | AC-033 | REQ-008 | TEST-033 | negative | required activation rejects each missing-evidence case TEST-033a–c | Planned |
+| AC-034 | REQ-009 | TEST-034 | security | registry-cardinality change mid-cooldown re-evaluates the branch with the current registry | Planned |
 
 Coverage note: AC-015 expands both partial-transition branches; AC-018 expands
 all four invalid-sidecar branches; AC-021's oracle covers Registry, guards,
 components, Active Specs, WFI namespace, and protected targets individually.
 AC-027 quantifies over every PR in the named cycle; AC-029 covers both observed
 friction and zero-friction branches and names path ownership, staleness, and
-approval flow individually.
+approval flow individually. AC-030 covers the two approved characteristic
+overrides; AC-031 expands the unknown, out-of-scope, and no-op rejection
+branches. AC-032 covers the reverse-coverage and ownership-digest checks;
+AC-033 covers premature required-enforcement activation; AC-034 covers a
+registry-cardinality change during rollback cooldown.
 
 ## OQ-001 amendment coverage (2026-09-08)
 
