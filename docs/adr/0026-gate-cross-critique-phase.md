@@ -1,4 +1,4 @@
-# ADR 0026: High/Critical-Only Cross-Critique Phase for the Review Loops
+# ADR 0026: Risk- and Escalation-Gated Cross-Critique Phase for the Review Loops
 
 Status: Proposed
 
@@ -63,9 +63,10 @@ repository already has the severity/risk vocabulary a firing condition
 needs (`Critical/Major/Minor` per finding; `Risk` tier per task,
 `risk-classification-policy.md`).
 
-Running a critique round on every review is rejected up front: it roughly
-doubles reviewer cost on the ~90% of rounds that end PASS or carry only
-Minor findings, where a critique has nothing of value to attack.
+Running a critique round on every review is rejected up front because it
+adds reviewer work even when no trigger in Decision 1 holds. This is a
+cost-control design choice, not a measured claim about round frequencies
+or token overhead; no such repository measurement is supplied by this ADR.
 
 ## Decision
 
@@ -78,8 +79,9 @@ Minor findings, where a critique has nothing of value to attack.
    - the feature carries a human-confirmed `Risk: high` or
      `Risk: critical` tier.
 
-   Everything else — PASS rounds, Minor-only rounds, low/medium-risk
-   NEEDS_WORK rounds — proceeds directly to STEP 6, unchanged.
+   A round proceeds directly to STEP 6 only when **none** of these triggers
+   holds. PASS and Minor-only are not unconditional exemptions: round 3 or
+   a confirmed high/critical risk tier can still trigger this proposal.
 
 2. **Blindness is preserved where it matters and lifted where it no
    longer does.** The initial judgments stay fully independent: the
@@ -88,8 +90,11 @@ Minor findings, where a critique has nothing of value to attack.
    raw findings can no longer contaminate the judgments it critiques.
    Each reviewer agent is **resumed in its existing context** (same
    run_id / host_session_id — a continuation, not a new identity, so the
-   identity ledger gains no record and the reservation semantics are
-   untouched) and receives the other's persisted findings verbatim. Each
+   identity ledger gains no record). This is a **proposed continuation
+   contract**, not permission supplied by today's reservation validator;
+   its compatibility remains to be resolved under OQ-6 in
+   `specs/review-cross-critique/design.md` before wiring. Each reviewer
+   receives the other's persisted findings verbatim. Each
    returns a per-finding verdict — `SUPPORT` / `PROPOSE-SEVERITY-CHANGE`
    / `PROPOSE-REJECT` / `SUPPLEMENT` — with file:line evidence, the same
    verdict vocabulary `skills/adversarial-review` Phase 2 already
@@ -170,9 +175,9 @@ are outside the paper's scope or outside this ADR's scope.
 | 1 | Evidence-backed dissent reduces false consensus | **Adopted.** `PROPOSE-REJECT` and `PROPOSE-SEVERITY-CHANGE` require `code_evidence` or `spec_evidence` with file:line citations (issue #347). | Directly addresses the paper's primary failure mode. |
 | 2 | AR uses ~4.5× the Zero-shot tokens on SWE-bench Verified (§5.2; cost discussion in §6) | **Acknowledged; not a general multiplier.** The phase is risk-gated. | This benchmark comparison does not measure this repository's protocol cost. |
 | 3 | Scope creep from out-of-scope concerns | **Adopted.** Each finding carries `scope: in_scope \| out_of_scope \| unclear`; out_of_scope findings are not converted to implementation directives (issue #348). | Paper reports scope creep as a significant failure mode. |
-| 4 | Frozen review artifact (Figure 1); hash fields are a repository-specific extension | **Extended locally.** Report metadata includes `head_sha`, `merge_base_sha`, `diff_sha256`; stale reports cannot satisfy `Adversarial-Lane: fired` (issue #349). | The exact hash-binding contract is our design, not a claimed paper requirement. |
+| 4 | Frozen review artifact (Figure 1); hash fields are a repository-specific extension | **Separate lane contracts.** ADR-0027's standalone report uses `head_sha`, `merge_base_sha`, `diff_sha256` and currentness checks for `Adversarial-Lane: fired` (issue #349). This ADR proposes an annex bound to a persisted review round; its schema remains OQ-10 in `specs/review-cross-critique/design.md`. | A branch-diff identity does not substitute for a round contract. The hash fields are repository-specific, not a claimed paper requirement. |
 | 5 | Sequential Reviewer→Critic model (not blind-parallel first) | **Not adopted.** Both this phase and ADR-0027 retain a blind first pass; see ADR-0027 Decision 3 and `skills/adversarial-review/SKILL.md` Phase 1. | Initial independent judgments are retained before mutual critique. |
-| 6 | Automated evaluation metrics for AR runs | **Partially adopted.** Structural metrics are recorded in `evaluation.json` per triggering run (issue #350). New records include host-measured whole-run token usage, or null with an unavailable reason. | INV-021's missing budget surface does not justify estimating telemetry; metrics never control verdicts. Historical records remain unchanged. |
+| 6 | Automated evaluation metrics for AR runs | **Partially adopted in the standalone lane.** ADR-0027 specifies `evaluation.json` for its triggering runs (issue #350). New records include host-measured whole-run token usage, or null with an unavailable reason. That filename does not add a gate-round artifact to this ADR; the annex schema remains OQ-10. | Standalone evaluation evidence does not establish execution or validation of the proposed in-gate phase. INV-021's missing budget surface does not justify estimating telemetry; metrics never control verdicts. Historical records remain unchanged. |
 | 7 | Concern classification (basis type) | **Adopted.** `basis.kind` discriminates `code_evidence \| spec_evidence \| concern`; concerns alone cannot drive automatic rejection or adoption (issue #347). | Paper shows that mixing evidence and concern in a single "objection" category inflates false consensus rates. |
 
 ### Why blind-parallel first pass is maintained (not replaced by sequential)
@@ -186,13 +191,16 @@ reasons, each grounded in this repository's specific constraints:
    agreement corroborating evidence rather than an echo. Replacing the blind
    pass with a sequential one would make the merged verdict weaker, not
    stronger, even if the sequential critic finds more findings.
-2. **The SDD loop's identity ledger prevents resumption.** The paper's
-   sequential model relies on passing the first reviewer's output directly to
-   the second before any round record is committed. Inside `sdd-review-loop`,
-   `validate-review-context-set.sh:262-265` prevents resuming a reserved
-   session, so the sequential pass would be a fresh-context launch that re-reads
-   all inputs — the same cost as the current blind launch, without the
-   independence benefit.
+2. **Reservation, verification and continuation are different operations.**
+   At main `08baf03a`, `validate-review-context-set.sh:368-400` verifies an
+   already-persisted identity without reserving it again, while `:377-379`
+   refuses a second reservation. Neither behavior establishes an authorized
+   cross-critique continuation or its cost. Decision 2 proposes that future
+   continuation; OQ-6 must reconcile it with the launch and input boundaries
+   before implementation. Recheck these shared-code references at review and
+   implementation time. Blind-first ordering rests on the independence
+   rationale above, not on an inference that reservation uniqueness makes
+   every form of session continuation impossible.
 3. **ADR-0027 also retains blind-first review.** ADR-0027 Decision 3 invokes
    `skills/adversarial-review/SKILL.md` Phase 1 before cross-critique; neither
    entry point supplies the paper's sequential-first option. The distinction
