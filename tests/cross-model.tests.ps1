@@ -673,7 +673,6 @@ try {
             Fail "TEST-004(c): $($runner.Name) startup warm-up (exit=$script:panelistExit)"
             Write-Host ("runner diagnostic: " + $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length)))
         }
-        }
         for ($iteration = 1; $iteration -le 5; $iteration++) {
             $deadlineMs = $nearBoundaryBudgetSec * 1000
             $caseName = "boundary-$($runner.Name)-$iteration"
