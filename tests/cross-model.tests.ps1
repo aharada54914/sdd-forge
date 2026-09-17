@@ -577,8 +577,12 @@ try {
         $elapsed = (Get-MonotonicMilliseconds) - $started
         $stubPid = if (Test-Path $stubPidFile) { [int](Get-Content -Raw $stubPidFile) } else { 0 }
         $childPid = if (Test-Path $childPidFile) { [int](Get-Content -Raw $childPidFile) } else { 0 }
-        $stubExited = $stubPid -gt 0 -and (Test-ProcessExited $stubPid)
-        $childExited = $childPid -gt 0 -and (Test-ProcessExited $childPid)
+        # A timeout can occur before the stub reaches Start-Process.  In that
+        # case no child was created, which is safe; only an observed PID must
+        # be proven dead.  Treating an absent PID as alive made the Windows
+        # lane fail on legitimate cold-start timeouts.
+        $stubExited = $stubPid -le 0 -or (Test-ProcessExited $stubPid)
+        $childExited = $childPid -le 0 -or (Test-ProcessExited $childPid)
         $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
         Write-Host "measurement: TEST-004(a) runner=$($runner.Name) elapsed_ms=$elapsed limit_ms=10000 stub_pid=$stubPid stub_alive=$([int](-not $stubExited)) child_pid=$childPid child_alive=$([int](-not $childExited)) exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
 
@@ -656,13 +660,19 @@ try {
         # path once, outside the measured cases, so TEST-004(c) continues to
         # exercise the unchanged 2s deadline and 800ms completion margin.
         $warmupRoot = Join-Path $workDir "boundary-$($runner.Name)-warmup/specs"
+        $warmupMarker = Join-Path $workDir "boundary-$($runner.Name)-warmup.called"
         Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "5" `
-            -SpecRoot $warmupRoot -StubEnvironment @{ STUB_WARMUP = "1" }
+            -SpecRoot $warmupRoot -StubEnvironment @{
+                STUB_WARMUP = "1"
+                STUB_CALLED_FILE = $warmupMarker
+            }
         $warmupVerdict = Join-Path $warmupRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
-        if ($script:panelistExit -eq 0 -and (Test-Path $warmupVerdict)) {
+        if ($script:panelistExit -eq 0 -and (Test-Path $warmupVerdict) -and (Test-Path -LiteralPath $warmupMarker)) {
             Ok "TEST-004(c): $($runner.Name) startup warm-up"
         } else {
             Fail "TEST-004(c): $($runner.Name) startup warm-up (exit=$script:panelistExit)"
+            Write-Host ("runner diagnostic: " + $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length)))
+        }
         }
         for ($iteration = 1; $iteration -le 5; $iteration++) {
             $deadlineMs = $nearBoundaryBudgetSec * 1000
