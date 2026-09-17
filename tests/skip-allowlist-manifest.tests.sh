@@ -216,7 +216,7 @@ case_manifest_contract() {
     return
   fi
   local source_hits assertion
-  source_hits="$(rg -n 'skip_allowlist_line.*AC-(004|007|021|042|043)' \
+  source_hits="$(grep -nE 'skip_allowlist_line.*AC-(004|007|021|042|043)' \
     "$ROOT/tests/loop-consistency.tests.sh" "$ROOT/tests/loop-escalation.tests.sh" \
     "$ROOT/tests/compatibility-byte-identical.tests.sh" "$ROOT/tests/structural-compatibility.tests.sh" 2>/dev/null || true)"
   for assertion in AC-004 AC-007 AC-021 AC-042 AC-043; do
