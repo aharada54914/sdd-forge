@@ -8,6 +8,7 @@ $BootstrapSkill = Join-Path $RepoRoot 'plugins/sdd-bootstrap/skills/sdd-bootstra
 $LiteSkill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
 $Design = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/design.md'
 $Acceptance = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/acceptance-tests.md'
+$EmittedSkips = [Collections.Generic.List[string]]::new()
 $script:Passed = 0
 $script:Failed = 0
 
@@ -177,6 +178,16 @@ try {
 
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]
+        if ($Fixture -ceq 'F4') {
+            $AuditHost = (Get-Process -Id $PID).Path
+            & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') condition (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') AC-007 $RepoRoot origin/main
+            if ($LASTEXITCODE -eq 0) {
+                Write-Output 'AC-007 active: checking recorded F4 full-track artifacts'
+                Validate-Track 'full' $F4
+                continue
+            }
+            if ($LASTEXITCODE -ne 1) { Fail 'F4 activation evidence is unavailable or invalid'; continue }
+        }
         $Row = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains("($Fixture", [StringComparison]::Ordinal) }
         $Ac = (($Row -csplit '\|')[1]).Trim()
         $ExpectedDependencies = @([regex]::Matches($Row, 'Epic A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
@@ -184,9 +195,17 @@ try {
         $ValidSkip = $Entry.skip.name -ceq $Fixture -and $Entry.skip.acceptance_criterion -ceq $Ac -and
             -not [string]::IsNullOrEmpty($Entry.skip.reason) -and (($ExpectedDependencies -join "`n") -ceq ($ActualDependencies -join "`n"))
         if ($ValidSkip) {
-            $SkipLine = "SKIP: $Fixture/$Ac ($($ActualDependencies -join '+')): $($Entry.skip.reason)"
+            $AuditHost = (Get-Process -Id $PID).Path
+            $Evaluator = Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+            $Manifest = Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+            switch ($Ac) {
+                'AC-007' { $SkipLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$Ac" AC-007 }
+                'AC-042' { $SkipLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$Ac" AC-042 }
+                default { Fail "$Fixture assertion has no manifest entry: $Ac"; continue }
+            }
             Assert-SkipLine "$Fixture named skip line renders in the twin-identical shape" $SkipLine
             Write-Output $SkipLine
+            $EmittedSkips.Add($SkipLine)
         } else { Fail "$Fixture named skip metadata matches its acceptance dependency" }
     }
     $TaskSkipSpan = [regex]::Match($TasksText, 'F5/F6 structural-identity assertions are named `SKIP`s[\s\S]*?until they merge', [Text.RegularExpressions.RegexOptions]::CultureInvariant).Value
@@ -196,11 +215,22 @@ try {
     $TaskDependencies = @([regex]::Matches($TaskSkipSpan, 'A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
     foreach ($Fixture in @('F5', 'F6')) {
         if ($AcceptanceDependencies.Count -gt 1 -and (($AcceptanceDependencies -join "`n") -ceq ($TaskDependencies -join "`n"))) {
-            $CompoundLine = "SKIP: $Fixture/$CompoundAc ($($AcceptanceDependencies -join '+')): compound dependency not merged"
+            $AuditHost = (Get-Process -Id $PID).Path
+            $Evaluator = Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+            $Manifest = Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+            $CompoundLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$CompoundAc" AC-043
             Assert-SkipLine "$Fixture compound skip line renders in the twin-identical shape" $CompoundLine
             Write-Output $CompoundLine
+            $EmittedSkips.Add($CompoundLine)
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
+    # Audit the actual emitted lines, not just their formatting or unit fixtures.
+    $SkipLog = Join-Path $Temp 'emitted-skips.log'
+    [IO.File]::WriteAllLines($SkipLog, $EmittedSkips)
+    $AuditHost = (Get-Process -Id $PID).Path
+    & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') audit (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') $SkipLog $RepoRoot origin/main
+    Assert-True 'emitted dependency skips remain allowed on origin/main' ($LASTEXITCODE -eq 0)
+
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
     # Array entries may use either quote style and an optional trailing comma.
     # Anchor the whole line so comments and longer paths are not registrations.
