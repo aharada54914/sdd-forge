@@ -12,6 +12,14 @@ this checklist to the human and wait for a confirmed sign-off.
 - [ ] Trade-offs (performance, operability, cost, team familiarity) are stated.
 - [ ] Rejected alternatives are listed with reasons.
 
+### Responsibility and Boundary Integrity
+
+- [ ] Each component defines what it provides and explicitly what it does not own.
+- [ ] Single source of truth for state, data, and invariants is maintained (no duplicate ownership).
+- [ ] Internal implementation and provider-specific details are encapsulated behind stable contracts.
+- [ ] Thin layers are justified (e.g., auth, audit, transactions, compatibility); redundant pass-through layers are avoided.
+- [ ] Change impact and blast radius are localized for anticipated requirement changes.
+
 ### C4 Consistency
 
 - [ ] `c4-context.md` identifies all external actors and systems.
@@ -23,13 +31,15 @@ this checklist to the human and wait for a confirmed sign-off.
 
 - [ ] OpenAPI or JSON Schema contracts match the design for every new or
   changed endpoint.
+- [ ] Contracts specify preconditions, postconditions, error modes, and idempotency where applicable.
 - [ ] Breaking changes are called out explicitly with a migration plan.
 
 ### Non-Functional Requirements
 
 - [ ] Performance, scalability, and latency targets are stated or marked N/A.
 - [ ] Observability (logging, metrics, tracing) approach is described.
-- [ ] Availability and recovery requirements are addressed.
+- [ ] Availability, partial failure handling, and recovery/compensation requirements are addressed.
+- [ ] Logical module boundaries, trust boundaries, and deployment units are clearly distinguished.
 
 ### Migration and Rollback
 
