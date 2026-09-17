@@ -35150,13 +35150,16 @@ function phaseFromTasks(feature, tasks) {
       rationale: `specs/${feature}/tasks.md has an Approved task that is Planned or In Progress (AGENTS.md Required Workflow step 6).`
     };
   }
-  if (approved.every((task) => task.status === "Implementation Complete")) {
+  const implComplete = approved.filter((task) => task.status === "Implementation Complete");
+  const firstImplComplete = implComplete[0];
+  if (firstImplComplete !== void 0) {
+    const targetCommand = approved.every((task) => task.status === "Implementation Complete") ? `/sdd-quality-loop:quality-gate specs/${feature}/tasks.md` : `/sdd-quality-loop:quality-gate specs/${feature}/tasks.md#${firstImplComplete.id}`;
     return {
       kind: "next-command",
       feature,
       phase: "quality-gate",
-      nextCommand: `/sdd-quality-loop:quality-gate specs/${feature}/tasks.md`,
-      rationale: `Every Approved task in specs/${feature}/tasks.md is Implementation Complete (AGENTS.md Required Workflow step 7).`
+      nextCommand: targetCommand,
+      rationale: approved.every((task) => task.status === "Implementation Complete") ? `Every Approved task in specs/${feature}/tasks.md is Implementation Complete (AGENTS.md Required Workflow step 7).` : `Approved task ${firstImplComplete.id} in specs/${feature}/tasks.md is Implementation Complete (AGENTS.md Required Workflow step 7).`
     };
   }
   if (approved.every((task) => task.status === "Done")) {
@@ -35173,7 +35176,7 @@ function phaseFromTasks(feature, tasks) {
     feature,
     phase: "cannot-determine",
     nextCommand: "cannot-determine",
-    rationale: `specs/${feature}/tasks.md's Approved tasks are in a mixture of statuses (some Implementation Complete, some Done, none Planned/In Progress/Blocked) that does not map to a single next command.`
+    rationale: `specs/${feature}/tasks.md's Approved tasks are in an unrecognized mixture of statuses that does not map to a single next command.`
   };
 }
 function nextCommandForFeature(root, feature) {
