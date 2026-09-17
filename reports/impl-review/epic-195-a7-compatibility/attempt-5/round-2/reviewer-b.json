@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-a7-impl-a5r2-b-94de702a-26b7-4f4f-b120-389b0a3f45ca",
+  "host_session_id": "SESS-a7-impl-a5r2-b-6c37be97-d581-46ba-b3a8-36a5e64e1aa2",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json",
+      "sha256": "7c3e3a51a75c75692f687816e6402538e3a3fc658848fcce195a0e61cedc4d55"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-2/integrated-summary.json",
+      "sha256": "28eda3c49c32a0fc5b042b7211dec80d5270074f3a01ead9f3c21a9eae8f7504"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Design Decisions explains existing-suite placement, separate trace collection/comparison, deterministic recorded-corpus comparison, fingerprinted cross-epic citations, and candidate/canonical baseline separation. Each choice has an explicit compatibility, reproducibility, or integrity rationale."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Open Questions resolves OQ-001–003. Its 2026-09-11 amendment assigns OQ-004 to the A7 producer-contract maintainer and states Blocks Implementation separately for independent work versus final acceptance. The closure path requires the AC-009/assert_terminal correction and TEST-026 firing-semantics regression in the same change. OQ-004 remains open; AC-026 is not satisfied."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Assumptions and Design Decisions ground repository contracts and baseline selection in investigation.md INV-001–024. Upstream dependency states are authoring-time observations with explicit drift/reverification treatment, not unconditional current-state guarantees. Bash, jq, and PowerShell are the existing deterministic runtime basis."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Constraint Compliance addresses REQ-001–007 compatibility, additive-extension, baseline-governance, and SKIP controls. AC-026's conflict with the frozen AC-009 producer is explicitly deferred with rationale and a closure test, not silently satisfied. The 2026-09-11 design, infra, and security amendments consistently scope external refresh to manual AC-031 while retaining offline gating."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Deployment / CI Plan identifies local Bash/PowerShell scripts and existing run-all CI registration; infra-spec.md details platform execution and rollback. Manual AC-031 refresh is explicitly non-gating and requires the existing authenticated CLI. No database migration or service rollout is introduced."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan introduces fixture/trace/allowlist JSON contracts and optional additive registry fields, not database columns or tables. Existing absent-field/no-flag behavior is preserved, including the run-record v1 path. Baseline updates have an explicit candidate/promotion procedure; infra-spec.md provides rollback guidance."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md External Integrations identifies the manual Claude CLI refresh, claude -p --output-format json contract, F1/F2 inputs, existing CLI authentication, and response extraction. The 2026-09-11 amendment specifies nonzero failure for unavailable CLI/auth/service, nonzero provider exit, and invalid output, preservation of the affected target, and accurate reporting of sequential partial completion. security-spec.md B6 covers outbound data and untrusted responses."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Components, API / Contract Plan, and Test Strategy map to REQ-001–007 and the acceptance-test matrix: byte/structural/orchestration compatibility, F1–F8 fixtures, baseline governance, and controlled SKIP activation. Existing driver/suites are extended without a ninth loop or replacement orchestration harness. Manual refresh maps to AC-031 rather than a new runtime service."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Test Strategy and acceptance-tests.md identify baseline refusal tests AC-040/041, additive compatibility checks AC-008/009/011/033, fingerprint/SKIP failure checks AC-034/035, and malformed-corpus checks AC-030. The 2026-09-11 amendment names Bash --self-test and PowerShell -SelfTest for refresh failure/preservation; OQ-004 names the mandatory TEST-026 closure regression. These are concrete planned verification paths, not claims of live execution or AC-026 acceptance."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: the target checkout has no domain/ directory."
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+diff --git a/specs/epic-195-a7-compatibility/design.md b/specs/epic-195-a7-compatibility/design.md
+--- a/specs/epic-195-a7-compatibility/design.md
++++ b/specs/epic-195-a7-compatibility/design.md
+@@ -1216,3 +1216,37 @@
+ allowlist-manifest fingerprint-drift check (Data Plan; AC-035c), which
+ converts an upstream epic's silent contract drift into a hard suite
+ failure rather than a passing `SKIP` nobody re-examines.
++
++## 2026-09-11 A7 live-refresh failure and OQ-004 disposition amendment
++
++This amendment governs AC-031/T-012's manual live refresh and OQ-004. It
++supersedes any local-only description insofar as that description includes
++the explicitly authorized manual external refresh. Gating comparisons remain
++offline; this amendment neither authorizes unattended live calls nor changes
++AC-009/AC-026's known-unsatisfied status.
++
++For each requested fixture, a missing CLI, failed authentication, unavailable
++service, nonzero CLI exit (even with apparently valid output), malformed
++response, or structural-validation failure is an error, not SKIP or PASS.
++The command exits nonzero and must not create or replace that fixture's corpus
++file. Already existing bytes remain unchanged. Validation precedes replacement.
++With --fixture all, F1 and F2 are sequential operations, not a transaction:
++a successfully refreshed F1 may remain if F2 subsequently fails. Record which
++fixture completed; do not claim that the entire corpus refreshed successfully.
++
++Evidence: tests/structural-compatibility-live-refresh.tests.sh refresh_one
++checks CLI exit and validate_candidate before mv; its self_test exercises
++authentication, service, and output-then-failure with existing and absent
++targets. The PowerShell twin's Invoke-Refresh and Invoke-SelfTest exercise
++the same boundary. Re-run both --self-test / -SelfTest commands against the
++reviewed commit before relying on the preservation claim. This uses only a
++local stub and proves no actual service availability.
++
++OQ-004 resolution owner: the A7 producer-contract maintainer implementing the
++AC-009/assert_terminal correction and its TEST-026 regression.
++Blocks Implementation: no, for independent compatibility work; yes, for
++claiming AC-026 or final A7 acceptance is satisfied. The concrete closure
++test in Open Questions remains mandatory: exactly one terminal event after
++successful terminal evaluation and none on failed comparison or early return.
++The recorded deferral is not evidence of satisfaction. No freeze, acceptance
++criterion, or historical failed result is relaxed by this disposition.
+diff --git a/specs/epic-195-a7-compatibility/security-spec.md b/specs/epic-195-a7-compatibility/security-spec.md
+--- a/specs/epic-195-a7-compatibility/security-spec.md
++++ b/specs/epic-195-a7-compatibility/security-spec.md
+@@ -185,3 +185,36 @@
+   capture/promote contract), or Protected-File Statement, each already
+   fixed at Spec-Review-Status: Passed; no new security judgment is
+   introduced by this document.
++
++## 2026-09-11 AC-031 manual external boundary amendment
++
++This section supersedes Framing's External Integrations: None,
++Authentication Flow's all-local assertion, Data Classification's
++filesystem-only statement, and Secrets Management's no-authentication
++description ONLY for the authorized manual AC-031/T-012 refresh. All gating
++tests and recorded-corpus comparisons remain offline.
++
++Boundary B6: the orchestrator's manually invoked existing Claude CLI sends
++the F1/F2 structural fixture prompt to its configured external provider using
++the user's existing CLI session. Authentication belongs to that CLI; these
++wrappers must not collect, copy into fixtures, or log credentials. Fixture
++requests must not include private repository content or secrets. Provider
++responses cross back into local test data as untrusted text, never instructions
++to execute. Parse the response contract and validate paths, schema, headings,
++status fields, and identifiers before replacing the affected corpus file.
++The prompt's instruction not to write files is a behavioral request, not a
++sandbox or a guarantee about the external CLI's own tool permissions.
++
++CLI/authentication/service failure or invalid output fails the refresh and
++preserves the affected target. Sequential F1/F2 updates are not a whole-corpus
++transaction. See design.md's 2026-09-11 amendment for the exact failure and
++partial-completion policy. Existing B5 still covers offline consumption;
++B6 covers outbound data, existing CLI authentication, and inbound validation.
++
++Evidence: the Bash refresh_one and PowerShell Invoke-Refresh in
++tests/structural-compatibility-live-refresh.tests.{sh,ps1} invoke the CLI
++before validating and replacing the target. Their self-test paths exercise
++local stubs, including nonzero exit after valid-looking output. Re-verify
++these functions and run both self-tests on the review input commit. The
++test result does not certify the provider's permissions, privacy policy,
++availability, or authentication state.
+diff --git a/specs/epic-195-a7-compatibility/infra-spec.md b/specs/epic-195-a7-compatibility/infra-spec.md
+--- a/specs/epic-195-a7-compatibility/infra-spec.md
++++ b/specs/epic-195-a7-compatibility/infra-spec.md
+@@ -239,3 +239,26 @@
+   all three resolved by design.md's own Design Decisions section; no
+   infrastructure-surface question remains open for this Phase 1 package's
+   own scope.
++
++## 2026-09-11 AC-031 manual runtime amendment
++
++This section supersedes Environment's no-network/local-only description for
++the authorized manual AC-031/T-012 refresh only. Gating tests remain offline.
++The live refresh is run manually from the orchestrator session using the
++existing installed/authenticated Claude CLI; it is not a required CI job and
++must not silently substitute recorded output for a failed live invocation.
++
++No new service deployment, credential store, or unattended refresh job is
++introduced. Missing CLI/authentication, service unavailability, nonzero exit,
++or unusable response fails the requested refresh and preserves the affected
++corpus file. --fixture all is sequential, so a completed first fixture can
++remain when the second fails. Report partial completion as failure of the
++overall request, not successful regeneration. Retry only after investigating
++the failed invocation; do not alter baselines to disguise failure.
++
++Evidence: tests/structural-compatibility-live-refresh.tests.sh refresh_one
++and the PowerShell twin's Invoke-Refresh enforce invocation/validation before
++replacement. Both self-tests exercise offline failure preservation. Re-run
++them and inspect the gating runner registrations at the reviewed commit.
++This amendment describes that scoped runtime dependency, not an assertion
++that a live service or real Windows host has been verified.

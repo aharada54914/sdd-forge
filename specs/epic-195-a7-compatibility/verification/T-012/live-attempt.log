@@ -1,0 +1,23 @@
+T-012 direct live-model attempt — 2026-08-30
+
+Command:
+  bash tests/structural-compatibility-live-refresh.tests.sh
+Exit code: 1
+Output:
+  FAIL: F1 live invocation failed
+
+Diagnostic command (same sanctioned executable and output mode):
+  claude -p 'Return only the word OK.' --output-format json
+Exit code: 1
+Relevant structured response fields:
+  is_error: true
+  terminal_reason: api_error
+  duration_api_ms: 0
+  input_tokens: 0
+  output_tokens: 0
+  result: Not logged in · Please run /login
+
+Conclusion:
+  The subprocess starts, but this sandbox has no authenticated Claude Code
+  session. No live model response was produced and no corpus entry changed.
+  The authenticated outer orchestrator must run the first command verbatim.

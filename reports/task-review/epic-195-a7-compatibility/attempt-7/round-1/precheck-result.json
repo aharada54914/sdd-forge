@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 7,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c",
+  "tasks_sha256_form": "normalized",
+  "requirements_sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "design_sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1",
+  "traceability_sha256": "9f448696c1ab742c52abc3f143a7b3337891a36d3eb1c91c87a089f37c9c5f00",
+  "frozen_artifact_done_when": [{"task":"T-005","line":844,"item":"- [ ] `assert_artifacts_schema` is byte-identical to its pre-task form; `assert_terminal` is byte-identical to its pre-task form apart from the one sanctioned `_loop_trace_emit done-transition:assert-terminal` call design.md's per-kind producer table places inside `assert_terminal`, and matches the `assert_terminal` function-body hash TEST-009 records; `assert_capability_applicability` is the only reader of the new field (AC-009)."}],
+  "layer_sha256": {"ux-spec.md":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba","frontend-spec.md":"78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1","infra-spec.md":"2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79","security-spec.md":"583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"},
+  "input_sha256": "59ecb6ef8c5b35b05358b3d9951cfc0295354fc9c5512d938f3c4584afbf1d69",
+  "generated_at": "2026-09-11T13:15:57Z"
+}

@@ -185,3 +185,36 @@ External Integrations: "None"). REQ: REQ-002, REQ-003, REQ-006, REQ-007.
   capture/promote contract), or Protected-File Statement, each already
   fixed at Spec-Review-Status: Passed; no new security judgment is
   introduced by this document.
+
+## 2026-09-11 AC-031 manual external boundary amendment
+
+This section supersedes Framing's External Integrations: None,
+Authentication Flow's all-local assertion, Data Classification's
+filesystem-only statement, and Secrets Management's no-authentication
+description ONLY for the authorized manual AC-031/T-012 refresh. All gating
+tests and recorded-corpus comparisons remain offline.
+
+Boundary B6: the orchestrator's manually invoked existing Claude CLI sends
+the F1/F2 structural fixture prompt to its configured external provider using
+the user's existing CLI session. Authentication belongs to that CLI; these
+wrappers must not collect, copy into fixtures, or log credentials. Fixture
+requests must not include private repository content or secrets. Provider
+responses cross back into local test data as untrusted text, never instructions
+to execute. Parse the response contract and validate paths, schema, headings,
+status fields, and identifiers before replacing the affected corpus file.
+The prompt's instruction not to write files is a behavioral request, not a
+sandbox or a guarantee about the external CLI's own tool permissions.
+
+CLI/authentication/service failure or invalid output fails the refresh and
+preserves the affected target. Sequential F1/F2 updates are not a whole-corpus
+transaction. See design.md's 2026-09-11 amendment for the exact failure and
+partial-completion policy. Existing B5 still covers offline consumption;
+B6 covers outbound data, existing CLI authentication, and inbound validation.
+
+Evidence: the Bash refresh_one and PowerShell Invoke-Refresh in
+tests/structural-compatibility-live-refresh.tests.{sh,ps1} invoke the CLI
+before validating and replacing the target. Their self-test paths exercise
+local stubs, including nonzero exit after valid-looking output. Re-verify
+these functions and run both self-tests on the review input commit. The
+test result does not certify the provider's permissions, privacy policy,
+availability, or authentication state.

@@ -1111,8 +1111,29 @@ what AC-028 requires.
 
 ## External Integrations
 
-None. Every target in this package is internal to the repository
-(existing scripts, schemas, templates, and the future golden baseline).
+None, with one sanctioned exception: AC-031's own non-gating,
+run-manually-only live-model structural-comparison refresh test (T-012)
+is the sole external integration this package permits. It is deliberately
+excluded from every gating path (`tests/run-all.sh`,
+`.github/workflows/test.yml`) precisely because it depends on a live
+external call this package's own Constraint Compliance (internal-only,
+deterministic) forbids for anything CI-gated. Every other target in this
+package is internal to the repository (existing scripts, schemas,
+templates, and the future golden baseline).
+
+That one exception's own invocation contract: `claude -p` (Claude Code
+CLI headless mode, `--output-format json`), invoked directly by the
+orchestrating session rather than nested inside another agentic CLI
+process (which this package's own investigation recorded as failing under
+sandboxed nesting); the same fixture-matrix cell inputs (F1/F2) the
+recorded `structural-fixture-corpus/v1` entries were originally captured
+from, driving the identical `sdd-bootstrap-interviewer` structural-
+generation path; authentication via whatever the invoking environment's
+existing `claude` CLI session already relies on, introducing no new
+credential handling; response extraction from the JSON response's final
+result text into the corpus schema's `artifacts[]` shape; and Bash/
+PowerShell parity by having both wrapper scripts shell out to the same
+`claude` binary on `PATH` with identical arguments.
 
 ## Deployment / CI Plan
 
@@ -1195,3 +1216,37 @@ smaller, independently reviewable first change. The Critical risk
 allowlist-manifest fingerprint-drift check (Data Plan; AC-035c), which
 converts an upstream epic's silent contract drift into a hard suite
 failure rather than a passing `SKIP` nobody re-examines.
+
+## 2026-09-11 A7 live-refresh failure and OQ-004 disposition amendment
+
+This amendment governs AC-031/T-012's manual live refresh and OQ-004. It
+supersedes any local-only description insofar as that description includes
+the explicitly authorized manual external refresh. Gating comparisons remain
+offline; this amendment neither authorizes unattended live calls nor changes
+AC-009/AC-026's known-unsatisfied status.
+
+For each requested fixture, a missing CLI, failed authentication, unavailable
+service, nonzero CLI exit (even with apparently valid output), malformed
+response, or structural-validation failure is an error, not SKIP or PASS.
+The command exits nonzero and must not create or replace that fixture's corpus
+file. Already existing bytes remain unchanged. Validation precedes replacement.
+With --fixture all, F1 and F2 are sequential operations, not a transaction:
+a successfully refreshed F1 may remain if F2 subsequently fails. Record which
+fixture completed; do not claim that the entire corpus refreshed successfully.
+
+Evidence: tests/structural-compatibility-live-refresh.tests.sh refresh_one
+checks CLI exit and validate_candidate before mv; its self_test exercises
+authentication, service, and output-then-failure with existing and absent
+targets. The PowerShell twin's Invoke-Refresh and Invoke-SelfTest exercise
+the same boundary. Re-run both --self-test / -SelfTest commands against the
+reviewed commit before relying on the preservation claim. This uses only a
+local stub and proves no actual service availability.
+
+OQ-004 resolution owner: the A7 producer-contract maintainer implementing the
+AC-009/assert_terminal correction and its TEST-026 regression.
+Blocks Implementation: no, for independent compatibility work; yes, for
+claiming AC-026 or final A7 acceptance is satisfied. The concrete closure
+test in Open Questions remains mandatory: exactly one terminal event after
+successful terminal evaluation and none on failed comparison or early return.
+The recorded deferral is not evidence of satisfaction. No freeze, acceptance
+criterion, or historical failed result is relaxed by this disposition.

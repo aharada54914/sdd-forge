@@ -1,0 +1,141 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 7,
+  "round": 1,
+  "run_id": "RUN-a7-task-a7r1-b-58407a82-ec42-41d8-b1fa-a5972c90345c",
+  "host_session_id": "SESS-a7-task-a7r1-b-b471f234-75e3-4dd4-9090-37b251ba12ee",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c"
+      },
+      {
+        "path": "specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "9f448696c1ab742c52abc3f143a7b3337891a36d3eb1c91c87a089f37c9c5f00"
+      },
+      {
+        "path": "reports/task-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
+        "sha256": "cb18c6673945432046423bb3050679d6603302a5b00de79ef0b69653d659861e"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "reports/task-review/epic-195-a7-compatibility/attempt-7/round-1/integrated-summary.json",
+        "sha256": "e22027d506e21d4bc16782b86c2d499931bedb6fd252bec06a9deb1b495a7fe5"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-008 and T-013 declare Risk: high but their actual scopes are test-only. T-008 adds fingerprint/spy/stop assertions exclusively inside existing test suites; T-013 authors AC-040/AC-041 observation checks plus their run-all registration, explicitly excludes changes to the promoter and CI workflow, and states that the tests 'only observe' the promoter. Their rationales attribute the sensitivity of the tested boundary to the test-authoring work. The reviewer role explicitly classifies high-risk test-only scope as Major over-classification: it imposes unnecessary high-tier TDD/evidence controls. No prior hash-bound PASS evidence in the allowed inputs establishes applicability of the TYPE-H convergence exception. This finding does not authorize lowering an approved tier without human re-approval."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md T-002, T-004, T-005, T-008, T-009, T-010, T-011, T-012 and T-013 each plan explicit RED/GREEN evidence and an independent quality-gate verdict in Done When, with negative-fixture-before-implementation sequencing in their scopes. No task declares critical risk. These are inspectable planned evidence obligations, not claims that execution or independent verification has succeeded."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md separates the fixture builder, baseline promotion, byte comparison, structural canonicalization, shared event driver, two event consumers, deferred assertions, emitter extension, SKIP evaluator, registration, manual refresh, and CI guard tests into T-001–T-013. Bash/PowerShell twins implement the same concern. T-011 and T-013 now separate registration from guard-test authorship. The task scopes remain coherent, with no greater-than-eight-item Done When list or trivial multi-task fragmentation."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The functional helper and mutation paths have concrete negative scenarios: T-002/AC-041 CI and approval refusal; T-004/AC-030 malformed canonicalizer input; T-005/AC-009 absent-field and existing-helper preservation; T-009/AC-033 capability-only usage error with no output; T-010/AC-035 unknown SKIP, dependency-present SKIP and fingerprint drift; and T-012/AC-031's dated amendment covers missing CLI, authentication/service failure, nonzero exit, malformed response, and preservation of the failed fixture's bytes. OQ-004 is explicitly unresolved and blocks claiming AC-026/final A7 acceptance; no satisfaction is inferred."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md and tasks.md consistently describe fixture-driven integration checks across builder, scripts, collector/comparator, corpus or manifest. T-006/T-007 compare driven events against golden traces; T-008 combines upstream caller/spy fixtures with event assertions; T-013 combines workflow-text scanning with direct promoter invocation. Static assertions are identified as such, and acceptance outcomes cite AC identifiers. No purported unit-only test spans an undeclared multi-component workflow."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every declared high-risk task includes a Rollback field referencing explicit commit reversal and infra-spec.md#rollback. T-011 accounts for the separately applied protected-file change; T-012 includes reverting corpus changes. The manual-refresh amendment additionally requires validation before replacement and preserves the failed fixture, while explicitly disclosing that --fixture all is sequential rather than transactional."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Global Constraints serialize shared run-all registration edits and assign the CI workflow solely to T-011. T-008 blocks on T-006/T-007 before extending their cases; T-010 blocks on the suites whose SKIP sources it rewires; T-012 follows T-004 before refreshing its corpus. T-013 excludes promoter and CI edits. No uncoordinated same-file/same-purpose parallel modification is specified."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-007 Depends On and Blockers require T-006 solely because T-006 creates tests/fixtures/compatibility-event-trace/. T-007 authors different golden traces and modifies the escalation suite, while T-006 modifies the consistency suite; both already depend on T-001 and T-005 for their actual functional inputs. T-007 names no T-006-produced fixture content or API that it consumes. Directory existence alone is not a genuine implementation dependency: creating the directory idempotently permits T-007 to proceed. This spurious blocker unnecessarily lengthens the critical path and meets the role's Major DEPENDENCY-OVERLAP criterion. Shared run-all serialization elsewhere is distinct because those tasks modify the same registration arrays."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "RISK-APPROPRIATE",
+      "severity": "Major",
+      "task_id": "T-008",
+      "finding": "tasks.md T-008 and T-013 are declared high risk despite test-only scopes. T-008 only adds test sub-cases; T-013 adds observation checks and test registration and explicitly excludes promoter/CI implementation changes. Sensitivity of the tested boundary does not remove the role's explicit Major over-classification rule for test-only work. The mismatch imposes unnecessary high-tier TDD/evidence obligations. Resolve the classification through human review; an approved-tier downgrade is not authorized by this finding."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "tasks.md T-007 Depends On/Blockers lists T-006 solely for creation of tests/fixtures/compatibility-event-trace/. The tasks produce separate trace fixtures in separate suites, and T-007's functional dependencies are T-001/T-005. No T-006-generated content is consumed. Directory creation can be idempotent; requiring T-006 completion adds a spurious blocking edge and inflates the critical path."
+    }
+  ]
+}

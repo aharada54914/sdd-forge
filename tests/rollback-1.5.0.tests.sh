@@ -199,8 +199,24 @@ jq -e '
 # current worktree files, whose hashes legitimately drift after the release.
 t008_release_commit="9ce412176eea876aff945e665ccd0884a1540181"
 canonical_release="$TMP/canonical-release"
-git clone -q "$ROOT" "$canonical_release"
-git -C "$canonical_release" checkout -q "$t008_release_commit"
+canonical_remote="$(git -C "$ROOT" config --get remote.origin.url || true)"
+[[ -n "$canonical_remote" ]] || fail "canonical release remote is not configured"
+mkdir -p "$canonical_release"
+git -C "$canonical_release" init -q
+git -C "$canonical_release" remote add origin "$canonical_remote"
+# The repository checkout may be a blob-less partial clone.  A local clone of
+# it can therefore produce a worktree with missing release blobs.  Fetch the
+# pinned release commit from the authoritative remote without a filter so the
+# materialized validation tree is complete and deterministic.
+canonical_contract="$ROOT/contracts/rollback-1.5.0.json"
+[[ -f "$canonical_contract" ]] || fail "missing canonical rollback contract"
+while IFS= read -r release_commit; do
+  [[ "$release_commit" =~ ^[a-f0-9]{40}$ ]] || fail "invalid canonical release commit"
+  git -C "$canonical_release" fetch -q --no-tags --depth=1 origin "$release_commit" ||
+    fail "cannot fetch canonical release commit: $release_commit"
+done < <(jq -r '.baseline_commit, .reviewed_release_commit' "$canonical_contract"; printf '%s\n' "$t008_release_commit")
+git -C "$canonical_release" checkout -q --detach FETCH_HEAD ||
+  fail "cannot materialize canonical release commit"
 baseline_release_validator="$TMP/baseline-release-validator.sh"
 cat > "$baseline_release_validator" <<'VALIDATOR'
 #!/usr/bin/env bash

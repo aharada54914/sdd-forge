@@ -1,0 +1,134 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "impl-orch-a7-a5r2-20260911-6d3ea136-9bae-46dc-a7a2-211ba2d49649",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 5,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "prior_round_contract_sha256": "57df21f67fd8add048479793e81b585c8c5d384e7b6c7c9a56237871394d9c99",
+  "requirements_sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "design_sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1",
+    "infra-spec.md": "2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79",
+    "security-spec.md": "583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-a7-impl-a5r2-a-cc5a821c-87c7-4d06-9b85-fc39c9affa03",
+      "host_session_id": "SESS-a7-impl-a5r2-a-0a7cb845-aef8-4c12-93f3-e5da34328116",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json",
+          "sha256": "7c3e3a51a75c75692f687816e6402538e3a3fc658848fcce195a0e61cedc4d55"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-1/integrated-summary.json",
+          "sha256": "221ca933cdba60bdb670b3a9b2f18da339195daca22240a881bdd716a50d12bc"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-a7-impl-a5r2-b-94de702a-26b7-4f4f-b120-389b0a3f45ca",
+      "host_session_id": "SESS-a7-impl-a5r2-b-6c37be97-d581-46ba-b3a8-36a5e64e1aa2",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2d16f82bd6daed75d4400682f163f5579bbc8284d1efe0e279cc3cf436295da1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "5996cec98663d1dd29f20c4bb0ec5986e5976de35539fe641969b3e95d34f05a"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "2a24017b50e86a0f97493b000b6b7d9212c9ec2341c27ace2bad8cac4644be79"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "583a4c8a2c3d5299cead69ced7d6f3ef94060267bd975a63d86eabcdc6cde019"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json",
+          "sha256": "7c3e3a51a75c75692f687816e6402538e3a3fc658848fcce195a0e61cedc4d55"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-5/round-2/integrated-summary.json",
+          "sha256": "28eda3c49c32a0fc5b042b7211dec80d5270074f3a01ead9f3c21a9eae8f7504"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Human applied the three 2026-09-11 amendments to design.md, infra-spec.md and security-spec.md: manual AC-031 refresh execution/failure/preservation and trust boundary; OQ-004 owner and acceptance-blocking TEST-026 closure path. This round binds the actual supplied hashes. OQ-004 and AC-026 are not declared satisfied; historical FAIL evidence is retained.",
+  "timestamp": "2026-09-11T13:14:48Z"
+}
