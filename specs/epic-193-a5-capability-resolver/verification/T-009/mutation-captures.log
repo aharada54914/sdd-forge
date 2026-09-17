@@ -21,7 +21,6 @@ RESULT: 67 passed, 3 failed
 FAIL: TEST-022 quick-block-canonicalizer-invocation-failed: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022): {'invocation_1': {'exit': 1, 'stdout': b'', 'stderr': b'capabili
 FAIL: TEST-023 canonicalizer-invocation-failed: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023): {'py': {'exit': 1, 'stdout': b'', 'stderr': b'capability-resolver: canonicalizer-invocation-failed: canonic
 FAIL: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it): error: Could not access 'HEAD'
-
 ==============================================================================
 mutation: m2-ps1-extra-byte
 RESULT: 65 passed, 5 failed
@@ -44,4 +43,3 @@ RESULT: 68 passed, 2 failed
 -- representative FAIL line(s) this mutation produced (non-vacuity proof) --
 FAIL: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no datetime.now()/time.time()/network-primitive call (AC-025): ['time.time()']
 FAIL: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it): error: Could not access 'HEAD'
-
