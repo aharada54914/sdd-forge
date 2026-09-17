@@ -167,6 +167,10 @@ function Test-ManifestContract {
     foreach ($assertion in $expectedIds) {
         if ($source -notmatch "skip_allowlist_line[^`n]*$assertion") { Fail "AC-016 $assertion output is not sourced through skip_allowlist_line"; return }
     }
+    $ps1Source = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/structural-compatibility.tests.ps1')
+    foreach ($assertion in @('AC-007', 'AC-042', 'AC-043')) {
+        if ($ps1Source -notmatch "line\s+\`$Manifest\s+[^`n]*$assertion") { Fail "AC-016 $assertion output in structural-compatibility.tests.ps1 is not sourced through evaluator line"; return }
+    }
     Pass 'AC-016 all five fixed SKIP assertions read from the manifest helper'
     $rendered = & pwsh -NoProfile -File $Evaluator line $ShippedManifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
     $renderExit = $LASTEXITCODE
