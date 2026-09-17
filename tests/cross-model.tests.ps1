@@ -218,6 +218,12 @@ $stubResponse = @{
     input_digest = ("a" * 64)
     consent = @{ kind = "human-flag"; ref = "test fixture" }
 } | ConvertTo-Json -Compress -Depth 5
+if ($env:STUB_WARMUP -eq "1") {
+    # Prime the same wrapper/pwsh process path used by the timed boundary
+    # cases, without introducing a second timing contract into the test.
+    [Console]::Out.WriteLine($stubResponse)
+    exit 0
+}
 
 # Boundary cases derive their target from the exact absolute deadline exported
 # by the runner. This deducts child startup jitter without moving completion
@@ -645,6 +651,19 @@ try {
     $nearBoundaryMarginMs = 800
     $nearBoundaryBudgetSec = 2
     foreach ($runner in $panelistRunners) {
+        # Windows-hosted runners can pay a one-time process/runtime startup
+        # cost on the first Gemini invocation. Warm the exact runner + stub
+        # path once, outside the measured cases, so TEST-004(c) continues to
+        # exercise the unchanged 2s deadline and 800ms completion margin.
+        $warmupRoot = Join-Path $workDir "boundary-$($runner.Name)-warmup/specs"
+        Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "5" `
+            -SpecRoot $warmupRoot -StubEnvironment @{ STUB_WARMUP = "1" }
+        $warmupVerdict = Join-Path $warmupRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+        if ($script:panelistExit -eq 0 -and (Test-Path $warmupVerdict)) {
+            Ok "TEST-004(c): $($runner.Name) startup warm-up"
+        } else {
+            Fail "TEST-004(c): $($runner.Name) startup warm-up (exit=$script:panelistExit)"
+        }
         for ($iteration = 1; $iteration -le 5; $iteration++) {
             $deadlineMs = $nearBoundaryBudgetSec * 1000
             $caseName = "boundary-$($runner.Name)-$iteration"
