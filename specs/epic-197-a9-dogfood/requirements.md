@@ -63,8 +63,8 @@ cross-cutting form (`contracts/project-context.schema.json:67-76`;
 
 The component inventory shall preserve meaningful differences between plugin,
 MCP, installer, CI, and release surfaces. In particular, credential-bearing CI
-MCP and release publication shall not inherit a blanket “no credentials/no
-write” characteristic from the read-only local services (`README.md:108-150`;
+MCP and release publication shall not inherit a blanket "no credentials/no
+write" characteristic from the read-only local services (`README.md:108-150`;
 `.github/workflows/release.yml:26-50`).
 
 Because the approved OQ-001 decomposition keeps all MCP services in one `mcp`
@@ -72,16 +72,36 @@ component and OQ-002 places release automation under a cross-cutting rule,
 component-level booleans alone cannot express these two distinctions. Per the
 owner ruling of 2026-09-04 (recorded under OQ-001), the Context schema's
 component records shall accept an additive, optional list of scoped
-characteristic-override entries. Each entry names (a) a scope — a sub-service
-path prefix inside the owning component, or an approved cross-cutting rule —
-(b) the single characteristic being overridden, (c) its overridden boolean
-value, and (d) a one-line rationale. The live Context shall carry exactly two
-such overrides in Phase 1: `mcp/ci-mcp` marked credential-bearing on the
-`mcp` component, and the approved release-automation cross-cutting rule marked
-release-write. Validation shall reject an override naming an unknown
-characteristic, a scope outside its owning component or rule, or a value equal
-to the record's own baseline (a no-op override). Characteristic tests (AC-007)
-shall read overrides when distinguishing the CI-MCP credential and
+characteristic-override entries.
+
+**Valid override characteristic namespace.** The seven base characteristics
+used on component and shared-path records (e.g. `has_ui`, `is_published`,
+`is_runtime`, `is_privileged`, `is_public_api`, `is_installable`,
+`is_test_only`) remain entirely unchanged by this extension. The only
+additional machine names introduced for use inside `characteristic_overrides`
+entries are `credential_bearing` (human label: "credential-bearing") and
+`release_write` (human label: "release-write"). Any name other than these two
+is unknown and shall be rejected by validation; no further override-only names
+are introduced by this epic.
+
+**Additive schema boundary.** The optional `characteristic_overrides` list is
+permitted only on two record types: (1) component records, and (2) approved
+shared-path (cross-cutting) rules. No other schema record types, and no
+additional top-level or nested fields beyond `characteristic_overrides`, are
+introduced by this extension. Each entry in the list must contain exactly four
+fields: `scope` (a sub-service path prefix inside the owning component, or the
+name of an approved cross-cutting rule), `characteristic` (one of the two
+override-only machine names above), `value` (a boolean), and `rationale` (a
+non-empty one-line string). Entries with any missing or extra field, any
+unrecognised `characteristic` name, a `scope` not covered by the owning
+component's include set or the referenced cross-cutting rule, or a `value`
+equal to the record's own baseline (a no-op override) shall be rejected.
+
+The live Context shall carry exactly two such overrides in Phase 1: `mcp/ci-mcp`
+with `characteristic: credential_bearing` and `value: true` on the `mcp`
+component record, and the approved release-automation cross-cutting rule with
+`characteristic: release_write` and `value: true`. Characteristic tests
+(AC-007) shall read overrides when distinguishing the CI-MCP credential and
 release-write cases. The extension is additive: a Context with no overrides
 remains valid, and existing consumers that ignore the field keep their
 behavior.
@@ -224,8 +244,8 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-027 | REQ-006 | Release-cycle evidence identifies explicit start/end releases and proves every PR in that complete cycle passed the advisory capability-mode Gate. |
 | AC-028 | REQ-008 | After required promotion, saved evidence proves at least one real feature completed the full workflow end-to-end under `facet-hybrid`. |
 | AC-029 | REQ-010 | The dogfood cycle records WFI references for observed friction or the literal result `none` when zero, covering path ownership, staleness, and approval flow. |
-| AC-030 | REQ-004 | The live Context carries exactly the two approved characteristic overrides (`mcp/ci-mcp` credential-bearing; release-automation rule release-write), and characteristic tests read them for the AC-007 distinctions. |
-| AC-031 | REQ-004 | Override validation rejects an unknown characteristic name, a scope outside the owning component or rule, and a no-op override equal to the baseline. |
+| AC-030 | REQ-004 | The live Context carries exactly two `characteristic_overrides` entries and no others: (a) on the `mcp` component record, `scope: mcp/ci-mcp`, `characteristic: credential_bearing`, `value: true`; and (b) on the approved release-automation cross-cutting rule, `characteristic: release_write`, `value: true`. Characteristic tests read both entries and use them for the AC-007 distinctions. A fixture with any other count, any differing scope, characteristic, or value rejects. |
+| AC-031 | REQ-004 | Override validation rejects: (a) any entry whose `characteristic` value is not `credential_bearing` or `release_write` (unknown name); (b) any entry whose `scope` is not covered by the owning component's include set or the referenced cross-cutting rule (out-of-scope); (c) any entry whose `value` equals the record's own baseline for that characteristic (no-op). Each rejection condition is exercised by a separate negative fixture. |
 | AC-032 | REQ-003 | Ownership validation verifies that every component include set matches tracked paths and that the recomputed ownership digest matches the recorded digest; an empty include match or mismatched digest each blocks publication. |
 | AC-033 | REQ-008 | Required-enforcement activation rejects when the selected Pack evidence is missing, resolver evidence is missing, or both are missing. |
 | AC-034 | REQ-009 | A registry-cardinality change between rollback request and effective time forces branch re-evaluation with the current registry (a solo cooldown in progress becomes two-party when a second identity is registered). |
@@ -248,7 +268,7 @@ tasks.
 | Promotion record | Saved, reviewable decision evidence for moving Phase 1 to Phase 2. |
 | Rollback | Policy-weakening `required` to `advisory` transition. |
 | Representative change | A plugin-code change touching at least one owned plugin component in the approved nine-component inventory, never a docs-only change. Under OQ-006 it takes the full track and exercises the selected Pack's predicate/facet/gate machinery. |
-| Characteristic override | An additive, scoped entry on a component record or approved cross-cutting rule that sets one characteristic boolean for a named sub-scope, with rationale (REQ-004). |
+| Characteristic override | An additive, scoped entry permitted only on component records or approved shared-path (cross-cutting) rules, setting one of the two override-only characteristics (`credential_bearing` or `release_write`) to a boolean value for a named sub-scope, with rationale (REQ-004). Any other characteristic name is unknown and rejected. |
 
 ## Roles and Permissions
 

@@ -8685,6 +8685,46 @@
       "host_session_id": "SESS-spec-a1r1-b4-epic-197-a9-dogfood-0965",
       "previous_record_sha256": "fc699e75b54ac0bf4ced95ec6aa8659637158f604351e95d7d5d713247a9c168",
       "record_sha256": "d59d541ce563b6f6e1b5df9372b1eed654780bc1def0108c8cd007bb3045e551"
+    },
+    {
+      "sequence": 966,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-a-seq0966",
+      "host_session_id": "SESS-spec-a1r2-a-epic-197-a9-dogfood-0966",
+      "previous_record_sha256": "d59d541ce563b6f6e1b5df9372b1eed654780bc1def0108c8cd007bb3045e551",
+      "record_sha256": "59dea695750c2aa3ef8762affbc29d679648cf5147852eaf21bf2a72a4d51774",
+      "allowed_inputs_sha256": "8fd50f9d21a70292dfddb14bfc16a4894d08e8b0da384e968629b63a753071b0"
+    },
+    {
+      "sequence": 967,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-b-seq0967",
+      "host_session_id": "SESS-spec-a1r2-b-epic-197-a9-dogfood-0967",
+      "previous_record_sha256": "59dea695750c2aa3ef8762affbc29d679648cf5147852eaf21bf2a72a4d51774",
+      "record_sha256": "7983d29b8813b0de4969c4eede2909148f8d36afee3448169bbb15fce2626dbe",
+      "allowed_inputs_sha256": "4072e9cd0506147a824a627ece144c50afa419cdb5427b6737d99c74c863f84e"
+    },
+    {
+      "sequence": 968,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-a-seq0968",
+      "host_session_id": "SESS-spec-a1r3-a-epic-197-a9-dogfood-0968",
+      "previous_record_sha256": "7983d29b8813b0de4969c4eede2909148f8d36afee3448169bbb15fce2626dbe",
+      "record_sha256": "328d0b77afde0ca523bc8fc69b86611f319f049480f8c509d06efb211dd3dd70",
+      "allowed_inputs_sha256": "113a115ee1f02824ed0c0df34d2d95bc9c2b495a9a0bb2c3c1dbed7b081c083f"
+    },
+    {
+      "sequence": 969,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-b-seq0969",
+      "host_session_id": "SESS-spec-a1r3-b-epic-197-a9-dogfood-0969",
+      "previous_record_sha256": "328d0b77afde0ca523bc8fc69b86611f319f049480f8c509d06efb211dd3dd70",
+      "record_sha256": "daab1c3905c81447fd39cc56e9c034dc89407a4c4d45ff4236d49b9944da468b",
+      "allowed_inputs_sha256": "d0dc57edae57a2422d51bb4f8719eb39aa798fd4b29d210478356ba4d67eb8cb"
     }
   ]
 }
