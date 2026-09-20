@@ -1012,9 +1012,9 @@ Requirements: REQ-003 (AC-010, AC-019, AC-020, AC-025, AC-027)
 
 Depends On: T-001 (functional — constructs the Context-absent and
 F3/F4-invalid round-drive fixtures), T-005 (functional — the collector/
-comparator functions this case calls), T-006 (functional — creates the
-shared `tests/fixtures/compatibility-event-trace/` directory this task's
-own Planned Files entry, below, states is "existing after T-006").
+comparator functions this case calls). The golden-trace directory is
+created idempotently by this task when absent; T-006's separate suite
+does not produce an API or fixture consumed here.
 
 Planned Files:
 - `tests/loop-escalation.tests.sh` (existing, agent-editable — new
@@ -1109,26 +1109,18 @@ Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Implementation Complete
 
-Risk: high
+Risk: medium
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly. `high` is justified: this task implements Security Boundary B4
-(security-spec.md#trust-boundaries — "a normative citation of another
-epic's own spec text must never silently point at content that has since
-changed underneath it"); AC-036 is literally the fingerprint-drift
-enforcement test this repository relies on to catch exactly the NEW-001
-class of failure design.md's own Design Decisions documents. The
-Resolver-non-invocation spy (AC-004, AC-021) is also an access-control-
-adjacent absence-check: a silent defect (the spy reporting "not invoked"
-when it was) would let a Context-absent-or-invalid run silently invoke
-capability machinery undetected, exactly the "silent defect causes
-material harm" surface the policy's `high` tier names. It is not
-`critical`: no financial-settlement, physical-safety, or irreversible-
-destructive surface. Required Workflow is `tdd` per the policy's
-high-tier row.
+directly. This task only adds assertions and fixtures inside existing test
+suites; it does not implement or modify Security Boundary B4 or any shared
+runtime/production path. A defect in these tests is observable through the
+suite's own pass/fail result and is recoverable by reverting the test change,
+so the medium tier is appropriate for integration-test consumers. Required
+Workflow is `acceptance-first` per the policy's medium-tier row.
 
-Required Workflow: tdd
+Required Workflow: acceptance-first
 
 Security-Sensitive: true
 
@@ -1869,25 +1861,18 @@ Approval: Approved
 
 Status: Implementation Complete
 
-Risk: high
+Risk: medium
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly. `high` is justified: this task authors the two checks
-(AC-040/AC-041) that close Security Boundary B1's structural verification
-loop (security-spec.md#trust-boundaries — "AC-040's static check
-independently verifies CI's own workflow file never references either
-mutation-capable command; AC-041 exercises the script's own runtime
-refusal directly"). A silent defect (the static scan missing a reference,
-or the runtime-refusal fixtures not actually invoking the guard) would
-let a future CI job accidentally wire a mutation-capable golden-baseline
-command into `.github/workflows/test.yml` undetected — the exact
-"Broken Access Control"/"Security Misconfiguration" surface
-security-spec.md's own OWASP Mapping names. It is not `critical`: no
-financial-settlement, physical-safety, or irreversible-destructive
-surface. Required Workflow is `tdd` per the policy's high-tier row.
+directly. This task only authors read-only static and negative integration
+tests; it does not edit `.github/workflows/test.yml` or the
+`promote-golden-baseline` implementation. A defective assertion is visible
+as a test failure and is recoverable by reverting the test files, so the
+medium tier is appropriate for test-only work. Required Workflow is
+`acceptance-first` per the policy's medium-tier row.
 
-Required Workflow: tdd
+Required Workflow: acceptance-first
 
 Security-Sensitive: true
 

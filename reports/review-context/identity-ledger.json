@@ -8685,6 +8685,42 @@
       "host_session_id": "SESS-a7-task-a7r1-b-b471f234-75e3-4dd4-9090-37b251ba12ee",
       "previous_record_sha256": "e5a8e8d1508982a33c9cee054c681200da987ef25f71ca0818e93a26f1db77c9",
       "record_sha256": "0fa5ab71640557db16b0b4aa7df5eb5bbd9f1199d6f6f33edd2750283edf04d8"
+    },
+    {
+      "sequence": 966,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-a7-task-a8r1-a-20260917-4f03c1a7",
+      "host_session_id": "SESS-a7-task-a8r1-a-20260917-9b17d0e2",
+      "previous_record_sha256": "0fa5ab71640557db16b0b4aa7df5eb5bbd9f1199d6f6f33edd2750283edf04d8",
+      "record_sha256": "1e749646237deae991e372efa0c00ac4c2dad61d5e610e3ed5cf4781fb0e5be0"
+    },
+    {
+      "sequence": 967,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-a7-task-a8r1-b-20260917-7d2c5e91",
+      "host_session_id": "SESS-a7-task-a8r1-b-20260917-c84f1a02",
+      "previous_record_sha256": "1e749646237deae991e372efa0c00ac4c2dad61d5e610e3ed5cf4781fb0e5be0",
+      "record_sha256": "e6f2b3a14243c4b1df66078df4f94e14797bc47c8a21cc7d4b4433fc1a3caf98"
+    },
+    {
+      "sequence": 968,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-a7-task-a9r1-a-20260920-701f9a69",
+      "host_session_id": "SESS-a7-task-a9r1-a-20260920-c51bac7f",
+      "previous_record_sha256": "e6f2b3a14243c4b1df66078df4f94e14797bc47c8a21cc7d4b4433fc1a3caf98",
+      "record_sha256": "b71bd48dd1b613543abe50effe5e81f711e29d47fda00bb59254c864a229b71f"
+    },
+    {
+      "sequence": 969,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-a7-task-a9r1-b-20260920-4c72e1aa",
+      "host_session_id": "SESS-a7-task-a9r1-b-20260920-b7f3d902",
+      "previous_record_sha256": "b71bd48dd1b613543abe50effe5e81f711e29d47fda00bb59254c864a229b71f",
+      "record_sha256": "eac41f8123cb2450e7e18fcd4927a743fbd581f2d613b4f0ede13e05e71e2a8d"
     }
   ]
 }

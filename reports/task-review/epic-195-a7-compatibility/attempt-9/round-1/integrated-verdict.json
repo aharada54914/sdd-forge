@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "RUN-a7-task-a9r1-orch-20260920-9e4c2a71",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 9,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}
