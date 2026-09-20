@@ -148,7 +148,14 @@ def classify(root, main_digests=None):
     for bundle, rel, staged, rule in enumerate_mirrors(root):
         live = os.path.join(root, rel)
         if not os.path.isfile(live):
-            yield "MISSING", bundle, rel, staged, rule
+            # A newly introduced protected file can legitimately be staged in
+            # a human-copy bundle before the human apply lands.  origin/main
+            # distinguishes that pending state from deletion of an already
+            # published live file: only the latter is a freshness failure.
+            if main_digests.get(rel) is None:
+                yield "PENDING", bundle, rel, staged, rule
+            else:
+                yield "MISSING", bundle, rel, staged, rule
             continue
         staged_digest, live_digest = _sha_file(staged), _sha_file(live)
         if staged_digest == live_digest:
