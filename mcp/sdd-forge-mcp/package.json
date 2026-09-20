@@ -17,12 +17,12 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "js-yaml": "^5.4.2",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "2.5.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "esbuild": "^0.28.2",
