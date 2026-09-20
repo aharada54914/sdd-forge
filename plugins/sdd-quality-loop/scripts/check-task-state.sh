@@ -147,7 +147,7 @@ function finish() {
       py_risk_cmd = PYTHON_CMD " -c \"import json; c=json.load(open(\\\"" contract_path "\\\")); r=c.get(\\\"risk\\\"); print(r if r is not None else \\\"\\\")\" 2>/dev/null"
       py_risk_cmd | getline raw_risk; close(py_risk_cmd)
       contract_risk = tolower(raw_risk)
-      gsub(/^[ \t]+|[ \t]+$/, "", contract_risk)
+      gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
       if (contract_risk != "") {
         if (risk != "" && contract_risk != risk) {
           fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
@@ -158,7 +158,7 @@ function finish() {
       grep_risk_cmd = "grep -E \"^[[:space:]]*\\\"risk\\\"[[:space:]]*:[[:space:]]*\\\"[^\\\"]+\\\"\" \"" contract_path "\" | sed -n \"1s/.*:[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p\" | tr \"[:upper:]\" \"[:lower:]\""
       grep_risk_cmd | getline raw_risk; close(grep_risk_cmd)
       contract_risk = raw_risk
-      gsub(/^[ \t]+|[ \t]+$/, "", contract_risk)
+      gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
       if (contract_risk != "") {
         if (risk != "" && contract_risk != risk) {
           fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
