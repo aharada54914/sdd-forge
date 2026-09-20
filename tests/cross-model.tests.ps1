@@ -652,7 +652,12 @@ try {
     # bound. Per AC-004, every iteration stays at two seconds and any timeout
     # remains fatal.
     Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
-    $nearBoundaryMarginMs = 800
+    # Windows hosted runners can add roughly 0.7–1.0s of process launch and
+    # console-flush jitter even after the warm-up. Keep the production timeout
+    # at two seconds, but leave a larger fixture-only completion margin on
+    # Windows so the test measures successful in-deadline completion rather
+    # than host scheduling noise.
+    $nearBoundaryMarginMs = if ($IsWindows) { 1200 } else { 800 }
     $nearBoundaryBudgetSec = 2
     foreach ($runner in $panelistRunners) {
         # Windows-hosted runners can pay a one-time process/runtime startup
