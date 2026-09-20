@@ -87,7 +87,7 @@ report_bytes_are_clean() {
 evaluator_output_is_declared() {
   local path=$1 expected_hash=$2 report=$3 heading=$4
   report_bytes_are_clean "$report" || return 1
-  awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
+  LC_ALL=C awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
     # EXACT heading match. Accepting a padded heading here while
     # validate-implementation-report.sh keyed `## Outputs ` as a DIFFERENT
     # section let one invisible trailing byte smuggle arbitrary paths --
@@ -127,7 +127,7 @@ evaluator_output_is_declared() {
 implementation_report_legacy_declares() {
   local path=$1 expected_hash=$2 report=$3
   report_bytes_are_clean "$report" || return 1
-  awk -v expected_path="$path" -v expected_hash="$expected_hash" '
+  LC_ALL=C awk -v expected_path="$path" -v expected_hash="$expected_hash" '
     # EXACT match, for the same reason as evaluator_output_is_declared above.
     # Tightening only that one left THIS heading on a prefix test, so a padded
     # `## Output Paths And Hashes` was still honoured here while the report
