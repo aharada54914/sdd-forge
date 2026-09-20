@@ -2224,6 +2224,26 @@ Quality gate report for T-200.
     }
     Write-Host "ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails"
 
+    $env:SDD_EVIDENCE_SIGSTORE_VERIFIED = "0"
+    $t007a_check_4_zero_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_4_zero_exit = $LASTEXITCODE
+    $t007a_check_4_zero_str = ($t007a_check_4_zero_output | Out-String)
+    if ($t007a_check_4_zero_exit -eq 0 -or $t007a_check_4_zero_str -notmatch "SIGSTORE_VERIFIED") {
+        throw "T-007a.4.zero: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=0. Got exit $t007a_check_4_zero_exit"
+    }
+    Write-Host "ok: T-007a.4.zero: sigstore with SIGSTORE_VERIFIED=0 fails"
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
+
+    $env:SDD_EVIDENCE_SIGSTORE_VERIFIED = "false"
+    $t007a_check_4_false_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_4_false_exit = $LASTEXITCODE
+    $t007a_check_4_false_str = ($t007a_check_4_false_output | Out-String)
+    if ($t007a_check_4_false_exit -eq 0 -or $t007a_check_4_false_str -notmatch "SIGSTORE_VERIFIED") {
+        throw "T-007a.4.false: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=false. Got exit $t007a_check_4_false_exit"
+    }
+    Write-Host "ok: T-007a.4.false: sigstore with SIGSTORE_VERIFIED=false fails"
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
+
     # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
     # Create fresh bundle for T-201
     @"
