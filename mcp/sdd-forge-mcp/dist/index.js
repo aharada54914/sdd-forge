@@ -34365,7 +34365,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done") {
-    validateDoneEvidence(root, taskId, tasksDir, reportsDir, fail);
+    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail);
   }
   if (status === "Implementation Complete") {
     if (!hasAnyFileMentioning(root, implReportsDir, taskId)) {
@@ -34395,7 +34395,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     tasks.push(buildTaskEntry(taskId, draft, approval, status, blockersNonEmpty));
   }
 }
-function validateDoneEvidence(root, taskId, tasksDir, reportsDir, fail) {
+function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail) {
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
   if (!guardedExists(root, bundleRelPath)) {
@@ -34422,10 +34422,12 @@ function validateDoneEvidence(root, taskId, tasksDir, reportsDir, fail) {
   } else {
     const contractRead = guardedRead(root, contractRelPath);
     let contractTaskIdMatches = false;
+    let contractRisk = "";
     if (contractRead.ok) {
       try {
         const parsed = JSON.parse(contractRead.data.contents);
         contractTaskIdMatches = String(parsed.task_id ?? "") === taskId;
+        contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
       } catch {
         contractTaskIdMatches = false;
       }
@@ -34434,6 +34436,12 @@ function validateDoneEvidence(root, taskId, tasksDir, reportsDir, fail) {
       fail(
         "done-contract-task-id-mismatch",
         `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`
+      );
+    }
+    if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+      fail(
+        "contract-risk-mismatch",
+        `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`
       );
     }
   }
