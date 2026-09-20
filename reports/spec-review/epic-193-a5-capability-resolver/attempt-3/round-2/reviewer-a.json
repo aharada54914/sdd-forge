@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a3r2-seq0774",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-193-a5-capability-resolver-a3r2-0774",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "5461fd7e50a4140cfcc71b07a08503906f698587d1dca377c9bef5c2b96ef618"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "0693dc91fb1e3d29b9b2a72ad7f7f4d431156abd44ba69199cc640a420705883"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-2/precheck-result.json", "sha256": "f0476a2a606b281e64f6b035e34e5fae46e5655017b35ed04e8ebac872bf0ef6"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-008 is bound to concrete, machine-checkable acceptance criteria (AC-001..AC-056) each naming a specific fixture, test target, and observable pass condition (byte-identity comparisons, exit codes 0/1/2, schema-conformance, diagnostic-id/severity tuples, grep-based self-checks). Even the four design-content-review criteria (AC-029..AC-032, REQ-007) are bound to a documented Spec-Authoring-Time Manual Review Record with explicit citations, matching the same exception class acceptance-tests.md records for AC-035..037. No in-scope requirement lacks an observable validation path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Acceptance Criteria table maps every REQ-001..REQ-008 to one or more AC rows (e.g. REQ-001->AC-001..008/043/052, REQ-002->AC-010..015/038..041/047..049/055, REQ-003->AC-015/016/042, REQ-004->AC-017..021/044/050/051/054/056, REQ-005->AC-022..025/045, REQ-006->AC-026..028, REQ-007->AC-029..032/042/046/053, REQ-008->AC-033/034); acceptance-tests.md mirrors this 1:1 by AC/TEST number with the documented AC-035..037 exception class. No stated Goal is left without a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every acceptance criterion in requirements.md and acceptance-tests.md names an externally observable outcome: exact file paths written/not-written, byte-identical output comparisons across runtimes, specific exit codes, JSON-Schema conformance against named contracts, closed diagnostic-id/severity enumerations, and grep-based non-determinism self-checks (e.g. AC-011, AC-013, AC-022..025). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes building the Resolver scripts themselves, editing any Epic A1-A4 contract file, adding a required_lite_checks field to the Registry schema, re-specifying check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness or its caller, computing the full effective-enforcement formula, editing plugins/** (including SKILL.md), authoring a new ADR, and running review loops/authoring tasks.md within this package. AC-032/TEST-032 additionally locks the plugins/** boundary via git diff inspection."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: data/provenance binding (REQ-004's exact-set/bidirectional-consistency rules), compatibility (Dependencies section pins exact upstream CLI shapes/schemas from Epic A1-A4 and states a follow-up-edit contingency in Assumptions if any sibling contract changes materially), migration (Dependencies' Epic A2 Registry-schema-revision prerequisite names an owner, scope, and migration statement), security (a dedicated Security Boundaries section covering no-network/no-provider-API, no writes to approval-sidecar/guard-invariants, fail-closed disabled-legacy, single-writer assumption), and approval boundaries (human-copy staging required for the protected Resolver script path, Roles and Permissions section)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section names concrete high-risk claims and ties each to a validation surface: the Lite-track required-enforcement source gap cites investigation.md INV-019 and Dependencies' named Epic A2 prerequisite with owner/scope/migration; the new multi-component matching/facet-aggregation orchestration decisions cite design.md Design Decisions as the spec-review-inspectable rationale; the transactional/provenance-binding implementation complexity risk points to Epic A1's own already-Passed reference design; the protected-suffix-reservation timing risk is bound to Assumptions' re-verification instruction; the anchor-fingerprint staleness risk is bound to AC-053's drift-check fixture."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (confirmed via the permitted existence-only Glob check on domain/context-map.md and domain/*), so the domain-model-conformance precondition is absent and this check does not apply."
+    }
+  ]
+}

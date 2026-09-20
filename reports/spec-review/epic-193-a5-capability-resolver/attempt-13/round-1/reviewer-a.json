@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a13r1-seq0869",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a13r1-0869",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "6f99607959b0d40e290c6526254d6a9e4e3a4b5c67fab11ef419a97a8c3a24ae"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b80ded58f0742c5a6c9f57d18a61880a9430d9186ed3bb6b60b180ecd4d1559b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-13/round-1/precheck-result.json", "sha256": "c04c368a568ed922f88607095a36d78d1dddb173b338afe5e0b0aca42ce5ebe5"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-008 each state a concrete, measurable behavior (fixed CLI flag matrix, closed 16-row diagnostic enum, byte-identity/track-exclusive output-set rules, a 12-value validator enum, stable-sort discipline, a nine-suite test schedule, a file:line-cited caller insertion point, a per-task CHANGELOG rule) and each is mirrored 1:1 by an acceptance-tests.md TEST-NNN row with a named suite/fixture/target (e.g. TEST-010's sixteen-fixture Block matrix, TEST-016's byte-identity fixture pair, TEST-021's twelve-value validator enum). No in-scope requirement is left as unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal REQ-001..REQ-008 has at least one Acceptance Criterion in requirements.md's own AC table tracing to it (REQ-001: AC-001..009/038/043/052/059; REQ-002: AC-010..015/039..041/047..049/055/057/058; REQ-003: AC-015/016; REQ-004: AC-017..021/044/050/051/054/056; REQ-005: AC-022..025; REQ-006: AC-026..028; REQ-007: AC-029..032/042/046/053; REQ-008: AC-033/034), and the Requirement column of every AC row names a real REQ or is explicitly scoped 'Global' with its own stated reason (AC-035/036/037)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior throughout: exact file paths written/not-written (AC-011/AC-038), exit codes (AC-013), diagnostic line format (AC-014), schema-validation results (AC-008/AC-017/AC-021), byte-identity comparisons (AC-016/AC-022/AC-023), and grep-based self-checks with a named deny-list (AC-025/AC-059). None rest on unobservable internal intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md ~line 849) explicitly excludes implementing the scripts themselves, editing any Epic A1-A4 contract file, adding a Registry field, re-specifying check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness's caller, computing the full effective-enforcement formula, editing SKILL.md, authoring a new ADR, and running spec-review/impl-review or authoring tasks.md/traceability.md against this package. Field Definitions further pins 'Resolver' to name only the three resolve-project-context scripts (used to correct AC-059's scanned set)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries fixes the exact write-set the Resolver may touch and the exact set it must never touch (*.approval.json, sdd/.approved-context/, guard-invariants.json), now locked by AC-059's deny-list grep; Assumptions names the three sibling-contract landing preconditions and the protected-path/SKILL.md re-verification obligations; Roles and Permissions separates the human-copy-only writer role from the running-Resolver-process writer role; Edge Cases and the Ruling Annotations block state the TOCTOU/crash-recovery/rollback constraints precisely, each bounded by the cited rulings (a)/(A)/(B)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Risks-section claim carries a named validation surface: the required-enforcement Lite-track gap (INV-019/addendum B5) is tied to REQ-002's lite-check-source-undefined Block and AC-009/AC-010's fixture matrix; the new orchestration decisions (multi-component matching, facet-name aggregation) are tied to AC-006/AC-043/AC-052's fixtures; the transactional/provenance-binding implementation complexity is tied to AC-039/AC-047/AC-049/AC-050/AC-051's fixtures; the anchor-fingerprint drift risk is tied to AC-053's recorded sha256/ordinal pair plus its (deferred but specified) fixture."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the repository root (glob for domain/context-map.md returned no match), so the domain-conformance precondition is absent and this check is skipped per the calibration's own skip condition."
+    }
+  ]
+}

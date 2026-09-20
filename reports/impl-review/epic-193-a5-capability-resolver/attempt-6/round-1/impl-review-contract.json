@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "impl-orch-epic-193-a5-capability-resolver-a6r1",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "none",
+  "round": 1,
+  "attempt": 6,
+  "legacy_design": false,
+  "feature_type": "fullstack",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "3d9ec7cab4afcd67213d65f90739c8275676d2bf9144063e8161b2aefe21028d",
+  "requirements_sha256": "052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01",
+  "acceptance_sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a",
+  "design_sha256": "c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f",
+  "layer_sha256": {
+    "ux-spec.md": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677",
+    "frontend-spec.md": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126",
+    "infra-spec.md": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f",
+    "security-spec.md": "2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Provenance re-review after the AC-059 sequencing correction. reviewer-b raised one Major on VERIFICATION-PATH-CONCRETE: the correction leaned on a per-commit CI gate to cover validate-resolver-evidence.*, but design.md's own Deployment/CI Plan states this package performs no CI wiring and that GitHub-Actions gating depends on a separately staged, human-applied test.yml patch.",
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a6r1-seq0849",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a6r1-0849",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/precheck-result.json",
+          "sha256": "a1993837b3b50cc64c43cc9f476a1a783e315876d035530d83620ecfadcf7824"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a6r1-seq0850",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a6r1-0850",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/precheck-result.json",
+          "sha256": "a1993837b3b50cc64c43cc9f476a1a783e315876d035530d83620ecfadcf7824"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/integrated-summary.json",
+          "sha256": "14a09eee55aefeacca81af3fe76207ae62f0ecb1506c9be65e70297a7316fd4b"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-08-28T00:00:00Z"
+}

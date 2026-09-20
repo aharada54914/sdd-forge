@@ -753,11 +753,13 @@ try {
     $script:_LOOP_EVENT_TRACE = $a5SavedTrace
     $script:_LOOP_EVENT_SEQ = $a5SavedSeq
 
-    $a5MergedForBlock = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
-    if ($a5MergedForBlock) {
+    $a5SkillForBlock = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+    $a5CallerForBlock = (Test-Path -LiteralPath $a5SkillForBlock -PathType Leaf) -and
+        [bool](Select-String -LiteralPath $a5SkillForBlock -SimpleMatch "resolve-project-context" -Quiet)
+    if ($a5CallerForBlock) {
         Test-Fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
     } else {
-        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree) and the skip-stop-message:stop producer call site does not exist anywhere in the tree yet (same unwired-producer reasoning as TEST-019.8/.9); SKIP-with-activation until Epic A5 merges (design.md Test Strategy item 6)"
+        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until the live interviewer caller references resolve-project-context; resolver/spec staging alone is not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
     }
 
     # -------------------------------------------------------------------

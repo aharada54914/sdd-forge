@@ -1,0 +1,119 @@
+FAIL: TEST-017 schema file exists
+FAIL: TEST-017 schema is valid JSON
+FAIL: TEST-017 $schema is draft-07 (got: )
+FAIL: TEST-017 $id matches contracts/*.schema.json convention (got: )
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: valid fixture conforms: clean-success.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: valid fixture conforms: conditional-facet-scoping.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: valid fixture conforms: exact-set-two-capabilities.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: valid fixture conforms: zero-affected-components.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: additional-property.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: bad-sha256-digest.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: matched-false-with-conditional-facets.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: missing-required-top-level.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: pattern-violation-feature.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: warn-outcome-missing-reason.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: wrong-enum-state.json
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 157, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolver-evidence-schema-check.py", line 135, in main
+    with open(schema_path, "r", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+FAIL: invalid fixture rejected: wrong-type-feature.json
+PASS: TEST-020 clean-success fixture has diagnostics: []
+PASS: TEST-018 exact-set fixture has exactly one matched and one unmatched entry
+PASS: TEST-018 zero-affected-component fixture: every trigger_evaluations is []
+PASS: TEST-019 conditional-facet scoping: declaration_index-keyed, unmatched entry omits key
+PASS: 4
+FAIL: 16
+exit=1

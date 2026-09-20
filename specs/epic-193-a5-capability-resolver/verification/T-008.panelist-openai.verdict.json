@@ -1,0 +1,1 @@
+{"schema":"cross-model-verdict/v1","task_id":"T-008","feature":"epic-193-a5-capability-resolver","vendor":"openai","model":"gpt-5","verdict":"PASS","findings":[],"blind":true,"input_digest":"adfde612d0362344e4785898de91825ec6fa3c11cfe44b95305ad581a94bb68e","consent":{"kind":"sudo","ref":"SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044"}}

@@ -111,6 +111,15 @@ tests/ship-track-selection-migration.tests.sh
 tests/guard-staging-exemption.tests.sh
 tests/design-sync-standing-consent.tests.sh
 tests/design-sync-scan.tests.sh
+tests/resolver-evidence-schema.tests.sh
+tests/resolve-project-context-block.tests.sh
+tests/resolve-project-context-match.tests.sh
+tests/resolve-project-context-cli.tests.sh
+tests/resolve-project-context-discovery.tests.sh
+tests/resolve-project-context-lite.tests.sh
+tests/validate-resolver-evidence.tests.sh
+tests/resolve-project-context-parity.tests.sh
+tests/resolve-project-context-metamorphic.tests.sh
 tests/compatibility-byte-identical.tests.sh
 tests/golden-baseline-contract.tests.sh
 tests/structural-compatibility.tests.sh

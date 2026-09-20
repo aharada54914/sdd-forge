@@ -1,0 +1,83 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a2r1-seq0333",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-193-a5-capability-resolver-a2r1-0333",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "911ba123eb2786c9c3babd99eb175cd18a70222a6c2445ff60a481f4268af36d"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-2/round-1/precheck-result.json", "sha256": "91f62b10fbd80cac765033689b7f1aa46547384672beeb1246bd9cd2f6dd16c3"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-2/round-1/integrated-summary.json", "sha256": "ef4a6e625f26c48147c312f97d0c56c8a4fd448a106fa74b679f3a98056f0a9c"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every technology/library/architectural decision in design.md carries explicit rationale: the stdlib-only Python choice, the union-match multi-component rule, the six new orchestration decisions in ADR Change Log (each citing the specific upstream CLI shape or ADR principle they extend), and the '.yaml not .json' choice for resolver-evidence.yaml. No bare decision lacking a rationale clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS with a Minor completeness note. design.md's Open Questions section does not use the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels, but each live entry's prose satisfies the check's substance: OQ-001 and OQ-002 are each explicitly framed as non-blocking with an identified owner. Per the check's own carve-out, this is not a blocking gap."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md's Assumptions section restates requirements.md's three assumptions, each grounded in a cited INV-xxx (INV-002, INV-003, INV-017), each with an explicit re-verification/fallback procedure."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's ## Constraint Compliance section is present but its own content is limited to AGENTS.md governance rules and the plugins/**-non-edit scope boundary, and does not itself address requirements.md's substantive security or compatibility constraints (Security Boundaries bullet 1's Provider-API/credential/write-path constraint; REQ-005's no-clock/no-network guarantee). Calibrated as Major rather than Critical: both constraints ARE substantively addressed elsewhere in this same design.md (Security Boundaries, Global Constraints, ADR Change Log sections), so no constraint is actually absent from or contradicted by the design as a whole - this is a structural consolidation gap in one dedicated section. Remediation is low-cost: add cross-referencing sentences to the Constraint Compliance section pointing to Security Boundaries, Global Constraints, and ADR Change Log."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (confirmed via grep). infra-spec.md's own Service Level Objectives section confirms 'N/A - no live service to hold an availability/latency SLO' and Scaling Strategy confirms 'N/A - no runtime service, no concurrency model of its own.'"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Deployment / CI Plan section, expanded by infra-spec.md's Deployment Topology/CI-CD Sequence/Environments sections, describes deployment target and CI pipeline changes concretely. Feature-flag and migration-execution-order bullets do not apply - no live runtime behavior ships in this Phase 1 package and Data Plan states no schema changes exist."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan explicitly states 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature' - functionally equivalent to the check's own 'No data changes' escape valve, independently confirmed by infra-spec.md's Infrastructure as Code section."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's External Integrations section states 'None - every input and output this feature touches is repository-local.' Intra-repository cross-script dependencies (Epic A1/A2/A3) are explicitly identified with name/purpose/failure-behaviour in frontend-spec.md's Dependencies table and design.md's API / Contract Plan, mapping every dependency subprocess failure mode to a specific REQ-002 diagnostic id."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every REQ-001..REQ-008 Goal in requirements.md is covered by a corresponding design.md section; all four User Stories are addressed by name. No component/data model/API endpoint appears in design.md without requirements.md grounding."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This feature's high-risk surfaces (publication transactional-bundle/crash-recovery/TOCTOU mechanism; cross-epic subprocess integration failure behaviour) both name concrete validation paths: security-spec.md's Security Tests table maps every boundary B1-B7 to a specific named test suite and TEST-ID, each tied to a named acceptance criterion."
+    }
+  ]
+}

@@ -6,6 +6,17 @@ main() {
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$ROOT"
 
+# Canonical inventory is loaded from tests/suite-inventory.posix.
+# Registered resolver suites:
+#   tests/resolver-evidence-schema.tests.sh
+#   tests/resolve-project-context-block.tests.sh
+#   tests/resolve-project-context-match.tests.sh
+#   tests/resolve-project-context-cli.tests.sh
+#   tests/resolve-project-context-discovery.tests.sh
+#   tests/resolve-project-context-lite.tests.sh
+#   tests/validate-resolver-evidence.tests.sh
+#   tests/resolve-project-context-parity.tests.sh
+#   tests/resolve-project-context-metamorphic.tests.sh
 tests=()
 while IFS= read -r test_file || [[ -n "$test_file" ]]; do
   [[ -z "$test_file" || "$test_file" == \#* ]] && continue

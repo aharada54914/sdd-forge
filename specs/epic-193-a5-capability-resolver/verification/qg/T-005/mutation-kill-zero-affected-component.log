@@ -1,0 +1,81 @@
+Mutation kills: the `zero-affected-component-match` fixture
+(T-005 scope, 2026-08-25 fourth-round cross-model panel remediation).
+
+FINDING CLOSED. Both vendors, on T-005:
+  * Anthropic (Minor): "REQ-006(g)'s `capabilities: []` half is still
+    covered by no fixture. The trigger_evaluations[] half is delegated to
+    T-001's TEST-018 schema fixture, but the Facet-Manifest half is in
+    T-005's own declared REQ-006 (items a-d, f, g) share and the report
+    concedes the oracle-reconstruction technique full-pipeline-match
+    already establishes would close it. Disclosed, not closed."
+  * OpenAI (Major): "The required zero-affected-component real-pipeline
+    case remains incomplete. A schema fixture checks empty
+    trigger_evaluations, but no Resolver pipeline fixture verifies the
+    required Facet Manifest result capabilities: []."
+
+FIXTURE. tests/fixtures/capability-resolver/resolve-project-context-
+match/zero-affected-component-match/ -- project-context.yaml and
+capability-registry.json copied from full-pipeline-match, plus that
+fixture's own two-fixed-digest `generate-registry-digest.py` stub to
+force the usual step-13 Block so `capability_evaluations[]` becomes
+observable. `resolve-component-paths` is deliberately NOT stubbed: the
+zero-affected-component condition is produced by the REAL dependency
+against a commit range whose only changed path is `README.md` at the
+repository root, which no declared component's own `paths.include` glob
+matches. Twelve assertions, closing BOTH halves of REQ-006(g) against the
+SAME real invocation -- the `trigger_evaluations[] == []` half black-box
+on the PUBLISHED Resolver Evidence (not a hand-built instance), and the
+`capabilities: []` half through the oracle reconstruction
+full-pipeline-match already established.
+
+MUT-Z1 -- aggregate over the WHOLE Registry instead of the matched set
+(`matched_ids = sorted(... for entry in capability_evaluations)`, the
+MUT-7 class applied to the field REQ-006(g) names):
+
+    baseline   bash: RESULT: 125 passed, 0 failed
+    baseline   pwsh: RESULT: 125 passed, 0 failed
+    MUT-Z1     bash: RESULT: 117 passed, 8 failed
+    MUT-Z1     pwsh: RESULT: 117 passed, 8 failed
+
+Three of the eight are this fixture's own, and they fail on their own
+stated reasons:
+
+FAIL: zero-affected-component-match: Facet Manifest capabilities: [] with zero affected components (REQ-006(g) second half, AC-027 ...): ['cap-alpha', 'cap-beta', 'cap-gamma']
+FAIL: zero-affected-component-match: every matched-set-derived aggregate is empty alongside capabilities: [] (required_facets/conditional_facets/resolved_gates, AC-007): {'required_facets': ['core-facet', 'gamma-facet'], ...}
+FAIL: zero-affected-component-match: capability_minimum_enforcement omitted when the matched set is empty (AC-007): 'required'
+
+The other five are full-pipeline-match's own pre-existing AC-007
+assertions, which detect the identical mutation -- expected, not
+collateral: this mutant is in shared production code both fixtures read.
+
+MUT-Z2 -- skip emitting a `capability_evaluations` entry when there are
+no affected components (`if sorted_affected_components:` guarding the
+append), the "empty input, empty output" shortcut AC-018 forbids:
+
+    MUT-Z2     bash: RESULT: 121 passed, 4 failed
+    MUT-Z2     pwsh: RESULT: 121 passed, 4 failed
+
+Exactly four failures, ALL of them this fixture's own, zero collateral
+anywhere else in the suite:
+
+FAIL: zero-affected-component-match: capability_evaluations[] carries exactly one entry per Registry Capability, in declaration order, even with zero affected components (AC-018): []
+FAIL: zero-affected-component-match: every Capability is matched: false with zero affected components (AC-018): []
+FAIL: zero-affected-component-match: every Registry Capability's own trigger_evaluations[] is [] (REQ-006(g) first half ...): []
+FAIL: zero-affected-component-match: no unmatched Capability carries conditional_facet_evaluations (AC-019 key-omitted rule): []
+
+VACUITY GUARD, recorded because the first run of MUT-Z2 exposed it. On
+the first attempt only ONE of those four flipped: the other three are
+`all(...)` quantifiers, which are vacuously TRUE over an empty list, so a
+mutant that emptied `capability_evaluations[]` entirely satisfied them.
+Each of the three now additionally requires
+`len(published_evaluations) == len(registry_ids)`, and the re-run above
+shows all four flipping. The vacuity was found by the mutation, not
+argued away.
+
+MUT-M3 (the suite's own standing RED mutant, union-match -> intersection-
+match) also kills five of this fixture's assertions independently, for a
+different reason worth naming: under the intersection reading `all([])`
+is vacuously true, so EVERY Capability "matches" on zero affected
+components -- precisely the inverted answer REQ-006(g) exists to forbid.
+See verification/T-005/red-undermatched-capability-recaptured-v2-{sh,ps1}
+.log.

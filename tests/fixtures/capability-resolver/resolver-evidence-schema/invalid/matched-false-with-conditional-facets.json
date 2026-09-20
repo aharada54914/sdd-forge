@@ -1,0 +1,28 @@
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "epic-193-a5-capability-resolver",
+  "capability_evaluations": [
+    {
+      "capability_id": "pii-handling",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            { "operator": "equals", "path": "characteristics.pii", "outcome": "no-match" }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "encryption-at-rest",
+          "declaration_index": 0,
+          "applied": false,
+          "evaluations": []
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

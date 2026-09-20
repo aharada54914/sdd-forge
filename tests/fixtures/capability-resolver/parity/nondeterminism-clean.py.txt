@@ -1,0 +1,13 @@
+# T-009 TEST-025 false-positive control: benign prose that merely discusses
+# time and networking in English, without ever spelling the literal forbidden
+# API calls this suite's own `_scan_nondeterminism` regexes match. Proves the
+# scan is not over-broad (a naive substring match on the English words "time"
+# or "network" alone would wrongly flag this file).
+"""This module never reads the current time and never contacts a network
+endpoint of any kind. Every value it returns is a pure function of its own
+arguments, computed once, so calling it twice with the same input on the
+same day or a different day yields the identical result."""
+
+
+def historic_note():
+    return "recorded once, at authoring time, never at call time"

@@ -407,6 +407,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-193-a5-capability-resolver",
+      "profile": "full"
+    },
+    {
       "feature": "sdd-domain-concept-contract",
       "profile": "full"
     },

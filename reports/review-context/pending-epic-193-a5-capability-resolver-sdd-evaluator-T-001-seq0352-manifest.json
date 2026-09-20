@@ -1,0 +1,142 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-001",
+  "run_id": "RUN-epic-193-a5-capability-resolver-quality-sdd-evaluator-T-001-seq0352",
+  "host_session_id": "SESS-quality-sdd-evaluator-epic-193-a5-capability-resolver-T-001-0352",
+  "sequence": 352,
+  "previous_record_sha256": "a9cfe7323f9b5f1796f172832deecc5f8693bc93cd96f08c7ada590089eaa121",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "6879b8f9d39e74e48fd9a6f09fd57a31989fb221750e5b639db77faee326c72a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-001.md",
+      "sha256": "b8f09560ca647fef4605bf456c78ad1d5a3f936c41341e05c5289f397326385a"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "1f5e434987c4cb43cc18eda4dae2e89327bf9ceafed3f4a572dab5c9407d2cb3"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "tests/resolver-evidence-schema-check.py",
+      "sha256": "2f1b4b16f5fed85af37b18f3b274afc5a82c5519e437e83578bc8eefa40a3f9b"
+    },
+    {
+      "path": "tests/resolver-evidence-schema.tests.sh",
+      "sha256": "ae7842c858e0ab792f637ff492e67461aaef11354a73ee971c14c6983e00016f"
+    },
+    {
+      "path": "tests/resolver-evidence-schema.tests.ps1",
+      "sha256": "65881f0cdaae98c4682dcd9b90a4219c814645f39e07a084fdc9ba994cccead1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/clean-success.json",
+      "sha256": "980a623a3372abd69cc1c5e64a7c7936ec89f4d4620234782a79281864a00a4e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/exact-set-two-capabilities.json",
+      "sha256": "dc827195295c654df114e75a18e519eab8ad7645ad96e42c6b649a6b56b8b143"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/zero-affected-components.json",
+      "sha256": "9a620f1615c11571f7f57e5df63ff564687ec2a1b7b2d20d540c3dc05375058a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/valid/conditional-facet-scoping.json",
+      "sha256": "b16885a05b8c76e185fd38f582d059c5055acc6c40650f6b025d5a6647cd3f3f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/missing-required-top-level.json",
+      "sha256": "9aa590c23bbc91a3505e69d36fb3e2ebb9ab6d9efe46927f162fcb0d47264d7c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/wrong-type-feature.json",
+      "sha256": "1971fe0f3275b7e3553415785e3164c145461cc363ffcea50a3d3b1c73d599a0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/wrong-enum-state.json",
+      "sha256": "67569163d1d7ed89d2cc7ffe9fb21e838339cc95e6c24310b4d4ac1f4302f6b1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/pattern-violation-feature.json",
+      "sha256": "f6b7d01baf830838770569e6d32f5de6857567bd3362a1468b203e1febcc2c6d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/additional-property.json",
+      "sha256": "191e1cf07d86a6c527db17d5de42cf52cd0fe87ef02aec4cc3af58dcf8e9a7fb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/matched-false-with-conditional-facets.json",
+      "sha256": "7f7f6a02e2e838393011ff1d2adf7960b1d677cc47fa2cab09ffcb9efd5ee420"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/warn-outcome-missing-reason.json",
+      "sha256": "574055770384f78a6226f27130f67217fef24eeea1271d32d28f2fd9133b9303"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolver-evidence-schema/invalid/bad-sha256-digest.json",
+      "sha256": "f21a62c4d0a457fae9d78c6803396d6a07b4f7356e1c1c201313cd7b224d2f66"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "4ddd90f2427432cbff627896f40601f94a5b20e09d85dc581e5fb5743a220e28"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "87a46c92b751fe1c0cc3de5c92e77b8c0d522d33976fbd9a40e1aae479b84021"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+      "sha256": "e6e2ee0c9efabd72f5b81f91f33033ab1537e82c9ce35f90f1298cf9467886ee"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-001-red-sh.log",
+      "sha256": "ec76706e92c71f14a727f7716343e1788fddeb59fbe628d451ebc71a49146038"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-001-green-sh.log",
+      "sha256": "4b2d41cf2f4de6939f43a4d06d836753ddf287ee2a8f7bd9a48e4d4fed5c625d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-001-red-ps1.log",
+      "sha256": "74a511e3cb80c156fc44026aeb6b6edce4b1397c1b2d1f5c694d8eab2c65135d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-001-green-ps1.log",
+      "sha256": "f07a4ce322f69287a5bab3c590210d2bf4853befae5f3a6eae10a8faf8c822c4"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "75d1954c8d9beb01a2d6a8da93edb8961dfb3e352c06a8d56bad38d826257dfa"
+    }
+  ]
+}

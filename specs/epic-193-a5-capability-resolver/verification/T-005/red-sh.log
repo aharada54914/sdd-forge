@@ -1,0 +1,48 @@
+FAIL: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch): got 0 stderr=''
+FAIL: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed): stdout='' stderr=''
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)
+PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
+FAIL: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
+FAIL: full-pipeline-match: Resolver Evidence readable: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-r7z6gzid/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-advisory: exit 1: got 0 stderr=''
+FAIL: enforcement-byte-identity-advisory: canonical diagnostic only: stdout='' stderr=''
+FAIL: enforcement-byte-identity-advisory: state field records 'advisory': [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-enf-mbhqs6x0/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-advisory: Resolver Evidence schema agreement: evidence absent
+PASS: enforcement-byte-identity-advisory: no partial live artifact
+FAIL: enforcement-byte-identity-required: exit 1: got 0 stderr=''
+FAIL: enforcement-byte-identity-required: canonical diagnostic only: stdout='' stderr=''
+FAIL: enforcement-byte-identity-required: state field records 'required': [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-enf-gy5va0rf/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-required: Resolver Evidence schema agreement: evidence absent
+PASS: enforcement-byte-identity-required: no partial live artifact
+FAIL: enforcement-byte-identity: both advisory/required Resolver Evidence readable
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 541, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 529, in main
+    run_facet_manifest_state_independence_check(resolver_module, counts)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 504, in run_facet_manifest_state_independence_check
+    params = set(inspect.signature(resolver_module._assemble_facet_manifest).parameters)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'resolve_project_context_oracle' has no attribute '_assemble_facet_manifest'
+
+NOTE (T-005 RED capture method): resolve-project-context.py was temporarily
+reverted, byte-for-byte, to its pre-T-004 content (`git show e8ffc4c9:
+specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/
+scripts/resolve-project-context.py`, T-002+T-003-only, steps 0-9) --
+identical to T-004's own report's RED technique -- then this CURRENT
+(T-005) test driver and fixture set were run against it, unmodified, and
+then the file was restored (verified byte-identical to HEAD afterward via
+`diff`). This is a real re-run of a pre-T-004 state, not an edited
+transcript. The run aborts with an uncaught AttributeError once it reaches
+this task's own oracle-reconstruction step (module docstring), since
+`_assemble_facet_manifest` and its own siblings do not exist before T-004
+-- a genuine crash, exit 1, not a graceful per-assertion failure -- but
+every assertion recorded before that point is a real, meaningful RED: the
+pre-T-004 script returns exit 0 (clean) for every one of this task's own
+fixtures instead of Blocking at step 13 (it never reaches steps 10-13 at
+all), so this is a real failure this task's own target behavior (T-004's
+already-landed steps 10-13, exercised end-to-end by this task's own
+fixtures) resolves, not a fixture-authoring artifact.

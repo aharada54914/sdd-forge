@@ -1,0 +1,65 @@
+Scoped regression evidence for T-002 (epic-193-a5-capability-resolver),
+re-run at current HEAD (e8ffc4c9) as part of reconstructing this task's
+missing verification artifacts (2026-08-19) -- not transcribed from the
+seq0670 gate report.
+
+$ git diff --stat -- plugins/
+(empty)
+exit=0
+
+$ git status --short -- plugins/
+(empty -- no untracked file under plugins/** either; AC-032)
+exit=0
+
+$ git diff --check
+(empty -- no whitespace errors)
+exit=0
+
+$ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
+(no output)
+exit=0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-002 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
+PASS: TEST-017 schema file exists
+PASS: TEST-017 schema is valid JSON
+PASS: TEST-017 $schema is draft-07
+PASS: TEST-017 $id matches contracts/*.schema.json convention
+PASS: valid fixture conforms: clean-success.json
+PASS: valid fixture conforms: conditional-facet-scoping.json
+PASS: valid fixture conforms: exact-set-two-capabilities.json
+PASS: valid fixture conforms: zero-affected-components.json
+PASS: invalid fixture rejected: additional-property.json
+PASS: invalid fixture rejected: bad-sha256-digest.json
+PASS: invalid fixture rejected: matched-false-with-conditional-facets.json
+PASS: invalid fixture rejected: missing-required-top-level.json
+PASS: invalid fixture rejected: pattern-violation-feature.json
+PASS: invalid fixture rejected: warn-outcome-missing-reason.json
+PASS: invalid fixture rejected: wrong-enum-state.json
+PASS: invalid fixture rejected: wrong-type-feature.json
+PASS: TEST-020 clean-success fixture has diagnostics: []
+PASS: TEST-018 exact-set fixture has exactly one matched and one unmatched entry
+PASS: TEST-018 zero-affected-component fixture: every trigger_evaluations is []
+PASS: TEST-019 conditional-facet scoping: declaration_index-keyed, unmatched entry omits key
+PASS: 20
+FAIL: 0
+exit=0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+exit=0
+(Note: `shasum -c` run from the repo root instead fails, because
+MANIFEST.sha256's paths are relative to the human-copy root and the LIVE
+plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}
+paths do not exist yet -- pending human apply. This is the expected,
+by-design state for an unapplied human-copy candidate, not a regression.)
+
+Not re-run (out of scope for this reconstruction, and not plausibly
+affected by T-002's own diff): the full tests/run-all.sh/.ps1 sequence.
+The original seq0670 gate report already recorded and disclosed the same
+seven pre-existing failing suites (rg-dependent aborts and the workspace
+baseline) as unrelated to T-002; this reconstruction did not re-verify
+that claim independently since it would not change any check outcome
+below.

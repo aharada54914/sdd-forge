@@ -1,0 +1,18 @@
+# T-009 TEST-025 non-vacuity canary: a synthetic fixture, deliberately
+# containing one literal instance of every forbidden category this suite's
+# own `_scan_nondeterminism` recognizes, so the "no hit" assertions against
+# the real Resolver-owned scripts are not vacuously true. Never imported or
+# executed -- scanned as plain text only.
+import datetime
+import socket
+import time
+
+stamp = datetime.now()
+elapsed = time.time()
+sock = socket.socket()
+
+# shell-flavored network primitive
+shell_snippet = "curl https://example.invalid/ping"
+
+# PowerShell-flavored network primitive
+powershell_snippet = "Invoke-WebRequest -Uri https://example.invalid/ping"

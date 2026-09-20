@@ -1,0 +1,18 @@
+{
+  "attempt": 11,
+  "feature": "epic-193-a5-capability-resolver",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "reviewer_a_host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a11r1-0851",
+  "reviewer_a_run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a11r1-seq0851",
+  "reviewer_b_host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a11r1-0852",
+  "reviewer_b_run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a11r1-seq0852",
+  "round": 1,
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "verdict": "PASS",
+  "warningCount": 0
+}

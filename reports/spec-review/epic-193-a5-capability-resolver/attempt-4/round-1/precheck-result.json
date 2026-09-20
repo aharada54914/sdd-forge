@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 4,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "ed15248373a3cd6e8ee5af15eb0a87bd0eb3209a6924171d03918957ea2a1a41",
+  "acceptance_sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "b1d9620c3dd41149f01730a182bb7f35b507f02ee49b45a2dfbdc6e5ded135f7",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-08-26T13:37:42Z"
+}

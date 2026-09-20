@@ -1,0 +1,283 @@
+Scoped + full regression evidence for T-004 (epic-193-a5-capability-resolver).
+This header previously self-dated to "current HEAD (217710a2 + ... cycle-3
+cross-model panel remediation diff)" while the file's own body had already
+grown past that point (the "Round-2" section below) -- a stale-header
+recurrence (bookkeeping-lag pass, Anthropic v3 Minor, same class T-003's
+own regression.log went through). The AUTHORITATIVE, most-recent capture
+is the "Bookkeeping-lag pass confirmation-panel remediation (2026-08-24)"
+section at the bottom of this file; every section above it is retained for
+historical continuity only, not current evidence.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no untracked file under plugins/** either; AC-032)
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-match-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-004 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
+20 passed, 0 failed
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(Note: shasum -c from the repo root instead fails, because MANIFEST.sha256's
+paths are relative to the human-copy root and the LIVE plugins/sdd-quality-
+loop/scripts/resolve-project-context.{py,sh,ps1} paths do not exist yet --
+pending human apply. Expected, by-design state, not a regression. The
+resolve-project-context.py entry's own hash changed again this pass --
+cycle-3 panel remediation fixes -- verified OK above:
+f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9.)
+
+$ bash tests/resolve-project-context-block.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+184 passed, 0 failed (both runtimes) -- the shared driver's own current
+whole-suite total: T-002's steps 0-3, T-003's own thirteen fixtures
+(eleven plus this pass's own two new ones), T-004's own eight fixtures
+(five plus this pass's own three new ones), and the draft7-validator-
+keywords / draft7-keyword-coverage unit-style checks (8 assertions).
+
+$ bash tests/resolve-project-context-match.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+98 passed, 0 failed (both runtimes) -- T-005's own downstream consumer
+suite, unregressed; re-run AFTER T-003's own cross-model panel
+remediation edited tests/resolve-project-context-match-check.py (the
+AC-004 expectation fix), so this is a genuine current-tree confirmation.
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
+Full run-all regression, re-run fresh this pass (not carried forward):
+
+$ bash tests/run-all.sh   (detached, no deadline)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly (identical to the Second Pass's own prior
+capture of this same enumeration). No suite beyond these two failed.
+Confirmed complete, exit captured.
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (detached, no deadline)
+Ran long (over 13 minutes with no output at one checkpoint -- a sibling
+pwsh process from a concurrent session in this same shared worktree area
+was observed running at the same time, a known source of resource
+contention in this repository -- see this session's own memory note
+`shared-worktree-concurrent-agent-churn`) but COMPLETED, exit 0:
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, and
+matches this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all, the
+same pre-existing structural asymmetry the sh run's own two-suite
+enumeration already accounts for). No suite beyond this one failed.
+
+Net: no suite outside the two (sh) / one (ps1) self-declared DESIGNED-RED
+ones failed in either runtime. Both full run-all invocations are now
+confirmed complete and clean against this repository's own standing
+baseline.
+regression: passes=true.
+
+--- Round-2 confirmation-panel remediation (2026-08-24) -----------------
+
+Re-run and re-captured against the current tree (this exact Anthropic
+Major -- "stale regression/placeholder evidence, recurring"), covering
+Reversal 2 (tests/run-all.* reverted to pre-registration bytes, freshness
+suite removed), the real-schema seeding fix, and the `_resolved_gates`
+dangling-reference comment. Full transcript (git diff/status/whitespace
+checks, py_compile, both focused suites both runtimes, full
+`tests/run-all.{sh,ps1}` sweeps, MANIFEST verification, check-task-state/
+check-workflow-state) retained once, shared, at
+verification/qg/T-003/regression.log's own "Round-2 confirmation-panel
+remediation" section (T-003 and T-004 share the identical `resolve-
+project-context.py`/`resolve-project-context-block-check.py` diff this
+round; not duplicated here). Result: both full sweeps match this
+repository's own documented standing baseline exactly (sh: 2 self-
+declared DESIGNED-RED; ps1: 1) -- specifically confirming `tests/
+run-all.{sh,ps1}` themselves are genuinely clean and unregistered-suite-
+free after the Reversal 2 revert (the exact claim this task's own "Done
+When Self-Check" makes).
+regression: passes=true.
+
+--- Bookkeeping-lag pass confirmation-panel remediation (2026-08-24) ----
+
+Re-run and re-captured against the current tree (T-004's own Anthropic v3
+Minor: "the contract's byte-identity claim is now false" -- 184 stale
+against a 205/206-assertion driver). T-004's own production code
+(resolve-project-context.py) is untouched this pass; the diff is confined
+to T-003-scope test-driver/fixture content (the AC-004 SUPPLIED-half
+pass-through assertion) and the runtime-marker line added to all four
+wrapper scripts. Full transcript (git diff/status/whitespace checks,
+py_compile, both focused suites both runtimes, full
+tests/run-all.{sh,ps1} sweeps, MANIFEST verification, check-task-state/
+check-workflow-state, check-contract.py) retained once, shared, at
+verification/qg/T-003/regression.log's own "Bookkeeping-lag pass
+confirmation-panel remediation" section (T-003 and T-004 share the
+identical resolve-project-context-block-check.py driver; not duplicated
+here). Result: sh full sweep matches this repository's own documented
+standing baseline exactly (2 self-declared DESIGNED-RED, no suite beyond
+those two); ps1 full sweep result recorded in that same shared section
+once captured. `bash tests/resolve-project-context-block.tests.sh` /
+`pwsh -File tests/resolve-project-context-block.tests.ps1`: 206 passed /
+0 failed, both runtimes (net +1 over 205 -- T-003-scope). `python3
+plugins/sdd-quality-loop/scripts/check-contract.py
+specs/epic-193-a5-capability-resolver/verification/T-004.contract.json`:
+Verification contract passed for task T-004.
+regression: passes=true.
+
+--- Governing-schema delta (2026-08-24, unfroze-for-exactly-this) -------
+
+T-004 OpenAI v3 Major 3, this task's own production-code diff:
+`_load_governing_schema` gained a `UnicodeDecodeError` catch; new
+`_draft7_conforms_or_raise` wrapper reclassifies malformed-`$ref`
+exceptions as `contract-discovery-failed`. Two new fixtures. Full
+transcript (git diff/status/whitespace checks, py_compile, both focused
+suites both runtimes, full tests/run-all.{sh,ps1} sweeps, MANIFEST
+verification -- resolve-project-context.py's own entry changed for the
+first time this whole session, regenerated by procedure --
+check-task-state/check-workflow-state, check-contract.py) retained once,
+shared, at verification/qg/T-003/regression.log's own "Governing-schema
+delta" section (not duplicated here). Result: `bash tests/resolve-
+project-context-block.tests.sh` / `pwsh -File tests/resolve-project-
+context-block.tests.ps1`: 216 passed / 0 failed, both runtimes (net +10
+over 206 -- two new T-004 fixtures, five assertions each). `python3
+plugins/sdd-quality-loop/scripts/check-contract.py
+specs/epic-193-a5-capability-resolver/verification/T-004.contract.json`:
+Verification contract passed for task T-004.
+regression: passes=true.
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Scope of this pass's own diff: the staged resolve-project-context.py
+(`_discover_registry`'s sys.path try/finally restore), both shared test
+drivers, one new fixture directory
+(tests/fixtures/capability-resolver/resolve-project-context-match/
+zero-affected-component-match/), two DELETED dead fixture schema
+stand-ins, human-copy/MANIFEST.sha256, the three verification contracts,
+and this feature's own evidence/bookkeeping files. Nothing under
+plugins/** was touched.
+
+$ git diff --check
+Exit: 0
+
+$ python3 -m py_compile <staged resolver, both drivers, the new fixture stub>
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no tracked change and no untracked file under plugins/**, AC-032)
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 219 passed, 0 failed
+$ pwsh -File tests/resolve-project-context-block.tests.ps1
+RESULT: 219 passed, 0 failed
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 125 passed, 0 failed
+$ pwsh -File tests/resolve-project-context-match.tests.ps1
+RESULT: 125 passed, 0 failed
+
+$ shasum -a 256 -c specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256
+4/4 OK. (Regenerated this pass: commit 18d90c67 changed
+resolve-project-context.py on 2026-08-24 without regenerating the
+manifest, leaving it declaring 437c861a... for a file that hashed
+d3360c51... -- `apply-human-copy.sh` verifies this manifest at
+human-apply time and dies MANIFEST_INVALID on a mismatch, so the staged
+candidate set was not appliable as it stood. Only the
+resolve-project-context.py entry changed; .github/workflows/test.yml and
+both dispatcher twins are byte-unchanged, confirmed by direct
+comparison.)
+
+$ bash tests/run-all.sh   (full sweep, entire repository, no timeout)
+5 failing suite(s):
+  tests/workflow-state.tests.sh
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/repository-release-validation.tests.sh
+  tests/design-system-contract.tests.sh
+  tests/check-component-coverage.tests.sh
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (full sweep, entire repository, no timeout)
+3 failing suite(s):
+  tests/cross-model.tests.ps1
+  tests/design-system-contract.tests.ps1
+  tests/check-component-coverage.tests.ps1
+
+BASELINE HAS DRIFTED, AND NOT BECAUSE OF THIS PASS -- stated plainly
+rather than reconciled away. This feature's own prior regression capture
+(the bookkeeping-lag pass, 2026-08-24) recorded the standing baseline as
+exactly TWO failing suites on sh (deterministic-lane-selfcheck,
+design-system-contract; both self-declare DESIGNED-RED) and ONE on ps1
+(design-system-contract, the sh-only suite having no PowerShell twin).
+The sweeps above show more than that. Every additional failure was
+independently reproduced OUTSIDE this worktree's own changes, and each
+is out of this feature's scope:
+
+  * tests/workflow-state.tests.sh -- "plugins-pin-amended-after-review
+    precondition not met: ... risk-classification-policy.md has not
+    drifted from the recorded hash". Reproduced on a clean `git clone
+    --no-hardlinks` of this branch at HEAD 6ef4e7d2 with NONE of this
+    pass's changes present. PASSES at 92f21702, so the drift arrived in
+    the commits between -- all of them workflow-state / review-loop /
+    plugins-pin machinery outside epic-193-a5.
+  * tests/repository-release-validation.tests.sh -- fails on
+    "workflow-state: ... spec reviewer manifest input hash is stale"
+    inside the release copy. Same pristine-clone reproduction, same
+    92f21702-passes result. The release copy excludes .git, so the pin
+    fallback is structurally unavailable there.
+  * tests/check-component-coverage.tests.sh -- 45 passed / 1 failed,
+    "TEST-036.4: T-004 registration, staged-candidate integrity, or
+    T-004-owned live byte identity failed against
+    specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256" -- a
+    DIFFERENT epic's staged manifest. Identical 45/1 on the pristine
+    clone and in this worktree; 46/0 at 92f21702.
+  * tests/cross-model.tests.ps1 (ps1 only) -- FLAKY, not deterministic:
+    two serial re-runs produced different failure sets (4 failures then
+    3), both including TEST-004(a)'s wall-clock bound, and it fails the
+    same way on the pristine clone. This is the known pwsh-only
+    cold-start timing class, pre-existing and unrelated to this diff.
+
+Method note: each of the four was re-run SERIALLY, on its own, outside
+the parallel sweep, and separately against a pristine clone of HEAD --
+this repository has measured cross-talk in parallel runs before, so a
+sweep failure is never reported here without a serial confirmation.
+
+Net for THIS pass: zero regressions attributable to this diff. The two
+suites this feature's own baseline documents as DESIGNED-RED still fail
+for their documented reasons; every other failure is pre-existing on
+this branch at HEAD without this pass's changes, and is owned by
+workflow-state / review-loop / plugins-pin work or by epic-191-a3, none
+of which this pass touches. This is NOT a claim that the repository is
+green -- it is a claim that this diff did not move it.
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-193-a5-capability-resolver/verification/T-00{3,4,5}.contract.json
+Verification contract passed for task T-003.
+Verification contract passed for task T-004.
+Verification contract passed for task T-005.
+Exit: 0 (each)
+
+regression: passes=true (for this diff's own attributable effect; see the
+baseline-drift disclosure above, which is a repository-level item for the
+human, not a property of this change).

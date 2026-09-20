@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-193-a5-capability-resolver-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c19482a592b885952ca21edc8dd7e739371bc0def47e97a0638f78b402dbe6ad"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "e0c00bde6317d377029eba92833e7f216da2f1d72e470f467848c2e1be0277b6"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-1/precheck-result.json", "sha256": "2da78e13fc09340fb5c5096bc71b76fe3181a4c7554444864c3521bd5db96781"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-008 goal resolves to concrete, machine-checkable acceptance criteria: REQ-001's 13-step processing order (steps 0/a-m) maps to byte-identity/pass-through/schema-conformance fixtures (AC-002..AC-009, AC-038, AC-043, AC-052); REQ-002's Block taxonomy is a closed, counted 16-row diagnostic-id table (verified independently: 16 rows counted directly in requirements.md, matching AC-010/TEST-010's stated 'sixteen') each with its own fixture; REQ-004's Resolver Evidence exact-set/cardinality/bidirectional-consistency rules are enforced by a closed, counted 12-value validator enum (AC-021, independently counted as 12); REQ-005's determinism claim is testable via byte-identical-output/dual-runtime-parity fixtures (AC-022..AC-025). Even REQ-007's caller-integration contract, though non-automated for AC-029..032, states objectively checkable text (exact citations to decision doc v2 section numbers, a file:line anchor with a recorded sha256 window hash and heading ordinal, AC-053) rather than vague intent. No in-scope requirement lacks a concrete validation path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight Goals items (REQ-001..REQ-008) have direct AC coverage confirmed by table walk: REQ-001 -> AC-001..009, AC-038, AC-043, AC-052, AC-054; REQ-002 -> AC-010..015, AC-038..041, AC-047..051; REQ-003 -> AC-015/016/042; REQ-004 -> AC-017..021, AC-044, AC-050/051/054; REQ-005 -> AC-022..025, AC-045; REQ-006 -> AC-026..028, AC-045; REQ-007 -> AC-029..032, AC-042, AC-046, AC-053; REQ-008 -> AC-033/034. acceptance-tests.md's own header states a 1:1 AC<->TEST row mapping with a single, explicitly documented exception (AC-035/036/037, Global registration-commit facts with no REQ column), which is itself trace-accounted rather than a silent gap."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria are concrete and mechanical throughout: exit-code contracts (AC-013: 0/1/2), schema-validation locks (AC-008, AC-009, AC-017), byte-identity comparisons (AC-003, AC-016, AC-022, AC-023), stable-sort/order-invariance checks (AC-024, AC-045), grep-based self-checks (AC-025, AC-034), and fixture-count locks (AC-010's sixteen, AC-021's twelve, AC-028's three). Even the four non-automated REQ-007 rows (AC-029..032, 'Spec-Authoring-Time Manual Review Record', acceptance-tests.md lines 93-128) specify observable text artifacts (exact section-number citations, file:line anchors) rather than subjective intent, and the same REQ-007 area is additionally covered by an automated anchor-fingerprint suite (AC-053: a recorded sha256 of a specific SKILL.md line window plus a heading's ordinal position among all headings)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md lines 659-711) is an explicit, itemized exclusion list: no implementation of the scripts themselves, no edits to any Epic A1-A4 contract file, no new Registry field, no reimplementation of check-component-coverage's Fail conditions, no compare-facet-manifest-staleness caller, no full effective-enforcement max() computation, no edits to plugins/** (including SKILL.md), no new ADR, no authoring of tasks.md/traceability.md or running review gates against this package itself. This is reinforced by REQ-007's own hard boundary (investigation.md INV-017, 'this feature's scope explicitly excludes touching plugins/** at all') and by AC-032's own git-diff-scoped check. The feature's boundary against expanding into Epic A2/A6 territory (the Lite-check-source gap) is likewise explicitly bounded rather than left open (Dependencies, Non-goals, Risks)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated concretely: a dedicated Security Boundaries section (requirements.md lines 1056-1116) fixes the Resolver's write-surface allowlist, forbids writing to *.approval.json/sdd/.approved-context/guard-invariants.json, and states a single-writer assumption; a migration constraint is given for the named Epic A2 Registry-schema prerequisite ('migration: existing Registry instances remain valid until a Capability author opts into the new field', Dependencies); a compatibility constraint fixes dual-runtime byte-identity (REQ-005) including a Windows-path fixture (AC-023); an approval/governance boundary states no new ADR is authored and content-frozen Epic A1-A4 contracts are read-only (REQ-008, Non-goals). Data-provenance constraints (snapshot-then-recheck, journal-based rollback, no dependency-subprocess raw stderr in committed diagnostics, M8) are each independently enumerated with their own Block condition."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md lines 1166-1250) names five concrete high-risk claims, each with a stated validation surface: (1) Lite-track effective blocking from the Epic A2 schema gap -> validated via the lite-check-source-undefined Block condition's own fixture (AC-010/AC-041 family) and an explicit, owned Epic A6 prerequisite in Dependencies (investigation.md INV-019); (2) the feature's own new multi-component matching/facet-aggregation orchestration decisions (no upstream ADR fixes them, investigation.md INV-012) -> validated by this very spec-review gate plus AC-006/AC-043/AC-052 fixtures; (3) transactional/journal implementation complexity -> validated via the crash-recovery and rollback fixture set (AC-038/039/047/048/049); (4) the protected-suffix reservation possibly not yet live at implementation time -> validated via the Assumptions section's explicit re-verification requirement; (5) anchor-fingerprint citation drift -> validated via AC-053's recomputed-hash/ordinal-position fixture. No high-risk claim is left without a named acceptance-criterion, inspection, or later quality-gate path."
+    }
+  ]
+}

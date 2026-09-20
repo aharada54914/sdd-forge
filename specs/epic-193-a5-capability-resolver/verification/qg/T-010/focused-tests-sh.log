@@ -1,0 +1,154 @@
+$ bash tests/resolve-project-context-metamorphic.tests.sh
+# runner: bash
+PASS: combination-matrix-tt: clean run (exit 0)
+PASS: combination-matrix-tt: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-tt: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=True) (AC-045(a))
+PASS: combination-matrix-tt: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tt: Resolver Evidence schema agreement
+PASS: combination-matrix-tf: clean run (exit 0)
+PASS: combination-matrix-tf: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-tf: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=False) (AC-045(a))
+PASS: combination-matrix-tf: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tf: Resolver Evidence schema agreement
+PASS: combination-matrix-ft: clean run (exit 0)
+PASS: combination-matrix-ft: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-ft: matched == True exactly per the union-match rule (comp-a pii=False, comp-b pii=True) (AC-045(a))
+PASS: combination-matrix-ft: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ft: Resolver Evidence schema agreement
+PASS: combination-matrix-ff: clean run (exit 0)
+PASS: combination-matrix-ff: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-ff: matched == False exactly per the union-match rule (comp-a pii=False, comp-b pii=False) (AC-045(a))
+PASS: combination-matrix-ff: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ff: Resolver Evidence schema agreement
+PASS: order-invariance-a: clean run (exit 0)
+PASS: order-invariance-b: clean run (exit 0)
+PASS: order-invariance: fixture sanity -- Resolver Evidence bytes are genuinely non-empty (so the byte-identity checks below are not vacuously true on two empty strings)
+PASS: order-invariance: stdout byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: stderr byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: evidence byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: manifest byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: projection byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: multi-true-dedup: clean run (exit 0)
+PASS: multi-true-dedup: cap-union recorded exactly once in capability_evaluations[] despite more than one component's own evaluation being true (comp-a, comp-b), never duplicated (AC-045(c))
+PASS: multi-true-dedup: fixture sanity -- more than one component's own evaluation is genuinely true (2)
+PASS: multi-true-dedup: Facet Manifest capabilities[] names cap-union exactly once too
+PASS: multi-true-dedup: Resolver Evidence schema agreement
+PASS: reason-template: clean run (exit 0)
+PASS: reason-template: Resolver Evidence's own per-Capability conditional_facet_evaluations[] entry is applied: false with no reason key at this level (reason is the aggregated Facet Manifest's own field, asserted verbatim below, AC-045(d))
+PASS: reason-template: Facet Manifest's own conditional_facets[] applied: false entry carries `reason` VERBATIM against the exact template this feature's design fixes (AC-045(d))
+PASS: reason-template: Resolver Evidence schema agreement
+PASS: warn-matched-trigger: exit 1 (Block)
+PASS: warn-matched-trigger: canonical diagnostic only
+PASS: warn-matched-trigger: fixture sanity -- comp-a genuinely matches, comp-b genuinely WARNs (missing-path)
+PASS: warn-matched-trigger: exact published Resolver Evidence (matched-capability-trigger-WARN, B2)
+PASS: warn-matched-trigger: Resolver Evidence schema agreement
+PASS: warn-matched-trigger: no live facet-manifest/capability-summary/projection written on Block
+PASS: warn-unmatched-trigger: exit 1 (Block)
+PASS: warn-unmatched-trigger: canonical diagnostic only
+PASS: warn-unmatched-trigger: fixture sanity -- comp-a's own sole trigger evaluation genuinely WARNs (missing-path) and the Capability ends up unmatched
+PASS: warn-unmatched-trigger: exact published Resolver Evidence (unmatched-capability-trigger-WARN, B2)
+PASS: warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: warn-unmatched-trigger: no live facet-manifest/capability-summary/projection written on Block
+PASS: warn-conditional-facet: exit 1 (Block)
+PASS: warn-conditional-facet: canonical diagnostic only
+PASS: warn-conditional-facet: fixture sanity -- the trigger evaluation is a clean match (no WARN); the conditional facet's own `when` evaluation against the SAME component genuinely WARNs (missing-path)
+PASS: warn-conditional-facet: exact published Resolver Evidence (matched-capability-conditional-facet-WARN, B2)
+PASS: warn-conditional-facet: Resolver Evidence schema agreement
+PASS: warn-conditional-facet: no live facet-manifest/capability-summary/projection written on Block
+PASS: nested-array-completeness (clean, every level (a complete, non-corrupted fixture passes)): exit 0 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (clean): emits exactly [] and nothing else
+PASS: nested-array-completeness (clean): every diagnostic line well-formed
+PASS: nested-array-completeness (capability-set-mismatch, capability_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (capability-set-mismatch): emits exactly ['capability-set-mismatch'] and nothing else
+PASS: nested-array-completeness (capability-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch, trigger_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch): emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (conditional-facet-set-mismatch, conditional_facet_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (conditional-facet-set-mismatch): emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: nested-array-completeness (conditional-facet-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch, evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch): emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch): every diagnostic line well-formed
+PASS: dependency-order-spy: clean run reaches exit 0 (no Block anywhere on the happy path)
+PASS: dependency-order-spy: this invocation's own first seven subprocess launches are exactly canonicalize-sdd-yaml (Project Context pass) -> canonicalize-sdd-yaml (Context Projection pass) -> resolve-component-paths -> validate-capability-registry (this invocation's own step-5 subprocess-observable event -- step 5's own discovery half is an in-process sibling-module import, never a subprocess; design.md item 9(g)'s own "Registry discovery" label names this position, see this driver's own module docstring) -> generate-registry-digest -> evaluate-predicate (trigger fan-out) -> evaluate-predicate (conditional-facet fan-out) (design.md Test Strategy item 9(g))
+PASS: dependency-order-spy-position-1: forced failure at position 1 Blocks (exit 1)
+PASS: dependency-order-spy-position-1: Blocks with position 1's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-1: detail names the correct sub-phase ('project context')
+PASS: dependency-order-spy-position-1: exactly 1 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-1: no partial live artifact
+PASS: dependency-order-spy-position-2: forced failure at position 2 Blocks (exit 1)
+PASS: dependency-order-spy-position-2: Blocks with position 2's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-2: detail names the correct sub-phase ('context projection')
+PASS: dependency-order-spy-position-2: exactly 2 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-2: no partial live artifact
+PASS: dependency-order-spy-position-3: forced failure at position 3 Blocks (exit 1)
+PASS: dependency-order-spy-position-3: Blocks with position 3's own correct diagnostic id 'affected-component-resolution-failed'
+PASS: dependency-order-spy-position-3: exactly 3 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-3: no partial live artifact
+PASS: dependency-order-spy-position-4: forced failure at position 4 Blocks (exit 1)
+PASS: dependency-order-spy-position-4: Blocks with position 4's own correct diagnostic id 'registry-validation-failed'
+PASS: dependency-order-spy-position-4: exactly 4 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-4: no partial live artifact
+PASS: dependency-order-spy-position-5: forced failure at position 5 Blocks (exit 1)
+PASS: dependency-order-spy-position-5: Blocks with position 5's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-5: exactly 5 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-5: no partial live artifact
+PASS: dependency-order-spy-position-6: forced failure at position 6 Blocks (exit 1)
+PASS: dependency-order-spy-position-6: Blocks with position 6's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-6: exactly 6 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-6: no partial live artifact
+PASS: dependency-order-spy-position-7: forced failure at position 7 Blocks (exit 1)
+PASS: dependency-order-spy-position-7: Blocks with position 7's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-7: exactly 7 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-7: no partial live artifact
+PASS: feature-wide completeness: resolve-project-context-cli sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-cli registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-cli registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-block sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-block registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-block registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-match sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-match registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-match registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-lite sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-lite registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-lite registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-parity sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-parity registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-parity registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-discovery sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-discovery registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-discovery registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolver-evidence-schema sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolver-evidence-schema registered in tests/run-all.sh
+PASS: feature-wide completeness: resolver-evidence-schema registered in tests/run-all.ps1
+PASS: feature-wide completeness: validate-resolver-evidence sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: validate-resolver-evidence registered in tests/run-all.sh
+PASS: feature-wide completeness: validate-resolver-evidence registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-metamorphic sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-metamorphic registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-metamorphic registered in tests/run-all.ps1
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (a) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (b) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (c) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (e) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (f) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (g) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/combination-matrix
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/order-invariance
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/multi-true-dedup
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/reason-template
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/dependency-order-spy
+PASS: feature-wide completeness: REQ-006 item (e)'s own governing schema enum is closed at sixteen distinct diagnostic-id rows
+PASS: feature-wide completeness: REQ-006 item (e)'s own 16-row diagnostic-id matrix has at least that many independently-invocable fixtures present under resolve-project-context-block/ (the exact id-to-fixture mapping is that suite's own already-passing `run_block_matrix_completeness_check` lock, cited by name in this task's own report)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 150 passed, 0 failed
+Exit: 0

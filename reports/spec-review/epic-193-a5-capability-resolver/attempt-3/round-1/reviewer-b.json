@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a3r1-seq0771",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-193-a5-capability-resolver-a3r1-0771",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "9c52691e2eac9ed30c01580ed6d8b256920ee7c898b42da7cc01f4180a707b7c"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "ef78ed2463854cc01933b8e9af860540d2deca1c53387f4feeecda149fec4aa2"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "3b2ed471fba4c6c19acbd308f2c437c89b251f77b76bbd6e77bb5478e49d694f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-1/precheck-result.json", "sha256": "c7231832ee90d95f831ed325777fd950da2428977e8e16df6ed2a83a4d297200"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-1/integrated-summary.json", "sha256": "5b3390857adea28ff66838bba0f86cddc8ab16f27095f6ee4abc41b2ba7d8e3e"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:540-547 (REQ-004, amended 2026-08-24) introduces the phrase 'when the abort and the warns are jointly caused by the same evaluation pass' as the trigger condition for the `dsl-warn-on-matched-capability` no-same-id-block-summary exception, but 'evaluation pass' is used nowhere else in requirements.md and is not entered in Field Definitions (grep for 'evaluation pass' across requirements.md returns exactly this one occurrence). REQ-001 step (f)/(g) describes evaluation happening per-Capability-per-affected-component with 'no short-circuit', so the boundary of one 'evaluation pass' (per Capability? per affected component? the whole invocation's steps (f)+(g)?) is not fixed. Two implementers building the abort-vs-warn grouping logic in `diagnostics[]` could scope 'jointly caused' differently and produce diverging output for an identical fixture. This is a specification-time definitional gap (a term the requirement itself introduces), not an implementation-detail question, so it belongs to spec review; severity is Major because it causes a downstream behavioral mismatch rather than blocking review outright."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md REQ-004 prose (lines 536-547, amended 2026-08-24 per investigation.md's Amendment Re-Review Context, ruling A①) now states an explicit exception: `severity: \"warn\"` entries collected before an evaluation abort may lawfully appear WITHOUT any same-id `severity: \"block\"` summary entry when the abort and the warns are 'jointly caused by the same evaluation pass' (the accompanying block entry instead carries a different id). But the requirements.md Acceptance Criteria table's own AC-056 row (line 861) and acceptance-tests.md's AC-056/TEST-056 row (line 95) were not updated to match: both still state the absolute, unqualified rule that a fixture 'plus exactly one additional severity: \"block\" entry sharing the identical dsl-warn-on-matched-capability id... never fewer, never a second summary entry' -- with no carve-out for the jointly-caused-abort case. A grep for 'AC-056' and 'jointly caused' across both files confirms the exception text exists only in the REQ-004 narrative paragraph, not in either AC-056 acceptance-criteria statement, even though that same REQ-004 paragraph explicitly cites '(AC-056)' as the criterion it expects to encode the exception, and investigation.md's own amendment log explicitly claims it 'amends requirements.md's AC-056 sentence... with the or-jointly-caused evaluation-abort exception.' An implementer/test-author following the literal AC-056/TEST-056 text would build a validator that rejects the exact output shape REQ-004 now requires in the jointly-caused case, and vice versa. This is an internal specification contradiction between a requirement and its own bound acceptance criterion, not a phase-sequencing issue the Amendment Re-Review Context suppression covers (calibration's own 'NOT suppressed example (other defect)' pattern applies directly: an amendment's requirement text is internally contradicted by its own AC row). Severity Critical because the specification is self-contradictory on a testable pass/fail boundary, leaving no single correct behavior to implement or verify against."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The 'jointly caused by the same evaluation pass' exception REQ-004 adds (requirements.md:540-547, amended 2026-08-24) is a materially different, newly-introduced negative/boundary path for `diagnostics[]` construction (warn entries with NO matching same-id block summary, alongside a different-id block entry instead). acceptance-tests.md's AC-056/TEST-056 row (line 95) -- the only row REQ-004 itself cites for this rule -- describes only two fixtures: the single-node case (one warn + one same-id block summary) and a multi-node scaling case (both still assuming the same-id block summary is always present). Neither fixture description exercises the jointly-caused-abort exception path the amendment added. This is a material edge/boundary state the requirement itself now implies (an abort caused by a different diagnostic id occurring during the same pass that produced warn nodes) with no corresponding acceptance-test coverage, so a future implementer has no test oracle for this specific, newly-legal output shape."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 1196-1221) lists exactly three assumptions (sibling-epic contract stability, protected-suffix reservation liveness, SKILL.md unprotected status), each stated with an explicit contingency ('If ... this package's own design.md API/Contract Plan requires a corresponding follow-up edit'; 'the future implementation task re-verifies the file's then-current protection status before choosing...'). None is left as a bare, unresolved unknown -- each is either grounded in a cited, already-Passed sibling contract (investigation.md INV-002) or explicitly deferred to a re-verification step at a named future point, which is the 'explicitly marked as a decision needed before design/task decomposition' standard this check requires."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No human-approval, governance, or irreversible-change boundary is in scope for this feature's own runtime behavior. The Resolver's REQ-002 Block conditions are automated, fail-closed refusals with no human-in-the-loop gate, and Security Boundaries (requirements.md lines 1145-1150) explicitly states the Resolver never writes to any `*.approval.json` sidecar, `sdd/.approved-context/` anchor, or `guard-invariants.json`, and never participates in the approval-sidecar workflow -- that surface remains exclusively Epic A1's, already `Spec-Review-Status: Passed` and out of this feature's scope. The human-copy staging mechanism this package assumes (Roles and Permissions) is a Phase-2 implementation/publication convention already fixed by Epic A1's REQ-007, not a new governance boundary this specification introduces or needs to make testable. No such boundary is in scope, so SKIP applies per the check's explicit skip condition."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The unresolved REQ-004/AC-056 contradiction documented under CONTRADICTION above (requirements.md:540-547 vs. requirements.md:861 vs. acceptance-tests.md:95) means a downstream implementation-policy/design reviewer cannot determine, from this package alone, which of the two mutually exclusive rules governs `diagnostics[]` construction in the jointly-caused-abort case -- they would have to invent the resolution themselves (pick REQ-004's exception, pick AC-056's absolute rule, or guess a third reconciling shape) rather than transcribing an already-fixed contract, which is exactly the kind of missing product-behavior invention this check exists to prevent design review from having to do. The remainder of the package (REQ-001 through REQ-008, the sixteen-row Block taxonomy, the transactional-publication contract, and 55 of 56 acceptance criteria) is otherwise unusually design-ready, so this finding is scoped narrowly to the one unresolved conflict rather than the package as a whole."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root of this worktree (`/Users/jrmag/Projects/active/sdd-forge-wt-epic-193`) -- confirmed by a root-scoped existence check permitted under the launch boundary's single exception for this test. Per the check's own skip condition, DOMAIN-CONFORMANCE is recorded as skipped and does not apply to this review."
+    }
+  ]
+}

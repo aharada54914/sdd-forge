@@ -133,7 +133,8 @@ before_hash="$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')
 expect_failure "${PRECHECK}" "${FEATURE}" 1 1
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2
 expect_failure "${PRECHECK}" "../escape" 1 1
-expect_failure "${PRECHECK}" "${FEATURE^^}" 0 1
+FEATURE_UPPER=$(printf '%s' "$FEATURE" | tr '[:lower:]' '[:upper:]')
+expect_failure "${PRECHECK}" "${FEATURE_UPPER}" 0 1
 [[ "${before_hash}" == "$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')" ]] || fail "replay overwrote evidence"
 
 # A NEEDS_WORK result authorizes exactly one edited next round; stale input is rejected.
