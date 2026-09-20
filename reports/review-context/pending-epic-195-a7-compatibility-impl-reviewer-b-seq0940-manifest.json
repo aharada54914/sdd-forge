@@ -1,0 +1,28 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0940",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0940",
+  "sequence": 940,
+  "previous_record_sha256": "f3e61a020566d44f0011cb82bb14854da3bf717bae8368de325f18c02d3fc262",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "cd41396282f0bfc40490cb49fdb76c822c052fbe637522ad608cfb8cf12f10e5",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-2/integrated-summary.json","sha256":"ee006a62c6b6d51b77933961c9ce357ba9846eafae0c0ee0d30303a20c27f590"},
+    {"path":"reports/impl-review/epic-195-a7-compatibility/attempt-4/round-2/precheck-result.json","sha256":"d5ebfd1503e5313d4737a0364e6d5ee0c0d54398784278cfcc51da44148d41da"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"fa0c6c31276921031d8012c44d8d994e08605ad3e31141caa293958788553088"},
+    {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"5eac136be122483bcd2e240df34ab48074c352343d21c31a2b9545f7439de7af"},
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+    {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+    {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ]
+}

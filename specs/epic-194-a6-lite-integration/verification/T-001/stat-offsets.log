@@ -1,0 +1,73 @@
+glibc struct stat st_mode/st_uid offset verification (T-001 Anthropic-panelist
+review, Major finding on apply-protected-files.ps1's SourceMode).
+
+Captured 2026-08-21 on a native aarch64 Ubuntu 24.04 (glibc 2.39) VM
+(colima, VZ backend) running on Apple Silicon macOS host, plus a
+statically-linked x86-64 cross-compile of the same probe executed via
+qemu-x86_64-static inside that same VM. Independent of any value asserted
+in this repository's own source or the panelist's own claim -- this is a
+direct compile-time offsetof() reading of the real system headers on each
+target, not a transcription.
+
+=== Probe source (/tmp/stat_off.c inside the VM) ===
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stddef.h>
+int main() {
+    printf("sizeof(struct stat) = %zu\n", sizeof(struct stat));
+    printf("offsetof st_dev   = %zu\n", offsetof(struct stat, st_dev));
+    printf("offsetof st_ino   = %zu\n", offsetof(struct stat, st_ino));
+    printf("offsetof st_mode  = %zu\n", offsetof(struct stat, st_mode));
+    printf("offsetof st_nlink = %zu\n", offsetof(struct stat, st_nlink));
+    printf("offsetof st_uid   = %zu\n", offsetof(struct stat, st_uid));
+    printf("offsetof st_gid   = %zu\n", offsetof(struct stat, st_gid));
+    return 0;
+}
+
+=== aarch64 (native gcc, ldd (Ubuntu GLIBC 2.39-0ubuntu8.8) 2.39) ===
+$ gcc -o /tmp/stat_off /tmp/stat_off.c && /tmp/stat_off
+sizeof(struct stat) = 128
+offsetof st_dev   = 0
+offsetof st_ino   = 8
+offsetof st_mode  = 16
+offsetof st_nlink = 20
+offsetof st_uid   = 24
+offsetof st_gid   = 28
+
+=== x86-64 (x86_64-linux-gnu-gcc -static cross-build, run under qemu-x86_64-static) ===
+$ x86_64-linux-gnu-gcc -static -o /tmp/stat_off_x64s /tmp/stat_off.c
+$ qemu-x86_64-static /tmp/stat_off_x64s
+sizeof(struct stat) = 144
+offsetof st_dev   = 0
+offsetof st_ino   = 8
+offsetof st_mode  = 24
+offsetof st_nlink = 16
+offsetof st_uid   = 28
+offsetof st_gid   = 32
+
+=== Conclusion ===
+Confirms the panelist's claim exactly:
+  - x86-64 glibc:  st_mode at offset 24 (the offset the pre-fix code used
+    unconditionally for every non-macOS Unix).
+  - aarch64 glibc: st_mode at offset 16; offset 24 is st_uid. Reading
+    offset 24 on aarch64 therefore returns the file's owner uid, not its
+    mode -- fchmod would silently be handed uid & 0777.
+
+Fix applied: SourceMode no longer reads any fstat(2) buffer offset by
+hand. It now calls the .NET runtime's own
+System.IO.File.GetUnixFileMode(SafeFileHandle), which resolves st_mode
+through the runtime's own per-RID native PAL rather than this file's own
+offset table. See the comment on SourceMode in
+specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1
+for the full rationale and the three fix shapes considered.
+
+Local sanity check of the replacement API (macOS arm64 host, .NET 10 /
+PowerShell 7.6.2, exercising the identical code path the fix now shares
+across every Unix target -- there is no more isMac branch in SourceMode):
+$ touch /tmp/modetest.txt && chmod 0741 /tmp/modetest.txt
+$ pwsh -c '
+    $fs = [System.IO.File]::OpenHandle("/tmp/modetest.txt", [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
+    [System.IO.File]::GetUnixFileMode($fs)
+    $fs.Dispose()
+  '
+OtherExecute, GroupRead, UserExecute, UserWrite, UserRead   # = 0741, byte-exact

@@ -118,7 +118,10 @@ fi
 if touch "$VALID_SNAPSHOT/specs/demo/new.md" 2>/dev/null; then
   fail "published snapshot permitted post-publication file creation"
 fi
-if rm "$VALID_SNAPSHOT/specs/demo/requirements.md" 2>/dev/null; then
+# BSD rm prompts before deleting a non-writable file when the suite inherits a
+# TTY.  Force the negative probe to be non-interactive; the assertion is about
+# the read-only snapshot contract, not an interactive confirmation prompt.
+if rm -f "$VALID_SNAPSHOT/specs/demo/requirements.md" 2>/dev/null; then
   fail "published snapshot permitted post-publication deletion"
 fi
 
@@ -307,7 +310,13 @@ def fail(code, message):
     raise Failed(f"{code}: {message}")
 
 # Stub a Win32 host: os.name == "nt" selects the MoveFileW branch.
+# CDLL initialization also inspects os.name on Python 3.12. Load the real
+# host library before switching platforms; only MoveFileW is simulated.
+real_cdll = ctypes.CDLL
+host_library = real_cdll(None, use_errno=True)
 real_name = os.name
+real_platform = sys.platform
+ctypes.CDLL = lambda *args, **kwargs: host_library
 os.name = "nt"
 sys.platform = "win32"
 try:
@@ -343,6 +352,8 @@ try:
     assert calls and calls[0][0] == "PATH" and "already exists" in calls[0][1], calls
 finally:
     os.name = real_name
+    sys.platform = real_platform
+    ctypes.CDLL = real_cdll
 PY
 
 printf 'ok: task context isolation manifests, snapshots, fallback, and selector are deterministic\n'

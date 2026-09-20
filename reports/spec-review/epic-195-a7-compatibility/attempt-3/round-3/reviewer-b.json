@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0770",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0770",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-3/integrated-summary.json",
+      "sha256": "924ca0d1e0bf0ae786ed92c19a1dae9cc8b71b7e74aeb5476d15dd1e70eea553"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-3/precheck-result.json",
+      "sha256": "b46d9ce543aef40a605afc5d13519c5c03fd297476769f3037c83b95e9554e1b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fc5f9ffe66edb9c94c865193e8bca9565eb24e91e7fcf55dba354e883106a505"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, fixture states, event kinds, and observables are unusually concretely fixed throughout requirements.md (Field Definitions, AC-005/AC-028/AC-029, canonical event-kind list) and acceptance-tests.md (per-AC Test Target column names exact suite/case identifiers, e.g. TEST-018/TEST-019). No residual ambiguity was found that would let two implementers build materially different behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:3 declares 'Spec-Review-Status: Pending' and the Overview (requirements.md:31-35) states this package is 'Phase 1 (specification) only' with 'tasks.md and traceability.md follow[ing] in a later phase once this package passes spec-review-loop.' The round-3 Amendment note added directly beneath it (requirements.md:37-47) and the matching Non-goals edit (requirements.md:248-253) instead assert 'The epic's implementation phase has since run: tasks.md and traceability.md exist' and that a T-005/T-006 implementation cycle already 're-baselined the lock' referenced by AC-009/TEST-009's specific committed sha256 hashes (acceptance-tests.md:13, 'f325a4df...'/'460467af...'). These two claims cannot both be true: if Spec-Review-Status is genuinely still Pending, then per this package's own Non-goals no task decomposition or implementation was authorized to occur yet, so AC-009's citation of a completed, hash-pinned T-005/T-006 re-baseline of a cross-epic-shared function (assert_terminal, Roles and Permissions: shared surface requiring maintainer review) is either a forward reference to work that has not happened or an admission that Phase 2/3 proceeded without this gate's approval — an unauthorized workflow-boundary violation the gate exists to prevent. A downstream implementer or reviewer cannot determine from this package alone which state is real, and the manifest available to this review does not include tasks.md/traceability.md to verify the claim independently. This is the same defect round-2 reviewer-B raised (CONTRADICTION, Critical); the round-3 edit elaborates rather than removes it, and additionally introduces an unverifiable claim of prior human approval for the amendment itself with no citable approval record."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md covers material negative/boundary paths: a deliberately mutated fixture negative self-check (AC-002/TEST-002), invalid-Project-Context variants (AC-019-AC-021), a compound-dependency SKIP case (AC-021), three independent SKIP-governance hard-fail modes (AC-035: dependency-present SKIP, unknown SKIP, fingerprint drift), and golden negative tests for emit-run-record.sh's capability-only usage error (AC-033) and promote-golden-baseline.sh's refusal guard (AC-041). This is broad, concrete negative-path coverage."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 860-877) states each assumption with an explicit re-verification mechanism (AC-035 fingerprint-drift hard-fail), and all three Open Questions (OQ-001-OQ-003, lines 879-898) are marked '(resolved)' with the resolving decision cited in-line. No open, unresolved assumption was found that blocks design/task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline governance boundary (REQ-006c, AC-018, AC-040, AC-041, Roles and Permissions, Security Boundaries B1) is concretely testable: promote-golden-baseline.sh structurally refuses to run when CI is set or --approved-by is omitted/empty (AC-041, two independent negative fixtures), and AC-040 adds a static scan of .github/workflows/test.yml for the two mutation-capable command strings. This approval boundary is implementation-ready. (The separate, unverifiable claim that the round-3 Overview amendment itself is 'human-approved' is evaluated under CONTRADICTION rather than here, since it is not a boundary the requirements define for implementers to test.)"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Because of the CONTRADICTION above, a design/implementation-policy reviewer handed this package cannot determine the actual current state of the world it describes: whether tasks.md/traceability.md exist and Phase 2/3 (including the T-005/T-006 assert_terminal re-baseline AC-009 cites by specific hash) has already run, or whether — per the still-Pending Spec-Review-Status and the original Non-goals scope — none of that has happened and AC-009's hash citations are unverifiable forward claims. Resolving which is true is a precondition for any downstream reviewer to decide whether AC-009's hash values are binding ground truth or placeholders, and this package does not supply that resolution from artifacts available to this gate."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (glob for domain/* returned no files), so the DOMAIN-CONFORMANCE precondition (domain/context-map.md with Domain-Model-Status: Approved and a schema-valid domain/domain-contract.json) is not met. Check is skipped per its defined skip condition."
+    }
+  ]
+}

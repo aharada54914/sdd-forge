@@ -109,7 +109,7 @@ fi
 # validator keyed that padded heading as a different section, and the
 # disagreement smuggled arbitrary paths into an authorized input set. Pin the
 # exact-match construct now, keeping both halves of the parameterised form.
-if grep -Fq '$0 == heading' "$VALIDATOR" &&
+if grep -Fq '"$line" == "$heading"' "$VALIDATOR" &&
     grep -Fq "'## Outputs'" "$VALIDATOR"; then
     ok "validator pin: Outputs-section parser still present in launch boundary"
 else

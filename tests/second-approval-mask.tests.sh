@@ -283,7 +283,8 @@ assert_byte_identity "TEST-003 LF final-line-no-newline" "$(tasks_of "$TMP/c3ln"
 
 # ---- TEST-004 (AC-004): parity asserted per-case above + run-all registration -
 printf -- '--- TEST-004 (AC-004): suite registered in tests/run-all.sh ---\n'
-if grep -q 'second-approval-mask\.tests\.sh' "$ROOT/tests/run-all.sh"; then
+if suite_list="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+   grep -Fx 'tests/second-approval-mask.tests.sh' <<< "$suite_list" >/dev/null; then
   ok "TEST-004 registered in tests/run-all.sh"
 else
   bad "TEST-004 not registered in tests/run-all.sh"

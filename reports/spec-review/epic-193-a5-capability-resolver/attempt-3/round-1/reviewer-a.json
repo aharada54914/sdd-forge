@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a3r1-seq0770",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-193-a5-capability-resolver-a3r1-0770",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "9c52691e2eac9ed30c01580ed6d8b256920ee7c898b42da7cc01f4180a707b7c"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "ef78ed2463854cc01933b8e9af860540d2deca1c53387f4feeecda149fec4aa2"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "3b2ed471fba4c6c19acbd308f2c437c89b251f77b76bbd6e77bb5478e49d694f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-1/precheck-result.json", "sha256": "c7231832ee90d95f831ed325777fd950da2428977e8e16df6ed2a83a4d297200"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-008 each fix concrete, measurable CLI shapes, a closed 16-row Block-diagnostic enum, a closed 12-row validator check-id enum, byte-identity/determinism rules, and stable-sort disciplines, all mapped to specific Test IDs in acceptance-tests.md (e.g. AC-010/TEST-010 for the diagnostic table, AC-022-024/TEST-022-024 for determinism). Observable/measurable throughout."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md REQ-004 (line ~537, amended 2026-08-24, human-approved, ruling A①) now states a new exception: warn entries for `dsl-warn-on-matched-capability` collected before an evaluation abort 'lawfully appear alongside that abort's own different-id `severity: \"block\"` summary entry — with no same-id `severity: \"block\"` summary entry' when the abort and warns are jointly caused by the same evaluation pass — and cites '(AC-056)' as the criterion covering this. But requirements.md's own Acceptance Criteria table row AC-056 (line 861) still states the pre-amendment absolute rule verbatim: '...never fewer, never a second summary entry...' with no exception, i.e. a same-id block summary is always present. acceptance-tests.md's AC-056/TEST-056 row (line 95) — confirmed unchanged since before this amendment via investigation.md's own recorded pre/post-commit SHA-256 pins (581cc5e9.../ef78ed24... vs. the current manifest hash ef78ed24..., identical) — likewise only tests the old 1:1 same-id cardinality rule and never exercises the new joint-cause, different-id scenario. Downstream failure: a future test author implementing TEST-056 has no acceptance criterion describing how to construct or assert the joint-cause exception fixture, and the two AC-056 statements within requirements.md itself directly contradict each other (one permits omitting the same-id block summary under a stated condition, the other forbids omitting it unconditionally). This is a specification-stage contradiction, not an implementation or task-review concern, because it must be resolved before any AC-056/TEST-056 fixture can be authored consistently. Per instruction to classify contradictions as Critical."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria are externally observable throughout: file existence/absence, schema validation via named validators, exit-code values, byte-identical output comparisons, diagnostic-line format matches, and grep-based self-checks (e.g. AC-008, AC-011, AC-013, AC-022-025)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md lines 725-778) explicitly excludes implementation, editing any Epic A1-A4 contract file, adding a Registry field, re-specifying check-component-coverage, implementing compare-facet-manifest-staleness, computing the full effective-enforcement formula, editing SKILL.md/plugins/**, authoring a new ADR, and running review loops/authoring tasks.md at this phase."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries (lines 1135-1194) fix the write-surface, approval-sidecar exclusion, fail-closed disabled-legacy posture, single-writer assumption, and stderr-non-embedding rule; Dependencies/Assumptions name the Epic A2 Registry-schema-revision prerequisite with an explicit owner, scope, and migration statement (lines 137-163)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section (lines 1245-1339) ties each named risk to a concrete validation surface: the Lite-track Registry-schema gap to REQ-002/AC-009/AC-010's Block matrix, the multi-component/facet-aggregation orchestration decisions to explicit spec-review evaluation, and the transactional-publication complexity to AC-038/039/047-049's fixture coverage."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root (confirmed via Glob at /Users/jrmag/Projects/active/sdd-forge-wt-epic-193), so this check does not apply."
+    }
+  ]
+}

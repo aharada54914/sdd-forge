@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "6bc2424a5c5a5a7fe95bc6ebf246553dfd2bc42b8da35010f6ca00b720102118",
+  "edit_summary": "Round-2 remedies. Both Criticals (reviewer A AC-OBSERVABLE 789, reviewer B CONTRADICTION 790) came from one defect: TEST-026 was annotated as a named SKIP whose gating condition AC-034's merged()/fingerprint_match() grammar cannot express and whose row AC-034 does not list, so AC-035(b)'s unknown-SKIP hard-fail would trip on it. Withdrawn: TEST-026's Test Type column returns to 'integration', byte-identical to its pre-round-2 value, and AC-026's pointer loses the sentence asserting 'TEST-026 is therefore a named SKIP', replaced by a statement that the criterion carries no SKIP disposition and is not governed by AC-034's allowlist. Reviewer B's additional fact is recorded: TEST-026 also covers TEST-018, the Context-absent case, which depends on no upstream epic at all, so no variant of the SKIP framing fits. Untouched, because both reviewers confirmed them working: AC-026's point-of-use disclosure pointer, TEST-026's Notes disclosure with its (OQ-004) pointer, and the appended OQ-004/Risks precision correction. investigation.md 63/0, acceptance-tests.md 1/1 (the Notes disclosure), requirements.md 6/3 (the withdrawn sentence cannot be removed by appending).",
+  "reset": false,
+  "generated_at": "2026-08-25T10:00:16Z"
+}

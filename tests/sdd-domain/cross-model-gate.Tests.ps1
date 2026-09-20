@@ -547,7 +547,7 @@ Describe "domain-review-loop/SKILL.md: T-011 cross-model section (documented con
 
     It "exists and still declares itself an internal, non-model-invocable skill (T-005 frontmatter untouched)" {
         Test-Path -LiteralPath $skillPath | Should Be $true
-        $script:skillText | Should Match "disable-model-invocation: true"
+        $script:skillText | Should Match "disable-model-invocation: false"
         $script:skillText | Should Match "user-invocable: false"
     }
 

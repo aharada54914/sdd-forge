@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a2r1-seq0330",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-193-a5-capability-resolver-a2r1-0330",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "d0e66eaff2344b4f1f4edb9093dc45755630d74786bc5f66faa4ed767d5a7c6c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-2/round-1/precheck-result.json",
+      "sha256": "1830ef7db51e55e280ae3f78f16878e74dce5aca4e1a2fe54e2cc3394fdde4af"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The addendum-narrowed `lite-check-source-undefined` trigger (requirements.md:366) is a concrete, three-condition conjunction (spec_profile==lite AND capability_enforcement==required AND at least one matched Capability's lite_policy.required_lite_checks key absent), and its three non-Blocking sibling states are each independently observable via schema-conformant Registry/Context fixtures per acceptance-tests.md AC-009/AC-010. In-scope requirements elsewhere (REQ-001 processing steps, REQ-002's 16-row diagnostic table, REQ-003 state derivation, REQ-004 Evidence shape, REQ-005 determinism) are each phrased as checkable conditions with fixed enums/cardinalities, not vague intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001..REQ-008) has multiple mapped Acceptance Criteria via the Requirement column (e.g., REQ-002 -> AC-010..014, AC-038..041, AC-047..049, AC-055; REQ-003 -> AC-015/016/042). The addendum-touched REQ-002/REQ-003 narrowing is traced through AC-009, AC-010, and AC-016 in both requirements.md's own AC table and acceptance-tests.md, with no goal left without at least one matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior: AC-009 (schema validation of capability-summary.yaml plus non-writing of facet-manifest.yaml/project-context.resolved.json), AC-010 (exit code 1 with a named diagnostic id, one fixture per row), AC-016 (byte-identical output across a track-exclusive output set except one named field). None rely on unobservable internal intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:706-758) explicitly excludes adding a required_lite_checks-sourcing field to the Registry schema, editing any Epic A1-A4 contract, and editing plugins/**. The addendum's Dependencies section (requirements.md:137-163) explicitly bounds the Epic A2 Registry-schema-revision prerequisite to 'Epic A6's required-enforcement Lite path specifically, not ... Epic A6 as a whole,' preventing unbounded scope creep from the narrowing."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Dependencies section names the Epic A2 schema-revision prerequisite with owner (Epic A2 maintainers), scope (additive capabilities[] field), and migration (existing Registry instances remain valid); Security Boundaries and Assumptions sections state write-path, single-writer, and protected-path constraints. The addendum's own current-schema limitation (lite_policy's additionalProperties:false meaning required_lite_checks cannot yet appear) is stated explicitly in acceptance-tests.md AC-009 rather than left implicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:1228-1258) states the high-risk claim (required-enforcement Lite resolution is Blocked for essentially every real matched-Capability case today) and ties it to a concrete validation surface: AC-009/AC-010's fixtures, the explicit owned Epic A2 prerequisite in Dependencies, and Workflow 2/3's documented behavior split. Other named risks (orchestration decisions, transactional complexity, anchor drift) are likewise tied to specific ACs (AC-006/AC-043, AC-038/039/047-049, AC-053)."
+    }
+  ]
+}

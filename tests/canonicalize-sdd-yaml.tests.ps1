@@ -765,11 +765,27 @@ for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
   # Self-registration (design.md Test Strategy item 11).
   # -------------------------------------------------------------------
 
-  $RunAllSh = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.sh')
-  if ($RunAllSh -match 'canonicalize-sdd-yaml\.tests\.sh') {
+  # The runner loads an inventory file: require an exact entry and successful listing.
+  function Test-PosixRegistration($Entries, $ExitCode) {
+    return ($ExitCode -eq 0 -and $Entries -ccontains 'tests/canonicalize-sdd-yaml.tests.sh')
+  }
+  $RunAllSh = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+  if (Test-PosixRegistration $RunAllSh $LASTEXITCODE) {
     Test-Pass 'self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh'
   } else {
     Test-Fail 'self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh'
+  }
+  foreach ($probe in @(
+    @{ Entry = 'tests/other.tests.sh'; Code = 0 },
+    @{ Entry = 'tests/canonicalize-sdd-yaml.tests.sh.extra'; Code = 0 },
+    @{ Entry = 'tests/CANONICALIZE-sdd-yaml.tests.sh'; Code = 0 },
+    @{ Entry = 'tests/canonicalize-sdd-yaml.tests.sh'; Code = 1 }
+  )) {
+    if (Test-PosixRegistration @($probe.Entry) $probe.Code) {
+      Test-Fail "self-registration: invalid inventory accepted ($($probe.Entry), exit $($probe.Code))"
+    } else {
+      Test-Pass "self-registration: invalid inventory rejected ($($probe.Entry), exit $($probe.Code))"
+    }
   }
   $RunAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')
   if ($RunAllPs1 -match 'canonicalize-sdd-yaml\.tests\.ps1') {

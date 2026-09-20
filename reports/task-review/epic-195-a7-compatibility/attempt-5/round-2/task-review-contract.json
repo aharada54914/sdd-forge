@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 5,
+  "round": 2,
+  "requirements_sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d",
+  "acceptance_sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8",
+  "design_sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383",
+  "tasks_sha256": "55b8408f6e7cdfe02e83912ae4d291d88bf1dd3f70fe2ff3339cbe998a6a6399",
+  "traceability_sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67",
+    "infra-spec.md": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9",
+    "security-spec.md": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Round 2 of the post-implementation provenance re-binding. Remediates both Major findings from round 1; only tasks.md and traceability.md changed (tasks.md 80dba0cd -> 55b8408f, traceability.md d40e35c3 -> 2bcd0a75). requirements.md, acceptance-tests.md, design.md, the four layer specs and investigation.md are byte-identical to round 1. (1) Reviewer B, SCOPE-DISJOINT/T-004: T-004's Blockers went from 'T-001' to 'T-001, T-002, T-003' and its Depends On prose was extended. Both additions were verified per task before writing -- T-002 (Planned Files 'run-all.sh (existing, agent-editable -- this suite's registration)' plus its .ps1 twin) and T-003 (same shape) each genuinely append their own registration line to the shared array, so both belong. (2) Reviewer A, SINGLE-CONCERN/T-011: T-011 was split. The REQ-006 half (authoring the AC-040/AC-041 golden-baseline CI-write guard checks against T-002's promote-golden-baseline.sh) became a new task T-013 with Blockers T-002 (functional) plus T-003/T-004/T-010 (shared run-all append order). T-011 keeps REQ-005 (AC-015, AC-028) only and now blocks on T-013, since it remains the sole editor of .github/workflows/test.yml and registers T-013's suite there. T-011's risk tier is UNCHANGED at high/tdd -- lowering an already-approved tier would require human re-approval per risk-classification-policy.md 'Who classifies' item 3 -- but its Risk Rationale was rewritten because the old one rested entirely on the split-out clause; the new one rests on T-011's own surface (sole write path into CI config, the write side of Security Boundary B1). Two Global Constraints bullets were amended for T-013's run-all append position and the cumulative CI-wiring range. traceability.md gained T-013 rows in the Task Mapping and Files tables, moved AC-040/AC-041 and TEST-040/TEST-041 from T-011 to T-013, dropped the ci-guard files from REQ-005's Implementation Files cell, repointed REQ-006's evidence/verification cells from T-011 to T-013, named T-013 in the B1 row, and reworded the Final Status paragraph. T-013 is a NEW task id: it cannot inherit T-011's approval stamp, so it carries Approval: Draft / Status: Planned. The task-state checker blocks In Progress / Implementation Complete / Done without an approved Approval field, so T-013 -- and therefore T-011, which blocks on it -- cannot advance until a human approves T-013. The id was appended out of numeric order rather than renumbering T-012, because renumbering would move an already-approved task id and every prose reference to it for no functional gain. Deterministic re-checks after the edits: risk check 13/13, task-state check 13/13, derive-traceability-json --check in sync, traceability check 7 links. Ledger reservations seq0783 (reviewer A) and seq0784 (reviewer B); reviewer B received only the check-IDs-and-counts integrated-summary.json.",
+  "prior_round_contract_sha256": "9e1b65f366a11a0a3587a284cfc27bca1a1e0f866f29ce9ec51e6731efb8d3ad",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "run_id": "task-orch-epic-195-a7-compatibility-a5r2",
+  "timestamp": "2026-08-25T03:45:00Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt5r2-seq0783",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0783",
+      "allowed_input_manifest": [
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/dependency-graph.json", "sha256": "b19b607ae680fc869b2ab7e89c8b9cb717b101dd34e5c18f82c2d1c590892f81"},
+        {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json", "sha256": "b0ceba1063af9583f733b2366c291b3f82a3f516565c543a133584d622dbe511"},
+        {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+        {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"},
+        {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+        {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+        {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"},
+        {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+        {"path": "specs/epic-195-a7-compatibility/tasks.md", "sha256": "55b8408f6e7cdfe02e83912ae4d291d88bf1dd3f70fe2ff3339cbe998a6a6399"},
+        {"path": "specs/epic-195-a7-compatibility/traceability.md", "sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+        {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt5r2-seq0784",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0784",
+      "allowed_input_manifest": [
+        {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/integrated-summary.json", "sha256": "98f9d4c44351a66b242063864689ce626ea60188368a73dad563e579699091c8"},
+        {"path": "reports/task-review/epic-195-a7-compatibility/attempt-5/round-2/precheck-result.json", "sha256": "b0ceba1063af9583f733b2366c291b3f82a3f516565c543a133584d622dbe511"},
+        {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+        {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383"},
+        {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+        {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+        {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "3b97c757bc01e3d88a9b4e7da42c91b9e98a34c3c287c810e8819c0e8c39a14d"},
+        {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+        {"path": "specs/epic-195-a7-compatibility/tasks.md", "sha256": "55b8408f6e7cdfe02e83912ae4d291d88bf1dd3f70fe2ff3339cbe998a6a6399"},
+        {"path": "specs/epic-195-a7-compatibility/traceability.md", "sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+        {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    }
+  ]
+}

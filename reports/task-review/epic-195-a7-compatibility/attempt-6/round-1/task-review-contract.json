@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "requirements_sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+  "acceptance_sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815",
+  "design_sha256": "ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96",
+  "tasks_sha256": "e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c",
+  "traceability_sha256": "2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1",
+    "infra-spec.md": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c",
+    "security-spec.md": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Attempt 6, round 1: post-implementation provenance re-binding of the task stage. No specification document was edited by this run. The re-bind was required because the impl stage's attempt-4 amendment wave changed design.md (3dacbe7a -> ef0a4371), frontend-spec.md (bbcae337 -> 78ef6c21), infra-spec.md (63437f00 -> a62bd5d4) and security-spec.md after the task stage last sealed at attempt-5 round-2, leaving check-workflow-state.sh failing with 'stage-provenance: task reviewer manifest input hash is stale'. Both reviewers ran fresh and blind against the current hashes under the TYPE-H convergence rule; both returned PASS with zero findings, and reviewer B recorded that no TYPE-H suppression was needed because every check passed on its own merits. tasks_sha256 carries the normalized form the round's precheck pinned.",
+  "prior_round_contract_sha256": "5495b68baf1134052222aab926dea92843d8944cca70cb56cb76fcd02d561a38",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "run_id": "task-orch-epic-195-a7-compatibility-a6r1",
+  "timestamp": "2026-08-27T15:12:00Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt6r1-seq0943",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0943",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/dependency-graph.json","sha256":"bb13be5fd69e62f96efd945d799d34f2ba0beed0542c872ab429d84fc0cc460a"},
+        {"path":"reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/precheck-result.json","sha256":"14754a7f85578fc67428696c0393e9bc5d949c124a5df5b885e994567c55b162"},
+        {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+        {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+        {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+        {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+        {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+        {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+        {"path":"specs/epic-195-a7-compatibility/tasks.md","sha256":"e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c"},
+        {"path":"specs/epic-195-a7-compatibility/traceability.md","sha256":"2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+        {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt6r1-seq0944",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0944",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+        {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/integrated-summary.json","sha256":"22eb68ebc7c876d8b8bd83ff5a8c57ccc3fecea939b424ced7be405581863512"},
+        {"path":"reports/task-review/epic-195-a7-compatibility/attempt-6/round-1/precheck-result.json","sha256":"14754a7f85578fc67428696c0393e9bc5d949c124a5df5b885e994567c55b162"},
+        {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+        {"path":"specs/epic-195-a7-compatibility/design.md","sha256":"ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+        {"path":"specs/epic-195-a7-compatibility/frontend-spec.md","sha256":"78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+        {"path":"specs/epic-195-a7-compatibility/infra-spec.md","sha256":"a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+        {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+        {"path":"specs/epic-195-a7-compatibility/security-spec.md","sha256":"4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+        {"path":"specs/epic-195-a7-compatibility/tasks.md","sha256":"e349b0e1d40b3e6526f4ac6ebeaf2215895f9e7771c7fccdc8be6f858f58841c"},
+        {"path":"specs/epic-195-a7-compatibility/traceability.md","sha256":"2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8"},
+        {"path":"specs/epic-195-a7-compatibility/ux-spec.md","sha256":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-impl-reviewer-a-a7r1-seq795",
+  "host_session_id": "SESS-impl-a-epic-196-a8-integration-a7r1-seq795",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/precheck-result.json", "sha256": "ed8a162154389d0c4d5935f4fb2523fcc6252db3d9576be34389cde585957c44"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` (lines 29-87) gives a mermaid component-boundary diagram grouped by REQ-001..REQ-006 subgraphs (top-level component boundaries), states integration with existing components explicitly ('No new CI topology is introduced -- every automated check registers into the existing tests/run-all.{sh,ps1} and .github/workflows/test.yml 3-OS matrix (INV-014), extending tests/cli-hook-enforcement.ps1 and tests/install.tests.{sh,ps1} rather than duplicating their fixture machinery', lines 23-27), and the Components table (lines 90-104) fixes the technology per surface (sh/PowerShell scripts, JSON schemas, Markdown/YAML fixtures) for this CLI/test-infra feature type, cross-referenced by frontend-spec.md's Technology Stack table. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Explicit dependency edges are declared in the `## Architecture` mermaid graph (design.md:66-82): HANDOFF->CANARY->LIVE, MATRIX->{LOCAL,CI3,DRIFT}, SYN->{FLAG,SUBAGENT}, FLAG->LIVE, LIVE->AGGREGATE, plus CLASS/RECORD classification and evidence edges. Traversing this graph finds no cycle (every edge flows one direction: fixture/matrix/synthetic drivers -> live-host proof -> aggregate validator; classification/record edges are one-way annotation edges into the flow, never back into a driver). No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Data Plan` (design.md:252-280) supplies all three required sub-fields with concrete content: 'Data Entities:' lists every new JSON schema/file this package's future task creates; 'Existing Data Affected:' names the read-only comparison targets (installed hook-config files, ~/.codex/config.toml's MCP block, Epic A1's nonce-ledger.json) and states 'No existing file's content is altered by any other component in this package'; 'Migration Strategy:' states 'No migration required' with rationale (net-new files, additive metadata only). Six concrete JSON schemas follow with field-level type/constraint tables. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## API / Contract Plan` (design.md:980-1075) lists every new/changed CLI entry point (cross-runtime-handoff.tests.{sh,ps1}, install-uninstall-matrix.tests.{sh,ps1}, check-installed-plugin-drift.{sh,ps1}, validate-live-host-proof.{sh,ps1}, path-lineending-regression.tests.{sh,ps1}) with its invocation signature (flags), request/response contract (documented flags, exit codes, and the corresponding Data Plan JSON schema each command emits), and explicitly states no existing endpoint is deprecated (this is a CLI/test-infra feature with no HTTP endpoints; the CLI-flag/exit-code/schema triple is the equivalent contract, consistently specified). No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` (lines 1589-1605) is present and names both trust boundaries the feature crosses (B1 live-host session authenticity, B2 read-only drift check), states the authentication/authorization mechanism at each (fortified live-host-verification-record/v1 schema with nonce/hash/two-party Ed25519 attestation for B1; read-only API contract with no write flag for B2). security-spec.md expands this into full Trust Boundaries (B1-B5), STRIDE Analysis, Authorization table, Data Classification table (confirms no PII beyond already-public maintainer identity), and an explicit OWASP Top 10 Mapping table (Software/Data Integrity Failures, Broken Access Control, Security Misconfiguration, Injection, Cryptographic Failures, Identification and Authentication Failures). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is `cli` (per invocation parameters; design.md's own Feature Type header additionally states 'test-infrastructure specification (Phase 1 -- no code)', and ux-spec.md/frontend-spec.md both record 'N/A -- no change: this feature has no UX surface / introduces no browser/client UI'). This check does not apply."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Test Strategy` (design.md:1076-1188) contains 11 numbered items covering unit/component-level drives (items 1,4,6,7 -- fixture/matrix/regression drivers with named scripts and mocked/fixed oracle data), integration-boundary tests (items 2-3 install/uninstall matrix local + 3-OS CI; item 10 aggregate Done-gate validator), acceptance-test mapping (every item cites specific AC-NNN numbers it verifies end-to-end, e.g. item 1 -> AC-001-AC-004/AC-006, item 5 -> AC-015/AC-028), and concrete planned verification evidence (named scripts, named CI job registration point `.github/workflows/test.yml`/`tests/run-all.{sh,ps1}`, named report schemas). This is a CLI feature so no browser E2E is required; item 5 (live-host semantic-cell sessions) and item 10 (aggregate validator) serve as the critical-journey verification path. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in the `## Architecture` mermaid diagram and in `## API / Contract Plan` maps to an entry in the `## Components` table (design.md:90-104) or a named design.md subsection: FIX/HANDOFF/MATRIX/SYN/DRIFT/PATHFIX/AGGREGATE map directly to Components-table rows; LIVE maps to the `tests/hook-activation-live-proof/` Components row; RECORD maps to the `live-host-verification-record/v1` schema defined in Data Plan; CLASS maps to the named `## Automated / Manual Classification Table` section (design.md:1440). No reference to an undefined component was found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## ADR Change Log` (lines 241-250) cites ADR-0019 and ADR-0008 as read-only sources and proposes one new ADR, ADR-0028, at `docs/adr/0028-live-host-proof-ed25519-signing.md`. Verified on disk: docs/adr/0019-approval-sidecar-protection.md, docs/adr/0008-evidence-deep-verify-no-signature-crypto.md, and docs/adr/0028-live-host-proof-ed25519-signing.md all exist. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED (recorded as PASS per rule): the target project has no `design-system/` directory (verified: `ls design-system` -> No such file or directory). design.md's own `## Design System Compliance` section states 'Not applicable. This is internal test-infrastructure specification work with no UI surface,' consistent with the absent directory."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED (recorded as PASS per rule): the target project has no `domain/` directory at all (verified: `ls domain` -> No such file or directory), so the domain/context-map.md precondition this check requires cannot be met and the check does not apply."
+    }
+  ]
+}

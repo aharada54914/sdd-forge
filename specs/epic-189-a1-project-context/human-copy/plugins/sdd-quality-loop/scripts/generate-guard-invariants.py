@@ -34,6 +34,11 @@ REQUIRED_SHELL = {
     "cd_cmds",
     "sudo_write_re",
     "read_only_start_re",
+    # WFI-048: patch-applier vocabulary and the embedded-path boundary class.
+    "patch_apply_cmds",
+    "patch_apply_git_subcmds",
+    "patch_inspect_flags",
+    "path_boundary_chars",
 }
 PHASE2_TARGETS = (
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
@@ -174,6 +179,8 @@ PLUGIN_SUFFIXES = ("/.plugin/plugin.json", "/.claude-plugin/plugin.json", "/.cod
 ARRAY_SHELL_KEYS = {
     "write_arg_cmds", "write_dest_cmds", "ps_write_cmds", "indirect_cmds",
     "unsafe_token_chars", "cd_cmds",
+    "patch_apply_cmds", "patch_apply_git_subcmds", "patch_inspect_flags",
+    "path_boundary_chars",
 }
 REGEX_EXPORTS = {
     "compound_re": "SHELL_COMPOUND_RE",
@@ -189,6 +196,10 @@ ARRAY_EXPORTS = {
     "indirect_cmds": "SHELL_INDIRECT_CMDS",
     "unsafe_token_chars": "SHELL_UNSAFE_TOKEN_CHARS",
     "cd_cmds": "SHELL_CD_CMDS",
+    "patch_apply_cmds": "SHELL_PATCH_APPLY_CMDS",
+    "patch_apply_git_subcmds": "SHELL_PATCH_APPLY_GIT_SUBCMDS",
+    "patch_inspect_flags": "SHELL_PATCH_INSPECT_FLAGS",
+    "path_boundary_chars": "SHELL_PATH_BOUNDARY_CHARS",
 }
 
 
@@ -258,7 +269,10 @@ def load_and_validate(canonical_path: Path) -> tuple[dict[str, Any], str]:
     if not isinstance(shell, dict) or set(shell) != REQUIRED_SHELL:
         raise ValueError("shell has an invalid key set")
     for key in ARRAY_SHELL_KEYS:
-        _is_string_list(shell[key], f"shell.{key}", characters=(key == "unsafe_token_chars"))
+        _is_string_list(
+            shell[key], f"shell.{key}",
+            characters=key in ("unsafe_token_chars", "path_boundary_chars"),
+        )
     for key in REQUIRED_SHELL - ARRAY_SHELL_KEYS:
         if not isinstance(shell[key], str):
             raise ValueError(f"shell.{key} must be a regex source string")

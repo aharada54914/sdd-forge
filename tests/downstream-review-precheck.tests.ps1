@@ -140,6 +140,336 @@ try {
   & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 | Out-Null
   if (-not (Test-Path $taskReport)) { throw 'not ok: canonical risk policy rejected medium test-after' }
   Remove-Item $taskReport -Recurse -Force
+  # --- spec-review-precheck.ps1: a sealed contract is evidence about the past --
+  # Every entry of the expected reviewer manifest is rebuilt from an immutable
+  # source except one: investigation.md used to be hashed from the LIVE working
+  # tree. That is the single worst file to read live, because by design it is the
+  # document that accumulates the amendment record ACROSS stages -- so it grows
+  # after a round is sealed as a matter of course. Comparing today's bytes with
+  # the correctly-pinned ones mismatched and refused -Reset with 'previous
+  # terminal contract is invalid', permanently, since nothing can un-grow the
+  # file (reproduced on epic-195). The shell twin's identical defect is covered
+  # by tests/spec-review-loop.tests.sh. The live-vs-pinned question belongs to
+  # check-workflow-state.ps1, which asks it deliberately and carries the
+  # amendment-record growth tolerance for exactly this file.
+  $specPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1'
+  $pwshPath = (Get-Process -Id $PID).Path
+  $investigation = Join-Path $spec 'investigation.md'
+  $requirementsPath = Join-Path $spec 'requirements.md'
+  $acceptancePath = Join-Path $spec 'acceptance-tests.md'
+  $specCalibration = Join-Path $root 'plugins/sdd-review-loop/references/spec-review-calibration.md'
+  $sealedDir = Join-Path (Join-Path $specReport 'attempt-1') 'round-1'
+  function Invoke-SpecPrecheck([string[]]$PrecheckArgs) {
+    & $pwshPath -NoProfile -File $specPrecheck @PrecheckArgs *> $null
+    return $LASTEXITCODE
+  }
+  function Get-Sha256Lower([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLower() }
+  # A terminal round-1 contract whose two reviewers both report only PASS, which
+  # the validator's own merge rule resolves to a terminal PASS -- the shape
+  # -Reset re-validates.
+  function Write-SpecTerminalPass([string]$Directory) {
+    $idsA = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE')
+    $idsB = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE')
+    $precheckPath = Join-Path $Directory 'precheck-result.json'
+    $pr = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+    $summaryPath = Join-Path $Directory 'integrated-summary.json'
+    [ordered]@{
+      schema                 = 'integrated-summary/v1'
+      attempt                = [int]$pr.attempt
+      round                  = [int]$pr.round
+      reviewer_a_checks      = @($idsA | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor' } })
+      reviewer_a_fail_count  = 0
+      reviewer_a_pass_count  = $idsA.Count
+      reviewer_a_skip_count  = 0
+      generated_at           = '2026-06-23T00:00:00Z'
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
+    $reqSha = [string]$pr.requirements_sha256
+    $accSha = [string]$pr.acceptance_sha256
+    $precheckSha = Get-Sha256Lower $precheckPath
+    $summarySha = Get-Sha256Lower $summaryPath
+    $calibrationSha = Get-Sha256Lower $specCalibration
+    $manifestA = @(
+      [ordered]@{ path = $requirementsPath; sha256 = $reqSha },
+      [ordered]@{ path = $acceptancePath; sha256 = $accSha },
+      [ordered]@{ path = $precheckPath; sha256 = $precheckSha },
+      [ordered]@{ path = $specCalibration; sha256 = $calibrationSha }
+    )
+    $manifestB = @($manifestA | ForEach-Object { [ordered]@{ path = $_.path; sha256 = $_.sha256 } })
+    $manifestB += [ordered]@{ path = $summaryPath; sha256 = $summarySha }
+    [ordered]@{
+      schema = 'spec-reviewer-a/v1'; stage = 'spec'; role = 'spec-reviewer-a'; run_id = 'fixture-a'; host_session_id = 'session-a'
+      allowed_input_manifest = $manifestA
+      verdict = 'PASS'
+      checks = @($idsA | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor'; finding = 'No issues found.' } })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'reviewer-a.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-reviewer-b/v1'; stage = 'spec'; role = 'spec-reviewer-b'; run_id = 'fixture-b'; host_session_id = 'session-b'
+      allowed_input_manifest = $manifestB
+      verdict = 'PASS'
+      checks = @($idsB | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor'; finding = 'No issues found.' } })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'reviewer-b.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-review-integrated-verdict/v1'; stage = 'spec'; feature = $feature
+      attempt = [int]$pr.attempt; round = [int]$pr.round
+      reviewer_a_run_id = 'fixture-a'; reviewer_b_run_id = 'fixture-b'
+      reviewer_a_host_session_id = 'session-a'; reviewer_b_host_session_id = 'session-b'
+      finding_counts = [ordered]@{ critical = 0; major = 0; minor = 0 }
+      verdict = 'PASS'; warningCount = 0
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'integrated-verdict.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-review-contract/v1'; stage = 'spec'; feature = $feature
+      attempt = [int]$pr.attempt; round = [int]$pr.round
+      requirements_sha256 = $reqSha; acceptance_sha256 = $accSha
+      reviewers = @(
+        [ordered]@{ role = 'spec-reviewer-a'; run_id = 'fixture-a'; host_session_id = 'session-a'; allowed_input_manifest = $manifestA },
+        [ordered]@{ role = 'spec-reviewer-b'; run_id = 'fixture-b'; host_session_id = 'session-b'; allowed_input_manifest = $manifestB }
+      )
+      run_id = 'fixture-orchestrator'; verdict = 'PASS'; warningCount = 0
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'spec-review-contract.json') -Encoding utf8NoBOM
+  }
+  # Seals the CURRENT bytes of investigation.md into every manifest, exactly as a
+  # real round does when its reviewers read the file.
+  function Add-InvestigationPin([string]$Directory) {
+    $sha = Get-Sha256Lower $investigation
+    foreach ($name in @('reviewer-a.json', 'reviewer-b.json')) {
+      $path = Join-Path $Directory $name
+      $data = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+      $data.allowed_input_manifest = @($data.allowed_input_manifest) + [pscustomobject]@{ path = $investigation; sha256 = $sha }
+      $data | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $path -Encoding utf8NoBOM
+    }
+    $contractPath = Join-Path $Directory 'spec-review-contract.json'
+    $contractData = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+    foreach ($reviewer in $contractData.reviewers) {
+      $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest) + [pscustomobject]@{ path = $investigation; sha256 = $sha }
+    }
+    $contractData | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8NoBOM
+  }
+
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  'Spec-Review-Status: Pending' | Set-Content -LiteralPath $requirementsPath -Encoding utf8NoBOM
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '1', '1')) -ne 0) { throw 'not ok: spec precheck could not open the sealed-contract fixture round' }
+  Write-SpecTerminalPass $sealedDir
+  Add-InvestigationPin $sealedDir
+  $sealedInvestigationSha = Get-Sha256Lower $investigation
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: a terminal contract pinning investigation.md must validate while the file is untouched' }
+
+  # The real shape: the amendment record grows after the seal. The pin is still
+  # correct evidence; only the present moved on.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context`n`n- Recorded after the round was sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigationSha) { throw 'not ok: growth fixture did not actually change investigation.md, so it proves nothing' }
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: investigation.md growing after the seal must not invalidate the sealed contract' }
+
+  # The mirror image: a contract that never pinned investigation.md must not be
+  # invalidated by the file appearing in the tree afterwards either.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $investigation -Force
+  Write-SpecTerminalPass $sealedDir
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: baseline - a contract with no investigation.md pin must validate' }
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  @('# Investigation', '', '- Created after the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: an investigation.md created after the seal must not invalidate an unpinning contract' }
+
+  # Deriving from the contract must not mean trusting whatever it says: the
+  # reviewers have to agree on the bytes they read.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  Write-SpecTerminalPass $sealedDir
+  Add-InvestigationPin $sealedDir
+  $forgedPath = Join-Path $sealedDir 'spec-review-contract.json'
+  $forged = Get-Content -LiteralPath $forgedPath -Raw | ConvertFrom-Json
+  ($forged.reviewers[1].allowed_input_manifest | Where-Object { $_.path -ceq $investigation }).sha256 = ('c' * 64)
+  $forged | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $forgedPath -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -eq 0) { throw 'not ok: reviewers disagreeing about investigation.md must not validate' }
+  Remove-Item -LiteralPath $specReport -Recurse -Force -ErrorAction SilentlyContinue
+
+  # --- the same category error, in the two downstream twins ------------------
+  # require_persisted_pass rebuilds a SEALED predecessor contract's expected
+  # reviewer manifest. investigation.md was the one entry re-hashed from the LIVE
+  # working tree, and it is by design the document that accumulates the amendment
+  # record ACROSS stages -- so it grows after a round is sealed as a matter of
+  # course. Once it grew, every downstream stage refused with 'persisted spec
+  # contract reviewer manifest is missing investigation evidence', permanently.
+  # This validation runs unconditionally, so -ProvenanceRereview offered no way
+  # past it and the only remaining move was a spec reset and a six-reviewer
+  # cascade (epic-193..196). Both twins carried their own copy, so no platform
+  # substitution escaped it; the shell twin's single shared copy is covered by
+  # tests/downstream-review-precheck.tests.sh.
+  #
+  # Both directions are asserted, because a one-sided test would let a blanket
+  # loosening through: growth must open the gate, and a contract whose two
+  # reviewers disagree about the bytes they read must still be refused.
+  $implPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
+  $taskPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1'
+  $specContractPath = "$specReport/attempt-1/round-1/spec-review-contract.json"
+  $implContractPath = "$implReport/attempt-1/round-1/impl-review-contract.json"
+  function Assert-Opens([scriptblock]$Action, [string]$Message) {
+    try { & $Action | Out-Null } catch { throw "not ok: $Message (got: $_)" }
+  }
+  # Seals the CURRENT bytes of investigation.md into every reviewer's manifest,
+  # exactly as a real round does when its reviewers read the file.
+  function Add-PinnedInvestigation([string]$ContractPath) {
+    $sha = Get-Sha256Lower $investigation
+    $data = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json
+    foreach ($reviewer in $data.reviewers) {
+      $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest) +
+        [pscustomobject]@{ path = "specs/$feature/investigation.md"; sha256 = $sha }
+    }
+    $data | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ContractPath -Encoding utf8NoBOM
+  }
+  function Set-ForgedInvestigationPin([string]$ContractPath, [int]$ReviewerIndex, [string]$Sha) {
+    $data = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json
+    ($data.reviewers[$ReviewerIndex].allowed_input_manifest |
+      Where-Object { $_.path -ceq "specs/$feature/investigation.md" }).sha256 = $Sha
+    $data | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ContractPath -Encoding utf8NoBOM
+  }
+
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  'Spec-Review-Status: Passed' | Set-Content -LiteralPath $requirementsPath -Encoding utf8NoBOM
+  'Impl-Review-Status: Pending' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+  @('Task-Review-Status: Pending','',"## T-001 First",'Risk: low','Risk Rationale: fixture','Required Workflow: test-after','### Blockers','None','',"## T-002 Second",'Risk: low','Risk Rationale: fixture','Required Workflow: test-after','### Blockers','T-001') | Set-Content (Join-Path $spec tasks.md) -Encoding utf8NoBOM
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  New-Item -ItemType Directory -Path "$specReport/attempt-1/round-1" -Force | Out-Null
+
+  # Baseline: a contract that pinned the file, validated while the file is
+  # untouched. If this ever fails the cases below prove nothing.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  $sealedInvestigation = Get-Sha256Lower $investigation
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'impl must accept a spec contract pinning an untouched investigation.md'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # The real shape: the amendment record grows after the seal. The pin is still
+  # correct evidence about the round; only the present moved on.
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context`n`n- Recorded after the round was sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigation) { throw 'not ok: growth fixture did not actually change investigation.md, so it proves nothing' }
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'investigation.md growing after the seal must not invalidate the sealed spec contract'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # The mirror image: a contract that never pinned investigation.md declares its
+  # reviewers did not read it, which the allowed-input table permits. The file
+  # merely appearing in the tree afterwards must not invalidate that contract.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'an investigation.md present in the tree must not invalidate a contract that never pinned it'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # Fail-closed direction: deriving the pin from the contract must not mean
+  # trusting whatever it says. Two reviewers who pinned different bytes did not
+  # read the same document, and no single pin can be derived from them.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  Set-ForgedInvestigationPin $specContractPath 1 ('c' * 64)
+  $ambiguousImplError = ''
+  try { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 | Out-Null } catch { $ambiguousImplError = "$_" }
+  if ($ambiguousImplError -notmatch 'ambiguous or malformed investigation evidence pin') {
+    throw "not ok: impl must refuse reviewers disagreeing about investigation.md by name (got: $ambiguousImplError)"
+  }
+  if (Test-Path $implReport) { throw 'not ok: an ambiguous investigation.md pin must be refused before any evidence is written' }
+
+  # The task gate validates BOTH the spec and the impl predecessor contract, and
+  # carries its own copy of the predicate, so it gets the same three assertions.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'impl gate must open so the task fixture has a round to seal'
+  'Impl-Review-Status: Passed' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+  Write-PassArtifacts impl "$implReport/attempt-1/round-1"
+  Add-PinnedInvestigation $implContractPath
+  $sealedInvestigation = Get-Sha256Lower $investigation
+  Assert-Opens { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 } 'task must accept spec and impl contracts pinning an untouched investigation.md'
+  Remove-Item -LiteralPath $taskReport -Recurse -Force
+
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context (task stage)`n`n- Recorded after both rounds were sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigation) { throw 'not ok: task-stage growth fixture did not actually change investigation.md' }
+  Assert-Opens { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 } 'investigation.md growing after the seal must not invalidate the sealed impl contract at the task gate'
+  Remove-Item -LiteralPath $taskReport -Recurse -Force
+
+  Set-ForgedInvestigationPin $implContractPath 1 ('c' * 64)
+  $ambiguousTaskError = ''
+  try { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 | Out-Null } catch { $ambiguousTaskError = "$_" }
+  if ($ambiguousTaskError -notmatch 'ambiguous or malformed investigation evidence pin') {
+    throw "not ok: task must refuse an impl contract whose reviewers disagree about investigation.md by name (got: $ambiguousTaskError)"
+  }
+  if (Test-Path $taskReport) { throw 'not ok: an ambiguous investigation.md pin must be refused before the task gate writes evidence' }
+  Remove-Item -LiteralPath $investigation -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  Write-Output 'ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one'
+
+  # AC coverage: design.md must name every AC-NNN that requirements.md states,
+  # except criteria the requirements table itself scopes Global. Mirrors the
+  # shell coverage in tests/downstream-review-precheck.tests.sh: the epic-136
+  # history (reviewer rounds burned on deterministic work) and the narrow
+  # Global-scope exception (human ruling, 2026-08-24). The child-process runs
+  # below mirror the shell ac_run helper: they capture stdout, stderr, and the
+  # exit code together, because the assertions need the refusal text, the NOTE
+  # text, and the pass/fail outcome from the same invocation.
+  $psExe = (Get-Process -Id $PID).Path
+  $implPrecheckPath = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
+  function Invoke-AcRun {
+    $command = "try { & '$implPrecheckPath' -Feature '$feature' -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
+    $lines = & $psExe -NoProfile -Command $command 2>&1 | ForEach-Object { $_.ToString() }
+    return ($lines -join "`n")
+  }
+  function Reset-AcFixture([string[]]$RequirementsExtra) {
+    Remove-Item -LiteralPath $spec, $specReport, $implReport -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $spec -Force | Out-Null
+    (@('Spec-Review-Status: Passed') + $RequirementsExtra) | Set-Content (Join-Path $spec requirements.md) -Encoding utf8NoBOM
+    'Impl-Review-Status: Pending' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+    '# Acceptance' | Set-Content (Join-Path $spec acceptance-tests.md) -Encoding utf8NoBOM
+    @('Task-Review-Status: Pending', '', '## T-001 First', 'Risk: low', 'Risk Rationale: fixture', 'Required Workflow: test-after', '### Blockers', 'None') | Set-Content (Join-Path $spec tasks.md) -Encoding utf8NoBOM
+    New-Item -ItemType Directory -Path "$specReport/attempt-1/round-1" -Force | Out-Null
+    Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  }
+
+  # absent -> refused, and refused before any evidence is written
+  Reset-AcFixture @('', '#### AC-001', '', 'fixture criterion')
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -eq 0 -or $acOut -notmatch 'never names these acceptance criteria: AC-001') { throw "not ok: impl precheck must refuse a design.md that never names AC-001 (got: $acOut)" }
+  if (Test-Path $implReport) { throw 'not ok: AC-coverage refusal must fail closed before creating round evidence' }
+
+  # named -> accepted, proving the refusal above was the AC check and not some
+  # unrelated fixture failure that would make this case vacuous
+  Add-Content (Join-Path $spec design.md) 'Covers AC-001 in the plan.'
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"   # re-pin: design.md changed
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -ne 0 -or $acOut -match 'never names these acceptance criteria') { throw "not ok: impl precheck must accept a design.md that names AC-001 (got: $acOut)" }
+  if (-not (Test-Path "$implReport/attempt-1/round-1/precheck-result.json")) { throw "not ok: impl precheck should have produced round evidence once AC-001 is named (got: $acOut)" }
+
+  # The narrow Global-scope exception (human ruling, 2026-08-24), and the half
+  # of it that matters just as much: the exception must not become a loophole.
+  # Both halves are asserted from ONE run, so neither can pass by accident: a
+  # one-sided test would let a blanket loosening through. The '-' trace cell in
+  # the AC-004 row stands in for the shell fixture's em-dash, which the ps1
+  # ASCII gate forbids in this file; the annotated '(Global)' spelling never
+  # reads the trace cell, so the substitution changes nothing the gate sees.
+  Reset-AcFixture @(
+    '',
+    '| AC-ID | Requirement | Criterion |',
+    '|---|---|---|',
+    '| AC-002 | REQ-001 | Behaviour this design must plan for. |',
+    '| AC-003 | Global | This package''s own registration commit creates no file outside its spec directory. |',
+    '| AC-004 (Global) | - | check-sdd-structure.sh exits 0 after this package''s registration commit. |'
+  )
+  $acOut = Invoke-AcRun
+  $acError = (($acOut -split "`n") | Where-Object { $_ -match 'never names these acceptance criteria' }) -join "`n"
+  if ($LASTEXITCODE -eq 0 -or -not $acError) { throw "not ok: a REQ-traced AC missing from design.md must still be refused (got: $acOut)" }
+  if ($acError -notmatch 'AC-002') { throw "not ok: the refusal must name the REQ-traced AC-002 (got: $acError)" }
+  if ($acError -match 'AC-003') { throw "not ok: a criterion the requirements table scopes Global must not be demanded of design.md (got: $acError)" }
+  if ($acError -match 'AC-004') { throw "not ok: the (Global) spelling must be read as Global scope too (got: $acError)" }
+  if ($acOut -notmatch 'scopes Global[\s\S]*AC-003 AC-004') { throw "not ok: an exercised exception must be reported, naming the excused criteria (got: $acOut)" }
+  if (Test-Path $implReport) { throw 'not ok: AC-coverage refusal must fail closed before creating round evidence' }
+  # The diagnostic must assert only what this script evaluates. It consults no
+  # testability or traceability attribute anywhere, and never did.
+  if ($acOut -match 'testable and traceable') { throw "not ok: the AC-coverage diagnostic claims a predicate this script never evaluates (got: $acOut)" }
+
+  # Naming only the REQ-traced criterion clears the gate: proof the two Global
+  # rows were genuinely excused and were not merely riding on some other failure.
+  Add-Content (Join-Path $spec design.md) 'Covers AC-002 in the plan.'
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"   # re-pin: design.md changed
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -ne 0 -or $acOut -match 'never names these acceptance criteria') { throw "not ok: Global-scoped criteria must not be demanded of design.md (got: $acOut)" }
+  if (-not (Test-Path "$implReport/attempt-1/round-1/precheck-result.json")) { throw "not ok: impl precheck should have produced round evidence once AC-002 is named (got: $acOut)" }
+  Remove-Item $implReport -Recurse -Force
   Write-Output 'ok: PowerShell downstream prechecks fail closed and preserve graph semantics'
 } finally {
   [IO.File]::WriteAllText($registry, $registryOriginal)

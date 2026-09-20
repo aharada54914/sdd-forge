@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a2-r2-reviewer-a-seq767",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a2-r2-reviewer-a-767",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "580cce4d0f10ccf11667f90fd9d0286ab9b735fc257379bbc051d5ea6e7a4be5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-2/precheck-result.json",
+      "sha256": "d70a8c34ca399b33dccbb096bc877ee578d5404e428aec0a67d37223a5d58cfd"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope REQ-001..REQ-006 (requirements.md:227-664) states concrete, measurable criteria: exact schema key sets and grammars (REQ-001, AC-001/AC-003 at requirements.md:771,773), exact flag names/exit codes/output-text byte-identity (REQ-002, AC-007/AC-008 at requirements.md:777-778), a defined read-only consumption contract with explicit absent/invalid-state handling (REQ-003, AC-011/AC-012/AC-030 at requirements.md:781-782,800), a concretely ordered two-step gate insertion with FAIL/no-op rules (REQ-004, AC-014-018 at requirements.md:784-788), a fixed Block position/exit-code/message shape (REQ-005, AC-019 at requirements.md:789), and a named fixture inventory (a)-(l) each mapped to a specific REQ/AC (REQ-006 at requirements.md:600-664). Design-content-review-only ACs (AC-020/022/029) are explicitly flagged as such and checked by direct inspection (acceptance-tests.md:56-110), which the calibration reference permits without requiring an automated suite."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal REQ-001..REQ-006 (requirements.md:227,346,419,477,557,600) has at least one matching row in the Acceptance Criteria table (requirements.md:771-801): REQ-001->AC-001..006/AC-029, REQ-002->AC-007..010/AC-027/AC-028, REQ-003->AC-011..013/AC-026/AC-030, REQ-004->AC-014..018/AC-026, REQ-005->AC-019..021/AC-031, REQ-006->AC-022. AC-022 itself is a self-check that every REQ-00N AC naming a testable behavior has a corresponding design.md Test Strategy fixture (requirements.md:792)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts: exact JSON/schema shapes and grammar (AC-001/AC-003, requirements.md:771,773), exact CLI output text and exit codes (AC-007/AC-008/AC-027/AC-028, requirements.md:777-778,797-798), exact quality-report FAIL/no-op behavior (AC-015/AC-016, requirements.md:785-786), and exact file-hash/manifest-equality contract (AC-010/AC-031, requirements.md:780,801). The three design-content-review ACs (AC-020, AC-022, AC-029) are explicitly scoped to direct textual inspection of specific design.md sections, not vague intent (acceptance-tests.md 'Spec-Authoring-Time Manual Review Record', lines 56-110)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:666-741) is explicit and itemized: no edits to contracts/** (line 668), no edits to plugins/**/scripts/**/tests/**/.github/**/docs/** in this Phase 1 commit (line 677), no duplication of A5's workflow-combination-invalid Block (line 683), no duplication of A2/A3/A5's own evaluators (line 692), a fixed three-token catalog seed with no larger invented vocabulary (line 712), no touching generate-gate-capabilities.{py,sh,ps1} (line 720), no unilateral expansion of the protected-file inventory or Capability-matching mechanism (line 728), and no building of sdd-delivery/Artifact/Promotion Gates (line 738)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "This package's own header (requirements.md:3) states 'Spec-Review-Status: Pending', and its Overview (requirements.md:40-45) frames it as 'a Phase 1 (specification) package only... those are Phase 2, per AGENTS.md's Required Workflow'; Roles and Permissions (requirements.md:930-932) and AC-024 (requirements.md:794) both state explicitly that this package 'does not write Approved/Passed in any Status/approval field' and that both review-status headers must stay Pending until a human/spec-review-loop advances them. Round 2's own newly-added dated note (requirements.md:47-55) contradicts this: it asserts that 'tasks.md and traceability.md have since been authored and reviewed as this feature's canonical siblings, and implementation-phase evidence now exists - including the T-001 cross-model verdicts the Acceptance Criteria table's AC-010 row cites.' AC-010 (requirements.md:780) and AC-031 (requirements.md:801), and acceptance-tests.md's TEST-010/TEST-031 rows (acceptance-tests.md:35,54), each cite a '2026-08-21 T-001 cross-model remediation'/'T-001 cross-model verdicts' as an already-settled, normative fact folded into this spec's own content. A downstream task author or verifier cannot determine from this package whether it genuinely precedes implementation (as the Required Workflow this same Overview cites mandates, and as AC-024/Roles-and-Permissions insist by keeping Spec-Review-Status Pending) or whether implementation (task T-001, with its own cross-model quality-loop verification) has already run against this feature before spec review passed - an internal contradiction about the specification's own approval boundary, not a downstream implementation detail. This belongs to spec review because it is a self-contradiction within the Phase 1 package's own text about its own workflow position, not a gap in design, task, or quality-gate evidence (which the calibration reference correctly says this gate must not require). Per the calibration's Severity Calibration, an unauthorized workflow-boundary/missing-approval-boundary contradiction that makes the specification's own review-readiness unreviewable is Critical."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each have a stated validation surface: the command-discovery path-traversal/symlink/argv-injection hardening (NEW-01, requirements.md:841-864, Security Boundaries requirements.md:1112-1128) is validated by named negative fixtures (REQ-006(e), requirements.md:616-628) and TEST-016 (acceptance-tests.md:41). The catalog-token fail-closed posture (REQ-001 item 5) has check (j)/(h) independence fixtures (AC-005/TEST-005). Each open Risk (A5 not yet Passed; the eleven-category-to-token mapping; the three-token catalog seed) is stated with its own acknowledged validation/follow-up path (requirements.md:1198-1241), e.g. the catalog's additive-versioning mechanism as the stated low-cost remediation route for an under-seeded catalog (requirements.md:1232-1241)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Verified directly: no domain/ directory exists anywhere in this repository worktree (Glob for domain/**, domain, and domain/* from /Users/jrmag/Projects/active/sdd-forge-wt-epic-194 all returned no files). The skip condition (no domain/ directory, or no domain/context-map.md with Domain-Model-Status: Approved, or no schema-valid domain/domain-contract.json) is met, so this check is recorded as skipped per its explicit skip condition."
+    }
+  ]
+}

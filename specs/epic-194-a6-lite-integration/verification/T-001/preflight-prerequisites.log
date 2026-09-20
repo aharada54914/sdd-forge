@@ -1,0 +1,15 @@
+Date: 2026-08-08
+Command: find contracts plugins/sdd-quality-loop/scripts -type f (exact requested paths) -print | sort
+Result: PASS (10 present, 0 missing)
+
+contracts/facet-manifest.schema.json
+contracts/project-context.schema.json
+contracts/project-context.template.yaml
+plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js
+plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1
+plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh
+plugins/sdd-quality-loop/scripts/validate-facet-manifest.ps1
+plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+plugins/sdd-quality-loop/scripts/validate-facet-manifest.sh
+

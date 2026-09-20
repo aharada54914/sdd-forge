@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0779",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0779",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-5/round-1/precheck-result.json", "sha256": "0e5ed8f2af3a9c7738f21496b560490d08e2933d98a4a6c4283ffbf4b13e7860"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "f3dda65bca1826656215e30849b85c9c83b87ee7648dc9b2a0bca2587d27b337"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001 through REQ-007, requirements.md:106-241) names a concrete, measurable deliverable: REQ-001 fixes a byte-identical target inventory (AC-038), REQ-002 fixes a deterministic recorded-response seam and AST canonicalizer (AC-030), REQ-003 fixes a versioned event-trace schema with per-kind producer/ordering/normalization rules (AC-022-027), REQ-005 fixes an exhaustive fixture-matrix disposition table (AC-028), REQ-006 fixes exact capture-script/manifest fields (AC-018), and REQ-007 fixes a machine-evaluable allowlist grammar (AC-034/AC-035). No in-scope requirement is stated only as intent without an observable check."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal has at least one matching AC in the Requirement column of acceptance-tests.md: REQ-001->AC-002/003/004/038; REQ-002->AC-005/006/007/030/031/042/043; REQ-003->AC-008-012,022-027,032,033,036,037,039; REQ-004->AC-013/017/029; REQ-005->AC-014/015/019-021/028; REQ-006->AC-001/018/040/041; REQ-007->AC-016/034/035. No goal in requirements.md's Goals section is left without a corresponding row."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior rather than vague intent: e.g. AC-009 pins exact function-body sha256 hashes (`f325a4df...`, `460467af...`), AC-018 requires a recorded commit SHA/env vars/script hashes in a manifest, AC-035 names three independently checkable hard-fail conditions, and AC-028/AC-029 require exhaustive, mutually-exclusive per-cell dispositions. None of the 43 ACs in acceptance-tests.md states only an unmeasurable intention."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (lines 245-273) is explicit: no implementing Epics A1-A6, no authoring test code/fixtures/registry edits in this phase, no registering a new loop-inventory id, no re-specifying Epic A5's own deferred suite in full, and no edits to plugins/scripts/.github/tests/contracts/docs. The boundary between this epic's own scope and adjacent/future epics is drawn concretely, not left open-ended."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: the Security Boundaries table (requirements.md:856-861) fixes B1 (golden-baseline capture/update authorization, candidate/canonical separation, CI/agent write prohibition) and B2 (shared cross-epic surface edit rigor); Roles and Permissions fixes maintainer sole-approval for loop-inventory.json/emit-run-record.sh edits and CI's read-only baseline behavior; AC-040/AC-041 make the CI-write prohibition and promote-script refusal independently, concretely testable."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:906-935) names Critical (specifying against unmerged upstream epics), High (cross-epic shared-surface blast radius), and Medium (deliberate 4-file scope deviation) risks, each paired with a concrete mitigation/validation surface: the Critical risk's mitigation is REQ-007's named-SKIP/allowlist design with the AC-034/AC-035 fingerprint-drift hard-fail as the loud-failure surface; the Medium risk's mitigation is the explicit Phase-2-kickoff self-documenting `check-sdd-structure.sh` signal (Main Workflows step 1). No high-risk claim is left without a stated validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root (verified via Glob, the sole permitted out-of-manifest existence check per review-context-boundary.md); per calibration this check is recorded as skipped and does not apply."
+    }
+  ]
+}

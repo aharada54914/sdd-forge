@@ -743,9 +743,13 @@ if ((Test-HasPassPrefix $baselineLines "PASS: TEST-021 ") -and (Test-HasPassPref
 
 # --- REQ-010 (AC-027, AC-028) ------------------------------------------------
 
-$runAllShText = Get-TextOrEmpty $runAllShPath
+# The POSIX runner loads its inventory dynamically; inspect its public list,
+# not a literal path that no longer appears in the runner source.
+$registeredSuites = @(& bash $runAllShPath --list)
+$registrationExit = $LASTEXITCODE
 $runAllPs1Text = Get-TextOrEmpty $runAllPs1Path
-if ($runAllShText.Contains("tests/design-sync-standing-consent.tests.sh") `
+if ($registrationExit -eq 0 `
+        -and $registeredSuites -ccontains "tests/design-sync-standing-consent.tests.sh" `
         -and $runAllPs1Text.Contains("tests/design-sync-standing-consent.tests.ps1")) {
     Test-Pass "TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)"
 } else {

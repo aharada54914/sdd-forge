@@ -1,0 +1,20 @@
+{
+  "schema_version": "adversarial-review-evaluation.v1",
+  "branch_slug": "fix-issue-289-traceability",
+  "created_at": "2026-09-11T06:44:48.370Z",
+  "report_path": "reports/adversarial-review/fix-issue-289-traceability/report.md",
+  "trigger_reasons": ["workflow_surface"],
+  "reviewer_launch_count": 3,
+  "continuation_status": {"reviewer_a": "resumed", "reviewer_b": "resumed"},
+  "finding_counts": {
+    "phase1_total": 2, "cross_critique_new": 0,
+    "by_severity": {"critical": 0, "high": 0, "medium": 1, "low": 0},
+    "adopted": 1, "rejected": 0
+  },
+  "basis_counts": {"code_evidence": 2, "spec_evidence": 0, "concern": 0},
+  "scope_counts": {"in_scope": 2, "out_of_scope": 0, "unclear": 0},
+  "phase_r": {"ran": true, "verified_count": 1, "not_fixed_count": 0, "partially_fixed_count": 0, "claim_error_count": 0, "new_issues_found": 0},
+  "token_usage": {"total_tokens": null, "unavailable_reason": "Complete root-plus-reviewer token telemetry is not exposed for this review run."},
+  "duration_ms": null,
+  "notes": "Two duplicate Phase1 findings consolidated into one adopted MEDIUM. Native agent IDs are not SDD ledger reservations. Issue289 authorization grounds substantive scope; formal REQ IDs absent, so canonical per-finding scope schema compliance is not claimed. Original target metadata retained after fix3bb7d192; no stale-to-current rewrite. Pre-launch timestamp unavailable. No required approval or Issue completion changed."
+}

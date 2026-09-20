@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196a8integration-impl-a4r1-b-seq0770",
+  "host_session_id": "SESS-impl-a4r1-b-epic196a8integration-0770",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-1/integrated-summary.json", "sha256": "1ba83eb71c3705c63c33634617cd57babcd3413ab1d3d4a364fc5e9a7a287011"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-1/precheck-result.json", "sha256": "5a32991f794d1d8bfb9c33b6cc52749547b7ca63804d89fc3f372a838426028c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "fc9e3c830f7c13fee5e6b863ccb670ad347a86f97c201c37829b21a1d68a5549"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every technology/architecture decision (Ed25519 signing + RFC 8785 JCS canonicalization, sh/PowerShell thin wrappers, delimited-region vs. whole-file drift comparison, SKIP-allowlist reuse over reinvention, structural synthetic/live-host separation, FilesOnly exclusion) carries an explicit 'because'/rationale clause in design.md's Design Decisions section, with file:line or cross-document citations (e.g. ADR-0028 for Ed25519, design.md Design Decisions ~1478-1514)."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Open Questions section (~1628-1641) does not use the literal 'Blocks Implementation:'/'Resolution Path:' field labels, but the substantive content is present for both carried-forward entries: OQ-001 names an owner ('Phase 2/3 implementer'), states the resolution path (empirical confirmation of each CLI's headless contract before any automated path is built, with an explicit non-silent-assumption discipline) and is treated as a deliberate non-blocking deferral for this Phase 1 package (Design Decisions ~1451-1462); OQ-002 is marked resolved with its own Coverage Scope table as the normative resolution. No blocking, ownerless, or resolution-path-less entry exists. Advisory only: adopting the literal field-name format would improve machine-parseability."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's own '## Assumptions' section (design.md:1622-1626) states the operative assumption is 'Epic A1/A5/A7 unmerged status' (pointing to requirements.md's Assumptions), but the same design.md document's own SKIP Allowlist Activation Gate, Deployment / CI Plan, and Risks sections (design.md:209, :1309, :1654) state as settled fact that 'Epic A1 merged on 2026-08-08' and build the currently-active designed-red CI gate on that fact. This is a self-contradiction inside design.md, not merely a stale requirements.md reference: a reader who consults only the Assumptions section would wrongly conclude Epic A1's handshake script and five consumer entry points do not yet exist on `main`, contradicting the document's own Risks/Deployment-gate content. Concrete failure mode: a Phase 2/3 implementer or a future reviewer trusting the Assumptions section in isolation could misjudge whether the AC-015/AC-016 hard-failure gate is already live. Fix: update design.md's Assumptions section to state Epic A1's actual merged status (or explicitly flag that requirements.md's underlying assumption is superseded) so the section is internally consistent with the rest of the document."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (design.md:1599-1619) addressing both Security Boundaries constraints (B1, B2) from requirements.md and the carried-forward CI-resilience convention; no unaddressed constraint found. Requirements.md contains no other explicit numeric/regulatory/compatibility constraint keywords ('must not', 'within N ms', 'compliant with', etc.) beyond B1/B2. Separately, design.md's SKIP Allowlist Activation Gate section explicitly and at length reconciles the apparent AC-006 vs. AC-015/AC-016 SKIP-trigger tension with citations to requirements.md's own Main Workflows item 7 and states the residual risk honestly in its own Risks section (design.md:1666-1687) — this satisfies the 'explicitly defers with a stated rationale' exception, so it is not raised as a contradiction finding here."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This is an internal test-infrastructure specification package with no throughput/latency/SLA language beyond the design-internal 24-hour nonce TTL, which is a design choice, not a requirements.md-stated performance constraint."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (design.md:1566-1597) names the deployment target (existing .github/workflows/test.yml 3-OS matrix, no new topology), the staged-activation mechanism functioning as this feature's rollout gate (SKIP Allowlist Activation Gate, AC-006 vs. AC-015/AC-016 predicates), and the CI pipeline changes required (new steps registered into existing jobs, via the repository's human-copy staging convention per infra-spec.md CI/CD Sequence). Migration Strategy states 'No migration required' (net-new files only), so no execution-order requirement applies."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan Migration Strategy states 'No migration required. Every data entity named above is a net-new file with no prior version to migrate from; the one write this package performs against existing data ... is additive metadata on an already-append-only structure ..., not a schema migration.' Functionally equivalent to 'No data changes' for this check's purposes; PASS per the check's own stated rule."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section names Claude Code CLI, Codex CLI, and GitHub Copilot CLI with purpose (read-only consumption for live-host proof/handoff) and explicit failure behavior via the Automated/Manual Classification Table and Live-Host Semantic Matrix (e.g. Codex-disabled-expected-unavailable, Copilot-subagent-expected-unavailable are named non-firing states, never a silent gap). Epic A1's handshake script is identified as a dependency in Cross-Layer Dependencies with an explicit failure mode (blob-ID mismatch = hard failure) and contract (sole nonce issuer)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Components table maps 1:1 onto requirements.md's REQ-001 through REQ-007 (Technical Summary explicitly states this mapping), and Non-goals (no edits to plugins/**, scripts/**, .github/**, tests/**, contracts/**, docs/** in this task) are respected per the Layer Specifications and Protected-File Statement. No UI/design-system surface exists (Design System Compliance: N/A, no design-system/ contract implicated). No component, endpoint, or data model found without a corresponding requirement."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization/authenticity changes (live-host proof, signing, nonce ledger) and cross-service integration failure behavior (three CLIs, Epic A1 handshake). Each has a concrete, named validation path: `validate-live-host-proof.{sh,ps1}` with enumerated named error codes (design.md API/Contract Plan), design.md Test Strategy items 5, 8, 10, and security-spec.md's dedicated 'Security Tests' table mapping each boundary (B1-B5) to a specific test item and expected result."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in this repository (verified via filesystem check), so the Approved-domain-model precondition for this check does not hold."
+    }
+  ]
+}

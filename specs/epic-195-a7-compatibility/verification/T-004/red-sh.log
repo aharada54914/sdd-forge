@@ -1,0 +1,7 @@
+FAIL: required shipped product surface exists: tests/lib/markdown-ast-canonicalizer.sh
+FAIL: required shipped product surface exists: tests/fixtures/structural-fixture-corpus/f1-full.json
+FAIL: required shipped product surface exists: tests/fixtures/structural-fixture-corpus/f2-lite.json
+FAIL: required shipped product surface exists: tests/fixtures/structural-fixture-corpus/f3-advisory.json
+FAIL: required shipped product surface exists: tests/fixtures/structural-fixture-corpus/f4-required.json
+0 passed, 5 failed
+EXIT_CODE=1

@@ -1,5 +1,28 @@
 # T-006 protected-file registration bundle -- regenerated candidate (quality-gate remediation)
 
+## Recovery update — 2026-09-08
+
+This dated update supersedes the historical counts and pending-apply claims
+below for recovered HEAD `3971c93a5705dc15f86ba56cc62118613e4b19db`.
+All seven candidates now match the live files byte-for-byte; their full manifest
+hash is `cb7eb6800d988664e934bda35e62ce62efc421dc518a226bed66377d02be5025`.
+The workflow retains the POSIX inventory job, all issue-194 steps, Node 22,
+and the live per-job timeouts. The generator retains live shell-key requirements
+and export mappings. No live file was changed during recovery.
+
+Read-only comparisons found only the human-copy workflow and its manifest still
+need synchronization; the other six mirror files already match. Recheck this
+entire seven-file comparison immediately before application or review because
+these shared files can change on other branches. Historical test success below
+is not a substitute for checking the recovered checkout.
+
+Both generator suites currently report 25 passed, zero genuine failures, and
+one designed-red pending mirror application (exit 1). New controls reject missing
+shell contract keys and a case-changed export mapping, and verify all seven
+manifest hashes. The generator's own `--check` could not be run by the agent:
+the active write-protection hook rejected its launch. A human must run it;
+no import or renamed executable was used to bypass that denial.
+
 This directory is **not** `specs/epic-190-a2-capability-registry/human-copy/`.
 It exists because the bundle previously staged under `human-copy/` was built
 from a pre-`epic-189-a1-merge` baseline (before commit `6f1351d4` merged

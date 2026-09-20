@@ -1,7 +1,7 @@
 ---
 name: implement-task
 description: Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 

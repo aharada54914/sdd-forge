@@ -1,0 +1,7 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components: []
+shared_paths: []

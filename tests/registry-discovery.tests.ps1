@@ -203,8 +203,9 @@ if ($mtimeBefore -eq $mtimeAfter) {
 # =====================================================================
 # Suite/CI registration self-checks
 # =====================================================================
-$runAllSh = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.sh')
-if ($runAllSh -match [regex]::Escape('tests/registry-discovery.tests.sh')) {
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains 'tests/registry-discovery.tests.sh') {
   Ok 'self-registration: registry-discovery.tests.sh registered in tests/run-all.sh'
 } else {
   Fail 'self-registration: registry-discovery.tests.sh NOT registered in tests/run-all.sh'

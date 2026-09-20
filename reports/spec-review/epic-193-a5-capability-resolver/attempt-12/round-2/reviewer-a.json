@@ -1,0 +1,59 @@
+{
+ "schema": "spec-reviewer-a/v1",
+ "stage": "spec",
+ "role": "spec-reviewer-a",
+ "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a12r2-seq0865",
+ "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a12r2-0865",
+ "allowed_input_manifest": [
+  {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "a2d14f7fd832ae90b08bf8f12dceee08d2338607b99af9c561aaad8a669a19ca"},
+  {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "72ddc0136a3ad03b95842541874d8f893ee67acb8ba5efed1585b1a880f4de7b"},
+  {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "6efd627c45119f7aaacbb1959020732f734cd8883fa20061738e34f90bc6901e"},
+  {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+  {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-12/round-2/precheck-result.json", "sha256": "80b9b2b9b7ad5493bb95af124531b844f87850420ae00d077238af34ecef9840"}
+ ],
+ "verdict": "NEEDS_WORK",
+ "checks": [
+  {
+   "id": "REQ-TESTABILITY",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "REQ-001 through REQ-008 each fix concrete, measurable procedures (exact CLI flags, ordered processing steps, exit-code contract, field-by-field output shapes, stable-sort rules) sufficient for later validation; the contradiction identified under CONSTRAINTS-EXPLICIT is a consistency defect between two statements of the same criterion, not a general observability gap across the requirement set."
+  },
+  {
+   "id": "GOAL-AC-TRACE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Every REQ-001..REQ-008 goal has multiple mapped Acceptance Criteria in requirements.md's own Acceptance Criteria table (e.g. REQ-002 -> AC-010..AC-014/AC-038..AC-041/AC-047..AC-049/AC-055/AC-057/AC-058; REQ-004 -> AC-017..AC-021/AC-044/AC-050/AC-051/AC-054/AC-056), and acceptance-tests.md's preamble documents the one narrow, justified exception class (AC-035/036/037 Global rows) with a cited precedent."
+  },
+  {
+   "id": "AC-OBSERVABLE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Acceptance criteria specify concrete, externally checkable targets throughout (e.g. AC-003 byte-identity via hand-computed vs. Resolver-computed comparison, AC-013 fixed exit-code mapping, AC-024 stable-sort assertions, AC-025/AC-059 grep self-checks) rather than vague intent statements."
+  },
+  {
+   "id": "SCOPE-BOUNDARY",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md:845-897 (Non-goals) explicitly excludes building the Resolver itself, editing any upstream A1-A4 contract, adding a Registry field, re-specifying check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness's caller, computing the full effective-enforcement axis, editing plugins/**, and authoring a new ADR -- each with a stated reason and owner."
+  },
+  {
+   "id": "CONSTRAINTS-EXPLICIT",
+   "result": "FAIL",
+   "severity": "Critical",
+   "finding": "This round amended exactly three sites (requirements.md's REQ-002 exception-count prose at :386-398; acceptance-tests.md's AC-012 row; acceptance-tests.md's AC-047 row) to mirror investigation.md rulings (a)/(A)/(B) (investigation.md:2654-2809). That leaves requirements.md internally contradicting itself and acceptance-tests.md: requirements.md's own AC-012 table row (:937) still says the always-emitted rule has only two exceptions (no mention of the ruling-(a) third, non-diagnostic no-write condition acceptance-tests.md:76 now states), and requirements.md's own AC-047 table row (:972) still asserts an unqualified byte-identical-to-PRE / no-bare-unlink restoration guarantee with no symlink-PRE=ABSENT (ruling A) or POSIX-only (ruling B) qualifier, while acceptance-tests.md:108's amended AC-047 row now carries both qualifiers verbatim. The identical unqualified absolute (\"never a bare unlink\", \"PRE-transaction state\", \"exactly as found\") also survives unamended at requirements.md AC-011 (:936), AC-039 (:964), AC-049 (:974), the Field Definitions \"Block\" entry (:1006-1034), Edge Cases (:1258-1298), and Security Boundaries (:1325-1372) -- all directly contradicted by the owner-ruled, already-shipped behavior investigation.md records. A task author or task/quality-gate reviewer consulting requirements.md's own AC-012/AC-047 rows (the table acceptance-tests.md's preamble says TEST IDs map 1:1 to) would build or re-verify against the disproven absolute claim, risking a regression of the owner-approved security fix (ruling A) or the disclosed Windows limitation (ruling B). This is a specification-internal contradiction, not an implementation, task, or quality-gate defect, so it belongs to this gate; per calibration it is not phase-sequencing (no benefit of the amendment-context suppression applies to a freestanding contradiction) and is Critical because the specification's own acceptance criteria state mutually exclusive things about the identical guarantee."
+  },
+  {
+   "id": "RISK-VALIDATION-SURFACE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "requirements.md:1447 carries a Risks section, and the package's own highest-risk claim (Epic A2 Registry-schema gap for lite_policy.required_lite_checks, investigation.md INV-019) has a named validation surface: REQ-002's lite-check-source-undefined Block condition plus AC-009/AC-010's fixtured non-Blocking/Blocking states."
+  },
+  {
+   "id": "DOMAIN-CONFORMANCE",
+   "result": "SKIP",
+   "severity": "Major",
+   "finding": "No domain/context-map.md exists in this repository (Glob for domain/context-map.md returned no files), so this check is skipped per its own skip condition."
+  }
+ ]
+}

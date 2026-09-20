@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-seq0660",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0660",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-3/integrated-summary.json",
+        "sha256": "7b695e10ae97b3f153a922531434895a1c8bf8e45d66c140393ab9d330da94f8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-3/precheck-result.json",
+        "sha256": "8d1c2fd497d95d515b8eced8512eb5d96f8a94a280b20cb0503cb63e3064d5b2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "e49d1b7d52e6c9861fe6b88ac6ad2cda4c7d30979251c904738f2b1a9b02ab02"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round 2's Major finding is closed. T-012 (tasks.md:1651) now declares Risk: high, Required Workflow: tdd, Security-Sensitive: true. Its Risk Rationale (tasks.md:1653-1697) names Security Boundary B5 (security-spec.md#trust-boundaries, corpus write path via `refresh_procedure`, design.md Data Plan line 931) as the surface, and draws the exact structural parallel to T-002's B1 high classification ('That is structurally the identical silently canonized as the new compatibility oracle pattern that earns T-002 its high tier under Boundary B1'). This is grounded, not asserted: security-spec.md:75 (STRIDE B5 row) independently confirms 'A malformed or subtly-altered recorded-response fixture ... is silently treated as a passing structural-compatibility comparison' as the named threat T-012's write path is the sanctioned mutation route for (security-spec.md:95, 'Phase 2/3 test harness | structural-fixture-corpus/v1 | write (direct, additive; refresh only via the non-gating AC-031 test)'). traceability.md:68 independently corroborates: 'B5 ... T-012's own AC-031 refresh path is B5's one sanctioned corpus-mutation route.' The remaining 11 tasks' Risk tiers remain consistent with their scope: T-002/T-004/T-005/T-008/T-009/T-010/T-011 (high) each name a distinct B1-B5 boundary or cross-epic shared-surface edit; T-001/T-003/T-006/T-007 (medium) are inert-builder or test-consumer tasks touching no sentinel surface; no task is over-classified (no high/critical task whose scope is only docs/CSS/copy)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002, T-004, T-005, T-008, T-009, T-010, T-011, and now T-012) carries a Done When item pairing Red (failing-fixture) and Green (correct-implementation) TDD evidence with 'An independent quality-gate verdict records PASS' (tasks.md:1815-1821 for T-012). No task declares Risk: critical, so the second-approver/signed-evidence-bundle requirement (risk-gate-matrix.md line 32-33, critical-only) does not apply to any task. traceability.md rows for T-009 (line 82) and T-012 (line 85) additionally list 'implementation report with TDD red/green evidence, independent quality-gate report, .../green-sh.log, .../red-sh.log' as planned evidence artifacts, corroborating the Done When commitments."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks have Done When lists of 5-8 items (T-004 exactly 8; T-012 now 7 after the round-3 validate-before-write and updated-Rollback additions) and Scope sections of 3-5 cohesive bullets addressing one deliverable each (a script pair, a suite extension, a manifest+evaluator). No task's title implies multiple sequential phases. No fragmentation pattern: no 3+ tasks are single-function/single-file edits with no integration concern, and no task's scope is a bare rename. T-012's round-3 Done When growth (adding the validate-before-write item and strengthening the TDD/Rollback items) stayed within the same coherent single-deliverable scope (the non-gating live-model refresh test) and did not cross into a second implementation area."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task pairs its happy-path Done When items with a negative/edge fixture: T-002 (CI-set and --approved-by-omitted refusal fixtures, tasks.md:354-356), T-003 (AC-002 mutated-golden-baseline negative self-check), T-004 (malformed-corpus-entry hard-failure fixture, AC-030), T-005 (schema-validation + assert_terminal/assert_artifacts_schema non-regression fixture), T-009 (AC-033 capability-only usage-error golden negative test), T-010 (three independent hard-fail fixtures: dependency-present SKIP, unknown SKIP, fingerprint drift), T-011 (AC-040/AC-041 negative fixtures), and T-012's round-3 addition of the structural-mismatch refusal fixture (tasks.md:1787-1790, 1815-1819) \u2014 closing what would otherwise have been a happy-path-only live-model refresh task. Acceptance-tests.md AC-002, AC-019-AC-021, AC-035, AC-041 independently confirm edge-case/negative-self-check coverage exists for these same tasks."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every test-authoring task's referenced AC test type (acceptance-tests.md Test Type column) matches its actual scope: AC-002/AC-003 ('integration') for T-003 (drives the fixture builder + golden baseline together); AC-005-AC-007/AC-030/AC-042/AC-043 ('integration') for T-004 (fixture builder + canonicalizer + injection seam); AC-022-AC-027/AC-032 ('integration') for T-006/T-007 (shared driver + fixture builder + golden-trace comparator); AC-011-AC-012/AC-033 ('integration'/'regression, byte-identical') for T-009; AC-034/AC-035 ('static'/'integration, negative self-check x3') for T-010; AC-040/AC-041 ('static'/'integration, negative self-check x2') for T-011. T-012 references AC-031, whose declared type is 'integration, non-gating' (acceptance-tests.md:35), and T-012's own scope genuinely spans multiple components (T-001's fixture builder, T-004's AST canonicalizer/structural assertions, and a live model call) before writing to the corpus \u2014 matching the declared integration type, not a narrower unit-test claim."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field (tasks.md; e.g. T-002:318-321, T-004:610-612, T-005:773-775, T-009:1277-1279, T-010:1415-1419, T-011:1559-1561). T-012's round-3 Rollback update (tasks.md:1732-1739) extends coverage from the prior 'revert this task's commit(s)' text to explicitly address the corpus-write consequence a Risk: high B5 task requires: 'A corpus entry this task's refresh path later writes is likewise a plain committed JSON file under structural-fixture-corpus/v1 (no promotion history to reconcile, unlike T-002's golden baseline) \u2014 a bad refreshed entry is a straightforward git revert of that entry's own commit, never a special procedure.' This closes the gap the round-2-driven risk upgrade would otherwise have left open (a high-risk corpus-write task with only a generic 'revert the commit' rollback note)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one file surface T-012 shares with another task \u2014 tests/fixtures/structural-fixture-corpus/ (T-004 creates it; T-012's Planned Files list it as 'existing after T-004, agent-editable') \u2014 is guarded by an explicit ordering: T-012's Blockers field (tasks.md:1837) lists T-001, T-004, and T-012's Depends On text (tasks.md:1706-1710) states the functional reason (T-004 'authors' the corpus schema/canonicalizer/injection anchor T-012 only ever refreshes entries within). This matches the check's own legitimate-sharing exception: one task creates, a downstream task extends, with Blockers enforcing the order. No other uncoordinated overlap was found among the remaining 11 tasks (run-all.sh/.ps1 and .github/workflows/test.yml sharing across T-002-T-005 and T-011 is likewise Blockers-ordered per Global Constraints' own serialized-append-order rule, unchanged from round 2)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-012's Blockers (T-001, T-004) are both functionally justified and unchanged by the round-3 edit: T-001 constructs the fixture-matrix states the live-model refresh drives against (tasks.md:1706-1707), and T-004 authors the structural-fixture-corpus/v1 schema, the AST canonicalizer, and the fingerprinted injection anchor T-012's validate-before-write step reuses (tasks.md:1708-1710, 1782-1786) \u2014 T-012 could not implement its own Done When without both existing first. No spurious blocker was added and no missing blocker was introduced by the round-3 Risk/Done-When/Rollback changes; T-011's Done When reference to T-012's CI-registration status (tasks.md:1617-1619) remains satisfiable without a T-012 blocker because Global Constraints (tasks.md:66-70) and T-012's own Done When (tasks.md:1799-1802) assign registration/non-registration ownership to T-012 itself, not to T-011."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 12 tasks (T-001-T-012) are net-new feature-authoring tasks (fixture builder, golden-baseline scripts, compatibility suites, shared-driver extensions, allowlist manifest, CI registration, live-model refresh test); none is titled or scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

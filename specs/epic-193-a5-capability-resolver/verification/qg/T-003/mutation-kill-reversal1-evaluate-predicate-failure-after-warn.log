@@ -1,0 +1,56 @@
+Retained mutation-kill evidence for Reversal 1 (un-forwarding
+`warn_diagnostics` on the steps-7/8 abort paths), closing the
+confirmation-panel round-2 finding (both vendors converged): the fixed
+behavior -- collected warns dropped, not forwarded, on a Block whose own
+id is not `dsl-warn-on-matched-capability` -- is proven non-vacuous by
+reverting to the OLD (violating) forwarding shape and observing
+`evaluate-predicate-failure-after-warn`'s own updated expectation fail.
+
+Technique: `git clone --no-hardlinks` scratch copy of this worktree
+(never the real worktree). The real worktree's own STAGED source was
+never touched -- confirmed unchanged (`git status --short`, before and
+after).
+
+--- Step 1: baseline (scratch clone, this round's own full uncommitted
+    diff overlaid: Reversal 1 itself, dependency-stderr pass-through,
+    temp-file-leak fix, anchored stderr-token classifications) ---
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 205 passed, 0 failed
+
+--- Step 2: mutation applied (scratch clone ONLY) ---
+
+Location: resolve-project-context.py, `main()`, the three steps-7/8
+abort `_block(...)` calls.
+
+    - return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations)
+    + return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations, warn_diagnostics)
+
+    - return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations)
+    + return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
+
+    - return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
+    + return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
+
+This is the identical forwarding shape the confirmation panel's own
+Majors flagged as violating requirements.md:526-528's own AC-056
+sentence.
+
+--- Step 3: mutant re-run ---
+
+$ bash tests/resolve-project-context-block.tests.sh
+FAIL: evaluate-predicate-failure-after-warn: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-warn-first', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'evaluate-predicate failed while evaluating a predicate', 'id': 'dependency-subprocess-failed', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-warn-first' component_id='comp-a' (node_path='0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+RESULT: 204 passed, 1 failed
+
+--- Result ---
+
+Exactly `evaluate-predicate-failure-after-warn`'s own "exact Resolver
+Evidence" assertion fails (205 -> 204 passed, +1 failed, zero
+collateral) -- the mutant's own actual `diagnostics[]` shows precisely
+the forbidden shape (a `dsl-warn-on-matched-capability` warn entry with
+no same-id block summary; the block summary present carries a DIFFERENT
+id, `dependency-subprocess-failed`), confirming this fixture's own
+discriminating power for Reversal 1, non-vacuous.
+
+Scratch clone discarded after capture (left in the isolated,
+session-scoped scratchpad directory, never committed to the repository).

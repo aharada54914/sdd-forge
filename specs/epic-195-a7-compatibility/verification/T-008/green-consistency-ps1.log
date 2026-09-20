@@ -1,0 +1,101 @@
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK 090718c073d341ce94d63e052c9fe8885f987e04995932d228ef96370fba57c7
+REVIEW_CONTEXT_OK f71b51b1dfdc608e57112d279b25f2c6eb8198ac7437020368a8a468281bbd0a
+REVIEW_CONTEXT_OK 0f01d10973557d31bd8252215ed2881ff98a951e2e54a290369034bf8b6a09f6
+REVIEW_CONTEXT_OK 3ce80af50f525183cdbbb687e723010bac4607ce85ee992e88bf75a47d75a3f1
+REVIEW_CONTEXT_OK 87c14b3b980d50c5a31359bf0c9fe9bd5b949134c6507746060be20ad24a46a9
+REVIEW_CONTEXT_OK 699ed575667c8bced4e7efb7d73b2aeb0bf4cda8ff72d2152542938c63712248
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-018.1: same-turn edit + reset (attempt 2 round 1) exits success
+ok: TEST-018.2: reset restores Spec-Review-Status: Pending after the same-turn Passed edit
+ok: TEST-018.3: reset persists the post-reset requirements hash, never the pre-mutation Passed bytes
+ok: TEST-018.4: reset persists the composite input hash recomputed from the post-reset bytes
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK 7494958a733435406b5bf56bff1a311c491ba012ef6772646c5976820c619fde
+REVIEW_CONTEXT_OK 3e851be8384bc44739b46c0f9f48953c459be03689fdd1cbc956ec04fc2944d6
+REVIEW_CONTEXT_OK 53b7a74e54dbd8f71f654207f5cfe7f5d530df4572f4d76dee6e412460b730d3
+REVIEW_CONTEXT_OK 828a53ae255383c5a222ffd4c1aa351d5a88846b96a485cff1adcd28a2c3f136
+REVIEW_CONTEXT_OK 10ea0680de00500c036ba530766b37ba1a0d587ce19b408415365652632d5cc9
+REVIEW_CONTEXT_OK dee9ab91ba40a563f0960b745bde0a8d943b2fff22747309a43073aebf47ac50
+REVIEW_CONTEXT_OK a4f2d5143917d51299ee006a38e147a5908beb1d62b699b9a6021bbc7a9c20bf
+REVIEW_CONTEXT_OK acbd3703421356969904f97a5423c5ed4d6a81c03d563d2b6f773b4051c10135
+REVIEW_CONTEXT_OK 44fc023eb950882252cf3ce56034ee85a1136b379116079cfd19bea13c45d274
+REVIEW_CONTEXT_OK 39e97a23649da5d62b4ab472e781feaad903a0f63f5d2597f4d3fc931b8bf97e
+REVIEW_CONTEXT_OK 2f04d53db5fc0b1e8900e88870c285de7145d5fa738eb74f30e363bc8802e73a
+REVIEW_CONTEXT_OK 1cad8a49baf248567b3cd53dca87260d45b50239a920ca9b480f99f7b182ed29
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK 106ba6cca8e124f575eef8acf6e5e5301798089fcbe252bf8e0a3d0c8ba59840
+REVIEW_CONTEXT_OK 6f2d92d53661426d51b8ff2cf71ae1fc4a9e3506fe2773e54e66d319fe02c0b1
+REVIEW_CONTEXT_OK ea0b6bee65832bef01ef16e87b40f16bbb2921359a6cd43343b0030da48ed15f
+REVIEW_CONTEXT_OK 86cb7303d1c1733a01e6689ae0767c64f48d49cff133a808d476fc8e51a6e538
+REVIEW_CONTEXT_OK 068b0edba1250d1e1e7da9e6c65243f256f6f9231fe837ffb2277c94d0223e37
+REVIEW_CONTEXT_OK 9894c8f7067403a058b924720a20c93f3f093e9164c1da1aada05da33fd1a451
+REVIEW_CONTEXT_OK 58b65c068d991feee9f67bbca39517e06a1b30b54bf4462566323ddf0840f0cb
+REVIEW_CONTEXT_OK 980243668e6b1e7e68e5b0746dd841161887267a6983ce4a41906567493cc263
+REVIEW_CONTEXT_OK b26c0cbd6fb10db38f85afad0e886446d4a58528ef9b7364dadf16eef39d7b4e
+REVIEW_CONTEXT_OK 0b0673d6ec028038644a794107d296b068135e8b3d878bb1decf662d119eadd5
+REVIEW_CONTEXT_OK 5aa3ec1325bc37f491d480466942cea3199bd7a2061120624ba5ad7e30466144
+REVIEW_CONTEXT_OK e4a4427f07b5087e713bf41fa1162efee54be76345bd51ae4775a6c01793d88a
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK e86cb449bcebddb91e70c7af26caa5d638df4cb55647359a1ede903970a77e56
+REVIEW_CONTEXT_OK f597fb5ea2a6e549c049f60722d473d7727ca1ed4a8093234794a33b40d671a8
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK b182f51467b6494e7d883f254f2d62509e7902d0766006d63fca011c4fdcad45
+REVIEW_CONTEXT_OK 40127a5859abe9da5a62fb83302c62f41332323e1ccaac77671293c593b0a801
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK a69abba86407753633e9ee79892740e652a632e1dafa2419b5c7f0bdf59bb035
+REVIEW_CONTEXT_OK 2bad62b6d0abce27404062e36cd95e25fa78cc3b381b55ed63e0069022905adc
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+REVIEW_CONTEXT_OK 764b2099f1fdbd6e41ecf708d943f2dd2e33c1a24149b13307c065a6acc562d5
+REVIEW_CONTEXT_OK ebab1fdfb411edb00391d350d148c21f3c92d4e7b56dc9483a65d457af8cdbce
+REVIEW_CONTEXT_OK 60fc080ad6c184749e2bad663d22ee04cbb2dc4bb836a0b47e15c5de759f4ad6
+REVIEW_CONTEXT_OK f2dddf314c9674cb8419d5246f4281a84b88c646340313dab9e5af7739147585
+REVIEW_CONTEXT_OK 876a5e17d31ffeae08bda32a8c655bb1cb1115718fb8ef3decb71c009e623e64
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK fd6541593cda5f6f29e8f924cd475d663ee9c2b34b786093cc9dbc87776d9469
+REVIEW_CONTEXT_OK 572c76d2f139b3dd0ef645f38f70eab56fe17bcb4c4c1c73048f1c19af5fe155
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK a14286c739dceec132d5b9cf8af03024976b0a2f8ac32586dfdf11bb8c7c0728
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 2e2d7b5be6c5411e7592ef906c7cdbc03584a80baf584c9afd8ec2f4b005a401
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 4b987c5f479b5e5a99434434ba3a618d08fc78660e501dad8237d780955a664a
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-16346/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-019: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ===
+ok: TEST-019.1: loop_fixture_init (Context-absent event-trace fixture) succeeds
+REVIEW_CONTEXT_OK 160f1354d082e445727c548742a7bbaab5f0398f8504a6638aab88bbc4152221
+REVIEW_CONTEXT_OK 5f1d83fb6d8a72b9fa7e1792a77d74c618561e004cecf6875a3b33d5cc81ac90
+ok: TEST-019.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green
+ok: TEST-019.3: observed end state PASS matches the loop-inventory terminal
+ok: TEST-019.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via Test-EventTrace
+=== TEST-019.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ===
+ok: TEST-019.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal
+ok: TEST-019.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window
+SKIP: TEST-019.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: DRIFT sha256=a030f071223c64118dd358436bba5f81bad50c19b8cd19bc1ecb10c69a01b8cf (expected d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64) ordinal=3 (expected 3)
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 37 passed, 0 failed, 73s elapsed

@@ -199,6 +199,49 @@ require_persisted_pass() {
         )
       )' "$contract" >/dev/null
   }
+  # investigation.md's expected pin is derived from the contract under
+  # validation -- never from the live working tree. Every other entry checked in
+  # this loop comes from an immutable or deliberately-current source:
+  # requirements/acceptance/design carry BOTH the contract's recorded hash and
+  # the current one, so an untouched file and a sealed file are both accepted;
+  # precheck-result.json and integrated-summary.json are frozen round artifacts
+  # that nothing may append to. investigation.md was the lone outlier, pinned to
+  # live bytes with no recorded-hash alternative, and it is the single worst file
+  # to read live: by design it is the document that accumulates the amendment
+  # record ACROSS stages, so it grows after a round is sealed as a matter of
+  # course. Reading it live compared today's bytes against the correctly-pinned
+  # ones and refused the downstream stage outright -- permanently, since nothing
+  # can un-grow the file (epic-196: "persisted spec contract reviewer manifest is
+  # missing investigation evidence", with require_persisted_pass running
+  # unconditionally so --provenance-rereview granted no way past it). A sealed
+  # contract is evidence about the past; validating it against the present is a
+  # category error. The live-vs-pinned question belongs to
+  # check-workflow-state.sh, which asks it deliberately and carries the
+  # amendment-record growth tolerance for exactly this file.
+  #
+  # Same discipline as spec-review-precheck.sh's validate_contract: every
+  # reviewer that pinned the file must have pinned the SAME bytes (`unique` must
+  # collapse to one value), and that value must be a well-formed digest, so a
+  # contract whose reviewer A and reviewer B disagree about what they read is
+  # still refused. The per-reviewer binding below is unchanged: once any reviewer
+  # pinned the file, BOTH must have. Absent from the manifest entirely means the
+  # reviewers declared they did not read it, which is legal -- allowed_input()
+  # above permits investigation.md for the spec and impl stages but never
+  # requires it -- so nothing is expected and the file merely existing today
+  # cannot invalidate a contract sealed before it was written.
+  local investigation_pin
+  investigation_pin="$(jq -r --arg path "$investigation_path" --arg repo "${repo_root}/" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      else . end;
+    [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $path) | .sha256] |
+    unique |
+    if length == 0 then "" elif length == 1 then .[0] else "__AMBIGUOUS__" end' "$contract")"
+  if [[ -n "$investigation_pin" ]]; then
+    [[ "$investigation_pin" =~ ^[0-9a-f]{64}$ ]] ||
+      fail "persisted ${stage} contract reviewer manifest records an ambiguous or malformed investigation evidence pin"
+  fi
   for role in "$role_a" "$role_b"; do
     manifest_has "$role" "specs/${FEATURE}/requirements.md" "$requirements_hash" "$requirements_current_hash" ||
       fail "persisted ${stage} contract reviewer manifest is missing canonical requirements"
@@ -218,8 +261,8 @@ require_persisted_pass() {
         done
       fi
     fi
-    if [[ -f "${repo_root}/${investigation_path}" ]]; then
-      manifest_has "$role" "$investigation_path" "$(sha256 "${repo_root}/${investigation_path}")" ||
+    if [[ -n "$investigation_pin" ]]; then
+      manifest_has "$role" "$investigation_path" "$investigation_pin" ||
         fail "persisted ${stage} contract reviewer manifest is missing investigation evidence"
     fi
   done

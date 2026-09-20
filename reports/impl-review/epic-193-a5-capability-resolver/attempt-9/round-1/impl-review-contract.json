@@ -1,0 +1,127 @@
+{
+ "schema": "impl-review-contract/v1",
+ "stage": "impl",
+ "feature": "epic-193-a5-capability-resolver",
+ "run_id": "impl-orch-epic-193-a5-capability-resolver-a9r1",
+ "verdict": "PASS",
+ "pass_type": "clean",
+ "round": 1,
+ "attempt": 9,
+ "legacy_design": false,
+ "feature_type": "cli",
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "prior_round_contract_sha256": "7b83801b22396d29fa7388464c9272d350672cedfcf0dfb250d5431e72a2b402",
+ "requirements_sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b",
+ "acceptance_sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8",
+ "design_sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0",
+ "layer_sha256": {
+  "ux-spec.md": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677",
+  "frontend-spec.md": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126",
+  "infra-spec.md": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f",
+  "security-spec.md": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"
+ },
+ "reviewers": [
+  {
+   "role": "impl-reviewer-a",
+   "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a9r1-seq0873",
+   "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a9r1-0873",
+   "allowed_input_manifest": [
+    {
+     "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+     "sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+     "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/design.md",
+     "sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+     "sha256": "4996be25cbd5324cc7b3f2915c4f1e597178cfa433cdbf27dbd38e11d886993c"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+     "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+     "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+     "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+     "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"
+    },
+    {
+     "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-9/round-1/precheck-result.json",
+     "sha256": "1b4df80a7a97e3a96dd8953f1611161b0fb7601270119129b7e351f47cb084e7"
+    }
+   ]
+  },
+  {
+   "role": "impl-reviewer-b",
+   "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a9r1-seq0874",
+   "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a9r1-0874",
+   "allowed_input_manifest": [
+    {
+     "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+     "sha256": "f300f0ccdd7c428376b7ebf5ea40802c10c51a602c94cd1ef4eb29008cb6a97b"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+     "sha256": "709f43bce87b9115e167dc629a4a071424ef44b1e3d48976eeec12c2d2ecd8c8"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/design.md",
+     "sha256": "ad268cb7c5659da4dceec2a91cad65f6d0b2f253471144c08f140c26c475c6c0"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+     "sha256": "4996be25cbd5324cc7b3f2915c4f1e597178cfa433cdbf27dbd38e11d886993c"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+     "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+     "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+     "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"
+    },
+    {
+     "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+     "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"
+    },
+    {
+     "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-9/round-1/precheck-result.json",
+     "sha256": "1b4df80a7a97e3a96dd8953f1611161b0fb7601270119129b7e351f47cb084e7"
+    },
+    {
+     "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-9/round-1/integrated-summary.json",
+     "sha256": "dc5b6be444fcad9ce3c125d6879426ec8d30c5c9ac245f07cdd9c8c8e003eb10"
+    }
+   ]
+  }
+ ]
+}

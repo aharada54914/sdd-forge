@@ -454,7 +454,9 @@ if (Test-Path -LiteralPath $stagedTestYml) {
     }
 }
 
-if (Select-String -LiteralPath $runAllSh -Pattern 'run-panelist-effort\.tests\.sh' -CaseSensitive -Quiet) {
+# run-all.sh loads its inventory externally; query the executable list.
+$posixEntries = @(& bash $runAllSh --list)
+if ($LASTEXITCODE -eq 0 -and $posixEntries -ccontains 'tests/run-panelist-effort.tests.sh') {
     Ok "self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh"
 } else {
     Fail "self-registration: run-panelist-effort.tests.sh NOT registered in tests/run-all.sh"

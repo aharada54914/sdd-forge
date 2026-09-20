@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-a-a2r1-seq773",
+  "host_session_id": "SESS-spec-a-epic-196-a8-integration-a2r1-seq773",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "2e3b141c051d7a198530635ad409f4616bd717d2fe3f6dfeff6632954e15562e"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-1/precheck-result.json", "sha256": "066f96d45f61b361c151b3257e3755547d0b4dd1c7cacab91e4cd29ef6765acf"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's own Assumptions section states Epic A1 (sdd-forge-wt-epic-189) 'remains unmerged... its own hook-activation handshake script (check-hook-activation-handshake.{py,sh,ps1}) and five migrated consumer entry points (INV-007) do not exist on main yet. AC-006/AC-015/AC-016's own SKIP status is the direct consequence' -- directly contradicted by investigation.md's own Amendment Re-Review Context (amendment commit 66d5bdde4cea01b2345f41eee2b4cfcbcf529301), which states 'the section now flags requirements.md's Epic A1 assumption as superseded (Epic A1 merged on 2026-08-08, its handshake script and five consumer entry points exist on main)'. Independently confirmed: plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh/.py/.ps1 exist at the canonical installed path in this repository, not merely under a human-copy/ staging path. Downstream failure mode: a Phase 2/3 task author or the validate-live-host-proof aggregate check reader cannot determine from requirements.md alone whether AC-006/AC-015/AC-016's SKIP status remains valid or has already crossed AC-015's own stated un-skip trigger ('a SKIP surviving validate-live-host-proof after Epic A1 merges is a non-zero-exit hard failure, never a passing state'), which gates AC-028, a Foundation-wide Done and release gate. This belongs to spec review because the contradiction is internal to two documents both within this gate's own scope (requirements.md vs. investigation.md) and must be resolved before the package is a reliable basis for task decomposition -- it is not a design, task, or quality-gate defect, and its basis is a cross-document factual contradiction, not merely that a later-phase artifact of this package exists during Pending status (so the Amendment Re-Review Context's phase-sequencing suppression does not apply, per the calibration's own 'NOT suppressed (other defect)' example of internally contradicted text). Severity Critical per the calibration's explicit rule to classify contradictions as Critical."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal REQ-001 through REQ-007 has at least one matching AC: REQ-001->AC-001-006, REQ-002->AC-007-011, REQ-003->AC-012-017/AC-028, REQ-004->AC-018-021, REQ-005->AC-022-024, REQ-006->AC-025-027, REQ-007->AC-029-030 (requirements.md Goals section; acceptance-tests.md Requirement column). Secondary cross-REQ dependencies (e.g. AC-005, AC-028) are recorded as prose cross-references rather than a second Requirement-column value, matching REQ-007's own stated convention."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally checkable artifacts: exact fixture byte/hash contracts (AC-001), idempotency/zero-residue filesystem+registration state comparisons (AC-008-009), exit-code/diagnostic distinctions (AC-023), and a schema-fixed manual-session record with recomputable hashes and two-party attestation (AC-026) -- not vague intent statements."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section explicitly excludes re-implementing per-Epic 3-environment work, building new CI jobs/workflow files, specifying --target FilesOnly's own behavior, re-specifying Epic A1's canonicalizer or Epic A5's caller-contract fixture, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task -- a concrete, testable scope boundary (also independently self-checked by AC-029)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Security Boundaries table names two trust boundaries (B1 live-host session authenticity/attribution, B2 read-only drift-check constraint) with explicit auth/authz requirements; Roles and Permissions fixes a mandatory two-party (operator + independent reviewer) attestation constraint (AC-026/AC-027); Non-goals fixes compatibility/migration constraints against Epic A1/A5/A7's own surfaces."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's Critical item (REQ-003 live-host proof, OQ-001) ties directly to AC-015/AC-025/AC-028 and the validate-live-host-proof aggregate check as its validation surface; the High item (regression risk to cli-hook-enforcement.ps1) ties to AC-017's structural-independence assertion; the Medium item (4-file Phase-1 scope deviation) ties to the check-sdd-structure.sh precedent already established by Epic A7."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the repository root (glob domain/* returned no matches), so the Approved domain/context-map.md + schema-valid domain/domain-contract.json precondition for this check is absent. Skipped per the check's own skip condition."
+    }
+  ]
+}

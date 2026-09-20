@@ -1,0 +1,22 @@
+{
+  "Claude-active": {
+    "config_path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+    "expected_sha256": "sha256:09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d"
+  },
+  "Codex-disabled-expected-unavailable": {
+    "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
+    "expected_sha256": "sha256:ae679756447145cd053e09dc1d29c1f6078d64935d95ca5d301ef2d2141f9501"
+  },
+  "Codex-enabled-active": {
+    "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
+    "expected_sha256": "sha256:ae679756447145cd053e09dc1d29c1f6078d64935d95ca5d301ef2d2141f9501"
+  },
+  "Copilot-primary-active": {
+    "config_path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+    "expected_sha256": "sha256:6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
+  },
+  "Copilot-subagent-expected-unavailable": {
+    "config_path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+    "expected_sha256": "sha256:6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
+  }
+}

@@ -599,7 +599,9 @@ fi
 # Self-registration (design.md Test Strategy #7; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================
-if grep -q 'render-agent-frontmatter\.tests\.sh' "$RUN_ALL_SH"; then
+# Match executable inventory entries as complete paths, not source text.
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+  grep -Fx 'tests/render-agent-frontmatter.tests.sh' <<< "$registered_suites" >/dev/null; then
   ok "self-registration: render-agent-frontmatter.tests.sh registered in tests/run-all.sh"
 else
   bad "self-registration: render-agent-frontmatter.tests.sh NOT registered in tests/run-all.sh"

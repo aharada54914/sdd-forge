@@ -195,7 +195,8 @@ RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
 TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
 
-if grep -q 'tests/check-placeholders-brownfield\.tests\.sh' "$RUN_ALL_SH" 2>/dev/null \
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+   grep -Fx 'tests/check-placeholders-brownfield.tests.sh' <<< "$registered_suites" >/dev/null \
    && grep -q 'check-placeholders-brownfield\.tests\.sh' "$TEST_YML" 2>/dev/null; then
     ok "REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml"
 else

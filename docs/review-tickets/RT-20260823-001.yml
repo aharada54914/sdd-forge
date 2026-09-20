@@ -1,71 +1,102 @@
 ticket_id: RT-20260823-001
-status: open
-type: defect
+status: resolved
+resolution: |
+  2026-08-26 (quality-gate seq 0782, cycle 1): resolved by the gate-cycle-3/4
+  remediation already present in tests/resolve-project-context-match-check.py
+  — the "RT-20260823-001 Route 1" published-value assertions read
+  context_binding's four scalar fields (full_context_revision,
+  projection_sha256, registry_digest, ownership_digest) back off the
+  PUBLISHED resolver-evidence.yaml and diff each against an independently
+  derived expectation (driver-side hashlib recomputation, fixture-stub
+  FIRST_DIGEST constant, and a second real resolve-component-paths-real.py
+  subprocess) — the exact discrimination this ticket found missing. The
+  seq-0782 isolated evaluator line-level-verified that every load-bearing
+  expectation is independent of the code under test and re-ran the suite:
+  125 passed / 0 failed on both runtimes, byte-identical to the committed
+  logs. The ticket's measured survival (wrong projection_sha256 at 65/0)
+  is no longer reproducible against the current driver's published-value
+  reads.
+type: verification-gap
 severity: major
 target:
-  feature: "agent-cost-context-isolation"
-  task: "T-002"
+  feature: epic-193-a5-capability-resolver
+  task: T-005
   files:
-    - "plugins/sdd-implementation/scripts/select-agent-model.sh"
-    - "plugins/sdd-implementation/scripts/select-agent-model.ps1"
-    - "plugins/sdd-implementation/references/agent-model-capabilities.json"
+    - tests/resolve-project-context-match-check.py
 summary: >-
-  Both selector twins fail OPEN when the capability registry is missing,
-  malformed, or empty: they exit 0 and silently reproduce the pre-fix
-  defective selection (fallback model wins the equal-cost tie), violating
-  the design's fail-closed principle for deterministic operations
+  AC-003's projection_sha256 clause has no assertion that can fail. The check
+  added in gate cycle 3 to close it compares two driver-computed values that the
+  preceding assertion has already made equal, so it is entailed rather than
+  independent. The value AC-003 actually names -- the Resolver's own
+  projection_sha256 -- survives replacement with a well-formed wrong digest at
+  65/0.
 problem: |
-  Found by the cycle-2 QG evaluator for T-001 (seq 0836, report
-  reports/quality-gate/20260823T113000Z.md, Minor 1) while probing the
-  RT-20260821-009 tie-break fix for hardcoding. The fix itself is genuine
-  and registry-driven - which is exactly why the registry read path matters.
+  tests/resolve-project-context-match-check.py:398-410 asserts
+  resolver_projection_sha256 == hand_projection_sha256. Both sides are computed
+  by the driver from data compared one assertion earlier at :255
+  (captured == expected_projection). The canonicalizer is key-order
+  insensitive, so canonical bytes are a pure function of the parsed value: if
+  :255 holds, :404 cannot fail, and if :255 fails the run has already stopped.
+  The assertion therefore adds no discrimination.
 
-  Reproduced on this branch (2026-08-23):
+  Measured rather than argued: replacing the Resolver's own projection_sha256
+  with sha256:000...0 leaves the suite at 65 passed / 0 failed.
 
-    bash plugins/sdd-implementation/scripts/select-agent-model.sh \
-      --risk high --registry /nonexistent-registry.json \
-      --candidate 'openai/gpt-5.1-codex-max:strong:0.090' \
-      --candidate 'openai/gpt-5.2-codex:strong:0.090'
-    -> stdout: "openai/gpt-5.1-codex-max strong", exit 0
+  This is the third appearance in this task of one pattern, and the pattern is
+  the real subject of this ticket:
 
-  With the registry absent the fallback-deprioritization rank cannot be
-  read, so the fallback model wins the equal-cost tie - byte-identical to
-  the defective pre-fix selection that RT-20260821-009 was raised to
-  eliminate - and the caller gets exit 0 with no diagnostic. The ps1 twin
-  behaves the same. A deleted, truncated, or JSON-broken
-  agent-model-capabilities.json therefore reverts routing to the defect
-  SILENTLY, and no test pins the failure mode because the routing suites
-  only exercise a present, well-formed registry.
+    Where an expectation is produced by the implementation under test, the
+    assertion is decorative.
 
-  This contradicts specs/agent-cost-context-isolation/design.md:85-89,
-  which requires deterministic operations to fail closed rather than
-  substitute (a missing runtime must fail as
-  deterministic-runtime-unavailable; the registry is the same class of
-  deterministic input). Related, smaller surface: --role is accepted but
-  inert, and unknown role values are silently swallowed (fails safe, but
-  the same silent-acceptance pattern).
+  Cycle 1 found it in AC-044's identity clause, comparing _resolver_block()
+  against constants from the same in-process module load. Cycle 2 found it in
+  AC-003's byte-identity check, computing its expectation from
+  resolver_module._projection(). Both were closed. This is the residue: the
+  half of AC-003 that names a value the driver never obtains from the Resolver.
 
-  Scope note: the cycle-2 evaluator judged this out of T-001's declared
-  scope (T-001 delivers declarations and the tie-break; the selector's
-  input-validation contract is T-002's registry/selection surface), so it
-  is recorded here against T-002 rather than blocking T-001.
+  The related fixture-shaped variant -- a criterion whose input feature the
+  fixture lacks, so the assertion never gets the chance to discriminate -- was
+  closed this cycle for AC-044's tilde escape and AC-043's multi-instance
+  reason.
 expected_fix: |
-  1. Both twins MUST fail closed on a missing, unreadable, JSON-malformed,
-     or empty-model-list registry: non-zero exit, no selection on stdout,
-     and a named diagnostic (e.g. "selector-registry-unavailable: <path>")
-     on stderr. Behavior must be byte-identical across sh and ps1.
-  2. Decide and document the --role contract: either make it operative or
-     reject unknown/inert values with a diagnostic; silent acceptance is
-     not an option.
-  3. Extend tests/agent-model-routing.tests.sh and .ps1 with
-     mutation-verified pins for each failure mode (missing path, malformed
-     JSON, empty registry) on BOTH twins, asserting non-zero exit and the
-     diagnostic, and asserting that no selection line is emitted.
+  Three routes close this, and choosing between them is a judgement rather than
+  an edit:
+
+  1. Capture the Resolver's own derived projection_sha256 from its output and
+     compare the hand-built expectation against that value, so the assertion
+     reads something the implementation produced rather than something the
+     driver derived.
+  2. Add a structural white-box check on main()'s derivation of the field, in
+     the manner of the dispatcher-delegation check added for AC-044.
+  3. Disclose it as a structurally unverifiable remainder, alongside AC-044's
+     resolver.version, and withdraw the claim that cycle 2's Major A is closed.
+
+  Route 3 is honest but leaves an approved acceptance criterion unlocked, which
+  is why this ticket does not pick one.
+
+  Six Minor findings from the same gate run are carried here rather than in
+  separate tickets, since none blocks and all touch the same files:
+
+  - T-005.md Specification Differences item 2 describes input construction as
+    if it were verification ("independently recomputes every context_binding
+    scalar").
+  - The Facet Manifest's affected_components is unasserted
+    (match-check.py:462-481). Outside AC-007's enumerated field list.
+  - Warn detail is asserted by substring only (:724-729, :785-805).
+  - Five sh/ps1 log pairs are byte-identical because the output format carries
+    no runtime marker, so the .ps1 artefacts cannot evidence that pwsh produced
+    them. The gate ran pwsh itself and confirmed both runtimes execute.
+  - red-misaggregated-facet-*.log and red-noncanonical-provenance-*.log are
+    63-assertion-era captures (62/1), disclosed as historical rather than
+    re-taken. Each still fails at its own named assertion.
+  - MUT-7 (_required_facets ignoring the matched set) and MUT-9 (truncating
+    _iter_warn_nodes per evidence tree) remain vacuous by fixture. Cycle 3
+    re-verified both after this cycle's fixture edits and judged leaving them
+    defensible; closing either needs a fixture-design change.
 references:
-  - "reports/quality-gate/20260823T113000Z.md"
-  - "docs/review-tickets/RT-20260821-009.yml"
-  - "specs/agent-cost-context-isolation/design.md"
-  - "specs/agent-cost-context-isolation/tasks.md"
-auto_fix_allowed: true
-requires_human_decision: false
-review_cycles: 0
+  - reports/quality-gate/20260823T120000Z-epic-193-a5-capability-resolver-T-005.md
+  - specs/epic-193-a5-capability-resolver/acceptance-tests.md
+  - reports/review-context/pending-epic-193-a5-capability-resolver-sdd-evaluator-T-005-seq0767-manifest.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 3

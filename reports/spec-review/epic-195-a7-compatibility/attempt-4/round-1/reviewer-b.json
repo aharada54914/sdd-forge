@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0772",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0772",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-4/round-1/integrated-summary.json", "sha256": "8b87b4f48dc01e98d507c283035037828249b2bcd8e44f1693925434d78e1d51"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json", "sha256": "9ff318d5e78d54a44d92ccb80aee6b6717e86c5680c3e3feedfca16b4a02e47b"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "50698db34c1193e537da1afb405183bf4591c531b26e2b08517b057f3ed3dca1"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "b302af8dabdee7c59a797d3cf3b25d25937da41313f865a67738ae7c40902811"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-010 states TEST-019 (tests/loop-escalation.tests.sh) asserts the quality-gate-outcome/capability-applicability event kind 'a Context-present round drive produces' — explicitly scoping this assertion to the Context-present fixture state, the same class of claim that every other genuinely Context-present-scoped AC in this package (AC-007, AC-019-AC-021, AC-042, AC-043) pairs with an explicit 'named SKIP entry in REQ-007's allowlist manifest ... until Epic A1 merges' clause, because Context-present machinery does not exist until Epic A1 lands (INV-013, INV-017). AC-010 carries no such SKIP clause, and acceptance-tests.md's AC-010/TEST-010 row Test Type column ('integration') carries no '(named SKIP ...)' annotation, unlike the Test Type cells for AC-004/AC-007/AC-019-021/AC-036/AC-037/AC-042/AC-043 which all do. Separately, INV-014 and the Field Definitions section establish that 'disabled-legacy' is definitionally the Context-absent state, and AC-009 makes the capability_applicability field (disabled-legacy/advisory/required) an addition this epic's own Phase 2/3 work populates without needing Epic A1 — meaning the observation TEST-019 could in principle be exercised today via the disabled-legacy value, in tension with AC-010's own 'Context-present' wording. Two implementers would reasonably diverge: one would gate TEST-019's capability-applicability assertion behind an Epic A1 SKIP (matching the sibling-AC pattern for every other Context-present claim), another would build it as an unconditional, always-run assertion (matching the absence of any SKIP tag in acceptance-tests.md and AC-025's untagged text). This is a specification-level ambiguity, not an implementation-architecture question, and belongs to spec review because it concerns which fixture state a required, already-numbered test case (TEST-019) must assert against and whether it is gated at all — a decision the package must fix, not leave to be guessed downstream. Major because it risks a divergent SKIP-vs-ASSERT implementation choice for a named, already-numbered test case, not a specification-blocking contradiction."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The Overview's dated amendment note explicitly flags that its own 'Phase 1 only, no later-phase artifacts' framing and the Non-goals' Phase 2/3 deferral describe authoring-time state only, and points to investigation.md's `## Amendment Re-Review Context` as the current, authoritative framing. That section conforms to the calibration's full evidence bar: three full (40-hex-char) amendment commit hashes; SHA-256 values for requirements.md and acceptance-tests.md at each amendment commit that match this manifest's own pinned hashes for both files (b302af8d...02811 and d982efe1...09d04 respectively, confirming internal consistency rather than a bare assertion); two verbatim, dated (2026-08-23) human-approval quotations; and commit/SHA-256 citations for every later-phase artifact referenced (tasks.md, traceability.md/.json, design.md, tests/loop-inventory.tests.sh/.ps1, tests/lib/loop-driver.sh/.ps1). Per the calibration's Amendment Re-Review Context rule, this suppresses the phase-sequencing finding basis that would otherwise apply to the Non-goals/Overview vs. later-phase-artifact tension; no other direct, non-phase-sequencing conflict between a requirement, acceptance criterion, constraint, or non-goal was found within the reviewed artifacts (e.g. AC-025's 'always the last quality-gate-outcome event when both fire' and AC-026's 'always last in a round's own event sub-sequence' were checked and found compatible — the former scopes only the two quality-gate-outcome producers' relative order, the latter scopes done-transition's position among all event kinds)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md pairs material negative/boundary paths with explicit ACs: AC-002 (byte-identical negative self-check against a deliberately mutated fixture), AC-035 (three independent negative self-checks — dependency-present SKIP, unknown SKIP, fingerprint drift), AC-041 (two independent negative fixtures for promote-golden-baseline.sh's CI-set and missing/empty --approved-by refusal paths, asserting non-zero exit and no file write), and AC-033's golden negative test for the capability-only emit-run-record.sh flag combination (usage error, no $out file). The three Edge Cases requirements.md names (Context-present-invalid distinguishability, non-silent baseline pinning to a fixed commit, and per-entry-partial capability-field extension being valid) are each traced to AC-019-AC-021/AC-018, respectively, or are explicitly framed as a documented, non-testable permissive statement (partial per-entry extension)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section names three assumptions (upstream epic instability for A1/A3/A4/A5/A6; decision-doc/ADR authority; jq/bash/PowerShell runtime). The first, highest-risk assumption is not left as a bare unresolved caveat: it is explicitly tied to REQ-007's fingerprint-drift hard-fail mechanism (AC-035c) as its mitigation, and the Assumptions text itself states this package 're-verifies before Phase 2/3 begins, per investigation.md's Safety constraints.' All three Open Questions (OQ-001, OQ-002, OQ-003) are marked '(resolved)' with the decision and its rationale recorded in-line, leaving no assumption or open question that is neither resolved nor explicitly flagged as a decision needed before design/task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The package specifies an irreversible-change/governance boundary — promotion of a golden-baseline candidate to canonical — and makes it testable rather than aspirational: Roles and Permissions and Security Boundaries B1 fix that only a human 'Maintainer' (a defined role) approves a candidate->canonical promotion PR; REQ-006c/AC-018 fix the two-stage candidate/canonical procedure; AC-040 is a static CI-workflow-text scan hard-failing if `promote-golden-baseline.sh`/`--write-candidate` appear in `.github/workflows/test.yml`; and AC-041 exercises the script's own runtime refusal directly with two independent negative fixtures (CI env var set; --approved-by omitted/empty), each asserting non-zero exit and no write to the canonical path."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same AC-010/TEST-019 gap identified under AMBIGUITY (requirements.md AC-010's 'a Context-present round drive produces' framing vs. acceptance-tests.md's AC-010/TEST-010 row carrying no upstream-dependency SKIP annotation, unlike every sibling Context-present-scoped AC) means a design/implementation-policy reviewer inheriting this package cannot determine, from the specification alone, whether TEST-019's capability-applicability assertion is gated behind Epic A1 merging or is meant to run unconditionally against the disabled-legacy value. Because REQ-007/AC-034's allowlist-manifest mechanism and the SKIP-vs-ASSERT disposition are exactly the kind of product behavior this package elsewhere fixes explicitly and exhaustively for every other upstream-dependent assertion (AC-028's disposition legend, AC-034's allowlist), leaving this one instance unresolved requires the downstream reviewer to invent the missing disposition rather than being handed a closed decision, which is the specific readiness failure this check is scoped to catch."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the repository root (confirmed via directory listing), so the applicability precondition (a `domain/context-map.md` recording `Domain-Model-Status: Approved` and a schema-valid `domain/domain-contract.json`) is not met. Recorded as skipped per the check's explicit skip condition."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+Subject: fix(workflow-state): accept an unevaluable investigation pin in a history-less tree
+
+WFI-024 (Status: Applied) established the rule for plugins/ reference
+pins: in a tree with no git history, a live-vs-pin mismatch is not
+evaluable -- the pin-commit fallback that would justify it cannot run --
+so it is accepted rather than diagnosed, while every tree WITH history
+keeps the full check. The amendment-oscillation tolerance for
+specs/<feature>/investigation.md (66a22b5a) resolves the pinned
+generation's bytes through the same git machinery, but never received
+the same no-history rule. Consequence: the first feature carrying a
+post-review amendment cannot pass tests/repository-release-validation
+-- its fixture copies the tree WITHOUT .git, the reconciliation cannot
+resolve the pinned bytes, and the checker reports "spec reviewer
+manifest input hash is stale" on a tree the with-history checker
+accepts. Reproduced on feature/epic-194-a6-lite-integration at both the
+pre-merge tip (0d52885a) and the merged head; identical red on PR #246
+CI step "Test repository release validation parity" (ubuntu). The
+epic-195/196 branches carry the same class.
+
+The change mirrors WFI-024 exactly, in both runtime twins: before
+attempting resolution, a history-less tree returns accepted. Wherever
+history exists, every existing line runs unchanged and a non-growth
+change still fails.
+
+Apply from the repository root:
+
+    git apply --check docs/ci-staging/investigation-nogit-tolerance.patch
+    git apply docs/ci-staging/investigation-nogit-tolerance.patch
+
+---
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -270,6 +270,14 @@ investigation_amendment_reconciles() {
+   case "$manifest_file" in
+     "$REPO_ROOT"/*) relative="${manifest_file#"$REPO_ROOT/"}" ;;
+     *) return 1 ;;
+   esac
++  # WFI-024's no-history rule, extended to this reconciliation: without
++  # git history the pinned generation's bytes are unreconstructable, so
++  # the growth-only property is not evaluable at all -- accepted, not
++  # evaluated, exactly as plugins_hash_matches already treats a live-hash
++  # mismatch in a history-less tree (e.g. the release-validation fixture,
++  # which copies the tree without .git). Wherever history exists, every
++  # line below runs unchanged and a non-growth change still fails.
++  plugins_git_history_available || return 0
+   tmp_pinned="$(mktemp)" || return 1
+   if resolve_verified_investigation_pin "$contract" "$expected" "$relative" "$tmp_pinned"; then
+     investigation_growth_only_change "$tmp_pinned" "$manifest_file"
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -260,6 +260,11 @@ function Test-InvestigationAmendmentReconciles([string]$ManifestFile, [string]$E
+     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+     if (-not $ManifestFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
+     $relative = $ManifestFile.Substring($prefix.Length).Replace("\", "/")
++    # WFI-024's no-history rule, extended to this reconciliation: without
++    # git history the pinned generation's bytes are unreconstructable, so
++    # the growth-only property is not evaluable -- accepted, not evaluated,
++    # matching Test-PluginsHashMatches in a history-less tree.
++    if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
+     $tempFile = [IO.Path]::GetTempFileName()
+     try {
+         if (-not (Resolve-VerifiedInvestigationPin $Contract $Expected $relative $tempFile)) { return $false }

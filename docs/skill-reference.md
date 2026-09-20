@@ -35,7 +35,7 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約）:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはありません。さらに、内部オーケストレーション用スキルは `user-invocable: false` も指定しており、スラッシュコマンドメニューには表示されず、ユーザーが直接呼び出すこともできません。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 

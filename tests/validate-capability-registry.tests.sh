@@ -148,7 +148,9 @@ fi
 # =====================================================================
 # Suite/CI registration self-checks
 # =====================================================================
-if grep -q 'tests/validate-capability-registry.tests.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/validate-capability-registry.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: validate-capability-registry.tests.sh NOT registered in tests/run-all.sh"

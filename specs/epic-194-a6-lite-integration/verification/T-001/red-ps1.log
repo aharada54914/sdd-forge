@@ -1,0 +1,6 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/human-copy-runner-contract.tests.ps1
+Exit: 1
+
+FAIL: TEST-000a: fixture catalog is missing: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194/tests/fixtures/epic-194-human-copy/scenarios.json
+
+Results: 0 passed, 1 failed

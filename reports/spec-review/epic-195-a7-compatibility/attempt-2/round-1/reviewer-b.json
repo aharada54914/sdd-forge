@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0330",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0330",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-1/integrated-summary.json", "sha256": "05ef8a561744cc4f404d1b847ec9984f73a1c6f90ee0f41e47c9f7d9eaef0cf0"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json", "sha256": "c4d92bc5612804567848f66baccfdd9f8b21dcd0eb082efd1a8aba6527e032ad"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "2ce298e5c6f9ef242683b8946cb02e3e036349d831b676658f38944b1114fe3c"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "b93bb7985d757c6ef1674a89e16d7e499ea8ac46222d77fe1d94053d94ab5938"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-007 (requirements.md:340-347) specifies a 'Context-present, capability_enforcement: required fixture' for the no-Facet-leak assertion without stating which facet-track (full vs. lite) the fixture uses, even though REQ-005 (requirements.md:161-163) names two distinct 'required' Context-present rows as separate matrix cells: F4 (full/legacy-seven-layer/required) and F6 (lite/lite-three-file/required). acceptance-tests.md:11's Test Target column repeats the same track-agnostic phrasing ('Context-present-required: no Facet reference leaks into legacy-shaped output'). Two implementers could reasonably read AC-007 as covering only F4 (consistent with AC-014's fixture-builder scope at requirements.md:396-404, which builds F1-F4 only) or as also intending to cover F6, producing materially different suite coverage of the same named matrix row. This is a Phase-1 product-scope ambiguity (which fixture states an AC applies to), not a design-format detail properly deferred to design.md, so it belongs to spec review; Major because it risks a downstream observable-acceptance-criterion mismatch rather than a direct contradiction or safety boundary."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among REQ-001-REQ-007's Goals, the Non-goals list (requirements.md:229-255), the Acceptance Criteria, and the Security Boundaries table. Cross-referenced claims are internally consistent, and prior-draft errors are explicitly corrected rather than left as standing contradictions: AC-011 (requirements.md:374-379) and AC-033 (requirements.md:556-568) state the identical no-flag byte-identical invariant for emit-run-record.sh without conflict; AC-009 (requirements.md:354-364) explicitly corrects a prior draft's 'existing helpers read it with no code change' framing rather than leaving two contradictory claims; AC-005 (requirements.md:310-336) explicitly flags and corrects an earlier draft's F2 mis-citation of the full-track clause. No pair of Goals/ACs/Non-goals asserts mutually exclusive behavior for the same observable and fixture state."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-005 (requirements.md:161-168) names F5 (lite/advisory) and F6 (lite/required) as valid, in-scope decision-doc Section 6 matrix rows, 'named SKIP until Epic A1's schema and Epic A6's Lite integration both merge' -- the same SKIP-with-activation category as AC-004/AC-007/AC-019-021/AC-042, all of which carry their own explicit AC/TEST number. No Acceptance Criterion in requirements.md's Acceptance Criteria list or acceptance-tests.md's table names F5 or F6 (contrast AC-042, requirements.md:651-667 / acceptance-tests.md:46, added this very round specifically to close the analogous F3 gap). AC-014 (requirements.md:396-404) explicitly scopes the fixture-builder to 'F1-F4' only, and AC-034's allowlist-manifest definition (requirements.md:569-583) lists only 'AC-004, AC-007, AC-019-AC-021, and any Context-present REQ-003 assertion' as required entries -- a generic catch-all covering REQ-003 (orchestration-event) Context-present assertions but not REQ-002 (structural) ones, so it cannot generically absorb an F5/F6 structural check either. The boundary/negative-path coverage decision doc Section 6 requires for F5/F6 is therefore undocumented in the acceptance tests -- an identical gap-class to the one that reset this package's Spec-Review-Status to Pending for F3 this same round."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section (requirements.md:812-822) names the live cross-epic drift risk (A1/A3/A5 unmerged and under active review, A4 passed spec-review but unmerged, A6 in active spec-review) and ties it to a concrete resolution mechanism -- AC-035's fingerprint-mismatch hard-fail (requirements.md:584-594) -- plus a re-verification commitment against investigation.md's Safety constraints (investigation.md:72-91). All three Open Questions are marked '(resolved)' with citations to the deciding package section (requirements.md:831-850: OQ-001 to Non-goals/design.md, OQ-002 to Field Definitions, OQ-003 to design.md Design Decisions). No assumption is left as a bare, unaddressed guess."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline candidate-to-canonical human-approval boundary (REQ-006c, requirements.md:189-207) is made testable through concrete, independent mechanisms rather than an untestable process description alone: AC-018 (requirements.md:423-431) fixes what the manifest must record; AC-040 (requirements.md:615-623) is a static scan asserting .github/workflows/test.yml never references promote-golden-baseline.sh/--write-candidate; AC-041 (requirements.md:624-633) exercises the script's own runtime refusal directly via two independent negative fixtures (CI env set; --approved-by omitted/empty), each asserting non-zero exit and no file write. Security Boundaries row B1 (requirements.md:806) and the Roles-and-Permissions CI paragraph (requirements.md:731-737) state the same boundary consistently, giving an implementer a machine-checkable pass/fail surface for the boundary's structural guarantees."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same F5/F6 gap identified under EDGE-CASE-COVERAGE blocks clean handoff to design review: AC-028 (requirements.md:502-516) requires every Compatibility Matrix cell to cite an AC carrying an explicit disposition ('never a bare SKIP with no machine-checkable unblocking condition'), and AC-029 (requirements.md:517-527) requires the observable x fixture-state judgment table to be 'exhaustive over the full observable x row cross-product.' With no AC/TEST assigned to the F5xREQ-002 or F6xREQ-002 cells, and AC-005's lite-track clause explicitly scoped as 'unmerged-epic-independent' (requirements.md:328-333, i.e. not applicable to capability-present lite rows), a design reviewer populating those two matrix cells has no spec-level citation available and must invent the missing product-scope decision -- whether F5/F6 need an AC-042-style full-structural-identity assertion or a narrower AC-007-style Facet-absence-only assertion -- rather than translate an existing one, which is exactly the invention this check exists to prevent."
+    }
+  ]
+}

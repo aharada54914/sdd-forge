@@ -16,11 +16,11 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "2.2.0",
-    "@types/node": "^26.2.0",
+    "@modelcontextprotocol/inspector": "2.7.0",
+    "@types/node": "^26.6.1",
     "ajv": "^8.20.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"

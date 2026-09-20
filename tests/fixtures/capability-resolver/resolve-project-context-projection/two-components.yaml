@@ -1,0 +1,29 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: facet-hybrid
+  capability_enforcement: required
+components:
+  - id: desktop-client
+    artifact_kinds:
+      - desktop-app
+    runtime_classes:
+      - electron
+    characteristics:
+      ui: true
+      pii: false
+    paths:
+      include:
+        - apps/desktop/**
+  - id: Desktop/App
+    artifact_kinds:
+      - installer
+    paths:
+      include:
+        - apps/installer/**
+shared_paths:
+  - pattern: shared/**
+    classification: cross-cutting
+  - pattern: libs/core/**
+    components:
+      - desktop-client

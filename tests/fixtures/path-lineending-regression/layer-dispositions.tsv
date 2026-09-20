@@ -1,0 +1,5 @@
+layer	disposition
+windows-path-resolution	ASSERT
+crlf-lf-gitattributes	ASSERT
+generated-text-canonicalizer	N/A for this package
+nfc-nfd-normalization	ASSERT

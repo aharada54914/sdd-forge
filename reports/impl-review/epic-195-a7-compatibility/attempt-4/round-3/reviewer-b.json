@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0942",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0942",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-4/round-3/integrated-summary.json", "sha256": "5df64333e8be99bcaefecdd5197a3acbc0e1f96de861b307438acb9c330f7bc2"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-4/round-3/precheck-result.json", "sha256": "2f6ec7357865bb80c2448cf61291fad87d25c8b61cdb10c697ca3c660c5242f2"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "78ef6c214ed677c49ee61c4456b04f3588bd1f05990c4e1b7daa99fcca5209f1"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "a62bd5d421590fed03945fa12826d29ab9450bf4ccc8e20f4dff319e9433b96c"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "3d73165d7e2116d2c810c863048061b3465ca8b3d200df9f95207d6a95dde88d"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. design.md's Design Decisions section states an explicit rationale for every named decision (e.g. suite-placement split between loop-consistency/loop-escalation cites decision doc §3.1's own quality-gate common-check-item placement; the 'no ninth loop' decision cites the independent-lifecycle argument, not loop-inventory.tests.sh's length==8 value, INV-002's caveat; F7/F8 marked N/A-not-SKIP cites ADR-0016 Decision item 2; capability-only emit-run-record.sh combination as a usage error cites the existing v1/v2 consumer-compatibility argument; golden-baseline location cites the existing per-feature specs/<feature>/verification/ convention). Every Components-table row's 'Change' column and every Data Plan/API-Contract-Plan addition carries an inline 'because'/'so that'/citation clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md Open Questions: OQ-001/OQ-002/OQ-003 are marked (resolved) with citations to design.md Design Decisions. OQ-004 (open) is carried forward in both requirements.md and design.md's own Open Questions section ('OQ-004 (open, carried forward)'). Substance of the three required elements is present even without the literal field labels: owner is the Maintainer role via a formal AC-009 hash-amendment procedure (Roles and Permissions names Maintainer as sole approver of loop-inventory.json/loop-driver.sh changes); it does not block Phase 2/3 implementation (Test Strategy's explicit 'AC-026 firing-semantics disposition' states no test in this package claims that verification, and TEST-018/TEST-019 proceed without it); and design.md's OQ-004 entry states a concrete Resolution Path ('the future change that fixes assert_terminal's firing semantics and amends the AC-009 hash MUST, in the same change, extend TEST-026 ... and that extension passing is the acceptance condition for closing OQ-004'). This is the exact remedy investigation.md's Round-12 extension records was applied after impl-review attempt 4 round 2 raised this as a Major finding (reviewer B, ledger seq 940); the current design.md bytes confirm the fix landed."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present (54 INV findings). requirements.md's three Assumptions each ground in it or in cited ADRs: (1) Epics A1/A3/A4/A5/A6 unmerged status cites investigation.md's own cross-epic findings (INV-013-INV-016) and states the re-verification discipline AC-035's fingerprint-drift mechanism enforces; (2) ADR-0010/0016/0023 and decision doc §4/§6/§19 authoritative-and-unrevised cites those documents directly (INV-008/INV-009/INV-010/INV-011); (3) jq/bash/PowerShell runtime assumption cites INV-005/INV-007 (existing suite convention). design.md's Assumptions section restates the same set with the identical grounding."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (a 9-row table) that addresses every constraint named in requirements.md Non-goals/Global-Constraints-equivalent text: no new loop-inventory entry, no new test-suite file, assert_artifacts_schema/assert_terminal unmodified apart from the one sanctioned producer call (AC-009), emit-run-record.sh no-flag byte-identical (AC-011), every upstream-dependent assertion has a named SKIP (REQ-007), PROJECT_CONTEXT_INVALID distinguishable in the event trace, the Done-transition firing constraint (explicitly disclosed Known-unsatisfied with resolution path, OQ-004), golden baseline cannot be silently regenerated (REQ-006), and cross-epic citations cannot silently drift (fingerprint mechanism). No constraint in requirements.md is left unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. Grep for response-time/throughput/concurrency/latency/numeric-SLA keywords across requirements.md returns no matches; this is an internal test-infrastructure specification package with deterministic, single-invocation script targets, not a service with a latency/throughput contract."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Deployment / CI Plan' (expanded in infra-spec.md's Deployment Topology/CI-CD Sequence/Environments) names the deployment target (tests/run-all.sh, tests/run-all.ps1, .github/workflows/test.yml, following the existing four-Pillar-A-loop-suite registration pattern, INV-005), the capability-flag-gated additive rollout mechanism functioning as the feature-flag strategy (emit_capability, capability_applicability, all independently gated), and explicitly states 'No CI change in this task' for the current Phase-1 package while fixing the exact future registration lines. No schema/database migration exists in this package (Data Plan: 'No migration required'), so migration-execution-order relative to deployment is correctly not applicable rather than omitted."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan states 'Data Entities: none persisted by this task' and 'Existing Data Affected: none' and 'Migration Strategy: No migration required' — functionally equivalent to the check's 'No data changes' PASS condition. Every future-task schema-shaped change (capability_applicability field, emit-run-record.sh capability object, the three new v1 schemas) is explicitly additive/optional with a stated backward-compatible default, and no existing consumer is broken (cited in the same paragraph)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## External Integrations' states 'None. Every target in this package is internal to the repository (existing scripts, schemas, templates, and the future golden baseline).' The only cross-boundary dependencies are internal, same-repository cross-epic contracts (Epic A1/A4/A5/A6), each of which is identified, contracted (fingerprinted digest + activation condition), and given explicit failure behavior (named SKIP, hard-fail on dependency-present-SKIP/unknown-SKIP/fingerprint-drift) via the REQ-007 allowlist manifest (Data Plan) — exceeding what this check requires for an external integration, applied here to an internal one."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every component in design.md's Components table traces to a specific REQ (loop-inventory field to REQ-003, fixture-matrix builder to REQ-005, golden-baseline scripts to REQ-006, SKIP allowlist manifest to REQ-007, etc.) with no untraceable addition found. requirements.md's seven Goals (REQ-001-REQ-007) are each addressed by a named design.md section/table (Compatibility Matrix, Observable×fixture-state table, canonical event-trace schema, API/Contract Plan). No design-system contract exists for this project's ds_profile (design.md: 'N/A — ds_profile: none'), so the UI-component-library scope-creep clause does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: golden-baseline integrity (B1), shared cross-epic surface blast radius (B2), SKIP-allowlist fail-open closure (B3), cross-epic fingerprint-citation integrity (B4), structural-comparison record-corpus tamper-resistance (B5) — each names a concrete AC/TEST validation path (AC-040/AC-041 for B1, AC-008/AC-009/AC-011/AC-033 for B2, AC-034/AC-035 for B3, AC-035c for B4, AC-030/AC-031 for B5), detailed further in security-spec.md's Security Tests table. The one disclosed, deliberately-unresolved high-risk gap (AC-026's Done-transition firing-condition deviation, OQ-004) is not silently left open: design.md's Test Strategy carries an explicit 'AC-026 firing-semantics disposition' paragraph stating no test in this package claims that verification, and design.md's Open Questions section fixes a concrete resolution vehicle (extend TEST-026 in the same change that amends the AC-009 hash, with that extension's passing as the closing acceptance condition) — a named, inspectable verification path for the deferred item, not an absent one."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in this repository (confirmed: `ls domain/` fails, no domain/context-map.md, no domain/domain-contract.json), so the domain-model-approved precondition this check requires is absent."
+    }
+  ]
+}

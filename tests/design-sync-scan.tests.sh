@@ -792,7 +792,8 @@ echo ""
 echo "=== TEST-053 (AC-035, QG cycle-1 remediation scan T-005 Major): both tests/run-all.sh and tests/run-all.ps1 list the new suite ==="
 RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
-if grep -Fq 'tests/design-sync-scan.tests.sh' "$RUN_ALL_SH" \
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+  grep -Fx 'tests/design-sync-scan.tests.sh' <<< "$registered_suites" >/dev/null \
   && grep -Fq 'tests/design-sync-scan.tests.ps1' "$RUN_ALL_PS1"; then
     ok "TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite"
 else

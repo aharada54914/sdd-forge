@@ -1,0 +1,67 @@
+Mutation kill: `_discover_registry`'s own `sys.path` try/finally restore
+(T-003 scope, 2026-08-25 fourth-round cross-model panel remediation).
+
+FINDING CLOSED. Anthropic slot, raised against BOTH T-003 and T-004 and
+re-raised unclosed in every round since: "sys.path.insert(0,
+str(script_dir)) is never restored (no try/finally, no importlib.util.
+spec_from_file_location), so any later stdlib-shadowing module in the
+deployed scripts directory would win import resolution for the rest of
+the process. Disclosed, unfixed across three rounds on a
+Security-Sensitive task."
+
+FIX. `_discover_registry`'s body is split into
+`_discover_registry_with_sibling_module()`; the caller keeps the
+`sys.path` prepend scoped to exactly that call and takes it back off in a
+`finally`, so every exit path -- clean return, ContractDiscoveryFailed,
+or any unexpected exception -- restores it. Removal is by VALUE via
+`list.remove`, which drops only the FIRST occurrence, so a caller that
+already had `script_dir` on `sys.path` keeps its own entry.
+
+NEW ASSERTIONS (three, tests/resolve-project-context-block-check.py,
+`run_sys_path_hygiene_check`). White-box against the SAME staged file
+every other check runs, loaded via `importlib.util.spec_from_file_
+location` -- the identical discipline `run_draft7_validator_keyword_
+checks` already established for a property with no CLI-observable
+trigger. The resolver exits before any later import could be hijacked, so
+no black-box subprocess fixture can observe this property.
+  (1) clean return restores sys.path exactly;
+  (2) the ContractDiscoveryFailed path restores it too (proving the
+      `finally`, not a lucky fall-through on the success path);
+  (3) a caller's pre-existing identical sys.path entry SURVIVES the call
+      (the first-occurrence-only removal discipline).
+
+MUTANT. Drop the `try`/`finally` entirely -- `return
+_discover_registry_with_sibling_module()` with the prepend left standing,
+i.e. exactly the pre-fix code the finding describes.
+
+KILL, isolated scratch copy, collateral-free, BOTH RUNTIMES:
+
+    baseline   bash: RESULT: 219 passed, 0 failed
+    baseline   pwsh: RESULT: 219 passed, 0 failed
+    mutant     bash: RESULT: 216 passed, 3 failed
+    mutant     pwsh: RESULT: 216 passed, 3 failed
+    restored   bash: RESULT: 219 passed, 0 failed
+    restored   pwsh: RESULT: 219 passed, 0 failed
+
+Exactly the three new assertions flip, nothing else -- 219-216=3. Mutant
+FAIL lines (bash; pwsh identical except tempdir names):
+
+FAIL: sys-path-hygiene: _discover_registry restores sys.path on a clean return: outcome=returned added=['/var/folders/.../tmp912_nl9g/ok']
+FAIL: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path: outcome=blocked added=['/var/folders/.../tmpyjzn1f92/boom']
+FAIL: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call: outcome=returned occurrences=2
+
+Note the third line's own `occurrences=2`: under the mutant the caller's
+pre-existing entry and the function's own duplicate both remain, which is
+the specific shape assertion (3) exists to detect and which assertions
+(1)/(2) alone would not distinguish.
+
+NON-VACUITY IN THE RED DIRECTION TOO. At the T-003 rewind baseline
+(99b8ba76) `_discover_registry` does not exist at all; the check reports
+"sys-path-hygiene: _discover_registry exists on the staged module" as a
+clean FAIL and returns, never an AttributeError, never a crash before the
+RESULT line -- see verification/T-003/red-baseline-recaptured-v2-{sh,ps1}
+.log. At the T-004 rewind baseline (752723fa) the function exists WITHOUT
+the restore, and all three assertions FAIL there for their stated reasons
+(one of them reporting `outcome=RuntimeError`, since that baseline
+predates the broad `except Exception` widening) -- see
+verification/T-004/red-t004-baseline-recaptured-{sh,ps1}.log.

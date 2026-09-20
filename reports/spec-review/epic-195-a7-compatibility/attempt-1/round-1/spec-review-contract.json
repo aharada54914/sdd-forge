@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "42c17ec95ddbd0ef8de46b558c0f3755e5dd5b8df2afee754e7ea4ec469337a7",
+  "acceptance_sha256": "62f27d36122b4bcceb67ed1f4a9b7d665d25a734ddbbeb0abbeb9c7a305af66b",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0320",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0320",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json",
+          "sha256": "748916d347e9bd2fcf27fa10945407aec885ca24c5c6c05dceb51cdd9c899876"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "62f27d36122b4bcceb67ed1f4a9b7d665d25a734ddbbeb0abbeb9c7a305af66b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "42c17ec95ddbd0ef8de46b558c0f3755e5dd5b8df2afee754e7ea4ec469337a7"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0321",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0321",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/integrated-summary.json",
+          "sha256": "37c4a4b2a6bc2bf54a09b3da8830db1928d8c6ec5856297fba6dd01ea2e500e2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/spec-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json",
+          "sha256": "748916d347e9bd2fcf27fa10945407aec885ca24c5c6c05dceb51cdd9c899876"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "62f27d36122b4bcceb67ed1f4a9b7d665d25a734ddbbeb0abbeb9c7a305af66b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "42c17ec95ddbd0ef8de46b558c0f3755e5dd5b8df2afee754e7ea4ec469337a7"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic-195-a7-compatibility-a1r1",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # epic-136 Phase 3, Stream D (T-003 / issue #126) -- deterministic-lane
-# self-check for the staged workflow candidate.
+# self-check for the current workflow (or an explicitly supplied candidate).
 #
 # TEST-016 (AC-016): the candidate preserves the single-job structure, keeps
 #   the job count and job names byte-unchanged, and prefixes EVERY step inside
@@ -25,18 +25,17 @@
 # Technique: text markers only (tests/workflow-state-ci-integration.tests.sh
 # precedent) -- no YAML-parsing dependency, bash 3.2 compatible.
 #
-# NOTE ON PATHS: the staged candidate lives at a NON-protected draft path
-# because sdd-hook-guard denies every agent write whose path ends with the
-# protected workflow suffix, including the human-copy staging path. Placing
-# the draft at the human-copy path is a human action; this suite therefore
-# verifies the draft, which is byte-identical to what the human places.
+# The historical phase3 draft is superseded and must never be applied over
+# newer jobs. With no arguments validate the live workflow. An optional first
+# argument validates a proposed workflow before human application; a second
+# argument enables a separate baseline/candidate preservation comparison.
 
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 workflows_dir="$repo_root/.github/workflows"
-live_workflow="$workflows_dir/test.yml"
-candidate="$repo_root/specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml"
+live_workflow="${1:-$workflows_dir/test.yml}"
+candidate="${2:-$live_workflow}"
 
 # The suites this feature's ONE shared human-copy batch registers into the
 # LIVE workflow (Stream A, Stream B, Stream C, and Stream D's own self-check
@@ -279,9 +278,9 @@ for suite in $NEW_SUITES; do
     # Designed fail-closed window: the LIVE file must run the suite. Until the
     # human applies the candidate, it does not -- that red result is intended.
     if grep -Fq "bash ./${suite}" "$live_workflow"; then
-        ok "TEST-020: the LIVE workflow runs ${suite} (human-copy already applied)"
+        ok "TEST-020: the selected workflow runs ${suite} ($live_workflow)"
     else
-        designed_red "TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run ${suite} -- expected until the human-copy pre-merge commit lands (no staged fallback)"
+        designed_red "TEST-020: selected workflow does not run ${suite}: $live_workflow (no staged fallback)"
     fi
 done
 

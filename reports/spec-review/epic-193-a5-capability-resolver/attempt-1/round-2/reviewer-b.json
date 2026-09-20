@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-seq0323",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-193-a5-capability-resolver-0323",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "d5343f2f74181021daf7de3c0501ffaf95a9948f33688f10e94d0996b9c8e7c5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json", "sha256": "05bdd3d2c52de71ec7c7410d7c24d6bd13b4987a352964cee02398ea62e83776"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-2/integrated-summary.json", "sha256": "fa964f0ebdf2528869aa7d7caf5d2050cde7c4f693c49d7c0a93fe55d437ba95"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The two areas the round-1 remedy specifically targeted are now concrete: REQ-002's project-context-validation-failed row (requirements.md ~line 351) is grounded in 'this feature's own JSON-Schema-conformance check ... against contracts/project-context.schema.json,' replacing a prior dependency on an unreachable Epic A1 CLI, and is cleanly distinguished from canonicalizer-invocation-failed. REQ-004's diagnostics[] severity-cardinality rule (~lines 486-508) is now closed and internally consistent (every id but dsl-warn-on-matched-capability appears at most once, always severity:block; dsl-warn-on-matched-capability alone can repeat as severity:warn per WARN node plus exactly one severity:block summary), tested by AC-056 including a multi-node scaling companion fixture. A fresh read of REQ-001 through REQ-008, Field Definitions, Edge Cases, and Roles and Permissions found no other term, state, or output left underspecified enough for two implementers to diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-010 states 'no other condition produces a non-zero exit' beyond the sixteen REQ-002 diagnostic-id rows, but AC-013 (two rows below, same table) states the exit-code contract includes '2 on a CLI usage error (AC-001)'. A CLI usage error is explicitly not a REQ-002 Block (Field Definitions ties 'Block' strictly to REQ-002's own taxonomy, and AC-001's missing-required-flag fixtures are a distinct usage-error path), yet AC-013 confirms it produces a non-zero exit (2) -- directly negating AC-010's literal claim. Downstream failure mode: a design reviewer or future test author relying on requirements.md's own AC-010 wording (rather than acceptance-tests.md's cleaner TEST-010 description, which does not repeat this phrase) could misread the Block table as an exhaustive enumeration of every non-zero-exit condition, producing an incorrect implementation or a spurious 'no other non-zero exit' assertion inside the block test suite that conflicts with AC-001's own exit-2 fixtures. This is a one-line acceptance-criteria wording defect fixable before design/task work, squarely spec review's own scope, not implementation review's. Severity is Major rather than Critical because AC-013's own adjacent, unambiguous text and acceptance-tests.md's clean TEST-010 wording limit the practical blast radius -- it does not create a safety or workflow-boundary conflict or render the specification unreviewable."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-055 (acceptance-tests.md) now supplies the two independently-triggerable fixtures the round-1 finding required for output-schema-validation-failed's own two sub-cases (Evidence-itself-fails, writing nothing; a non-Evidence staged artifact fails while Evidence is still written), closing the prior gap. Beyond that specific remedy, the full sixteen-row REQ-002 Block matrix (AC-010, plus AC-038-041/047-054 for the newer B1/B6/B7/B8 rows), REQ-006's fixture-matrix items a-h (match/no-match/conditional/three independent WARN branches/facet-name aggregation/zero-affected-component/metamorphic completeness), the zero-affected-component edge case (AC-018, Edge Cases 'M9 zero-component correction'), and the pre-/post-publication TOCTOU races (AC-040/047-049) together cover the negative, empty, boundary, and failure paths the requirements imply."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three entries under Assumptions (requirements.md ~lines 1146-1169) name a concrete fallback if the assumption fails: sibling-contract drift before Phase 2 begins triggers 'a corresponding follow-up edit' to design.md; the protected-suffix reservation not yet being live triggers a re-verification and an alternate staging sequencing; SKILL.md's unprotected status is explicitly 're-verified at the future implementation task's own start time, not a permanent guarantee'. OQ-001 and OQ-002 are explicitly scoped to a future epic/caller rather than left as unresolved blocking gaps for this feature, and OQ-003 is resolved in this revision by investigation.md INV-020's file:line-cited anchor (SKILL.md:60) plus a position-sensitive fingerprint (AC-053)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This package's Phase-1/Phase-2 review gate is an in-scope, testable governance boundary: Non-goals states 'Running spec-review-loop/impl-review-loop against this package, or authoring tasks.md/traceability.md' is out of scope until 'both reviews pass', and this is directly checkable via AC-035 (registry entry / Spec-Review-Status/Impl-Review-Status headers). The human-copy application boundary for staged script content (Roles and Permissions; investigation.md INV-003, 'never a direct agent write to the live path') is likewise testable via AC-026 (a staged tests/*.tests.sh registration plus a human-copy-staged .github/workflows/test.yml candidate with a MANIFEST.sha256 entry, explicitly flagged 'Status resolves through a human cp action') and AC-032 (no plugins/** path touched by this package's own commits)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every orchestration rule a downstream design reviewer would otherwise have to invent is stated directly in requirements.md/acceptance-tests.md itself, not merely deferred: the multi-component union-match rule (Field Definitions 'Matched Capability'), the cross-Capability and same-Capability facet-name aggregation algorithm with explicit OR/concatenation-ordering rules (Edge Cases, predicate-instance keyed by declaration_index), the any-branch WARN quantifier (Edge Cases, REQ-002's dsl-warn-on-matched-capability row), and the now mutually consistent closed enumerations (sixteen REQ-002 diagnostic ids, twelve validate-resolver-evidence check ids, ten test suites -- independently recounted and confirmed exactly ten distinct tests/*.tests.sh basenames across AC-001-AC-053). The one residual gap I found (the AC-010/AC-013 exit-code wording contradiction, reported under CONTRADICTION) is narrow enough that it does not by itself require a design reviewer to invent missing product behavior -- AC-013's own text already fixes the correct exit-code contract."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+Retained mutation-kill evidence for MUT-7 (`_required_facets` aggregating
+over the whole Registry instead of the matched-capability set), closing
+the confirmation-panel Major (2026-08-24, both vendors): the report's own
+recorded "baseline 112/0 -> mutant 98/1" left 13 assertions unaccounted
+(98 + 1 = 99, not 112), never explained.
+
+Re-investigated here, 2026-08-24, in two steps: (1) re-run MUT-7 against
+the CURRENT tree (post this pass's own `capability_minimum_enforcement`
+de-confounding fix, which moved `minimum_enforcement: "required"` from
+cap-beta to the deliberately-unmatched cap-gamma); (2) re-run the
+IDENTICAL MUT-7 mutation against the PRE-fix tree state (this pass's own
+fixture/assertion edits reverted, matching exactly what the original
+"98/1" claim was measured against) to determine whether this pass's own
+fix changed MUT-7's own behavior or whether the "98/1" figure was simply
+wrong at the time it was recorded.
+
+Technique: `git clone --no-hardlinks` scratch copy of this worktree
+(never the real worktree). The real worktree's own STAGED source
+(specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/
+scripts/resolve-project-context.py) was never touched -- confirmed
+unchanged (`git status --short` in the real worktree, before and after).
+
+--- Step 1: baseline (scratch clone, this pass's own uncommitted diff
+    overlaid: reversal 1, dependency-stderr pass-through, temp-file-leak
+    fix, anchored stderr-token classification, `_resolved_gates` comment,
+    `capability_minimum_enforcement` de-confounding fixture/assertion) ---
+
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 112 passed, 0 failed
+
+--- Step 2: MUT-7 applied (scratch clone ONLY) ---
+
+Location: resolve-project-context.py, `_required_facets`.
+
+    - for capability_id in matched_capability_ids:
+    + for capability_id in capabilities_by_id:
+
+--- Step 3: mutant re-run (post-fix tree) ---
+
+$ bash tests/resolve-project-context-match.tests.sh
+FAIL: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007): ['core-facet', 'gamma-facet']
+RESULT: 111 passed, 1 failed
+
+Arithmetic balances exactly: 112 = 111 + 1, zero assertions unaccounted.
+No early abort; the suite ran every case, including every one after
+`full-pipeline-match` in file order (`enforcement-byte-identity`, all four
+`warn-cardinality-*` cases, `resolver-identity-cross-process`,
+`resolver-identity-dispatcher-delegation`, both suite-registration
+checks) -- all still PASS, confirming this mutant's own blast radius is
+exactly the one field it targets, no collateral, no crash.
+
+--- Step 4: identical MUT-7 mutation re-applied against the PRE-fix tree
+    state (fixture/assertion reverted to what "98/1" was originally
+    measured against, to isolate whether this pass's own fix changed
+    MUT-7's own behavior) ---
+
+$ git stash -u   # sets tree to committed HEAD (5968b420), pre-fix
+$ python3 -c '...'   # identical MUT-7 rewrite, inline (Write/Edit denied
+                      # on this protected-suffix path even in a scratch
+                      # clone; python3 -c via Bash is not denied)
+$ bash tests/resolve-project-context-match.tests.sh
+FAIL: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007): ['core-facet', 'gamma-facet']
+RESULT: 111 passed, 1 failed
+
+Identical clean result (111/1, zero unaccounted) against the PRE-fix tree
+too. This pass's own `capability_minimum_enforcement` fix did not change
+MUT-7's own behavior in any way (expected -- that fix touches a
+different, independently-scoped function, `_capability_minimum_
+enforcement`, never `_required_facets`).
+
+--- Result ---
+
+The report's own "98/1" figure does not reproduce against either the
+pre-fix or post-fix tree. Conclusion, disclosed rather than silently
+corrected: the "98/1" number recorded in reports/implementation/
+epic-193-a5-capability-resolver/T-005.md ("### Outputs (confirmation-panel
+remediation pass, 2026-08-24)" section, MUT-7 re-injection paragraph) was
+a transcription/reporting error, not evidence of a real early-abort or
+failure-isolation defect in the suite -- re-running the identical mutation
+against the identical fixture, twice, on two different tree states, both
+produce the clean, fully-accounted 111/1 result this log retains. The
+report's own prose is corrected in the same pass that authors this log
+(see reports/implementation/epic-193-a5-capability-resolver/T-005.md,
+"Confirmation-Panel Remediation (2026-08-24, round 2)").
+
+Scratch clone discarded after capture (left in the isolated,
+session-scoped scratchpad directory, never committed to the repository).

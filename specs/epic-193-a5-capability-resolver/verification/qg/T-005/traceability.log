@@ -1,0 +1,238 @@
+Requirement-traceability check (manual — no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run) for T-005, RE-VERIFIED 2026-08-23 (gate-cycle-5
+Minor remediation — the prior capture at this same path, dated the
+same day but for the AC-056 second pass at 59/0, had gone three
+generations stale across gate-cycles 1-4 without ever being re-read or
+re-derived, the identical "stale-justification…camouflaged a later
+Critical" class the module docstring/report text corrected elsewhere
+this cycle) at HEAD:
+
+ - tasks.md T-005 Requirements line -> REQ-001 (share — AC-003..AC-008,
+   AC-016, AC-043, AC-044, AC-052, AC-056), REQ-004 (share), REQ-005
+   (share — TEST-016/043/044/052/056), REQ-006 (share — fixture-matrix
+   items a-d, f, g), REQ-008 (share — CHANGELOG). All five confirmed
+   present in requirements.md (grep hit counts: REQ-001=38, REQ-004=19,
+   REQ-005=11, REQ-006=5, REQ-008=4) and traceability.md's own Task
+   Mapping table names T-005 explicitly (traceability.md:61).
+ - AC-003..AC-008, AC-016, AC-043, AC-044, AC-052, AC-056 and their
+   corresponding TEST-003..TEST-008/TEST-016/TEST-043/TEST-044/TEST-052/
+   TEST-056 ids are all present in acceptance-tests.md (grep hit counts:
+   AC-003..AC-008=1 each, AC-016=1, AC-043=1, AC-044=1, AC-052=1,
+   AC-056=3; TEST-003..TEST-008=1 each, TEST-016=1, TEST-043=2,
+   TEST-044=1, TEST-052=2, TEST-056=1) and traceability.md's own AC->TEST
+   table rows (lines 74-79, 87, 114-115, 123, 127) all assign T-005 as
+   the sole owning task for every one of these eleven ACs.
+ - All eleven of this task's own ACs (AC-003..AC-008, AC-016, AC-043,
+   AC-044, AC-052, AC-056) remain implemented and independently confirmed
+   passing at HEAD — 98 passed / 0 failed, both runtimes (see
+   focused-tests-sh.log / focused-tests-ps1.log), grown from this same
+   log's own prior (stale) 59/0 capture across five gate cycles:
+    - gate-cycle-1 (59->63): AC-044's cross-invocation identity gained a
+      genuine two-real-OS-process comparison (`resolver-identity-cross-
+      process`) plus a dispatcher-delegation structural check, closing a
+      Major where a per-process derivation (`os.getpid()` folded into
+      `RULE_SET_STRING`) had been invisible to an in-process
+      self-comparison.
+    - gate-cycle-2 (63->65): AC-003's byte-identity expectation stopped
+      being computed by the function under test itself
+      (`resolver_module._projection(...)`) and became literal,
+      hand-transcribed data; AC-044's RFC-6901 `~`->`~0` escape half
+      gained a fixture component id (`other~thing`) to exercise it;
+      AC-043's `solo-never-facet` reason gained a second contributing
+      instance so "names every instance" and "names the first" become
+      distinguishable.
+    - gate-cycle-3 / RT-20260823-001 (65->72, including the same-day
+      AC-024 addendum): `context_binding`'s own four scalar fields and
+      the Facet Manifest's `affected_components` stopped being fed into
+      `_assemble_context_binding`/`_assemble_facet_manifest` as unchecked
+      constructor arguments and gained independent-value comparisons;
+      `diagnostics[]` gained AC-024 stable-sort assertions (`(id,
+      detail)` ascending, summary entry sorts first) after a cross-epic
+      panel finding on the production code (T-004's own fix) and this
+      driver's own expectation-construction (this task's own fix).
+    - downstream T-003/T-004 cross-model panel remediation (72->73):
+      the pre-existing AC-004 omission-only expectation was fixed to stop
+      asserting a synthesized `--no-include-untracked`; an AC-016
+      comparison was narrowed — both keeping this task's own suite
+      accurate against two T-003/T-004 production fixes, no new AC
+      surface.
+    - gate-cycle-4 / RT-20260823-001 cycle-4 (73->95): this driver had
+      built `context_binding`/`resolver` itself via a direct
+      `_assemble_context_binding`/`_resolver_block` call and only ever
+      compared THAT reconstruction against independent expectations —
+      never once reading `evidence["context_binding"]`/
+      `evidence["resolver"]` back off the WRITTEN `resolver-evidence.
+      yaml` artifact, even though the resolver has published both blocks
+      on every Block reached AT OR AFTER step 10 since T-004's own
+      NEEDS_WORK cycle 2 remediation (Finding 1, Critical, closed with
+      eight new published-value assertions); AC-056's facet-loop
+      `declaration_index` clause had shipped uncovered — no fixture ever
+      declared a non-empty `conditional_facets[]` on a matched Capability
+      (Finding 2, Major, closed with the new `warn-cardinality-facet-node`
+      fixture, fourteen new assertions).
+    - gate-cycle-5, THIS PASS (95->98): AC-004's own `--include-untracked`
+      clause had no test that could fail — `expected_rcp_argv`
+      (`tests/resolve-project-context-match-check.py`) pinned only
+      `--config`/`--source-rev`/`--target-rev`/`--json`, and no fixture
+      ever supplied the flag, so a resolver-side mutant filtering
+      `--include-untracked` out of every downstream argv survived at
+      95/0 (evaluator finding, Major). Closed: a new
+      `include-untracked-pass-through` fixture (reuses the identical
+      `full-pipeline-match` fixture/spy-stub, differing only in supplying
+      `--include-untracked` on the resolver's own CLI call) asserts
+      `rcp-argv-capture.json` contains the flag verbatim, in its own
+      CLI-contract position (immediately before `--json`). The evaluator's
+      own mutant (filter the flag from every downstream argv) was
+      re-injected in a fresh `git clone --no-hardlinks` scratch copy via a
+      harness-level hook gated by an env var never set in a normal run,
+      mutating only the ephemeral per-run copy `install_scripts()`
+      produces in a temp dir (never the STAGED source, never the real
+      worktree — the guard's path-suffix rule blocks a direct write to
+      `resolve-project-context.py` even in a disposable clone) and killed
+      by name: 97 passed / 1 failed, the new assertion alone, no
+      collateral. Two stale test-driver comment labels (an AC-044 label
+      that had claimed `resolver.version`/`rule_set_revision` are "never
+      written to any live path pre-T-007" — contradicted by this same
+      driver's own gate-cycle-4 published-value read three sections
+      below it; and a facet-node label that implied it asserted against
+      production output directly, when the real production comparison is
+      the assertion immediately above it) were also corrected this pass
+      (Minors); see reports/implementation/epic-193-a5-capability-
+      resolver/T-005.md's own "Gate Cycle 5 Remediation" section for the
+      full account.
+ - TEST-056 implementation (unchanged this pass, carried from the
+   AC-056 second pass): two fixtures in `run_warn_cardinality_single_
+   node_case`/`run_warn_cardinality_multi_node_case`
+   (tests/resolve-project-context-match-check.py), plus gate-cycle-4's
+   own `run_warn_cardinality_facet_node_case` addition (declaration_index
+   branch coverage).
+ - Mutation-kill evidence (this task's own diff across all five gate
+   cycles, not a T-004 concern): see reports/implementation/epic-193-a5-
+   capability-resolver/T-005.md's own per-cycle "Remediation" sections
+   for the full, individually-named mutant-kill account; this pass's own
+   AC-004 kill is recorded directly above.
+ - Not independently re-verified in this pass: REQ-001/REQ-004/REQ-005/
+   REQ-006/REQ-008's own OTHER task rows (T-002, T-003, T-004, etc.) --
+   those are shared REQ ids spanning multiple tasks' own scope, out of
+   T-005's own diff, per tasks.md Global Constraints.
+
+Superseded 2026-08-24 (confirmation-panel remediation, both vendors' T-005
+Majors 1/2, same staleness class this file's own predecessor cycles
+already went through): re-verified against the CURRENT driver directly
+rather than carrying forward the count above. `resolve-project-context-
+match-check.py`'s own `case_labels`/`main()` register SEVEN cases (the
+pre-existing six plus this round's own `warn-cardinality-nested-node` --
+Major 2, a composite `any` predicate whose two leaf children both WARN
+in one evidence tree, closing the survivor MUT-9; `case_labels` itself
+confirmed by direct read of `main()`, not assumed -- this corrects a
+transcription error this log's own prior revision carried, "EIGHT",
+6+1=7 not 8). `full-pipeline-match`'s own fixture Registry gained a third
+Capability, `cap-gamma` (Major 1, a genuine no-match Capability whose own
+`required_facets`/`gate_ids`/`lite_policy` must not leak into the
+assembled Facet Manifest, closing the survivor MUT-7 for `required_facets`
+specifically -- `capabilities`/`resolved_gates`/`lite_eligibility` are
+closed by the SAME fixture via their own separately-scoped assembly
+functions, never by MUT-7 itself). MUT-7's own figure below is corrected
+from this log's own prior revision's "98 passed / 1 failed" (a
+transcription error, independently re-investigated and reconciled in
+verification/qg/T-005/mutation-kill-mut7-required-facets.log: re-running
+the IDENTICAL mutation against both the current tree and a reconstructed
+pre-fix tree state reproduces a clean 111/1 both times, never 98/1) to
+111 passed / 1 failed, balancing exactly against the 112-assertion
+baseline this figure was measured against.
+
+Superseded 2026-08-24 bookkeeping-lag pass (Anthropic v3 Major --
+`capability_minimum_enforcement` "remains confounded... not claimed
+closed" is now FALSE): the omission direction (a matched Capability's own
+`minimum_enforcement` correctly surfacing) was untested everywhere in this
+suite once the paragraph above moved the suite's only declaration onto
+never-matching `cap-gamma`. Closed this pass by re-assembling the Facet
+Manifest a second time, in-process, against a `registry_document` variant
+where `cap-alpha` (genuinely MATCHED) also declares `minimum_enforcement:
+"required"`, holding every other input byte-identical to the real
+pipeline run -- both mutation directions (unconditional omission; whole-
+Registry aggregation) confirmed killed non-vacuously in
+verification/qg/T-005/mutation-kill-minimum-enforcement-omitted.log and
+mutation-kill-minimum-enforcement-whole-registry.log. `full-pipeline-
+match`'s own exclusion assertion (`cap-gamma`'s own `"required"` excluded)
+is unchanged and still passes. Confirmed executed and passing in this same
+verification run: 113 passed, 0 failed, both runtimes (`bash
+tests/resolve-project-context-match.tests.sh` / `pwsh -File
+tests/resolve-project-context-match.tests.ps1`) -- net +1 assertion over
+the 112 above, the suite's own current total, never any prior count this
+log carried. Both `tests/resolve-project-context-match.tests.sh` and
+`.ps1` now also emit a leading `# runner: bash` / `# runner: pwsh` marker
+line (recurring Minor every round), present in this run's own captures but
+outside the driver's own PASS/FAIL count. REQ-001 (share)/REQ-004
+(share)/REQ-005 (share)/REQ-006 (share, items a-d/f/g)/REQ-008 (share)
+presence in requirements.md and AC-003..AC-008/AC-016/AC-043/AC-044/
+AC-052/AC-056 presence in acceptance-tests.md re-confirmed unchanged
+(neither document was edited by this pass).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 113 passed, 0 failed"
+
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Re-derived against the current tree. Every figure below was measured in
+this run, not carried forward.
+
+REQUIREMENT -> ASSERTION additions this pass:
+
+* REQ-006 item (g) / AC-027 -- previously covered only in HALF, and
+  that half by T-001's hand-built TEST-018 schema instance rather
+  than by any Resolver run. The new `zero-affected-component-match`
+  fixture closes BOTH halves against the SAME real invocation:
+  every Registry Capability's own `trigger_evaluations[] == []`
+  asserted BLACK-BOX on the PUBLISHED Resolver Evidence, and the
+  Facet Manifest's `capabilities: []` through the oracle
+  reconstruction full-pipeline-match already establishes. Twelve
+  assertions. The zero-affected-component condition is produced by
+  the REAL, unstubbed resolve-component-paths against a commit
+  range whose only changed path is repository-root README.md, and
+  an independent second invocation of that same real script
+  asserts the empty result. Also re-confirms AC-018 (one entry per
+  Registry Capability even at zero components), AC-019 (no
+  conditional_facet_evaluations key on an unmatched Capability),
+  AC-007 (every matched-set-derived aggregate empty) and AC-008
+  (the zero-component manifest validates against the REAL
+  validate-facet-manifest). Two mutation kills, both runtimes:
+  125/0 -> 117/8 (whole-Registry aggregation) and 125/0 -> 121/4
+  (empty-in/empty-out shortcut, all four this fixture's own)
+  -- verification/qg/T-005/mutation-kill-zero-affected-component.log.
+
+STALE FIGURES IN THIS LOG'S OWN PRIOR REVISION, corrected here rather
+than left to a later round to find:
+
+  (a) This log's own prior revision states that
+      `resolve-project-context-match-check.py`'s own `case_labels`/
+      `main()` register SEVEN cases. That was true when written and is
+      now WRONG: `case_labels` has EIGHT entries, the eighth being
+      this pass's own `zero-affected-component-match`. Confirmed by
+      direct read of main(), not assumed. This is the third
+      consecutive revision in which this one figure has been wrong
+      (EIGHT when it was seven, SEVEN when it is now eight); the
+      figure is only safe to record in the same pass that changes the
+      list.
+  (b) The live total recorded here was 113; the suite is now 125
+      (+12, the new fixture's own assertions). Corrected in the
+      trailer below.
+  (c) REQ-006's own share line is re-stated: items a-d/f/g, with (g)
+      now covered IN FULL by this task's own suite rather than half-
+      delegated to T-001.
+
+CONFIRMED EXECUTED AND PASSING IN THIS SAME VERIFICATION RUN:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> 125 passed, 0 failed
+
+requirements.md and acceptance-tests.md were NOT edited by this pass. The
+two 2026-08-24 amendments this pass depends on (ruling A(1) on AC-056,
+d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
+it.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 125 passed, 0 failed"

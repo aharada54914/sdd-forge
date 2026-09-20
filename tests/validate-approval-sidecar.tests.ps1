@@ -1018,8 +1018,9 @@ if ($r.ExitCode -eq 0) {
 # Self-registration.
 # ---------------------------------------------------------------------------
 
-$RunAllSh = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.sh')
-if ($RunAllSh -match 'validate-approval-sidecar\.tests\.sh') {
+# The runner loads an external inventory; query its public list.
+$PosixEntries = @(& bash (Join-Path $Root 'tests/run-all.sh') --list)
+if ($LASTEXITCODE -eq 0 -and $PosixEntries -ccontains 'tests/validate-approval-sidecar.tests.sh') {
   Test-Pass 'self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh'
 } else {
   Test-Fail 'self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh'

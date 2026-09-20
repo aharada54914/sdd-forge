@@ -1,0 +1,13 @@
+Commands:
+- bash -n tests/path-lineending-regression.tests.sh tests/run-all.sh
+- PowerShell Parser.ParseFile on tests/path-lineending-regression.tests.ps1 and tests/run-all.ps1
+- exact-once registration checks in tests/run-all.sh and tests/run-all.ps1
+- shasum -a 256 -c specs/epic-196-a8-integration/verification/T-006/MANIFEST.sha256.draft
+- Python stdlib matrix/CI-draft assertions
+- git hash-object comparison for live .github/workflows/test.yml against HEAD
+- git diff --check
+
+Exit: 0
+PowerShell parse: 0 errors
+Static contract checks: 10 passed, 0 failed
+Registration/manifest/live-workflow checks: 5 passed, 0 failed

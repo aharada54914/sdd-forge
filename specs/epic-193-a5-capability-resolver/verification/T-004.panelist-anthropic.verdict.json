@@ -1,0 +1,48 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-004.contract.json (comment, FIFTH PASS ADDENDUM)",
+      "note": "The contract's narrative comment is behind the evidence it cites: it asserts \"GREEN: 184 passed / 0 failed ... (verification/qg/T-004/focused-tests-{sh,ps1}.log, byte-identical to ... verification/T-004/green-cycle5-{sh,ps1}.log)\", but the bundled focused-tests logs read \"RESULT: 205 passed, 0 failed\" while green-cycle5 reads 184/0, so the byte-identity claim is now false. No addendum records the two 2026-08-24 confirmation-panel rounds (including Reversal 2). All six required-check evidence FILES are themselves current, so no check's passes value rests on a stale measurement -- this is prose staleness only, but it is the same recurrence class two earlier rounds already flagged."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-004.contract.json unit-tests/acceptance-tests red_evidence -> verification/T-004/red-cycle5-{sh,ps1}.log",
+      "note": "The cited RED pair (177 passed / 7 failed) was captured against a 184-assertion driver and is two remediation rounds behind the 205-assertion GREEN. The two later rounds substitute prose-only mutation-kill counts (201/0 -> 200/1; \"zero new failures\" on real-schema seeding) with no captured log in the bundle, so those kills are unverifiable from the bundle alone. The Done-When RED obligation for this task's own three block rows is still met by the retained commit-time pair (107/14) and by red-cycle5's demonstrated discrimination on the fifth-pass fixtures."
+    },
+    {
+      "severity": "Minor",
+      "ref": "resolve-project-context.py main(), step 7-8 abort handlers (except RegistryValidationFailed / DependencySubprocessFailed / DependencyOutputMalformed)",
+      "note": "Warn diagnostics already collected by _evaluate_capabilities are dropped, not forwarded, on every abort path. This satisfies AC-056's \"never warn-only for this id\" invariant but sits against REQ-004's own sentence that diagnostics[] records \"every diagnostic-worthy condition this invocation encountered, not only the first/fatal one\". REQ-004's own \"or jointly caused\" wording would have permitted the lossless alternative (keep the per-node warn entries and add the same-id block summary alongside the abort's own entry). Impact is bounded because the underlying outcome: \"warn\" nodes survive inside capability_evaluations[] for every capability whose evaluation set completed -- but not for the capability that aborted mid-set, since entries are appended only after a capability is fully built."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/fixtures/capability-resolver/resolve-project-context-projection/context-projection.schema.json",
+      "note": "This loose stand-in still declares definitions.projectedComponent.additionalProperties: true, which the round-2 remediation itself identified as diverging from the real, landed contracts/context-projection.schema.json (additionalProperties: false with an enumerated property set). That remediation switched install_t003_dependencies to seed the real files from ROOT/contracts/, so this file is now dead fixture content still carried as a declared output. Cleanup, not a live defect."
+    },
+    {
+      "severity": "Minor",
+      "ref": "resolve-project-context.py _discover_registry",
+      "note": "sys.path.insert(0, str(script_dir)) is never restored (no try/finally), leaving the plugin scripts directory permanently ahead of the stdlib on sys.path for the remainder of the process. Self-disclosed in T-004.md's Unresolved Items as a follow-on; low practical risk because every stdlib import in this module resolves before the insert."
+    },
+    {
+      "severity": "Minor",
+      "ref": "AC-056 declaration_index branch / _warn_diagnostic_detail conditional-facet call site; tests/resolve-project-context-block-check.py (93080 of 97255 bytes elided in this bundle)",
+      "note": "T-004.md's Unresolved Items still record the conditional-facet (declaration_index) half of the AC-056 warn-collection path as uncovered by any fixture in this task's own block suite; its dedicated coverage is claimed to live in T-005's match suite, which is not present in this bundle. The shared test driver's body is elided here, so run_t004_case's assertion construction could not be inspected directly -- discrimination was instead confirmed indirectly from the red-cycle5 FAIL lines (wrong-version: 4 assertions flip and the run reaches exit 0; malformed: the raw JSONDecodeError text is visibly embedded in the pre-fix diagnostic and written Evidence) and from the per-finding mutation-kill counts."
+    },
+    {
+      "severity": "Minor",
+      "ref": "CHANGELOG.md (declared output; 261758 of 267973 bytes elided in this bundle)",
+      "note": "The Done-When governance item (a NEW ## Unreleased entry citing #193) is satisfied at the level verifiable here -- the ## Unreleased section exists and its visible T-002/T-003 bullets cite #193 -- but T-004's own bullet falls inside the elided region and could not be confirmed from the bundle."
+    }
+  ],
+  "blind": true,
+  "input_digest": "03a089949827467fe41f4b1f23c3eb7c3f971e974409131bf62a8ebec7069029",
+  "consent": {"kind": "sudo", "ref": "T-004.panelist-input.txt header line '# consent: sudo'"}
+}

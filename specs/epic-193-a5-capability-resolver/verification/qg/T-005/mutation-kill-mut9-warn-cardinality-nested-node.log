@@ -1,0 +1,51 @@
+Retained mutation-kill evidence for MUT-9 (`_iter_warn_nodes` truncated to
+the first `outcome: "warn"` node per evidence tree, instead of yielding
+every one at any depth), closing the confirmation-panel Major (2026-08-24,
+both vendors, "every WARN fixture was a flat leaf predicate" -- previously
+prose-only, "baseline 112/0 -> mutant 110/2").
+
+Technique: `git clone --no-hardlinks` scratch copy of this worktree
+(never the real worktree). The real worktree's own STAGED source was
+never touched -- confirmed unchanged (`git status --short`, before and
+after).
+
+--- Step 1: baseline (scratch clone, this pass's own uncommitted diff
+    overlaid, MUT-7 reverted so exactly one mutation is live at a time) ---
+
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 112 passed, 0 failed
+
+--- Step 2: MUT-9 applied (scratch clone ONLY) ---
+
+Location: resolve-project-context.py, `_iter_warn_nodes`.
+
+      for index, node in enumerate(evidence_nodes):
+          this_path = node_path + (index,)
+          if node.get("outcome") == "warn":
+              yield node, this_path
+    +         return
+          yield from _iter_warn_nodes(node.get("children") or [], this_path)
+
+--- Step 3: mutant re-run ---
+
+$ bash tests/resolve-project-context-match.tests.sh
+FAIL: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-nested-warn' component_id='comp-a' (node_path='0.0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}]
+FAIL: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2): {'actual': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-nested-warn' component_id='comp-a' (node_path='0.0', operator='equals', field='characteristics.auto_update', reason='missing-path')"], 'expected': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-nested-warn' component_id='comp-a' (node_path='0.0', operator='equals', field='characteristics.auto_update', reason='missing-path')", "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-nested-warn' component_id='comp-a' (node_path='0.1', operator='equals', field='characteristics.local_persistence', reason='missing-path')"]}
+RESULT: 110 passed, 2 failed
+
+--- Result ---
+
+Exactly `warn-cardinality-nested-node`'s own two assertions fail (112 ->
+110 passed, +2 failed, zero unaccounted, zero collateral); every other
+case in the suite -- including the three sibling `warn-cardinality-*`
+fixtures (`-single-node`/`-multi-node`/`-facet-node`, each still a
+one-node-per-tree shape) -- remains PASS, confirming the pre-existing
+fixtures' own survivor status is genuine (a flat-leaf-predicate tree
+cannot distinguish "first warn node" from "every warn node") and this
+new fixture's own discriminating power is non-vacuous, no longer
+prose-only. Matches the report's own recorded "110/2" exactly, with no
+arithmetic discrepancy (unlike MUT-7's own recorded "98/1" -- see
+mutation-kill-mut7-required-facets.log in this same directory).
+
+Scratch clone discarded after capture (left in the isolated,
+session-scoped scratchpad directory, never committed to the repository).

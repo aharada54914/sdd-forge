@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 7,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "758c6bb28b8de2a47c27ef8c92c97578f09b9517cf355b886b784916bc28d2ef",
+  "acceptance_sha256": "fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "1d77a593189d596cfab848c069d2e917da518c85aec5fcb9978264a454846436",
+  "edit_summary": "Commit 8d160457 closes both round-1 Criticals, which are one class: a NEGATIVE assertion left unscoped where resolver-evidence.yaml is in fact written. AC-011 has carried the correct scoped form all along ('no facet-manifest.yaml, capability-summary.yaml, or project-context.resolved.json') and the sibling AC-058/TEST-058 assert the same empty-capability_evaluations shape without the offending clause, so this makes every sibling say what two of them already said rather than introducing a rule. Seven sites, located by a whitespace-normalised sweep for the negative-claim class over the whole package rather than from the reviewers' citations alone - two of the seven are in security-spec.md, which neither spec-stage reviewer can see. (1) requirements.md AC-040 and acceptance-tests.md TEST-040: 'no artifact reaches a live path' scoped to the three publication artifacts, with resolver-evidence.yaml stated as written recording the diagnostic. (2) requirements.md AC-057 and acceptance-tests.md TEST-057: the same scoping, and the empty capability_evaluations assertion now explicitly read FROM the resolver-evidence.yaml the Block writes - as written those rows were self-defeating, asserting the value of a field OF Resolver Evidence in the same sentence that declared the file unwritten. (3) requirements.md Edge Cases: 'leaving the interrupted targets exactly as found' now reads every interrupted target OTHER THAN resolver-evidence.yaml, which still receives the Block record, matching TEST-047's own per-target wording. (4) design.md's AC-057 acceptance mirror and security-spec.md's TEST-040 and TEST-057 rows: the same scoping propagated. Deliberately unchanged and each verified individually: the B3 self-referential output-schema-validation-failed case genuinely writes nothing to any live path (requirements.md:404/:858, acceptance-tests.md:61), and design.md's 'no live artifact this invocation was not already committed to writing survives partially written' is about torn writes rather than existence. No AC or TEST id added, renumbered or removed; the enum stays closed at sixteen; no exception added to REQ-002. Commit 45e13bc7 records the remediation in investigation.md with per-document SHA-256.",
+  "reset": false,
+  "generated_at": "2026-08-27T14:51:26Z"
+}

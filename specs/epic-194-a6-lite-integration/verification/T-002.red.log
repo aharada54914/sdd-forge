@@ -1,0 +1,104 @@
+### check-risk-upgrade-capability-merge.tests.sh (against live, unextended script) ###
+=== TEST-008a: clean source + mixed fragment merges correctly ===
+FAIL: TEST-008a: expected exit 10, got 2. Output: risk-upgrade: input unavailable
+FAIL: TEST-008a: unexpected output: risk-upgrade: input unavailable
+=== TEST-008b: keyword-derived tokens precede capability-derived tokens ===
+FAIL: TEST-008b: expected exit 10, got 2. Output: risk-upgrade: input unavailable
+FAIL: TEST-008b: unexpected output: risk-upgrade: input unavailable
+=== TEST-008c: all-eligible fragment contributes nothing ===
+FAIL: TEST-008c: expected exit 0 / lite-eligible, got exit 2. Output: risk-upgrade: input unavailable
+=== TEST-009: static review -- no new keyword row, no DSL/Registry call ===
+ok: TEST-009a: exactly one rules-tuple definition (no duplicated/added keyword table)
+ok: TEST-009b: still exactly the original six keyword-rule IDs (no new row added)
+ok: TEST-009c: no Predicate-DSL/Registry-matching call found in the staged script
+
+Results: 3 passed, 5 failed
+
+### check-risk-upgrade-fragment-fail-closed.tests.sh (against live, unextended script) ###
+=== TEST-013a: unreadable (missing) fragment path ===
+ok: TEST-013a: exits 2
+FAIL: TEST-013a: unexpected output: risk-upgrade: input unavailable
+=== TEST-013b: malformed (not valid JSON) fragment ===
+ok: TEST-013b: exits 2
+FAIL: TEST-013b: unexpected output: risk-upgrade: input unavailable
+=== TEST-013c: shape-invalid -- missing 'capabilities' key ===
+ok: TEST-013c: exits 2
+FAIL: TEST-013c: unexpected output: risk-upgrade: input unavailable
+=== TEST-013d: shape-invalid -- 'capabilities' is not an array ===
+ok: TEST-013d: exits 2
+FAIL: TEST-013d: unexpected output: risk-upgrade: input unavailable
+=== TEST-013e: shape-invalid -- entry missing 'id' ===
+ok: TEST-013e: exits 2
+FAIL: TEST-013e: unexpected output: risk-upgrade: input unavailable
+=== TEST-013f: shape-invalid -- entry missing 'eligible' ===
+ok: TEST-013f: exits 2
+FAIL: TEST-013f: unexpected output: risk-upgrade: input unavailable
+=== TEST-013g: distinct from the omitted-argument case ===
+ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible) -- fail-closed is scoped to SUPPLIED-invalid only
+
+Results: 7 passed, 6 failed
+
+### check-risk-upgrade-ineligible-no-reasons.tests.sh (against live, unextended script) ###
+=== TEST-014a: eligible:false, upgrade_reasons key absent ===
+FAIL: TEST-014a: expected exit 10, got 2. Output: risk-upgrade: input unavailable
+FAIL: TEST-014a: unexpected output: risk-upgrade: input unavailable
+=== TEST-014b: eligible:false, upgrade_reasons is an empty array ===
+FAIL: TEST-014b: expected exit 10, got 2. Output: risk-upgrade: input unavailable
+FAIL: TEST-014b: unexpected output: risk-upgrade: input unavailable
+=== TEST-014c: mixed no-reasons + has-reasons entries, both contribute ===
+FAIL: TEST-014c: expected exit 10, got 2. Output: risk-upgrade: input unavailable
+FAIL: TEST-014c: unexpected output: risk-upgrade: input unavailable
+
+Results: 0 passed, 6 failed
+### check-risk-upgrade-capability-merge.tests.ps1 (against live, unextended script) ###
+=== TEST-008a: clean source + mixed fragment merges correctly ===
+FAIL: TEST-008a: expected exit 10, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-008a: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-008b: keyword-derived tokens precede capability-derived tokens ===
+FAIL: TEST-008b: expected exit 10, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-008b: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-008c: all-eligible fragment contributes nothing ===
+FAIL: TEST-008c: expected exit 0 / lite-eligible, got exit 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-009: static review -- no new keyword row, no DSL/Registry call ===
+ok: TEST-009a: exactly one $rules array definition
+ok: TEST-009b: still exactly the original six keyword-rule IDs
+ok: TEST-009c: no Predicate-DSL/Registry-matching call found
+
+Results: 3 passed, 5 failed
+
+### check-risk-upgrade-fragment-fail-closed.tests.ps1 (against live, unextended script) ###
+=== TEST-013a: unreadable (missing) fragment path ===
+FAIL: TEST-013a: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013a: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013b: malformed (not valid JSON) fragment ===
+FAIL: TEST-013b: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013b: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013c: shape-invalid -- missing 'capabilities' key ===
+FAIL: TEST-013c: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013c: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013d: shape-invalid -- 'capabilities' is not an array ===
+FAIL: TEST-013d: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013d: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013e: shape-invalid -- entry missing 'id' ===
+FAIL: TEST-013e: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013e: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013f: shape-invalid -- entry missing 'eligible' ===
+FAIL: TEST-013f: expected exit 2, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-013f: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-013g: distinct from the omitted-argument case ===
+ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible)
+
+Results: 1 passed, 12 failed
+
+### check-risk-upgrade-ineligible-no-reasons.tests.ps1 (against live, unextended script) ###
+=== TEST-014a: eligible:false, upgrade_reasons key absent ===
+FAIL: TEST-014a: expected exit 10, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-014a: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-014b: eligible:false, upgrade_reasons is an empty array ===
+FAIL: TEST-014b: expected exit 10, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-014b: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+=== TEST-014c: mixed no-reasons + has-reasons entries, both contribute ===
+FAIL: TEST-014c: expected exit 10, got 1. Output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+FAIL: TEST-014c: unexpected output: [31;1mcheck-risk-upgrade.ps1: [31;1mA parameter cannot be found that matches parameter name 'CapabilityReasons'.[0m
+
+Results: 0 passed, 6 failed

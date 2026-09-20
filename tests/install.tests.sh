@@ -5,7 +5,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+# shellcheck source=tests/lib/fixture-matrix-builder.sh
+source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop sdd-domain"
 PASS=0
 FAIL=0
 
@@ -21,6 +23,10 @@ clone_fixture() {
     mkdir -p "$destination"
     git -C "$source_root" archive --format=tar HEAD -- ':(exclude)specs' ':(exclude)reports' | tar -xf - -C "$destination"
     git -C "$destination" init -q
+    # Parity with the ps1 twin: enable long paths repo-locally so the deeply
+    # nested epic-193 fixtures survive `git add -A` under Windows MAX_PATH.
+    # POSIX git accepts and ignores the setting (documentary here).
+    git -C "$destination" config core.longpaths true
     # Commits in this repository can spawn detached background maintenance
     # (auto gc) that races teardown's rm -rf ("Directory not empty"). Disable
     # it repo-locally so no git process outlives any scenario.
@@ -219,6 +225,7 @@ resolve_registered_plugins() {
             local -a dependencies=()
             case "$plugin" in
                 sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+                sdd-domain) dependencies=(sdd-bootstrap sdd-quality-loop) ;;
                 sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
                 sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
             esac
@@ -353,23 +360,33 @@ invoke_installer_scenario() {
         export SDD_CODEX_HOME="$_orig_codex_home"
     fi
 
-    # Error path
+    # Error path.
+    #
+    # WFI-041 flipped this contract. $fail_pattern targets a plugin id, so the
+    # stub fails inside `codex plugin add` — a *registration*-phase failure,
+    # after the tree is already in the install root. This suite used to assert
+    # that such a failure reverted the install root; it now asserts the
+    # opposite, because reverting discarded a correct install for a failure
+    # that was not the install's. The old contract was only defensible while
+    # registration was non-idempotent: a partially registered new tree could
+    # not be recovered by re-running. run_idempotent_plugin_command removed
+    # that constraint, so the tree now stays and the re-run converges.
+    # Placement-phase rollback is unchanged and is asserted by
+    # installer-idempotency.tests.sh.
     if [[ -n "$fail_pattern" ]]; then
-        local scenario_ok=1
         if [[ $installer_failed -eq 0 ]]; then
             fail "installer should have failed for pattern '${fail_pattern}'"
-            scenario_ok=0
         fi
-        if [[ $seed_existing -eq 1 ]]; then
-            if [[ ! -f "${install_root}/existing.marker" ]]; then
-                fail "installer did not restore previous installation (seed_existing, pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
-        else
-            if [[ -d "$install_root" ]]; then
-                fail "installer left incomplete initial installation (pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
+        if [[ ! -f "${install_root}/plugins/sdd-bootstrap/.codex-plugin/plugin.json" ]]; then
+            fail "registration failure did not leave the newly placed tree in the install root (pattern '${fail_pattern}')"
+        fi
+        if [[ $seed_existing -eq 1 && -f "${install_root}/existing.marker" ]]; then
+            fail "registration failure reverted to the previous installation (seed_existing, pattern '${fail_pattern}')"
+        fi
+        # The backup is superseded once the new tree is declared authoritative;
+        # leaving it behind would litter the install parent forever.
+        if compgen -G "${test_root}/sdd-plugins-backup-*" > /dev/null; then
+            fail "registration failure left a backup directory behind (pattern '${fail_pattern}')"
         fi
         rm -rf "$test_root"
         return 0
@@ -549,16 +566,23 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Scenario (c): failure during registration → no half-installed root (fresh)
+# Scenario (b3): opt-in domain selection resolves dependencies
 # ---------------------------------------------------------------------------
+if invoke_installer_scenario plugins="sdd-domain"; then
+    ok "domain selection registers its dependency closure"
+else
+    fail "domain selection registers its dependency closure"
+fi
+
+# Scenario (c): failure during registration → freshly placed tree is kept
 invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins"
-ok "failure on registration removes incomplete fresh install"
+ok "failure on registration keeps the freshly placed install"
 
 # ---------------------------------------------------------------------------
-# Scenario (d): failure during registration → existing install restored
+# Scenario (d): failure during registration → new version kept, not reverted
 # ---------------------------------------------------------------------------
 invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins" seed_existing=1
-ok "failure on registration restores pre-existing install"
+ok "failure on registration keeps the new version over the pre-existing install"
 
 # ---------------------------------------------------------------------------
 # Scenario (e): invalid source directory rejected before touching existing install
@@ -1815,6 +1839,35 @@ for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
 ' "${_ab_root}/cursor/mcp.json" 2>/dev/null || { fail "corrupt vscode JSON (ab): Cursor registration did not continue"; _ab_ok=0; }
 rm -rf "$_ab_root"
 [[ $_ab_ok -eq 1 ]] && ok "corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues"
+
+# ---------------------------------------------------------------------------
+# T-003 context-presence invariant: FilesOnly output is byte-identical whether
+# an otherwise identical source fixture has project-context.yaml or not.
+# ---------------------------------------------------------------------------
+_t003_absent="$(build_fixture absent absent disabled-legacy valid none)"
+_t003_present="$(build_fixture present absent advisory valid none)"
+_t003_absent_source="${_t003_absent}/source"
+_t003_present_source="${_t003_present}/source"
+_t003_absent_install="${_t003_absent}/installed"
+_t003_present_install="${_t003_present}/installed"
+clone_fixture "$SOURCE_FIXTURE" "$_t003_absent_source"
+clone_fixture "$SOURCE_FIXTURE" "$_t003_present_source"
+mkdir -p "${_t003_present_source}/sdd"
+cp -p "${_t003_present}/sdd/project-context.yaml" "${_t003_present_source}/sdd/project-context.yaml"
+_t003_failed=0
+bash "$INSTALLER" --source-directory "$_t003_absent_source" --install-root "$_t003_absent_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
+bash "$INSTALLER" --source-directory "$_t003_present_source" --install-root "$_t003_present_install" --target FilesOnly --skip-agent-install --skip-mcp >/dev/null 2>&1 || _t003_failed=1
+if [[ "${T003_MUTATE_CONTEXT_INVARIANT:-}" == install-sh ]]; then
+    _t003_mutated_file="$(find "$_t003_present_install" -type f -print -quit)"
+    printf 'mutation\n' >> "$_t003_mutated_file"
+fi
+if [[ $_t003_failed -eq 0 ]] && diff -qr "$_t003_absent_install" "$_t003_present_install" >/dev/null; then
+    ok "T-003 install output is unaffected by project-context presence"
+else
+    fail "T-003 install output changed with project-context presence"
+fi
+_fixture_matrix_cleanup "$_t003_absent"
+_fixture_matrix_cleanup "$_t003_present"
 
 # ---------------------------------------------------------------------------
 # Summary

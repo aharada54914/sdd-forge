@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a4-r1-reviewer-b-seq776",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a4-r1-reviewer-b-776",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "7af2b9555801bd9b7e616f4eb0603e16c866ba11f7655cfcaa57ad548977277b"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-1/precheck-result.json", "sha256": "5870e42cba3801866cc16516bad51666437673194dff16f5d3446ebd649a8263"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-1/integrated-summary.json", "sha256": "0563dbc3686015839c06ba777199c260945ebaffa536f864a441a7775e323726"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md is exceptionally concrete throughout (check-id grammar ^[a-z0-9][a-z0-9-]*$, exact exit codes, exact JSON fragment shapes, exact trigger-ordering rules, exact Step 2a/2b insertion points). No unresolved term/actor/state ambiguity found beyond the specific contradictions filed separately under CONTRADICTION."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals, first bullet (:683-697, as amended 2026-08-25) asserts 'the first three of those named [capability-registry.schema.json, capability-registry.json, capability-summary.schema.json] are R-10 protected,' citing investigation.md's Amendment Re-Review Context third entry. That cited entry (investigation.md:1439-1448) instead names capability-registry.schema.json, capability-registry.json, and lite-upgrade-reason-catalog.json (not capability-summary.schema.json, and not in this bullet's four-file list at all) as the three files actually listed under protected_gate_suffixes/phase2_human_copy_targets. Separately, requirements.md's Roles and Permissions section (:964-972), which investigation.md's own 'Sites amended by this entry' enumeration (:1480-1526) does not list as touched, still directs the future Epic A2 implementer to 'register' lite-upgrade-reason-catalog.json and the capability-registry.schema.json edit 'as protected,' implying they are not protected today -- directly conflicting with the corrected Non-goals/Dependencies text and investigation.md's own evidence that both are already R-10 protected. Downstream failure: a future Epic A2 Phase 2 implementer or a task author scoping the guard-invariants.json diff for this feature's revision would receive two internally conflicting signals about which contracts/ files require fresh protection registration versus already carry it, and cannot resolve the conflict from requirements.md alone. This is a defect in the Phase 1 package's own corrected text (calibration: 'the cited implementation artifact does not actually contain what the amendment claims it contains' is not suppressed by the amendment-context declaration), not a later-phase concern. Major rather than Critical because the live guard-invariants.json mechanism enforces protection independently of this prose, so no actual safety bypass results -- only implementer-facing confusion about registration scope."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's REQ-006 fixture inventory (a)-(l), each mapped to TEST-IDs, covers eligible/ineligible Capabilities, v1-compatibility, Capability Summary consumption, unmapped check-id (plus paired grammar/symlink/partial-runtime-pair negative sub-fixtures), unknown catalog token, disabled-legacy absent-Summary, active-enforcement absent-Summary (distinct from disabled-legacy), full_upgrade_required backstop, supplied-invalid fragment, ineligible-with-no-reasons, and required-enforcement field-absence. Negative and boundary paths implied by requirements.md are materially covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions, 'No Capability Pack exists yet' bullet (:1184-1194, amended 2026-08-25) retains its conclusion ('every fixture this feature's REQ-006 names is synthetic') after withdrawing its INV-013 citation, substituting a Capability-Pack-vs-Registry-instance distinction (ADR-0018) as the new grounding. It concedes 'synthetic is a weaker claim than when written' but does not state which REQ-006 fixtures that weakening affects or resolve whether it still holds for all of them. investigation.md's own third-entry 'Shape verification' subsection (:1456-1462), cited nowhere in this Assumptions bullet, contains the actually dispositive fact -- the live lite_policy schema is still exactly the two-key {eligible, upgrade_reasons} shape, so no live Capability (including the real durable-workflow entry now shipped in contracts/capability-registry.json) can yet carry required_lite_checks -- which would fully justify why fixtures needing that field must stay synthetic, but says nothing about fixtures needing only eligible/upgrade_reasons (e.g. REQ-006 fixture (b), ineligible-Capability-forces-full-required). Downstream failure: whoever authors the REQ-006 tests/*.tests.sh fixtures at implementation time cannot tell from this Assumptions bullet alone whether any fixture could or should now be grounded in the real durable-workflow Capability instead of synthetic data, since the bullet's own concession is left unresolved rather than turned into a checkable boundary. This is a Phase 1 resolution gap in the requirements text itself, precisely the kind of assumption-resolution this amendment round exists to perform."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-023/024/025 give testable, direct-inspection criteria for the Phase 1 commit-scope and Pending-status boundary. AC-010/AC-031 give a testable, non-bare-cp human-copy governance boundary (exact-set payload match, per-target sha256 against MANIFEST.sha256, post-copy re-verification) for the protected-file edits REQ-002/REQ-005 require. The amendment's own human-approval record for the base amendment lane (investigation.md:761-770) is a full, dated, verbatim (「...」) quotation meeting spec-review-calibration.md's evidence bar."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the specific inconsistencies already filed under CONTRADICTION and ASSUMPTIONS-RESOLVABLE, the package is unusually complete for a design-reviewer handoff: exact schema fragments, exact grammar, exact exit codes, exact ordering rules, and an explicit fixture-to-AC coverage lock (AC-022) leave no product-behavior invention required of a downstream design reviewer."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (verified via the one permitted out-of-manifest check), so this check does not apply."
+    }
+  ]
+}

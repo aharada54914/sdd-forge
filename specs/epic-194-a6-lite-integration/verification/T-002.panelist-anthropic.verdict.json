@@ -1,0 +1,36 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "blind": true,
+  "input_digest": "d6481a72c5c79e66ce48ddc9516af86a13704d977af49f42df64ac555e76feb4",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-002.panelist-input.txt header"
+  },
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/verification/T-002/regression-20260828-excerpt.log",
+      "note": "Current-revision (post 2026-08-28 platform-fix/apply chain) PowerShell green evidence is bundled only for the fragment-fail-closed suite (67/67); the ps1 twins of TEST-007/008/014 at the current payload revision are evidenced in-bundle only indirectly (the superseded 2026-08-25 captures, the run-all authoritative tail listing no T-002 suite among failures, and the contract's citation of in-repo 20260828 qg logs not carried here)."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/check-risk-upgrade byte-identical suites (sh/ps1 headers)",
+      "note": "The frozen pre-extension baseline fixture's sha256 (192fc988.../d1ac0056...) is pinned only in header comments and never verified at runtime, so a silent edit to the baseline fixture would weaken AC-007's live-vs-frozen lock without any test going red."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/verification/T-002.green.log",
+      "note": "This declared output remains the superseded 2026-08-25 capture (pre-apply SUT framing, pre-amendment tallies); the supersession is disclosed in the contract comment and the authoritative 20260828 evidence is present, but the artifact itself is stale as a standalone green record."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-002.contract.json comment (fragment-fail-closed-red-prefix-20260828.log)",
+      "note": "The RED evidence for the amended step-2b fix (63 passed / 4 failed against the pre-fix twin) is cited by tally only, without a sha256 pin and without being bundled, so the non-vacuity of the four new eligible:true fail-closed assertions cannot be inspected from the bundle."
+    }
+  ]
+}

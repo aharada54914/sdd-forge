@@ -39,6 +39,8 @@ open; once the fix lands, the automated precheck path is again mandatory.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+When a spec or design clause depends on another epic's cross-epic merge state, the review lane must evaluate that condition against the current tree at review time and record whether it contradicts the task plan being approved.
+
 ### Post-review artifact freeze
 
 Once a review gate passes, its hash-bound artifacts are content-frozen except
@@ -118,6 +120,10 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/mcp-readonly-preflight/`
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
+- `specs/epic-193-a5-capability-resolver/`
+- `specs/epic-194-a6-lite-integration/`
+- `specs/epic-195-a7-compatibility/`
+- `specs/epic-196-a8-integration/`
 - `specs/design-sync-scan/`
 - `specs/design-sync-standing-consent/`
 - `specs/epic-190-a2-capability-registry/`

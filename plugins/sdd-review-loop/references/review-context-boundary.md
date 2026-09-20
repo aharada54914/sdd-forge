@@ -20,9 +20,9 @@ wins and this document is the defect.
 `--reserve` runs in this order:
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
-   ledger **as it stands before the reservation** (`:208`, and again under the
-   reservation lock at `:313`).
-2. Append the reserved record to the ledger (`:318-332`).
+   ledger **as it stands before the reservation** (`:535`, and again under the
+   reservation lock at `:879`).
+2. Append the reserved record to the ledger (`:879-889`).
 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
    chain facts the validator proved before printing (WFI-037):
    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
@@ -39,20 +39,20 @@ and the appended record is the *extension*.
 
 | Field | Validator checks | Reviewer re-verifies? |
 |---|---|---|
-| `schema` | must equal `review-context-invocation/v2` (`:157`) | **yes** — cheap, and a wrong schema means a wrong contract |
-| `input_mode` | must equal `file-manifest` (`:158`) | **yes** |
-| `fallback_mode` | must equal `none` (`:159`) | **yes** |
-| `read_only` | must equal `true` (`:160`) | **yes** |
-| `stage`, `role` | must be an authorized pair (`:189-192`) | **yes** — confirm they match the role you actually are |
-| `feature` | charset only (`:161`) | **yes** — confirm it is the feature you were asked to review |
-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:162`, `:260`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:260`) | **yes** — via the caller-quoted line; this is the chain |
-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:163`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:164`); equality against the ledger **before** the append (`:208`, `:313`) | **NO — see below** |
-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:284-301`) | **yes** — and read nothing outside it |
-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:302-304`) | **yes** — this is the substantive integrity check |
-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:154`, `:268-282`) | **yes** |
-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:184-190`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:333-350`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:93-99`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+| `schema` | must equal `review-context-invocation/v2` (`:322`) | **yes** — cheap, and a wrong schema means a wrong contract |
+| `input_mode` | must equal `file-manifest` (`:323`) | **yes** |
+| `fallback_mode` | must equal `none` (`:324`) | **yes** |
+| `read_only` | must equal `true` (`:325`) | **yes** |
+| `stage`, `role` | must be an authorized pair (`:369-371`) | **yes** — confirm they match the role you actually are |
+| `feature` | charset only (`:326`) | **yes** — confirm it is the feature you were asked to review |
+| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:327`, `:537`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+| `previous_record_sha256` | must equal the last record's `record_sha256` (`:537`) | **yes** — via the caller-quoted line; this is the chain |
+| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:328`) | **yes** — it is a constant |
+| `identity_ledger_sha256` | hex-format (`:329`); equality against the ledger **before** the append (`:535`, `:879`) | **NO — see below** |
+| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:619-625`) | **yes** — and read nothing outside it |
+| `allowed_input_manifest[].sha256` | equality against the file on disk (`:637`) | **yes** — this is the substantive integrity check |
+| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:305`, `:557-570`) | **yes** |
+| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:306-311`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:588-604`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:197-202`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
 
 ## `identity_ledger_sha256`: do not re-verify
 
@@ -97,7 +97,20 @@ quoted line and its own manifest — with no file read outside the manifest:
 3. `<record_sha256>` recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
    from your manifest's own fields — the same construction the validator
-   uses at `:245` and `:307`. (evidence: caller-quoted line + manifest)
+   uses at `:436` and `:867`. (evidence: caller-quoted line + manifest)
+   For new scratch-bound quality reservations, compute the declaration digest as
+   SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
+   `|scratch-declaration-v1|<declaration digest>` to the original chain text before
+   computing its record hash. The ledger stores `scratch_declaration_sha256` for
+   these records only. Historical reservations lacking that field retain the old
+   hash recipe; their original quoted receipt must be used, not a new reservation.
+   For new spec/impl reservations, compute the input digest as SHA256 of the
+   ordered manifest entries, each encoded as UTF-8 `path + TAB + sha256`,
+   joined by LF without a terminal newline. Append
+   `|allowed-inputs-v1|<input digest>` to the original chain text before hashing.
+   These records store `allowed_inputs_sha256`; persisted verification rejects
+   input additions, removals and hash changes. Historical records without this
+   extension retain the original recipe and do not prove a historical input set.
 4. `identity_unique=yes` — the validator refuses to print the line unless
    your `run_id`/`host_session_id` pair appears exactly once: nowhere
    before the append on a reservation, exactly one persisted record on a
@@ -137,7 +150,7 @@ re-derives it wrongly.** Until 2026-08-01, `impl-reviewer-a.md` said:
 
 > Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
 
-while `impl-review-precheck.sh:251` **fails the round** unless impl-reviewer-a's
+while `review-precheck-common.sh:274` **fails the round** unless impl-reviewer-a's
 manifest carries the *previous* round's `integrated-summary.json`, and
 `validate-review-context-set.sh` authorizes it for `impl-reviewer-a` with an
 explicit comment:
@@ -206,5 +219,26 @@ Closed, and listed here so they are not re-derived from an old copy of this file
   section above.
 - **An `--edit-summary` message naming a flag the script did not accept.** No such
   message exists in `impl-review-precheck.sh` any more, and mode acceptance
-  (`:275`) now admits `--verify-inputs` and `--provenance-rereview`, so neither
+  (`impl-review-precheck.sh:69`) now admits `--verify-inputs` and `--provenance-rereview`, so neither
   half of the claim still holds.
+
+## Feature-wide scratch reservations
+
+For quality invocations declaring `scratch_root`, both validators require Python
+3 and check every declared Scratch Root in the feature's implementation reports,
+plus the original invocation evidence for prior evaluator reservations. Equal,
+ancestor and descendant roots are rejected; sibling names sharing only a string
+prefix are allowed. Missing bound history or conflicting declarations block launch.
+Legacy invocations without a declared root do not assert a historical root.
+Restore missing original evidence; never synthesize it or delete ledger records.
+
+Under the existing ledger lock, a new reservation saves its invocation in
+`reports/review-context/scratch-reservations/<record_sha256>.json` before the
+ledger append. A failed append may leave an orphan snapshot: preserve it and
+investigate the failure, rather than replacing evidence. A persisted identity's
+declared scratch root cannot change or disappear on verification. New declared
+quality roots are bound into their ledger record hash through the optional
+`scratch_declaration_sha256` extension. All prior record bytes and hashes remain
+unchanged. Legacy records without that extension may lack history and provide no
+proof of past scratch isolation; known legacy roots still prevent overlap. These are declared-location checks, not proof
+of operating-system isolation or of live host activation.

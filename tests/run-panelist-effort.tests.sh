@@ -466,7 +466,9 @@ fi
 # Self-registration (design.md Test Strategy #7; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================
-if grep -q 'run-panelist-effort\.tests\.sh' "$RUN_ALL_SH"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$RUN_ALL_SH" --list)" &&
+  grep -Fx "tests/run-panelist-effort.tests.sh" <<< "$registered_suites" >/dev/null; then
   ok "self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh"
 else
   bad "self-registration: run-panelist-effort.tests.sh NOT registered in tests/run-all.sh"

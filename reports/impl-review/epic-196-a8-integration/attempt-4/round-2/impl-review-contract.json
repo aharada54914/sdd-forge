@@ -1,0 +1,134 @@
+{
+ "schema": "impl-review-contract/v1",
+ "stage": "impl",
+ "feature": "epic-196-a8-integration",
+ "attempt": 4,
+ "round": 2,
+ "feature_type": "cli",
+ "legacy_design": false,
+ "requirements_sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5",
+ "acceptance_sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb",
+ "design_sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e",
+ "layer_sha256": {
+  "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+  "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+  "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+  "security-spec.md": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+ },
+ "design_req_drift": false,
+ "human_edit_summary": "design.md's Assumptions section updated: the Epic A1 assumption is now flagged as superseded (Epic A1 merged on 2026-08-08; handshake script and five consumer entry points exist on main), Epic A5/A7 are kept as still-unmerged, and the remaining assumptions are restated unchanged. investigation.md gained the Amendment Re-Review Context entry. Commits 66d5bdde4cea01b2345f41eee2b4cfcbcf529301 and cc70456e.",
+ "prior_round_contract_sha256": "3240b04c12a0f69b7fe7352c92204a7148fda60e83d91e9c10508a66f7593d7b",
+ "pass_type": "clean",
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewers": [
+  {
+   "role": "impl-reviewer-a",
+   "run_id": "RUN-epic196a8integration-impl-a4r2-a-seq0771",
+   "host_session_id": "SESS-impl-a4r2-a-epic196a8integration-0771",
+   "allowed_input_manifest": [
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-1/integrated-summary.json",
+     "sha256": "1ba83eb71c3705c63c33634617cd57babcd3413ab1d3d4a364fc5e9a7a287011"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json",
+     "sha256": "004f8f2fee3b0fa26820de305cd9c9edb37b0e19b98d13ec8bd6277130789f23"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+     "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+     "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+     "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+     "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md",
+     "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+     "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+     "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+     "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    }
+   ]
+  },
+  {
+   "role": "impl-reviewer-b",
+   "run_id": "RUN-epic196a8integration-impl-a4r2-b-seq0772",
+   "host_session_id": "SESS-impl-a4r2-b-epic196a8integration-0772",
+   "allowed_input_manifest": [
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+     "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/integrated-summary.json",
+     "sha256": "152d92e144b76384789be142ef8afa78f361af006c96257ef1d302e76f47a33d"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json",
+     "sha256": "004f8f2fee3b0fa26820de305cd9c9edb37b0e19b98d13ec8bd6277130789f23"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+     "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+     "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+     "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+     "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md",
+     "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+     "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+     "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+    },
+    {
+     "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+     "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    }
+   ]
+  }
+ ],
+ "verdict": "PASS",
+ "run_id": "impl-orch-epic196a8integration-a4r2",
+ "timestamp": "2026-08-23T15:59:18Z"
+}

@@ -54,12 +54,17 @@ try {
         'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS',
         'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_CD_CMDS',
         'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE', 'SUDO_SIGNATURE_HEX_LENGTH',
-        'PHASE2_HUMAN_COPY_TARGETS'
+        'PHASE2_HUMAN_COPY_TARGETS',
+        # WFI-048: patch-applier vocabulary and the embedded-path boundary class.
+        'SHELL_PATCH_APPLY_CMDS', 'SHELL_PATCH_APPLY_GIT_SUBCMDS',
+        'SHELL_PATCH_INSPECT_FLAGS', 'SHELL_PATH_BOUNDARY_CHARS'
     )
     if ($GuardInvariants -isnot [System.Collections.IDictionary] -or $GuardInvariants.Keys.Count -ne $requiredInvariantKeys.Count) { throw 'invalid generated export set' }
     foreach ($key in $requiredInvariantKeys) { if (-not $GuardInvariants.Contains($key)) { throw 'missing generated export' } }
     if ($GuardInvariants.SCHEMA_VERSION -ne 1 -or $GuardInvariants.SUDO_SIGNATURE_HEX_LENGTH -ne 64) { throw 'invalid generated schema' }
-    foreach ($key in @('PROTECTED_GATE_SUFFIXES', 'PROTECTED_GATE_PLUGIN_JSON_SUFFIXES', 'SHELL_WRITE_ARG_CMDS', 'SHELL_WRITE_DEST_CMDS', 'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS', 'SHELL_CD_CMDS', 'PHASE2_HUMAN_COPY_TARGETS')) {
+    foreach ($key in @('PROTECTED_GATE_SUFFIXES', 'PROTECTED_GATE_PLUGIN_JSON_SUFFIXES', 'SHELL_WRITE_ARG_CMDS', 'SHELL_WRITE_DEST_CMDS', 'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS', 'SHELL_CD_CMDS', 'PHASE2_HUMAN_COPY_TARGETS',
+                      'SHELL_PATCH_APPLY_CMDS', 'SHELL_PATCH_APPLY_GIT_SUBCMDS',
+                      'SHELL_PATCH_INSPECT_FLAGS', 'SHELL_PATH_BOUNDARY_CHARS')) {
         if ($GuardInvariants[$key] -isnot [array] -or @($GuardInvariants[$key] | Where-Object { $_ -isnot [string] }).Count -ne 0) { throw 'invalid generated array export' }
     }
     foreach ($key in @('SHELL_COMPOUND_RE', 'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE')) {
@@ -162,6 +167,12 @@ $ShellFdDupRe          = '^&(?:\d+|-)$'
 $ShellCompoundRe       = '&&|\|\||;|\|'
 $ShellSudoWriteRe      = "(?:>|>>|\btee\b|\btouch\b|\bcp\b|\bmv\b|\brm\b|\bSet-Content\b|\bOut-File\b|\bNew-Item\b|\bRemove-Item\b)"
 $ShellReadOnlyStartRe  = '^\s*(?:cat|ls|test|grep|stat|head|tail|rg)\b'
+# WFI-048: empty until the generated module binds them, which is fail-closed
+# in the same direction as the .py/.js twins' empty-tuple fallbacks.
+$ShellPatchApplyCmds       = @()
+$ShellPatchApplyGitSubcmds = @()
+$ShellPatchInspectFlags    = @()
+$ShellPathBoundaryChars    = @()
 
 if (-not $InvariantLoadError) {
     $ProtectedGateSuffixes = @($GuardInvariants.PROTECTED_GATE_SUFFIXES)
@@ -183,6 +194,10 @@ if (-not $InvariantLoadError) {
     $ShellSudoWriteRe = $GuardInvariants.SHELL_SUDO_WRITE_RE
     $ShellReadOnlyStartRe = $GuardInvariants.SHELL_READ_ONLY_START_RE
     $SudoSignatureHexLength = $GuardInvariants.SUDO_SIGNATURE_HEX_LENGTH
+    $ShellPatchApplyCmds = @($GuardInvariants.SHELL_PATCH_APPLY_CMDS)
+    $ShellPatchApplyGitSubcmds = @($GuardInvariants.SHELL_PATCH_APPLY_GIT_SUBCMDS)
+    $ShellPatchInspectFlags = @($GuardInvariants.SHELL_PATCH_INSPECT_FLAGS)
+    $ShellPathBoundaryChars = @($GuardInvariants.SHELL_PATH_BOUNDARY_CHARS)
 }
 
 function Get-Count {
@@ -884,6 +899,239 @@ function Test-ShellCwdWriteHitsProtected {
     return $false
 }
 
+# WFI-048: characters that may legitimately abut a path inside a larger token.
+# Whitespace is deliberately absent on BOTH sides. A suffix surrounded by
+# spaces is prose -- "fix the tests/gates.tests.sh handling" -- and prose is
+# exactly what the end-anchored test was written to exclude. Measured against
+# the false-positive corpus, a right-edge-only rule readmits two commit-message
+# forms this repository actually writes: "guard reads <path>; see WFI-048" and
+# "freeze <path>, <path> and the rest". Both edges readmits neither and misses
+# no true positive.
+function Test-TokenEmbedsProtectedPath {
+    # R-10 (WFI-048): True when a protected path is embedded in a larger token.
+    # The recovered slice is handed back to Test-IsProtectedGateFile rather
+    # than judged here, so every exemption that predicate implements -- notably
+    # specs/<feature>/human-copy/ staging -- keeps applying to embedded paths.
+    param([string]$Token)
+    if ([string]::IsNullOrEmpty($Token) -or $ShellPathBoundaryChars.Count -eq 0) { return $false }
+    $text = ($Token.ToLower()) -replace '\\', '/'
+    $suffixes = New-Object System.Collections.Generic.List[string]
+    foreach ($s in $ProtectedGateSuffixes) { $suffixes.Add($s.ToLower()) }
+    foreach ($s in $ProtectedGatePluginJsonSuffixes) { $suffixes.Add($s.ToLower().TrimStart('/')) }
+    foreach ($suffix in $suffixes) {
+        if ([string]::IsNullOrEmpty($suffix)) { continue }
+        $start = $text.IndexOf($suffix)
+        while ($start -ne -1) {
+            $end = $start + $suffix.Length
+            $rightOk = ($end -eq $text.Length) -or ($ShellPathBoundaryChars -contains ([string]$text[$end]))
+            if ($rightOk) {
+                # Walk left over path characters so a directory prefix reaches
+                # Test-IsProtectedGateFile intact (human-copy staging needs it).
+                $head = $start
+                while ($head -gt 0 -and
+                       (-not ($ShellPathBoundaryChars -contains ([string]$text[$head - 1]))) -and
+                       (-not [char]::IsWhiteSpace($text[$head - 1]))) {
+                    $head -= 1
+                }
+                $leftOk = ($head -eq 0) -or ($ShellPathBoundaryChars -contains ([string]$text[$head - 1]))
+                if ($leftOk -and (Test-IsProtectedGateFile $text.Substring($head, $end - $head))) {
+                    return $true
+                }
+            }
+            $start = $text.IndexOf($suffix, $start + 1)
+        }
+    }
+    return $false
+}
+
+function Get-PatchDeclaredTargets {
+    # WFI-048: every path a unified diff names, plus how many header PAIRS it has.
+    #
+    # A header is a `--- ` line, a `+++ ` line and an `@@ ` line in that exact
+    # order. The pair alone is not enough: a body that removes a line beginning
+    # "-- " and adds one beginning "++ " renders as "--- ..." directly above
+    # "+++ ...", which reads as a header pair and would deny patches that touch
+    # nothing protected. Requiring the hunk header next is sound because a body
+    # line can never start with "@@ " -- diff prefixes it with a space, + or -.
+    #
+    # Both sides of the pair are read. A diff that DELETES a protected file
+    # names it on the `---` side with /dev/null on the `+++` side, and that
+    # deletion must be denied too.
+    #
+    # A header may carry a trailing tab and timestamp (path, TAB, "2026-07-23
+    # 18:32:43"). The timestamp is not part of the path; leaving it attached
+    # makes the endswith test miss the target, which is how two of this
+    # repository's own staged patches escaped a naive census.
+    param([string]$PatchPath)
+    $targets = New-Object System.Collections.Generic.List[string]
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($PatchPath)
+    } catch {
+        return [pscustomobject]@{ Targets = @(); Readable = $false; Pairs = 0 }
+    }
+    $content = [System.Text.Encoding]::UTF8.GetString($bytes)
+    $lines = [regex]::Split($content, "\r\n|\r|\n")
+    $pairs = 0
+    for ($i = 0; $i -lt $lines.Length - 2; $i++) {
+        if (-not ($lines[$i].StartsWith('--- ') -and $lines[$i + 1].StartsWith('+++ ') -and
+                  $lines[$i + 2].StartsWith('@@ '))) { continue }
+        $pairs += 1
+        foreach ($line in @($lines[$i], $lines[$i + 1])) {
+            $rest = $line.Substring(4).Split([char]9)[0].Trim()
+            if ([string]::IsNullOrEmpty($rest) -or $rest -eq '/dev/null') { continue }
+            if ($rest.Length -ge 2 -and ($rest.Substring(0, 2) -eq 'a/' -or $rest.Substring(0, 2) -eq 'b/')) {
+                $rest = $rest.Substring(2)
+            }
+            $targets.Add($rest)
+        }
+    }
+    return [pscustomobject]@{ Targets = $targets.ToArray(); Readable = $true; Pairs = $pairs }
+}
+
+function Test-PatchTargetsProtected {
+    # WFI-048: True unless the guard can PROVE the patch leaves protected files
+    # alone. Unreadable, or carrying no unified-diff header pair at all, both
+    # fail closed -- a patch the guard cannot read is the artifact an evasion builds.
+    param([string]$PatchPath)
+    $info = Get-PatchDeclaredTargets $PatchPath
+    if ((-not $info.Readable) -or $info.Pairs -eq 0) { return $true }
+    foreach ($target in $info.Targets) {
+        if (Test-IsProtectedGateFile $target) { return $true }
+    }
+    return $false
+}
+
+function Get-PatchOperands {
+    # WFI-048: the patch files a patch-applier segment names. An empty result
+    # means the patch can only be arriving on stdin (or through a construct the
+    # tokenizer did not model), which the caller fails closed on.
+    param([string[]]$Words, [bool]$GitStyle)
+    $redirected = New-Object System.Collections.Generic.List[string]
+    $plain = New-Object System.Collections.Generic.List[string]
+    $index = 0
+    while ($index -lt $Words.Count) {
+        $word = $Words[$index]
+        if ($word -eq '<') {
+            if ($index + 1 -lt $Words.Count) { $redirected.Add($Words[$index + 1]) }
+            $index += 2
+            continue
+        }
+        if ($word.Length -gt 1 -and $word.StartsWith('<')) {
+            $redirected.Add($word.Substring(1))
+            $index += 1
+            continue
+        }
+        if ($word -eq '-i' -or $word -eq '--input') {
+            if ($index + 1 -lt $Words.Count) { $redirected.Add($Words[$index + 1]) }
+            $index += 2
+            continue
+        }
+        if ($word.StartsWith('-')) { $index += 1; continue }
+        $plain.Add($word)
+        $index += 1
+    }
+    if ($redirected.Count -gt 0) { return $redirected.ToArray() }
+    if ($GitStyle) { return $plain.ToArray() }
+    # `patch [options] [originalfile [patchfile]]`: the patch is the SECOND
+    # operand. With fewer than two, the patch is on stdin and unreadable here.
+    if ($plain.Count -ge 2) { return $plain.ToArray()[1..($plain.Count - 1)] }
+    return @()
+}
+
+function Test-PatchOperandHitsProtected {
+    # WFI-048: resolve one patch operand against the tracked working directory
+    # and decide it. Anything unresolvable fails closed.
+    param([string]$Operand, [string]$CurrentDir, [bool]$CwdKnown)
+    if (-not $CwdKnown) { return $true }
+    foreach ($c in $ShellUnsafeTokenChars) {
+        if ($Operand.Contains($c)) { return $true }
+    }
+    $p = $Operand
+    if ((-not $p.StartsWith('/')) -and (-not [string]::IsNullOrEmpty($CurrentDir))) {
+        $p = ($CurrentDir -replace '/+$', '') + '/' + $p
+    }
+    return (Test-PatchTargetsProtected $p)
+}
+
+function Test-ShellPatchApplyHitsProtected {
+    # R-10 (WFI-048): deny a patch applier whose patch names a protected file.
+    #
+    # `git apply <p>`, `git am <p>` and `patch ... <p>` state their targets
+    # INSIDE the file they are given, so the token pre-filter never sees them --
+    # and the whole staging convention in docs/ci-staging/README.md rests on
+    # those writes being denied. The patch operand itself IS on the command
+    # line, so the guard resolves it across cd/pushd exactly as
+    # Test-ShellCwdWriteHitsProtected does, reads it, and tests every declared
+    # target.
+    #
+    # This runs as its own gate rather than through the write-verb path because
+    # `git am` is not in the write vocabulary at all: routing it through
+    # $ShellSudoWriteRe would leave it allowed.
+    #
+    # Non-writing inspection flags (--check, --stat, --numstat, --summary,
+    # --dry-run) are exempt. git and patch modify nothing when those are
+    # present, and docs/ci-staging/README.md tells a human to run exactly that
+    # before applying. The exemption cannot be used to evade: an evader still
+    # needs a second, unexempt segment, and each segment is judged on its own.
+    param([string]$Cmd)
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    $res = Tokenize-ShellCommand $Cmd
+    if ($null -eq $res) { return $false }
+    $segments = New-Object System.Collections.Generic.List[object]
+    $words = New-Object System.Collections.Generic.List[string]
+    foreach ($t in $res.Tokens) {
+        if ($t[0] -eq "sep") {
+            if ($words.Count -gt 0) { $segments.Add($words.ToArray()); $words = New-Object System.Collections.Generic.List[string] }
+        } else {
+            $words.Add($t[1])
+        }
+    }
+    if ($words.Count -gt 0) { $segments.Add($words.ToArray()) }
+
+    $currentDir = ""
+    $cwdKnown = $true
+    foreach ($seg in $segments) {
+        if ($seg.Count -eq 0) { continue }
+        $verb = Get-ShellTokenBasename $seg[0]
+        if ($ShellCdCmds -contains $verb) {
+            $r = Apply-CdTransition $currentDir $cwdKnown $seg
+            $currentDir = $r.Dir
+            $cwdKnown = $r.Known
+            continue
+        }
+        if ($verb -eq "popd") { $cwdKnown = $false; continue }
+        $rest = @()
+        if ($seg.Count -gt 1) { $rest = @($seg[1..($seg.Count - 1)]) }
+        $gitStyle = $false
+        if ($verb -eq 'git') {
+            $position = -1
+            for ($k = 0; $k -lt $rest.Count; $k++) {
+                if (-not $rest[$k].StartsWith('-')) { $position = $k; break }
+            }
+            if ($position -eq -1 -or (-not ($ShellPatchApplyGitSubcmds -contains $rest[$position]))) { continue }
+            if ($position + 1 -le $rest.Count - 1) {
+                $rest = @($rest[($position + 1)..($rest.Count - 1)])
+            } else {
+                $rest = @()
+            }
+            $gitStyle = $true
+        } elseif (-not ($ShellPatchApplyCmds -contains $verb)) {
+            continue
+        }
+        $inspecting = $false
+        foreach ($w in $seg) {
+            if ($ShellPatchInspectFlags -contains $w.ToLower()) { $inspecting = $true; break }
+        }
+        if ($inspecting) { continue }
+        $operands = @(Get-PatchOperands $rest $gitStyle)
+        if ($operands.Count -eq 0) { return $true }
+        foreach ($operand in $operands) {
+            if (Test-PatchOperandHitsProtected $operand $currentDir $cwdKnown) { return $true }
+        }
+    }
+    return $false
+}
+
 function Test-CommandReferencesProtectedPath {
     # R-10 pre-filter: True when a protected path appears as a shell TOKEN
     # (a path-shaped word, or a redirect token's target), not merely as a
@@ -940,6 +1188,11 @@ function Test-CommandReferencesProtectedPath {
             if ($m.Success -and $m.Groups[2].Value) { $candidate = $m.Groups[2].Value }
         }
         if (Test-IsProtectedGateFile $candidate) { return $true }
+        # WFI-048: the end-anchored test above misses a path EMBEDDED in a
+        # larger token -- open('<path>','a') is one token that does not end
+        # with the suffix. This runs only after that test has failed, so it
+        # can add matches and never remove one.
+        if (Test-TokenEmbedsProtectedPath ([string]$t[1])) { return $true }
     }
     return $false
 }
@@ -959,6 +1212,9 @@ function Test-ShellTargetsProtectedGateFile {
     # the full protected path literally. Read-only segments never hit, so this is
     # checked before the read-only short-circuit below.
     if (Test-ShellCwdWriteHitsProtected $Cmd) { return $true }
+    # WFI-048: a patch applier names its target inside the file it is given,
+    # so neither the pre-filter nor the write vocabulary can decide it.
+    if (Test-ShellPatchApplyHitsProtected $Cmd) { return $true }
     $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd
     if (-not $hasProtectedPath) { return $false }
     $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)

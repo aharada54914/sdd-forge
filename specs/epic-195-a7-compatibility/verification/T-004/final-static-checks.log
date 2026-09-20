@@ -1,0 +1,27 @@
+T-004 final static checks
+Date: 2026-08-12
+
+[git diff --check]
+exit=0
+
+[staged CI manifest]
+.github/workflows/test.yml: OK
+exit=0
+
+[SDD structure]
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+exit=0
+
+[forbidden/live protected diff from HEAD]
+No paths reported for tasks.md, traceability.md, live .github/workflows/test.yml,
+fixture-matrix-builder twins, or the four forbidden test files.
+exit=0
+
+[fixture-builder HEAD equality]
+exit=0
+
+[canonicalizer parity on all shipped full/lite Markdown templates]
+canonicalizer-parity-exit=0

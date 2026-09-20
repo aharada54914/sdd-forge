@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a4-r3-reviewer-b-seq780",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a4-r3-reviewer-b-780",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "acc16be197d72bc0b13bcbf6840bdff7a215d50a13531481791ed6dde70512d2"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-3/precheck-result.json", "sha256": "fc60398fbbf63bb363886a3e1b7cd9dde6d8853fa8b2067823c5545709958e9f"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-3/integrated-summary.json", "sha256": "1317ca76104f4f0db50cae3c88db10fa76d24fe3dcb83918d52b57a720108199"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Roles and Permissions, contracts/lite-check-catalog.json sub-bullet: 'It is the one path among those listed here that still requires a new protection registration...' asserts a uniqueness claim over the four-path list using an un-enumerated positional reference ('those listed here'), structurally the same 'those named' pattern the round's own newly-adopted rule ('never refer to a set except by enumerating it -- no counts, no positional forms, no \"those named\"') forbids. requirements.md Assumptions, REQ-006 bucket 1: 'Both turn on a Registry Capability carrying required_lite_checks...' substitutes 'Both' for re-naming fixture (a) and the required_lite_checks half of fixture (f). Downstream failure mode: a future edit to the enumerated set either sentence depends on (a new contracts/ protection status change, a fixture re-bucketing) has no inline signal that 'those listed here' or 'Both' still holds -- the same silent-drift mechanism that produced round 2's missing-path contradiction, reintroduced in non-self-verifying form. This is spec-review scope because it is the literal remediation text this round reviews, and the round's own instruction treats a surviving un-enumerated set-reference as a finding regardless of whether today's underlying fact is correct (both facts here are in fact correct, keeping this Major rather than Critical: the substantive content -- the four-path set match against the opening sentence, each path's protection status, and the fixture-by-fixture bucket assignment across all twelve letters (a)-(l) with fixture (f) split into both its halves -- is independently verified correct)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The per-path protection statuses in the amended Roles and Permissions bullet are consistent with the Non-goals bullet's citation of guard-invariants.json's three protected contracts/ paths (capability-registry.schema.json, capability-registry.json, lite-upgrade-reason-catalog.json) plus lite-check-catalog.json's new/unprotected status, and consistent with the Dependencies section's and investigation.md Amendment Re-Review Context's statement that capability-registry.schema.json/.json now exist live. No direct conflict found between requirements, acceptance criteria, constraints, or non-goals in this review pass."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's AC/TEST rows and requirements.md's Edge Cases section cover the material negative/boundary states this package's REQs imply: absent-Summary under disabled-legacy vs. active enforcement (AC-011/AC-030), schema-invalid Summary, unmapped check-id including grammar-failure/symlink/partial-runtime-pair variants (AC-016), supplied-but-invalid capability-reasons fragment (AC-027), ineligible-with-no-reasons (AC-028), full_upgrade_required backstop (AC-026), and v1-compatibility (AC-002). No gap identified in this pass."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The REQ-006 fixture-grounding Assumption is now correctly split fixture-by-fixture with explicit mechanism citations (schema-shape absence for (a)/f-half, Capability-Summary absence for (d)/(e), fragment-artifact framing for (i)/(j), the live durable-workflow shipped Capability for (b)/(c)), and the one remaining implementation-time choice (whether (b)/(c) are drawn from the live entry or authored synthetically) is explicitly marked as a decision deferred to the implementing task, not silently left open. Other Assumptions (A2/A3/A4 schema stability, A5's pending text, lite-gate/SKILL.md's live protection status) each carry an explicit re-verification/Risk citation."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-approval/governance boundaries are in scope and testable: Spec-Review-Status/Impl-Review-Status approval is reserved to a human/spec-review-loop (Roles and Permissions), the human-copy flow for protected-file application is named with an exact-set/hash/post-copy contract (AC-010/AC-031), and the full-upgrade Block is non-overridable (--lite never overrides, AC-019/AC-020)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the AMBIGUITY finding above (which is a phrasing residue, not a missing decision), this package's REQs/ACs/Edge Cases resolve every Blocker/Major the cited adversarial review raised, name concrete mechanisms (command-discovery contract, check-id grammar, fragment shape) rather than deferring them, and do not require an implementation-policy reviewer to invent missing product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (checked via Glob for domain/context-map.md, per the review-context-boundary.md's stated single permitted manifest-external existence check) -- check does not apply."
+    }
+  ]
+}

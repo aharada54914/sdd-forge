@@ -48,7 +48,7 @@ $lines = Get-Content -Encoding Utf8 $TasksPath
 $inBlockers = $false
 
 foreach ($line in $lines) {
-    if ($line -match '^##\s+(T-\d+)') {
+    if ($line -cmatch '^##\s+(T-\d+)') {
         $newTask = $Matches[1]
         $inBlockers = $false
         if ($seenIds.ContainsKey($newTask)) {
@@ -60,21 +60,21 @@ foreach ($line in $lines) {
             $seenIds[$currentTask] = $true
             if (-not $blockers.ContainsKey($currentTask)) { $blockers[$currentTask] = "" }
         }
-    } elseif ($currentTask -and $line -match '^Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Approval:\s*(.+)$') {
         $approval[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Status:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Status:\s*(.+)$') {
         $status[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Risk:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk:\s*(.+)$') {
         $risk[$currentTask] = $Matches[1].Trim().ToLower()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Second Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
         $second[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^###\s+Blockers') {
+    } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
         $inBlockers = $true
-    } elseif ($line -match '^##') {
+    } elseif ($line -cmatch '^##') {
         $inBlockers = $false
     } elseif ($currentTask -and $inBlockers) {
         # Collect non-trivial blocker content
@@ -113,19 +113,21 @@ foreach ($task in $allTasks) {
     # -cmatch: the awk twin's regex is case-sensitive, and AGENTS.md's
     # case-sensitivity sweep rule (WFI-012) requires ported -match sites to
     # keep that; the lite twin's identical sites moved with this one.
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isValidApproval = ($a -ceq "Draft" -or $a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
     # For gate checks, an annotated approval counts only in the strict form.
-    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isApproved = ($a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
 
-    if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
+    if ($s -cnotin $validStatuses) { $failures += "$task has invalid Status: $s" }
+    if ($s -cin $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
-    if ($s -eq "Done") {
+    if ($s -ceq "Done") {
+        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
+        $contractRisk = ""
         $evidenceBundlePath = Join-Path $tasksDir "verification/$task.evidence.json"
         $contractPath = Join-Path $tasksDir "verification/$task.contract.json"
 
@@ -140,8 +142,7 @@ foreach ($task in $allTasks) {
             }
         }
 
-        # C-07: Check contract existence, size, and task_id match
-        $contractRisk = ""
+        # C-07: Check contract existence, size, task_id, and risk agreement
         if (-not (Test-Path -LiteralPath $contractPath)) {
             $failures += "$task is Done but verification/$task.contract.json does not exist in $tasksDir"
         } else {
@@ -149,19 +150,16 @@ foreach ($task in $allTasks) {
             if ($null -eq $fileInfo -or $fileInfo.Length -eq 0) {
                 $failures += "$task is Done but verification/$task.contract.json is empty in $tasksDir"
             } else {
-                # Validate contract JSON and task_id match
                 try {
                     $contract = Get-Content -Raw -Encoding Utf8 $contractPath | ConvertFrom-Json
                     if ($contract.task_id -ne $task) {
                         $failures += "$task is Done but verification/$task.contract.json has mismatched task_id"
-                    } else {
-                        if ($null -ne $contract.risk -and ($contract.risk -is [string])) {
-                            $contractRisk = ([string]$contract.risk).Trim().ToLower()
-                        }
-                        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
-                        if ($taskRisk -ne "" -and $contractRisk -ne "" -and $taskRisk -ne $contractRisk) {
-                            $failures += "$task contract risk '$contractRisk' does not match tasks.md risk '$taskRisk'"
-                        }
+                    }
+                    if ($contract.risk -is [string]) {
+                        $contractRisk = $contract.risk.Trim().ToLowerInvariant()
+                    }
+                    if ($contractRisk -ne "" -and $taskRisk -ne "" -and $contractRisk -cne $taskRisk) {
+                        $failures += "$task contract risk '$contractRisk' does not match tasks.md risk '$taskRisk'"
                     }
                 } catch {
                     $failures += "$task is Done but verification/$task.contract.json has invalid JSON"
@@ -169,10 +167,10 @@ foreach ($task in $allTasks) {
             }
         }
 
-        # Two-person approval enforcement for critical Done tasks
-        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
+        # Two-person approval enforcement for critical Done tasks. A non-empty
+        # contract risk is authoritative; otherwise retain tasks.md risk.
         $effectiveRisk = if ($contractRisk -ne "") { $contractRisk } else { $taskRisk }
-        if ($effectiveRisk -eq "critical") {
+        if ($effectiveRisk -ceq "critical") {
             $primId = Get-ApproverId -s $a
             $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
             $secId = Get-ApproverId -s $secValue
@@ -198,19 +196,19 @@ foreach ($task in $allTasks) {
         # Do not search the shared report directory by task id: task ids are only
         # unique within a feature and a global search can select another feature.
     }
-    if ($s -eq "Implementation Complete") {
+    if ($s -ceq "Implementation Complete") {
         $hasImplReport = $false
         # C-07: word-boundary match to prevent T-001 matching T-0010 (parity with grep -w in .sh)
         $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
         if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -Quiet })
+                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -CaseSensitive -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"
         }
     }
-    if ($s -eq "Blocked") {
+    if ($s -ceq "Blocked") {
         $blockersContent = $blockers[$task]
         if ([string]::IsNullOrWhiteSpace($blockersContent)) {
             $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"

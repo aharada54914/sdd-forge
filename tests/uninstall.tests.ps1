@@ -7,7 +7,9 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $uninstaller = Join-Path $repositoryRoot "uninstall.ps1"
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
+$script:_SddFixtureMatrixBuilderSourced = $false
+. (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-FakeCommands {
@@ -119,7 +121,8 @@ function Invoke-UninstallScenario {
 
     $failed = $false
     try {
-        $params = @{ InstallRoot = $installRoot; Target = $Target; Plugins = $Plugins }
+        $params = @{ InstallRoot = $installRoot; Target = $Target }
+        if ($PSBoundParameters.ContainsKey('Plugins')) { $params.Plugins = $Plugins }
         if ($KeepFiles) { $params.KeepFiles = $true }
         if ($SkipAgentUninstall) { $params.SkipAgentUninstall = $true }
         if ($SkipPluginUninstall) { $params.SkipPluginUninstall = $true }
@@ -204,8 +207,23 @@ try {
 finally { if (Test-Path $d.TestRoot) { Remove-Item -Path $d.TestRoot -Recurse -Force } }
 
 # ---------------------------------------------------------------------------
-# Scenario (e): missing optional CLI (target All) tolerated
+# Scenario (d2): domain-only removal preserves shared resources
 # ---------------------------------------------------------------------------
+$domain = Invoke-UninstallScenario -Plugins @("sdd-domain")
+try {
+    if ($domain.Failed) { throw "domain: uninstaller threw" }
+    foreach ($command in @("codex plugin remove", "claude plugin uninstall", "copilot plugin uninstall")) {
+        if (-not $domain.Log.Contains("$command sdd-domain@sdd-plugins")) { throw "domain: missing $command" }
+    }
+    if ($domain.Log.Contains("marketplace remove") -or $domain.Log.Contains("sdd-bootstrap@sdd-plugins")) { throw "domain: shared registration removed" }
+    if (-not (Test-Path $domain.InstallRoot)) { throw "domain: shared files removed" }
+    if (-not (Test-Path (Join-Path $domain.CodexHome "agents/sdd-investigator.toml"))) { throw "domain: shared agent removed" }
+    if ($domain.Log.Contains("mcp remove")) { throw "domain: shared MCP registration removed" }
+    Write-Host "ok: domain-only uninstall keeps dependencies and shared files"
+}
+finally { if (Test-Path $domain.TestRoot) { Remove-Item -Path $domain.TestRoot -Recurse -Force } }
+
+# Scenario (e): missing optional CLI (target All) tolerated
 $e = Invoke-UninstallScenario -OmitCommand "codex" -RestrictPath
 try {
     if ($e.Failed) { throw "missing optional codex CLI should be tolerated under target All" }
@@ -264,10 +282,12 @@ Write-Host "ok: idempotency: second uninstall succeeds"
 # ---------------------------------------------------------------------------
 # Scenario (h): invalid plugin name rejected (ValidateSet)
 # ---------------------------------------------------------------------------
-$hFailed = $false
-try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin") *>$null }
-catch { $hFailed = $true }
-if (-not $hFailed) { throw "invalid plugin name was accepted" }
+foreach ($invalidPlugin in @("not-a-plugin", "SDD-DOMAIN", "Sdd-Domain", "SDD-BOOTSTRAP")) {
+    $hFailed = $false
+    try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall -Plugins @($invalidPlugin) *>$null }
+    catch [System.Management.Automation.ParameterBindingException] { $hFailed = $true }
+    if (-not $hFailed) { throw "invalid plugin name was accepted: $invalidPlugin" }
+}
 Write-Host "ok: invalid plugin name rejected"
 
 # ---------------------------------------------------------------------------
@@ -709,6 +729,41 @@ try {
     Write-Host "ok: FilesOnly skips CLI calls but removes files"
 }
 finally { if (Test-Path $j.TestRoot) { Remove-Item -Path $j.TestRoot -Recurse -Force } }
+
+# T-003 context-presence invariant: FilesOnly produces byte-identical output
+# from the same install path with project-context.yaml absent or present.
+$t003Root = build_fixture absent absent disabled-legacy valid none
+$t003PresentFixture = build_fixture present absent advisory valid none
+$t003Codex = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-' + [Guid]::NewGuid().ToString('N'))
+$t003AbsentOutput = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-output-' + [Guid]::NewGuid().ToString('N'))
+$t003PresentOutput = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-output-' + [Guid]::NewGuid().ToString('N'))
+try {
+    New-InstalledLayout -InstallRoot $t003Root -CodexHome $t003Codex
+    $t003AbsentFailed = $false
+    try { & $uninstaller -InstallRoot $t003Root -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *> $t003AbsentOutput }
+    catch { $t003AbsentFailed = $true }
+
+    if (Test-Path -LiteralPath $t003Root) { Remove-Item -LiteralPath $t003Root -Recurse -Force }
+    Copy-Item -LiteralPath $t003PresentFixture -Destination $t003Root -Recurse
+    New-InstalledLayout -InstallRoot $t003Root -CodexHome $t003Codex
+    $t003PresentFailed = $false
+    try { & $uninstaller -InstallRoot $t003Root -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *> $t003PresentOutput }
+    catch { $t003PresentFailed = $true }
+    if ($env:T003_MUTATE_CONTEXT_INVARIANT -ceq 'uninstall-ps1') {
+        [IO.File]::AppendAllText($t003PresentOutput, "MUTATED OUTPUT`n", [Text.UTF8Encoding]::new($false))
+    }
+    $absentBytes = [IO.File]::ReadAllBytes($t003AbsentOutput)
+    $presentBytes = [IO.File]::ReadAllBytes($t003PresentOutput)
+    if ($t003AbsentFailed -or $t003PresentFailed -or $absentBytes.Length -eq 0 -or
+        -not [Linq.Enumerable]::SequenceEqual([byte[]]$absentBytes, [byte[]]$presentBytes)) {
+        throw 'T-003 uninstall output changed with project-context presence'
+    }
+    Write-Host 'ok: T-003 uninstall output is unaffected by project-context presence'
+} finally {
+    foreach ($path in @($t003Root, $t003PresentFixture, $t003Codex, $t003AbsentOutput, $t003PresentOutput)) {
+        if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
+    }
+}
 
 Write-Host ""
 Write-Host "uninstall.tests.ps1: all scenarios passed."

@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0935",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0935",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/precheck-result.json","sha256":"f2c7d4680e3dea6ddd8994ef2c14fd0cef42e2e3d73b27aefc7f3cd44262cce8"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"d30a7b477a0dec892517db2d752657e546e07a1a959cd6c206c8513f47e31ef3"},
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"REQ-TESTABILITY","result":"PASS","severity":"Critical","finding":""},
+    {"id":"GOAL-AC-TRACE","result":"PASS","severity":"Major","finding":""},
+    {"id":"AC-OBSERVABLE","result":"PASS","severity":"Major","finding":""},
+    {"id":"SCOPE-BOUNDARY","result":"PASS","severity":"Major","finding":""},
+    {"id":"CONSTRAINTS-EXPLICIT","result":"PASS","severity":"Major","finding":""},
+    {"id":"RISK-VALIDATION-SURFACE","result":"PASS","severity":"Major","finding":""},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"No project-root `domain/` directory is present, so the role's domain-conformance condition is absent."}
+  ]
+}

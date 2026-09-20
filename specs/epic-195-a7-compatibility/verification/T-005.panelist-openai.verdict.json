@@ -1,0 +1,31 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-195-a7-compatibility",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "requirements.md AC-009; tasks.md T-005 Done When; tests/lib/loop-driver.sh:assert_terminal; tests/lib/loop-driver.ps1:Test-LoopTerminal",
+      "note": "The implementation modifies assert_terminal/Test-LoopTerminal to emit done-transition events, contradicting the still-normative requirement and task contract that these helpers remain unmodified. Re-baselining TEST-009.2 to the changed bodies demonstrates the regression lock was moved rather than satisfying the original compatibility condition."
+    },
+    {
+      "severity": "Major",
+      "ref": "tests/lib/loop-driver.sh:assert_terminal; tests/lib/loop-driver.ps1:Test-LoopTerminal",
+      "note": "A done-transition event is appended before verifying that the observed state equals the inventory terminal state. A failed terminal assertion therefore leaves a false done-transition in the trace, although AC-026 defines this event as the transition to the newly observed terminal state."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/lib/loop-driver.sh:_loop_trace_normalize; tests/lib/loop-driver.ps1:ConvertTo-NormalizedLoopTrace",
+      "note": "Trace validation accepts any strictly increasing positive seq values and removes seq before comparison. Traces with gaps or different sequence values can compare equal, despite the collector contract resetting at zero and incrementing exactly once per emitted event, which implies contiguous 1..N sequencing."
+    }
+  ],
+  "blind": true,
+  "input_digest": "311fbf9ec1a0f0bf4deab88bab842a6e608c7f5264b0fd30828503ca2087652c",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-005 Approval: Approved (sudo 2026-08-08T16:33:11Z)"
+  }
+}

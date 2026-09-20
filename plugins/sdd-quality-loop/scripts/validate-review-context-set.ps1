@@ -36,6 +36,26 @@ function Test-CanonicalPath {
     )
 }
 
+function Test-CanonicalScratchRoot {
+    param([string]$Path)
+    return ($Path -is [string] -and
+        ($Path -cmatch '^/([^/]+/)*[^/]+$' -or $Path -cmatch '^[A-Za-z]:/([^/]+/)*[^/]+$') -and
+        $Path -cnotmatch '(^|/)\.\.?(/|$)' -and -not $Path.Contains('\') -and
+        -not $Path.EndsWith('/'))
+}
+
+function Test-ScratchRootsOverlap {
+    param([string]$Left, [string]$Right)
+    $comparison = if ($Left -cmatch '^[A-Za-z]:/' -and $Right -cmatch '^[A-Za-z]:/') {
+        [StringComparison]::OrdinalIgnoreCase
+    } else {
+        [StringComparison]::Ordinal
+    }
+    return ($Left.Equals($Right, $comparison) -or
+        $Left.StartsWith("$Right/", $comparison) -or
+        $Right.StartsWith("$Left/", $comparison))
+}
+
 function Test-JsonInteger {
     param([object]$Value)
     if ($Value -is [byte] -or $Value -is [sbyte] -or
@@ -60,6 +80,17 @@ function Get-Sha256Text {
     finally {
         $hasher.Dispose()
     }
+}
+
+function Test-ReportBytesClean {
+    param([string]$Path)
+    try { $bytes = [IO.File]::ReadAllBytes($Path) } catch { return $false }
+    foreach ($byte in $bytes) {
+        if (($byte -lt 0x20 -and $byte -notin @(0x09, 0x0A, 0x0D)) -or $byte -eq 0x7F) {
+            return $false
+        }
+    }
+    return $true
 }
 
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- byte-for-byte the same
@@ -193,6 +224,9 @@ try {
         if ($document.ContainsKey('gate_report_declaration')) {
             $topKeys = @($topKeys) + @('gate_report_declaration')
         }
+        if ($document.ContainsKey('scratch_root')) {
+            $topKeys = @($topKeys) + @('scratch_root')
+        }
     }
     if (-not (Test-ExactKeys $document $topKeys) -or
         $document.schema -cne 'review-context-invocation/v2' -or
@@ -212,6 +246,9 @@ try {
     if ($document.stage -ceq 'quality' -and
         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+    }
+    if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
+        Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
     }
     $gateReportDeclarationPath = ''
     $gateReportDeclarationSha256 = ''
@@ -290,7 +327,26 @@ try {
         'previous_record_sha256', 'record_sha256'
     )
     foreach ($record in $records) {
-        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $recordKeys) -or
+        $allowedRecordKeys = @($recordKeys)
+        $boundRecord = $record -is [hashtable] -and $record.ContainsKey('scratch_declaration_sha256')
+        if ($boundRecord) {
+            $allowedRecordKeys += 'scratch_declaration_sha256'
+            if ($record.stage -cne 'quality' -or $record.role -cne 'sdd-evaluator' -or
+                $record.scratch_declaration_sha256 -isnot [string] -or
+                $record.scratch_declaration_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid scratch binding in identity ledger'
+            }
+        }
+        $inputBoundRecord = $record -is [hashtable] -and $record.ContainsKey('allowed_inputs_sha256')
+        if ($inputBoundRecord) {
+            $allowedRecordKeys += 'allowed_inputs_sha256'
+            if (($record.stage -cne 'spec' -and $record.stage -cne 'impl') -or
+                $record.allowed_inputs_sha256 -isnot [string] -or
+                $record.allowed_inputs_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid input binding in identity ledger'
+            }
+        }
+        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $allowedRecordKeys) -or
             -not (Test-JsonInteger $record.sequence) -or
             [decimal]$record.sequence -ne $expectedSequence -or
             $record.stage -isnot [string] -or $record.stage -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
@@ -303,6 +359,8 @@ try {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger chain is invalid'
         }
         $canonical = "$($record.sequence)|$($record.stage)|$($record.role)|$($record.run_id)|$($record.host_session_id)|$($record.previous_record_sha256)"
+        if ($boundRecord) { $canonical += "|scratch-declaration-v1|$($record.scratch_declaration_sha256)" }
+        if ($inputBoundRecord) { $canonical += "|allowed-inputs-v1|$($record.allowed_inputs_sha256)" }
         if ((Get-Sha256Text $canonical) -cne $record.record_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger record hash is invalid'
         }
@@ -320,7 +378,25 @@ try {
         $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
     } | Select-Object -First 1
 
+    $scratchBinding = ''
+    if ($document.stage -ceq 'quality' -and $document.ContainsKey('scratch_root')) {
+        $scratchBinding = Get-Sha256Text ("$($document.feature)" + "`n" + "$($document.scratch_root)")
+    }
+    # Same ordered ASCII path<TAB>hash lines as Bash, without a final newline.
+    $inputBinding = ''
+    if ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl') {
+        $inputText = @($document.allowed_input_manifest | ForEach-Object { "$($_.path)`t$($_.sha256)" }) -join "`n"
+        $inputBinding = Get-Sha256Text $inputText
+    }
     if ($null -ne $persistedMatch) {
+        if ($persistedMatch.ContainsKey('allowed_inputs_sha256') -and
+            $inputBinding -cne $persistedMatch.allowed_inputs_sha256) {
+            Fail-ReviewContext 'HASH' 'reserved input manifest changed'
+        }
+        if ($persistedMatch.ContainsKey('scratch_declaration_sha256') -and
+            $scratchBinding -cne $persistedMatch.scratch_declaration_sha256) {
+            Fail-ReviewContext 'PATH' 'reserved evaluator scratch binding changed or was omitted'
+        }
         # Verification of an already-reserved identity. The persisted record
         # is authoritative and must match the manifest exactly on every
         # identity field; its own record_sha256 was already proven to
@@ -381,6 +457,19 @@ try {
     }
 
     $inputs = @($document.allowed_input_manifest)
+    # Issue #288: require current investigation only for a fresh identity,
+    # including preflight without -Reserve. Historical inputs stay historical.
+    if ($null -eq $persistedMatch -and
+        ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl')) {
+        $investigationPath = "specs/$($document.feature)/investigation.md"
+        $investigationFile = Join-Path $RepositoryRoot $investigationPath
+        if (Test-Path -LiteralPath $investigationFile -PathType Leaf) {
+            if (@($inputs | Where-Object { $_.path -ceq $investigationPath }).Count -ne 1) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits existing investigation evidence: $investigationPath"
+            }
+        }
+    }
+
     $implementationReportPath = ''
     $evaluatorOutputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $gateReportOutputs = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
@@ -399,38 +488,31 @@ try {
         if (-not (Test-Path -LiteralPath $implementationReport -PathType Leaf)) {
             Fail-ReviewContext 'PATH' 'sdd-evaluator task implementation report is missing'
         }
+        if (-not (Test-ReportBytesClean $implementationReport)) {
+            Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report contains forbidden control bytes'
+        }
         $implementationReportLines = @(Get-Content -LiteralPath $implementationReport -Encoding UTF8)
         if ($implementationReportLines.Count -eq 0 -or
             $implementationReportLines[0] -cne "# Implementation Report: $($document.task_id)" -or
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
         }
-
-        # WFI-050 (Option A, scoped by the corpus ratchet) -- the twin of the
-        # rule in the sh boundary. Shipping it on one runtime only is the
-        # half-width defect this repository has been failed on repeatedly:
-        # validity must gate authorization on BOTH runtimes, or the weaker one
-        # simply IS the bypass. The report validator is a single python-backed
-        # script with no PowerShell twin, so both runtimes invoke the same
-        # implementation and cannot disagree about the verdict itself.
-        $reportValidator = Join-Path $root 'plugins/sdd-implementation/scripts/validate-implementation-report.sh'
-        $reportBaseline = Join-Path $root 'tests/fixtures/implementation-report-corpus-baseline.txt'
-        if (Test-Path -LiteralPath $reportValidator -PathType Leaf) {
-            & bash $reportValidator $implementationReport *> $null
-            if ($LASTEXITCODE -ne 0) {
-                $grandfathered = $false
-                if (Test-Path -LiteralPath $reportBaseline -PathType Leaf) {
-                    $baselineEntries = @(Get-Content -LiteralPath $reportBaseline -Encoding UTF8)
-                    $grandfathered = $baselineEntries -ccontains $implementationReportPath
-                }
-                if (-not $grandfathered) {
-                    Fail-ReviewContext 'REPORT' 'implementation report is rejected by the report validator and is not grandfathered on the corpus ratchet baseline'
-                }
+        if ($document.ContainsKey('scratch_root')) {
+            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .+$' })
+            if ($scratchRootLines.Count -ne 1) {
+                Fail-ReviewContext 'PATH' 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
+            }
+            $implementationScratchRoot = $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
+            if (-not (Test-CanonicalScratchRoot $implementationScratchRoot)) {
+                Fail-ReviewContext 'PATH' 'implementation Scratch Root is not a canonical absolute path'
+            }
+            if (Test-ScratchRootsOverlap $document.scratch_root $implementationScratchRoot) {
+                Fail-ReviewContext 'PATH' 'evaluator scratch root overlaps the implementation scratch root'
             }
         }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Outputs\s*$') {
+            if ($line -cmatch '^## Outputs$') {
                 $inOutputs = $true
                 continue
             }
@@ -438,7 +520,7 @@ try {
                 break
             }
             if ($inOutputs -and
-                $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                 [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
             }
         }
@@ -463,7 +545,7 @@ try {
         # legacy grammar.
         $inLegacyOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Output Paths And Hashes\s*$') {
+            if ($line -cmatch '^## Output Paths And Hashes$') {
                 $inLegacyOutputs = $true
                 continue
             }
@@ -500,13 +582,16 @@ try {
             if (-not (Test-Path -LiteralPath $gateReport -PathType Leaf)) {
                 Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration is missing or is not a regular file: $gateReportDeclarationPath"
             }
+            if (-not (Test-ReportBytesClean $gateReport)) {
+                Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration contains forbidden control bytes: $gateReportDeclarationPath"
+            }
             $gateReportHash = (Get-FileHash -LiteralPath $gateReport -Algorithm SHA256).Hash.ToLowerInvariant()
             if ($gateReportHash -cne $gateReportDeclarationSha256) {
                 Fail-ReviewContext 'HASH' "sdd-evaluator gate-report declaration hash mismatch: $gateReportDeclarationPath"
             }
             $inPostFix = $false
             foreach ($line in @(Get-Content -LiteralPath $gateReport -Encoding UTF8)) {
-                if ($line -cmatch '^## Post-Fix Artifacts\s*$') {
+                if ($line -cmatch '^## Post-Fix Artifacts$') {
                     $inPostFix = $true
                     continue
                 }
@@ -514,7 +599,7 @@ try {
                     break
                 }
                 if ($inPostFix -and
-                    $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                    $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                     [void]$gateReportOutputs.Add("$($Matches.path)`n$($Matches.sha)")
                 }
             }
@@ -550,7 +635,9 @@ try {
         foreach ($component in $input.path.Split('/')) {
             $current = Join-Path $current $component
             if (Test-Path -LiteralPath $current) {
-                if ($null -ne (Get-Item -LiteralPath $current -Force).LinkType) {
+                # Hardlinks are regular files, not redirected path components.
+                if (((Get-Item -LiteralPath $current -Force).Attributes -band
+                    [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
                     Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
                 }
             }
@@ -644,7 +731,202 @@ try {
         }
     }
 
+    function Confirm-FeatureScratchHistory {
+        param([switch]$Snapshot)
+        if ($document.stage -cne 'quality' -or $document.role -cne 'sdd-evaluator' -or
+            -not $document.ContainsKey('scratch_root')) { return }
+        $pythonRuntime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $pythonRuntime) {
+            $pythonRuntime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        }
+        if ($null -eq $pythonRuntime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $scratchSource = @'
+"""Supplement the review validator; called only after its normal checks pass.
+
+Snapshots retain declared roots without changing the identity-ledger/v1 schema.
+This checks recorded locations, not operating-system sandbox enforcement.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def read_json(path):
+    return json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique_object)
+
+
+def safe_path(root, path):
+    relative = path.relative_to(root)
+    current = root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError("scratch history traverses a symbolic link")
+    return path
+
+
+def canonical(value):
+    if not isinstance(value, str) or not re.fullmatch(r"(?:/|[A-Za-z]:/)[^\\\r\n]+", value):
+        raise ValueError("scratch history contains a non-canonical root")
+    if any(part in ("", ".", "..") for part in value.split("/")[1:]):
+        raise ValueError("scratch history contains a non-canonical root")
+    return value.lower() if re.match(r"^[A-Za-z]:/", value) else value
+
+
+def overlap(left, right):
+    left, right = canonical(left), canonical(right)
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+
+
+def identity(document):
+    return tuple(document.get(key) for key in ("stage", "role", "run_id", "host_session_id"))
+
+
+def declaration(document):
+    feature = document.get("feature")
+    if not isinstance(feature, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", feature):
+        raise ValueError("scratch history has no valid feature")
+    scratch = document.get("scratch_root")
+    if scratch is not None:
+        canonical(scratch)
+    return feature, scratch
+
+
+def binding(document):
+    feature, scratch = declaration(document)
+    if scratch is None:
+        raise ValueError("bound scratch declaration is missing")
+    return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+
+
+def check(root, invocation, ledger):
+    scratch = invocation["scratch_root"]
+    feature = invocation["feature"]
+    canonical(scratch)
+    reports = safe_path(root, root / "reports/implementation" / feature)
+    if not reports.is_dir():
+        raise ValueError("feature implementation reports are missing")
+    for report in reports.glob("*.md"):
+        safe_path(root, report)
+        if not report.is_file():
+            raise ValueError("implementation report is not a regular file")
+        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.+)$", report.read_text(encoding="utf-8"), re.M)
+        if len(roots) > 1:
+            raise ValueError("implementation report has duplicate scratch declarations")
+        for other in roots:
+            if overlap(scratch, other):
+                raise ValueError("evaluator scratch root overlaps a feature implementation root")
+
+    records = [record for record in ledger["records"]
+               if record["stage"] == "quality" and record["role"] == "sdd-evaluator"]
+    wanted = {identity(record) for record in records}
+    histories = {}
+    if wanted:
+        for directory, dirs, files in os.walk(safe_path(root, root / "reports"), followlinks=False):
+            for name in dirs:
+                safe_path(root, Path(directory) / name)
+            for name in files:
+                if not name.endswith(".json"):
+                    continue
+                path = safe_path(root, Path(directory) / name)
+                try:
+                    document = read_json(path)
+                except (ValueError, UnicodeError):
+                    if "invocation" in name or "scratch-reservations" in path.parts:
+                        raise ValueError("unreadable invocation history")
+                    continue
+                if not isinstance(document, dict) or document.get("schema") != "review-context-invocation/v2":
+                    continue
+                key = identity(document)
+                if key not in wanted:
+                    continue
+                value = declaration(document)
+                if key in histories and histories[key] != value:
+                    raise ValueError("conflicting scratch declarations for a reserved evaluator")
+                histories[key] = value
+    for record in records:
+        key = identity(record)
+        if key not in histories:
+            if "scratch_declaration_sha256" in record:
+                raise ValueError("bound evaluator invocation history is missing; restore original evidence")
+            # Pre-extension records have no persisted scratch assertion. Do not
+            # invent history or block an unrelated feature on an unknown root.
+            continue
+        previous_feature, previous_root = histories[key]
+        if "scratch_declaration_sha256" in record:
+            evidence = dict(feature=previous_feature, scratch_root=previous_root)
+            if binding(evidence) != record["scratch_declaration_sha256"]:
+                raise ValueError("reserved evaluator scratch binding mismatch")
+        if key == identity(invocation):
+            if histories[key] != declaration(invocation):
+                raise ValueError("reserved evaluator scratch declaration changed")
+        elif previous_feature == feature and previous_root is not None and overlap(scratch, previous_root):
+            raise ValueError("evaluator scratch root overlaps a previously reserved evaluator root")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("manifest", type=Path)
+    parser.add_argument("repository", type=Path)
+    parser.add_argument("--snapshot", action="store_true")
+    args = parser.parse_args()
+    root = args.repository.resolve(strict=True)
+    invocation = read_json(args.manifest)
+    if (invocation.get("stage"), invocation.get("role")) != ("quality", "sdd-evaluator") or "scratch_root" not in invocation:
+        return
+    ledger = read_json(safe_path(root, root / invocation["identity_ledger_path"]))
+    check(root, invocation, ledger)
+    if args.snapshot:
+        text = "|".join(str(invocation[key]) for key in
+                        ("sequence", "stage", "role", "run_id", "host_session_id", "previous_record_sha256"))
+        text += "|scratch-declaration-v1|" + binding(invocation)
+        record_hash = hashlib.sha256(text.encode()).hexdigest()
+        directory = safe_path(root, root / "reports/review-context/scratch-reservations")
+        directory.mkdir(exist_ok=True)
+        destination = safe_path(root, directory / (record_hash + ".json"))
+        # The caller holds the ledger lock. Never replace an earlier snapshot.
+        with destination.open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(invocation, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print(f"REVIEW_CONTEXT_PATH: {error}", file=sys.stderr)
+        raise SystemExit(1)
+'@
+        $scratchArguments = @('-c', $scratchSource, $Manifest, $RepositoryRoot)
+        if ($Snapshot) { $scratchArguments += '--snapshot' }
+        & $pythonRuntime.Source @scratchArguments
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'PATH' 'feature scratch-history check failed' }
+    }
+    Confirm-FeatureScratchHistory
+
     $recordText = "$($document.sequence)|$($document.stage)|$($document.role)|$($document.run_id)|$($document.host_session_id)|$($document.previous_record_sha256)"
+    if ($scratchBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('scratch_declaration_sha256'))) {
+        $recordText += "|scratch-declaration-v1|$scratchBinding"
+    }
+    if ($inputBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('allowed_inputs_sha256'))) {
+        $recordText += "|allowed-inputs-v1|$inputBinding"
+    }
     $recordHash = Get-Sha256Text $recordText
     if ($Reserve) {
         $lockPath = "$ledger.lock"
@@ -668,6 +950,7 @@ try {
             if ($currentLedgerHash -cne $document.identity_ledger_sha256) {
                 Fail-ReviewContext 'IDENTITY' 'canonical identity ledger changed before reservation'
             }
+            Confirm-FeatureScratchHistory -Snapshot
             $ledgerDocument.records = @($ledgerDocument.records) + @([ordered]@{
                 sequence = [long]$document.sequence
                 stage = $document.stage
@@ -677,6 +960,12 @@ try {
                 previous_record_sha256 = $document.previous_record_sha256
                 record_sha256 = $recordHash
             })
+            if ($scratchBinding -cne '') {
+                $ledgerDocument.records[-1]['scratch_declaration_sha256'] = $scratchBinding
+            }
+            if ($inputBinding -cne '') {
+                $ledgerDocument.records[-1]['allowed_inputs_sha256'] = $inputBinding
+            }
             $json = $ledgerDocument | ConvertTo-Json -Depth 20
             [IO.File]::WriteAllText($temporary, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
             Move-Item -LiteralPath $temporary -Destination $ledger -Force

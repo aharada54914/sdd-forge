@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196a8integration-impl-a3r1-a-seq0754",
+  "host_session_id": "SESS-impl-a3r1-a-epic196a8integration-0754",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4dbff3e1e728a1b47bd8783d5190130511ccee1823ad71cd0209870b0e907162"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-3/round-1/precheck-result.json", "sha256": "a37ce8aaabeabb5ee344b6d0dbafccdc8e4743609712ecbaa52d18fec9cdca96"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 - no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:29-86 Architecture section's mermaid diagram names top-level component boundaries per REQ (REQ001-REQ006 subgraphs), shows integration with existing components (SYN node labeled 'tests/cli-hook-enforcement.ps1 (extended, synthetic half)'; CI3 node labeled 'existing 3-OS CI matrix (INV-014)'), and the Components table (lines 90-104) plus Layer Specifications section (122-181) state technology choices per component (sh/PowerShell/JSON) across the applicable layers for this test-infrastructure feature. Non-blocking note: the diagram's own CANARY node label at line 36 ('SKIP until Epic A1') restates the pre-revision, now-superseded single-clause activation trigger this round's design.md revision replaced with a two-clause predicate (SKIP Allowlist Activation Gate, lines 1245-1274); this is analyzed in full, and failed, under TEST-STRATEGY-COVERAGE rather than here, since the three required ARCH-COVERAGE elements (boundaries/integration/tech-choices) are themselves present."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:31-83 Architecture mermaid diagram's stated edges (HANDOFF-->CANARY-->LIVE-->AGGREGATE; MATRIX-->{LOCAL,CI3,DRIFT}; SYN-->{FLAG,SUBAGENT}-->LIVE; CLASS -.classifies.-> {HANDOFF,MATRIX,SYN,LIVE,PATHFIX,DRIFT}; RECORD -.evidence for/aggregated by.-> {LIVE,AGGREGATE}) form a directed acyclic graph; no cycle (A depends on B and B depends on A, directly or transitively) was found by tracing every edge."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:241-269 Data Plan section states Data Entities (new JSON records/manifests enumerated, lines 243-253), Existing Data Affected (read-only comparison targets plus the one narrow nonce-ledger write, lines 255-262), and Migration Strategy ('No migration required...' with rationale, lines 264-269). All three required sub-fields are present with concrete detail."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:961-1049 API / Contract Plan lists every new CLI-contract surface (tests/cross-runtime-handoff.tests.{sh,ps1}, tests/install-uninstall-matrix.tests.{sh,ps1}, check-installed-plugin-drift.{sh,ps1}, validate-live-host-proof.{sh,ps1}, tests/path-lineending-regression.tests.{sh,ps1}) with flags, invocation contract, and reference to the request/response-equivalent JSON schemas fixed in Data Plan. Existing-surface non-breakage is stated distributed across the document rather than as one consolidated sentence inside this section (Components table line 95: 'preserving its existing assertions unmodified'; Test Strategy item 4, line 1074: 'preserving every existing assertion') -- a minor consolidation gap, not a coverage gap, since no existing endpoint is deprecated or breaking-changed and that fact is stated at least twice elsewhere in the same document."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "security-spec.md:64 (Trust Boundaries B3 row) and security-spec.md:74 (STRIDE Analysis B3 row) both describe the SKIP Allowlist Activation Gate's mitigation as purely existence-based: 'activation is machine-detected by plain file-existence of Epic A1's own canonical artifacts on main ... never by commit-ancestry alone' (line 64), and the STRIDE mitigation claims the design ensures 'never an unexplained or indefinitely-extended SKIP after its own dependency has actually landed' (line 74). This is now factually stale: design.md's revised SKIP Allowlist Activation Gate (design.md:1245-1274, this round's change) makes activation require BOTH (a) the owning task starting AND (b) artifact existence -- so a case CAN now remain a valid, non-failing SKIP indefinitely after Epic A1's artifacts land, for as long as the owning task (e.g. T-005 for AC-006) never starts. security-spec.md's STRIDE B3 mitigation text was not updated alongside this round's design.md revision and its claim ('never ... indefinitely-extended SKIP after its own dependency has actually landed') is no longer accurate; the corresponding residual risk (indefinite fail-open SKIP contingent on an owning task never starting, independent of Epic A1's merge state) is undocumented and unmitigated in security-spec.md. Per role instructions to treat layer specifications as normative refinements of design.md and report contradictions between them, this is a cross-layer inconsistency that must be corrected before this security posture can be relied on."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's 'Feature Type:' header (line 4) reads 'test-infrastructure specification (Phase 1 - no code)', which does not literally match one of the four enumerated skip values (api-only/frontend-only/cli/library), but design.md's Layer Specifications section (line 174: 'Frontend: N/A -- no browser or frontend application') and frontend-spec.md (lines 3-10, 25-41: 'N/A -- no change: this feature introduces no browser/client UI ... no Component Tree/State Shape/Routes/API Client of this feature's own') both explicitly confirm there is no frontend layer and no fullstack UI/API pairing to check for consistency. Skipped as functionally non-fullstack test-infrastructure work."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "This round's design.md revision (SKIP Allowlist Activation Gate, design.md:1230-1293) correctly fixes the activation predicate to require BOTH (a) the owning task's substantive verification having started AND (b) canonical Epic A1 artifacts existing on main, and its own prose correctly resolves the T-001/AC-006 contradiction the revision exists to close (design.md:1250-1260: 'T-001 carries AC-006 presence-only, so AC-006's SKIP stays non-failing for the whole of T-001 regardless of Epic A1's merge state, and activates when T-005 starts'). However, that fix was not propagated to at least 9 other places in this same normative document set that restate the SAME mechanism using the OLD, pre-revision, single-clause trigger ('SKIP ... until Epic A1 merges', i.e. artifact-existence alone): design.md Architecture diagram CANARY node label (line 36: 'SKIP until Epic A1'); design.md Cross-Layer Dependencies (lines 205-209: 'until Epic A1 merges, AC-006/AC-015/AC-016 stay SKIP'); design.md API/Contract Plan item 1 (lines 969-974: 'a stale post-A1-merge SKIP does'); design.md Test Strategy item 1 (line 1059: canary case 'SKIPped ... until Epic A1 merges'); design.md Test Strategy item 5 (lines 1098-1100: 'SKIP ... is valid only until Epic A1 merges (AC-015)'); design.md Deployment/CI Plan (lines 1480-1492: 'Before Epic A1 merges ... an allowlisted SKIP ... is valid until then ... Once Epic A1 merges ... becomes both this epic's own Done gate and a required release gate'); acceptance-tests.md rows for AC-006, AC-015, AC-016, AC-028 (lines 10, 19, 20, 32: each says 'named SKIP until Epic A1 merges' or 'SKIP before Epic A1 merges'); and frontend-spec.md's Dependencies table (line 47: 'AC-006/AC-015/AC-016 stay SKIP ... until Epic A1 merges'). Since the review's own stated premise is that Epic A1 already merged on 2026-08-08, a reader who consults any of these 9 restatements instead of the one canonical Gate section would conclude AC-006/AC-015/AC-016 are already hard failures today -- recreating the exact T-001-unsatisfiable-contract defect this design revision exists to close. The revised predicate is correct in its one authoritative location but the contradiction has been moved, not eliminated, from the design read as a whole. Separately, per-case ownership is unambiguous for AC-006 (design.md:1257-1258 names 'T-005's exclusive scope' as a single task) but is NOT unambiguous for AC-015/AC-016: design.md:1260-1261 states only 'AC-015 and AC-016 activate with the tasks that seed their own allowlist entries (T-008 onward)' -- plural 'tasks' and an open-ended 'T-008 onward' range name no single task whose start satisfies activation clause (a) for either case, unlike AC-006's single named T-005. Additionally, design.md:1255-1258's own claim that AC-006's T-005 ownership is a fact 'the Automated/Manual Classification Table above assigns' is not actually supported by that table: the Automated/Manual Classification Table (design.md:1294-1328) has exactly four columns (Check (AC), Current Classification, Upgrade Condition, Gating fact/reason) and contains no task-ownership column or T-005 reference anywhere; the T-005 attribution exists only as freestanding prose inside the SKIP Allowlist Activation Gate section itself, so the cross-reference to the Classification Table as its source is inaccurate."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component name referenced in Architecture (design.md:31-83) and API / Contract Plan (design.md:961-1049) -- tests/fixtures/cross-runtime-handoff/, tests/cross-runtime-handoff.tests.{sh,ps1}, tests/install-uninstall-matrix.tests.{sh,ps1}, tests/cli-hook-enforcement.ps1, tests/hook-activation-live-proof/, plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}, tests/path-lineending-regression.tests.{sh,ps1}, plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.{sh,ps1}, plugins/sdd-review-loop/references/a8-skip-allowlist.json, a8-expected-hook-config-digests.json, a8-trusted-signers.json -- is defined in the Components table (design.md:90-104). No '## Frontend Plan' or '## Backend Plan' section exists, consistent with the Layer Specifications section's explicit N/A determination for those layers; no undefined component reference was found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ADR Change Log (lines 230-239) references one new ADR, ADR-0028 (Ed25519 signing / Trusted-Signer Registry), at the path docs/adr/0028-live-host-proof-ed25519-signing.md. That file exists as a real, substantive 150-line document (Status: Proposed, Date: 2026-07-23) covering the same decision design.md describes. ADR-0019 and ADR-0008 are cited as existing, unrevised authoritative sources, not new decisions requiring a new ADR entry."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP (recorded as PASS per rubric): the target repository has no design-system/ directory (verified via `ls -d design-system` -> No such file or directory), so this check is not applicable. design.md's own '## Design System Compliance' section (lines 183-186, 'Not applicable. This is internal test-infrastructure specification work with no UI surface.') is consistent with that absence even though it does not use the literal 'N/A -- ds_profile: none' string."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP (recorded as PASS per rubric): the target repository has no domain/ directory (verified via `ls -d domain` -> No such file or directory), so no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json exist; this check is not applicable to this feature."
+    }
+  ]
+}
