@@ -1,0 +1,12 @@
+# T-006 verification differential, captured 2026-08-21 (RT-20260821-017)
+# NOT the original acceptance-first pair (that red state is unrecoverable
+# 7 weeks post-implementation). This is a live stash/restore differential
+# of the CURRENT suite against the CURRENT artifact: the red leg mutates
+# one pinned deterministic-rule sentence in the real SKILL.md and the
+# suite must fail; the green leg restores the byte-exact original and the
+# suite must pass. Raw subprocess output with exit codes.
+
+LEG: green (byte-exact original restored)
+EXIT: 0
+ok: retrospective fixture derives exact counts 3/2/2/2
+ok: retrospective loop prompts and templates are synchronized

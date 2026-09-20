@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "7358082e0477468d77973eb096f963917a410bbfcc7138c7fb8392b2338b5243",
+  "acceptance_sha256": "be3a0757a281de6d1f37d63584593174e1cf8b7e768e26a808d7df329538006d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "6046091fbb36086916a67d69671303fca18111f5c6e94e262964808a48698349",
+  "edit_summary": "Round 2 の 5 findings に対応。requirements.md: (1) Roles and Permissions の meta.status 記述を INV-008 の実態に訂正し、機械的強制が存在せず承認境界は人間運用のみである旨を明記 — CONTRADICTION/APPROVAL-BOUNDARY 対応、(2) 承認強制機構の新設を Non-goals に追加、(3) REQ-002 と Field Definitions に name の pattern ^[A-Z][A-Za-z0-9]*$ と context の pattern ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ を明記 — AMBIGUITY 対応。acceptance-tests.md: AC-018 を追加し id/name/context の pattern 違反負例 3 件と境界正例（APIOrder / order-taking-2）を規定 — EDGE-CASE-COVERAGE 対応。TEST ID レンジを TEST-018 まで拡張。",
+  "reset": false,
+  "generated_at": "2026-08-16T08:06:26Z"
+}

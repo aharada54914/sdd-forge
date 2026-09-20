@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0773",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0773",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-4/round-2/precheck-result.json", "sha256": "38eb57d1b04adf9235ff7e29ce6eec10f1cc88789c18681a0d6671b45e42275f"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "514bca67297884eeebfeb1ca8a98785126e3a18604a6ddce01506f6a90550fc5"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each of REQ-001–REQ-007 decomposes into concrete, measurable ACs (byte comparisons, exit codes, schema field checks, event-trace kind assertions, sha256-pinned function-body locks such as AC-009's EXPECTED_TERMINAL_SHA, hard-fail rules such as AC-035's three-way SKIP-governance check). Every requirement names its own comparison oracle (canonical event-trace schema, observable×fixture-state judgment table AC-029, compatibility matrix AC-028), so an implementer or verifier has a concrete pass/fail criterion for each in-scope requirement."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001–REQ-007) traces to at least one AC: REQ-001→AC-002/003/004/038; REQ-002→AC-005/006/007/030/031/042/043; REQ-003→AC-008–012/022–027/032/033/036/037/039; REQ-004→AC-013/017/029; REQ-005→AC-014–016/019–021/028; REQ-006→AC-001/018/040/041; REQ-007→AC-034/035 (and is cited as the SKIP-governance basis inside AC-004/007/010/019–021/042/043). No goal is left without a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior — byte-for-byte diffs, exit codes, JSON field presence/absence, event-kind ordering in a versioned trace schema, static text-scans of CI workflow files (AC-040), and named hard-fail conditions (AC-035). None rely on vague intent; each cites a concrete comparison target (golden baseline, recorded trace, schema, or fixed hash)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes implementing Epics A1–A6, authoring test code/fixtures/registry edits in this phase, registering a new loop-inventory id, re-specifying Epic A5's deferred suite beyond three named fixture-level assertions, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task. F7/F8 fixture rows are explicitly bounded as N/A with a stated non-coverage rationale (AC-028) rather than silently omitted."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (B1 golden-baseline capture/promotion, B2 shared-registry edits) states auth/authz and data-classification constraints; Roles and Permissions fixes the maintainer-approval boundary for candidate→canonical promotion and CI's read-only posture; REQ-006c/AC-040/AC-041 make the approval boundary structurally enforced (script refusal + static CI-workflow scan), not merely a convention."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three named Risks (Critical: cross-epic spec drift; High: shared-surface blast radius; Medium: Phase-1 four-file deviation from check-sdd-structure.sh) each name a concrete validation surface: REQ-007's allowlist/fingerprint-drift hard-fail (AC-034/AC-035) for the Critical risk, design.md field-naming fixed before Phase 2/3 for the High risk, and a self-closing Phase-2-kickoff preflight check (Main Workflows step 1) for the Medium risk."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory (and therefore no domain/context-map.md with Domain-Model-Status: Approved, nor a domain/domain-contract.json) exists in the target project, so the domain-conformance skip condition applies."
+    }
+  ]
+}

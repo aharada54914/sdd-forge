@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 1,
+  "requirements_sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390",
+  "acceptance_sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d",
+  "design_sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78",
+  "tasks_sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b",
+  "traceability_sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67",
+    "infra-spec.md": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9",
+    "security-spec.md": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Post-implementation provenance re-binding (attempt 2, round 1) after T-001 reached Status: Done behind the independent quality-gate cycle-2 PASS (ledger seq0662, zero Critical/Major). Delta since the attempt-1 round-3 binding: the human sudo lifecycle stamp on all 12 tasks (2026-08-08T16:33:11Z) and T-001 Status Planned -> Implementation Complete -> Done; reviewer A proved the status-normalized form of the current tasks.md still hashes to the round-3 binding e49d1b7d..., so no substantive content drifted, and passed 15/15 checks. Reviewer B returned one Major (TRACEABILITY-FRESHNESS): traceability.md still records REQ-005 Status 'Planned' and 'no Phase 2/3 task has started', contradicting T-001's Done status and T-001's own Done-When traceability-update bullet. NEEDS_WORK; remediation (traceability status-tracking update from the saved quality-gate evidence) and a fresh round follow.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "with-findings",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2-seq0663",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0663",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/dependency-graph.json",
+          "sha256": "2e024233c5722f39752a2531b0c8ae98687649be48db8a3ac3331a011a81ffef"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json",
+          "sha256": "5c646b6e718bb63406851d1c137eadd55d11117a945360b92afc0f750b7728c8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt2-seq0664",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0664",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/integrated-summary.json",
+          "sha256": "8f9c68b335e68b94c2caebe1aa6d25da6f53db4bff152034cf2bb928bf9d7524"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-1/precheck-result.json",
+          "sha256": "5c646b6e718bb63406851d1c137eadd55d11117a945360b92afc0f750b7728c8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "dc24b5fb431fca173f48069e47b8e336ab7d5031f8d802bfaaad11f8ac053f9d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-epic-195-a7-compatibility-a2r1",
+  "timestamp": "2026-08-11T13:16:47Z"
+}

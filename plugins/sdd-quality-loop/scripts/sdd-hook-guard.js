@@ -56,6 +56,9 @@ const INVARIANT_KEYS = [
   'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_CD_CMDS',
   'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE', 'SUDO_SIGNATURE_HEX_LENGTH',
   'PHASE2_HUMAN_COPY_TARGETS',
+  // WFI-048: patch-applier vocabulary and the embedded-path boundary class.
+  'SHELL_PATCH_APPLY_CMDS', 'SHELL_PATCH_APPLY_GIT_SUBCMDS',
+  'SHELL_PATCH_INSPECT_FLAGS', 'SHELL_PATH_BOUNDARY_CHARS',
 ].sort();
 
 function loadGuardInvariants() {
@@ -71,6 +74,8 @@ function loadGuardInvariants() {
       values.SHELL_PS_WRITE_CMDS, values.SHELL_INDIRECT_CMDS,
       values.SHELL_UNSAFE_TOKEN_CHARS, values.SHELL_CD_CMDS,
       values.PHASE2_HUMAN_COPY_TARGETS,
+      values.SHELL_PATCH_APPLY_CMDS, values.SHELL_PATCH_APPLY_GIT_SUBCMDS,
+      values.SHELL_PATCH_INSPECT_FLAGS, values.SHELL_PATH_BOUNDARY_CHARS,
     ];
     const regexes = [
       values.SHELL_COMPOUND_RE, values.SHELL_REDIRECT_TOKEN_RE,
@@ -90,6 +95,8 @@ function loadGuardInvariants() {
         SHELL_PS_WRITE_CMDS: [], SHELL_INDIRECT_CMDS: [], SHELL_UNSAFE_TOKEN_CHARS: [],
         SHELL_REDIRECT_TOKEN_RE: '$^', SHELL_FD_DUP_RE: '$^', SHELL_CD_CMDS: [],
         SHELL_SUDO_WRITE_RE: '$^', SHELL_READ_ONLY_START_RE: '$^',
+        SHELL_PATCH_APPLY_CMDS: [], SHELL_PATCH_APPLY_GIT_SUBCMDS: [],
+        SHELL_PATCH_INSPECT_FLAGS: [], SHELL_PATH_BOUNDARY_CHARS: [],
       },
       error: true,
     };
@@ -102,7 +109,21 @@ const INVARIANT_LOAD_ERROR = loadedInvariants.error;
 
 const APPROVAL_RE = /Approval:\s*Approved/g;
 const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
-const WFI_APPROVAL_RE = /Status:\s*Approved/g;
+// WFI-022: two matchers for one WFI field. Content paths (Write/Edit/patch)
+// count only a column-0 full field line, so prose that merely quotes the field
+// never matches. Shell command text keeps the unanchored form: there the
+// literal sits inside quotes mid-line (e.g. a redirect append), so anchoring
+// alone would miss it.
+const WFI_APPROVAL_LINE_RE = /^Status:[ \t]*Approved[ \t]*\r?$/gm;
+const WFI_APPROVAL_CMD_RE = /Status:\s*Approved/;
+// WFI-022 amendment (external review, PR #336): shell syntax that can EXECUTE
+// a further command — command/process substitution, backticks, backgrounding,
+// or a physical line break — disqualifies the read-only exemption below,
+// because the embedded command is invisible to the write vocabulary (e.g. a
+// tar extraction inside $() overwrites files while the outer verb is a
+// reader). Plain $VAR expansion stays exempt-eligible: it expands to words,
+// not to an executed command. Fail closed back to the broad match.
+const WFI_EXEMPTION_UNSAFE_RE = /\$\(|`|<\(|>\(|&|\n|\r/;
 const DOMAIN_MODEL_APPROVAL_RE = /Domain-Model-Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
@@ -190,6 +211,10 @@ const SHELL_FD_DUP_RE = new RegExp(GUARD_INVARIANTS.SHELL_FD_DUP_RE);
 const SHELL_CD_CMDS = GUARD_INVARIANTS.SHELL_CD_CMDS;
 const SHELL_SUDO_WRITE_RE = new RegExp(GUARD_INVARIANTS.SHELL_SUDO_WRITE_RE, 'i');
 const SHELL_SUDO_READ_ONLY_RE = new RegExp(GUARD_INVARIANTS.SHELL_READ_ONLY_START_RE, 'i');
+const SHELL_PATCH_APPLY_CMDS = GUARD_INVARIANTS.SHELL_PATCH_APPLY_CMDS;
+const SHELL_PATCH_APPLY_GIT_SUBCMDS = GUARD_INVARIANTS.SHELL_PATCH_APPLY_GIT_SUBCMDS;
+const SHELL_PATCH_INSPECT_FLAGS = GUARD_INVARIANTS.SHELL_PATCH_INSPECT_FLAGS;
+const SHELL_PATH_BOUNDARY_CHARS = GUARD_INVARIANTS.SHELL_PATH_BOUNDARY_CHARS;
 const PROTECTED_BASENAMES = new Set(
   [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES.map(s => s.replace(/^\//, ''))].map(s => {
     const parts = s.toLowerCase().replace(/\\/g, '/').split('/');
@@ -525,6 +550,205 @@ function shellCwdWriteHitsProtected(cmd) {
   return false;
 }
 
+// WFI-048: characters that may legitimately abut a path inside a larger token.
+// Whitespace is deliberately absent on BOTH sides. A suffix surrounded by
+// spaces is prose - "fix the tests/gates.tests.sh handling" - and prose is
+// exactly what the end-anchored test was written to exclude. Measured against
+// the false-positive corpus, a right-edge-only rule readmits two commit-message
+// forms this repository actually writes: "guard reads <path>; see WFI-048" and
+// "freeze <path>, <path> and the rest". Both edges readmits neither and misses
+// no true positive.
+function tokenEmbedsProtectedPath(token) {
+  // R-10 (WFI-048): true when a protected path is embedded in a larger token.
+  // The recovered slice is handed back to isProtectedGateFile rather than
+  // judged here, so every exemption that predicate implements - notably
+  // specs/<feature>/human-copy/ staging - keeps applying to embedded paths.
+  if (!token || SHELL_PATH_BOUNDARY_CHARS.length === 0) return false;
+  const text = token.toLowerCase().replace(/\\/g, '/');
+  const boundary = new Set(SHELL_PATH_BOUNDARY_CHARS);
+  const suffixes = [
+    ...PROTECTED_GATE_SUFFIXES.map(s => s.toLowerCase()),
+    ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES.map(s => s.toLowerCase().replace(/^\/+/, '')),
+  ];
+  for (const suffix of suffixes) {
+    if (!suffix) continue;
+    let start = text.indexOf(suffix);
+    while (start !== -1) {
+      const end = start + suffix.length;
+      if (end === text.length || boundary.has(text[end])) {
+        // Walk left over path characters so a directory prefix reaches
+        // isProtectedGateFile intact (human-copy staging needs it).
+        let head = start;
+        while (head > 0 && !boundary.has(text[head - 1]) && !/\s/.test(text[head - 1])) head -= 1;
+        if ((head === 0 || boundary.has(text[head - 1])) &&
+            isProtectedGateFile(text.slice(head, end))) {
+          return true;
+        }
+      }
+      start = text.indexOf(suffix, start + 1);
+    }
+  }
+  return false;
+}
+
+function patchDeclaredTargets(patchPath) {
+  // WFI-048: every path a unified diff names, plus how many header PAIRS it has.
+  //
+  // A header is a `--- ` line, a `+++ ` line and an `@@ ` line in that exact
+  // order. The pair alone is not enough: a body that removes a line beginning
+  // "-- " and adds one beginning "++ " renders as "--- ..." directly above
+  // "+++ ...", which reads as a header pair and would deny patches that touch
+  // nothing protected. Requiring the hunk header next is sound because a body
+  // line can never start with "@@ " - diff prefixes it with a space, + or -.
+  //
+  // Both sides of the pair are read. A diff that DELETES a protected file names
+  // it on the `---` side with /dev/null on the `+++` side, and that deletion
+  // must be denied too.
+  //
+  // A header may carry a trailing tab and timestamp (path, TAB, "2026-07-23
+  // 18:32:43"). The timestamp is not part of the path; leaving it attached
+  // makes the endswith test miss the target, which is how two of this
+  // repository's own staged patches escaped a naive census.
+  let raw;
+  try {
+    raw = fs.readFileSync(patchPath);
+  } catch (_) {
+    return { targets: [], readable: false, pairs: 0 };
+  }
+  const lines = raw.toString('utf8').split(/\r\n|\r|\n/);
+  const targets = [];
+  let pairs = 0;
+  for (let i = 0; i < lines.length - 2; i += 1) {
+    if (!(lines[i].startsWith('--- ') && lines[i + 1].startsWith('+++ ') &&
+          lines[i + 2].startsWith('@@ '))) continue;
+    pairs += 1;
+    for (const line of [lines[i], lines[i + 1]]) {
+      let rest = line.slice(4).split('\t')[0].trim();
+      if (!rest || rest === '/dev/null') continue;
+      if (rest.slice(0, 2) === 'a/' || rest.slice(0, 2) === 'b/') rest = rest.slice(2);
+      targets.push(rest);
+    }
+  }
+  return { targets, readable: true, pairs };
+}
+
+function patchTargetsProtected(patchPath) {
+  // WFI-048: true unless the guard can PROVE the patch leaves protected files
+  // alone. Unreadable, or carrying no unified-diff header pair at all, both
+  // fail closed - a patch the guard cannot read is the artifact an evasion builds.
+  const { targets, readable, pairs } = patchDeclaredTargets(patchPath);
+  if (!readable || pairs === 0) return true;
+  return targets.some(target => isProtectedGateFile(target));
+}
+
+function patchOperands(words, gitStyle) {
+  // WFI-048: the patch files a patch-applier segment names. An empty result
+  // means the patch can only be arriving on stdin (or through a construct the
+  // tokenizer did not model), which the caller fails closed on.
+  const redirected = [];
+  const plain = [];
+  let index = 0;
+  while (index < words.length) {
+    const word = words[index];
+    if (word === '<') {
+      if (index + 1 < words.length) redirected.push(words[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (word.length > 1 && word.startsWith('<')) {
+      redirected.push(word.slice(1));
+      index += 1;
+      continue;
+    }
+    if (word === '-i' || word === '--input') {
+      if (index + 1 < words.length) redirected.push(words[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (word.startsWith('-')) { index += 1; continue; }
+    plain.push(word);
+    index += 1;
+  }
+  if (redirected.length > 0) return redirected;
+  if (gitStyle) return plain;
+  // `patch [options] [originalfile [patchfile]]`: the patch is the SECOND
+  // operand. With fewer than two, the patch is on stdin and unreadable here.
+  return plain.length >= 2 ? plain.slice(1) : [];
+}
+
+function patchOperandHitsProtected(operand, currentDir, cwdKnown) {
+  // WFI-048: resolve one patch operand against the tracked working directory
+  // and decide it. Anything unresolvable fails closed.
+  if (!cwdKnown) return true;
+  if (SHELL_UNSAFE_TOKEN_CHARS.some(c => operand.includes(c))) return true;
+  let p = operand;
+  if (!p.startsWith('/') && currentDir) p = currentDir.replace(/\/+$/, '') + '/' + p;
+  return patchTargetsProtected(p);
+}
+
+function shellPatchApplyHitsProtected(cmd) {
+  // R-10 (WFI-048): deny a patch applier whose patch names a protected file.
+  //
+  // `git apply <p>`, `git am <p>` and `patch ... <p>` state their targets
+  // INSIDE the file they are given, so the token pre-filter never sees them -
+  // and the whole staging convention in docs/ci-staging/README.md rests on
+  // those writes being denied. The patch operand itself IS on the command line,
+  // so the guard resolves it across cd/pushd exactly as
+  // shellCwdWriteHitsProtected does, reads it, and tests every declared target.
+  //
+  // This runs as its own gate rather than through the write-verb path because
+  // `git am` is not in the write vocabulary at all: routing it through
+  // SHELL_SUDO_WRITE_RE would leave it allowed.
+  //
+  // Non-writing inspection flags (--check, --stat, --numstat, --summary,
+  // --dry-run) are exempt. git and patch modify nothing when those are present,
+  // and docs/ci-staging/README.md tells a human to run exactly that before
+  // applying. The exemption cannot be used to evade: an evader still needs a
+  // second, unexempt segment, and each segment is judged on its own.
+  if (typeof cmd !== 'string') return false;
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens === null) return false;
+  const segments = [];
+  let words = [];
+  for (const [kind, text] of tokens) {
+    if (kind === 'sep') {
+      if (words.length > 0) { segments.push(words); words = []; }
+    } else {
+      words.push(text);
+    }
+  }
+  if (words.length > 0) segments.push(words);
+
+  let currentDir = '';
+  let cwdKnown = true;
+  for (const seg of segments) {
+    if (seg.length === 0) continue;
+    const verb = shellTokenBasename(seg[0]);
+    if (SHELL_CD_CMDS.includes(verb)) {
+      [currentDir, cwdKnown] = applyCdTransition(currentDir, cwdKnown, seg);
+      continue;
+    }
+    if (verb === 'popd') { cwdKnown = false; continue; }
+    let rest = seg.slice(1);
+    let gitStyle = false;
+    if (verb === 'git') {
+      const position = rest.findIndex(w => !w.startsWith('-'));
+      if (position === -1 || !SHELL_PATCH_APPLY_GIT_SUBCMDS.includes(rest[position])) continue;
+      rest = rest.slice(position + 1);
+      gitStyle = true;
+    } else if (!SHELL_PATCH_APPLY_CMDS.includes(verb)) {
+      continue;
+    }
+    if (seg.some(w => SHELL_PATCH_INSPECT_FLAGS.includes(w.toLowerCase()))) continue;
+    const operands = patchOperands(rest, gitStyle);
+    if (operands.length === 0) return true;
+    for (const operand of operands) {
+      if (patchOperandHitsProtected(operand, currentDir, cwdKnown)) return true;
+    }
+  }
+  return false;
+}
+
 function commandReferencesProtectedPath(cmd) {
   // R-10 pre-filter: true when a protected path appears as a shell TOKEN
   // (a path-shaped word, or a redirect token's target), not merely as a
@@ -577,6 +801,11 @@ function commandReferencesProtectedPath(cmd) {
       if (m && m[2]) candidate = m[2];
     }
     if (isProtectedGateFile(candidate)) return true;
+    // WFI-048: the end-anchored test above misses a path EMBEDDED in a
+    // larger token - open('<path>','a') is one token that does not end with
+    // the suffix. This runs only after that test has failed, so it can add
+    // matches and never remove one.
+    if (tokenEmbedsProtectedPath(text)) return true;
   }
   return false;
 }
@@ -595,6 +824,9 @@ function shellTargetsProtectedGateFile(cmd) {
   // spell the full protected path literally. Read-only segments never hit,
   // so this is checked before the read-only short-circuit below.
   if (shellCwdWriteHitsProtected(cmd)) return true;
+  // WFI-048: a patch applier names its target inside the file it is given,
+  // so neither the pre-filter nor the write vocabulary can decide it.
+  if (shellPatchApplyHitsProtected(cmd)) return true;
   const hasProtectedPath = commandReferencesProtectedPath(cmd);
   if (!hasProtectedPath) return false;
   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
@@ -632,8 +864,9 @@ function isWfiPath(filePath) {
 }
 
 function wfiCount(text) {
+  // Counts column-0 'Status: Approved' field lines in WFI file content.
   if (!text) return 0;
-  const matches = text.match(WFI_APPROVAL_RE);
+  const matches = text.match(WFI_APPROVAL_LINE_RE);
   return matches ? matches.length : 0;
 }
 
@@ -1134,7 +1367,21 @@ function wfiApprovalIncreases(payload) {
   }
 
   if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
-    if (command.toLowerCase().includes('workflow-improvements/') && wfiCount(command) > 0) {
+    if (command.toLowerCase().includes('workflow-improvements/') && WFI_APPROVAL_CMD_RE.test(command)) {
+      // WFI-022: a single simple command that starts with a read-only verb
+      // and carries no write verb or redirect token cannot grant an
+      // approval, so it is exempt. Every write-capable command keeps the
+      // broad match: whether shell text nets out to a removal is not
+      // decidable here, and the Edit path is the supported route for
+      // approval-preserving transitions.
+      if (
+        !SHELL_COMPOUND_RE.test(command) &&
+        SHELL_SUDO_READ_ONLY_RE.test(command) &&
+        !SHELL_SUDO_WRITE_RE.test(command) &&
+        !WFI_EXEMPTION_UNSAFE_RE.test(command)
+      ) {
+        return false;
+      }
       return true;
     }
     return false;
@@ -1143,16 +1390,19 @@ function wfiApprovalIncreases(payload) {
   const filePath = toolInput.file_path || '';
   if (!isWfiPath(filePath)) return false;
 
+  // WFI-022: the Edit path fires on a net increase of field lines, exactly
+  // as the Write path does — an edit that removes or preserves the field is
+  // not a grant.
   if (Array.isArray(toolInput.edits)) {
     for (const edit of toolInput.edits) {
       const e = edit || {};
-      if (wfiCount(e.new_string) > 0) {
+      if (wfiCount(e.new_string) > wfiCount(e.old_string)) {
         return true;
       }
     }
     return false;
   } else if ('new_string' in toolInput) {
-    return wfiCount(toolInput.new_string) > 0;
+    return wfiCount(toolInput.new_string) > wfiCount(toolInput.old_string);
   } else if ('content' in toolInput) {
     return wfiWriteContentIncreases(filePath, toolInput.content || '');
   } else {
@@ -1609,7 +1859,7 @@ async function main() {
     }
 
     // Check 2c: WFI approval guard (NEVER bypassed by sudo).
-    WFI_APPROVAL_RE.lastIndex = 0;
+    WFI_APPROVAL_LINE_RE.lastIndex = 0;
     if (wfiApprovalIncreases(payload)) {
       emitDecision('deny', WFI_APPROVAL_MSG, mode);
     }

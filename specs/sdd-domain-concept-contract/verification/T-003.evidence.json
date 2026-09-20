@@ -1,0 +1,59 @@
+{
+  "task_id": "T-003",
+  "feature": "sdd-domain-concept-contract",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "fe58e6d899a1385cf001065441b0f60a22cd2d94cf451052a827a9e93224c4c1",
+  "quality_report": "reports/quality-gate/20260819T101153Z.md",
+  "verification_contract": "specs/sdd-domain-concept-contract/verification/T-003.contract.json",
+  "git_commit": "029d26b77e04a731af7fe2750c5dc1f0ffc33621",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/T-003.contract.json",
+      "sha256": "9ad49c2da06b161345c444fca3bc93f0fde80824ad999eb50976074b5467ec57"
+    },
+    {
+      "path": "reports/quality-gate/20260819T101153Z.md",
+      "sha256": "db4189c2709c31bb5163616d3411dc1b4f31ed60a59d625ad95a04fcc0b0d2e5"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-003/acceptance-tests.log",
+      "sha256": "f3a986c9e0e6d01ecf1f4e98e808f6b45579668afd07f32979adc3b2e51571a2"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-003/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-003/regression.log",
+      "sha256": "aebb36974684602851364ad0d5492235c39580f86ad7c98ea937312c36200c47"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-003/task-state.log",
+      "sha256": "c8c9a4ecc6274cfbdbf48f7462ea55d57336bb60f7300cb8a3bcae61479d9fa3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/qg/T-003/traceability.log",
+      "sha256": "83837322f470e20172e099b4786efa0a29d56f3f5b0883fa0935ce7563eb1e2e"
+    }
+  ]
+}

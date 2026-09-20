@@ -1,7 +1,10 @@
 # Deterministic gate: validate the tasks.md state machine on disk.
 # Usage: check-task-state.ps1 <path-to-tasks.md> [-ReportsDir <reports/quality-gate>] [-ImplReportsDir <reports/implementation>] [-RepoRoot <path>]
 # Rules enforced:
-#  - Approval is Draft or Approved (bare) or Approved (<any annotation>); Status is a known lifecycle value.
+#  - Approval is Draft or Approved (bare) or Approved (<id> <ISO8601, seconds, Z>);
+#    Status is a known lifecycle value. WFI-042: the annotated form uses the same
+#    strict grammar Get-ApproverId extracts from, so validity and approver
+#    extraction can no longer disagree about one line.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
@@ -27,10 +30,10 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
 
-# Strict pattern for critical two-person approval (named approver + ISO timestamp)
+# Strict pattern for every annotated approval (named approver + ISO timestamp).
+# WFI-042: validity, gate checks, and approver extraction all use this one
+# grammar; the relaxed any-annotation pattern is retired.
 $namedApprovalPattern = "^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
-# Relaxed pattern: Approved (<any non-empty annotation>) — used for non-critical gate checks
-$flexApprovalPattern = "^Approved \(.+\)$"
 
 $failures = @()
 $currentTask = $null
@@ -45,7 +48,7 @@ $lines = Get-Content -Encoding Utf8 $TasksPath
 $inBlockers = $false
 
 foreach ($line in $lines) {
-    if ($line -match '^##\s+(T-\d+)') {
+    if ($line -cmatch '^##\s+(T-\d+)') {
         $newTask = $Matches[1]
         $inBlockers = $false
         if ($seenIds.ContainsKey($newTask)) {
@@ -57,21 +60,21 @@ foreach ($line in $lines) {
             $seenIds[$currentTask] = $true
             if (-not $blockers.ContainsKey($currentTask)) { $blockers[$currentTask] = "" }
         }
-    } elseif ($currentTask -and $line -match '^Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Approval:\s*(.+)$') {
         $approval[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Status:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Status:\s*(.+)$') {
         $status[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Risk:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk:\s*(.+)$') {
         $risk[$currentTask] = $Matches[1].Trim().ToLower()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Second Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
         $second[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^###\s+Blockers') {
+    } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
         $inBlockers = $true
-    } elseif ($line -match '^##') {
+    } elseif ($line -cmatch '^##') {
         $inBlockers = $false
     } elseif ($currentTask -and $inBlockers) {
         # Collect non-trivial blocker content
@@ -89,7 +92,7 @@ if ($seenIds.Count -eq 0) {
 
 # Extract approver id from an approval string (e.g. "Approved (alice 2026-06-13T...Z)" → "alice")
 function Get-ApproverId([string]$s) {
-    if ($s -match "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
+    if ($s -cmatch "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
         return $Matches[1]
     }
     return ""
@@ -106,23 +109,26 @@ foreach ($task in $allTasks) {
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
-    # Validate Approval: Draft | Approved | Approved (<any non-empty annotation>)
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $flexApprovalPattern)
+    # Validate Approval: Draft | Approved | Approved (<id> <ISO8601, seconds, Z>) (WFI-042)
+    # -cmatch: the awk twin's regex is case-sensitive, and AGENTS.md's
+    # case-sensitivity sweep rule (WFI-012) requires ported -match sites to
+    # keep that; the lite twin's identical sites moved with this one.
+    $isValidApproval = ($a -ceq "Draft" -or $a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    # For gate checks, treat Approved (with any non-empty annotation) same as Approved
-    $isApproved = ($a -eq "Approved" -or $a -match $flexApprovalPattern)
+    # For gate checks, an annotated approval counts only in the strict form.
+    $isApproved = ($a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
 
-    if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
+    if ($s -cnotin $validStatuses) { $failures += "$task has invalid Status: $s" }
+    if ($s -cin $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
-    if ($s -eq "Done") {
+    if ($s -ceq "Done") {
         # Two-person approval enforcement for critical Done tasks
         $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
-        if ($taskRisk -eq "critical") {
+        if ($taskRisk -ceq "critical") {
             $primId = Get-ApproverId -s $a
             $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
             $secId = Get-ApproverId -s $secValue
@@ -182,19 +188,19 @@ foreach ($task in $allTasks) {
         # Do not search the shared report directory by task id: task ids are only
         # unique within a feature and a global search can select another feature.
     }
-    if ($s -eq "Implementation Complete") {
+    if ($s -ceq "Implementation Complete") {
         $hasImplReport = $false
         # C-07: word-boundary match to prevent T-001 matching T-0010 (parity with grep -w in .sh)
         $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
         if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -Quiet })
+                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -CaseSensitive -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"
         }
     }
-    if ($s -eq "Blocked") {
+    if ($s -ceq "Blocked") {
         $blockersContent = $blockers[$task]
         if ([string]::IsNullOrWhiteSpace($blockersContent)) {
             $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"

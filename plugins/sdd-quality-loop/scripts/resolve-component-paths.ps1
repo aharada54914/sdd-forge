@@ -804,7 +804,10 @@ function Test-JsonSchemaInstanceType {
         "boolean" { if ($Instance -is [string]) { return $true } return ($Instance -is [bool]) }
         "integer" { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long]) }
         "number"  { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long] -or $Instance -is [double]) }
-        default   { return $true }
+        # Unknown type names fail CLOSED: a typo'd "type" keyword must reject
+        # every instance, never silently validate all of them (INV-008 parity
+        # with the Python master's _schema_type_ok).
+        default   { return $false }
     }
 }
 
@@ -1236,19 +1239,25 @@ function Invoke-Diagnose {
                     $warnings.Add("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
                     continue
                 }
+                # Hoisted: validate each declared pattern once per binding.
+                # A malformed pattern is surfaced as a warning instead of
+                # being silently re-swallowed per (component, path) pair.
+                $usablePatterns = [System.Collections.Generic.List[object]]::new()
+                foreach ($pattern in $adapterPaths) {
+                    try {
+                        $usablePatterns.Add(@($pattern, (Confirm-AndNormalizePattern $pattern)))
+                    } catch {
+                        $warnings.Add("Fail-6: a provider binding declares an unusable adapter path pattern; it cannot match anything: " + [string]$pattern)
+                    }
+                }
                 if (-not $joined) { continue }
                 foreach ($comp in $joined) {
                     if (-not $exclusiveByComponent.ContainsKey($comp)) { continue }
                     foreach ($path in $exclusiveByComponent[$comp]) {
                         $nfcPath = ConvertTo-Nfc $path
-                        foreach ($pattern in $adapterPaths) {
-                            try {
-                                $normalized = Confirm-AndNormalizePattern $pattern
-                            } catch {
-                                continue
-                            }
-                            if (Test-PatternMatches -PatternNormalized $normalized -PathNfc $nfcPath) {
-                                $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pattern })
+                        foreach ($pair in $usablePatterns) {
+                            if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
+                                $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                             }
                         }
                     }

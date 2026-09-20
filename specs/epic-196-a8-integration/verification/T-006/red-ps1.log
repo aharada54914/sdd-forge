@@ -1,0 +1,15 @@
+Command: pwsh -NoProfile -File tests/path-lineending-regression.tests.ps1
+Exit: 1
+Workflow state: RED (deliberately permissive harness)
+
+Cell failures:
+- rows 1-16: windows-path-separator rejected permissive oracle (16)
+- rows 1-16: crlf-lf-gitattributes-layer rejected permissive oracle (16)
+- rows 1-16: nfc-nfd-filename rejected permissive oracle (16)
+Layer-disposition failures:
+- windows-path-resolution rejected permissive disposition
+- crlf-lf-gitattributes rejected permissive disposition
+- generated-text-canonicalizer rejected permissive disposition
+- nfc-nfd-normalization rejected permissive disposition
+
+path-lineending-regression: 0 passed, 52 failed

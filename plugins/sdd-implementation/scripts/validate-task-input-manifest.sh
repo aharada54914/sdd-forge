@@ -39,7 +39,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-python3 - "$manifest" "$snapshot_root" "$expected_task" "$evidence_root" "${batch[@]}" <<'PY'
+python3 - "$manifest" "$snapshot_root" "$expected_task" "$evidence_root" ${batch[@]+"${batch[@]}"} <<'PY'
 import hashlib
 import json
 import datetime
@@ -59,11 +59,11 @@ REQUIRED = (
 IDENTITY = {"task_id", "run_id", "session_id", "agent_instance_id"}
 MODEL = {"model_tier", "provider", "model"}
 COST = {"estimated_cost_per_attempt_usd", "cost_estimate_source", "cost_estimate_timestamp"}
-SHA = re.compile(r"^[a-f0-9]{64}$")
-DECIMAL = re.compile(r"^(0|[1-9][0-9]*)(\.[0-9]+)?$")
-TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
-TASK = re.compile(r"^T-\d{3}$")
-ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
+SHA = re.compile(r"\A[a-f0-9]{64}\Z")
+DECIMAL = re.compile(r"\A(0|[1-9][0-9]*)(\.[0-9]+)?\Z")
+TIMESTAMP = re.compile(r"\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\Z")
+TASK = re.compile(r"\AT-[0-9]{3}\Z")
+ID = re.compile(r"\A[A-Za-z0-9][A-Za-z0-9._:-]*\Z")
 FALLBACK_REASON = "host-does-not-support-implementation-subagents"
 EVIDENCE_PATH = "handoffs/reload-evidence.txt"
 
@@ -86,10 +86,15 @@ def path_ok(path, output=False):
         return False
     if path.startswith("/") or "\\" in path:
         return False
-    parts = path.rstrip("/").split("/")
+    # A trailing slash (directory form) is legal only for outputs — the same
+    # AllowDirectory split the .ps1 twin makes. Inputs must name a file.
+    trimmed = path.rstrip("/") if output else path
+    if not trimmed:
+        return False
+    parts = trimmed.split("/")
     if any(part in ("", ".", "..") for part in parts):
         return False
-    return re.match(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$", path) is not None
+    return re.match(r"\A[A-Za-z0-9][A-Za-z0-9._/-]*\Z", path) is not None
 
 def timestamp_ok(value):
     if not isinstance(value, str) or not TIMESTAMP.match(value):
@@ -334,6 +339,8 @@ def validate_batch(paths):
             fail("HANDOFF", "fallback evidence task_runs do not match complete batch")
 
 if batch:
+    if manifest:
+        fail("JSON", "batch mode does not accept --manifest")
     validate_batch(batch)
 elif manifest:
     validate_one(manifest, bool(snapshot_root))

@@ -2,7 +2,54 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
+
+# Exercise the production archive-download branch without network or host install
+# writes. A failed tar may still leave a marketplace-shaped partial directory.
+& {
+    $tokens = $null
+    $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $repositoryRoot 'install.ps1'), [ref]$tokens, [ref]$parseErrors)
+    if ($parseErrors.Count) { throw 'Installer parse failed' }
+    $tarCalls = @($ast.FindAll({ param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -ceq 'tar' -and $node.Extent.Text.Contains('-xzf')
+    }, $true))
+    if ($tarCalls.Count -ne 1) { throw 'Expected one production archive extraction' }
+    $block = $tarCalls[0].Parent
+    while ($block -and $block -isnot [Management.Automation.Language.StatementBlockAst]) { $block = $block.Parent }
+    if (-not $block) { throw 'Archive branch not found' }
+    $body = [scriptblock]::Create($block.Extent.Text.Substring(1, $block.Extent.Text.Length - 2))
+    function Download-AuthenticatedArchive {
+        param($RepositoryName, $RefName, $ArchivePath)
+        $partial = Join-Path (Split-Path $ArchivePath) 'partial/.agents/plugins'
+        New-Item -ItemType Directory -Path $partial -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $partial 'marketplace.json') -Value '{}'
+    }
+    function tar { $global:LASTEXITCODE = $script:archiveTestExit }
+    $Repository = 'fixture/only'
+    $Ref = 'fixture'
+    foreach ($code in @(0, 2)) {
+        $script:archiveTestExit = $code
+        $temporaryRoot = $null
+        $caught = $null
+        try { . $body } catch { $caught = $_ }
+        finally {
+            if ($temporaryRoot -and (Test-Path -LiteralPath $temporaryRoot)) {
+                Remove-Item -LiteralPath $temporaryRoot -Recurse -Force
+            }
+        }
+        if ($code -eq 0 -and $caught) { throw "Successful extraction rejected: $caught" }
+        if ($code -ne 0 -and (-not $caught -or "$caught" -cnotmatch 'archive extraction failed')) {
+            throw 'Failed tar with partial marketplace must stop with extraction diagnostic'
+        }
+        Write-Host "ok: archive extraction exit $code handled"
+    }
+    $global:LASTEXITCODE = 0
+}
+
+$script:_SddFixtureMatrixBuilderSourced = $false
+. (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
 function New-TrackedFixture {
@@ -200,6 +247,7 @@ function Resolve-ExpectedPlugins {
         foreach ($plugin in @($resolved)) {
             $dependencies = switch ($plugin) {
                 "sdd-bootstrap" { @("sdd-review-loop"); break }
+                "sdd-domain" { @("sdd-bootstrap", "sdd-quality-loop"); break }
                 "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
                 "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
                 default { @() }
@@ -250,17 +298,31 @@ function Invoke-InstallerScenario {
             }
         }
 
+        # WFI-041 flipped this contract. $FailPattern targets a plugin id, so
+        # the stub fails inside `codex plugin add` — a *registration*-phase
+        # failure, after the tree is already in the install root. This suite
+        # used to assert that such a failure reverted the install root; it now
+        # asserts the opposite, because reverting discarded a correct install
+        # for a failure that was not the install's. The old contract was only
+        # defensible while registration was non-idempotent: a partially
+        # registered new tree could not be recovered by re-running.
+        # Invoke-IdempotentPluginCommand removed that constraint, so the tree
+        # now stays and the re-run converges. Placement-phase rollback is
+        # unchanged and is asserted by installer-idempotency.tests.ps1.
         if ($FailPattern) {
             if (-not $failed) {
                 throw "Installer was expected to fail for pattern: $FailPattern"
             }
-            if ($SeedExistingInstall) {
-                if (-not (Test-Path (Join-Path $installRoot "existing.marker"))) {
-                    throw "Installer did not restore the previous installation."
-                }
+            if (-not (Test-Path (Join-Path $installRoot "plugins/sdd-bootstrap/.codex-plugin/plugin.json"))) {
+                throw "Registration failure did not leave the newly placed tree in the install root."
             }
-            elseif (Test-Path $installRoot) {
-                throw "Installer left an incomplete initial installation."
+            if ($SeedExistingInstall -and (Test-Path (Join-Path $installRoot "existing.marker"))) {
+                throw "Registration failure reverted to the previous installation."
+            }
+            # The backup is superseded once the new tree is declared
+            # authoritative; leaving it behind would litter the install parent.
+            if (Get-ChildItem -Path $testRoot -Filter "sdd-plugins-backup-*" -ErrorAction SilentlyContinue) {
+                throw "Registration failure left a backup directory behind."
             }
             return
         }
@@ -395,6 +457,7 @@ function Invoke-RemoteInstallerScenario {
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins @("sdd-lite")
+Invoke-InstallerScenario -Plugins @("sdd-domain")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins" -SeedExistingInstall
 
@@ -508,15 +571,17 @@ finally {
     }
 }
 
-$invalidFailed = $false
-try {
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path $env:TEMP ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin")
-}
-catch {
-    $invalidFailed = $true
-}
-if (-not $invalidFailed) {
-    throw "Installer accepted an invalid plugin name."
+foreach ($invalidPlugin in @("not-a-plugin", "SDD-DOMAIN", "Sdd-Domain", "SDD-BOOTSTRAP")) {
+    $invalidFailed = $false
+    try {
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -SkipAgentInstall -SkipMcp -Plugins @($invalidPlugin)
+    }
+    catch [System.Management.Automation.ParameterBindingException] {
+        $invalidFailed = $true
+    }
+    if (-not $invalidFailed) {
+        throw "Installer accepted invalid plugin name: $invalidPlugin"
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -1658,6 +1723,37 @@ finally {
     $env:SDD_CURSOR_DIR = $corruptVSCodeOriginalCursorDir
     $env:SDD_VSCODE_USER_DIR = $corruptVSCodeOriginalVSCodeDir
     if (Test-Path $corruptVSCodeRoot) { Remove-Item -Path $corruptVSCodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# T-003 context-presence invariant: FilesOnly output is byte-identical whether
+# an otherwise identical source fixture has project-context.yaml or not.
+$t003Absent = build_fixture absent absent disabled-legacy valid none
+$t003Present = build_fixture present absent advisory valid none
+try {
+    $t003AbsentSource = Join-Path $t003Absent 'source'
+    $t003PresentSource = Join-Path $t003Present 'source'
+    $t003AbsentInstall = Join-Path $t003Absent 'installed'
+    $t003PresentInstall = Join-Path $t003Present 'installed'
+    New-TrackedFixture -Source $installerSourceRoot -Destination $t003AbsentSource
+    New-TrackedFixture -Source $installerSourceRoot -Destination $t003PresentSource
+    New-Item -ItemType Directory -Path (Join-Path $t003PresentSource 'sdd') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $t003Present 'sdd/project-context.yaml') -Destination (Join-Path $t003PresentSource 'sdd/project-context.yaml')
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003AbsentSource -InstallRoot $t003AbsentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003PresentSource -InstallRoot $t003PresentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
+    if ($env:T003_MUTATE_CONTEXT_INVARIANT -ceq 'install-ps1') {
+        $t003MutatedFile = Get-ChildItem -LiteralPath $t003PresentInstall -File -Recurse | Select-Object -First 1
+        [IO.File]::AppendAllText($t003MutatedFile.FullName, "mutation`n", [Text.UTF8Encoding]::new($false))
+    }
+    $absentFiles = Get-ChildItem -LiteralPath $t003AbsentInstall -File -Recurse | ForEach-Object {
+        [pscustomobject]@{ Path = $_.FullName.Substring($t003AbsentInstall.Length); Hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash }
+    } | ConvertTo-Json -Compress
+    $presentFiles = Get-ChildItem -LiteralPath $t003PresentInstall -File -Recurse | ForEach-Object {
+        [pscustomobject]@{ Path = $_.FullName.Substring($t003PresentInstall.Length); Hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash }
+    } | ConvertTo-Json -Compress
+    if ($absentFiles -cne $presentFiles) { throw 'T-003 install output changed with project-context presence' }
+    Write-Host 'ok: T-003 install output is unaffected by project-context presence'
+} finally {
+    foreach ($path in @($t003Absent, $t003Present)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force } }
 }
 
 Write-Host "Installer integration tests passed."

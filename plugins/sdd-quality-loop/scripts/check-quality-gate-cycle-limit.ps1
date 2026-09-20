@@ -61,7 +61,23 @@ if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*$') {
 # with grep. An absent directory is zero reports (fresh checkout).
 $count = 0
 if (Test-Path -LiteralPath $ReportsDir -PathType Container) {
-    $taskPattern = "\b" + [regex]::Escape($TaskId) + "\b"
+    # WFI-035: match the report's OWN identity header, never a bare mention.
+    # A whole-file word-boundary search measures "reports that MENTION this
+    # task" instead of "gate cycles this task has had", and the report template
+    # guarantees mentions -- `## Out-Of-Scope Waivers` and
+    # `## Traceability And Drift` name the sibling tasks that own out-of-scope
+    # surfaces. Measured in sdd-domain-concept-contract: all five tasks
+    # returned Escalate-Human against honest counts of 1/2/1/3/2, and T-005 was
+    # barred from its FIRST gate with zero reports of its own.
+    #
+    # Three anchored forms, because all three occur in the committed corpus and
+    # dropping any would UNDER-count. Across all 220 reports: 219 carry
+    # `Task ID:`, 77 carry `Task:`, 16 carry the H1 heading, and exactly one
+    # carries only the heading. The union covers 220 of 220, and every form is
+    # anchored so none can match prose. Mirrors the .sh identity_re exactly.
+    $escapedTask = [regex]::Escape($TaskId)
+    $taskPattern = "(?m)^(Task ID|Task):[ \t]*$escapedTask[ \t]*$" +
+        "|(?m)^#[ \t]+Quality Gate Report:?[ \t]*$escapedTask([^0-9]|$)"
     $featurePattern = "(?m)^Feature:\s*" + [regex]::Escape($Feature) + "\s*$"
     $taskMatches = @(Get-ChildItem -LiteralPath $ReportsDir -File -Recurse -ErrorAction SilentlyContinue |
         Where-Object { Select-String -LiteralPath $_.FullName -Pattern $taskPattern -CaseSensitive -Quiet })

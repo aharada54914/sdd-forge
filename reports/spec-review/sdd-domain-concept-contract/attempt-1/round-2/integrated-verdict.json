@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0,
+  "reviewer_a_run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a1r2-seq0756",
+  "reviewer_b_run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a1r2-seq0757",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a1r2-0756",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a1r2-0757",
+  "finding_counts": {
+    "critical": 2,
+    "major": 3,
+    "minor": 0
+  }
+}

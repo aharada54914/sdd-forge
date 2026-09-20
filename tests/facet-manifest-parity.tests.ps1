@@ -293,11 +293,14 @@ foreach ($f in @(
         'validate-facet-manifest.py', 'validate-facet-manifest.sh', 'validate-facet-manifest.ps1',
         'validate-capability-summary.py', 'validate-capability-summary.sh', 'validate-capability-summary.ps1',
         'validate-context-projection.py', 'validate-context-projection.sh', 'validate-context-projection.ps1',
-        'compare-facet-manifest-staleness.py', 'compare-facet-manifest-staleness.sh', 'compare-facet-manifest-staleness.ps1'
+        'compare-facet-manifest-staleness.py', 'compare-facet-manifest-staleness.sh', 'compare-facet-manifest-staleness.ps1',
+        'lib/py-dispatch.sh', 'lib/py-dispatch.ps1'
     )) {
     $src = Join-Path $Scripts $f
     if (Test-Path -LiteralPath $src) {
-        Copy-Item -LiteralPath $src -Destination (Join-Path $Installed "scripts/$f") -Force
+        $destination = Join-Path $Installed "scripts/$f"
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath $src -Destination $destination -Force
     }
 }
 foreach ($schema in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json')) {
@@ -371,10 +374,12 @@ if ($canaryResult.ExitCode -ne 0 -and $canaryText.Contains('schema-discovery-fai
 # TEST-033: six-suite registration proof.
 # =============================================================================
 $SixSuites = @('facet-manifest-schema', 'facet-manifest-semantics', 'capability-summary-schema', 'context-projection-schema', 'facet-manifest-staleness', 'facet-manifest-parity')
-$RunAllSh = Get-Content (Join-Path $RepoRoot 'tests/run-all.sh') -Raw
+# Query the external inventory rather than the runner's source text.
+$RunAllSh = @(& bash (Join-Path $RepoRoot 'tests/run-all.sh') --list)
+$RunAllShExit = $LASTEXITCODE
 $RunAllPs1 = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
 foreach ($suite in $SixSuites) {
-    if ($RunAllSh.Contains("tests/$suite.tests.sh")) {
+    if ($RunAllShExit -eq 0 -and $RunAllSh -ccontains "tests/$suite.tests.sh") {
         Ok "TEST-033: tests/run-all.sh registers tests/$suite.tests.sh"
     } else {
         Fail "TEST-033: tests/run-all.sh does NOT register tests/$suite.tests.sh"

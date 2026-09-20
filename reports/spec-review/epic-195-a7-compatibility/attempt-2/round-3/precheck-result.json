@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "be0cd28571cc64784c89d687c5c38b8ccbe14bd7dfab0a5ba4c73c8a26311ac9",
+  "acceptance_sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "ec04eaf120afa74664acebf2a65ae3d0688a0befe19fe2c37e46ec0a1a9daddc",
+  "edit_summary": "Remedy round-2 reviewer-b DOWNSTREAM-READINESS finding: AC-034's own SKIP-candidate enumeration now lists AC-036 and AC-037 (commit 556034c); manual precheck fallback per AGENTS.md issue #61, working around the check-ID-count (6-vs-7 DOMAIN-CONFORMANCE) defect this attempt's own round 2 evidence surfaced (see reports/notes/repo-defect-spec-reviewer-domain-conformance-check-count-mismatch.md)",
+  "reset": false,
+  "generated_at": "2026-07-23T09:10:48Z"
+}

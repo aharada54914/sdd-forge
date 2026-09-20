@@ -1,0 +1,152 @@
+{
+  "task_id": "T-005",
+  "feature": "sdd-domain-concept-contract",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "511811222e432b4c1e0a210c46aa8a32589874f0",
+  "created": "2026-08-19T15:25:57Z",
+  "comment": "Default-FAIL verification contract. Every check started at passes=false and was flipped only after its verification command ran and the recorded evidence file was inspected. risk=medium, so the high-tier requirement-traceability check is not in the tier minimum and is absent, matching T-001's medium-tier contract in this feature. required_workflow=acceptance-first: the acceptance criteria were authored before the fixtures, and the task's own red/green logs are carried on the test-type checks. spec_revision names 51181122 -- the commit whose bytes these checks actually ran against -- rather than T-005's implementing commit daa7d35a, because the gate applied an in-gate fix to the AC-025(a) assertion under auto-fix-policy and cycle 2 reviewed the post-fix bytes. stack=shell: the deliverable is a PS5.1-safe PowerShell suite exercising a python3-stdlib shell twin and its PowerShell twin, so the three compile-oriented checks carry waiver_reason per risk-gate-matrix.md's stack descriptor. The task's declared red.log/green.log record 232 checks against the suite as T-005 left it; the gate-time acceptance-tests.log records 319 against the shipped suite, which has since grown by other tasks' review-ticket blocks. Both are retained: the first is the task's TDD evidence, the second is the gate's measurement.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint toolchain is configured for shell, python or PowerShell in this repository; .github/workflows/test.yml runs test suites only, with no linter step.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type checker is configured for the PowerShell suite or for the python3-stdlib shell twin it exercises.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile or build step; the suite and both twins are interpreted scripts with no external dependency.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-005/acceptance-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/sdd-domain-concept-contract/verification/T-005/red.log",
+      "green_evidence": "specs/sdd-domain-concept-contract/verification/T-005/green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No consumer is wired in Phase 0 per design.md's Deployment / CI Plan; the twins have no integration surface yet.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-005/acceptance-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/sdd-domain-concept-contract/verification/T-005/red.log",
+      "green_evidence": "specs/sdd-domain-concept-contract/verification/T-005/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-005/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-005/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-005/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable service or UI; this task ships test code only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Not a refactor or bugfix task and no baseline-behavior.md exists; T-005 authors new tests over behaviour introduced earlier in the same feature.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system/ directory in this repository and no UI-layer files were touched.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,713 @@
+# T-003 RED run (TDD, tasks.md Required Workflow: tdd)
+#
+# Command (from repository root):
+#   pwsh -NoProfile -Command 'Import-Module Pester -RequiredVersion 4.10.1; Invoke-Pester -Script "tests/sdd-domain/contract-v2-schema.Tests.ps1"'
+#
+# Captured BEFORE the implementation commit: the 62 structural negative
+# fixtures and the enumeration check are authored, and neither validator twin
+# implements REQ-004(c) yet (check_structure / Invoke-StructureCheck are still
+# T-002's no-op extension points), so every structural fixture fails.
+#
+# Environment: macOS 26.5.2 (arm64) / pwsh 7.6.2 / Pester 4.10.1 /
+# Python 3.14.5 / GNU bash 5.3.9. spec_revision 1cfbbbe61282d7d2d95f06ffd63f6ce109dda44c
+#
+# The 47 passing checks are the 30 pre-existing T-001/T-002 checks, the 11
+# fixture-allocation and base-acceptance checks (which do not depend on the
+# structural pass), and the four fixtures whose behaviour T-002's admission
+# dispatch already implements (AC-021(1) and AC-024(1), each on both twins).
+
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
+
+  Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
+    [+] the v2 schema file exists 18ms
+    [+] parses as valid JSON 11ms
+
+    Context once parsed
+      [+] declares draft-07 3ms
+      [+] declares the domain-contract/v2 schema const 1ms
+      [+] declares root required schema/meta/contexts/concepts, exactly those four 5ms
+      [+] declares a v1-shaped meta definition (version/status/generated_from) 11ms
+      [+] declares concepts as a required top-level array with minItems 1 2ms
+      [+] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 3ms
+      [+] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 1ms
+      [+] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 4ms
+
+  Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
+    [+] the v1 schema file still exists 7ms
+    [+] v1 schema file SHA-256 equals the recorded feature-start baseline 3ms
+
+  Describing validate-domain-contract twins exist (TEST-017/TEST-012 preconditions, REQ-004)
+    [+] the .sh twin exists 1ms
+    [+] the .ps1 twin exists 3ms
+
+  Describing validate-domain-contract fail-closed input handling (TEST-017, AC-017, REQ-004(a))
+
+    Context fixture 1 of 2 -- syntactically broken JSON (truncated body)
+      [+] ps1 twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 543ms
+      [+] sh twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 55ms
+
+    Context fixture 2 of 2 -- a file larger than the 10 MiB ceiling
+      [+] the fixture really does exceed the ceiling (non-vacuity) 28ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 580ms
+      [+] sh twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 81ms
+
+  Describing validate-domain-contract argument and path errors (REQ-004(a), Edge Cases fail-closed)
+
+    Context no argument
+      [+] ps1 twin: exits 1 with one V2-USAGE line 503ms
+      [+] sh twin: exits 1 with one V2-USAGE line 30ms
+
+    Context a path that does not exist
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FOUND line 530ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FOUND line 48ms
+
+    Context a path that is a directory, not a contract file
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FILE line 536ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FILE line 54ms
+
+    Context a regular file the process may not read (POSIX mode 000)
+      [+] ps1 twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 572ms
+      [+] sh twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 90ms
+
+  Describing validate-domain-contract v2 version dispatch (TEST-012, AC-012, REQ-004(b), DD-6)
+    [+] the v1 fixture really declares domain-contract/v1 (non-vacuity) 1ms
+    [+] ps1 twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 545ms
+    [+] sh twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 49ms
+
+  Describing T-003 structural negative fixture allocation (tasks.md Negative Fixture Allocation table)
+    [+] contributes exactly 62 negative fixtures 0ms
+    [+] allocates 29 fixtures to AC-024 (type mismatch) 0ms
+    [+] allocates 7 fixtures to AC-014 (concept required key absent) 1ms
+    [+] allocates 7 fixtures to AC-021 (root and meta required key absent) 0ms
+    [+] allocates 8 fixtures to AC-023 (minLength) 0ms
+    [+] allocates 4 fixtures to AC-020 (nested required inside an optional array) 0ms
+    [+] allocates 3 fixtures to AC-018 (pattern) 0ms
+    [+] allocates 3 fixtures to AC-019 (minItems) 0ms
+    [+] allocates 1 fixture to AC-016 (empty concepts array) 0ms
+    [+] gives every fixture a distinct contract body (no fixture silently duplicates another) 11ms
+    [+] keeps every fixture body well-formed JSON, so only the declared structural defect is under test 18ms
+
+  Describing validate-domain-contract structural pass -- base fixture acceptance (non-vacuity for the 62 negatives)
+    [+] ps1 twin: accepts the unmutated base contract with exit 0 and no output at all 532ms
+    [+] sh twin: accepts the unmutated base contract with exit 0 and no output at all 46ms
+
+  Describing validate-domain-contract structural check pass (TEST-014/016/018/019/020/021/023/024, REQ-004(c))
+    [+] ps1 twin -- AC-024 (1) root schema is not a string 535ms
+    [+] sh twin -- AC-024 (1) root schema is not a string 48ms
+    [-] ps1 twin -- AC-024 (2) root meta is not an object 532ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (2) root meta is not an object 48ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (3) root contexts is not an array 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (3) root contexts is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (4) root concepts is not an array 523ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (4) root concepts is not an array 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (5) meta.version is not a string 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (5) meta.version is not a string 49ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (6) meta.status is not a string 529ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (6) meta.status is not a string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (8) a concepts[] element is not an object 520ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (8) a concepts[] element is not an object 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 519ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 527ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 521ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (12) concepts[].definition is not a string 521ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (12) concepts[].definition is not a string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (13) concepts[].essence is not a string 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (13) concepts[].essence is not a string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (14) concepts[].responsibilities is not an array 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (14) concepts[].responsibilities is not an array 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (15) concepts[].evidence is not an array 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (15) concepts[].evidence is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (16) concepts[].must_not_own is not an array 526ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (16) concepts[].must_not_own is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 523ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 48ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 527ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 519ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (21) a stakeholder_perspectives element is not an object 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (21) a stakeholder_perspectives element is not an object 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 524ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (24) concepts[].distinguished_from is not an array 528ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (24) concepts[].distinguished_from is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (25) a distinguished_from element is not an object 524ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (25) a distinguished_from element is not an object 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (26) distinguished_from[].concept_id is not a string 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (26) distinguished_from[].concept_id is not a string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (27) distinguished_from[].reasons is not an array 521ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (27) distinguished_from[].reasons is not an array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 526ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (1) concepts[].id is absent 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (1) concepts[].id is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (2) concepts[].name is absent 530ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (2) concepts[].name is absent 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (3) concepts[].context is absent 552ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (3) concepts[].context is absent 53ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (4) concepts[].definition is absent 565ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (4) concepts[].definition is absent 48ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (5) concepts[].essence is absent 521ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (5) concepts[].essence is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (6) concepts[].responsibilities is absent 533ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (6) concepts[].responsibilities is absent 50ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-014 (7) concepts[].evidence is absent 532ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-014 (7) concepts[].evidence is absent 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [+] ps1 twin -- AC-021 (1) root schema is absent 529ms
+    [+] sh twin -- AC-021 (1) root schema is absent 48ms
+    [-] ps1 twin -- AC-021 (2) root meta is absent 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (2) root meta is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-021 (3) root contexts is absent 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (3) root contexts is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-021 (5) meta.version is absent 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (5) meta.version is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-021 (6) meta.status is absent 526ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (6) meta.status is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-021 (7) meta.generated_from is absent 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-021 (7) meta.generated_from is absent 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (1) concepts[].definition is an empty string 530ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (1) concepts[].definition is an empty string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (2) concepts[].essence is an empty string 520ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (2) concepts[].essence is an empty string 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 524ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (4) a concepts[].evidence element is an empty string 525ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (4) a concepts[].evidence element is an empty string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 527ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 521ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 529ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 524ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 527ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 48ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-020 (3) distinguished_from[].concept_id is absent 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-020 (3) distinguished_from[].concept_id is absent 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-020 (4) distinguished_from[].reasons is absent 528ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-020 (4) distinguished_from[].reasons is absent 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 519ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 528ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 518ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-019 (1) concepts[].responsibilities is an empty array 522ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-019 (1) concepts[].responsibilities is an empty array 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-019 (2) concepts[].evidence is an empty array 524ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-019 (2) concepts[].evidence is an empty array 45ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-019 (3) distinguished_from[].reasons is an empty array 523ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-019 (3) distinguished_from[].reasons is an empty array 46ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+    [-] ps1 twin -- AC-016 (1) concepts is an empty array 527ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1035
+    [-] sh twin -- AC-016 (1) concepts is an empty array 47ms
+      Expected 1, but got 0.
+      656:     $Result.ExitCode | Should Be 1
+      at Assert-StructuralViolation, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 656
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1046
+
+  Describing validate-domain-contract structural pass enumerates every violation (design.md Error Handling, DD-7)
+    [-] ps1 twin: a contract with two independent violations produces exactly two stderr lines 526ms
+      Expected 1, but got 0.
+      1067:             $result.ExitCode | Should Be 1
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1067
+    [-] sh twin: a contract with two independent violations produces exactly two stderr lines 47ms
+      Expected 1, but got 0.
+      1082:             $result.ExitCode | Should Be 1
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 1082
+Tests completed in 41.5s
+Tests Passed: 47, Failed: 122, Skipped: 0, Pending: 0, Inconclusive: 0 

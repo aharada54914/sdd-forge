@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a1r1-seq0754",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a1r1-0754",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "007fb0d261ecebbb6eed0f03bcf97358ffa1efd0ea1b5278e43f11a3bcf276bd"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "47eb6d847d53355f1210619809db75900b14e45c18d5b7e959a8a6777759fb0c"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-1/precheck-result.json",
+      "sha256": "c799a6cbee68c13b1febd94b7d0b09c4c497c8963ae1a4b27411c91976d4cb98"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each specify concrete, machine-checkable evidence: exact required root/field names (REQ-001), an explicit ID regex `^CONCEPT-[A-Z][A-Z0-9-]*$` and named required/optional fields with cardinality (REQ-002), a described dangling-reference rule for term.concept_id (REQ-003), an enumerated (a)-(i) validator check list with fail-closed exit-code semantics and 1-line-per-violation stderr contract (REQ-004), an itemized fixture list mapped 1:1 to REQ-004 checks (REQ-005), a twin-parity + structural-assertion test obligation (REQ-006), and a byte-identity non-regression guarantee on v1 assets and 11 existing suites (REQ-007). Every REQ has a corresponding TEST ID in acceptance-tests.md. `name (PascalCase)` and `context (kebab-case)` lack an explicit regex (unlike the `id` field), but PascalCase/kebab-case are conventional enough, and context format is inherited from the v1 boundedContext definition per REQ-001, that this does not block a downstream schema author from making a concrete decision; treated as a non-blocking Minor observation, not a fail."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "G1 (REQ-001/002) traces to AC-001/003/005/014; G2 (REQ-003) traces to AC-009; G3 (REQ-004) traces to AC-006..AC-013; G4 (REQ-005/006) traces to AC-003/004/005/013; G5 (REQ-007) traces to AC-002/AC-015. No stated goal in requirements.md lacks at least one acceptance criterion in acceptance-tests.md's table."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 15 ACs describe externally observable artifacts or behavior: schema file existence and declared fields (AC-001), SHA-256 byte-identity (AC-002), fixture validator exit codes and structural assertions (AC-003-005, AC-014), non-zero exit with named stderr content for each negative case (AC-006-012), and twin exit-code/violation-count parity (AC-013). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes concept-test skill/bootstrap integration (Phase 1), concept-model.template.md/interviewer changes (Phase 2), reviewer A/B checks and calibration changes (Phase 3), reverse mode/C4 separation (Phase 4), v1->v2 migration tooling (permanently out of scope per owner decision, INV-009), and domain/ Markdown artifact generation. REQ-007 and the Roles/Permissions section further bound the change as strictly additive with no v1 consumer or existing-test modification."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries section states content-as-data treatment, read-only/no-network/no-external-dependency constraints for the validator (python3 stdlib json / ConvertFrom-Json only), and a fixture no-secrets constraint. Roles and Permissions section states the hook-guard non-protection status (INV-008) and preserves the existing meta.status Approved write-control boundary. Edge Cases section states fail-closed behavior for oversized/malformed input and for v1-schema input passed to the v2 validator."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1 (concepts[] type insufficiency) is mitigated by writing the fixture corpus first against the four Phase 1 verdict types, validated through REQ-005/AC-003-005. R2 (hand-rolled validator vs. schema drift) is mitigated by REQ-006's requirement that the same fixtures be checked against both the schema file and the validator (a drift-lock mechanism). R3 (sh/ps1 verdict mismatch) is mitigated by REQ-006's twin-parity test, surfaced as AC-013/TEST-013. Every stated risk has a concrete planned validation surface within this spec's own acceptance criteria."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per check definition: investigation.md INV-009 records that sdd-forge has no `domain/` directory at the repository root ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'), so there is no `domain/context-map.md` with `Domain-Model-Status: Approved` and no schema-valid `domain/domain-contract.json` to check the `Bounded-Context:` field or canonical/forbidden-synonym term usage against."
+    }
+  ]
+}

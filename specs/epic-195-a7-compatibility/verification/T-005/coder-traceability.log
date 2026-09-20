@@ -1,0 +1,12 @@
+REQ -> AC -> TEST -> evidence chain gate for the whole feature (there is one
+traceability.json per feature, not per task). T-005 is high tier, so
+requirement-traceability is a required contract check
+(references/risk-gate-matrix.md).
+
+$ python3 specs/epic-195-a7-compatibility/verification/qg-backfill/derive-traceability-json.py --check
+derive-traceability-json: traceability.json is in sync with traceability.md (7 link(s)).
+
+$ sh plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-195-a7-compatibility/traceability.json .
+Traceability check passed for epic-195-a7-compatibility: 7 link(s).
+
+exit status: 0

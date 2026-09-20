@@ -1,0 +1,70 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-039",
+  "category": "app-dev-efficiency",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every reference in ## Problem Evidence resolves to a real artifact, verified directly against the tree and git history. PR #305 exists (merge commit 9800296d) and the cited first-push commit 338395af exists ('feat(guard,review-loop): apply WFI-030 item 7 and WFI-037 vocabulary + suites', 2026-08-21). The three round diagnostics match live test sources verbatim: 'is neither the pre-apply baseline nor the staged candidate' at tests/guard-invariants-epic-a1.tests.sh:508, 'out of sync:' at tests/phase2-guard-invariants.tests.sh:324, 'candidate drops ... live-protected entr(y/ies)' at tests/generate-gate-capabilities.tests.sh:273. The mirror-table enforcement citations resolve: :72 is the pre-apply baseline digest block labeled TEST-022, :328 is the byte-identity assertion line, :283 is the superset assertion line. All five mirror locations exist on disk; specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh exists; specs/epic-159-pillar-c/human-copy/plugins/sdd-review-loop/agents/task-reviewer-a.md exists and differs from both live and origin/main bytes (the delivered enumerator classifies it PENDING, confirming the data-loss-hazard claim). NOTES-epic-190-a2-refresh.md (2026-08-11) and the second note NOTES-wfi-030-040-refresh.md both exist in specs/epic-189-a1-project-context/human-copy/; phase2_human_copy_targets is at guard-invariants.json:184 as claimed. The apparent WFI-037/WFI-040 mismatch between commit messages and the WFI text is resolved by WFI-040.md's numbering note (drafted as 037, renumbered 040 after a main-side add/add collision). Provenance note, recorded as fact: this evidence is incident-derived (PR #305) rather than drawn from the provided retrospective, which covers feature sdd-domain-concept-contract and carries no row for CI rounds on shared-file changes; no vague or uncited claim appears, and no ticket reference is made that would require docs/review-tickets/ traceability."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific mechanism, not a symptom restatement: the human-copy bundle is 'a per-epic artifact' that 'was then used for files no epic owns', so 'snapshots accumulate, none retires, and each epic wrote the freshness rule that suited its moment ... Nothing reconciles them because nothing is aware of the others.' This is a controllable process design, and it is the same mechanism as the chain's terminal Because ('The human-copy bundle is a per-epic artifact that was used for repository-wide files: every epic needing a human to apply a guard change took its own copy, and none retires') — hypothesis and chain terminate at the same cause."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Four numbered levels (>= 3). Anchored: Why 1 asks why one edit to a repository-shared file took three CI rounds, exactly the friction in ## Problem Evidence. Chained: each Because is what the next Why interrogates (failures name one mirror each -> each suite checks only its own bundle -> suites were written per-epic with per-moment rules -> the per-epic human-copy artifact was applied to repo-wide files). Terminates at a controllable mechanism, and the closing paragraph explicitly rejects the 'agent forgot to sync' blame ending ('the sync was not forgotten, it was unknowable'). Not padded: the chain stops at 4 once the mechanism is reached. Evidenced: level 2 cites three file:line references (all verified to exist and enforce the stated rules); levels 1, 3, 4 cite the Problem Evidence tables, PR #305 rounds, and NOTES-epic-190-a2-refresh.md, all of which resolve to verified artifacts — no level is unsupported."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category field present with recognized value app-dev-efficiency, and the ## Category section documents the Section 1 flowchart answers. Project-specific concrete detail is present throughout as Section 3 requires: ## Root Cause Hypothesis names concrete project artifacts and conventions (the human-copy bundle design, the guard invariants, the byte-identity / two-state baseline / drafts-superset rules); ## Proposed Change names exact repository paths and feature slugs (epic-190-a2, epic-191-a3); ## Problem Evidence carries PR #305, commit 338395af, and file:line citations. Nothing is generic-only."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Row 4 of ## Proposed Change fails requirement 1: Target File is 'docs/contributor/ (a short reference, path to be chosen by the reviewer)' — a directory with the file path explicitly deferred, not a specific file path. The change description in that row is concrete, but the target is not. The other three rows pass: tests/human-copy-mirror-freshness.tests.sh and its .ps1 twin, tests/run-all.sh and tests/run-all.ps1, and scripts/sync-human-copy-mirrors.py are specific paths with non-vague descriptions, and all were verified delivered (both twins exist, registered at tests/run-all.sh:58 and tests/run-all.ps1:76; the sync tool exists with the described --check mode and pending-bundle refusal). No row names a path inside plugins/, so the plugins/ rule shared with NO-PLUGIN-SCOPE-CREEP is not triggered and no carve-out was needed. The ## Result section records the delivered file as docs/contributor/shared-file-mirrors.md (verified to exist), so the row is fixable without changing the proposal's substance."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The metric is named in the project's own terms — CI rounds to land a change to a repository-shared file — with a quantitative target: 'Editing a repository-shared file costs one CI round instead of three' (3 -> 1), plus the discoverability effect stated as the mechanism. Meets the app-dev-efficiency requirement of project terminology with specific numbers."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Exactly one primary metric is declared ('Target-Metric: number of CI rounds required to land a change to a repository-shared file ... counted from first push to first green') with Baseline: 3, Target: 1, and a checkpoint ('Horizon: the next 3 changes that touch a repo-shared file'). The two additional metrics are explicitly labeled 'Secondary', so there is no primary-priority ambiguity. Provenance note, recorded as fact: the baseline is the PR #305 measurement dated 2026-08-20 and tabulated in ## Problem Evidence rather than a retrospective row, because the provided retrospective contains no metric covering this friction; the baseline is reproducible (the ## Result replay of commit 338395af re-derives it)."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The plan is concrete well beyond the bar: item 2 replays the exact first-push commit 338395af and asserts all stale mirrors appear in one failure; item 3 mutates one staged byte per rule family for non-vacuity; item 4 asserts the epic-159-pillar-c pending classification and flips the fixture to prove the check is not vacuous; item 5 requires twin parity with a visible pwsh skip line; item 6 pins the three pre-existing suites unchanged; and item 7 names the retrospective comparison explicitly ('The next retrospective records CI rounds per shared-file change for the measurement window, against the baseline of 3 recorded here') — the metric row is new, so it is identified by name and baseline rather than by an existing table row."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. No Target File in ## Proposed Change is inside plugins/: the targets are tests/human-copy-mirror-freshness.tests.{sh,ps1}, tests/run-all.{sh,ps1}, scripts/sync-human-copy-mirrors.py, and a docs/contributor/ reference — all project-side tooling and contributor docs, consistent with the tools mechanism ('scripts, hooks' per the category guide). The plugin-source carve-out was not applied and was not needed; this ruling is consistent with CHANGE-CONCRETE, which likewise found no plugins/ row."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Proposed Change",
+      "change": "In row 4 of the table, replace the Target File cell 'docs/contributor/ (a short reference, path to be chosen by the reviewer)' with 'docs/contributor/shared-file-mirrors.md (new)', keeping the existing Change Description. Optionally append '(path fixed at implementation; see ## Result)' to the description for provenance.",
+      "rationale": "Resolves the CHANGE-CONCRETE Major: the Target File column must name a specific file path, not a directory with the choice deferred. The delivered file docs/contributor/shared-file-mirrors.md already exists in the tree and is recorded in ## Result, so the row can be made exact without altering the proposal's substance."
+    }
+  ]
+}

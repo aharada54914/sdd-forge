@@ -1,0 +1,161 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-seq0655",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0655",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-1/dependency-graph.json",
+      "sha256": "2f8fb9d98d5c99429a3cc10f40f98efc97e636daa0701e7465d6f5663dff3c70"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-1/precheck-result.json",
+      "sha256": "95785109ca889b537d39758285a7550ec1952a3293eb7a038e6aebb24fb397df"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+      "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+      "sha256": "32718ef60b56ad24083a9a9e340e99077cab87c5fbf10c46010608b80f318c9d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+      "sha256": "9b72b348cba110549c0821e81348da46ad70bb8309a1ec14d8d1134f07d9be65"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN referenced in a task's Requirements field (40 distinct IDs across T-001..T-011) resolves to a real row in acceptance-tests.md, which enumerates AC-001..AC-043 with no gaps. No dangling AC reference found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 11 '### Blockers' sections (T-001..T-011) hold the literal string 'None'; no range notation or prose. Matches precheck-result.json's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 are each covered: REQ-001 (T-003), REQ-002 (T-004), REQ-003 (T-005/T-006/T-007/T-008/T-009), REQ-005 (T-001/T-011), REQ-006 (T-002/T-011), REQ-007 (T-008/T-010). REQ-004 has no owning task but is explicitly deferred in traceability.md's REQ-004 row with a stated rationale. Deferral is appropriate: REQ-004 is a requirement-decomposition/citation-discipline concern, not an implementation deliverable."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "40 of 43 ACs are claimed in a task's Requirements field. The remaining three, AC-013/AC-017/AC-029, are recorded in traceability.md's 'Deferred / Non-Task Acceptance Criteria' table with a stated rationale each. This deferral pattern is appropriate given all three ACs' own acceptance-tests.md Test Type is traceability review / doc-review / static doc-review, and none is silently omitted."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-011) has a Requirements field citing at least one REQ-NNN; no task relies on an INFRA/HOUSEKEEPING pseudo-requirement."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Test tasks T-006, T-007, T-008, T-011 each cite AC-NNN IDs in their Requirements field (T-006: AC-022/023/024/026/032; T-007: AC-010/019/020/025/027; T-008: AC-004/021/036/037; T-011: AC-015/028/040/041). No orphaned test task found."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This is attempt-1/round-1 of a pre-implementation task review (11 newly generated tasks, spec-review and impl-review both Passed). All 11 tasks show Approval: Draft and Status: Planned (verified by grep across the full file)."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 11 Risk/Required-Workflow pairs match the risk-gate-matrix: medium->acceptance-first (T-001, T-003, T-006, T-007) and high->tdd (T-002, T-004, T-005, T-008, T-009, T-010, T-011); no low or critical tasks present. Matches precheck-result.json workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Programmatic extraction of every task's Requirements-field AC list (40 total citations) found zero AC-NNN claimed by more than one task. Non-blocking note: AC-026 is formally claimed only by T-006's Requirements field, while T-007's Done When text describes T-007 as also covering a share of AC-026's done-transition assertion; this does not trigger a duplicate claim."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "Seven tasks' own 'Depends On:' metadata explicitly label a cited task ID '(functional - ...)' - i.e. a mandatory prerequisite - while the same task's separate '### Blockers' section (the field DEPENDENCY-COMPLETE/DEPENDENCY-CYCLE and dependency-graph.json are built from) reads 'None': T-003 (depends on T-001, T-002), T-004 (T-001), T-006 (T-001, T-005), T-007 (T-001, T-005), T-008 (T-001, T-006, T-007), T-010 (T-003, T-004, T-006, T-007, T-008), T-011 (T-001..T-010). Because dependency-graph.json (edges: []) is derived solely from Blockers, the machine-checkable execution-order graph is completely empty even though tasks.md's own text asserts these seven tasks cannot be correctly implemented before their named predecessors' deliverables exist. An executor relying on Blockers/dependency-graph.json could dispatch a functionally-blocked task before its prerequisites are implemented."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json declares edges: [] (consistent with every task's Blockers: None), so no cycle exists in the declared graph. Caveat: this result's usefulness is limited by the DEPENDENCY-COMPLETE finding above - an empty edge set cannot contain a cycle, but it also does not encode the real functional-dependency structure."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task title/scope addresses one coherent concern. And-joined titles are tightly coupled to a single REQ/AC cluster: T-002 (REQ-006's governance mechanism plus its first mandatory output), T-010 (REQ-007's manifest plus its own AC-035 verification), T-011 (AC-040's static scan explicitly requires the final fully-registered test.yml content, making registration and CI-write-guard verification mandatorily sequential)."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Scanned all 11 tasks' Done When lists (66 items total) for forbidden vague phrasing; none found. Every non-documentation task's Done When list names a concrete verification artifact: RED/GREEN TDD or acceptance-first evidence plus an independent quality-gate PASS verdict, matched by concrete evidence-file paths in traceability.md's Task Mapping table."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "All 11 task IDs have corresponding entries in traceability.md's Task Mapping/Deliverables tables; REQ-001..REQ-007 exist in requirements.md; REQ-009 is a well-labeled external cross-reference. However, traceability.md's full-profile Layer Spec content is internally self-contradictory: its opening paragraph states 'no Layer Spec cell below cites ux-spec.md or frontend-spec.md directly', but the REQ-002 and REQ-003 rows' Layer Spec column both read 'security-spec.md#trust-boundaries; frontend-spec.md#technology-stack'. The document's own later Layer Coverage section even acknowledges the citation exists. This is a verifiable internal self-contradiction about which layer-spec documents are load-bearing for REQ-002/REQ-003."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-COMPLETE",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "T-003, T-004, T-006, T-007, T-008, T-010, and T-011 each label a cited predecessor task '(functional - ...)' in their own Depends On field - a mandatory-prerequisite relationship - while their own '### Blockers' section reads 'None', leaving the machine-checkable dependency graph (edges: []) empty and inconsistent with tasks.md's own stated functional build order. Fix: populate each affected task's Blockers field with the task IDs its own Depends On text already marks functional (e.g. T-011: Blockers: T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010)."
+    },
+    {
+      "check_id": "TRACEABILITY-SYNC",
+      "severity": "Major",
+      "task_id": null,
+      "finding": "traceability.md's opening paragraph asserts 'no Layer Spec cell below cites ux-spec.md or frontend-spec.md directly', but the REQ-002 and REQ-003 rows' Layer Spec column both cite 'frontend-spec.md#technology-stack' directly, and the document's own Layer Coverage section elsewhere acknowledges this citation. Fix: correct the opening paragraph to state that frontend-spec.md's Technology Stack table is cited for REQ-002/REQ-003 as the closest frontend analog for this CLI/script feature, removing the self-contradiction."
+    }
+  ]
+}

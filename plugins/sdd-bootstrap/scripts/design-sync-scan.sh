@@ -142,47 +142,56 @@ is_reserved_domain() {
   esac
 }
 
+# scan_pattern <category> <grep-flags> <pattern> <display> <file>
+#   One rule of the detection table below. display selects what reaches the
+#   findings list:
+#     match         emit the matched text (flags must carry -o)
+#     redact        emit [REDACTED]; only the line number is read
+#     email-filter  like match, but drop RFC 2606/6761 reserved
+#                   domains/TLDs per matched address, and redact what is
+#                   emitted (a bracket-expression regex cannot express
+#                   "except these specific domains" directly)
+#   Findings still flow through emit_finding's temp-file append: every
+#   reader below is a `grep | while read` pipeline subshell, so a shell
+#   variable could not carry them out.
+scan_pattern() {
+  sp_category="$1"; sp_flags="$2"; sp_pattern="$3"; sp_display="$4"; sp_file="$5"
+  case "$sp_display" in
+    match)
+      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | while IFS=: read -r lineno match; do
+        [ -z "$lineno" ] && continue
+        emit_finding "$sp_category" "$sp_file" "$lineno" "$match"
+      done
+      ;;
+    redact)
+      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | cut -d: -f1 | while IFS= read -r lineno; do
+        [ -z "$lineno" ] && continue
+        emit_finding "$sp_category" "$sp_file" "$lineno" "[REDACTED]"
+      done
+      ;;
+    email-filter)
+      grep "$sp_flags" -e "$sp_pattern" "$sp_file" 2>/dev/null | while IFS=: read -r lineno match; do
+        [ -z "$lineno" ] && continue
+        domain="${match#*@}"
+        if ! is_reserved_domain "$domain"; then
+          emit_finding "$sp_category" "$sp_file" "$lineno" "[REDACTED]"
+        fi
+      done
+      ;;
+  esac
+}
+
+# The detection table: category, grep flags, pattern, display mode. The six
+# rules were previously six copy-pasted scan blocks; the semantics of each
+# row are unchanged (same flags, same pattern, same emitted display).
 while IFS= read -r f; do
   [ -z "$f" ] && continue
-
-  # -- Placeholder (case-sensitive stub markers) --
-  grep -noE -e "$placeholder_pattern_cs" "$f" 2>/dev/null | while IFS=: read -r lineno match; do
-    [ -z "$lineno" ] && continue
-    emit_finding placeholder "$f" "$lineno" "$match"
-  done
-
-  # -- Placeholder (case-insensitive phrases) --
-  grep -noEi -e "$placeholder_pattern_ci" "$f" 2>/dev/null | while IFS=: read -r lineno match; do
-    [ -z "$lineno" ] && continue
-    emit_finding placeholder "$f" "$lineno" "$match"
-  done
-
-  # -- Secret S1-S6 (case-sensitive vendor-format prefixes) --
-  grep -nE -e "$secret_pattern_cs" "$f" 2>/dev/null | cut -d: -f1 | while IFS= read -r lineno; do
-    [ -z "$lineno" ] && continue
-    emit_finding secret "$f" "$lineno" "[REDACTED]"
-  done
-
-  # -- Secret S7 (case-insensitive keyword+assignment) --
-  grep -nEi -e "$secret_pattern_s7" "$f" 2>/dev/null | cut -d: -f1 | while IFS= read -r lineno; do
-    [ -z "$lineno" ] && continue
-    emit_finding secret "$f" "$lineno" "[REDACTED]"
-  done
-
-  # -- PII P1 (email, excluding RFC 2606/6761 reserved domains/TLDs) --
-  grep -noE -e "$pii_pattern_p1" "$f" 2>/dev/null | while IFS=: read -r lineno match; do
-    [ -z "$lineno" ] && continue
-    domain="${match#*@}"
-    if ! is_reserved_domain "$domain"; then
-      emit_finding PII "$f" "$lineno" "[REDACTED]"
-    fi
-  done
-
-  # -- PII P2 (E.164-shaped phone, bounded both sides) --
-  grep -nE -e "$pii_pattern_p2" "$f" 2>/dev/null | cut -d: -f1 | while IFS= read -r lineno; do
-    [ -z "$lineno" ] && continue
-    emit_finding PII "$f" "$lineno" "[REDACTED]"
-  done
+  scan_pattern placeholder -noE  "$placeholder_pattern_cs" match        "$f"
+  scan_pattern placeholder -noEi "$placeholder_pattern_ci" match        "$f"
+  scan_pattern secret      -nE   "$secret_pattern_cs"      redact       "$f"
+  scan_pattern secret      -nEi  "$secret_pattern_s7"      redact       "$f"
+  scan_pattern PII         -noE  "$pii_pattern_p1"         email-filter "$f"
+  scan_pattern PII         -nE   "$pii_pattern_p2"         redact       "$f"
 done < "$files_list"
 
 # ---------------------------------------------------------------------------

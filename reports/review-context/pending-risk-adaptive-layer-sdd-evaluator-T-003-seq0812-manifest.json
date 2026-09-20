@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "risk-adaptive-layer",
+  "task_id": "T-003",
+  "run_id": "RUN-risk-adaptive-layer-qg-T-003-seq0812",
+  "host_session_id": "SESS-qg-risk-adaptive-layer-T-003-0812",
+  "sequence": 812,
+  "previous_record_sha256": "da201aebed3d7bdb854c5091b53a31d15dd66be51c07b599574c0ebe9827d9d6",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "d96e059a2808030a5ca29a1094582461397045635402866d69c41d0e06c76cec",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "sha256": "50cf26530ab5ae15a09392a5cac1c6cf8b2dd5fe2410a83dc5e25815c4a26631"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/design.md",
+      "sha256": "c1887fddcaeac082865401a64806fad92f1a84abd5dd6bdd311c0372db1967cb"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+      "sha256": "2493628bb15c78d43b9edcd4e4e0430bd6051e5946531a0f7cab108e3de50d01"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/tasks.md",
+      "sha256": "c4d135250dc1ec2f6943bbbe4a7a331460800f28f63722867e93d8376f12d03e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.md",
+      "sha256": "54e5e4d476e4db78c4c7cdbbfef065da5749ef436f84ce0242d13ba0bc5fa7f4"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.json",
+      "sha256": "47f8e1d527006d665f356682b7994487a4bdb87c5f22c6be25596343a665264f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/risk-adaptive-layer/T-003.md",
+      "sha256": "b6d9c9fe78dd5b6d8a482393bb7c78cf02f8e8c4cbfbe951e8287bdfec3dc796"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "sha256": "01a3ca22f73d4b38c818b2b6d5e45d988acc10e1e3bf0068546d8cb2c571ddee"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-003.green.log",
+      "sha256": "4cd70822f5d2789ed02be25c33d3114eee18a483f2b9131fd216c8c656578898"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-003.red.log",
+      "sha256": "fc5b3396cbf7d946653e336015d4d0f0db13e8915b5bc73ff2fdad78d97db215"
+    },
+    {
+      "path": "tests/gates.tests.sh",
+      "sha256": "31d8581dda3eceac63ccb5a05b9d7608cd280e637407aa032e89e8cd9a57dcc2"
+    },
+    {
+      "path": "tests/scripts.tests.ps1",
+      "sha256": "0b717f4449967966af3d49c5d1c28958360271832315e45ff6e110c37b737c93"
+    }
+  ]
+}

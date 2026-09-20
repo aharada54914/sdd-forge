@@ -727,6 +727,23 @@ else
     mv "${D13}/SDD_SUDO.tmp" "${D13}/SDD_SUDO"
     SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D13}/input.txt" --tasks-file "${D13}/tasks.md" --project-root "$D13" --out "${D13}/out.txt" >/dev/null 2>&1 && PP13_RC=0 || PP13_RC=$?
     if [ "$PP13_RC" -ne 0 ] && [ ! -e "${D13}/out.txt" ]; then ok "PP-013: correctly signed wrong repository is denied"; else fail "PP-013: wrong repository must be denied"; fi
+
+    # ---- PP-014: SDD_SUDO_KEY_FILE naming a missing file fails CLOSED ----
+    # Key resolution order is env SDD_SUDO_KEY, then SDD_SUDO_KEY_FILE, then
+    # ~/.sdd/sudo-key. A named-but-missing key file previously fell through
+    # to the home key — silent key substitution in a signature-verification
+    # path. 14a is the non-vacuity control: the same fixture verifies via the
+    # home key when no key file is named, so 14b's denial can only come from
+    # the fail-closed rule, not from a broken home path.
+    D14="${WORK}/pp014"; mkdir -p "$D14"; write_tasks_no_consent "${D14}/tasks.md"; write_clean_input "${D14}/input.txt"
+    HOME14="${WORK}/pp014-home"; mkdir -p "${HOME14}/.sdd"; printf '%s\n' "$KEY" > "${HOME14}/.sdd/sudo-key"
+    REPO14="$(cd "$D14" && pwd -P)"; SIG14="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$REPO14" "$ISSUED" "$EXPIRES")"
+    write_sudo_token "$D14" "$ISSUER8" "$SIG14" "$NONCE" "$ISSUED" "$EXPIRES"
+    env -u SDD_SUDO_KEY -u SDD_SUDO_KEY_FILE HOME="$HOME14" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D14}/input.txt" --tasks-file "${D14}/tasks.md" --project-root "$D14" --out "${D14}/out.txt" >/dev/null 2>&1 && PP14A_RC=0 || PP14A_RC=$?
+    if [ "$PP14A_RC" -eq 0 ] && [ -f "${D14}/out.txt" ]; then ok "PP-014a: home-key fallback verifies when no key file is named (control)"; else fail "PP-014a: home-key control should grant consent (rc=${PP14A_RC})"; fi
+    rm -f "${D14}/out.txt"
+    env -u SDD_SUDO_KEY HOME="$HOME14" SDD_SUDO_KEY_FILE="${WORK}/pp014-no-such-key" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D14}/input.txt" --tasks-file "${D14}/tasks.md" --project-root "$D14" --out "${D14}/out.txt" >/dev/null 2>&1 && PP14B_RC=0 || PP14B_RC=$?
+    if [ "$PP14B_RC" -ne 0 ] && [ ! -e "${D14}/out.txt" ]; then ok "PP-014b: named-but-missing SDD_SUDO_KEY_FILE fails closed (no home-key fallback)"; else fail "PP-014b: missing key file must deny, not fall back to the home key (rc=${PP14B_RC})"; fi
 fi
 
 # ============================================================================
@@ -1729,7 +1746,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-049a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-049b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-049b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2005,7 +2022,7 @@ if [ "${PP_EXIT}" -ne 0 ]; then
 else
     fail "TEST-055a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null; then
     ok "TEST-055b: overage announced on stderr (mentions --max-bytes)"
 else
     fail "TEST-055b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
@@ -2274,8 +2291,16 @@ if [ -f "${D061}/out.txt" ] && grep -qF "specs/cross-model-verification/verifica
 else
     fail "TEST-061b: expected a not-found note naming the missing path"
 fi
-if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists there]" "${D061}/out.txt"; then
-    ok "TEST-061c: the note states plainly that no file exists there"
+# Asserts the invariant this test owns -- the gap is explained in plain
+# language rather than silently dropped -- and stops short of the trailing
+# base clause. WFI-059 changes that clause from "there" to
+# "at <project-root>/<path>" via a staged patch, and the strict assertion on
+# the new wording lives in tests/wfi-059-evidence-path-base.tests.sh, which is
+# designed-red until a human applies it. Pinning the full string here would
+# turn this whole suite red for the duration and hide unrelated regressions in
+# it; the prefix is what TEST-061 was actually written to protect.
+if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists" "${D061}/out.txt"; then
+    ok "TEST-061c: the note states plainly that no file exists"
 else
     fail "TEST-061c: expected a plain-language explanation of the gap"
 fi
@@ -2871,8 +2896,8 @@ if [ ! -f "${D075}/out.txt" ]; then
 else
     fail "TEST-075b: bundle file must not be written when still over --max-bytes after both tiers"
 fi
-if echo "${PP_OUTPUT}" | grep -qi "max-bytes" && \
-   echo "${PP_OUTPUT}" | grep -qE "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)"; then
+if echo "${PP_OUTPUT}" | grep -i "max-bytes" > /dev/null && \
+   echo "${PP_OUTPUT}" | grep -E "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)" > /dev/null; then
     ok "TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count"
 else
     fail "TEST-075c: expected a per-tier elision count in the failure message. Output: ${PP_OUTPUT}"

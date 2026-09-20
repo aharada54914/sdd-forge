@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a5-r1-reviewer-b-seq782",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a5-r1-reviewer-b-782",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "ac197966d3d9b66b23c18337873d7e5960d04d8c8af167e5fd0af20e0ec83e6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-5/round-1/precheck-result.json",
+      "sha256": "fd844fbb809bf8b99f8b08eea6afc7c626c217b9f71cf0adf9e338099c3eeca7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-5/round-1/integrated-summary.json",
+      "sha256": "acbdd53ee4d7fd493bbb20169a5c95c24dcced6384d069502405e5cfd8b54e27"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three sentences flagged for rewrite (Roles and Permissions contracts/lite-check-catalog.json bullet; Assumptions REQ-006 split first and second buckets) now name their members explicitly in their own sentences and are factually correct against investigation.md's live-schema verification. A systematic grep for remaining collective-reference patterns ('Both', 'Their', 'those listed', 'the other/remaining N', 'respectively', numeral-noun phrases) found no surviving instance whose membership is ambiguous or requires cross-section inference; all resolve within the same sentence/bullet or are canonical terms defined once and used consistently (e.g. 'the five baseline checks', defined in Problems and reused unchanged)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Non-goals' protected-path claims and Roles and Permissions' per-path protection statuses agree exactly (same three R-10-protected paths, same two content-frozen-not-R-10 paths). The five-target payload set (AC-010, AC-031, TEST-010, TEST-031) is stated consistently everywhere it appears. REQ-006's fixture-bucket mechanisms do not conflict with REQ-001/002/003/004's own normative text or with investigation.md's confirmed live-file state (durable-workflow Capability, litePolicy two-key schema)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's TEST-001..TEST-031 map 1:1 to requirements.md's AC-001..AC-031 (with the documented AC-023/024/025 exception), and REQ-006's fixture inventory (a)-(l) covers eligible/ineligible/v1-compat/Summary-consumption/unmapped-check-id/unknown-catalog-token/disabled-legacy/full-upgrade/invalid-fragment/no-reasons/active-enforcement-absent/required-enforcement-field-absence -- negative, empty, and boundary states are all present (e.g. AC-030's paired absent-vs-present-empty-Summary fixtures)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions bullets are either resolved with a concrete re-verification procedure (lite-gate/SKILL.md protection status re-checked at implementation-start) or explicitly carried into the Risks section as a decision needed before implementation (A5's field-naming/aggregation-rule provisionality). The REQ-006 fixture-grounding assumption, previously carrying an unresolved 'Their'/wrong-mechanism defect, is now fully split per fixture with each bucket's mechanism independently verifiable against investigation.md's live-schema shape check, and explicitly defers the live-vs-synthetic authoring choice for fixtures (b)/(c) to the implementing task rather than leaving it ambiguous."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-copy protected-file application (REQ-002/REQ-005, AC-010/AC-031) and Spec-Review-Status/Impl-Review-Status human-approval gating (AC-024, Roles and Permissions) are both stated as testable, concrete boundaries: exact-set/hash/post-copy-verification contract, named runner obligation, and 'this task's own instruction' that Approved/Passed is never self-written."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The package names every mechanism a design reviewer would otherwise have to invent: the command-discovery contract's exact grammar/ordering/safety rules (NEW-01), the fragment shape and two-state input handling (REQ-002), the Step 2a/2b insertion point and ordering, and the fully-grounded REQ-006 fixture split with per-bucket mechanisms. No open product-behavior decision remains implicit."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (checked via Glob on domain/context-map.md, the one permitted out-of-manifest existence check per review-context-boundary.md); DOMAIN-CONFORMANCE does not apply."
+    }
+  ]
+}

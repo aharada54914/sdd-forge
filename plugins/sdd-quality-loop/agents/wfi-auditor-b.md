@@ -109,9 +109,12 @@ Re-run the language compliance check from Cycle 1 on the revised WFI. The Cycle 
 orchestrator may have introduced new text that violates the language rules.
 
 **If `Category: plugin-improvement`:**
-Scan `## Root Cause Hypothesis`, `## Proposed Change` (Change Description), and
+Scan `## Root Cause Hypothesis`, `## Why-Why Analysis` (Why/Because columns),
+`## Proposed Change` (Change Description), and
 `## Expected Effect` for any forbidden term from `wfi-category-guide.md` Section 2.
-Any remaining or newly introduced forbidden term is a Major finding.
+Any remaining or newly introduced forbidden term is a Major finding. (The
+Evidence column of `## Why-Why Analysis` may cite raw metric names, like
+`## Problem Evidence`.)
 
 **If `Category: app-dev-efficiency`:**
 Verify that the revised WFI still contains concrete project detail (feature slug,
@@ -185,7 +188,7 @@ Write your output as valid JSON to the path the orchestrator provided as `output
   "verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "cycle_1_summary": {
     "auditor_a_fail_count": 0,
-    "auditor_a_pass_count": 8,
+    "auditor_a_pass_count": 9,
     "auditor_a_verdict": "PASS"
   },
   "checks": [

@@ -36,6 +36,26 @@ function Test-CanonicalPath {
     )
 }
 
+function Test-CanonicalScratchRoot {
+    param([string]$Path)
+    return ($Path -is [string] -and
+        ($Path -cmatch '^/([^/]+/)*[^/]+$' -or $Path -cmatch '^[A-Za-z]:/([^/]+/)*[^/]+$') -and
+        $Path -cnotmatch '(^|/)\.\.?(/|$)' -and -not $Path.Contains('\') -and
+        -not $Path.EndsWith('/'))
+}
+
+function Test-ScratchRootsOverlap {
+    param([string]$Left, [string]$Right)
+    $comparison = if ($Left -cmatch '^[A-Za-z]:/' -and $Right -cmatch '^[A-Za-z]:/') {
+        [StringComparison]::OrdinalIgnoreCase
+    } else {
+        [StringComparison]::Ordinal
+    }
+    return ($Left.Equals($Right, $comparison) -or
+        $Left.StartsWith("$Right/", $comparison) -or
+        $Right.StartsWith("$Left/", $comparison))
+}
+
 function Test-JsonInteger {
     param([object]$Value)
     if ($Value -is [byte] -or $Value -is [sbyte] -or
@@ -60,6 +80,23 @@ function Get-Sha256Text {
     finally {
         $hasher.Dispose()
     }
+}
+
+# WFI-025: the STATUS-NORMALIZED task-plan digest -- byte-for-byte the same
+# recipe as check-workflow-state.ps1 Get-NormalizedHash for the task stage
+# (canonical form 1). The one scoped exception to the raw hash-equality rule
+# in the manifest-entry loop is defined over exactly the fields this
+# normalization rewrites.
+function Get-TasksNormalizedHash([string]$Path) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace($text, "(?m)^Task-Review-Status:[^\r\n]*(\r?)$", 'Task-Review-Status: Pending$1')
+    $text = [regex]::Replace($text, "(?m)^Approval:[^\r\n]*(\r?)$", 'Approval: Draft$1')
+    $text = [regex]::Replace($text, "(?m)^Status:[^\r\n]*(\r?)$", 'Status: Planned$1')
+    $text = [regex]::Replace($text, "(?m)^Second Approval:[^\r\n]*\r?\n?", '')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
 }
 
 function Test-AuthorizedPath {
@@ -176,6 +213,9 @@ try {
         if ($document.ContainsKey('gate_report_declaration')) {
             $topKeys = @($topKeys) + @('gate_report_declaration')
         }
+        if ($document.ContainsKey('scratch_root')) {
+            $topKeys = @($topKeys) + @('scratch_root')
+        }
     }
     if (-not (Test-ExactKeys $document $topKeys) -or
         $document.schema -cne 'review-context-invocation/v2' -or
@@ -195,6 +235,9 @@ try {
     if ($document.stage -ceq 'quality' -and
         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+    }
+    if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
+        Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
     }
     $gateReportDeclarationPath = ''
     $gateReportDeclarationSha256 = ''
@@ -242,10 +285,11 @@ try {
         $null -ne (Get-Item -LiteralPath $ledger -Force).LinkType) {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger is missing or is not a regular file'
     }
+    # NOTE: identity_ledger_sha256 is only meaningful for a reservation (the
+    # ledger state a reservation is validated against, before it appends). It
+    # is NOT checked here unconditionally -- see the reservation/verification
+    # branch below, which is the only place this comparison is enforced.
     $actualLedgerHash = (Get-FileHash -LiteralPath $ledger -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
-        Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
-    }
     try {
         $ledgerDocument = Get-Content -LiteralPath $ledger -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
     }
@@ -272,7 +316,26 @@ try {
         'previous_record_sha256', 'record_sha256'
     )
     foreach ($record in $records) {
-        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $recordKeys) -or
+        $allowedRecordKeys = @($recordKeys)
+        $boundRecord = $record -is [hashtable] -and $record.ContainsKey('scratch_declaration_sha256')
+        if ($boundRecord) {
+            $allowedRecordKeys += 'scratch_declaration_sha256'
+            if ($record.stage -cne 'quality' -or $record.role -cne 'sdd-evaluator' -or
+                $record.scratch_declaration_sha256 -isnot [string] -or
+                $record.scratch_declaration_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid scratch binding in identity ledger'
+            }
+        }
+        $inputBoundRecord = $record -is [hashtable] -and $record.ContainsKey('allowed_inputs_sha256')
+        if ($inputBoundRecord) {
+            $allowedRecordKeys += 'allowed_inputs_sha256'
+            if (($record.stage -cne 'spec' -and $record.stage -cne 'impl') -or
+                $record.allowed_inputs_sha256 -isnot [string] -or
+                $record.allowed_inputs_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'invalid input binding in identity ledger'
+            }
+        }
+        if ($record -isnot [hashtable] -or -not (Test-ExactKeys $record $allowedRecordKeys) -or
             -not (Test-JsonInteger $record.sequence) -or
             [decimal]$record.sequence -ne $expectedSequence -or
             $record.stage -isnot [string] -or $record.stage -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$' -or
@@ -285,21 +348,117 @@ try {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger chain is invalid'
         }
         $canonical = "$($record.sequence)|$($record.stage)|$($record.role)|$($record.run_id)|$($record.host_session_id)|$($record.previous_record_sha256)"
+        if ($boundRecord) { $canonical += "|scratch-declaration-v1|$($record.scratch_declaration_sha256)" }
+        if ($inputBoundRecord) { $canonical += "|allowed-inputs-v1|$($record.allowed_inputs_sha256)" }
         if ((Get-Sha256Text $canonical) -cne $record.record_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger record hash is invalid'
         }
         $expectedPrevious = $record.record_sha256
         $expectedSequence++
     }
-    if ([decimal]$document.sequence -ne $expectedSequence -or
-        $document.previous_record_sha256 -cne $expectedPrevious) {
-        Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+    # A manifest describes either an identity not yet in the ledger (a
+    # reservation) or an identity whose record is already persisted (a
+    # verification of a prior reservation -- possibly with later records now
+    # chained on top of it, e.g. a branch merge/re-chain). The ledger itself
+    # disambiguates which case this is: an identity is "reserved" once some
+    # record's run_id AND host_session_id both match the manifest's. That,
+    # not the -Reserve switch, decides which checks below apply.
+    $persistedMatch = $records | Where-Object {
+        $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+    } | Select-Object -First 1
+
+    $scratchBinding = ''
+    if ($document.stage -ceq 'quality' -and $document.ContainsKey('scratch_root')) {
+        $scratchBinding = Get-Sha256Text ("$($document.feature)" + "`n" + "$($document.scratch_root)")
     }
-    if ($runs.Contains($document.run_id) -or $sessions.Contains($document.host_session_id)) {
-        Fail-ReviewContext 'IDENTITY' 'run or host-session identity was already persisted'
+    # Same ordered ASCII path<TAB>hash lines as Bash, without a final newline.
+    $inputBinding = ''
+    if ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl') {
+        $inputText = @($document.allowed_input_manifest | ForEach-Object { "$($_.path)`t$($_.sha256)" }) -join "`n"
+        $inputBinding = Get-Sha256Text $inputText
+    }
+    if ($null -ne $persistedMatch) {
+        if ($persistedMatch.ContainsKey('allowed_inputs_sha256') -and
+            $inputBinding -cne $persistedMatch.allowed_inputs_sha256) {
+            Fail-ReviewContext 'HASH' 'reserved input manifest changed'
+        }
+        if ($persistedMatch.ContainsKey('scratch_declaration_sha256') -and
+            $scratchBinding -cne $persistedMatch.scratch_declaration_sha256) {
+            Fail-ReviewContext 'PATH' 'reserved evaluator scratch binding changed or was omitted'
+        }
+        # Verification of an already-reserved identity. The persisted record
+        # is authoritative and must match the manifest exactly on every
+        # identity field; its own record_sha256 was already proven to
+        # recompute correctly by the whole-ledger chain walk above, which
+        # runs unconditionally. The tip position and identity_ledger_sha256
+        # are NOT re-checked here: both are meaningless once later records
+        # may have landed on top of this one.
+        if ($Reserve) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice'
+        }
+        if ([decimal]$persistedMatch.sequence -ne [decimal]$document.sequence) {
+            Fail-ReviewContext 'IDENTITY' 'invocation sequence does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.stage -cne $document.stage) {
+            Fail-ReviewContext 'IDENTITY' 'invocation stage does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.role -cne $document.role) {
+            Fail-ReviewContext 'IDENTITY' 'invocation role does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.previous_record_sha256 -cne $document.previous_record_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'invocation previous-record hash does not match the persisted identity-ledger record'
+        }
+        # WFI-037: the uniqueness the REVIEW_CONTEXT_OK line asserts must be
+        # proven in this branch too, not inherited from the reserve path.
+        $persistedCount = @($records | Where-Object {
+            $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+        }).Count
+        if ($persistedCount -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity appears more than once in the canonical identity ledger'
+        }
+        # Tip position is meaningless for a persisted verification (see
+        # above), so the emitted chain fact says so explicitly.
+        $preAppendTipSequence = '-'
+    }
+    else {
+        # A partial match -- one of the two identity fields already persisted
+        # under a DIFFERENT value for the other -- means two different
+        # launches are colliding on one identity. That is never valid, in
+        # either mode, so it fails loudly here rather than silently falling
+        # into reservation mode.
+        if ($records | Where-Object { $_.run_id -ceq $document.run_id -and $_.host_session_id -cne $document.host_session_id }) {
+            Fail-ReviewContext 'IDENTITY' 'run ID matches a persisted identity-ledger record but host-session ID does not: two launches are colliding on one identity'
+        }
+        if ($records | Where-Object { $_.host_session_id -ceq $document.host_session_id -and $_.run_id -cne $document.run_id }) {
+            Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
+        }
+
+        # Reservation of a new identity: today's behaviour, unchanged.
+        if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
+        }
+        if ([decimal]$document.sequence -ne $expectedSequence -or
+            $document.previous_record_sha256 -cne $expectedPrevious) {
+            Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+        }
+        # WFI-037: the record extends the pre-append tip, proven just above.
+        $preAppendTipSequence = [string]($expectedSequence - 1)
     }
 
     $inputs = @($document.allowed_input_manifest)
+    # Issue #288: require current investigation only for a fresh identity,
+    # including preflight without -Reserve. Historical inputs stay historical.
+    if ($null -eq $persistedMatch -and
+        ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl')) {
+        $investigationPath = "specs/$($document.feature)/investigation.md"
+        $investigationFile = Join-Path $RepositoryRoot $investigationPath
+        if (Test-Path -LiteralPath $investigationFile -PathType Leaf) {
+            if (@($inputs | Where-Object { $_.path -ceq $investigationPath }).Count -ne 1) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits existing investigation evidence: $investigationPath"
+            }
+        }
+    }
+
     $implementationReportPath = ''
     $evaluatorOutputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $gateReportOutputs = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
@@ -324,16 +483,19 @@ try {
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
         }
-        # Row parsing tolerates annotation around either backtick-quoted cell
-        # value; see the matching comment on the Bash twin's
-        # evaluator_output_is_declared for the three real annotated shapes
-        # (45e37566) and why loosening the match cannot loosen authorization:
-        # both captures are positional (the FIRST backtick pair after the
-        # row's opening "| ", and the FIRST backtick pair after the next
-        # "| "), compared with -ceq / HashSet membership against the exact
-        # requested path and hash -- never substring-matched -- and
-        # annotation may not contain "|", so an extra pipe-delimited column
-        # still cannot be absorbed as annotation and still fails to match.
+        if ($document.ContainsKey('scratch_root')) {
+            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .+$' })
+            if ($scratchRootLines.Count -ne 1) {
+                Fail-ReviewContext 'PATH' 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
+            }
+            $implementationScratchRoot = $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
+            if (-not (Test-CanonicalScratchRoot $implementationScratchRoot)) {
+                Fail-ReviewContext 'PATH' 'implementation Scratch Root is not a canonical absolute path'
+            }
+            if (Test-ScratchRootsOverlap $document.scratch_root $implementationScratchRoot) {
+                Fail-ReviewContext 'PATH' 'evaluator scratch root overlaps the implementation scratch root'
+            }
+        }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
             if ($line -cmatch '^## Outputs\s*$') {
@@ -344,7 +506,40 @@ try {
                 break
             }
             if ($inOutputs -and
-                $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
+                $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
+            }
+        }
+        # WFI-017 ratified a second serialization for the implementation
+        # report's own declaration -- the legacy '## Output Paths And Hashes'
+        # bullet section, retained so previously committed bullet-only and
+        # dual-form v2 reports remain valid (validate-implementation-report.sh
+        # :113-119). That acceptance landed on the report contract and never on
+        # this authorization boundary, so a report the repository considers
+        # valid could declare artifacts this validator could not read.
+        #
+        # The pattern below mirrors that script's own output_pattern (:167-170)
+        # byte for byte; nothing is invented here. Only the serialization
+        # differs -- the pair is still matched by exact equality and the live
+        # file is still re-hashed afterwards -- so this admits no artifact the
+        # table form would not have admitted. Scanned in its own pass because
+        # the loop above stops at the next '## ' heading and the two sections
+        # may appear in either order, or the legacy one alone.
+        #
+        # Scoped to the implementation report on purpose: the gate report's
+        # post-fix channel (WFI-036) defines its own table form and gains no
+        # legacy grammar.
+        $inLegacyOutputs = $false
+        foreach ($line in $implementationReportLines) {
+            if ($line -cmatch '^## Output Paths And Hashes\s*$') {
+                $inLegacyOutputs = $true
+                continue
+            }
+            if ($inLegacyOutputs -and $line -cmatch '^##\s') {
+                break
+            }
+            if ($inLegacyOutputs -and
+                $line -cmatch '^- \*\*Path\*\*: `(?<path>[^`]+)`; \*\*SHA-256\*\*: `(?<sha>[0-9a-f]{64})`\s*$') {
                 [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
             }
         }
@@ -387,12 +582,20 @@ try {
                     break
                 }
                 if ($inPostFix -and
-                    $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
+                    $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
                     [void]$gateReportOutputs.Add("$($Matches.path)`n$($Matches.sha)")
                 }
             }
         }
     }
+    # Located before the manifest-entry loop: the WFI-025 task-plan exception
+    # inside the loop cross-checks the round's precheck record. The precheck
+    # entry's own raw-hash verification still runs in the loop, so a tampered
+    # precheck cannot buy a reservation -- any mismatch fails the whole run.
+    $wfi025PrecheckEntry = $inputs | Where-Object {
+        $_ -is [hashtable] -and $_.path -is [string] -and
+        $_.path -cmatch '^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$'
+    } | Select-Object -First 1
     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach ($input in $inputs) {
         if ($input -isnot [hashtable] -or -not (Test-ExactKeys $input @('path', 'sha256')) -or
@@ -415,7 +618,9 @@ try {
         foreach ($component in $input.path.Split('/')) {
             $current = Join-Path $current $component
             if (Test-Path -LiteralPath $current) {
-                if ($null -ne (Get-Item -LiteralPath $current -Force).LinkType) {
+                # Hardlinks are regular files, not redirected path components.
+                if (((Get-Item -LiteralPath $current -Force).Attributes -band
+                    [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
                     Fail-ReviewContext 'PATH' "$($document.role) input traverses a symbolic link: $($input.path)"
                 }
             }
@@ -425,7 +630,42 @@ try {
         }
         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
         if ($actualHash -cne $input.sha256) {
-            Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+            # WFI-025: the ONE scoped exception to the raw-equality rule. A
+            # task-stage manifest may declare the task plan's normalized
+            # digest, but only when the same round's precheck declares
+            # tasks_sha256_form: normalized AND pinned exactly this digest
+            # AND the live file still normalizes to it -- the entry keeps
+            # binding every byte outside the lifecycle fields. Every other
+            # entry keeps the strict raw requirement.
+            $wfi025Applies = $false
+            if ($document.stage -ceq 'task' -and $input.path -ceq "specs/$($document.feature)/tasks.md" -and
+                $null -ne $wfi025PrecheckEntry) {
+                $wfi025PrecheckPath = Join-Path $repositoryRoot $wfi025PrecheckEntry.path
+                if (Test-Path -LiteralPath $wfi025PrecheckPath -PathType Leaf) {
+                    $wfi025Precheck = Get-Content -LiteralPath $wfi025PrecheckPath -Raw | ConvertFrom-Json
+                    $wfi025Form = 'raw'
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256_form']) {
+                        $wfi025Form = [string]$wfi025Precheck.tasks_sha256_form
+                    }
+                    if ($wfi025Form -cne 'normalized') {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+                    }
+                    $wfi025Pinned = ''
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256']) {
+                        $wfi025Pinned = [string]$wfi025Precheck.tasks_sha256
+                    }
+                    if ($input.sha256 -cne $wfi025Pinned) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (a normalized task-plan digest must be the one this round's precheck recorded)"
+                    }
+                    if ((Get-TasksNormalizedHash $candidate) -cne $input.sha256) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (the live task plan does not normalize to the declared digest)"
+                    }
+                    $wfi025Applies = $true
+                }
+            }
+            if (-not $wfi025Applies) {
+                Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+            }
         }
     }
 
@@ -474,7 +714,202 @@ try {
         }
     }
 
+    function Confirm-FeatureScratchHistory {
+        param([switch]$Snapshot)
+        if ($document.stage -cne 'quality' -or $document.role -cne 'sdd-evaluator' -or
+            -not $document.ContainsKey('scratch_root')) { return }
+        $pythonRuntime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $pythonRuntime) {
+            $pythonRuntime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        }
+        if ($null -eq $pythonRuntime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $scratchSource = @'
+"""Supplement the review validator; called only after its normal checks pass.
+
+Snapshots retain declared roots without changing the identity-ledger/v1 schema.
+This checks recorded locations, not operating-system sandbox enforcement.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def read_json(path):
+    return json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique_object)
+
+
+def safe_path(root, path):
+    relative = path.relative_to(root)
+    current = root
+    for part in relative.parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError("scratch history traverses a symbolic link")
+    return path
+
+
+def canonical(value):
+    if not isinstance(value, str) or not re.fullmatch(r"(?:/|[A-Za-z]:/)[^\\\r\n]+", value):
+        raise ValueError("scratch history contains a non-canonical root")
+    if any(part in ("", ".", "..") for part in value.split("/")[1:]):
+        raise ValueError("scratch history contains a non-canonical root")
+    return value.lower() if re.match(r"^[A-Za-z]:/", value) else value
+
+
+def overlap(left, right):
+    left, right = canonical(left), canonical(right)
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+
+
+def identity(document):
+    return tuple(document.get(key) for key in ("stage", "role", "run_id", "host_session_id"))
+
+
+def declaration(document):
+    feature = document.get("feature")
+    if not isinstance(feature, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", feature):
+        raise ValueError("scratch history has no valid feature")
+    scratch = document.get("scratch_root")
+    if scratch is not None:
+        canonical(scratch)
+    return feature, scratch
+
+
+def binding(document):
+    feature, scratch = declaration(document)
+    if scratch is None:
+        raise ValueError("bound scratch declaration is missing")
+    return hashlib.sha256((feature + "\n" + scratch).encode()).hexdigest()
+
+
+def check(root, invocation, ledger):
+    scratch = invocation["scratch_root"]
+    feature = invocation["feature"]
+    canonical(scratch)
+    reports = safe_path(root, root / "reports/implementation" / feature)
+    if not reports.is_dir():
+        raise ValueError("feature implementation reports are missing")
+    for report in reports.glob("*.md"):
+        safe_path(root, report)
+        if not report.is_file():
+            raise ValueError("implementation report is not a regular file")
+        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.+)$", report.read_text(encoding="utf-8"), re.M)
+        if len(roots) > 1:
+            raise ValueError("implementation report has duplicate scratch declarations")
+        for other in roots:
+            if overlap(scratch, other):
+                raise ValueError("evaluator scratch root overlaps a feature implementation root")
+
+    records = [record for record in ledger["records"]
+               if record["stage"] == "quality" and record["role"] == "sdd-evaluator"]
+    wanted = {identity(record) for record in records}
+    histories = {}
+    if wanted:
+        for directory, dirs, files in os.walk(safe_path(root, root / "reports"), followlinks=False):
+            for name in dirs:
+                safe_path(root, Path(directory) / name)
+            for name in files:
+                if not name.endswith(".json"):
+                    continue
+                path = safe_path(root, Path(directory) / name)
+                try:
+                    document = read_json(path)
+                except (ValueError, UnicodeError):
+                    if "invocation" in name or "scratch-reservations" in path.parts:
+                        raise ValueError("unreadable invocation history")
+                    continue
+                if not isinstance(document, dict) or document.get("schema") != "review-context-invocation/v2":
+                    continue
+                key = identity(document)
+                if key not in wanted:
+                    continue
+                value = declaration(document)
+                if key in histories and histories[key] != value:
+                    raise ValueError("conflicting scratch declarations for a reserved evaluator")
+                histories[key] = value
+    for record in records:
+        key = identity(record)
+        if key not in histories:
+            if "scratch_declaration_sha256" in record:
+                raise ValueError("bound evaluator invocation history is missing; restore original evidence")
+            # Pre-extension records have no persisted scratch assertion. Do not
+            # invent history or block an unrelated feature on an unknown root.
+            continue
+        previous_feature, previous_root = histories[key]
+        if "scratch_declaration_sha256" in record:
+            evidence = dict(feature=previous_feature, scratch_root=previous_root)
+            if binding(evidence) != record["scratch_declaration_sha256"]:
+                raise ValueError("reserved evaluator scratch binding mismatch")
+        if key == identity(invocation):
+            if histories[key] != declaration(invocation):
+                raise ValueError("reserved evaluator scratch declaration changed")
+        elif previous_feature == feature and previous_root is not None and overlap(scratch, previous_root):
+            raise ValueError("evaluator scratch root overlaps a previously reserved evaluator root")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("manifest", type=Path)
+    parser.add_argument("repository", type=Path)
+    parser.add_argument("--snapshot", action="store_true")
+    args = parser.parse_args()
+    root = args.repository.resolve(strict=True)
+    invocation = read_json(args.manifest)
+    if (invocation.get("stage"), invocation.get("role")) != ("quality", "sdd-evaluator") or "scratch_root" not in invocation:
+        return
+    ledger = read_json(safe_path(root, root / invocation["identity_ledger_path"]))
+    check(root, invocation, ledger)
+    if args.snapshot:
+        text = "|".join(str(invocation[key]) for key in
+                        ("sequence", "stage", "role", "run_id", "host_session_id", "previous_record_sha256"))
+        text += "|scratch-declaration-v1|" + binding(invocation)
+        record_hash = hashlib.sha256(text.encode()).hexdigest()
+        directory = safe_path(root, root / "reports/review-context/scratch-reservations")
+        directory.mkdir(exist_ok=True)
+        destination = safe_path(root, directory / (record_hash + ".json"))
+        # The caller holds the ledger lock. Never replace an earlier snapshot.
+        with destination.open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(invocation, sort_keys=True) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print(f"REVIEW_CONTEXT_PATH: {error}", file=sys.stderr)
+        raise SystemExit(1)
+'@
+        $scratchArguments = @('-c', $scratchSource, $Manifest, $RepositoryRoot)
+        if ($Snapshot) { $scratchArguments += '--snapshot' }
+        & $pythonRuntime.Source @scratchArguments
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'PATH' 'feature scratch-history check failed' }
+    }
+    Confirm-FeatureScratchHistory
+
     $recordText = "$($document.sequence)|$($document.stage)|$($document.role)|$($document.run_id)|$($document.host_session_id)|$($document.previous_record_sha256)"
+    if ($scratchBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('scratch_declaration_sha256'))) {
+        $recordText += "|scratch-declaration-v1|$scratchBinding"
+    }
+    if ($inputBinding -cne '' -and
+        ($null -eq $persistedMatch -or $persistedMatch.ContainsKey('allowed_inputs_sha256'))) {
+        $recordText += "|allowed-inputs-v1|$inputBinding"
+    }
     $recordHash = Get-Sha256Text $recordText
     if ($Reserve) {
         $lockPath = "$ledger.lock"
@@ -498,6 +933,7 @@ try {
             if ($currentLedgerHash -cne $document.identity_ledger_sha256) {
                 Fail-ReviewContext 'IDENTITY' 'canonical identity ledger changed before reservation'
             }
+            Confirm-FeatureScratchHistory -Snapshot
             $ledgerDocument.records = @($ledgerDocument.records) + @([ordered]@{
                 sequence = [long]$document.sequence
                 stage = $document.stage
@@ -507,6 +943,12 @@ try {
                 previous_record_sha256 = $document.previous_record_sha256
                 record_sha256 = $recordHash
             })
+            if ($scratchBinding -cne '') {
+                $ledgerDocument.records[-1]['scratch_declaration_sha256'] = $scratchBinding
+            }
+            if ($inputBinding -cne '') {
+                $ledgerDocument.records[-1]['allowed_inputs_sha256'] = $inputBinding
+            }
             $json = $ledgerDocument | ConvertTo-Json -Depth 20
             [IO.File]::WriteAllText($temporary, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
             Move-Item -LiteralPath $temporary -Destination $ledger -Force
@@ -523,7 +965,16 @@ try {
             }
         }
     }
-    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash")
+    # WFI-037: the OK line carries the chain facts a launched role needs to
+    # verify its own identity WITHOUT reading the ledger (which no role's
+    # manifest may authorize): the reserved record's sequence, the
+    # previous-record hash the record chains from, the pre-append tip
+    # sequence ('-' when verifying an already-persisted identity, where tip
+    # position is meaningless), and the uniqueness assertion for the
+    # run/session ids -- every one proven by a fail-closed check above
+    # before this line prints.
+    $previousForLine = if ([string]::IsNullOrEmpty([string]$document.previous_record_sha256)) { '-' } else { [string]$document.previous_record_sha256 }
+    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash sequence=$($document.sequence) previous_record_sha256=$previousForLine pre_append_tip_sequence=$preAppendTipSequence identity_unique=yes")
     exit 0
 }
 catch {

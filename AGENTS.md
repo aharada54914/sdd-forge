@@ -39,6 +39,8 @@ open; once the fix lands, the automated precheck path is again mandatory.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+When a spec or design clause depends on another epic's cross-epic merge state, the review lane must evaluate that condition against the current tree at review time and record whether it contradicts the task plan being approved.
+
 ### Post-review artifact freeze
 
 Once a review gate passes, its hash-bound artifacts are content-frozen except
@@ -119,6 +121,9 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
 - `specs/epic-193-a5-capability-resolver/`
+- `specs/epic-194-a6-lite-integration/`
+- `specs/epic-195-a7-compatibility/`
+- `specs/epic-196-a8-integration/`
 - `specs/design-sync-scan/`
 - `specs/design-sync-standing-consent/`
 - `specs/epic-190-a2-capability-registry/`
@@ -132,6 +137,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/sdd-lite/`
 - `specs/second-approval-mask/`
 - `specs/uninstall-workflow/`
+- `specs/sdd-domain-concept-contract/`
 
 ## Source Artifact Locations
 
@@ -162,14 +168,36 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 
 - Implementation reports (`reports/implementation/`) must carry a `Run ID:`
   line and a `Task Attempt Count:` line.
-- Quality verification gate reports (`reports/quality-gate/`) must carry a
-  `Task: T-NNN` line and a `Run ID:` line whose value equals the evaluator
-  run id reserved in the identity ledger for that gate run.
+- Quality verification gate reports (`reports/quality-gate/`) must carry, as
+  bare lines before any prose, the full identity block every deterministic
+  consumer parses — each line exists for a named consumer, not as
+  boilerplate:
+  - `Task ID: T-NNN` — the canonical task identity: required by
+    `check-evidence-bundle.sh:202` and matched by the run-record and
+    cycle-limit counters (`emit-run-record.sh`,
+    `check-quality-gate-cycle-limit.sh`). The separate legacy `Task:` line
+    is retired (WFI-020 reconciliation): the counters still accept it in
+    reports that predate the template contract, but new reports must not
+    add one.
+  - `Feature: <slug>` — report selection in `emit-run-record.sh:125`;
+    `check-evidence-bundle.sh:231` requires exactly one such line
+  - `Run ID: <id>` — value equals the evaluator run id reserved in the
+    identity ledger for that gate run; retrospective analysis artifact
+    rule 3 excludes reports without exactly one task-identity line and one
+    non-empty `Run ID`
+  - `VERDICT: <PASS|NEEDS_WORK|BLOCKED>`
+  - `Critical: N`, `Major: N`, `Minor: N` —
+    `generate-evidence-bundle.sh:249-256` parses these and silently records
+    zeros when they are absent
+  Negative rule: no later line in the report body may begin `Feature: ` or
+  `Task ID: `, because two consumers require exactly one match each. This
+  rule applies to reports authored from its adoption forward; already-Done,
+  evidence-frozen reports must not be retrofitted.
 
 These fields are additive: existing consumers (check-task-state,
-evidence-bundle generation) ignore them and are unaffected. They exist so
-that retrospective analysis and run-record emission can associate evidence
-with tasks deterministically. (WFI-003)
+evidence-bundle generation) ignore extra header lines and are unaffected.
+They exist so that retrospective analysis and run-record emission can
+associate evidence with tasks deterministically. (WFI-003, WFI-020)
 
 ### Spec factual-claim evidence citations
 

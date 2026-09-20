@@ -1,15 +1,16 @@
-# Thin argument-forwarding wrapper for generate-gate-capabilities.py
-# (Python master). INV-014 (the sdd-hook-guard.sh pattern).
-$ErrorActionPreference = 'Stop'
-$scriptDir = $PSScriptRoot
-$pyScript = Join-Path $scriptDir 'generate-gate-capabilities.py'
+# Thin PowerShell dispatcher for generate-gate-capabilities (Python master;
+# INV-014).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
+$ErrorActionPreference = "Stop"
 
-$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
-if (-not $pythonCmd) {
-  Write-Error "generate-gate-capabilities: python3 (or python) is required"
-  exit 1
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("generate-gate-capabilities: GENERATE_GATE_CAPABILITIES_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
 }
+. $lib
 
-& $pythonCmd.Source $pyScript @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "generate-gate-capabilities.py") -DiagnosticPrefix "generate-gate-capabilities: GENERATE_GATE_CAPABILITIES_RUNTIME_UNAVAILABLE" -Arguments $args

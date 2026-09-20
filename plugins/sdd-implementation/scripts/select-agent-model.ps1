@@ -33,6 +33,20 @@ if (-not $Registry) {
     'contracts/agent-model-capabilities.json'
 }
 
+# RT-20260821-009: registry-designated same-tier fallbacks must never win an
+# equal-cost tie against their primary. Loaded best-effort so the legacy
+# -Candidate path (which never required the registry) keeps working.
+$fallbackNames = @{}
+try {
+  $fbRegistry = Get-Content -Raw -LiteralPath $Registry -ErrorAction Stop | ConvertFrom-Json
+  foreach ($fbModel in @($fbRegistry.models)) {
+    if ($fbModel.PSObject.Properties['fallback_for'] -and $fbModel.fallback_for) {
+      $fallbackNames[[string]$fbModel.name] = $true
+    }
+  }
+} catch { }
+
+
 $matrix = @{
   low = @{ lightweight = 1; standard = 1; strong = 1 }
   medium = @{ lightweight = 2; standard = 1; strong = 1 }
@@ -359,13 +373,15 @@ foreach ($eligibleCandidate in $eligible) {
     $matrix[$Risk][$eligibleCandidate.Tier],
     $tierRank[$eligibleCandidate.Tier],
     $effortRank[$eligibleCandidate.SortEffort],
-    $eligibleCandidate.Cost
+    $eligibleCandidate.Cost,
+    [int]$fallbackNames.ContainsKey([string]$eligibleCandidate.Name)
   )
   $winnerRanks = @(
     $matrix[$Risk][$winner.Tier],
     $tierRank[$winner.Tier],
     $effortRank[$winner.SortEffort],
-    $winner.Cost
+    $winner.Cost,
+    [int]$fallbackNames.ContainsKey([string]$winner.Name)
   )
   $replaceWinner = $false
   for ($index = 0; $index -lt $candidateRanks.Count; $index++) {

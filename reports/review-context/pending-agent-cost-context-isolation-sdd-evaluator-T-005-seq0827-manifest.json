@@ -1,0 +1,54 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "agent-cost-context-isolation",
+  "task_id": "T-005",
+  "run_id": "RUN-agent-cost-context-isolation-qg-T-005-seq0827",
+  "host_session_id": "SESS-qg-agent-cost-context-isolation-T-005-0827",
+  "sequence": 827,
+  "previous_record_sha256": "416d3843c8d9a492aa7ed868f7e7d54f266d5ec1283c17033db591551c5d3bc1",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "4630442838201690acbc3f0286d4b2cb5e428decbc6f570bdc22482481089465",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/design.md",
+      "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/tasks.md",
+      "sha256": "59b71685ed2feb7a5b84ef1517d9f37e64e8fcad83131374c4ad38a29befc96f"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/traceability.md",
+      "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/security-spec.md",
+      "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/agent-cost-context-isolation/T-005.md",
+      "sha256": "f46e1e35ed1b21e04da9cf2e6055a7781d936554ea07d2f65360d617c37b7004"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-005/green.log",
+      "sha256": "7516a39f7efe1126b6b32e13b3a9ba1b26fdee3768cc65b374a9b3d1037f4802"
+    }
+  ]
+}

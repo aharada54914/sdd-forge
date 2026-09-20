@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0334",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0334",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-3/integrated-summary.json", "sha256": "5b739519ae6755ae1c47381199e143546c5ea60ddb3bdf2ebb072982119a2393"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-3/precheck-result.json", "sha256": "c1392b410e701afbd05319d81842d5adf11cb5826d159401fd11dbaa4a7d2580"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "be0cd28571cc64784c89d687c5c38b8ccbe14bd7dfab0a5ba4c73c8a26311ac9"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "Terms, states, and event kinds are fixed concretely: requirements.md:696-744 (Field Definitions) precisely defines 'Context-absent fixture', 'Event-identical', 'Canonical event kind', 'Capability event'; AC-036/AC-037 (requirements.md:599-618) pin exact sha256 fingerprints for cross-epic citations rather than a bare line-number locator; AC-006 fixes an exact identifier regex. No implementer-facing term is left underspecified."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "Non-goals (requirements.md:254-255, 'Any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task') does not conflict with Main Workflows steps 2-4 (requirements.md:786-793) describing those same edits, because the latter are explicitly scoped to 'a future Phase 2/3 task', not this Phase-1 package. AC-007 ('F4 only — never F6', acceptance-tests.md:11) and AC-043 (F5/F6 coverage, acceptance-tests.md:47) are complementary, non-overlapping scopes, not a conflict."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "Negative/boundary paths are enumerated with dedicated ACs: AC-002 mutated-fixture negative self-check (acceptance-tests.md:6), AC-035 three independent negative self-checks for SKIP governance (acceptance-tests.md:39), AC-041 two negative fixtures for the golden-baseline promotion guard (acceptance-tests.md:45), AC-033's golden negative test for a usage-error flag combination (acceptance-tests.md:37), and AC-019-AC-021 covering the PROJECT_CONTEXT_INVALID boundary state (acceptance-tests.md:23-25; requirements.md Edge Cases, lines 809-817)."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "requirements.md Assumptions (lines 839-856) ties epic-currency assumptions to AC-035's fingerprint-mismatch hard-fail as an explicit re-verification mechanism rather than leaving them unchecked. Open Questions (lines 858-877) shows OQ-001, OQ-002, and OQ-003 each explicitly marked '(resolved)' with a citation to where each was decided (Non-goals / design.md Design Decisions)."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "Security Boundaries B1 (requirements.md:833) names a maintainer-approval boundary for golden-baseline capture/promotion (AC-018 initial capture, REQ-006c candidate-to-canonical PR). This boundary is made independently testable, not merely described: AC-040 (static CI-workflow-text scan) and AC-041 (direct runtime refusal test with two independent negative fixtures: CI env var set, --approved-by omitted) — acceptance-tests.md:44-45."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "Independently re-verified the round-2 remedy: grepping acceptance-tests.md for every row whose Test Type names a 'named SKIP' condition returns exactly AC-004, AC-007, AC-019, AC-020, AC-021, AC-036, AC-037, AC-042, AC-043 (acceptance-tests.md:8,11,23-25,40-41,46-47). AC-034's updated enumeration (requirements.md:572-576: 'AC-004, AC-007, AC-019-AC-021, AC-036, AC-037, AC-042, AC-043, and any Context-present REQ-003 assertion') accounts for all nine exactly, with no omission. The round-2 DOWNSTREAM-READINESS finding is resolved; nothing new was introduced by the remedy."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": "Skipped per check's own explicit skip condition: this worktree has no domain/ directory (confirmed absent via Glob against the worktree root), so no context-map/domain-contract exists to verify Bounded-Context relations or forbidden-synonym usage against."}
+  ]
+}

@@ -1,0 +1,8 @@
+Task-level risk gate: a valid Risk: tier, a non-empty Risk Rationale:, and --
+because T-004 is high -- Required Workflow: tdd. The run covers every task in
+the file at once.
+
+$ sh -c sh plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-195-a7-compatibility/tasks.md
+Risk check passed for 12 task(s).
+
+exit status: 0

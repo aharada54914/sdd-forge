@@ -20,8 +20,10 @@ mkdir -p "$SCRIPT_DIR" "$CONTRACT_DIR"
 
 for name in generate-registry-digest.py generate-registry-digest.sh \
   generate-registry-digest.ps1 generate-registry-digest.js \
-  registry_discovery.py canonicalize-sdd-yaml.py; do
+  registry_discovery.py canonicalize-sdd-yaml.py \
+  lib/py-dispatch.sh lib/py-dispatch.ps1; do
   if [[ -f "$SOURCE_DIR/$name" ]]; then
+    mkdir -p "$SCRIPT_DIR/$(dirname "$name")"
     cp "$SOURCE_DIR/$name" "$SCRIPT_DIR/$name"
   fi
 done
@@ -229,10 +231,16 @@ else
   fail "wrapper parity: sh/ps1/js outputs or exit codes differ"
 fi
 
-if grep -q 'tests/generate-registry-digest.tests.sh' "$ROOT/tests/run-all.sh"; then
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  awk '
+    $0 == "tests/validate-capability-registry.tests.sh" { before = NR; before_count++ }
+    $0 == "tests/generate-registry-digest.tests.sh" { current = NR; current_count++ }
+    $0 == "tests/generate-gate-capabilities.tests.sh" { after = NR; after_count++ }
+    END { exit !(before_count == 1 && current_count == 1 && after_count == 1 && before < current && current < after) }
+  ' <<< "$registered_suites"; then
   ok "run-all.sh registers this suite between T-004 and T-006"
 else
-  fail "run-all.sh does not register this suite"
+  fail "run-all.sh must register this suite exactly once between T-004 and T-006"
 fi
 
 # Done When #4 (tasks.md): "a grep self-check confirms no version string was

@@ -14,6 +14,14 @@ traceability="$1"
 root="${2:-.}"
 require_evidence="${3:-}"
 
+# RT-20260821-008: an unknown third positional silently selected the
+# DEFAULT (non-require-evidence) mode, so any misspelling disabled the
+# stricter check. Unknown modes are a usage error, fail closed.
+if [ -n "$require_evidence" ] && [ "$require_evidence" != "require-evidence" ]; then
+  echo "check-traceability: unknown mode argument: $require_evidence (expected 'require-evidence')" >&2
+  exit 1
+fi
+
 if [ -z "$traceability" ] || [ ! -f "$traceability" ]; then
   echo "check-traceability: file not found: $traceability" >&2
   exit 1

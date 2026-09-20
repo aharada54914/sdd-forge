@@ -65,6 +65,15 @@ path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
 
+Never run `validate-review-context-set` against your own manifest after the
+caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
+the manifest's `identity_ledger_sha256` pinned, and it marks this identity
+persisted, so a self-run is structurally guaranteed to fail without proving
+anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
+hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
+and `identity_unique` -- is the required launch-identity evidence; verify it
+per `review-context-boundary.md` from that line and your manifest alone.
+
 `plugins/sdd-review-loop/references/review-context-boundary.md` states which
 manifest fields to re-verify and which the validator consumes before the
 reservation is appended. Read it before rejecting on a hash mismatch:

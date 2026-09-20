@@ -1,0 +1,91 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-046",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "One severe mis-citation, plus one correct-but-imprecise cite. THE NODE TWIN IS NAMED WRONG, AND THE NAMED LINE IS THE ALREADY-FIXED SIBLING. The WFI cites the Node write-protection short-circuit at sdd-hook-guard.js:1161. Line 1161 is not in that function at all: it is inside wfiApprovalIncreases (def :1139), the APPROVAL-FIELD exemption -- a different gate governing a different decision -- and that exemption ALREADY carries the executing-syntax disqualifier at :1163, added by 918c6831. An implementer following the WFI literally would open :1161, find the disqualifier already present, and either conclude the work was done or add a redundant second copy; either way the actual Node bypass stays open while the WFI reads as applied. The real twin is sdd-hook-guard.js:617, inside shellTargetsProtectedGateFile (def :598): `if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;` -- the exact three-clause shape the py site at :1462 has. The two functions are roughly 700 lines apart and share only that shape, which is precisely how the confusion arises and why the WFI must disambiguate them explicitly. Secondary: the ps1 cite :966-967 spans the isReadOnlyStart assignment and the short-circuit; the short-circuit itself is :967, in Test-ShellTargetsProtectedGateFile (def :947). The py cite :1462 is correct. The three measured probe rows are accepted: the command-substitution and backtick bypasses reproduce, and the control is denied."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis -- the exemption decides whether a command can write by inspecting its words for known write verbs, and shell syntax that runs a further command defeats that inspection entirely, so the exemption holds exactly where its premise is unverifiable -- names a controllable mechanism and is not a restatement of 'the command exited 0'. The second paragraph (the condition is written twice and nothing compares the copies) is independently correct and is what the drift invariant acts on."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The link from level 3 to level 4 is broken. Level 3 explains why the clauses cannot see inside a substitution (the write vocabulary is a text denylist). Level 4 then asks why the class was fixed in the sibling exemption but not here -- a question about review scope, not a consequence of level 3. A why-chain must descend; this one changes subject. The missing level is the mechanical one that makes the bypass reachable: the short-circuit RETURNS at the clause test, so control never reaches the fail-closed write-target analysis sitting three lines below it (_shell_write_targets_are_safe at py:1466, shellWriteTargetsAreSafe at js:621, Test-ShellWriteTargetsAreSafe at ps1:969). Without that level the chain never explains why a guard that fails closed on unmodelled writes nonetheless allows this one. Separately, level 3's evidence cell is prose ('the write-vocabulary matcher over the whole command string') where every other cell carries a citation; the vocabulary is defined as sudo_write_re at plugins/sdd-quality-loop/references/guard-invariants.json:182 and tested at py:1461."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category: plugin-improvement is present and valid, and the Category section states in its own words that this repository is the source of truth for the named guard files. Zero Forbidden Terms in the scanned sections. Meta-Change: true is correctly declared and the strict lane's non-decreasing argument is present and sound: the change only disqualifies an existing exemption, so no currently-denied command becomes allowed, and the deterministic check count strictly increases."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Rows 2 and 3 inherit the mis-citation charged under EVIDENCE-CITED: the js row instructs 'the identical change at :1161' and the ps1 row ':966-967'. As Target File cells these name real files, but the Change Description points the implementer at the wrong line in the Node guard -- the one place where following the instruction literally produces a change that looks complete and leaves the bypass open. Row 1 (py) is concrete and correct. Rows 4-5 (the regression cases and the cross-exemption drift invariant) are specific and testable as written. The 'Not proposed' paragraph correctly rejects the tempting non-fix of adding tar to the vocabulary, on the right grounds: the bypass does not depend on tar."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Stated as measured numbers with a direction: the two bypasses move exit 0 to exit 2 on both runtimes while the control stays exit 2, bypass count 2 to 0, with the must-allow case named as an explicit non-regression."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All five fields present and populated against a probe set that was actually measured, plus two secondaries -- capability preservation and cross-exemption drift (1 of 2 exemptions carries the disqualifier today, target 2 of 2) -- each with baseline and target."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Seven steps, each naming what runs and what must be observed. Step 1 is a replay against pre-change measurements recorded in the document itself, which is the discriminating form. Step 4's parity requirement and step 6's mirror sync are both correct for a change to parity-locked guard twins. The .sh entry point is correctly identified as needing no change."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Carve-out APPLIES and all three conditions are met, verified individually. (1) Category: plugin-improvement is declared. (2) The Category section states source-of-truth in its own words rather than by formula: 'This repository is the source of truth for the write-protection guard named in ## Proposed Change: those files are this project's own code, not a vendored copy of an upstream plugin.' (3) A ## GitHub-Issue section is present, reading 'Pending -- filed at wfi-audit-cycle STEP 8', which is the correct state for a WFI mid-audit. The three plugins/ Target File rows are therefore in scope and not creep."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "severity": "Major",
+      "section": "## Problem Evidence",
+      "instruction": "Correct the Node twin from sdd-hook-guard.js:1161 to :617, naming the enclosing function shellTargetsProtectedGateFile (def :598), and tighten the ps1 cite to :967 in Test-ShellTargetsProtectedGateFile (def :947). Add an explicit paragraph distinguishing this exemption from the approval-field exemption in wfiApprovalIncreases (def :1139, disqualifier already at :1163), since the two share a clause shape and confusing them is what produced the error."
+    },
+    {
+      "severity": "Major",
+      "section": "## Proposed Change (js and ps1 rows)",
+      "instruction": "Apply the same line corrections in the js and ps1 rows, and state in the js row that :1163 is NOT the target so the mistake cannot be reintroduced."
+    },
+    {
+      "severity": "Major",
+      "section": "## Why-Why Analysis",
+      "instruction": "Insert a new level 4 between the current 3 and 4: the short-circuit returns at the clause test, so control never reaches the fail-closed write-target analysis below it (py:1466 / js:621 / ps1:969). Renumber the review-scope question to level 5."
+    },
+    {
+      "severity": "Minor",
+      "section": "## Why-Why Analysis (level 3)",
+      "instruction": "Replace the prose evidence cell with a citation: sudo_write_re at plugins/sdd-quality-loop/references/guard-invariants.json:182, generated into each runtime and tested against the whole command at py:1461."
+    },
+    {
+      "severity": "Minor",
+      "section": "## Proposed Change (py row)",
+      "instruction": "Note that WFI_EXEMPTION_UNSAFE_RE is no longer WFI-specific once a second gate uses it, and rename it in the same change, updating both use sites."
+    }
+  ],
+  "generated_at": "2026-08-23T14:05:00Z"
+}

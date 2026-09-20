@@ -2,7 +2,22 @@
 
 Task ID: {{task_id}}
 Feature: {{feature}}
+Run ID: {{run_id}}
 VERDICT: {{verdict}}
+Critical: {{critical_count}}
+Major: {{major_count}}
+Minor: {{minor_count}}
+
+<!-- Identity header contract (WFI-020). Every line above is parsed by a     -->
+<!-- deterministic consumer: Task ID by check-evidence-bundle and the         -->
+<!-- run-record/cycle-limit counters (canonical task-identity field; the      -->
+<!-- legacy separate `Task:` line is retired — do not add one); Feature by    -->
+<!-- report selection and the exactly-one rule in check-evidence-bundle;      -->
+<!-- Run ID by the retrospective's artifact rules (value = the evaluator run  -->
+<!-- id reserved in the identity ledger for this gate run); Critical/Major/   -->
+<!-- Minor by generate-evidence-bundle, which records zeros when absent.      -->
+<!-- Keep each as a bare line before any prose, and never start a later line  -->
+<!-- in the body with `Feature: ` or `Task ID: `.                             -->
 
 ## Target
 {{target}}

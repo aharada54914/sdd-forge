@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196a8integration-impl-a1r3-a-seq0637",
+  "host_session_id": "SESS-impl-a1r3-a-epic196a8integration-0637",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ee66fda8657e6a95338c42bef207f142c1813d67e5e378e7de203fa6aba15292",
+  "previous_record_sha256": "46af977a37e274725e9a363a056fee50454bcf4cbdd3f994272f6a6b36457817",
+  "sequence": 637,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "bdc0b1bfec3edaf80825e225d8f763a8b4ecc3e282cb181b7feede5acff3abc0"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-3/precheck-result.json",
+      "sha256": "6c64d858ef9d2e71c1b37ec79b722af2aecfac05ee70d649e624dfaa06eda96e"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-1/round-2/integrated-summary.json",
+      "sha256": "69f9a25a7186670cb663a92bc15d3d2a8c1dca9fb7462e637ad8874ee35a1179"
+    }
+  ]
+}

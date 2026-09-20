@@ -317,9 +317,11 @@ function Write-035Contract {
     param([string]$Dir, [string]$TaskId)
     New-Item -ItemType Directory -Force -Path (Join-Path $Dir "reports") | Out-Null
     Set-Content -LiteralPath (Join-Path $Dir "reports/test.log") -Value "fixture evidence" -Encoding utf8
+    Set-Content -LiteralPath (Join-Path $Dir "reports/test.red.log") -Value "fixture evidence" -Encoding utf8
+    Set-Content -LiteralPath (Join-Path $Dir "reports/test.green.log") -Value "fixture evidence" -Encoding utf8
     $checkIds = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
-    $checks = ($checkIds | ForEach-Object { '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }' }) -join ",`n"
-    $body = "{`n  `"task_id`": `"$TaskId`",`n  `"feature`": `"test-feature`",`n  `"risk`": `"high`",`n  `"created`": `"2026-08-11T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
+    $checks = ($checkIds | ForEach-Object { $rg = if ($_ -in @("unit-tests", "acceptance-tests")) { ', "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log"' } else { '' }; '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": ""' + $rg + ' }' }) -join ",`n"
+    $body = "{`n  `"task_id`": `"$TaskId`",`n  `"feature`": `"test-feature`",`n  `"risk`": `"high`",`n  `"required_workflow`": `"tdd`",`n  `"created`": `"2026-08-11T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
     Set-Content -LiteralPath (Join-Path $Dir "$TaskId.contract.json") -Value $body -Encoding utf8
 }
 
@@ -530,9 +532,10 @@ if (-not (Test-Path -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-cont
 }
 
 Write-Output "=== registration self-check ==="
-$runAllSh = Join-Path $repoRoot "tests/run-all.sh"
+# Query the external inventory, not the runner's source text.
+$runAllSh = @(& bash (Join-Path $repoRoot "tests/run-all.sh") --list)
 $runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
-if ((Select-String -LiteralPath $runAllSh -Pattern "check-component-coverage" -Quiet) -and (Select-String -LiteralPath $runAllPs1 -Pattern "check-component-coverage" -Quiet)) {
+if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains "tests/check-component-coverage.tests.sh" -and (Select-String -LiteralPath $runAllPs1 -Pattern "check-component-coverage" -Quiet)) {
     Ok "check-component-coverage suite self-registers in run-all.sh and .ps1"
 } else {
     Fail "check-component-coverage missing from run-all.sh/.ps1 registration"

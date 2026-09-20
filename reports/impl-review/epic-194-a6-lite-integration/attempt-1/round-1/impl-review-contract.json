@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-194-a6-lite-integration",
+  "run_id": "RUN-epic-194-a6-lite-integration-impl-orchestrator-a1r1",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "an additive schema-revision design for two Epic-A2-owned Registry artifacts (lite_policy, lite-upgrade-reason-catalog.json), one new A6-owned catalog contract (lite-check-catalog.json), a documented (not implemented) extension to two already-protected sdd-lite scripts/policy files and one already-protected skill, and a documented extension to one currently-unprotected skill (no UI, no runtime service, no database)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16",
+  "acceptance_sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0",
+  "design_sha256": "77352510dec4797412931912c15ba37863b04b3f65c3ac52b2f9905b0a1b4aa4",
+  "layer_sha256": {
+    "ux-spec.md": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7",
+    "frontend-spec.md": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499",
+    "infra-spec.md": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061",
+    "security-spec.md": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-194-a6-lite-integration-impl-impl-reviewer-a-a1r1-seq0324",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-194-a6-lite-integration-a1r1-0324",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-194-a6-lite-integration/requirements.md",
+          "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+          "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/design.md",
+          "sha256": "77352510dec4797412931912c15ba37863b04b3f65c3ac52b2f9905b0a1b4aa4"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/investigation.md",
+          "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+          "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+          "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+          "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+          "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-194-a6-lite-integration/attempt-1/round-1/precheck-result.json",
+          "sha256": "13ef102c330bab7127ea28d2b89c3791143070ed029c5722935cb5c5dbf6d812"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-194-a6-lite-integration-impl-impl-reviewer-b-a1r1-seq0325",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-194-a6-lite-integration-a1r1-0325",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-194-a6-lite-integration/requirements.md",
+          "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+          "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/design.md",
+          "sha256": "77352510dec4797412931912c15ba37863b04b3f65c3ac52b2f9905b0a1b4aa4"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/investigation.md",
+          "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+          "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+          "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+          "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"
+        },
+        {
+          "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+          "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-194-a6-lite-integration/attempt-1/round-1/precheck-result.json",
+          "sha256": "13ef102c330bab7127ea28d2b89c3791143070ed029c5722935cb5c5dbf6d812"
+        },
+        {
+          "path": "reports/impl-review/epic-194-a6-lite-integration/attempt-1/round-1/integrated-summary.json",
+          "sha256": "f4136dd935982e46c8dba5d67401b75b753af789f2179d10cce2119f0d127119"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-07-22T06:28:47Z"
+}

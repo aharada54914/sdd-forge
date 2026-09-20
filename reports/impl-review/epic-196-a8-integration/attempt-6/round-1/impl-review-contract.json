@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "attempt": 6,
+  "round": 1,
+  "feature_type": "cli",
+  "legacy_design": false,
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "design_sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e",
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+    "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+    "security-spec.md": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Provenance re-review: attempt 6 re-binds the impl stage after spec-review attempt 3 round 3's PASS moved two of this stage's pinned inputs. requirements.md changed in 78ffa5e2a53114d7f6adca4342f2330d3cd46a23 (AC-006's activation rule swept across its bullet in Goals, Main Workflows items 2 and 7, and the Assumptions Epic-A1-superseded bullet) and again by the Pending -> Passed status flip in 326b89eeb1d6fe2c5b26cbeeb77411daf6f194a4; investigation.md changed in a7b46d218cb13a839194afdf1009813fe39d3634 (the ux-spec.md citation that closed spec round 2's APPROVAL-BOUNDARY Critical, plus this amendment's own lineage entry). design.md is byte-unchanged from attempt 4 round 2 and attempt 5 (4a2068c5...), and all four layer specifications are byte-unchanged from attempt 5. acceptance-tests.md changed in the same 78ffa5e2 commit (the AC-006 row's activation note). No design decision moved: the amendment brings requirements.md and acceptance-tests.md into line with the AC-006 rule design.md, tasks.md and the four layer specifications already stated.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-impl-reviewer-a-a6r1-seq791",
+      "host_session_id": "SESS-impl-a-epic-196-a8-integration-a6r1-seq791",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-6/round-1/precheck-result.json",
+          "sha256": "62267a6f13068f1cd2e2bba352dcc7d9b77f5ff92ffef31a3d35204191c2d03b"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-impl-reviewer-b-a6r1-seq792",
+      "host_session_id": "SESS-impl-b-epic-196-a8-integration-a6r1-seq792",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "2eea3d8020f931986705322596d55cd315971e7e1ed690a1b4100a81be578d57"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-6/round-1/precheck-result.json",
+          "sha256": "62267a6f13068f1cd2e2bba352dcc7d9b77f5ff92ffef31a3d35204191c2d03b"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-6/round-1/integrated-summary.json",
+          "sha256": "8f054d06b791b75b224b1194e2dae53bf6eb67dfc00948c1835e35c2f053b01a"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "impl-orch-epic196a8integration-a6r1",
+  "timestamp": "2026-08-24T04:30:12Z"
+}

@@ -1,0 +1,124 @@
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
+
+  Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
+    [+] the v2 schema file exists 24ms
+    [+] parses as valid JSON 25ms
+
+    Context once parsed
+      [+] declares draft-07 3ms
+      [+] declares the domain-contract/v2 schema const 2ms
+      [+] declares root required schema/meta/contexts/concepts, exactly those four 8ms
+      [+] declares a v1-shaped meta definition (version/status/generated_from) 17ms
+      [+] declares concepts as a required top-level array with minItems 1 3ms
+      [+] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 4ms
+      [+] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 1ms
+      [+] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 3ms
+
+  Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
+    [+] the v1 schema file still exists 1ms
+    [+] v1 schema file SHA-256 equals the recorded feature-start baseline 2ms
+
+  Describing validate-domain-contract twins exist (TEST-017/TEST-012 preconditions, REQ-004)
+    [-] the .sh twin exists 8ms
+      Expected $true, but got $false.
+      354:         Test-Path $validatorShPath | Should Be $true
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 354
+    [-] the .ps1 twin exists 1ms
+      Expected $true, but got $false.
+      358:         Test-Path $validatorPs1Path | Should Be $true
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 358
+
+  Describing validate-domain-contract fail-closed input handling (TEST-017, AC-017, REQ-004(a))
+
+    Context fixture 1 of 2 -- syntactically broken JSON (truncated body)
+      [-] ps1 twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 102ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 370
+      [-] sh twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 31ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 380
+
+    Context fixture 2 of 2 -- a file larger than the 10 MiB ceiling
+      [+] the fixture really does exceed the ceiling (non-vacuity) 30ms
+      [-] ps1 twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 100ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 402
+      [-] sh twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 40ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 412
+
+  Describing validate-domain-contract argument and path errors (REQ-004(a), Edge Cases fail-closed)
+
+    Context no argument
+      [-] ps1 twin: exits 1 with one V2-USAGE line 88ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 425
+      [-] sh twin: exits 1 with one V2-USAGE line 33ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 429
+
+    Context a path that does not exist
+      [-] ps1 twin: exits 1 with one V2-INPUT-NOT-FOUND line 90ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 437
+      [-] sh twin: exits 1 with one V2-INPUT-NOT-FOUND line 31ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 442
+
+    Context a path that is a directory, not a contract file
+      [-] ps1 twin: exits 1 with one V2-INPUT-NOT-FILE line 98ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 452
+      [-] sh twin: exits 1 with one V2-INPUT-NOT-FILE line 42ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 462
+
+    Context a regular file the process may not read (POSIX mode 000)
+      [-] ps1 twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 135ms
+        Expected 1, but got 64.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 475
+      [-] sh twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 77ms
+        Expected 1, but got 127.
+        293:     $Result.ExitCode | Should Be 1
+        at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+        at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 486
+
+  Describing validate-domain-contract v2 version dispatch (TEST-012, AC-012, REQ-004(b), DD-6)
+    [+] the v1 fixture really declares domain-contract/v1 (non-vacuity) 3ms
+    [-] ps1 twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 94ms
+      Expected 1, but got 64.
+      293:     $Result.ExitCode | Should Be 1
+      at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 511
+    [-] sh twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 32ms
+      Expected 1, but got 127.
+      293:     $Result.ExitCode | Should Be 1
+      at Assert-FailClosed, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 293
+      at <ScriptBlock>, /Users/jrmag/Projects/active/sdd-forge/tests/sdd-domain/contract-v2-schema.Tests.ps1: line 524
+Tests completed in 1.46s
+Tests Passed: 14, Failed: 16, Skipped: 0, Pending: 0, Inconclusive: 0 

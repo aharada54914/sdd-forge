@@ -17,6 +17,6 @@ see `reports/implementation/T-011.md` (check-contract medium-tier calibration; A
 | REQ-007 | INV-007 | design.md §7 (two-person) | AC-007 / TEST-007 | scripts/check-task-state.{sh,ps1}; sdd-hook-guard.* | T-007 | Planned |
 | REQ-008 | INV-008 | design.md §Deployment/CI | AC-008 / TEST-008 | .github/rulesets/main.json; CODEOWNERS; workflows/*; scripts/apply-branch-protection.sh | T-008 | Planned |
 | REQ-009 | INV-009 | design.md §Security | AC-009 / TEST-009 | docs/THREAT-MODEL.md; docs/agent-capability-matrix.md | T-009 | Planned |
-| REQ-010 | INV-010 | design.md §Security | AC-009 / TEST-009 | .codex/agents/sdd-investigator.toml; sdd-evaluator.toml | T-009 | Planned |
+| REQ-010 | INV-010 | design.md §Security | AC-009 / TEST-009 | docs/agent-capability-matrix.md §M-04 (runtime `--model`/`--effort` routing; role toml intentionally unpinned) | T-009 | Planned |
 | REQ-011 | INV-011 | design.md (dogfood) | AC-011 / TEST-011 | specs/risk-adaptive-layer/traceability.json; verification/ | T-011 | Planned |
 | (all) | (all) | design.md §Migration | AC-010 / TEST-010 | tests/{gates,guards,eval}.tests.sh; scripts.tests.ps1 | T-002..T-007 | Planned |

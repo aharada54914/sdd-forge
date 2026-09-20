@@ -1,0 +1,75 @@
+{
+  "capture_scripts": [
+    {
+      "path": "tests/capture-golden-baseline.sh",
+      "sha256": "b50460310233a582b20963fe2c0d30b89cf72783ac701f5574f835458ea5bb03"
+    },
+    {
+      "path": "tests/capture-golden-baseline.ps1",
+      "sha256": "745557aefefff5fb883398004ee0d6a9435269e4bec142abbe241c6aaff53d2f"
+    }
+  ],
+  "fixed_environment": {
+    "LC_ALL": "C",
+    "TZ": "UTC",
+    "ambient_sdd_variables": []
+  },
+  "pre_capability_commit_sha": "50b20364e996432cb06061df03ffb4d173c27fa6",
+  "schema_version": "golden-baseline-manifest/v1",
+  "targets": [
+    {
+      "capture_format": "raw stdout/stderr byte-tuple",
+      "name": "deterministic-script-output",
+      "path": "targets/deterministic-script-output.bin",
+      "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+    },
+    {
+      "capture_format": "status integer",
+      "name": "exit-code",
+      "path": "targets/exit-code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "capture_format": "raw stdout/stderr byte-tuple",
+      "name": "stdout-stderr",
+      "path": "targets/stdout-stderr.bin",
+      "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+    },
+    {
+      "capture_format": "filesystem manifest (path -> sha256)",
+      "name": "template-copy-result",
+      "path": "targets/template-copy-result.sha256",
+      "sha256": "7f192736d2e162ddbddd6bafe980c0393645afcb59f87b67c86bd77d0703dbf3"
+    },
+    {
+      "capture_format": "status integer",
+      "name": "schema-validator-result",
+      "path": "targets/schema-validator-result.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "capture_format": "filesystem manifest",
+      "name": "install-result",
+      "path": "targets/install-result.sha256",
+      "sha256": "3cd066eb8882df98c5abb26e7734dfdd20c97baf282dab4df1a77b76f33e0761"
+    },
+    {
+      "capture_format": "filesystem manifest",
+      "name": "uninstall-result",
+      "path": "targets/uninstall-result.sha256",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "capture_format": "filesystem manifest",
+      "name": "generated-directory-listing",
+      "path": "targets/generated-directory-listing.txt",
+      "sha256": "8692874b996701b721ff6ecef5879b6cd4e6576d64a4a995c9d7c8f5ee37e6e6"
+    },
+    {
+      "capture_format": "filesystem manifest (path -> sha256)",
+      "name": "plugin-manifest",
+      "path": "targets/plugin-manifest.sha256",
+      "sha256": "ea6b2e2ade1e011135f34e6e56f7d8a59d6e439d3b6534a0f61c01199262c5ba"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a1r2-seq0756",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a1r2-0756",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "007fb0d261ecebbb6eed0f03bcf97358ffa1efd0ea1b5278e43f11a3bcf276bd"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "7e4b2f9fe0d866390b9ddafb935eacacdba226422fda7e79a3d370c1996c2168"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-2/precheck-result.json",
+      "sha256": "524d303a648acdbf649100cb249e9f56ef15e792666f24559b23bed83906d66b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001..REQ-007) states a concrete, checkable predicate: exact schema field names/patterns (REQ-002 concept.id `^CONCEPT-[A-Z][A-Z0-9-]*$`, PascalCase name, kebab-case context), an enumerated (a)-(i) validator check list with exit-code and stderr format (REQ-004), and a byte-identity drift lock for v1 (REQ-007). All map onto acceptance-tests.md TEST-001..017 with explicit exit-code / stderr / structural-assertion targets, giving an implementer and verifier an unambiguous pass/fail surface."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "G1(schema+concepts[])->REQ-001/002->AC-001/002; G2(term concept_id)->REQ-003->AC-009; G3(validator)->REQ-004->AC-006..012/014/016/017 (all nine (a)-(i) validator checks each have a dedicated negative fixture); G4(fixture corpus)->REQ-005/006->AC-003/004/005/013; G5(additive, v1 untouched)->REQ-007->AC-002 (SHA-256 drift lock) and AC-015 (existing suite green + diff scope check). No goal is left without a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC in acceptance-tests.md specifies an externally observable outcome: exit code (0 or non-zero), presence/content of a named entry in stderr (e.g. AC-006 'stderr に重複 id を名指しする', AC-017 'スタックトレースや処理系の生例外を出さない'), or a file-level SHA-256 comparison (AC-002). None rely on unobservable intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md ## Non-goals explicitly excludes concept-test skill/bootstrap (Phase 1), concept-model.template.md/interviewer changes (Phase 2), reviewer A/B checks (Phase 3), reverse mode/C4 (Phase 4), v1->v2 migration tooling (permanently out of scope per owner decision, INV-009), and domain/ Markdown artifact generation. The UI Integration Checklist in acceptance-tests.md also explicitly states N/A with rationale."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries states content-as-data handling, read-only/no-network/no-external-dependency validator constraints (python3 stdlib json / ConvertFrom-Json only), and a no-secrets-in-fixtures rule. ## Roles and Permissions states who may edit contracts vs. run the validator and preserves existing meta.status Approved write control. REQ-007 states the v1/consumer/test compatibility boundary as a byte-identity constraint. No implied constraint is left unstated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Risks lists R1 (concepts[] type insufficiency), R2 (validator/schema drift), R3 (sh/ps1 twin verdict mismatch), each with a mitigation tied to a concrete validation surface: R1->fixture-first acceptance tests, R2->REQ-006 drift-lock test against the same fixtures, R3->REQ-006/AC-013 twin-parity check. High-risk claims are not left unvalidated."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: investigation.md INV-009 records that sdd-forge itself has no `domain/` directory ('sdd-forge 自身に domain/ ディレクトリは存在せず'), so there is no `domain/context-map.md` with Domain-Model-Status: Approved and no schema-valid `domain/domain-contract.json` to check against. Per the check definition this is recorded as skipped rather than evaluated."
+    }
+  ]
+}

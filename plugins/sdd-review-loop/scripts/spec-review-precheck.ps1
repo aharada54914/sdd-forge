@@ -55,7 +55,7 @@ function Get-CanonicalDir([string]$Path) {
 }
 
 function Test-IsSha256([object]$Value) {
-  return ($Value -is [string]) -and ($Value -match '^[0-9a-fA-F]{64}$')
+  return ($Value -is [string]) -and ($Value -cmatch '^[0-9a-f]{64}$')
 }
 
 function Test-NonEmptyString([object]$Value) {

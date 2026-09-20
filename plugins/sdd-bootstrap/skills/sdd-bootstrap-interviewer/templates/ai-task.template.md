@@ -12,6 +12,10 @@ specs/<feature>
 
 {{risk}}  <!-- low | medium | high | critical -->
 
+## Risk Rationale
+
+{{risk_rationale}}  <!-- one sentence: why this tier; check-risk fails closed when empty -->
+
 ## Required Workflow
 
 {{required_workflow}}  <!-- test-after | acceptance-first | tdd -->

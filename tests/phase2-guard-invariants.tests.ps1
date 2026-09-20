@@ -21,7 +21,13 @@ $required = @(
     'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS',
     'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_CD_CMDS',
     'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE',
-    'SUDO_SIGNATURE_HEX_LENGTH', 'PHASE2_HUMAN_COPY_TARGETS'
+    'SUDO_SIGNATURE_HEX_LENGTH', 'PHASE2_HUMAN_COPY_TARGETS',
+    # WFI-048 added the patch-applier vocabulary and the embedded-path boundary
+    # class. They are v1 exports: SCHEMA_VERSION stays 1 (asserted below), and
+    # the guard twins validate this exact set, so the list here and
+    # _INVARIANT_KEYS in the three twins must move together.
+    'SHELL_PATCH_APPLY_CMDS', 'SHELL_PATCH_APPLY_GIT_SUBCMDS',
+    'SHELL_PATCH_INSPECT_FLAGS', 'SHELL_PATH_BOUNDARY_CHARS'
 )
 $passCount = 0
 $failCount = 0
@@ -605,8 +611,17 @@ foreach ($evicted in $repoSharedEvicted) {
     Assert-True ((-not (Test-Path -LiteralPath $snapshotPath)) -and (-not $manifestHasEntry)) "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)"
 }
 
+function Remove-DeterministicStepLabel([string]$Text) {
+    # Only display names changed; preserve commands, OS conditions and ordering.
+    return ($Text -creplace '(?m)^(\s*- name: )"\[deterministic\] ([^"\r\n]+)"\r?$', '$1$2')
+}
+Assert-True ((Remove-DeterministicStepLabel '      - name: "[deterministic] Example"') -ceq '      - name: Example') 'TEST-011 label normalization accepts the exact quoted display prefix'
+Assert-True ((Remove-DeterministicStepLabel '      - name: Example') -ceq '      - name: Example') 'TEST-011 label normalization preserves undecorated names'
+Assert-True ((Remove-DeterministicStepLabel '        run: "[deterministic] Example"') -ceq '        run: "[deterministic] Example"') 'TEST-011 label normalization never rewrites run commands'
+Assert-True ((Remove-DeterministicStepLabel '      - name: "[Deterministic] Example"') -ceq '      - name: "[Deterministic] Example"') 'TEST-011 label normalization does not accept a mis-cased prefix'
 if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
     $ciText = Get-Content -Raw -LiteralPath $liveCi
+    $ciText = Remove-DeterministicStepLabel $ciText
     $checkout = $ciText.IndexOf('uses: actions/checkout')
     $firstValidation = $ciText.IndexOf('Install recorded Claude Code CLI')
     $firstGuardSuite = $ciText.IndexOf('Test hook guards')

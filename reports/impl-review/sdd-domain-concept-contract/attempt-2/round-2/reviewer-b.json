@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-b-a2r2-seq0781",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-domain-concept-contract-a2r2-0781",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain-concept-contract/design.md", "sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"},
+    {"path": "specs/sdd-domain-concept-contract/requirements.md", "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"},
+    {"path": "specs/sdd-domain-concept-contract/acceptance-tests.md", "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"},
+    {"path": "specs/sdd-domain-concept-contract/investigation.md", "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"},
+    {"path": "specs/sdd-domain-concept-contract/ux-spec.md", "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"},
+    {"path": "specs/sdd-domain-concept-contract/frontend-spec.md", "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"},
+    {"path": "specs/sdd-domain-concept-contract/infra-spec.md", "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"},
+    {"path": "specs/sdd-domain-concept-contract/security-spec.md", "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-2/round-2/precheck-result.json", "sha256": "f17b357205ad7d765a5ee7f40cb10fee63381d5ec3ed5108ad16a4ed0a0d192a"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-2/round-2/integrated-summary.json", "sha256": "8e618d427667ae8a279976c326295ef736906eb96b4d7f0f1f762122657bf47c"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:20-30 '## Design Decisions' table gives every decision an explicit 根拠 (rationale) column: DD-1 cites the distinguished_from cross-context-reference problem and INV-003 (draft-07 cannot express referential integrity, so DD-1 hands it to the validator); DD-2 cites the 2026-08-16 owner decision and OQ-001; DD-3 cites INV-005 (house pattern) and the OQ-001 breakage risk, constrained by TEST-001/TEST-002; DD-4 cites INV-005, the repo's existing python3 assumption, and PS5.1 vs Test-Json (PS6+); DD-5 cites INV-006; DD-6 cites the OQ-004 proposal and avoiding duplicate v1 validation; DD-7 cites the Phase 1 gate's need for machine-consumable output. The '## Deployment / CI Plan' bullets (design.md:145-167) likewise state a reason for each choice (no feature flag because no consumer is wired yet; no CI change because INV-007/OQ-002; N/A migration order because no datastore). No bare 'we will use X' statement without a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:186-230 '## Open Questions' contains OQ-001..OQ-004, and each entry carries all three required fields verbatim: 'Owner: repository owner (human)' (never 'TBD'), 'Blocks Implementation: no', and a concrete 'Resolution Path:' line (OQ-001: Phase-3 owner decision once INV-004's 4 consumers switch to v2; OQ-002: a separate WFI covering all 12 suites; OQ-003/OQ-004: 'resolved — no outstanding work', reflecting that spec-review already settled them into REQ-002/REQ-004(b)/DD-6). No open question blocks implementation with a missing resolution path, and none lacks an owner."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no standalone '## Assumptions' section (confirmed via full header grep: only Technical Summary, Design Decisions, v2 Schema Shape, Architecture, Error Handling, Test Strategy, Deployment / CI Plan, Constraint Compliance, Open Questions exist). Under precheck-result.json's `legacy_design: true`, an absent template section is treated as a [LEGACY COMPAT] non-blocking note rather than a Major finding, per reviewer-calibration.md's legacy-compatibility rule. Substantively, the design's implicit assumptions are stated inline with explicit grounding rather than in a separate section: DD-1 cites INV-003, DD-3/DD-4 cite INV-005, DD-5 cites INV-006, DD-2 cites the 2026-08-16 owner decision plus INV-009, and Constraint Compliance rows (design.md:180-183) cite INV-008 and INV-009. investigation.md is present (not absent), so the check's Major-trigger condition ('investigation.md absent AND >1 non-trivial assumption') does not apply regardless of section placement."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (design.md:169-184), so the Primary (TYPE-D, Critical) path applies. I independently enumerated requirements.md's security/regulatory/compatibility constraints (no numeric performance SLA exists, see PERF-ADDRESSED) and checked each against the table: (1) REQ-007 v1/INV-004-consumers/11-suites unchanged -> row 'v1 無変更（REQ-007）' citing TEST-002/TEST-015 (TEST-015 per acceptance-tests.md AC-015 explicitly also checks the INV-004 consumer diff); (2) content-as-data (Security Boundaries) -> row present; (3) read-only/no-network/no-external-dep (Security Boundaries) -> row present; (4) no secrets/PII in fixtures (Security Boundaries, requirements.md:234) -> row present, citing REQ-005/TEST-003..026; (5) fail-closed incl. the 10MB oversized-input edge case (requirements.md:222-225) -> row present; (6) no new approval-enforcement mechanism (Non-goals, requirements.md:75-78) -> row present; (7) no dual-version loader (Non-goals/INV-009) -> row present; (8) no domain/ artifact generation (Non-goals) -> row present; (9) hook-guard unprotected / no human-copy flow (Roles and Permissions, INV-008) -> row present. Every enumerated constraint has a compliance statement; no requirements.md statement is contradicted anywhere in design.md."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. No response-time, throughput, concurrency, or latency SLA/numeric threshold appears anywhere in the document. The only numeric threshold present is the 10MB oversized-input case in Edge Cases (requirements.md:222-223), which is a fail-closed input-validation boundary, not a performance/SLA requirement, and it is addressed anyway in design.md's Error Handling section ('想定外の巨大入力: 非 0 + 1 行の原因表示')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:145-167 '## Deployment / CI Plan' covers all four required elements with rationale: deployment target (no service deployed; execution host is bash+python3 or PowerShell 5.1+/pwsh, cross-referencing infra-spec.md#execution-environments); feature-flag strategy ('不要' — explained: no consumer is wired in Phase 0, so opt-in is carried by the `schema` value itself per DD-6, not a flag); CI pipeline changes ('なし' — no new job/env var/secret, no run-all/CI registration per INV-007/OQ-002, cross-referencing infra-spec.md#ci--release-impact); and migration execution order ('該当なし' — explicitly explained: no datastore exists, so the migrate-before-deploy/deploy-before-migrate choice never arises). A rollback bullet (file deletion only) is also present."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no dedicated '## Data Plan' section, but the feature declares no schema/data changes of the kind this check targets: Technical Summary (design.md:7-18) describes exactly 3 purely additive artifacts (a new JSON Schema file, validator script twins, a Pester test suite) with zero database entities, and the Deployment / CI Plan's migration-order line (design.md:162-164) states explicitly: 'スキーマ変更を伴うデータストアが存在しない（DB・永続ストアなし、既存テーブル/カラムの読み書きなし）ため、migrate-before-deploy / deploy-before-migrate の選択自体が発生しない.' This is functionally equivalent to the check's PASS condition ('Data Plan states No data changes'); there is no datastore schema change requiring a migration file, rollback strategy, or data-volume impact statement."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no external system, third-party service, or cross-service API call is referenced anywhere in design.md. Technical Summary and Architecture (design.md:7-18, 80-96) describe only local, in-repository operations (a JSON Schema file, a CLI validator reading a local file path, and a Pester suite); infra-spec.md 'Execution Environments' and security-spec.md 'No network, no external dependency' corroborate that no network or external service is touched. The scoped integration surface for this check does not exist, satisfying the SKIP condition in reviewer-calibration.md's Cannot-Verify Handling."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every design element maps to a requirements.md Goal: G1 (concepts[] required top-level array, 7 required fields) -> v2 Schema Shape (design.md:32-78); G2 (term->concept linking) -> the `terms[].concept_id` field in the same shape; G3 (referential-integrity validator, sh/ps1 twins) -> Architecture/Error Handling (design.md:80-113); G4 (fixture corpus) -> Test Strategy (design.md:115-143); G5 (additive-only, v1/consumer untouched) -> Constraint Compliance and Deployment/CI Plan. User Stories US-001..US-003 are all covered by the same artifacts. No extra field, component, or endpoint appears in the v2 Schema Shape example (design.md:38-72) beyond requirements.md's Field Definitions table (requirements.md:172-186) — id/name/context/definition/essence/responsibilities/must_not_own/stakeholder_perspectives/distinguished_from/evidence/terms[].concept_id match one-to-one. No design-system/ directory exists in the repository (verified: `ls design-system` -> No such file or directory), so the design-system-compliance clause does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "security-spec.md flags this feature as always requiring impact assessment because the validator becomes the trust foundation for downstream gates, and names concrete threats: best-effort parsing, content-as-command execution, and silent pass-through of invalid contracts. design.md names concrete validation paths for each: fail-closed parsing is verified by acceptance-tests.md TEST-017 (2 fixtures: malformed JSON, >10MB input, named in Test Strategy design.md:115-143); content-as-data (no eval/Invoke-Expression, no command construction from contract values) is stated as a design property in Constraint Compliance's 'content-as-data' row and enforced structurally by DD-4's hand-rolled, no-external-engine implementation; twin-parity risk (sh/ps1 divergence) is verified by TEST-013 (twin parity, cited in Test Strategy); fixture hygiene / no-secrets-in-fixtures is verified by the Test Strategy 'fixture 衛生' bullet naming REQ-005/TEST-003..026 as the fixing artifacts. Every Constraint Compliance row also names the TEST ID(s) that bind it. These are concrete, named acceptance-test artifacts, satisfying the check without requiring live execution."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the target project has no `domain/` directory at the repository root (verified: `ls domain` -> No such file or directory; `find . -maxdepth 1 -name domain` -> no match). Per the check definition, when the project has no `domain/` directory the check is recorded as skipped."
+    }
+  ]
+}

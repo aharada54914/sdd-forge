@@ -1,0 +1,21 @@
+{
+  "schema": "structural-fixture-corpus/v1",
+  "fixture_state": "F2",
+  "recorded_at_model": "recorded-response/epic-195-a7-compatibility",
+  "recorded_at_commit": "25e0b66c552a7fdc052486cc0a6822dadcd82e41",
+  "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
+  "artifacts": [
+    {
+      "path": "requirements.md",
+      "content": "# 要件（lite）: <feature>\n## ユーザーストーリー / 要求\n## スコープ外\n## Open Questions\nREQ-001\nAC-001"
+    },
+    {
+      "path": "design.md",
+      "content": "# 設計（lite）: <feature>\n## 方針\n## 変更/新規ファイル\n## データ/IF（必要時のみ）\n## テスト方針\nREQ-001\nAC-001"
+    },
+    {
+      "path": "tasks.md",
+      "content": "# タスク（lite）: <feature>\n## T-001 <タスク名>\n### Scope\n### Done When\n### Blockers\nREQ-001\nAC-001"
+    }
+  ]
+}

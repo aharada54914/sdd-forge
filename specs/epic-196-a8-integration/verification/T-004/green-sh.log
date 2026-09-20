@@ -1,0 +1,31 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cli-hook-enforcement.ps1
+Exit: 0
+Phase: GREEN
+
+ok: CLI present on PATH: claude
+ok: CLI present on PATH: codex
+ok: CLI present on PATH: copilot
+ok: claude-code (node --emit exit): self-approval DENIED (exit 2)
+ok: claude-code (node --emit exit): benign edit ALLOWED (exit 0)
+ok: codex/copilot (pwsh .ps1 -Emit exit): self-approval DENIED (exit 2)
+ok: copilot (.ps1 -Emit copilot): self-approval => deny
+ok: copilot (.ps1 -Emit copilot): benign => allow
+ok: codex (sh .sh --emit exit): self-approval DENIED (exit 2)
+ok: copilot (sh .sh --emit copilot): self-approval => deny
+ok: drift: claude-hooks.json invokes node sdd-hook-guard.js --emit exit
+ok: drift: hooks.json invokes sdd-hook-guard.sh --emit exit
+ok: drift: copilot-hooks.json invokes sdd-hook-guard.sh --emit copilot
+ok: TEST-017 regression continuity: all 13 pre-existing checks passed before synthetic additions; no live-host proof state consumed
+ok: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Codex plugin_hooks=enabled config plus direct guard self-approval denial
+ok: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Codex plugin_hooks=disabled config plus direct guard self-approval denial
+ok: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Copilot subagent indicator plus direct guard self-approval denial
+
+CLI hook enforcement: 17 passed, 0 failed.
+cli-hook-enforcement passed.
+
+Additional deterministic checks:
+- PowerShell parser: PASS (1 passed, 0 failed)
+- git diff --check: PASS (1 passed, 0 failed)
+- Baseline preservation: PASS (100 HEAD lines preserved verbatim as an ordered subsequence of 134 current lines; 1 passed, 0 failed)
+- CI-shell-equivalent invocation, pwsh -NoProfile -Command './tests/cli-hook-enforcement.ps1': PASS (17 passed, 0 failed)
+- Layer traceability validator: PASS (1 passed, 0 failed)

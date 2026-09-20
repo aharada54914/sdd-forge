@@ -120,6 +120,22 @@ function Get-ArgvFlat {
     return ""
 }
 
+# codex-cli 0.147.0 contract (invocation-fix hardening): the assembled argv
+# is `exec --model <m> [-c model_reasoning_effort=<e>] --sandbox read-only
+# --skip-git-repo-check -C <scratch-dir> -`. The scratch dir is a fresh
+# per-invocation path, so this matches the fixed tokens/order via regex
+# rather than a byte-exact golden string (mirrors this suite's own
+# established DRIFT-detection style, TEST-038).
+function Test-CodexArgv {
+    param([string]$Model, [string]$Effort = "")
+    $pattern = if ($Effort) {
+        "^exec --model $([regex]::Escape($Model)) -c model_reasoning_effort=$([regex]::Escape($Effort)) --sandbox read-only --skip-git-repo-check -C \S+ -$"
+    } else {
+        "^exec --model $([regex]::Escape($Model)) --sandbox read-only --skip-git-repo-check -C \S+ -$"
+    }
+    return ((Get-ArgvFlat) -cmatch $pattern)
+}
+
 function Invoke-RunGpt {
     param([string[]]$ArgList)
     $savedPath = $env:PATH
@@ -145,8 +161,8 @@ $specRoot = Join-Path $work "specroot"
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--effort", "high", "--digest", $zeroDigest)
-if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "exec --model openai/gpt-5.2-codex --effort high -c project_doc_max_bytes=0")) {
-    Ok "TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model"
+if ((Test-Path -LiteralPath $markerFile) -and (Test-CodexArgv -Model "openai/gpt-5.2-codex" -Effort "high")) {
+    Ok "TEST-035: -Effort is forwarded into the assembled codex argv as -c model_reasoning_effort=<e>, positioned after -Model"
 } else {
     Fail "TEST-035: -Effort was not forwarded correctly into the codex argv -- $(Get-ArgvFlat)"
 }
@@ -154,8 +170,8 @@ if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "exec --model
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035b", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--digest", $zeroDigest)
-if ((Get-ArgvFlat) -ceq "exec --model openai/gpt-5.2-codex -c project_doc_max_bytes=0") {
-    Ok "TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)"
+if (Test-CodexArgv -Model "openai/gpt-5.2-codex") {
+    Ok "TEST-035: omitting -Effort omits the -c model_reasoning_effort override from the codex argv"
 } else {
     Fail "TEST-035: omitting -Effort changed the codex argv shape -- got: $(Get-ArgvFlat)"
 }
@@ -194,7 +210,7 @@ $fwdEffort = $effortLine -replace '^effort=', ''
 Reset-StubState
 Invoke-RunGpt @("--task", "T-036", "--feature", "stub-feat", "--input", $bundleOut, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.1-codex", "--effort", $fwdEffort, "--digest", $zeroDigest)
-if ((Get-ArgvFlat) -clike "*--effort medium*") {
+if ((Get-ArgvFlat) -clike "*-c model_reasoning_effort=medium*") {
     Ok "TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged"
 } else {
     Fail "TEST-036: threaded effort value did not reach the assembled codex argv -- $(Get-ArgvFlat)"
@@ -241,7 +257,7 @@ foreach ($pair in @(@{ Role = "sdd-evaluator"; Toml = $evaluatorToml }, @{ Role 
     Reset-StubState
     Invoke-RunGpt @("--task", "T-037-$($pair.Role)", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
         "--model", $selModel, "--effort", $selEffort, "--digest", $zeroDigest)
-    if (-not ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "exec --model $selModel --effort $selEffort -c project_doc_max_bytes=0"))) {
+    if (-not ((Test-Path -LiteralPath $markerFile) -and (Test-CodexArgv -Model $selModel -Effort $selEffort))) {
         $test037Ok = $false
     }
 }
@@ -438,7 +454,9 @@ if (Test-Path -LiteralPath $stagedTestYml) {
     }
 }
 
-if (Select-String -LiteralPath $runAllSh -Pattern 'run-panelist-effort\.tests\.sh' -CaseSensitive -Quiet) {
+# run-all.sh loads its inventory externally; query the executable list.
+$posixEntries = @(& bash $runAllSh --list)
+if ($LASTEXITCODE -eq 0 -and $posixEntries -ccontains 'tests/run-panelist-effort.tests.sh') {
     Ok "self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh"
 } else {
     Fail "self-registration: run-panelist-effort.tests.sh NOT registered in tests/run-all.sh"

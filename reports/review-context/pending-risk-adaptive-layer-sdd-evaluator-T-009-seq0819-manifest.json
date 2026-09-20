@@ -1,0 +1,58 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "risk-adaptive-layer",
+  "task_id": "T-009",
+  "run_id": "RUN-risk-adaptive-layer-qg-T-009-seq0819",
+  "host_session_id": "SESS-qg-risk-adaptive-layer-T-009-0819",
+  "sequence": 819,
+  "previous_record_sha256": "431ceb20b3868497d159fdbe3bcca3c4cabcc60dfb64f3f2be696279448e093b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "aa918e1d5101ea8bf2be150c8a58c29d4159b8fdf91e6ca2fd76bfa28f20012c",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "sha256": "50cf26530ab5ae15a09392a5cac1c6cf8b2dd5fe2410a83dc5e25815c4a26631"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/design.md",
+      "sha256": "c1887fddcaeac082865401a64806fad92f1a84abd5dd6bdd311c0372db1967cb"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+      "sha256": "2493628bb15c78d43b9edcd4e4e0430bd6051e5946531a0f7cab108e3de50d01"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/tasks.md",
+      "sha256": "c4d135250dc1ec2f6943bbbe4a7a331460800f28f63722867e93d8376f12d03e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.md",
+      "sha256": "54e5e4d476e4db78c4c7cdbbfef065da5749ef436f84ce0242d13ba0bc5fa7f4"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.json",
+      "sha256": "47f8e1d527006d665f356682b7994487a4bdb87c5f22c6be25596343a665264f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/risk-adaptive-layer/T-009.md",
+      "sha256": "4efb38219636e8bea31cf9c870a0807960c242cc70371fbbce58ffc7c01d2c7f"
+    },
+    {
+      "path": "docs/THREAT-MODEL.md",
+      "sha256": "2c9a2315a0dca24e4b7bcc09d753e346934b48fa4122c7558161b41c4abb4b16"
+    },
+    {
+      "path": "docs/agent-capability-matrix.md",
+      "sha256": "884290f0fc8e014758dffe614b04b71d0276eb598facdce8591d4a7fb715527d"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0784",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0784",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-3/integrated-summary.json", "sha256": "c4044e886a38604bb8978efee14156e37eb62fcb12b054d8f81c9b5ced91bada"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-3/precheck-result.json", "sha256": "3128dec0f4ae22a39f7270c28e1461c2db07c21b67225a461d0c7b8a76dd87bf"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight Risk tiers are consistent with declared scope. T-002 (high, checks Security Boundary B2 installed-cache drift), T-004 (high, extends a security-relevant hook-guard CI asset), T-005 (high, implements Security Boundary B1: nonce ledger, Ed25519 signing verification, schema enforcement), and T-008 (high, classifies semantic cells and performs the trust-establishing signer-registration/countersignature HUMAN APPLY STEP) each cite a specific sensitive/security-boundary surface in their Risk Rationale, matching risk-classification-policy.md's 'anything where a silent defect causes material harm' high-tier criterion. T-001/T-003/T-006/T-007 (medium) touch no auth/authz/payment/PII/migration/external-API surface of their own — the one embedded security-relevant case in T-001 (AC-006 canary) is explicitly presence-only, with substantive verification deferred to T-005. No task is over-classified (no high/critical task whose scope is only UI/docs/test-only)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks (T-002, T-004, T-005, T-008) carry a 'TDD evidence' Done-When item requiring RED (failing test before implementation) and GREEN evidence, plus 'An independent quality-gate verdict records PASS' (independent reviewer verdict recorded). No Risk: critical task exists in this decomposition, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task exceeds the oversizing indicators: T-005 (7 Done-When items) and T-008 (8 Done-When items, exactly at but not over the threshold) are each single coherent components (validator engine; classification+discharge workflow) rather than multiple unrelated phases — T-008's Scope spans exactly three tightly-coupled areas (test extension, draft-record/allowlist authoring, HUMAN APPLY STEP) that cannot be decomposed further without leaving an unsatisfiable intermediate state (signed records require the classification and draft records to exist first). No fragmentation: 8 tasks total, none scoped to a single function/file rename."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Edge Cases section covers REQ-001 (headless-contract-unconfirmed runtime), REQ-003 (AC-013 Codex-disabled correctly-detected non-firing, AC-014 Copilot-subagent documented fallback, negative live-host FAIL handling), and REQ-005 (AC-023/AC-024 not-installed mode-dependent semantics). REQ-002's edge cases (AC-008 idempotency, AC-009 zero-residue) and REQ-006/REQ-007's edge cases (T-007's TEST-025/029/030 each specify a mutated-copy fixture 'correctly rejected') are captured directly in acceptance-tests.md/tasks.md Scope sections. No functional task has only happy-path acceptance criteria with no error-path counterpart."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column classifications match each AC's actual scope: integration types (AC-002-004, AC-007-009, AC-012-016, AC-018-020) each cross at least two components (fixture + driver + runtime/script under test); static/doc-review types (AC-001, AC-005, AC-010, AC-011, AC-021, AC-024, AC-025, AC-026, AC-029, AC-030) each target single-document/table exhaustiveness or field-fixation properties with no live multi-component behavior; negative-self-check/negative-lifecycle labels (AC-008, AC-022, AC-023, AC-027) correctly flag their error-path nature. No mismatch found between declared type and tested scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field: T-002 ('revert this task's commit(s); nothing protected is written directly'), T-004 ('the file's pre-existing 101 lines are restored exactly'), T-005 ('a8-trusted-signers.json stays seeded empty by this task alone... changes no signed security claim'), T-008 ('a revert after the human apply step must also state whether the now-signed records... should be hand-reverted')."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md's Protected Files/Global Constraints sections explicitly enumerate every shared file and its coordinating order: a8-skip-allowlist.json (T-001 seeds AC-006 only, T-008 later appends AC-015/AC-016), a8-trusted-signers.json (T-005 seeds empty, T-008's HUMAN APPLY STEP appends real entries), tests/validate-live-host-proof.tests.sh/.ps1 (T-005 creates, T-008 extends in place), and tests/run-all.*/the staged test.yml candidate (serialized T-001->T-002->T-003->T-005->T-006->T-007, with T-004/T-008 explicitly outside the chain since they touch neither shared resource). No uncoordinated overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers entry reflects a genuine functional dependency and matches its task's own Depends On rationale: T-003<-T-002 (invokes check-installed-plugin-drift as a sub-step, script must exist first), T-007<-{T-001,T-002,T-003,T-005,T-006} (its Test-registration-procedure-proof Done-When reads every prior suite's registration), T-008<-{T-001,T-005} (appends to files T-001/T-005 create, extends T-005's test suite). Tasks with no functional dependency (T-002, T-004, T-005, T-006) correctly declare 'Blockers: None' even where a serialization-only 'Depends On' ordering exists, and tasks.md explicitly documents this distinction. No spurious or missing blocker found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All eight tasks author new integration-verification test infrastructure (fixtures, drivers, validators, static checks) for Epic A8; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

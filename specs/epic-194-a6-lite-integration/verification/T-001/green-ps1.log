@@ -1,0 +1,14 @@
+Command: pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1 -SecurityRegression all -RunnerUnderTest specs/epic-194-a6-lite-integration/drafts/apply-protected-files.ps1
+Exit: 0
+Results: 45 passed, 0 failed
+
+Covered:
+- declared/manifest/payload three-way exact-set, including payload and manifest
+  extra/missing cases, with all four live targets unchanged on pre-copy reject;
+- staged hash verification and real-CLI post-copy corruption detection;
+- exact control-file exclusion and feature-scoped prefix resolution;
+- ordinal mis-cased-control rejection and lowercase-only digest grammar;
+- static and deterministic-race ancestor link rejection, canonical containment,
+  external-canary preservation, and moved-live-target preservation;
+- recursive nested PROPOSED/ explicit rejection;
+- twin run-all ordering and non-protected CI draft structure.

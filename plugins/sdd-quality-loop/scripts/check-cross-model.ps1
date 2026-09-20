@@ -96,7 +96,7 @@ if ($verdictFiles.Count -eq 0) {
 
 # ── Step 1: parse + schema-validate each verdict ───────────────────────────
 
-$HEX64 = '^[0-9a-fA-F]{64}$'
+$HEX64 = '^[0-9a-f]{64}$'
 $verdicts = @()
 
 foreach ($vfile in $verdictFiles) {
@@ -115,7 +115,7 @@ foreach ($vfile in $verdictFiles) {
 
     # input_digest must be 64-hex
     $digest = [string]($v.input_digest)
-    if (-not ($digest -match $HEX64)) {
+    if (-not ($digest -cmatch $HEX64)) {
         [Console]::Error.WriteLine("check-cross-model: $($vfile.Name): input_digest must be 64-hex (got '$digest')")
         exit 2
     }

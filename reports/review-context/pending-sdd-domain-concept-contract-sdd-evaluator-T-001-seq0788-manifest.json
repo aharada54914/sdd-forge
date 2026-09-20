@@ -1,0 +1,62 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-domain-concept-contract",
+  "task_id": "T-001",
+  "run_id": "RUN-sdd-domain-concept-contract-qg-T-001-seq0788",
+  "host_session_id": "SESS-qg-sdd-domain-concept-contract-T-001-0788",
+  "sequence": 788,
+  "previous_record_sha256": "9f45118d34030e27e3b7d3e07d11f9af4a79582a3466b319ec5d97552e4c1f74",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "cb9996436dbdd64381849d215891b0febbb5f4fca5c1a1b2adfaa6994229fdcf",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/design.md",
+      "sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/tasks.md",
+      "sha256": "d5a9e80a9a750cc3a3f11647b5c6140cbb0d6384883cb845d74f23377c39a0f0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/traceability.md",
+      "sha256": "a26c4651e6e3f717803b5c7bfba5433700d7ca7f41add4deed82f9ba90b60ec3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/security-spec.md",
+      "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-concept-contract/T-001.md",
+      "sha256": "0490b6b605072307d56d2b70f2410d130be5995e4bd74eb6d6398f02a0f27221"
+    },
+    {
+      "path": "contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/T-001/red.log",
+      "sha256": "4c015f6cbac8bdf4a9486de45f746c5bf7762a16a6f5ecdbb75eca5d281555b0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/verification/T-001/green.log",
+      "sha256": "d81c9758e8359757c5998647eb9e8685cec45e7f8339b8cd7cf2a8d4ec4489fb"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-195-a7-compatibility",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "tests/structural-compatibility.tests.{sh,ps1}: suite initialization and Validate-Track/validate_track sections",
+      "note": "AC-030 and T-004 require a recorded model response to be injected through the fingerprinted generation seam using T-001 fixtures. The implementation never loads fixture-matrix-builder, calls build_fixture, drives a generation entry point, or intercepts model generation; it only reads committed corpus JSON directly and compares its hand-recorded artifacts with templates. The anchor hash proves that the documented section is unchanged but does not prove that the corpus is injected through that seam, so the gating suite can pass while the required injection path is absent or broken."
+    }
+  ],
+  "blind": true,
+  "input_digest": "08ef0a2bd9c3010ca2aa297795ea24805cba1835033f7cd6abdc6685a15083a8",
+  "consent": {
+    "kind": "sudo",
+    "ref": "SDD_SUDO"
+  }
+}

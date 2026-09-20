@@ -32,7 +32,7 @@ if (Test-Path -LiteralPath $ReportRoot) {
 $data = Get-Content -LiteralPath $Contract -Raw | ConvertFrom-Json
 $expectedProperties = @('attempt', 'feature', 'input_sha256', 'round', 'run_id', 'schema', 'stage', 'verdict')
 $actualProperties = @($data.PSObject.Properties.Name | Sort-Object)
-if (@(Compare-Object -ReferenceObject $expectedProperties -DifferenceObject $actualProperties).Count -ne 0 -or $data.schema -ne 'review-contract/v1' -or $data.feature -ne $Feature -or -not (Is-JsonInteger $data.attempt) -or $data.attempt.ToString() -ne $Attempt -or -not (Is-JsonInteger $data.round) -or $data.round.ToString() -ne $Round -or $data.stage -ne $Stage -or $data.input_sha256 -isnot [string] -or $data.input_sha256 -notmatch '^[0-9a-fA-F]{64}$' -or $data.run_id -isnot [string] -or [string]::IsNullOrWhiteSpace($data.run_id) -or $data.verdict -ne 'PASS') { Fail 'contract identity or PASS verdict is invalid' }
+if (@(Compare-Object -ReferenceObject $expectedProperties -DifferenceObject $actualProperties).Count -ne 0 -or $data.schema -ne 'review-contract/v1' -or $data.feature -ne $Feature -or -not (Is-JsonInteger $data.attempt) -or $data.attempt.ToString() -ne $Attempt -or -not (Is-JsonInteger $data.round) -or $data.round.ToString() -ne $Round -or $data.stage -ne $Stage -or $data.input_sha256 -isnot [string] -or $data.input_sha256 -cnotmatch '^[0-9a-f]{64}$' -or $data.run_id -isnot [string] -or [string]::IsNullOrWhiteSpace($data.run_id) -or $data.verdict -ne 'PASS') { Fail 'contract identity or PASS verdict is invalid' }
 
 # PowerShell 7.5+ may serialize BigInteger values as objects on macOS. Feature
 # and stage are already constrained to JSON-safe tokens, and attempt/round are

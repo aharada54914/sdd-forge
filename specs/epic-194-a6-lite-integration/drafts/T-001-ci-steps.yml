@@ -1,0 +1,16 @@
+# Non-protected CI wiring draft for T-001. This file is not executable CI
+# configuration; a human must review and copy the steps into the protected
+# .github/workflows/test.yml file.
+schema: epic-194-ci-step-draft/v1
+task: T-001
+insertion:
+  before: tests/check-risk-upgrade-byte-identical.tests.sh
+steps:
+  - name: Verify Epic 194 human-copy runner contract (POSIX entrypoint)
+    if: runner.os != 'Windows'
+    shell: bash
+    run: bash ./tests/human-copy-runner-contract.tests.sh
+  - name: Verify Epic 194 human-copy runner contract (PowerShell entrypoint)
+    shell: pwsh
+    run: ./tests/human-copy-runner-contract.tests.ps1
+

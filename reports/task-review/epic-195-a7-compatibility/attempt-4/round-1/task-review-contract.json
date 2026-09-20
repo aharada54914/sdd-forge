@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 4,
+  "round": 1,
+  "requirements_sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390",
+  "acceptance_sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d",
+  "design_sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78",
+  "tasks_sha256": "383b9fead4f9ffa13e96e32a88f89a975acf6d2e27ad1cfac97e72a3bcce2436",
+  "traceability_sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f",
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67",
+    "infra-spec.md": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9",
+    "security-spec.md": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+  },
+  "workflow_match_precheck": "PASS",
+  "human_edit_summary": "Post-implementation provenance re-binding (attempt 4) after T-003 reached Status: Done behind the independent quality-gate cycle-2 PASS (ledger seq0671, zero Critical/Major, 11 Minor; report at reports/quality-gate/epic-195-a7-compatibility/T-003.md; cycle 1, seq0670, was NEEDS_WORK and its three blocking findings were remediated in commit 3be46e1a before the cycle-2 verdict). Delta since the attempt-3 round-1 binding dca0d8321717d2dc47b440c70dcf5d5150518d0f4cb9f94667f39253530a001d: T-003 Status Planned -> Implementation Complete -> Done (commits 979a95b0, 5989e14e) and the traceability.md REQ-001 status advance (REQ-001 row now Done citing the seq0671 QG report - T-003 is REQ-001's only mapped task - with the Final Status prose extended in parallel with the REQ-005/REQ-006 precedent). Both reviewers verified via git history that no substantive decomposition content drifted (single tasks.md hunk: the T-003 Status line; traceability.md: REQ-001 row + Final Status prose only). The binding is the raw tasks.md hash 383b9fead4f9ffa13e96e32a88f89a975acf6d2e27ad1cfac97e72a3bcce2436 (mixed statuses: 3 Done, 9 Planned match neither the normalized nor a uniform re-review canonical form), so the next lifecycle flip will require another re-binding round. Reservation identities seq0672/seq0673; both REVIEW_CONTEXT_OK (records ad483bab..., 793deb42...). Orchestrator prerequisite evidence, recorded here because it belongs to the host, not to any reviewer artifact: reviewer A independently reconstructed the full 672-record ledger chain (zero hash/link errors, its identity at seq 672 only) and re-hashed its 12 manifest entries with zero drift; reviewer B reconstructed the full 673-record chain (zero errors, tail at its own seq-673 reservation) and re-hashed its 14 manifest entries with zero mismatches before reading. Round outcome on verbatim artifacts: reviewer A 14/14 PASS; reviewer B 7/9 PASS + 2 reasoned SKIP (BUGFIX-DIAGNOSTIC-PATH: no bugfix task in scope, unchanged from attempt-3; EDGE-CASE-COVERAGE: newly SKIPped this round on the check's own applicability condition - design.md:4 fixes Feature Type: test-infrastructure specification and no functional non-test task exists - where attempt-3 recorded PASS for the same bytes with T-002-focused evidence; the SKIP text itself enumerates the error-path coverage that does exist), zero findings. Process disclosure, recorded verbatim for human review: the platform attached an automated security warning to reviewer B's returned result alleging self-endorsement/fabrication of the second-reviewer verdict file. The host verified before proceeding: reviewer B ran as a separate fresh-context reviewer holding its own validator reservation (seq0673) with counts-and-IDs-only isolation from reviewer A; all 14 hashes embedded in reviewer-b.json match both the validator-reserved invocation manifest and the live files; and the artifact's citations spot-check accurately (design.md:4, tasks.md:254-272, tasks.md:1651-1697). No evidence of fabrication was found; the flag is disclosed here rather than silently dropped so the human can weigh it at merge time.",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt4r1-seq0672",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0672",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/dependency-graph.json",
+          "sha256": "bfa0b386e3810bc49ec8da0309be452e02112d1d92d8557c4fd9d73f22b62c9d"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json",
+          "sha256": "d6b5d83b971bb164f63435d75600edc3512de7143c9ea1a5851f95a7101cc5f2"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "383b9fead4f9ffa13e96e32a88f89a975acf6d2e27ad1cfac97e72a3bcce2436"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt4r1-seq0673",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0673",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/precheck-result.json",
+          "sha256": "d6b5d83b971bb164f63435d75600edc3512de7143c9ea1a5851f95a7101cc5f2"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/tasks.md",
+          "sha256": "383b9fead4f9ffa13e96e32a88f89a975acf6d2e27ad1cfac97e72a3bcce2436"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/traceability.md",
+          "sha256": "d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "reports/task-review/epic-195-a7-compatibility/attempt-4/round-1/integrated-summary.json",
+          "sha256": "bf7ef611fc401873ba32c5b7933a90f7226e262bfda84b2c2dba221745e1b534"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "prior_round_contract_sha256": "",
+  "run_id": "task-orch-epic-195-a7-compatibility-a4r1",
+  "timestamp": "2026-08-12T01:38:40Z"
+}

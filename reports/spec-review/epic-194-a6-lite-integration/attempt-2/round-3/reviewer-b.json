@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a2-r3-reviewer-b-seq770",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a2-r3-reviewer-b-770",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "fbcca3c04b1f66374cb7e03483c64a47dd9a32749b80f61ba8231272405df5f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "e82a6cd6fa5aad1a4da058d67e84f06daaa38eea18c10d980d6008009e8db593"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-3/precheck-result.json",
+      "sha256": "92d9eea6e9104c14123fdee8b58115c0ebf7c492e1a1e50c286d6ede00a86a7d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-3/integrated-summary.json",
+      "sha256": "ea8184bf567693d435c2753cf5ec02af30f12b0ec3282cdfb7874131f7ae3f77"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms and I/O contracts are concretely bound throughout: check-id identifier grammar `^[a-z0-9][a-z0-9-]*$` fixed at three enforcement points (requirements.md Field Definitions, :843-866); the capability-derived trigger fragment shape is a fixed JSON object with named keys (requirements.md :890-909); check-risk-upgrade's two input states (omitted vs. supplied-and-invalid) are each given an exact exit code and output text (requirements.md REQ-002, :368-411, AC-007/AC-027 :779, :799). No residual PASS-blocking ambiguity found in requirements.md or acceptance-tests.md."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The 14-finding adversarial review's blockers/majors (B1-B7, M1-M3, NEW-01) are each resolved with a specific requirements.md/acceptance-tests.md citation (investigation.md :600-695). The apparent conflict between the Overview's 'Phase 1 package only... no tasks.md/traceability.md exists yet' framing (requirements.md :40-45) and later-phase artifacts now being cited (tasks.md, traceability.md, T-001 verdicts) is explicitly reconciled by the dated note (requirements.md :46-58) pointing to investigation.md's '## Amendment Re-Review Context' section (investigation.md :696-778), which meets the calibration's full evidence bar (full commit hashes, per-document SHA-256s, verbatim dated human-approval quotations, and commit/SHA-256 citations for every later-phase artifact referenced) -- so this is a disclosed amendment, not an unresolved contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-006's fixture inventory (a)-(l) (requirements.md :602-666) and the Edge Cases section (requirements.md :1020-1104) cover the material negative/boundary paths the requirements imply: v1-field-absence vs. present-empty vs. zero-match (three distinct states, AC-029), ineligible-with-no-reasons synthetic trigger (AC-028), unmapped/grammar-invalid/symlink/partial-pair check-ids (AC-016), active-enforcement absent-Summary vs. disabled-legacy absent-Summary (AC-030 vs. AC-011), schema-invalid Summary, and supplied-but-invalid capability-reasons fragment (AC-027). acceptance-tests.md rows TEST-011/016/026/027/028/029/030 (acceptance-tests.md :36,41,49-53) each carry a corresponding test target."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-010 (requirements.md :782) and AC-031 (requirements.md :803), and acceptance-tests.md's AC-010 row (acceptance-tests.md :35), add `.github/workflows/test.yml` as a fifth human-copy payload target, justified only by 'tasks.md's own Protected Files item 3 already commits this runner to applying [it] the same way it applies the four payload files' -- a citation to a later-phase artifact (tasks.md), not to any investigation finding establishing that this file is protected or what content change it needs. `investigation.md` contains zero mentions of 'test.yml' anywhere (confirmed by grep across the full file), so this assumption -- that a CI workflow file must be edited as part of this feature, and what that edit contains -- is neither resolved by investigation nor marked as an explicit open decision (it is absent from Open Questions/Risks/Assumptions). This is a distinct defect from phase-sequencing: even setting aside the tasks.md citation, no REQ-001..REQ-006 text anywhere states what this feature requires of `.github/workflows/test.yml` or why a CI workflow change is in scope at all, so it is not suppressed by the Amendment Re-Review Context's phase-sequencing carve-out. Downstream: a task author or implementer has no spec-level basis for what change to author for this declared payload target, only that its hash must match whatever gets staged."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The protected-file human-copy governance boundary is testable: AC-017 (requirements.md :789) requires a pre-edit grep re-check of `guard-invariants.json` before any direct edit; AC-031 (requirements.md :803) requires a three-way exact-set/hash/post-copy-verification match for the human-copy runner; Roles and Permissions (requirements.md :923-967) fixes that only a human/spec-review-loop may flip `Spec-Review-Status`/`Impl-Review-Status` to `Passed`; AC-025 (requirements.md :797) makes `check-workflow-state.sh` exit 0 (which enforces the Pending/Passed field state) a testable registration-time condition. These boundaries are structurally testable independent of the ASSUMPTIONS-RESOLVABLE/DOWNSTREAM-READINESS gap noted above (that gap is about content-completeness of one payload target, not about whether the approval/governance mechanism itself is testable)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Same evidence as ASSUMPTIONS-RESOLVABLE, applied to the handoff-readiness failure mode: AC-010 (requirements.md :782) and AC-031 (requirements.md :803) commit this package to staging `.github/workflows/test.yml` as a protected-file payload target with exact-hash verification, but no REQ text (REQ-001 through REQ-006, requirements.md :229-666) states what functional change that file requires, or why a CI workflow edit is within this feature's scope at all -- `investigation.md` never discusses it (zero grep matches). A design.md author (or the design reviewer evaluating design.md) would have to invent the actual product behavior/content of that CI change, which is exactly the missing-product-behavior-invention failure mode DOWNSTREAM-READINESS exists to catch. Every other REQ in this package cites a specific investigation.md finding or sibling-epic text grounding its scope; this one payload target is the sole exception."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Verified directly (the one permitted manifest-external check): no `domain/` directory exists at the repository root of this worktree (`/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/domain/` and `/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/domain/context-map.md` both return no matches via Glob). Per the check's own skip condition, DOMAIN-CONFORMANCE does not apply and is recorded as skipped."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-043",
+  "category": "app-dev-efficiency",
+  "cycle": 2,
+  "verdict": "BLOCKED",
+  "critical_count": 1,
+  "major_count": 5,
+  "minor_count": 2,
+  "failed_check_ids": [
+    "EFFECT-CONSISTENT-WITH-EVIDENCE",
+    "CATEGORY-LANGUAGE-SECOND-PASS",
+    "IMPACT-PROPORTIONATE",
+    "RISK-IDENTIFIED",
+    "ROLLBACK-VIABLE",
+    "BLAST-RADIUS-BOUNDED",
+    "REGRESSION-SURFACE",
+    "ALTERNATIVES-CONSIDERED"
+  ],
+  "summary": "A Critical data-loss defect in the proposed mechanism, demonstrated end to end. The friction is real and reproducible, but the live-blob-match rule the proposal chose destroys reviewed un-applied human work in the apply-then-rollback case: the staged bytes matched a historical live blob, so the mirror classifies syncable and the sync tool overwrites it and rewrites its manifest digest, exiting 0. That is the exact hazard WFI-039's pending state exists to prevent, and the proposal explicitly denied introducing it. A strictly safer mechanism of the same cost — keying on the bundle's own staged path so the evidence is a record of a sync rather than a coincidence — was verified to fix the target defect while protecting the hazard case. Also: 12 of 15 protected mirrors match a historical origin/main blob; 66 mirrors cover only 34 live paths, so a live-path match cannot be attributed to a bundle; --check already exits non-zero when a mirror is syncable, which the proposal misdescribed; and one pending row is a comment line double-counted by a parser defect.",
+  "generated_at": "2026-08-23T15:20:00Z"
+}

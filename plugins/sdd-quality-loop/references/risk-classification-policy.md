@@ -55,9 +55,16 @@ When a task spans tiers, classify at the **highest** applicable tier.
 
 ## Backward compatibility
 
-A task or contract with **no** `Risk`/`risk` field is treated as the documented
-default (`medium`-baseline) so pre-feature artifacts keep validating. New tasks
-MUST set `Risk`; `check-risk` fails closed when it is absent in a task that opts
-into the risk-adaptive flow.
+A task or contract with **no** `Risk`/`risk` field is **legacy mode**: the
+risk-tier pass is skipped entirely and NO tier minimum applies, so
+pre-feature artifacts keep validating. Do **NOT** map absent to `medium` -
+an absent field carries no tier and must never be silently promoted to one
+(design.md, requirements.md and risk-gate-matrix.md all state this rule;
+this paragraph previously contradicted them - corrected 2026-08-21,
+RT-20260821-001, verified against measured `check-contract` behavior: a
+no-risk fixture passes while the identical fixture with `risk: medium`
+fails on the medium tier minimum). New tasks MUST set `Risk`; `check-risk`
+fails closed when it is absent in a task that opts into the risk-adaptive
+flow.
 
 See `risk-gate-matrix.md` for the tier → required-checks mapping the gate enforces.

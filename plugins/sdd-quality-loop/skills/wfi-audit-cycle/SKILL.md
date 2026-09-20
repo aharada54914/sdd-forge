@@ -1,7 +1,7 @@
 ---
 name: wfi-audit-cycle
 description: "Orchestrator for the WFI proposal audit. Runs 2 sequential independent audit cycles on a WFI-NNN.md Draft before presenting it to a human for Approved. Cycle 1 (wfi-auditor-a) audits proposal quality. Cycle 2 (wfi-auditor-b) audits impact and risk. Each auditor runs as a fresh isolated agent. The orchestrator applies audit findings to revise the WFI between cycles, creates a GitHub Issue for plugin-improvement WFIs, and sets Audit-Status: Human-Pending when complete."
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -18,9 +18,11 @@ Codex:
 Use the wfi-audit-cycle skill for WFI-NNN
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
+
 ```
-/sdd-quality-loop:wfi-audit-cycle WFI-NNN
+/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
 Replace `WFI-NNN` with the specific WFI identifier (e.g., `WFI-001`).
@@ -100,10 +102,10 @@ Schema:
   "schema": "wfi-integrated-summary/v1",
   "wfi_id": "WFI-NNN",
   "cycle": 1,
-  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-METRIC-DEFINED", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
+  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "WHY-CHAIN-VALID", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-METRIC-DEFINED", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
   "auditor_a_fail_ids": ["<IDs of FAIL checks>"],
   "auditor_a_fail_count": 0,
-  "auditor_a_pass_count": 8,
+  "auditor_a_pass_count": 9,
   "auditor_a_skip_count": 0,
   "auditor_a_verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "generated_at": "<ISO8601>"
@@ -130,7 +132,8 @@ wfi-audit-cycle BLOCKED at Cycle 1 — <N> Critical finding(s) in WFI-NNN (attem
 
 The WFI has fundamental quality issues that must be resolved before audit can
 continue. Review WFI-NNN-auditor-a.json for details, revise WFI-NNN.md, then
-re-invoke /sdd-quality-loop:wfi-audit-cycle WFI-NNN.
+re-enter the wfi-audit-cycle skill for WFI-NNN by re-reading and following
+this file.
 ```
 Halt. Do not proceed to Cycle 2.
 
@@ -193,8 +196,8 @@ Read `wfi-auditor-b.json`. Check the `verdict` field.
 wfi-audit-cycle BLOCKED at Cycle 2 — <N> Critical finding(s) in WFI-NNN (attempt <Audit-Attempt>/3).
 
 The revised WFI has a fundamental feasibility or scope issue. Review
-WFI-NNN-auditor-b.json for details, revise WFI-NNN.md, then re-invoke
-/sdd-quality-loop:wfi-audit-cycle WFI-NNN.
+WFI-NNN-auditor-b.json for details, revise WFI-NNN.md, then re-enter the
+wfi-audit-cycle skill for WFI-NNN by re-reading and following this file.
 ```
 Halt.
 

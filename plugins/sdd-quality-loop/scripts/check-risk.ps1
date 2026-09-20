@@ -47,9 +47,14 @@ $foundFilter = $false
 $lines = Get-Content -Encoding Utf8 $TasksPath
 
 foreach ($line in $lines) {
-    if ($line -match '^##\s+(T-\d+)') {
+    if ($line -cmatch '^##\s+(T-[0-9]+)') {
         $newTask = $Matches[1]
-        if (-not $seenIds.ContainsKey($newTask)) {
+        if ($seenIds.ContainsKey($newTask)) {
+            # RT-20260821-006: duplicate headings previously merged into the
+            # hashtables, letting a later section silently override or shadow
+            # an earlier one. Fail closed instead.
+            $failures += "duplicate task heading: $newTask"
+        } else {
             $seenIds[$newTask] = $true
         }
         $currentTask = $newTask
@@ -59,17 +64,17 @@ foreach ($line in $lines) {
         if (-not $riskImpact.ContainsKey($currentTask)) { $riskImpact[$currentTask] = "" }
         if (-not $riskReversibility.ContainsKey($currentTask)) { $riskReversibility[$currentTask] = "" }
         if (-not $riskSurface.ContainsKey($currentTask)) { $riskSurface[$currentTask] = "" }
-    } elseif ($currentTask -and $line -match '^Risk:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk:\s*(.*)$') {
         $risk[$currentTask] = $Matches[1].Trim()
-    } elseif ($currentTask -and $line -match '^Risk Rationale:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk Rationale:\s*(.*)$') {
         $riskRationale[$currentTask] = $Matches[1].Trim()
-    } elseif ($currentTask -and $line -match '^Required Workflow:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Required Workflow:\s*(.*)$') {
         $requiredWorkflow[$currentTask] = $Matches[1].Trim()
-    } elseif ($currentTask -and $line -match '^Risk Impact:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk Impact:\s*(.*)$') {
         $riskImpact[$currentTask] = $Matches[1].Trim()
-    } elseif ($currentTask -and $line -match '^Risk Reversibility:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk Reversibility:\s*(.*)$') {
         $riskReversibility[$currentTask] = $Matches[1].Trim()
-    } elseif ($currentTask -and $line -match '^Risk Surface:\s*(.*)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk Surface:\s*(.*)$') {
         $riskSurface[$currentTask] = $Matches[1].Trim()
     }
 }
@@ -93,7 +98,7 @@ foreach ($task in $allTasks) {
 
     if ($r -eq "") {
         $failures += "$task has no Risk line"
-    } elseif ($r -notin $validRisks) {
+    } elseif ($r -cnotin $validRisks) {
         $failures += "$task has invalid Risk: $r"
     }
 
@@ -107,7 +112,7 @@ foreach ($task in $allTasks) {
     $floor = 0
     $ri = $riskImpact[$task]
     if ($ri -ne "") {
-        if (-not $impactFloor.ContainsKey($ri)) {
+        if ($ri -cnotin @($impactFloor.Keys)) {
             $failures += "$task has invalid Risk Impact: $ri"
         } elseif ($impactFloor[$ri] -gt $floor) {
             $floor = $impactFloor[$ri]
@@ -115,7 +120,7 @@ foreach ($task in $allTasks) {
     }
     $rv = $riskReversibility[$task]
     if ($rv -ne "") {
-        if (-not $reversibilityFloor.ContainsKey($rv)) {
+        if ($rv -cnotin @($reversibilityFloor.Keys)) {
             $failures += "$task has invalid Risk Reversibility: $rv"
         } elseif ($reversibilityFloor[$rv] -gt $floor) {
             $floor = $reversibilityFloor[$rv]
@@ -123,23 +128,23 @@ foreach ($task in $allTasks) {
     }
     $rs = $riskSurface[$task]
     if ($rs -ne "") {
-        if (-not $surfaceFloor.ContainsKey($rs)) {
+        if ($rs -cnotin @($surfaceFloor.Keys)) {
             $failures += "$task has invalid Risk Surface: $rs"
         } elseif ($surfaceFloor[$rs] -gt $floor) {
             $floor = $surfaceFloor[$rs]
         }
     }
-    if ($floor -gt 0 -and $rank.ContainsKey($r) -and $rank[$r] -lt $floor) {
+    if ($floor -gt 0 -and ($r -cin @($rank.Keys)) -and $rank[$r] -lt $floor) {
         $failures += "$task Risk: $r is inconsistent with its structured risk fields (policy floor: $($tierName[$floor]))"
     }
 
     # high/critical risk must declare Required Workflow: tdd (design.md:118).
     # Only checked for valid high/critical risk; low/medium unconstrained.
-    if ($r -eq "high" -or $r -eq "critical") {
+    if ($r -ceq "high" -or $r -ceq "critical") {
         $rw = $requiredWorkflow[$task]
         if ($rw -eq "") {
             $failures += "$task (risk $r) must declare Required Workflow: tdd (none found)"
-        } elseif ($rw -ne "tdd") {
+        } elseif ($rw -cne "tdd") {
             $failures += "$task (risk $r) must declare Required Workflow: tdd, found: $rw"
         }
     }

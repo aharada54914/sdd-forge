@@ -1,0 +1,193 @@
+--- a/plugins/sdd-quality-loop/scripts/check-contract.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-contract.ps1
+@@ -310,6 +310,16 @@
+     exit 1
+ }
+ 
++# RT-20260821-005(c): contract schema versioning (parity with the python
++# twin). Absent schema = v1 legacy, behavior unchanged; a declared schema
++# must be a recognized version.
++$contractSchema = ([string]($contract.schema)).Trim()
++if ($contractSchema -and $contractSchema -cne 'verification-contract/v2') {
++    Write-Output "Verification contract FAILED for task $($contract.task_id):"
++    Write-Output " - contract schema is unrecognized: $contractSchema"
++    exit 1
++}
++
+ # Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+ $risk = ([string]($contract.risk)).Trim()
+ $stack = ([string]($contract.stack)).Trim()
+@@ -328,6 +338,18 @@
+         # while the project declares no capability-enforcement posture, so the
+         # requirement activates exactly when the corresponding gate stops
+         # being inert (see $CAPABILITY_STATE_GATED_IDS).
++        # RT-20260821-005(c) / AC-005 contract side (see the python twin's
++        # rationale comment): v2 high/critical requires a well-formed
++        # spec_revision; v1/absent-schema contracts are exempt.
++        if ($contractSchema -ceq 'verification-contract/v2' -and ($risk -cin @('high', 'critical'))) {
++            $specRevision = ([string]($contract.spec_revision)).Trim()
++            $srOk = ($specRevision.Length -eq 40 -or $specRevision.Length -eq 64) -and
++                    ($specRevision -cmatch '\A[0-9a-f]+\z')
++            if (-not $srOk) {
++                $failures += "risk $risk requires a well-formed spec_revision (40- or 64-hex lowercase) under verification-contract/v2"
++            }
++        }
++
+         $requiredIds = $RISK_TIERS[$risk]
+         if (-not (Test-CapabilityEnforcementDeclared -Root $absRoot)) {
+             $requiredIds = @($requiredIds | Where-Object { $CAPABILITY_STATE_GATED_IDS -notcontains $_ })
+--- a/plugins/sdd-quality-loop/scripts/check-contract.py
++++ b/plugins/sdd-quality-loop/scripts/check-contract.py
+@@ -201,6 +201,20 @@
+         failures.append(f"contract risk is invalid: {risk}")
+         return
+ 
++    # RT-20260821-005(c) / AC-005 contract side: under verification-contract/v2
++    # a high/critical contract must carry a well-formed spec_revision (a 40-hex
++    # git commit or 64-hex corpus digest - both live conventions, measured
++    # 7:119 across shipped contracts). v1/absent-schema contracts are exempt:
++    # ~40 shipped high/critical contracts predate the field and backfilling a
++    # historical corpus hash would fabricate provenance.
++    if (contract.get("schema") or "").strip() == "verification-contract/v2" and risk in {"high", "critical"}:
++        spec_revision = (contract.get("spec_revision") or "").strip()
++        if not (len(spec_revision) in (40, 64)
++                and all(ch in "0123456789abcdef" for ch in spec_revision)):
++            failures.append(
++                f"risk {risk} requires a well-formed spec_revision "
++                f"(40- or 64-hex lowercase) under verification-contract/v2")
++
+     required_ids = RISK_TIERS[risk]
+     if not _capability_enforcement_declared(root):
+         required_ids = required_ids - CAPABILITY_STATE_GATED_IDS
+@@ -374,6 +388,14 @@
+             failures.append(f"contract {name} must be a string")
+         return contract.get("task_id", "?"), failures
+ 
++    # RT-20260821-005(c): contract schema versioning. Absent schema = v1
++    # (legacy, 194 shipped contracts) - current behavior unchanged. A declared
++    # schema must be a recognized version; anything else fails closed.
++    contract_schema = (contract.get("schema") or "").strip()
++    if contract_schema and contract_schema != "verification-contract/v2":
++        failures.append(f"contract schema is unrecognized: {contract_schema}")
++        return contract.get("task_id", "?"), failures
++
+     non_dict_indices = [i for i, c in enumerate(checks_raw) if not isinstance(c, dict)]
+     if non_dict_indices:
+         failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -1617,6 +1617,114 @@
+     else
+         ok "T-004.0-caserisk-ps1: ps1 rejects case-variant risk values"
+     fi
++fi
++
++# ============================================================================
++# T-004V (RT-20260821-005(c)): verification-contract/v2 schema versioning.
++# v2 high/critical requires a well-formed spec_revision (40- or 64-hex);
++# v1/absent-schema contracts stay exempt (grandfather intact); unknown
++# schema values fail closed. Both runtimes.
++# ============================================================================
++write_t004v_contract() {
++    # $1 = dir, $2 = extra top-level JSON fields (leading comma included)
++    mkdir -p "$1/reports"
++    create_evidence "$1/reports/test.log"
++    create_evidence "$1/reports/test.red.log"
++    create_evidence "$1/reports/test.green.log"
++    cat > "$1/T-004V.contract.json" <<EOF
++{
++  "task_id": "T-004V",
++  "feature": "test-feature",
++  "risk": "high",
++  "required_workflow": "tdd",
++  "created": "2026-08-21T00:00:00Z"${2},
++  "checks": [
++    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
++    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
++    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
++    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
++  ]
++}
++EOF
++}
++
++SR64="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
++SR40="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
++
++# v2 + high + NO spec_revision -> fail (both runtimes)
++write_t004v_contract "${WORK}/t004v_missing" ', "schema": "verification-contract/v2"'
++output=$(run_check_contract "${WORK}/t004v_missing/T-004V.contract.json" "${WORK}/t004v_missing")
++if echo "$output" | grep -q "requires a well-formed spec_revision"; then
++    ok "T-004V.1: v2 high without spec_revision fails closed"
++else
++    fail "T-004V.1: v2 high without spec_revision should fail. Got: $output"
++fi
++if command -v pwsh >/dev/null 2>&1; then
++    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004v_missing/T-004V.contract.json" "${WORK}/t004v_missing" >/dev/null 2>&1; then
++        fail "T-004V.1-ps1: ps1 accepted v2 high without spec_revision"
++    else
++        ok "T-004V.1-ps1: ps1 rejects v2 high without spec_revision"
++    fi
++fi
++
++# v2 + high + 64-hex -> pass; + 40-hex -> pass (both live conventions)
++write_t004v_contract "${WORK}/t004v_sr64" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"${SR64}\""
++if check_contract_passes "${WORK}/t004v_sr64/T-004V.contract.json" "${WORK}/t004v_sr64"; then
++    ok "T-004V.2: v2 high with 64-hex spec_revision passes"
++else
++    fail "T-004V.2: 64-hex spec_revision should pass: $(run_check_contract "${WORK}/t004v_sr64/T-004V.contract.json" "${WORK}/t004v_sr64")"
++fi
++write_t004v_contract "${WORK}/t004v_sr40" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"${SR40}\""
++if check_contract_passes "${WORK}/t004v_sr40/T-004V.contract.json" "${WORK}/t004v_sr40"; then
++    ok "T-004V.3: v2 high with 40-hex spec_revision passes"
++else
++    fail "T-004V.3: 40-hex spec_revision should pass"
++fi
++
++# uppercase hex must NOT satisfy the well-formed rule (case-class regression)
++write_t004v_contract "${WORK}/t004v_upper" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"$(echo "$SR40" | tr b B)\""
++if check_contract_passes "${WORK}/t004v_upper/T-004V.contract.json" "${WORK}/t004v_upper"; then
++    fail "T-004V.4: uppercase spec_revision accepted under v2"
++else
++    ok "T-004V.4: uppercase spec_revision rejected under v2"
++fi
++
++# legacy (absent schema) + high + NO spec_revision -> still passes (grandfather)
++write_t004v_contract "${WORK}/t004v_legacy" ''
++if check_contract_passes "${WORK}/t004v_legacy/T-004V.contract.json" "${WORK}/t004v_legacy"; then
++    ok "T-004V.5: absent-schema high without spec_revision still passes (v1 grandfather)"
++else
++    fail "T-004V.5: v1 grandfather broken: $(run_check_contract "${WORK}/t004v_legacy/T-004V.contract.json" "${WORK}/t004v_legacy")"
++fi
++
++# unknown schema -> fail closed (both runtimes)
++write_t004v_contract "${WORK}/t004v_bogus" ', "schema": "verification-contract/v9"'
++output=$(run_check_contract "${WORK}/t004v_bogus/T-004V.contract.json" "${WORK}/t004v_bogus")
++if echo "$output" | grep -q "contract schema is unrecognized"; then
++    ok "T-004V.6: unknown contract schema fails closed"
++else
++    fail "T-004V.6: unknown schema should fail. Got: $output"
++fi
++if command -v pwsh >/dev/null 2>&1; then
++    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004v_bogus/T-004V.contract.json" "${WORK}/t004v_bogus" >/dev/null 2>&1; then
++        fail "T-004V.6-ps1: ps1 accepted an unknown contract schema"
++    else
++        ok "T-004V.6-ps1: ps1 rejects an unknown contract schema"
++    fi
++fi
++
++# v2 + medium + NO spec_revision -> passes (rule scoped to high/critical)
++write_t004v_contract "${WORK}/t004v_medium" ', "schema": "verification-contract/v2"'
++sed 's/"risk": "high"/"risk": "medium"/; s/"required_workflow": "tdd"/"required_workflow": "acceptance-first"/'     "${WORK}/t004v_medium/T-004V.contract.json" > "${WORK}/t004v_medium/T-004V.medium.contract.json"
++if check_contract_passes "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium"; then
++    ok "T-004V.7: v2 medium without spec_revision passes (tier scope)"
++else
++    fail "T-004V.7: v2 medium should not require spec_revision: $(run_check_contract "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium")"
+ fi
+ 
+ # ============================================================================

@@ -1,0 +1,79 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-022",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "NEEDS_REVISION",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 2,
+    "auditor_a_pass_count": 7,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All four structural elements are present: (1) metric rows — 'the next retrospective's Applied WFI Horizon Check table gains a WFI-022 row'; (2) 'Baseline: 4' / 'Target: 0'; (3) horizon — 'this change's verification run, then the next completed feature whose work applies or advances a WFI'; (4) threshold — refusal count 0. But the threshold element is internally contradictory: Verification Plan step (1) says 'Replay all four reproduced false positives against the patched guard and confirm each is now allowed', while the Proposed Change explicitly keeps the approval-removing sed refused ('Deliberately NOT proposed: relaxing the Bash path for write-capable commands ... no capability is lost by leaving that path strict'). This is deterministic, not a judgment call: the proposed read-only exemption is conditioned on the guard's existing invariant SHELL_READ_ONLY_START_RE, whose generated value covers cat|ls|test|grep|stat|head|tail|rg only (generated/guard_invariants.py:10) — sed is not in the list, and the broad match is otherwise KEPT, so the sed replay is refused by design. That refusal counts against the Target-Metric inside the Horizon window (which includes 'this change's verification run'), making Target 0 unreachable by the plan's own step (1). The Baseline-4-to-Target-0 arithmetic counts an operation class the change deliberately does not unblock."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Evidence scale: four false positives reproduced in one working day across all three broken/partially-broken decision paths, plus a systemic consequence (four WFIs' status transitions left lagging, recorded in commit 41fae3ff, verified: 'The flip needs a human hand or a guard fix'). Change scope: one matcher-anchoring fix, one missing-comparison-operand fix, one exemption conditioned on an existing invariant — replicated across the four parity-locked twins as parity requires — plus regression tests. Nothing is restructured; the broad write-capable shell match is deliberately retained. Scope matches evidence."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Four Verified WFIs exist: WFI-002 (AGENTS.md fallback subsection), WFI-007 (sdd-implementation skills, sdd-bootstrap template, deterministic-check-policy.md), WFI-008 (specs/ EVIDENCE-LOSS records and mcp golden tests), WFI-011 (AGENTS.md § Rules). None touches any of this WFI's five targets (the four sdd-hook-guard twins, tests/guard-parity.tests.sh). No overwrite, conflict, or contradiction. Note for the implementer, not a conflict: Applied (not Verified) WFI-016 previously changed the guard's CWD verdict resolution (commit 848e46d1); the changes are orthogonal, and guard-parity WFI-016 scenarios must stay green."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The root cause is inherent to plugin logic, and the WFI correctly declares Category: plugin-improvement with the plugin files as targets. Per the NO-PLUGIN-SCOPE-CREEP carve-out (commit ffa2d6bb verified), this repository is the plugins' source of truth, so a plugin-improvement WFI delivers via repository commit after human approval — the exact precedent of Verified WFI-007 (Issue #105) and Applied WFI-016 (PR #208, commit 848e46d1). Verified first-hand: sdd-hook-guard.py:53 compiles the matcher with no anchors/multiline; the Edit path (:741-742) evaluates only new_string; the Bash path (:728) is a substring test; only the Write path (:749-756) implements the delta semantics. Delivery mechanics note: the guard's R-10 protection covers the guard files themselves (guard-parity Scenario 9), so application must ride the sanctioned human-application route, consistent with the WFI's own statement."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Mechanical scan for every Section 2 forbidden term produced hits only for 'sdd-quality-loop' as a path component: Problem Evidence (permitted) and the Target File column (the file must be named there; Verified WFI-007 uses the same convention). The scanned prose scopes contain no forbidden term; they use 'the guard', 'the field matcher', 'the Edit/Bash/Write path'. Code identifiers cited are not in the forbidden-term table."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "Two consistency defects. (a) Expected Effect lists 'advancing a WFI to Applied through the Edit path after its implementation lands' among operations that 'stop being refused', but that exact operation is already allowed and green-tested today: tests/guards.tests.sh asserts the minimal Applied-transition Edit is allowed on the sh, py, and node twins, and tests/hooks.tests.ps1 asserts the same on ps1 — because the current Edit path inspects only new_string, and the Applied transition's new_string does not contain the approved value. The 2026-08-04 blockage was the write-capable sed on the shell path (deliberately kept refused), not the Edit path. (b) The 'Concretely' paragraph and Verification Plan step (4) are stale: commit 5aa079c5 (2026-08-07, human-authored) already flipped WFI-012/013/014/021 to Applied, and WFI-012 through WFI-015 all now carry a column-0 Applied status line, so no pending transition among them exists for step (4) to perform."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Problem Evidence compresses cleanly into 2-3 generic sentences. The Proposed Change table has five concrete rows with per-file change descriptions in generic terms. Expected Effect states a quantitative target. The issue body will inherit the baseline/target incoherence flagged under VERIFICATION-COMPLETE until that revision is applied, but none of the three issue-body criteria is empty or vague."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true declared; all three strict-lane questions answered. (1) Easier to satisfy without improving the outcome: NO. Anchoring cannot miss a real approval — the approval is a column-0 field line, and a repo-wide grep found no deterministic consumer of the approval literal outside the guard and its test suites. The Edit-path delta still blocks every addition, which is the only granting direction; the residual net-zero relocation class is already permitted by today's Write-path net-count comparison and requires a precondition present nowhere in the template or any current WFI. The read-only shell exemption is conditioned on SHELL_READ_ONLY_START_RE plus absence of write/redirect tokens, and the invariants loader fails closed (on load error the regex matches nothing and the exemption vanishes, sdd-hook-guard.py:965-966). The broad write-capable match is kept. (2) Check count non-decreasing: nothing removed; the parity suite gains six cases; every existing WFI-guard assertion keeps its expected outcome under the proposed semantics (verified in guard-parity Scenario 5, guards.tests.sh:1229-1290, hooks.tests.ps1:694-762). (3) Target-Metric independence: the count is tabulated by the retrospective's Applied WFI Horizon Check — an instrument this WFI does not touch — and the false-positive classification is defined in the WFI, not computed by the guard."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Verification Metric",
+      "change": "Exclude write-capable shell commands whose text contains the field literal from the Target-Metric (that class is deliberately kept strict; its supported route is the Edit path); reclassify the sed refusal as expected-strict, making Baseline 3 and Target 0 coherent.",
+      "rationale": "As written, replaying the sed inside the Horizon window guarantees a count of at least 1, so Target 0 is unreachable by the plan's own steps."
+    },
+    {
+      "section": "## Verification Plan",
+      "change": "Step (1): confirm the three false positives are now allowed and the approval-removing sed is STILL refused by design, with the same transition succeeding through the Edit path; reclassify the sed case in the parity-suite row accordingly (three allowed + three must-stay-refused).",
+      "rationale": "Removes the internal contradiction between step (1) and the 'Deliberately NOT proposed' paragraph."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Reword the Edit-path item (the minimal transition is already allowed and green-tested; the 2026-08-04 blockage was the shell-path route); replace the 'Concretely' paragraph (the class is closed for future WFIs — the next one, including this WFI itself, advances via the Edit path, whereas WFI-012/013/014/015 required human commit 5aa079c5); update step (4) to target WFI-022's own advance instead of WFI-012-015.",
+      "rationale": "Resolves the two EFFECT-CONSISTENT-WITH-EVIDENCE defects: an already-allowed, already-tested operation claimed as newly allowed, and a stale step targeting transitions a human already performed on 2026-08-07."
+    }
+  ]
+}

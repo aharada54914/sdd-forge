@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "risk-adaptive-layer",
+  "task_id": "T-005",
+  "run_id": "RUN-risk-adaptive-layer-qg-T-005-seq0814",
+  "host_session_id": "SESS-qg-risk-adaptive-layer-T-005-0814",
+  "sequence": 814,
+  "previous_record_sha256": "93ce5baf7abbfb45d075be58d95f5ace53d9544ffcf9729e1e8a7fbc7180f6b2",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ab644df80b0ceee284a7aa04c5df159946c5775bf31fb84b2a91342f7aeba80b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "sha256": "50cf26530ab5ae15a09392a5cac1c6cf8b2dd5fe2410a83dc5e25815c4a26631"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/design.md",
+      "sha256": "c1887fddcaeac082865401a64806fad92f1a84abd5dd6bdd311c0372db1967cb"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+      "sha256": "2493628bb15c78d43b9edcd4e4e0430bd6051e5946531a0f7cab108e3de50d01"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/tasks.md",
+      "sha256": "c4d135250dc1ec2f6943bbbe4a7a331460800f28f63722867e93d8376f12d03e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.md",
+      "sha256": "54e5e4d476e4db78c4c7cdbbfef065da5749ef436f84ce0242d13ba0bc5fa7f4"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.json",
+      "sha256": "47f8e1d527006d665f356682b7994487a4bdb87c5f22c6be25596343a665264f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/risk-adaptive-layer/T-005.md",
+      "sha256": "0df07c145bcb99bf1fe41e1d7f3b8b4d3f60816df5b7ae4b2a3aec792387bc6f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.ps1",
+      "sha256": "f000014b7f2b9b4153ea21e87c6671591f63cadeaa6bb9b131e5bf9d88271058"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "sha256": "96a207790ab9e46baf1c4365e50b5c80de274c854d77e64f98f3d2fc4b7a84b0"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-005.green.log",
+      "sha256": "0c10146b29257972c0b92c6ca49b9fe661ccf210be762e495272cb54814a75ee"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-005.red.log",
+      "sha256": "3793bcb23919ada5d5d191e995e8d01a0a7d857770cf3e381a5d85d43a8e0609"
+    },
+    {
+      "path": "tests/gates.tests.sh",
+      "sha256": "31d8581dda3eceac63ccb5a05b9d7608cd280e637407aa032e89e8cd9a57dcc2"
+    },
+    {
+      "path": "tests/scripts.tests.ps1",
+      "sha256": "0b717f4449967966af3d49c5d1c28958360271832315e45ff6e110c37b737c93"
+    }
+  ]
+}

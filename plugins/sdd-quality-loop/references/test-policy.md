@@ -9,6 +9,15 @@
 - Mock external APIs, email, payments, filesystem, and network only when needed.
 - Prefer real domain objects and integration tests over interaction-only mocks.
 
+## Universal Testing Principles (Technology-Neutral)
+
+1. **Define Observable Boundaries**: Verify contracts that callers, consumers, or adjacent systems rely upon. Observation boundaries include function/CLI inputs and outputs, published events, state transitions, IaC plans, user interfaces, and domain invariants.
+2. **Independent Expected Results**: Base test expectations on explicit requirements, acceptance criteria, independently computed values, reference implementations, or invariant properties. Avoid self-referential tests that copy the implementation's exact calculation into the assertion. Snapshot or auto-generated outputs must not be treated as automated approval without independent verification.
+3. **Demonstrate Failure Sensitivity**: Verify that tests fail when the targeted defect or regression is introduced (e.g. reproducing issues before fixing, introducing negative cases, boundary violations, or simulated faults).
+4. **Resilience to Internal Refactoring**: Tests should focus on observable behavior so that internal implementation refactoring does not break existing valid contracts.
+5. **Right-Sized Verification**: Test at the smallest reliable boundary that proves the requirement, complemented by integration or acceptance verification where needed. Avoid enforcing fixed toolchains (e.g., npm/pytest/Playwright/Terraform) as universal requirements.
+6. **Isolation and Limitations**: Explicitly account for test environment boundaries (time, randomness, external dependencies). Replacing external systems with mocks or fakes does not prove live production integration; record unverified scope rather than equating mock success with environment-complete verification. Distinguish design-only verification from running system execution.
+
 ## Risk-tiered test depth
 
 The required test set scales with the task's risk tier (`risk-gate-matrix.md`):

@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196a8integration-impl-a4r2-a-seq0771",
+  "host_session_id": "SESS-impl-a4r2-a-epic196a8integration-0771",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-1/integrated-summary.json", "sha256": "1ba83eb71c3705c63c33634617cd57babcd3413ab1d3d4a364fc5e9a7a287011"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json", "sha256": "004f8f2fee3b0fa26820de305cd9c9edb37b0e19b98d13ec8bd6277130789f23"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 29-86) provides a mermaid diagram of top-level component boundaries per REQ-001..REQ-006, states integration with existing tests/run-all.{sh,ps1} and .github/workflows/test.yml 3-OS matrix (INV-014) by extending, not duplicating, tests/cli-hook-enforcement.ps1 and tests/install.tests.{sh,ps1}, and names technology choices per layer (Components table Language column; Layer Specifications section: 'Frontend: N/A ... sh/PowerShell/Python plus JSON'; 'Infrastructure: ... described in Deployment / CI Plan'). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture mermaid graph's solid dependency edges (HANDOFF-->CANARY-->LIVE-->AGGREGATE; MATRIX-->LOCAL/CI3/DRIFT; SYN-->FLAG/SUBAGENT; FLAG-->LIVE) form a DAG with no cycle. Dashed edges (e.g. AGGREGATE -.Done gate + release gate.-> REQ003, CLASS -.classifies.-> ...) are annotation/classification relationships, not dependency declarations, and were excluded from cycle analysis accordingly. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 252-280) specifies Data Entities (six new JSON schemas/manifests), Existing Data Affected (read-only comparison targets, one narrow write to nonce-ledger.json's consumed_by_record field), and Migration Strategy ('No migration required...'). No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 980-1075) lists every new script/flag with request/response schema (cross-runtime-handoff.tests.sh/.ps1, install-uninstall-matrix.tests.sh/.ps1, check-installed-plugin-drift.sh/.ps1, validate-live-host-proof.sh/.ps1, path-lineending-regression.tests.sh/.ps1, live-host proof capture). No existing surface is deprecated or breaking-changed; Test Strategy item 4 and AC-017 explicitly guarantee tests/cli-hook-enforcement.ps1's existing assertions are preserved unmodified. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 1538-1554) names trust boundaries B1 (live-host session authenticity) and B2 (read-only drift check) with concrete enforcement mechanisms. security-spec.md expands this into five trust boundaries (B1-B5) with a Trust Boundaries mermaid diagram, a full boundary table, a STRIDE Analysis table, an Authorization table, a Data Classification and Protection table (all entities classified 'internal', no PII), and an OWASP Mapping table covering Software/Data Integrity Failures, Broken Access Control, Security Misconfiguration, Injection (explicitly N/A with rationale), Cryptographic Failures, and Identification/Authentication Failures. No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is cli (design.md header: 'Feature Type: test-infrastructure specification (Phase 1 — no code)', precheck-bound as feature_type cli); no Frontend Plan/Backend Plan sections apply."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 1076-1188) lists 11 concrete items spanning fixture-level drives (items 1, 6), integration/aggregate checks (items 5, 7, 10), AC-NNN-mapped acceptance verification throughout, and named planned evidence (script names, schema names, error codes, CI job wiring in Deployment / CI Plan). Item 10 fixes the aggregate Done/release-gate end-to-end verification path (validate-live-host-proof) satisfying the critical-user-journey e2e requirement for this cli-classified feature. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in Architecture (mermaid subgraph nodes) and API / Contract Plan is defined in the Components table (design.md lines 90-104): fixture dir, both driver script pairs, extended cli-hook-enforcement.ps1, hook-activation-live-proof records/ledger/raw captures, validate-live-host-proof, check-installed-plugin-drift, and the three new reference manifests. Existing repository components cited (install.sh/.ps1, sdd-hook-guard.*, hook config files, check-hook-activation-handshake.*) are established system components with file:line citations traceable to investigation.md. No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## ADR Change Log cites existing ADR-0019 (docs/adr/0019-approval-sidecar-protection.md, verified present) and proposes new ADR-0028 (docs/adr/0028-live-host-proof-ed25519-signing.md, verified present on disk) for the Ed25519 signing/Trusted-Signer-Registry decision. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the target repository has no design-system/ directory (verified via ls). design.md's own '## Design System Compliance' section states 'Not applicable' consistent with this."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: the target repository has no domain/ directory (verified via ls), so no domain/context-map.md with Domain-Model-Status: Approved exists."
+    }
+  ]
+}

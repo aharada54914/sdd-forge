@@ -1,0 +1,236 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sdd-forge/contracts/domain-contract.v2.schema.json",
+  "title": "Domain Contract v2",
+  "description": "Adds concepts[] as a first-class model element alongside the v1 contexts/terms/aggregates/relations shape (Issue #290, sdd-domain-concept-contract Phase 0). This file is additive: it duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file rather than referencing domain-contract.v1.schema.json, so v1 stays byte-identical and unconsumed by this file (design.md DD-3). Referential integrity that JSON Schema draft-07 cannot express (concept.context membership, distinguished_from/term dangling references, duplicate ids, cross-field self-contradiction) is checked by validate-domain-contract.sh/.ps1, not this schema (design.md DD-1, INV-003).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "meta", "contexts", "concepts"],
+  "properties": {
+    "schema": {
+      "const": "domain-contract/v2"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "status", "generated_from"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Monotonic model version, bumped on every regeneration",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Reviewed", "Approved"],
+          "description": "Mirror of Domain-Model-Status in domain/context-map.md"
+        },
+        "generated_from": {
+          "type": "array",
+          "description": "Repo-relative paths of the Markdown sources this contract was projected from",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      }
+    },
+    "contexts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/boundedContext" }
+    },
+    "concepts": {
+      "type": "array",
+      "description": "First-class domain concepts (requirements.md REQ-002). A project with no concepts stays on v1 -- v2 adoption itself is the opt-in.",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/concept" }
+    },
+    "relations": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/contextRelation" }
+    }
+  },
+  "definitions": {
+    "boundedContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "terms", "aggregates"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Canonical context name (kebab-case, EN)",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "description": { "type": "string" },
+        "terms": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/term" }
+        },
+        "aggregates": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/aggregate" }
+        }
+      }
+    },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical", "definition"],
+      "properties": {
+        "canonical": {
+          "type": "string",
+          "description": "Canonical English term as used in specs"
+        },
+        "ja": {
+          "type": "string",
+          "description": "Japanese translation"
+        },
+        "definition": { "type": "string" },
+        "forbidden_synonyms": {
+          "type": "array",
+          "description": "Terms that must not be used in specs for this concept",
+          "items": { "type": "string" }
+        },
+        "concept_id": {
+          "type": "string",
+          "description": "The concept this term names (v2 addition, requirements.md REQ-003). Optional. A concept_id that resolves to no declared concept is a validator error (V2-DANGLING-TERM), not a schema violation.",
+          "pattern": "^CONCEPT-[A-Z][A-Z0-9-]*$"
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "root_entity", "invariants", "transaction_boundary", "card"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$",
+          "description": "Aggregate name (PascalCase, EN)"
+        },
+        "root_entity": { "type": "string" },
+        "invariants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "transaction_boundary": {
+          "type": "string",
+          "description": "What one transaction may span"
+        },
+        "card": {
+          "type": "string",
+          "description": "Repo-relative path to domain/aggregates/<name>.md"
+        }
+      }
+    },
+    "contextRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "pattern"],
+      "properties": {
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "pattern": {
+          "type": "string",
+          "enum": [
+            "partnership",
+            "shared-kernel",
+            "customer-supplier",
+            "conformist",
+            "anticorruption-layer",
+            "open-host-service",
+            "published-language",
+            "separate-ways"
+          ]
+        },
+        "note": { "type": "string" }
+      }
+    },
+    "concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A first-class domain concept: a name, a single bounded-context home, its responsibilities and non-responsibilities, and the evidence/perspectives that justify its boundary (requirements.md REQ-002, design.md DD-1). Single-context membership is declared here as a required scalar field; enforcing that the value names a declared context is the validator's job (design.md DD-1, INV-003), because draft-07 cannot express that cross-object reference.",
+      "required": ["id", "name", "context", "definition", "essence", "responsibilities", "evidence"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable concept identifier. Referenced by distinguished_from[].concept_id and term.concept_id.",
+          "pattern": "^CONCEPT-[A-Z][A-Z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Canonical name given to the concept (PascalCase). The name is not the concept itself -- the same name may legitimately appear in two different contexts (requirements.md Edge Cases).",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "context": {
+          "type": "string",
+          "description": "The single bounded context this concept belongs to (design.md DD-1). Must name a context declared in contexts[]; that referential integrity is checked by the validator, not this schema (INV-003).",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+        },
+        "definition": {
+          "type": "string",
+          "description": "What in reality this concept carves out.",
+          "minLength": 1
+        },
+        "essence": {
+          "type": "string",
+          "description": "A one-line statement of the concept's essence.",
+          "minLength": 1
+        },
+        "responsibilities": {
+          "type": "array",
+          "description": "Responsibilities this concept may own.",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "must_not_own": {
+          "type": "array",
+          "description": "Responsibilities this concept must never own (explicit boundary contract). Optional -- absence is valid; a concept may list only what it owns at first and add must_not_own entries as boundary incidents occur.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "stakeholder_perspectives": {
+          "type": "array",
+          "description": "How different stakeholders see this concept (boundary discovery evidence). Optional.",
+          "items": { "$ref": "#/definitions/stakeholderPerspective" }
+        },
+        "distinguished_from": {
+          "type": "array",
+          "description": "Records why this concept is distinct from another concept. Optional. Self-reference and dangling concept_id references are validator errors, not schema violations.",
+          "items": { "$ref": "#/definitions/distinguishedFrom" }
+        },
+        "evidence": {
+          "type": "array",
+          "description": "References to domain-story/event/issue material that grounds this concept.",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      }
+    },
+    "stakeholderPerspective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor", "concern"],
+      "properties": {
+        "actor": { "type": "string", "minLength": 1 },
+        "concern": { "type": "string", "minLength": 1 }
+      }
+    },
+    "distinguishedFrom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["concept_id", "reasons"],
+      "properties": {
+        "concept_id": {
+          "type": "string",
+          "description": "The other concept this entry distinguishes the owning concept from. A value equal to the owning concept's own id (self-reference) is invalid; that check is the validator's job, not this schema's.",
+          "pattern": "^CONCEPT-[A-Z][A-Z0-9-]*$"
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

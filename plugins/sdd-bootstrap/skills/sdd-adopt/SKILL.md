@@ -1,7 +1,7 @@
 ---
 name: sdd-adopt
 description: Adopt SDD in an existing repository. Creates only what is missing — structure directories, AGENTS.md, CLAUDE.md, host-appropriate CI/issue/PR templates — without writing specifications or application code.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -19,10 +19,11 @@ Codex:
 Use the sdd-adopt skill.
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-bootstrap:sdd-adopt [project-root]
+```
+/sdd-bootstrap:bootstrap
 ```
 
 `project-root` defaults to the repository root when omitted.

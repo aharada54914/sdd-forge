@@ -461,6 +461,34 @@ else
     fail "A.9: generate-evidence-bundle failed for T-101 — $(run_generate_bundle "${SA_T101}/verification/T-101.contract.json" "${SA_T101}/reports/quality-gate/T-101.md" "$SA_T101")"
 fi
 
+# ---- A.9b: bundle carries per-check telemetry (RT-20260821-005 / REQ-006) ----
+# design.md section 5: checks[] with id/command/exit_code/started_at/
+# finished_at/evidence_sha256 per entry, one entry per contract check, and
+# evidence_sha256 freshly measured for on-disk evidence.
+if [ -f "${SA_T101}/verification/T-101.evidence.json" ]; then
+    if python3 - "${SA_T101}/verification/T-101.evidence.json" "${SA_T101}/verification/T-101.contract.json" <<'PYEOF'
+import json, sys
+bundle = json.load(open(sys.argv[1]))
+contract = json.load(open(sys.argv[2]))
+checks = bundle.get("checks")
+assert isinstance(checks, list), "bundle.checks missing or not a list"
+assert len(checks) == len(contract.get("checks", [])), "bundle.checks count != contract checks"
+required_keys = {"id", "required", "passes", "command", "exit_code",
+                 "started_at", "finished_at", "evidence", "evidence_sha256"}
+for entry in checks:
+    missing = required_keys - set(entry)
+    assert not missing, f"bundle.checks entry missing keys: {missing}"
+assert any(e.get("evidence_sha256") for e in checks), "no check carries a measured evidence_sha256"
+PYEOF
+    then
+        ok "A.9b: evidence bundle emits the per-check telemetry array (REQ-006)"
+    else
+        fail "A.9b: bundle.checks telemetry missing or malformed"
+    fi
+else
+    fail "A.9b: T-101 evidence bundle not found for telemetry assertion"
+fi
+
 # ---- A.10: check-task-state BLOCKS critical Done without Second Approval ----
 echo "--- A.10: check-task-state blocks critical Done without Second Approval ---"
 
@@ -952,6 +980,93 @@ unset SDD_EVIDENCE_KEY
 
 # ===========================================================================
 # Summary
+# ===========================================================================
+# RT-20260821-008: check-traceability hardening — misspelled mode argument is
+# a usage error (was: silent default-mode fallback disabling require-evidence),
+# and evidence routed through a repo-escaping symlink fails on BOTH runtimes
+# (the ps1 twin's lexical GetFullPath containment previously passed it).
+# ===========================================================================
+RT008="$WORK/rt008"
+mkdir -p "$RT008/repo/specs/demo/verification" "$RT008/outside"
+echo "real evidence" > "$RT008/outside/secret.log"
+echo "in-repo evidence" > "$RT008/repo/specs/demo/verification/good.log"
+cat > "$RT008/repo/good.json" <<'EOF'
+{"schema":"traceability/v1","feature":"demo","links":[{"requirement":"REQ-001","acs":["AC-001"],"tests":["TEST-001"],"evidence":["specs/demo/verification/good.log"]}]}
+EOF
+cat > "$RT008/repo/escape.json" <<'EOF'
+{"schema":"traceability/v1","feature":"demo","links":[{"requirement":"REQ-001","acs":["AC-001"],"tests":["TEST-001"],"evidence":["specs/demo/verification/escape.log"]}]}
+EOF
+if bash "${SCRIPTS_DIR}/check-traceability.sh" "$RT008/repo/good.json" "$RT008/repo" requre-evidence >/dev/null 2>&1; then
+    fail "RT008.1: misspelled mode argument silently selected default mode"
+else
+    ok "RT008.1: unknown mode argument is a usage error (fail closed)"
+fi
+if ln -s "$RT008/outside/secret.log" "$RT008/repo/specs/demo/verification/escape.log" 2>/dev/null; then
+    if bash "${SCRIPTS_DIR}/check-traceability.sh" "$RT008/repo/escape.json" "$RT008/repo" require-evidence >/dev/null 2>&1; then
+        fail "RT008.2: sh accepted repo-escaping evidence symlink"
+    else
+        ok "RT008.2: sh rejects repo-escaping evidence symlink"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+        if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-traceability.ps1" -TracePath "$RT008/repo/escape.json" -RepoRoot "$RT008/repo" -RequireEvidence >/dev/null 2>&1; then
+            fail "RT008.3: ps1 accepted repo-escaping evidence symlink (lexical containment fail-open)"
+        else
+            ok "RT008.3: ps1 rejects repo-escaping evidence symlink"
+        fi
+    fi
+else
+    ok "RT008.2/3: skip - symlink creation denied on this host"
+fi
+
+# ===========================================================================
+# RT-20260821-007: matrix/code drift guard. references/risk-gate-matrix.md is
+# the canonical home of the tier minimums (design.md names it); check-contract
+# encodes them as hardcoded constants. Two-place drift previously went green.
+# This parses BOTH and asserts set equality per tier.
+# ===========================================================================
+if python3 - "${SCRIPTS_DIR}/check-contract.py" "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md" <<'PYEOF'
+import re, sys
+code = open(sys.argv[1], encoding="utf-8").read()
+doc = open(sys.argv[2], encoding="utf-8").read()
+
+m = re.search(r'RISK_TIERS\s*=\s*\{(.*?)\n\}', code, re.S)
+assert m, "RISK_TIERS not found in check-contract.py"
+code_tiers = {}
+for tier, body in re.findall(r'"(low|medium|high|critical)":\s*\{([^}]*)\}', m.group(1)):
+    code_tiers[tier] = set(re.findall(r'"([a-z-]+)"', body))
+
+block = re.search(r'## Required check ids \(machine form[^\n]*\n.*?```\n(.*?)```', doc, re.S)
+assert block, "machine-form block not found in risk-gate-matrix.md"
+doc_tiers = {}
+for line in block.group(1).splitlines():
+    lm = re.match(r'(low|medium|high|critical)\s*=\s*(.*)', line.strip())
+    if not lm:
+        continue
+    tier, expr = lm.group(1), lm.group(2).split('#')[0]
+    ids = set()
+    for token in re.split(r'[∪+]', expr):
+        token = token.strip()
+        inner = re.match(r'\{(.*)\}', token)
+        if inner:
+            ids |= {t.strip() for t in inner.group(1).split(',') if t.strip()}
+        elif token in doc_tiers:
+            ids |= doc_tiers[token]
+    doc_tiers[tier] = ids
+
+for tier in ("low", "medium", "high", "critical"):
+    assert tier in code_tiers, f"tier {tier} missing from code"
+    assert tier in doc_tiers, f"tier {tier} missing from matrix doc"
+    if code_tiers[tier] != doc_tiers[tier]:
+        print(f"DRIFT tier={tier}: code-only={sorted(code_tiers[tier]-doc_tiers[tier])} "
+              f"doc-only={sorted(doc_tiers[tier]-code_tiers[tier])}", file=sys.stderr)
+        sys.exit(1)
+PYEOF
+then
+    ok "RT007-DG: check-contract RISK_TIERS equals the risk-gate-matrix machine form (all 4 tiers)"
+else
+    fail "RT007-DG: tier-set drift between check-contract.py and risk-gate-matrix.md"
+fi
+
 # ===========================================================================
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed."

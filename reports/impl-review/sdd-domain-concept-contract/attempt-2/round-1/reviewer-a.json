@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-a-a2r1-seq0778",
+  "host_session_id": "SESS-impl-impl-reviewer-a-sdd-domain-concept-contract-a2r1-0778",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain-concept-contract/design.md", "sha256": "28bd5415ad62afd26f4b167cbe418dc1f2dbc10ec7dd93aabce35d3a31465d64"},
+    {"path": "specs/sdd-domain-concept-contract/requirements.md", "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"},
+    {"path": "specs/sdd-domain-concept-contract/acceptance-tests.md", "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"},
+    {"path": "specs/sdd-domain-concept-contract/investigation.md", "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"},
+    {"path": "specs/sdd-domain-concept-contract/ux-spec.md", "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"},
+    {"path": "specs/sdd-domain-concept-contract/frontend-spec.md", "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"},
+    {"path": "specs/sdd-domain-concept-contract/infra-spec.md", "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"},
+    {"path": "specs/sdd-domain-concept-contract/security-spec.md", "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain-concept-contract/attempt-2/round-1/precheck-result.json", "sha256": "7807e53ff675e3d30b92526d6a9718770239b6a2a6ca5181041aca709be48a4d"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "additive contract + deterministic validator + test corpus",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture` (lines 80-96) gives an interaction diagram, not a one-line list: 契約JSON → validate-domain-contract.sh/.ps1 (4 numbered steps: JSON parse, schema dispatch, structural check, cross-reference check) → 'exit 0' → downstream Phase consumers (explicitly 'not yet connected'). (1) Top-level component boundaries: Technical Summary names the three additive artifacts (schema file, validator twins, test corpus). (2) Integration with existing components: Technical Summary states 'v1 consumer（domain-sync / reviewer A / interviewer / check-domain-conformance — INV-004）には触れない' and names how Phase 1/Phase 3 will consume the contract later, which is an explicit statement of the (deliberately absent) integration surface. (3) Technology choices per layer: frontend-spec.md `## Technology Stack` (normative refinement per instructions) names v2 schema=JSON Schema draft-07, sh validator=Bash+python3 stdlib json, ps1 validator=PowerShell ConvertFrom-Json (PS5.1-safe), test suite=Pester, consistent with design.md DD-4; infra-spec.md `## Execution Environments`/`## CI / Release Impact` states no CI/infra changes; ux-spec.md/frontend-spec.md state no frontend layer exists (N/A — no GUI). No missing element."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Architecture` declares a strictly unidirectional pipeline: 契約JSON → validate-domain-contract.sh/.ps1 → 後続Phaseの消費者（本feature ではまだ接続しない）. No component depends back on an upstream node (the downstream consumers are explicitly 'not yet connected', so no edge exists from them at all). No `## Components` section is present to check separately. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field `## Data Plan` (with sub-fields `Data Entities:`/`Existing Data Affected:`/`Migration Strategy:`) absent from design.md; legacy design.md (precheck-result.json `legacy_design: true`) predates this template requirement. Related substantive content exists in `## v2 Schema Shape` and requirements.md `## Field Definitions`, which describe the new schema structure (concepts[]/contexts[]/relations), but is not organized under the required headings."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field `## API / Contract Plan` absent from design.md; legacy design.md predates this template requirement. The feature has no user-facing interactions (ux-spec.md: 'no GUI, view, dialog, menu item, or interactive shell surface') and no HTTP/RPC endpoints — its CLI validator entry points are already documented in `## Architecture` and frontend-spec.md `## Technology Stack`, but not under the required heading."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md has no `## Security Boundaries` section (confirmed: only Technical Summary, Design Decisions, v2 Schema Shape, Architecture, Error Handling, Test Strategy, Constraint Compliance, Open Items are present). TYPE-H fallback applied: scanned requirements.md `## User Stories` (lines 80-90, US-001..US-003) for PII keywords (email, phone, password, address, SSN, payment, card, token, auth, login) — none found (a substring hit on 'authoring' inside `## Target Users` at line 32 is out of the scanned section and not the keyword 'auth'). Per the check's own TYPE-H branch: 'Security Boundaries section absent; no PII keywords detected in User Stories. Consider adding a brief security statement.' Non-blocking advisory. Note: security-spec.md `## Threat Considerations` substantively covers content-as-data, fail-closed parsing, no-secrets-in-fixtures, and no-network/no-external-dependency as the responsible layer specification, even though design.md itself does not cross-reference it by name."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md declares `Feature Type: additive contract + deterministic validator + test corpus` — this literal string does not match the enumerated skip values (api-only/frontend-only/cli/library), but the scoped surface this check requires (a frontend plan and a backend plan to cross-check) does not exist: ux-spec.md states 'There is no GUI, view, dialog, menu item, or interactive shell surface' and frontend-spec.md states 'There is no browser or frontend application... no component tree, browser state, route, or API client exists or is added.' Per Cannot-Verify Handling calibration ('Use SKIP... when the scoped surface does not exist'), this check does not apply."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` (lines 115-136) covers all required elements: acceptance-test approach ties every TEST-001..026 to acceptance-tests.md's AC-NNN criteria and names the concrete test artifact `tests/sdd-domain/contract-v2-schema.Tests.ps1` (Pester); unit-level granularity is addressed by '非空虚性: 負例は1検査1fixtureで計73件... どの検査が効いたかをRULE-IDで判別する' (one rule checked per fixture); integration-level/cross-boundary testing is addressed by 'twin parity: TEST-013が全fixtureでsh/ps1のverdict一致を検査' (sh/ps1 implementation boundary) and by the positive fixtures exercising both the structural assertion and the validator invocation together. Concrete planned verification evidence is present as named artifacts: `contracts/domain-contract.v2.schema.json`, `plugins/sdd-domain/scripts/validate-domain-contract.sh/.ps1`, `tests/sdd-domain/contract-v2-schema.Tests.ps1`, and the RULE-ID error-line convention (design.md `## Error Handling`). No E2E/user-journey requirement applies (non-fullstack, no critical user journey per ux-spec.md)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has no `## Frontend Plan`, `## Backend Plan`, or `## API / Contract Plan` sections, so only `## Architecture` is in scope. Every name referenced there is defined elsewhere in design.md: '契約JSON' is defined inline in the diagram annotation; 'validate-domain-contract.sh / .ps1' is defined in Technical Summary item (2) ('JSON Schema では表現できない相互参照整合まで検査する決定論validator twins'); '後続Phaseの消費者（Phase 1: concept-testゲート / Phase 3: reviewer記録照合）' is defined in the same Technical Summary sentence describing what fields each future consumer will use (responsibilities/must_not_own for Phase 1; distinguished_from/evidence for Phase 3), and is explicitly marked 'not yet connected'. No dangling reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no `## Architecture Decision Records` section and references no ADR. Checked whether the feature introduces a new technology choice, integration pattern, or architectural departure requiring one: DD-1..DD-7 (top-level concepts[] array, no dual-version loader, v1 duplicated-not-$ref'd, hand-rolled validator with no external dependency, inline/mktemp fixtures, v2-only validator, RULE-ID error format) are all documented extensions consistent with the existing house pattern already established by `docs/adr/0015-ddd-upstream-domain-lane.md` (the domain-contract lane, hand-rolled/no-external-engine validation per investigation.md INV-005) and requirements.md REQ-007's additive-only constraint. No new architectural departure found; PASS per 'no ADRs referenced and the feature does not introduce new architectural decisions.'"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED (recorded per check instruction, emit PASS): repository has no `design-system/` directory (confirmed via `ls design-system` → 'No such file or directory'). Consistent with ux-spec.md ('ds_profile: none — no design-system integration; no UI application is involved')."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED (recorded per check instruction, emit PASS): repository has no `domain/` directory (confirmed via `ls domain` → 'No such file or directory'), consistent with investigation.md INV-009 ('sdd-forge自身にdomain/ディレクトリは存在せず')."
+    }
+  ]
+}

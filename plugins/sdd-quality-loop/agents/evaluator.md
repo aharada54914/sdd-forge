@@ -34,6 +34,15 @@ Missing or stale validator evidence or a missing canonical identity ledger is a
 blocking launch failure; do not inspect repository content or substitute model
 judgment.
 
+Never run `validate-review-context-set` against your own manifest after the
+caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
+the manifest's `identity_ledger_sha256` pinned, and it marks this identity
+persisted, so a self-run is structurally guaranteed to fail without proving
+anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
+hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
+and `identity_unique` -- is the required launch-identity evidence; verify it
+per `review-context-boundary.md` from that line and your manifest alone.
+
 The contract's `task_id`, sole implementation-report path, report heading, and
 `Task ID` field must all name the current T-NNN. Reject a same-feature report
 for any other task.

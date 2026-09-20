@@ -1,0 +1,14 @@
+{
+  "feature": "epic-196-a8-integration",
+  "links": [
+    {
+      "req": "REQ-003",
+      "acs": ["AC-012", "AC-017"],
+      "tests": ["TEST-012", "TEST-017"],
+      "evidence": [
+        "specs/epic-196-a8-integration/verification/T-004/red-sh.log",
+        "specs/epic-196-a8-integration/verification/T-004/green-sh.log"
+      ]
+    }
+  ]
+}

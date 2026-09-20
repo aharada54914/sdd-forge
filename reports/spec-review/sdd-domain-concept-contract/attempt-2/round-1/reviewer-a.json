@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a2r1-seq0760",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a2r1-0760",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "80b41de351ed186fff2491f262073ba3d4950c6fb3ec8e152d28fce42dc6808a"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "98db8b7bd041ffe285bac4cc0c050239f1e5ecbc2f4c52c309d7752236577e4f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-1/precheck-result.json",
+      "sha256": "9ac771684e55331d2bce1d5c70213855a2e79b5ff1a118947c50cab750b03579"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Correction on re-verification: my prior quotation of requirements.md lines 113-115 was transcribed incompletely and dropped a token. The file actually reads (line 113-115, verbatim): 'すべての string 値（`definition`、`essence`、`responsibilities[]` / `evidence[]` / `must_not_own[]` / `reasons[]` の各要素、`stakeholder_perspectives[].actor` / `.concern`）は **minLength 1** とし、空文字列は invalid とする' — the enumeration DOES include `reasons[]` between `must_not_own[]` and 'の各要素'. This matches the Field Definitions table row for concepts[].distinguished_from[] (line 167: '両者 required・concept_id は id と同 pattern・reasons minItems 1 かつ要素 minLength 1'). There is no contradiction: both the REQ-002 narrative and the Field Definitions table agree that distinguished_from[].reasons[] elements require minLength 1, alongside definition, essence, responsibilities[], evidence[], must_not_own[], and stakeholder_perspectives.actor/.concern (id/name/context/concept_id are separately and consistently pattern-excluded). Re-graded on its own merits: REQ-001 through REQ-007 each state precise, unambiguous, machine-checkable criteria (patterns, minItems, minLength, required/optional field lists, and the nine enumerated validator checks (a)-(i) in REQ-004), all of which are independently observable via exit code and stderr content. No requirement in scope is under-specified to the point an implementer or task author could not validate it. PASS."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five goals trace to concrete acceptance criteria: G1 (v2 schema, required concepts[]) -> AC-001/AC-016/AC-021; G2 (term.concept_id link) -> AC-009/AC-022(2); G3 (decision-theoretic validator, checks a-i) -> AC-006..AC-014, AC-016/17/21, AC-013 (twin parity); G4 (fixture corpus, positive+negative) -> AC-003/004/005 positive and AC-006..AC-023 negative; G5 (additive-only, v1/consumers/tests untouched) -> AC-002 (v1 schema byte-hash lock) and AC-015 (v1 suite + consumer-diff check). No goal lacks a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The Negative-path coverage matrix's own stated methodology (Notes: '正例... と负例は 1 検査 1 fixture で対をなし... 検査項目が空虚に真でないことを個別に証明する') and its completeness claim ('AC 表の網羅性はこの表の空白セルが無いことで判定する') are contradicted by three cells marked 'AC-023 と同経路' for concepts[].must_not_own[] elements, stakeholder_perspectives[].actor/.concern, and distinguished_from[].reasons[] (空文字列 column). AC-023's actual stated test target (acceptance-tests.md line 32) lists exactly 4 fixtures — definition, essence, responsibilities[] elements, evidence[] elements — and none of the three fields above. 'AC-023 と同経路' is therefore not an AC-backed coverage claim but an unverified assumption that the validator will implement a single generic minLength routine reused across all fields; the matrix presents this assumption as equivalent to filled-cell coverage while providing no fixture that would catch a defect specific to those three fields (e.g. a validator that checks definition/essence/responsibilities/evidence for minLength but omits must_not_own or stakeholder_perspectives). Downstream failure mode: a task author trusting the matrix's 'no blank cells = complete' claim will not add dedicated fixtures for these three fields, so a real minLength defect in must_not_own/stakeholder_perspectives/distinguished_from.reasons handling would ship undetected by REQ-006's test suite. This is a specification-review concern because it is the acceptance document overstating its own observable-coverage guarantee, not an implementation detail; severity Major because it is a missing observable acceptance criterion for a stated constraint, not a safety/approval-boundary contradiction."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section is explicit and Phase-scoped: concept-test skill/bootstrap (Phase 1), template/interviewer stage changes (Phase 2), reviewer A/B checks (Phase 3), reverse mode/C4 (Phase 4), v1->v2 migration tooling/dual-version loader (permanently out of scope per owner decision, INV-009), domain/ Markdown artifact generation, and the new-vs-existing machine-enforcement of meta.status Approved (explicitly deferred to a separate feature if needed). Roles and Permissions further pins the approval boundary as human-only with no mechanical enforcement, closing off an area that could otherwise silently expand scope."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: compatibility/migration (REQ-007's additive-only guarantee, byte-identical v1 schema and 11 existing suites, AC-002/AC-015 non-regression locks), security (Security Boundaries section: content-as-data, read-only/no-network/no-external-dependency validator, no secrets/PII in fixtures), and approval (Roles and Permissions: meta.status Approved has no machine enforcement, hook-guard does not protect contracts/domain-contract.*, per INV-008, and this state is explicitly not changed by this feature)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three declared risks carry a concrete validation surface: R1 (concepts[] type insufficiency) is mitigated by fixture corpus pre-validating Phase 1's FITS/NEW_CONCEPT/CONFLICT/HUMAN_DECISION field needs; R2 (hand-rolled validator vs schema drift) is mitigated by REQ-006's requirement that the same fixtures be checked against both the schema file and validator behavior (drift lock); R3 (sh/ps1 twin mismatch) is mitigated by REQ-006's twin-parity test, realized as AC-013."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: this repository has no `domain/` directory (confirmed absent) and investigation.md INV-009 independently records 'sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'. The Approved domain-model precondition for this check is not met, so DOMAIN-CONFORMANCE does not apply to this review."
+    }
+  ]
+}

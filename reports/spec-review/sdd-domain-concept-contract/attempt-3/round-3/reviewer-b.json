@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a3r3-seq0771",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a3r3-0771",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "7c7d401b7837af103a08b89657669e18996deadca6ee468d875a57ce2ffbec63"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-3/precheck-result.json",
+      "sha256": "76b895e9ae0f2a46682c90cf497f2e256dfe21638a6af7b3e09443975542e77e"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-3/integrated-summary.json",
+      "sha256": "43bea4cbb394b453f4ce21faecaa4d64a9cfc74b91b1c9959d3a07a2f8dfc40b"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Field Definitions and REQ-002/REQ-004 give concrete, pattern-bound definitions (id/name/context/must_not_own/distinguished_from/evidence/etc. with explicit regex and minLength/minItems rules), and REQ-004(c) explicitly orders type-check before pattern/minLength/minItems checks. No term, actor, state, input or output surface was found where two implementers would reasonably diverge; boundary examples (`APIOrder`, `order-taking-2`) are given to pin down pattern edges."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md REQ-005 states verbatim: '(b) Book/Bookshelf の正例（Book.must_not_own に display position、Placement concept が並び責務を持つ）' — i.e. the minimum Book/Bookshelf fixture must have Book's must_not_own populated with 'display position'. But acceptance-tests.md AC-004 (mapped 1:1 to REQ-005(b), row: 'AC-004 | REQ-005(b) | TEST-004 | positive fixture (optional 全欠落) | ... Book/Bookshelf 正例 fixture（Book が並びに関する責務を持たず、Placement concept が並び責務を持つ）が通過。本 fixture は concept の optional フィールドを 1 つも持たない状態とし、must_not_own・stakeholder_perspectives・distinguished_from の 3 キーをいずれも欠落させる。') now explicitly requires must_not_own to be ABSENT for every concept in that same fixture, and the string 'display position' does not appear anywhere in acceptance-tests.md (verified by direct search). REQ-005(b)'s literal fixture-content mandate and its own mapped AC's literal fixture-content mandate directly conflict, and no other AC provides the missing fixture — an implementer cannot satisfy both texts with one fixture, and the specific must_not_own='display position' example demonstrating the P1 concept-boundary capability described in Problems/US-003 is now unrealized by any test. This is a fresh regression introduced by this round's rewrite of AC-004 (which repurposed it to be the 'optional-fields-all-absent' canary to satisfy last round's Major finding), and it belongs to spec review because it is a direct textual conflict between requirements.md and acceptance-tests.md, not an implementation ambiguity."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Negative-path coverage matrix cross-checked cell-by-cell against the AC table's own per-AC fixture counts (AC-014=7, AC-017=2, AC-018=3, AC-019=3, AC-020=4, AC-021=7, AC-022=2, AC-023=8, AC-024=29, single-fixture ACs=8; sum 65+8=73 matches the document's own stated tally). Material negative/empty/boundary/failure modes from requirements.md (empty concepts[] array AC-016, malformed/oversized JSON AC-017, self-referencing distinguished_from AC-008, v1-schema-rejected AC-012, duplicate id/name AC-006/AC-011, dangling references AC-007/AC-008/AC-009, self-contradicting responsibilities/must_not_own AC-010, every declared pattern/minLength/minItems/type constraint AC-018/AC-019/AC-023/AC-024) are each covered by a dedicated fixture. This check is independent of the REQ-005(b) positive-fixture gap flagged under CONTRADICTION, which concerns a missing positive-capability demonstration rather than a missing negative path."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's OQ-003 (essence required) and OQ-004 (v2-only validator, explicit error on v1 input) are resolved directly in requirements.md: REQ-002/Field Definitions marks essence Yes/required, and REQ-004(b) plus Edge Cases mandate the explicit 'schema is domain-contract/v1...' error. OQ-001 (v1 file disposition) and OQ-002 (CI/run-all registration) remain open but do not block Phase 0 — Non-goals and REQ-007 already fix Phase 0 behavior (v1 untouched, no migration tooling) independent of their eventual resolution. The Assumptions section explicitly records the hook-activation deviation (CAPABILITY_RUNTIME_UNAVAILABLE) with an owner decision to proceed, which is a resolved-not-hidden assumption."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "Non-goals explicitly excludes 'meta.status の Approved 書込に対する機械的強制機構（hook-guard 保護パスへの登録、承認 sidecar 等）の新設', and Roles and Permissions states this feature adds no mechanical enforcement — 'Phase 0 において承認境界は人間のレビュー運用のみが担保し、v2 スキーマは meta.status を単なる列挙値フィールドとして定義するに留める'. The contract JSON itself is agent-editable (INV-008, no hook-guard protection) and human-copy flow is explicitly not required. No approval, governance, or irreversible-change boundary is in scope for this feature's own artifacts, so the skip condition applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the REQ-005(b)/AC-004 conflict already captured under CONTRADICTION, requirements.md's Field Definitions table, exhaustive REQ-004 validator check list ((a)-(i)), and Roles/Workflows sections give an implementation-policy reviewer sufficient concrete behavior (patterns, required/optional splits, error-reporting format, fail-closed semantics, single-context membership) without needing to invent product behavior. Forward references to design.md (DD-1, DD-4) cite design rationale for already-fixed requirements decisions, not deferred product decisions."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: the target project (sdd-forge) has no `domain/` directory (confirmed via glob for `domain/context-map.md` and `domain/**` — no files found), consistent with investigation.md INV-009 ('sdd-forge 自身に domain/ ディレクトリは存在せず'). Skip condition for absent `domain/` is met."
+    }
+  ]
+}

@@ -687,7 +687,9 @@ expect_stdout_bytes "TEST-REMEDY3(c) mapping-side 'k:   v' (multiple spaces afte
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 
-if grep -q 'canonicalize-sdd-yaml\.tests\.sh' "$ROOT/tests/run-all.sh"; then
+# Query executable registration; failed listings never count as membership.
+if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
+  grep -Fx "tests/canonicalize-sdd-yaml.tests.sh" <<< "$registered_suites" >/dev/null; then
   pass "self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh"
 else
   fail "self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh"

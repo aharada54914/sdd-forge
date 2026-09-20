@@ -1,0 +1,24 @@
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
+
+  Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
+    [+] the v2 schema file exists 24ms
+    [+] parses as valid JSON 19ms
+
+    Context once parsed
+      [+] declares draft-07 3ms
+      [+] declares the domain-contract/v2 schema const 2ms
+      [+] declares root required schema/meta/contexts/concepts, exactly those four 7ms
+      [+] declares a v1-shaped meta definition (version/status/generated_from) 21ms
+      [+] declares concepts as a required top-level array with minItems 1 7ms
+      [+] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 4ms
+      [+] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 1ms
+      [+] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 3ms
+
+  Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
+    [+] the v1 schema file still exists 1ms
+    [+] v1 schema file SHA-256 equals the recorded feature-start baseline 3ms
+Tests completed in 220ms
+Tests Passed: 12, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 

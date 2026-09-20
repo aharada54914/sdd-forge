@@ -1,24 +1,15 @@
-#!/usr/bin/env pwsh
-# Thin wrapper: dispatch to the single Python implementation
-# (validate-facet-manifest.py). No runtime-specific logic lives here.
-# Diagnostic determinism contract: the underlying python3 process writes
-# LF-only bytes directly (validate-facet-manifest.py reconfigures stdout to
-# newline="\n"); this wrapper streams that subprocess output through
-# unmodified -- it never re-emits it via Write-Output/Write-Host, which
-# would risk PowerShell's default CRLF `NewLine` leaking in.
+# Thin PowerShell dispatcher for validate-facet-manifest (Python master).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Target = Join-Path $ScriptDir "validate-facet-manifest.py"
-
-$python = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command python -ErrorAction SilentlyContinue
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("validate-facet-manifest: VALIDATE_FACET_MANIFEST_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
 }
-if (-not $python) {
-    [Console]::Error.Write("facet-manifest: python-not-found: no python3 or python on PATH`n")
-    exit 1
-}
+. $lib
 
-& $python.Path $Target @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "validate-facet-manifest.py") -DiagnosticPrefix "validate-facet-manifest: VALIDATE_FACET_MANIFEST_RUNTIME_UNAVAILABLE" -Arguments $args

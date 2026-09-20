@@ -30,13 +30,13 @@ function Test-RepoPath([object]$Path, [switch]$AllowDirectory) {
   foreach ($part in $trimmed.Split('/')) {
     if ($part -eq '' -or $part -eq '.' -or $part -eq '..') { return $false }
   }
-  return $Path -match '^[A-Za-z0-9][A-Za-z0-9._/-]*$'
+  return $Path -cmatch '\A[A-Za-z0-9][A-Za-z0-9._/-]*\z'
 }
 function Get-PropertyNames($Object) {
   @($Object.PSObject.Properties | Select-Object -ExpandProperty Name)
 }
 function Test-UtcTimestamp($Value) {
-  if ($Value -isnot [string] -or $Value -notmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$') { return $false }
+  if ($Value -isnot [string] -or $Value -cnotmatch '\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\z') { return $false }
   $parsed = [datetime]::MinValue
   $styles = [Globalization.DateTimeStyles]::AssumeUniversal -bor [Globalization.DateTimeStyles]::AdjustToUniversal
   if (-not [datetime]::TryParseExact($Value, 'yyyy-MM-ddTHH:mm:ssZ', [Globalization.CultureInfo]::InvariantCulture, $styles, [ref]$parsed)) {
@@ -127,8 +127,8 @@ function Read-ReloadEvidence($Data, [bool]$BindManifest = $true) {
     $entryNames = @(Get-PropertyNames $entry | Sort-Object -CaseSensitive)
     if (
       ($entryNames -join ',') -cne 'run_id,task_id' -or
-      $entry.task_id -isnot [string] -or $entry.task_id -notmatch '^T-[0-9]{3}$' -or
-      $entry.run_id -isnot [string] -or $entry.run_id -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+      $entry.task_id -isnot [string] -or $entry.task_id -cnotmatch '\AT-[0-9]{3}\z' -or
+      $entry.run_id -isnot [string] -or $entry.run_id -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9._:-]*\z'
     ) {
       Fail HANDOFF 'fallback evidence contains invalid task/run identity'
     }
@@ -156,16 +156,16 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
     }
   }
   if ($data.schema -cne 'task-input-manifest/v1') { Fail JSON 'unsupported schema' }
-  if ($data.task_id -isnot [string] -or $data.task_id -notmatch '^T-[0-9]{3}$') { Fail IDENTITY 'invalid task_id' }
+  if ($data.task_id -isnot [string] -or $data.task_id -cnotmatch '\AT-[0-9]{3}\z') { Fail IDENTITY 'invalid task_id' }
   if ($ExpectedTask -and $data.task_id -cne $ExpectedTask) { Fail IDENTITY 'task_id does not match expected task' }
   foreach ($field in @('run_id','session_id','agent_instance_id')) {
-    if ($data.$field -isnot [string] -or $data.$field -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$') { Fail IDENTITY "invalid $field" }
+    if ($data.$field -isnot [string] -or $data.$field -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9._:-]*\z') { Fail IDENTITY "invalid $field" }
   }
   if (@('lightweight','standard','strong') -cnotcontains $data.model_tier) { Fail MODEL 'invalid model_tier' }
   foreach ($field in @('provider','model')) {
-    if ($data.$field -isnot [string] -or $data.$field -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$') { Fail MODEL "invalid $field" }
+    if ($data.$field -isnot [string] -or $data.$field -cnotmatch '\A[A-Za-z0-9][A-Za-z0-9._:-]*\z') { Fail MODEL "invalid $field" }
   }
-  if ($data.estimated_cost_per_attempt_usd -isnot [string] -or $data.estimated_cost_per_attempt_usd -notmatch '^(0|[1-9][0-9]*)(\.[0-9]+)?$') { Fail COST 'invalid estimated_cost_per_attempt_usd' }
+  if ($data.estimated_cost_per_attempt_usd -isnot [string] -or $data.estimated_cost_per_attempt_usd -cnotmatch '\A(0|[1-9][0-9]*)(\.[0-9]+)?\z') { Fail COST 'invalid estimated_cost_per_attempt_usd' }
   if ($data.cost_estimate_source -isnot [string] -or $data.cost_estimate_source.Length -eq 0) { Fail COST 'missing cost_estimate_source' }
   if (-not (Test-UtcTimestamp $data.cost_estimate_timestamp)) { Fail COST 'invalid cost_estimate_timestamp' }
   if (@('fresh-agent','same-session-file-reload') -cnotcontains $data.isolation_mode) { Fail ISOLATION 'invalid isolation_mode' }
@@ -173,7 +173,7 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
     if ($data.fallback_reason -cne '' -or $data.handoff_reload_evidence_hash -cne '') { Fail ISOLATION 'fresh-agent forbids fallback fields' }
   } else {
     if ($data.fallback_reason -cne 'host-does-not-support-implementation-subagents') { Fail HANDOFF 'same-session fallback requires incapable-host reason' }
-    if ($data.handoff_reload_evidence_hash -isnot [string] -or $data.handoff_reload_evidence_hash -notmatch '^[a-f0-9]{64}$') { Fail HANDOFF 'same-session fallback requires handoff_reload_evidence_hash' }
+    if ($data.handoff_reload_evidence_hash -isnot [string] -or $data.handoff_reload_evidence_hash -cnotmatch '\A[a-f0-9]{64}\z') { Fail HANDOFF 'same-session fallback requires handoff_reload_evidence_hash' }
   }
   if ($data.allowed_inputs -isnot [System.Array] -or $data.allowed_inputs.Count -eq 0) { Fail PATH 'allowed_inputs must be non-empty' }
   if ($data.allowed_outputs -isnot [System.Array] -or $data.allowed_outputs.Count -eq 0) { Fail PATH 'allowed_outputs must be non-empty' }
@@ -184,7 +184,7 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
     if (-not (Test-RepoPath $entry.path) -or $entry.path.EndsWith('/', [StringComparison]::Ordinal)) { Fail PATH "invalid input path: $($entry.path)" }
     if ($seenInputs.ContainsKey($entry.path)) { Fail PATH "duplicate input path: $($entry.path)" }
     $seenInputs[$entry.path] = $true
-    if ($entry.sha256 -isnot [string] -or $entry.sha256 -notmatch '^[a-f0-9]{64}$') { Fail HASH "invalid sha256 for $($entry.path)" }
+    if ($entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '\A[a-f0-9]{64}\z') { Fail HASH "invalid sha256 for $($entry.path)" }
     if ($CheckSnapshot) {
       $stream = Open-SafeSnapshotInput $SnapshotRoot $entry.path
       try {
@@ -223,6 +223,18 @@ function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = 
 }
 
 if ($Batch -and $Batch.Count -gt 0) {
+  # RT-20260821-012: with `pwsh -File ... -Batch a b c`, only `a` binds to
+  # $Batch; b and c bind positionally to $Manifest/$SnapshotRoot and were
+  # silently discarded by this branch - batch dedupe fail-open through the
+  # documented CLI. Reject the ambiguous combination (parity with the sh
+  # twin's new --batch/--manifest rejection) and accept a working CLI form:
+  # a single comma-separated element (paths cannot contain commas).
+  if ($Manifest -or $SnapshotRoot) {
+    Fail JSON 'batch mode does not accept positional arguments'
+  }
+  if ($Batch.Count -eq 1 -and $Batch[0] -like '*,*') {
+    $Batch = @($Batch[0] -split ',' | Where-Object { $_ -ne '' })
+  }
   $taskIds = @{}
   $runIds = @{}
   $freshSessions = @{}

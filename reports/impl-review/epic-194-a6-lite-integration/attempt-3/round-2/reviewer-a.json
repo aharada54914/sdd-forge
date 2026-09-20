@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-194-a6-impl-review-a3-r2-reviewer-a-seq795",
+  "host_session_id": "SESS-epic-194-a6-impl-review-a3-r2-reviewer-a-795",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-2/precheck-result.json", "sha256": "45623a0b26eabf9e8fa01f8dec9546691d829b94418b14a67e616825f10c4a8a"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-1/integrated-summary.json", "sha256": "5b3889934ed8a2301f0296df0e1ec7d46015085c0b9db1c3ae31920c7bfe2763"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md", "sha256": "00d322ad45c8547750b5224cd190b232036e1ec21d3ec2f598b0e09e7ebfb02d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md", "sha256": "7bbb44e22eee2081c0f785eef6fbc656947a3ea92d3c789fd5542399ee306024"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md", "sha256": "9cd381b6ba414692608d15d093e0b2e415b326d59f48cbd3c2726ef48b879608"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "346a1b11ba9ba8801c0f9d100f31f9589258dbe0b6c3b50f2902466276201a67"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "fullstack",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture gives an ASCII dependency diagram spanning all touched layers grouped by REQ (REQ-001 Registry/catalog contracts; REQ-002/REQ-005 pre-generation gate wiring; REQ-003/REQ-004 post-implementation gate wiring), names top-level component boundaries (contracts/*.schema.json, validate-capability-registry, check-risk-upgrade.{sh,ps1}, lite-spec/SKILL.md, lite-gate/SKILL.md), states how the feature integrates with existing components (A2 Registry, A4 Capability Summary schema, A5 Resolver, Epic A1 Project Context), and names the technology per layer (JSON Schema, bash/PowerShell, Markdown skills) in the Components table. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture diagram and Components table declare a strictly downstream flow: capability-registry.schema.json -> lite-check-catalog.json / lite-upgrade-reason-catalog.json; lite-spec/SKILL.md -> check-risk-upgrade.{sh,ps1} -> ship-time recheck; workflow.capability_enforcement -> capability-summary.yaml -> lite-gate/SKILL.md Step 2a/2b. No back-edge exists (no component named later in a chain is declared to feed a component named earlier in the same chain). No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan specifies every new/modified schema fragment (lite_policy v1.1 addition of required_lite_checks; new contracts/lite-check-catalog.json with its own schema; lite-upgrade-reason-catalog.json catalog_version 2 content; the new in-process capability-derived trigger fragment shape), states existing-data effects (the two-key lite_policy boundary widens, catalog_version bumps are additive/non-destructive per REQ-001's migration rule cited inline), and states migration handling (schema default vs. Resolver-materialized 'absent means []' distinction, explicit v1.1 backward-compatibility statement, AC-002/AC-004 fixtures in Test Strategy items 2-3). No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan lists every new/changed surface (validate-capability-registry check (j); check-risk-upgrade extended CLI with request/response/exit-code contract; lite-spec Risk-Upgrade Gate extension; lite-gate Process extension Step 2a/2b; the new Lite-check command-discovery contract) with concrete request/response shapes and explicitly states the legacy/no-second-argument path stays byte-identical (no breaking change) and no existing endpoint is deprecated. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "CLOSED (round-1 Major). Round 1 found design.md Protected-File Statement point 5 cited only an unelaborated human ruling with no corresponding investigation.md entry. investigation.md now carries a fifth appended '## Amendment Re-Review Context' entry ('Amendment record extension, fifth entry ... the runner change behind design.md's fifth contract point', investigation.md:1705-1859) that: (1) quotes both human rulings verbatim in the original Japanese, dated 2026-08-25, in the order given -- first '(the current-behaviour documentation ruling)' then '(the recommended-approach ruling)'; (2) states explicitly 'The second ruling supersedes the first ruling's scope' and that the first authorized documenting current behaviour while the second authorized changing the runner instead, after measurement ('the T-001 cross-model panel found ... on a mid-batch failure it named only the failing target before throwing ... A partial application of protected files was therefore left both unenumerated and unverified') showed the runner did not report what had actually landed; (3) names the landing commit in full (cf631ea748b86fc94f7570907669dc71ae563bfd) with per-document SHA-256 fingerprints for design.md, acceptance-tests.md, traceability.md and the runner script itself; (4) does not overstate the runner's own change -- it separates the pre-existing per-target atomic-publish/digest-check mechanism (already covered by point 4's CopyOne re-verification) from what this commit actually added (entry-point-catch live-state reporting: installed/failed/not-attempted enumeration, no-rollback statement, re-run recovery), and explains why the reporting sits in the entry-point catch rather than the failure helper or copy routine. Point 5's own text in design.md (lines 301-317) matches this account exactly. Security Boundaries section itself still names every trust boundary this feature adds (fail-closed capability-reasons fragment handling, protected-file boundary preserved not widened, no new agent-writable approval record) and OWASP-relevant concerns (path traversal/symlink escape in the command-discovery contract, argv-safe invocation). The round-1 gap is closed."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this feature ships no UI surface. design.md's own '## Design System Compliance' states 'Not applicable -- no UI surface', and '## Layer Specifications' states 'this feature ships no UI and no new infrastructure, so ux-spec.md and frontend-spec.md record N/A surfaces.' The free-text 'Feature Type' header describes a schema/contract-and-script design package, not a fullstack UI feature, so the frontend/backend contract-consistency surface this check targets does not exist here."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "CLOSED (round-1 Major). Round 1 found Test Strategy item 17 -- the only item mapped to AC-031 -- named only Protected-File Statement contract points 1-4 (feature-scoped prefix, exact-set verification, per-target hash verification, post-copy re-verification), so a future implementation task could satisfy every traceable criterion and never build a fixture for point 5's atomicity/no-rollback/reporting property. design.md Test Strategy item 17 (lines 955-978) is now extended: 'Extended 2026-08-25 to also confirm design.md states contract point 5's own properties, each named here rather than referred to collectively' and individually names: (a) per-target atomic publish with published digest verified inside the publish step before the next target is attempted; (b) the explicit acknowledgment that the batch is not transactional and has no rollback; (c) live-state reporting on any failure after the copy phase has begun, enumerating installed/failed/not-attempted targets and stating installed files are live and not rolled back; (d) recovery by re-running the runner, an already-correct target being a no-op. Each of these four named properties is verified against, and is a direct restatement of, design.md's own Protected-File Statement point 5 (lines 301-317), so the extension does not introduce an unsupported claim. The extension explicitly states its own reason for existing: 'Without this extension, item 17 and requirements.md AC-031 between them named only points 1 through 4, so a future implementation task could satisfy every traceable criterion for this runner and never build a fixture for the property point 5 exists to guarantee.' The Test Strategy also still covers unit scope (per-suite fixture descriptions items 1-16), integration scope (e.g. item 7's lite-gate/command-discovery boundary fixtures, item 6's lite-spec+ship-time-recheck defense-in-depth fixture), and AC-mapped acceptance verification (every lettered REQ-006 item and every numbered item cites its AC-NNN). The round-1 gap is closed; each named point-5 property traces to design.md's own text, not an invented claim."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture/API-Contract-Plan (capability-registry.schema.json's lite_policy sub-schema, lite-check-catalog.json, lite-upgrade-reason-catalog.json, validate-capability-registry, check-risk-upgrade.{sh,ps1}, risk-upgrade-policy.md, lite-spec/SKILL.md, lite-gate/SKILL.md, the Capability-aware signal source, capability-summary.schema.json, Project Context, the feature-scoped human-copy runner) is defined with its own row in the ## Components table (design.md, the markdown table beginning 'Component | Responsibility | Technology | New/Existing | Protected?'). No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## ADR Change Log states no new ADR is proposed and every applied rule is already Accepted (ADR-0016, ADR-0017, ADR-0022) or content-frozen (A2/A4 schemas). It explicitly discusses the two genuinely new decisions this design makes (the eleven-category-to-token mapping; the OQ-002 signal-source selection) and reasons, citing precedent (A5's own identical framing), why neither is proposed as a new ADR by this package -- both are recorded as candidates for a possible future ADR instead. This is a reasoned disposition, not a silent omission, so no Major finding is warranted."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP-equivalent per calibration: the target project has no design-system/ directory (verified: `test -d design-system` returns false at repository root). design.md's own '## Design System Compliance' section additionally states 'Not applicable -- no UI surface.' PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP-equivalent per calibration: the target project has no domain/ directory (verified: `test -d domain` returns false at repository root), so no domain/context-map.md with an approved domain-model status field exists. PASS."
+    }
+  ]
+}

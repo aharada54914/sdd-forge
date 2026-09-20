@@ -1338,6 +1338,30 @@ else
     fail "sh: bash writes Second Approval to tasks.md -> deny (expected 2, got $GUARD_CODE)"
 fi
 
+# Test 4b (REGRESSION): a bash command that writes ONLY "Second Approval: Approved"
+# (no separate primary "Approval: Approved") must be denied with the Second-Approval
+# message (never bypassed by sudo), not the primary Approval message (sudo-bypassable).
+# Both python and node previously agreed on exit code 2 here, but python's bash-command
+# branch matched the primary APPROVAL_RE without subtracting Second-Approval hits, so it
+# reported the wrong (sudo-bypassable) reason. Checked via --emit copilot since --emit
+# exit only writes the reason to stderr, which invoke_*_guard helpers discard.
+if command -v python3 >/dev/null 2>&1; then
+    invoke_py_guard "$SECOND_BASH_DENY" "copilot"
+    if [[ $PY_CODE -eq 0 ]] && echo "$PY_OUT" | grep -qF "must not set 'Second Approval: Approved'"; then
+        ok "py: bash writes ONLY Second Approval -> reports Second-Approval reason, not primary"
+    else
+        fail "py: bash writes ONLY Second Approval -> expected Second-Approval reason (out='$PY_OUT')"
+    fi
+fi
+if command -v node >/dev/null 2>&1; then
+    invoke_node_guard "$SECOND_BASH_DENY" "copilot"
+    if [[ $NODE_CODE -eq 0 ]] && echo "$NODE_OUT" | grep -qF "must not set 'Second Approval: Approved'"; then
+        ok "node: bash writes ONLY Second Approval -> reports Second-Approval reason, not primary"
+    else
+        fail "node: bash writes ONLY Second Approval -> expected Second-Approval reason (out='$NODE_OUT')"
+    fi
+fi
+
 # Test 5: Codex apply_patch adding "+Second Approval: Approved" to a tasks.md -> DENY
 SECOND_PATCH_DENY='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: tasks.md\n-Approval: Draft\n+Second Approval: Approved\n*** End Patch"}}'
 invoke_guard_sh "$SECOND_PATCH_DENY"

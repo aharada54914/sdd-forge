@@ -307,7 +307,10 @@ if should_run TEST-041; then
   wiring_count=0
   run_all_sh="$REPO_ROOT/tests/run-all.sh"
   run_all_ps1="$REPO_ROOT/tests/run-all.ps1"
-  grep -Fxq '  tests/ownership-digest.tests.sh' "$run_all_sh" && wiring_count=$((wiring_count + 1))
+  if registered_suites="$(bash "$run_all_sh" --list)" &&
+    grep -Fx 'tests/ownership-digest.tests.sh' <<< "$registered_suites" >/dev/null; then
+    wiring_count=$((wiring_count + 1))
+  fi
   grep -Fq "'tests/ownership-digest.tests.ps1'" "$run_all_ps1" && wiring_count=$((wiring_count + 1))
   grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
   grep -Fq './tests/ownership-digest.tests.ps1' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))

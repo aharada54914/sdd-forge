@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-b-seq0645",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-194-a6-lite-integration-0645",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/task-review/epic-194-a6-lite-integration/attempt-2/round-3/integrated-summary.json",
+        "sha256": "038ff8c2675043757525151b7ef09526647a1ed03bf8f28f8043e64dae186c86"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/task-review/epic-194-a6-lite-integration/attempt-2/round-3/precheck-result.json",
+        "sha256": "45827f3150c6d2c0b05f6abf0cb109fd92cb50ea8ff5f4abbb59756c75f3da96"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+        "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md",
+        "sha256": "fd67385479a902fa593beb1a40bf88414859a3b155736d70cb204586f159916d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md",
+        "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md",
+        "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+        "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md",
+        "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/tasks.md",
+        "sha256": "66ffa8ca01d135b000ad3af7be11006da1b4283c920aa49754f9e37edfc90bd3"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/traceability.md",
+        "sha256": "0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md",
+        "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 through T-004 are all declared high, and each Scope/Goal touches an access-control-like enforcement surface (T-001: protected-file application runner; T-002: check-risk-upgrade lite-eligibility decision gate; T-003: lite-spec pre-generation Block gate; T-004: lite-gate post-implementation VERDICT gate with command-discovery path-safety concerns) matching risk-classification-policy.md's high-tier 'access control' sentinel. None declares a data-migration surface (each task states its migration field as none) and none is a UI/copy/docs/test-only change that would be over-classified at high. No task touches authentication, payment, PII storage, or an externally-visible API contract (design.md External Integrations: 'None'). No mismatch found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks' Done When sections include a TDD evidence item requiring both RED and GREEN capture plus an independent quality-gate verdict distinct from the implementing agent (T-001/T-002/T-003 state this verbatim: 'a named second reviewer distinct from the implementing agent'). T-004's Done When TDD-evidence bullet requires 'An independent quality-gate verdict' and its own Quality-Gate Addendum names a specific independent evaluator run (seq0329) and report path (reports/quality-gate/epic-194-a6-lite-integration/T-004.md); the bullet is marked partially satisfied pending that verdict landing, which is a completion-status fact, not an absent Done-When criterion. No task is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply. No missing Done-When evidence item found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When lists are 6 (T-001), 7 (T-002), 7 (T-003), and 7 (T-004) items -- all under the 8-item oversized threshold. Each task's Scope centers on one cohesive artifact (one runner script, one script extension, one skill-Gate extension, one skill-Process extension) plus its own directly-coupled test suite and registration steps, not 3+ unrelated implementation areas. No task title implies multiple sequential phases. No 3+ tasks are single-function/file-only fragments, and no task's entire scope is a bare rename. No oversizing or fragmentation found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task's mapped ACs include at least one explicit error/edge-path criterion: T-001 -> AC-031 (exact-set mismatch and hash-mismatch rejection, post-copy re-verification); T-002 -> AC-027 (supplied-but-invalid fragment exits 2) and AC-028 (ineligible-with-no-reasons synthetic trigger); T-003 -> AC-019's Block condition plus the Done-When 'Defense-in-depth confirmed' item (ship-time recheck still Blocks a component the intake-time evaluation did not flag); T-004 -> AC-012 (schema-invalid Summary), AC-016 (unmapped/grammar-failing/symlink-escaping check-id), AC-026 (full_upgrade_required backstop), AC-030 (active-enforcement absent-Summary). No functional task found with only happy-path AC coverage."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This package uses the same domain-specific 'lock' test-type taxonomy acceptance-tests.md's own Test Type column defines (e.g. 'byte-identical no-second-argument lock', 'schema-shape lock') rather than a literal unit/integration/e2e label per suite; every AC row cites a specific AC-NNN (acceptance-tests.md table). Each suite's actual scope is consistent with its own described target: T-001/T-002's suites exercise a single script's own contract (module-boundary scope); T-003's and T-004's suites exercise multi-component interactions (skill Process + evaluate-predicate / capability-summary consumption + schema validator + command-discovery), consistent with integration-style scope. No suite's declared scope contradicts its actual target."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task (T-001, T-002, T-003, T-004) carries an explicit Rollback field naming its own revert mechanism: T-001/T-002/T-003 state reverting the task's two commits, with a revert PR required to state explicitly whether an already-human-applied protected-file change must also be hand-reverted; T-004 states reverting its commits directly since no human-copy staging applies to its own direct edit. No high-risk task lacks a rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The shared test-registration array file and staged CI-registration candidate file, plus the shared human-copy manifest file, are each touched by multiple tasks, but the Global Constraints section fixes a serialized append order (T-001 -> T-002 -> T-003 -> T-004) and each task's own Blockers field enforces that order transitively. CHANGELOG.md is explicitly carved out so each task lands its own separate Unreleased block rather than appending to another task's entry. No uncoordinated same-file/same-purpose overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's and T-003's Blockers on T-001 are functionally grounded (their own Done-When human-apply steps invoke T-001's runner). T-003's Blockers on T-002 and T-004's Blockers on T-003 are explicitly disclosed as registration-surface serialization only, not functional dependencies -- and this serialization is exactly what the Global Constraints section requires to prevent the shared staged-candidate files from racing, so these are not spurious. T-001's own round-3 addendum (Depends On / external-precondition note) clarifies, without changing the Blockers value, that no task in this plan blocks T-001; this reasoning is internally consistent with T-001's own stated self-containment (it reads no other task's staged output) and does not surface a missing blocker. No spurious or missing blocker found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 through T-004 are all net-new, additive feature-implementation tasks (a new runner, an additive CLI argument, additive Gate/Process extensions); none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

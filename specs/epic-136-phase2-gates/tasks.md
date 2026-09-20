@@ -42,7 +42,7 @@ candidate is itself subject to the same human inspection.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/117
 
-Approval: Approved (sudo 2026-07-13T05:53:16.481Z)
+Approval: Approved (sudo 2026-07-13T05:53:16Z)
 
 Status: Done
 
@@ -128,7 +128,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/118
 
-Approval: Approved (sudo 2026-07-13T08:49:33.453Z)
+Approval: Approved (sudo 2026-07-13T08:49:33Z)
 
 Status: Done
 
@@ -204,7 +204,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/119
 
-Approval: Approved (sudo 2026-07-13T06:27:16.932Z)
+Approval: Approved (sudo 2026-07-13T06:27:16Z)
 
 Status: Done
 
@@ -276,7 +276,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/121
 
-Approval: Approved (sudo 2026-07-13T06:47:18.468Z)
+Approval: Approved (sudo 2026-07-13T06:47:18Z)
 
 Status: Done
 

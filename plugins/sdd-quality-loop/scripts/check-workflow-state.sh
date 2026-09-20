@@ -5,6 +5,9 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
 FEATURE_FILTER=""
+OPENING_STAGE=""
+OPENING_ATTEMPT=""
+OPENING_ROUND=""
 
 diagnostic_line() {
   printf 'workflow-state: %s: %s: %s\n' "$1" "$2" "$3" >&2
@@ -13,13 +16,21 @@ diagnostic() {
   diagnostic_line "$@"
   exit 1
 }
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 || {
+  diagnostic_line "neither sha256sum nor shasum is available"
+  exit 1
+}
 sha256_file() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 sha256_stream() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'
-  else shasum -a 256 | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 # plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
 # evolve normally over time, but historical review evidence under reports/
@@ -260,6 +271,14 @@ investigation_amendment_reconciles() {
     "$REPO_ROOT"/*) relative="${manifest_file#"$REPO_ROOT/"}" ;;
     *) return 1 ;;
   esac
+  # WFI-024's no-history rule, extended to this reconciliation: without
+  # git history the pinned generation's bytes are unreconstructable, so
+  # the growth-only property is not evaluable at all -- accepted, not
+  # evaluated, exactly as plugins_hash_matches already treats a live-hash
+  # mismatch in a history-less tree (e.g. the release-validation fixture,
+  # which copies the tree without .git). Wherever history exists, every
+  # line below runs unchanged and a non-growth change still fails.
+  plugins_git_history_available || return 0
   tmp_pinned="$(mktemp)" || return 1
   if resolve_verified_investigation_pin "$contract" "$expected" "$relative" "$tmp_pinned"; then
     investigation_growth_only_change "$tmp_pinned" "$manifest_file"
@@ -287,11 +306,24 @@ while (($#)); do
     --registry)
       (($# >= 2)) || diagnostic repository cli-usage "--registry requires a value"
       REGISTRY="$2"; shift 2 ;;
+    --opening)
+      (($# >= 2)) || diagnostic repository cli-usage "--opening requires a value"
+      [[ "$2" =~ ^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$ ]] ||
+        diagnostic repository cli-usage "--opening must be stage:attempt:round"
+      OPENING_STAGE="${BASH_REMATCH[1]}"
+      OPENING_ATTEMPT="${BASH_REMATCH[2]}"
+      OPENING_ROUND="${BASH_REMATCH[3]}"
+      shift 2 ;;
     *) diagnostic repository cli-usage "unknown argument: $1" ;;
   esac
 done
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
+# --opening names the single round a review-loop precheck is about to open; it
+# only ever makes sense pinned to the one feature it belongs to, never as a
+# blanket exemption swept across the whole registry.
+[[ -z "$OPENING_STAGE" || -n "$FEATURE_FILTER" ]] ||
+  diagnostic repository cli-usage "--opening requires --feature"
 [[ -f "$REGISTRY" && ! -L "$REGISTRY" && -r "$REGISTRY" ]] ||
   diagnostic repository registry-unreadable "registry is missing, linked, or unreadable"
 jq -e . "$REGISTRY" >/dev/null 2>&1 ||
@@ -446,6 +478,32 @@ manifest_has_reviewed_hash() {
   fi
   return 1
 }
+# The traceability matrix is the only task-stage input besides the task plan
+# that carries a field the workflow is designed to advance: each requirement
+# row's final cell records that requirement's delivery status. Binding the
+# whole file froze that column too -- no full-profile feature has ever moved a
+# row off the authoring-time default. This rewrites ONLY that one cell, and
+# only when it already holds a value from the closed lifecycle vocabulary the
+# state registry pins, so every other byte of every row -- code targets, test
+# IDs, evidence paths -- still participates in the digest, and a body edit
+# matches neither form. An out-of-vocabulary value is a body edit, not a
+# lifecycle transition, and stays bound.
+# The recorded digest is taken at authoring time, when every cell already holds
+# the default, so the recorded raw digest and this normalized digest coincide
+# there; that is why no producing-side field is needed.
+# The trailing [[:space:]]* absorbs a CR, so CRLF input round-trips without a
+# literal \r escape (BSD sed has none).
+traceability_normalized_hash() {
+  local file="$1"
+  LC_ALL=C sed -E \
+    -e 's/^(\|[[:space:]]*REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)$/\1\2Planned\4/' \
+    "$file" | sha256_stream
+}
+traceability_hash_accepted() {
+  local candidate="$1" raw="$2" normalized="$3"
+  [[ -n "$candidate" ]] || return 1
+  [[ "$candidate" == "$raw" || "$candidate" == "$normalized" ]]
+}
 manifest_has_hash() {
   local contract="$1" suffix="$2" expected="$3" recorded_root="$4"
   jq -e --arg suffix "$suffix" --arg expected "$expected" \
@@ -492,6 +550,37 @@ manifest_has_hash_for_file() {
   historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
   manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
 }
+# Reuses the EXACT relative_path resolution manifest_has_hash uses (not a
+# substring probe -- an annotated/prefix-confused path must resolve the
+# same way here as it does everywhere else this manifest is read) to answer
+# a narrower question than manifest_has_hash: ignoring sha256 entirely, was
+# $suffix ever recorded in this manifest at all, and if so, at what
+# hash(es)? Prints one distinct recorded sha256 per line. Zero lines means
+# no reviewer declared this path -- a genuine provenance gap. Exactly one
+# line means every entry for this path agrees on a single hash, which is
+# what lets a caller tell "the manifest already knows this input, just at
+# stale bytes" apart from "the manifest never knew this input at all."
+# More than one line (reviewers disagree with each other about this path)
+# is deliberately left for the caller to treat as inconclusive -- that is
+# not simple staleness and must not be waved through by this function.
+manifest_recorded_hashes_for_path() {
+  local contract="$1" suffix="$2" recorded_root="$3"
+  jq -r --arg suffix "$suffix" \
+    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" '
+    def relative_path:
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
+      else . end;
+    ($suffix | ltrimstr("/")) as $target |
+    [.reviewers[]?.allowed_input_manifest[]? |
+      select(.path | type == "string" and relative_path == $target) |
+      .sha256] | unique[]
+  ' "$contract"
+}
 # Recorded manifest paths are absolute paths from the clone that produced the
 # review evidence, whose directory name has no relation to this checkout's
 # (worktrees, CI fixtures, and renamed clones are all legal). Split them on
@@ -530,6 +619,152 @@ recorded_repo_root() {
     end
   ' "$contract"
 }
+# A BLOCKED or NEEDS_WORK verdict is the terminal state of one review pass,
+# not necessarily of the stage: a caller can re-open review after it (a
+# fresh attempt, or another round of the same attempt), and it is that later
+# pass -- not the one it superseded -- whose outcome the stage should be
+# judged on while it is still running.
+#
+# A tree-only signal cannot express this: the gate that must pass before a
+# new round is created runs BEFORE that round's own directory exists (this
+# is precisely what impl-review-precheck.sh's own replay guard requires --
+# "round destination already exists" is fatal), so nothing on disk can ever
+# prove a round is "open" at the one moment this check needs to know it. An
+# earlier version of this fix looked for a precheck-result.json in a later
+# round directory; that file cannot exist yet either, for the same reason,
+# so the exemption could never fire for the caller it exists for.
+#
+# The distinction that actually matters is who is asking, not what the tree
+# looks like right now (same conflation as before, resolved one level up).
+# A review-loop precheck opening round (attempt, round) knows those numbers
+# as its own CLI arguments -- ATTEMPT and ROUND -- before it ever reaches
+# this gate, and it is asking "may I start?", not "did this conclude?". It
+# says so explicitly via --opening stage:attempt:round. A standalone
+# invocation (CI, task-state-check, anything auditing the feature's health)
+# never passes --opening and gets none of this exemption: the latest
+# verdict governs for it exactly as before, unconditionally.
+#
+# --opening is not "a flag anyone can pass to wave away a BLOCKED verdict",
+# because it does not assert "trust me, this stage is fine" -- it names one
+# specific (attempt, round) pair, and this function independently checks
+# that pair against the tree's own recorded history before granting
+# anything. The ONLY value it will ever accept is the single true next slot
+# after the latest recorded verdict: either the next round of the SAME
+# attempt (best_round + 1) or round 1 of a BRAND NEW attempt
+# (best_attempt + 1). A caller cannot use it to skip past an intervening
+# verdict, resurrect an arbitrarily old BLOCKED attempt, or manufacture a
+# history that was never reviewed -- it can only ever confirm that trying
+# again, right here, right now, is the structurally legitimate next step,
+# which is true for any BLOCKED or NEEDS_WORK stage by the review loop's
+# own design. It grants no power beyond what the tree already permits; it
+# only lets the one caller who is about to exercise that permission prove
+# which pair of numbers it refers to before the evidence for it exists.
+stage_is_being_opened() {
+  local stage="$1" feature="$2" best_attempt="$3" best_round="$4"
+  [[ -n "$OPENING_STAGE" && "$OPENING_STAGE" == "$stage" && "$FEATURE_FILTER" == "$feature" ]] ||
+    return 1
+  if ((OPENING_ATTEMPT == best_attempt && OPENING_ROUND == best_round + 1)) ||
+     ((OPENING_ATTEMPT == best_attempt + 1 && OPENING_ROUND == 1)); then
+    # Recorded as a side effect (not just a boolean return) so the
+    # downstream-staleness tolerance below can be granted independently of
+    # whether THIS stage's own PASS check happens to need the exemption --
+    # see the call site right after best_attempt/best_round are computed.
+    OPENING_VERIFIED_STAGE="$stage"
+    return 0
+  fi
+  return 1
+}
+# Walk order for the three review stages, spec first. Used only to decide
+# which stages are "downstream" of the one --opening names: opening impl
+# must still require spec to be fully sound (upstream, untouched), while
+# task -- reviewed after impl and liable to have pinned impl's own inputs
+# (e.g. design.md) -- is where the recovery --opening exists for shows up
+# as staleness, not corruption.
+stage_order() {
+  case "$1" in
+    spec) printf '1\n' ;;
+    impl) printf '2\n' ;;
+    task) printf '3\n' ;;
+  esac
+}
+# Empty unless a --opening slot has been independently verified (via
+# stage_is_being_opened) as the structurally-next one for the stage it
+# names. Never set for a standalone invocation (no --opening), and never
+# set for a slot that fails that verification.
+OPENING_VERIFIED_STAGE=""
+# True only when $1 is strictly downstream (in walk order) of the verified
+# --opening stage. False when --opening was not passed or did not verify,
+# false for the opened stage itself (it keeps its own pre-existing
+# exemption above, not this one), and false for any upstream stage.
+stage_downstream_of_opening() {
+  local stage="$1"
+  [[ -n "$OPENING_VERIFIED_STAGE" ]] || return 1
+  (( $(stage_order "$stage") > $(stage_order "$OPENING_VERIFIED_STAGE") ))
+}
+# Like diagnostic(), but tolerated -- returns success instead of exiting --
+# when the stage under validation is strictly downstream of a verified
+# --opening slot. Reserved for diagnostics that mean "the pinned bytes
+# moved": the expected, recoverable state of a downstream stage whose own
+# reviewed input (e.g. design.md, a layer spec) was legitimately amended as
+# part of the very recovery --opening exists to permit. Every call site
+# below is commented with why that specific diagnostic qualifies.
+diagnostic_or_tolerate() {
+  local feature="$1" stage="$2" category="$3" message="$4"
+  stage_downstream_of_opening "$stage" && return 0
+  diagnostic "$feature" "$category" "$message"
+}
+# manifest_has_hash's "no (path, hash) pair matches" failure conflates two
+# different provenance states: the path was never declared (a genuine gap)
+# and the path was declared but the review ran before the file's current
+# amendment (staleness wearing the same diagnostic). Both produce the
+# identical boolean false, so every "reviewer manifests omit ..." /
+# "contract hashes are stale" diagnostic built on it inherited that
+# ambiguity. This resolves it, narrowly: only when downstream of a verified
+# --opening slot (never standalone, never upstream -- same discipline as
+# diagnostic_or_tolerate above), ask manifest_recorded_hashes_for_path
+# whether the path was recorded at all. Exactly one recorded hash,
+# different from the expected (current) one, is unambiguous staleness --
+# the manifest already knew this input, just at pre-amendment bytes -- and
+# is tolerated with a notice naming the path and both hashes, so the
+# recovery is visible rather than silently waved through. Zero recorded
+# hashes (the path never appeared) or more than one distinct recorded hash
+# (reviewers disagree about this path, which is not simple staleness)
+# leave the original diagnostic firing exactly as before.
+print_tolerated_omit_notice() {
+  local feature="$1" suffix="$2" recorded="$3" expected="$4"
+  printf 'workflow-state: %s: stage-provenance-tolerated: %s recorded %s, now %s\n' \
+    "$feature" "${suffix#/}" "$recorded" "$expected" >&2
+}
+# $1=feature $2=stage $3=category $4=message $5=contract $6=recorded_root,
+# followed by any number of (ok, suffix, expected) triples -- one per path
+# the failing check covers. A check that aggregates several paths (e.g.
+# calibration doc + precheck-result.json, or requirements.md +
+# acceptance-tests.md) must still fail with its ORIGINAL diagnostic if even
+# ONE of its paths is a genuine omission, regardless of whether the others
+# are merely stale -- so every not-ok triple must independently explain as
+# staleness for the whole check to be tolerated.
+diagnostic_or_tolerate_omit() {
+  local feature="$1" stage="$2" category="$3" message="$4" contract="$5" recorded_root="$6"
+  shift 6
+  local all_explained=1 ok suffix expected hashes count explained
+  while (($#)); do
+    ok="$1"; suffix="$2"; expected="$3"; shift 3
+    ((ok)) && continue
+    explained=0
+    if stage_downstream_of_opening "$stage"; then
+      hashes="$(manifest_recorded_hashes_for_path "$contract" "$suffix" "$recorded_root")"
+      count=0
+      [[ -z "$hashes" ]] || count="$(printf '%s\n' "$hashes" | grep -c .)"
+      if [[ "$count" -eq 1 && "$hashes" != "$expected" ]]; then
+        print_tolerated_omit_notice "$feature" "$suffix" "$hashes" "$expected"
+        explained=1
+      fi
+    fi
+    ((explained)) || all_explained=0
+  done
+  ((all_explained)) && return 0
+  diagnostic "$feature" "$category" "$message"
+}
 validate_passed_stage() {
   local feature="$1" stage="$2" feature_dir="$3"
   local root="$REPO_ROOT/reports/${stage}-review/$feature"
@@ -547,6 +782,13 @@ validate_passed_stage() {
       best="$candidate"; best_attempt="$attempt"; best_round="$round"
     fi
   done < <(find "$root" -name integrated-verdict.json -print)
+  # Verify --opening's slot for THIS stage now, unconditionally -- not only
+  # when this stage's own verdict later turns out to need excusing. A
+  # re-review opened after an already-valid PASS (--provenance-rereview)
+  # never reaches the failure branch below, but downstream tolerance must
+  # still be available in that case: the flag names the slot, not "this
+  # stage is currently broken".
+  stage_is_being_opened "$stage" "$feature" "$best_attempt" "$best_round" || true
   [[ -n "$best" ]] || diagnostic "$feature" stage-provenance "$stage PASS has no integrated verdict"
   local contract="$(dirname "$best")/${stage}-review-contract.json"
   local round_dir="$(dirname "$best")"
@@ -561,7 +803,7 @@ validate_passed_stage() {
     jq -e . "$candidate" >/dev/null 2>&1 ||
       diagnostic "$feature" stage-provenance "$stage reviewer evidence is malformed"
   done
-  jq -e --arg feature "$feature" --arg stage "$stage" \
+  if ! jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .feature == $feature and .stage == $stage and .attempt == $attempt and
     .round == $round and
@@ -580,8 +822,10 @@ validate_passed_stage() {
       .findings_critical == 0 and .findings_major == 0 and
       (.findings_minor | type == "number" and . >= 0)
      end)
-  ' "$best" >/dev/null 2>&1 ||
+  ' "$best" >/dev/null 2>&1; then
+    stage_is_being_opened "$stage" "$feature" "$best_attempt" "$best_round" && return 0
     diagnostic "$feature" stage-provenance "$stage integrated verdict is not a valid PASS"
+  fi
   jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .schema == ($stage + "-review-contract/v1") and .feature == $feature and
@@ -674,30 +918,34 @@ validate_passed_stage() {
     [[ -f "$manifest_file" && ! -L "$manifest_file" && -r "$manifest_file" ]] ||
       diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
     case "$manifest_relative" in
+      # Tolerated downstream: for each entry the manifest already recorded,
+      # this asks "does the live file still match what was pinned" -- an
+      # unambiguous freshness check with no existence question folded in
+      # (an entry that was never recorded is never visited by this loop at
+      # all, so a missing declaration can't hide behind this tolerance).
       plugins/*)
         plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract" ||
-          diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
       # Tolerated STANDALONE (no --opening needed): the amendment
       # re-review lane's own oscillation, where a downstream stage's
       # recovery grows this file's `## Amendment Re-Review Context`
-      # section after an upstream stage already pinned it. Cherry-picked
-      # from 66a22b5a; that branch fell through to an --opening-based
-      # tolerance which does not exist here, so the non-reconciling path
-      # falls straight to the original hard diagnostic. That is the same
-      # fail-closed outcome -- this branch simply has one fewer tolerance
-      # to try -- so the guard is not weakened by the substitution.
+      # section after an upstream stage already pinned it. Tried first;
+      # falls through to the ordinary --opening-based tolerance (and, if
+      # that does not apply either, the original diagnostic) when the
+      # live change is not pure, section-confined growth over
+      # independently-verified historical bytes.
       "specs/$feature/investigation.md")
         current_hash="$(sha256_file "$manifest_file")"
         if [[ "$current_hash" != "$manifest_hash" ]]; then
           if investigation_amendment_reconciles "$manifest_file" "$manifest_hash" "$contract"; then
             print_investigation_amendment_notice "$feature" "$stage" "$manifest_relative" "$manifest_hash" "$current_hash"
           else
-            diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale"
+            diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale"
           fi
         fi ;;
       *)
         [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
-          diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
     esac
   done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")
   jq -e --slurpfile verdict "$best" --arg stage "$stage" '
@@ -713,8 +961,17 @@ validate_passed_stage() {
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage contract and verdict contradict each other"
 
+  # WFI-030 item 7: the round's precheck carries frozen_artifact_done_when, and
+  # reviewer-a must adjudicate every entry by name. A round recorded before the
+  # detector existed has no such file field; pointing --slurpfile at /dev/null
+  # yields an empty array, so $precheck[0] is null and `// []` below treats it
+  # as nothing to adjudicate rather than as a violation.
+  local round_precheck="$round_dir/precheck-result.json"
+  [[ -f "$round_precheck" ]] || round_precheck=/dev/null
+
   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
+    --slurpfile precheck "$round_precheck" \
     --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
     --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
@@ -793,7 +1050,17 @@ validate_passed_stage() {
       all(.severity == "Critical" or .severity == "Major" or .severity == "Minor")) and
     (if $stage == "task" then
        ([$a.checks[] | select(.status == "FAIL")] | length) == ($a.findings | length) and
-       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length)
+       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length) and
+       # WFI-030 item 7: every Done When item the precheck flagged as naming a
+       # review-frozen artifact must be adjudicated by task ID in the
+       # OBSERVABLE-DONE finding of reviewer-a. This does not judge the
+       # adjudication -- the detector is deliberately permissive and the reviewer
+       # decides -- it only requires that the decision was recorded against each
+       # flagged task. (No apostrophes here: the jq program is single-quoted.)
+       (([$a.checks[]? | select(.id == "OBSERVABLE-DONE") | (.finding // "")]
+          | join(" ")) as $observed |
+        all(($precheck[0].frozen_artifact_done_when // [])[];
+            . as $flagged | $observed | contains($flagged.task)))
      else true end) and
     ($summary[0].schema == "integrated-summary/v1" and
      $summary[0].attempt == $attempt and $summary[0].round == $round) and
@@ -844,13 +1111,26 @@ validate_passed_stage() {
   accept_hash="$(sha256_file "$accept")"
   if [[ "$stage" == spec ]]; then req_hash="$(normalized_hash "$req" spec)"
   else req_hash="$(sha256_file "$req")"; fi
+  # Tolerated downstream: direct comparison of the contract's own top-level
+  # field against a freshly computed live-file hash -- unambiguous
+  # freshness, no manifest-array existence question involved.
   jq -e --arg stage "$stage" --arg req "$req_hash" --arg accept "$accept_hash" '
     .requirements_sha256 == $req and .acceptance_sha256 == $accept
   ' "$contract" >/dev/null 2>&1 ||
-    diagnostic "$feature" stage-provenance "$stage top-level contract hashes are stale"
-  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" "$recorded_root" &&
-    manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" "$recorded_root" ||
-    diagnostic "$feature" stage-provenance "$stage contract hashes are stale"
+    diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage top-level contract hashes are stale"
+  # manifest_has_hash's ambiguity, disambiguated per path: if EVERY
+  # not-matching path is explainable as "recorded, just at a stale hash"
+  # (downstream of a verified --opening slot only), tolerate; a single
+  # genuinely undeclared path among them still fails the whole check.
+  local req_manifest_ok accept_manifest_ok
+  req_manifest_ok=0
+  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" "$recorded_root" && req_manifest_ok=1
+  accept_manifest_ok=0
+  manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" "$recorded_root" && accept_manifest_ok=1
+  diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+    "$stage contract hashes are stale" "$contract" "$recorded_root" \
+    "$req_manifest_ok" "/specs/$feature/requirements.md" "$req_hash" \
+    "$accept_manifest_ok" "/specs/$feature/acceptance-tests.md" "$accept_hash"
   local calibration precheck
   if [[ "$stage" == spec ]]; then
     calibration="$REPO_ROOT/plugins/sdd-review-loop/references/spec-review-calibration.md"
@@ -860,70 +1140,150 @@ validate_passed_stage() {
   precheck="$root/attempt-$best_attempt/round-$best_round/precheck-result.json"
   [[ -f "$calibration" && ! -L "$calibration" && -f "$precheck" && ! -L "$precheck" ]] ||
     diagnostic "$feature" stage-provenance "$stage required review inputs are missing"
+  # Same per-path disambiguation. The calibration doc's own plugins/
+  # historical-pin fallback (manifest_has_hash_for_file) is tried FIRST and
+  # is unrelated to this recovery; only if that ALSO fails does the
+  # omit-vs-stale query run, comparing against the calibration doc's
+  # current live hash like every other check here.
+  local calibration_hash precheck_hash calibration_manifest_ok precheck_manifest_ok
+  calibration_hash="$(sha256_file "$calibration")"
+  calibration_manifest_ok=0
   manifest_has_hash_for_file "$contract" "/${calibration#"$REPO_ROOT/"}" "$calibration" "$recorded_root" &&
-    manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$(sha256_file "$precheck")" "$recorded_root" ||
-    diagnostic "$feature" stage-provenance "$stage reviewer manifests omit required inputs"
+    calibration_manifest_ok=1
+  precheck_hash="$(sha256_file "$precheck")"
+  precheck_manifest_ok=0
+  manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash" "$recorded_root" &&
+    precheck_manifest_ok=1
+  diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+    "$stage reviewer manifests omit required inputs" "$contract" "$recorded_root" \
+    "$calibration_manifest_ok" "/${calibration#"$REPO_ROOT/"}" "$calibration_hash" \
+    "$precheck_manifest_ok" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash"
   if [[ "$stage" == impl ]]; then
     local design="$feature_dir/design.md"
     [[ -f "$design" && ! -L "$design" ]] ||
       diagnostic "$feature" stage-provenance "implementation design is missing"
+    # Tolerated downstream: manifest_has_reviewed_hash tries every
+    # canonical hash form design.md's own reviewed state can legitimately
+    # take (raw, lifecycle-normalized, re-review). Unlike the plain
+    # manifest_has_hash "omit" checks below, this represents the
+    # document's own provenance-hash pin, not an array-membership existence
+    # question -- the same role "task plan hash is stale" plays for
+    # tasks.md, which the deadlock this fix resolves depends on tolerating.
     manifest_has_reviewed_hash "$contract" "/specs/$feature/design.md" "$design" impl "$recorded_root" ||
-      diagnostic "$feature" stage-provenance "implementation design hash is stale"
+      diagnostic_or_tolerate "$feature" "$stage" stage-provenance "implementation design hash is stale"
+    # Tolerated downstream: direct top-level field vs live-hash comparison.
     reviewed_hash_accepted "$design" impl "$(jq -r '.design_sha256 // empty' "$contract")" ||
-      diagnostic "$feature" stage-provenance "implementation top-level design hash is stale"
+      diagnostic_or_tolerate "$feature" "$stage" stage-provenance "implementation top-level design hash is stale"
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "implementation layer precheck manifest is incomplete"
+      # The omit-vs-stale disambiguation runs once across all four layers
+      # (an aggregate check, like calibration+precheck and req/accept
+      # above): one genuinely undeclared layer must still fail the whole
+      # check even if the other three are merely stale.
+      local layer_omit_triples=()
       for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
         layer_path="$feature_dir/$layer"
         [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
           diagnostic "$feature" stage-provenance "implementation layer input is missing or linked"
         layer_hash="$(sha256_file "$layer_path")"
+        # Tolerated downstream: direct precheck/contract field vs live-hash
+        # comparison.
         [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
            "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
-          diagnostic "$feature" stage-provenance "implementation layer hash is stale"
-        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
-          diagnostic "$feature" stage-provenance "implementation reviewer manifests omit layer inputs"
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "implementation layer hash is stale"
+        local layer_manifest_ok
+        layer_manifest_ok=0
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" && layer_manifest_ok=1
+        layer_omit_triples+=("$layer_manifest_ok" "/specs/$feature/$layer" "$layer_hash")
       done
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "implementation reviewer manifests omit layer inputs" "$contract" "$recorded_root" \
+        "${layer_omit_triples[@]}"
     fi
   elif [[ "$stage" == task ]]; then
     local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
     [[ -f "$tasks" && ! -L "$tasks" ]] ||
       diagnostic "$feature" stage-provenance "task plan is missing"
+    # Tolerated downstream: same class as the design.md pin above -- the
+    # document's own provenance-hash pin, tried across every canonical form.
+    # This is the literal diagnostic the epic-196 deadlock names.
     manifest_has_reviewed_hash "$contract" "/specs/$feature/tasks.md" "$tasks" task "$recorded_root" ||
-      diagnostic "$feature" stage-provenance "task plan hash is stale"
+      diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task plan hash is stale"
+    # Tolerated downstream: direct top-level field vs live-hash comparison.
     reviewed_hash_accepted "$tasks" task "$(jq -r '.tasks_sha256 // empty' "$contract")" ||
-      diagnostic "$feature" stage-provenance "task top-level plan hash is stale"
+      diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task top-level plan hash is stale"
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       [[ -f "$traceability" && ! -L "$traceability" ]] ||
         diagnostic "$feature" stage-provenance "task traceability input is missing or linked"
-      local traceability_hash
+      local traceability_hash traceability_normalized
       traceability_hash="$(sha256_file "$traceability")"
-      [[ "$(jq -r '.traceability_sha256 // empty' "$precheck")" == "$traceability_hash" &&
-         "$(jq -r '.traceability_sha256 // empty' "$contract")" == "$traceability_hash" ]] ||
-        diagnostic "$feature" stage-provenance "task traceability hash is stale"
+      traceability_normalized="$(traceability_normalized_hash "$traceability")"
+      # Tolerated downstream: direct precheck/contract field vs live-hash
+      # (raw or normalized) comparison.
+      if ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$precheck")" \
+             "$traceability_hash" "$traceability_normalized" ||
+         ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$contract")" \
+             "$traceability_hash" "$traceability_normalized"; then
+        diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task traceability hash is stale"
+      fi
       local task_design_hash
       task_design_hash="$(sha256_file "$feature_dir/design.md")"
+      # Tolerated downstream: direct precheck/contract field vs live-hash
+      # comparison -- this is design.md's staleness surfacing on the task
+      # side of the epic-196 deadlock (design.md is impl's own reviewed
+      # input, task's contract separately pins its hash too).
       [[ "$(jq -r '.design_sha256 // empty' "$precheck")" == "$task_design_hash" &&
          "$(jq -r '.design_sha256 // empty' "$contract")" == "$task_design_hash" ]] ||
-        diagnostic "$feature" stage-provenance "task design hash is stale"
-      manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" ||
-        diagnostic "$feature" stage-provenance "task reviewer manifests omit design"
-      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
-        diagnostic "$feature" stage-provenance "task reviewer manifests omit traceability"
+        diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task design hash is stale"
+      # manifest_has_hash's ambiguity, disambiguated: this is the literal
+      # epic-196 residual gate ("task reviewer manifests omit design") --
+      # design.md's manifest entry recorded at the pre-amendment hash reads
+      # identically to design.md never having been declared at all, unless
+      # this second query tells them apart.
+      local design_manifest_ok
+      design_manifest_ok=0
+      manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" &&
+        design_manifest_ok=1
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit design" "$contract" "$recorded_root" \
+        "$design_manifest_ok" "/specs/$feature/design.md" "$task_design_hash"
+      # Traceability accepts either the raw or the lifecycle-normalized
+      # form as "ok"; within the not-ok branch the recorded hash (if
+      # singular) is therefore guaranteed to differ from both, so comparing
+      # it against the raw form alone is sufficient for the notice.
+      local traceability_manifest_ok
+      traceability_manifest_ok=0
+      { manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
+        manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_normalized" "$recorded_root"; } &&
+        traceability_manifest_ok=1
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit traceability" "$contract" "$recorded_root" \
+        "$traceability_manifest_ok" "/specs/$feature/traceability.md" "$traceability_hash"
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "task layer precheck manifest is incomplete"
+      # Aggregate, same as the impl-stage layer loop above: one genuinely
+      # undeclared layer must still fail the whole check even if the other
+      # three are merely stale.
+      local layer_omit_triples=()
       for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
         layer_path="$feature_dir/$layer"
         [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
           diagnostic "$feature" stage-provenance "task layer input is missing or linked"
         layer_hash="$(sha256_file "$layer_path")"
+        # Tolerated downstream: direct precheck/contract field vs live-hash
+        # comparison.
         [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
            "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
-          diagnostic "$feature" stage-provenance "task layer hash is stale"
-        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
-          diagnostic "$feature" stage-provenance "task reviewer manifests omit layer inputs"
+          diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task layer hash is stale"
+        local layer_manifest_ok
+        layer_manifest_ok=0
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" && layer_manifest_ok=1
+        layer_omit_triples+=("$layer_manifest_ok" "/specs/$feature/$layer" "$layer_hash")
       done
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit layer inputs" "$contract" "$recorded_root" \
+        "${layer_omit_triples[@]}"
     fi
   fi
 }

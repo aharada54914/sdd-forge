@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-b-a3r2-seq788",
+  "host_session_id": "SESS-spec-b-epic-196-a8-integration-a3r2-seq788",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "598dcf737dc2544fc81b59e84a0b1ad201ee4201d03edc38ef9f21b068cd29cf"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "0324cdaa476f9657a5380fdfe788d156d62640bd74c409c05e8d4b5b41b074ad"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "883d6045437377b56dee4631b82ebc458365c57a3fcc7704c97925da80845852"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json",
+      "sha256": "4add6b63b8b302d3ffcf8bb2f72a0e59003267bd492fc2788ef30980f0c25d4b"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-2/integrated-summary.json",
+      "sha256": "06542af6b926cb67970c7b4ba06266c2e4365333de37c21a42f99c6fed09baa7"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": ""
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:3 declares `Spec-Review-Status: Pending`, yet the amended Overview (requirements.md:34-45) and investigation.md's `## Amendment Re-Review Context` (investigation.md:109-291) pervasively reference later-phase artifacts (tasks.md, traceability.md, design.md, the layer specs, impl-review/task-review attempt evidence, 'PASS contracts') as already existing/amended. This is only permitted under the calibration's Amendment Re-Review Context exception, and only when every element of its evidence bar is met, including item 4: 'For every later-phase artifact the entry or the amended requirements/acceptance-tests text references ... a commit reference or a SHA-256 fingerprint for that artifact, never a bare path alone' (spec-review-calibration.md, 'Recognizing a declared amendment re-review', item 4). requirements.md:37 names `ux-spec.md` as one of the nine per-feature files that 'now exist' alongside design.md/frontend-spec.md/infra-spec.md/security-spec.md/tasks.md/traceability.md. The investigation.md entry dutifully cites a SHA-256 for design.md at four separate amendment commits (investigation.md:140, :145-151, :156-163, :171) and for frontend-spec.md/infra-spec.md/security-spec.md at two of those commits (investigation.md:146-151, :158-163), and cites commits/hashes for tasks.md and traceability.md (investigation.md:197-198, :211-213) — but `ux-spec.md` never receives a commit reference or SHA-256 anywhere in the Amendment Re-Review Context section or in requirements.md's own text; it is referenced only by bare filename. Downstream failure mode: because the calibration's evidence bar is all-or-nothing ('If ... any of the four elements is missing ... given only as a bare path with no commit or sha256 ... the declaration does not apply: judge phase-sequencing exactly as the default Phase-1 calibration above requires, with no benefit of the doubt'), this single uncited reference means the whole Amendment Re-Review declaration does not apply, so the default Phase-1 rule governs: 'the mere existence or citing of any later-phase artifact while Spec-Review-Status is Pending' is 'an unsafe or unauthorized workflow-boundary violation.' A downstream design/task/quality-gate reviewer inheriting this package cannot tell whether this feature's pervasive later-phase content (tasks.md/traceability.md amendments, impl-review attempt-4/5 evidence, T-008 'discharged' status) is validly authorized or an unauthorized phase-sequencing breach, because the citation chain the calibration requires to make that determination is broken for one of the named artifacts. This belongs to spec review specifically because verifying whether the declared amendment exception properly applies (full-evidence-bar check) is this gate's own responsibility per spec-review-calibration.md; no later gate evaluates phase-sequencing authorization. Severity Critical is justified because the calibration explicitly classifies an unremedied phase-sequencing violation as 'an unsafe or unauthorized workflow boundary... that makes the specification unreviewable' (Severity Calibration, Critical bullet)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No evidence within the allowed input manifest (requirements.md, acceptance-tests.md, investigation.md) of a `domain/` directory, `domain/context-map.md` with `Domain-Model-Status: Approved`, or a schema-valid `domain/domain-contract.json`; this package is scoped as internal cross-runtime test-infrastructure verification with no domain model referenced (requirements.md's own Security Boundaries closing note: 'This is internal test-infrastructure specification work with no user-facing entry point'). Skip condition applies."
+    }
+  ]
+}

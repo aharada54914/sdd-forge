@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "d6d83cfa210951e33c1c80de725482e8876836db1d1fbe074f0fdbe113597d39",
+  "acceptance_sha256": "3ba46d96b3a132f9a38be614532de5942ece5bfdb050ed66e3f05915cbb10946",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "af8bae3953293900ac428ea1c92dcb19f73ebf532d6705343082b10d0edcee7e",
+  "edit_summary": "Added AC-041/TEST-041: two negative integration fixtures exercising promote-golden-baseline.sh's own CI-env-var/--approved-by runtime refusal guard directly, closing round-1 reviewer B's APPROVAL-BOUNDARY Major finding (no prior AC/TEST exercised the guard, only AC-040's static CI-workflow-text scan existed). Cross-referenced in requirements.md Roles and Permissions, acceptance-tests.md (row + footnote), design.md (Test Strategy item 9, Cross-Layer Dependencies, Security Boundaries B1, Risks).",
+  "reset": false,
+  "generated_at": "2026-07-22T06:03:13Z"
+}

@@ -1,0 +1,84 @@
+ticket_id: RT-20260819-002
+status: resolved
+type: defect
+severity: major
+target:
+  feature: sdd-domain-concept-contract
+  task: T-004
+  files:
+    - plugins/sdd-domain/scripts/validate-domain-contract.ps1
+    - tests/sdd-domain/contract-v2-schema.Tests.ps1
+summary: >-
+  The ps1 twin looks up JSON object members case-insensitively, so a key spelled
+  with different case makes the two twins disagree - fail-open on the ps1 side.
+problem: |
+  `validate-domain-contract.ps1:143` and `:167` read members with
+  `$Object.PSObject.Properties[$Name]`, which is case-insensitive in PowerShell.
+  The sh twin reads them with Python dict lookup, which is ordinal. T-004's
+  cross-reference pass consumes those helpers at `Get-JsonStringMember` (:412),
+  `Get-DeclaredStringValueSet` (:432) and ten call sites, so a contract whose
+  key differs only in case is resolved by one twin and not the other.
+
+  Reproduced by the gate itself, independently of the evaluator:
+
+    # contexts[0] declares "Name" instead of "name", so concepts[0].context
+    # refers to a context that was never declared
+    $ bash  .../validate-domain-contract.sh casekey-Name.json
+    V2-DANGLING-CONTEXT: concepts[0].context: context order-taking is not declared in contexts
+    exit=1
+    $ pwsh -NoProfile -File .../validate-domain-contract.ps1 casekey-Name.json
+    exit=0            # <-- accepts a contract REQ-004(e) requires rejected
+
+  The evaluator measured the class more broadly: a concept declaring `"ID"`
+  instead of `"id"` gives sh exit 1 / ps1 exit 0; and the polarity also inverts -
+  `"Must_Not_Own"` gives sh exit 0 / ps1 exit 1 `V2-SELF-CONTRADICTION`, and a
+  term's `"Concept_Id"` gives sh exit 0 / ps1 exit 1 `V2-DANGLING-TERM`. All six
+  of T-004's checks emit a different RULE-ID across twins for this class
+  (`V2-MISSING-KEY` on sh versus `V2-DUP-CONCEPT-ID` / `V2-DUP-NAME-IN-CONTEXT` /
+  `V2-DANGLING-DISTINCTION` / `V2-SELF-CONTRADICTION` on ps1), which breaks the
+  DD-7 machine-consumable output contract.
+
+  Attribution was measured, not assumed. Running the same contracts against the
+  T-003-state twins at `cdfd7f60`: for the `"Name"`, `"Must_Not_Own"` and
+  term-`"Concept_Id"` cases both twins agreed (exit 0 / exit 0) before T-004.
+  T-004's cross-reference checks are what turn the case-insensitive helper into
+  an exit-code divergence. The helper itself is T-002-authored, but it was inert
+  until this task consumed it.
+
+  This is NOT the already-adjudicated `ConvertFrom-Json` key-handling class. That
+  one over-rejects: a document carrying both `id` and `ID` yields ps1 `V2-PARSE`
+  exit 1 versus sh exit 0. These cases parse cleanly on both twins and diverge at
+  property lookup, with under-rejection polarity - the ps1 twin returns 0 on a
+  contract the specification requires rejected.
+
+  It will not be caught downstream: no fixture in the feature exercises a
+  case-variant key, so T-005's AC-013 parity corpus does not cover it. A related
+  mutation survives today - replacing the referent index with a case-insensitive
+  comparer leaves all 33 of T-004's checks green.
+expected_fix:
+  - Make the ps1 member lookup ordinal. Compare `$Object.PSObject.Properties`
+    names with `[StringComparison]::Ordinal` rather than indexing by name, in
+    both `Test-ContractMemberPresent` (:143) and `Get-ContractValue` (:167), so
+    the ps1 twin resolves exactly the keys the sh twin resolves.
+  - Add regression fixtures in the case-variant-key class, asserted against BOTH
+    twins for identical exit code and identical stderr, so the parity property is
+    locked rather than assumed. Cover at least one fail-open case (a key the sh
+    twin misses and the ps1 twin currently finds) and one inverted case.
+  - Place the new fixtures OUTSIDE the allocated `New-CrossReferenceFixtureCase`
+    table. T-004 must stay at exactly 8 and the negative grand total at 73;
+    T-005 asserts that total, so adding to the allocation cascades. Follow the
+    precedent of the RT-20260819-001 block and T-003's anchor-regression block,
+    both of which use their own list.
+  - Follow Required Workflow tdd - capture a genuine failing run before the fix,
+    since this task is Risk high.
+  - Verify the fix also kills the surviving case-insensitive-index mutant.
+  - Do not change the sh twin - it is already ordinal and correct.
+references:
+  - specs/sdd-domain-concept-contract/requirements.md (REQ-004(d)-(i), REQ-006)
+  - specs/sdd-domain-concept-contract/design.md (DD-7 output contract)
+  - specs/sdd-domain-concept-contract/acceptance-tests.md (AC-013 twin parity)
+  - plugins/sdd-domain/scripts/validate-domain-contract.ps1 (lines 143, 167, 412, 432)
+  - reports/quality-gate/20260819T110000Z.md
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

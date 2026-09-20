@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-sdd-domain-concept-contract-task-task-reviewer-a-a1r2-seq0786",
+  "host_session_id": "SESS-task-task-reviewer-a-sdd-domain-concept-contract-a1r2-0786",
+  "manifest": [
+    {"path": "specs/sdd-domain-concept-contract/tasks.md", "sha256": "a3914bedbf87f24eac1a85c05b65e0877319d6716ce2925ffb581bca38621ee9"},
+    {"path": "specs/sdd-domain-concept-contract/requirements.md", "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"},
+    {"path": "specs/sdd-domain-concept-contract/acceptance-tests.md", "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"},
+    {"path": "specs/sdd-domain-concept-contract/design.md", "sha256": "56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"},
+    {"path": "specs/sdd-domain-concept-contract/traceability.md", "sha256": "a26c4651e6e3f717803b5c7bfba5433700d7ca7f41add4deed82f9ba90b60ec3"},
+    {"path": "specs/sdd-domain-concept-contract/ux-spec.md", "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"},
+    {"path": "specs/sdd-domain-concept-contract/frontend-spec.md", "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"},
+    {"path": "specs/sdd-domain-concept-contract/infra-spec.md", "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"},
+    {"path": "specs/sdd-domain-concept-contract/security-spec.md", "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/sdd-domain-concept-contract/attempt-1/round-2/precheck-result.json", "sha256": "066cff9d8296c9c1e4e5b935c75d9495e52bab6ec159282ee5898888b4391479"},
+    {"path": "reports/task-review/sdd-domain-concept-contract/attempt-1/round-2/dependency-graph.json", "sha256": "9122290b7403b84522b0c4e2c3019703b1f2328977eec3bbdc31e034271f243e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "No task's Requirements: field cites an AC-NNN (all Requirements: fields cite only REQ-NNN, e.g. T-001 'Requirements: REQ-001, REQ-002, REQ-003'). Broadening to every AC-NNN token appearing anywhere in tasks.md (26 unique IDs, AC-001..AC-026), all resolve to matching rows in acceptance-tests.md's table (lines 10-35). No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: None (line 184); T-002 Blockers: T-001 (line 307); T-003 Blockers: T-002 (line 428); T-004 Blockers: T-003 (line 544); T-005 Blockers: T-002, T-003, T-004 (line 667). All use the literal 'None' or comma-separated T-NNN IDs, no range notation or prose. Matches precheck-result.json blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 7 requirement headers in requirements.md (REQ-001..REQ-007) appear in at least one task's Requirements: field: REQ-001/002/003 in T-001 (line 105); REQ-004 in T-002 (line 215); REQ-002/004 in T-003 (line 336); REQ-003/004 in T-004 (line 455); REQ-005/006/007 in T-005 (line 570)."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 26 acceptance criteria (AC-001..AC-026 in acceptance-tests.md) are traceable to a task. Example where the owning REQ is absent from the task's Requirements field but the AC is explicitly named: AC-016/AC-021/AC-024 map to REQ-001 (not in T-003's 'Requirements: REQ-002, REQ-004', line 336) yet T-003's Done When explicitly lists 'AC-014, AC-016, AC-018, AC-019, AC-020, AC-021, AC-023 all pass' (lines 404-406) and 'AC-024's 29 fixtures pass' (line 400), and T-003's Negative Fixture Allocation row (line 76) names them, satisfying the 'test task that explicitly references the AC' clause. All other ACs map directly through Requirements-field REQs (e.g. AC-001/AC-002 via T-001's REQ-001; AC-003/004/005/025/026/013/015 via T-005's REQ-005/006/007; AC-006..012/016/017/022 via T-002/T-003/T-004's REQ-004)."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-005) declares a non-empty Requirements: field citing valid REQ-NNN IDs (lines 105, 215, 336, 455, 570); no task lacks one."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test', 'spec', or 'verify' case-insensitively (verified against all five '## T-NNN' headers), and no task's Scope is exclusively test-file changes -- each Scope's Commit A pairs implementation code with tests (e.g. T-002 Commit A: 'Write the acceptance checks first...Author both twins to Green', lines 258-263). No task qualifies as a test task under this check's criteria, so there is nothing to flag."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks declare Approval: Draft and Status: Planned: T-001 (lines 84, 86), T-002 (lines 190, 192), T-003 (lines 313, 315), T-004 (lines 434, 436), T-005 (lines 550, 552), satisfying the pre-implementation rule the orchestrator's invocation classification specifies for this round-1-attempt review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Each task declares Risk: and Required Workflow: with pairing matching the risk-gate-matrix: T-001 medium/acceptance-first (lines 88, 103); T-002 high/tdd (lines 194, 213); T-003 high/tdd (lines 317, 334); T-004 high/tdd (lines 438, 453); T-005 medium/acceptance-first (lines 554, 568). Matches precheck-result.json workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No AC-NNN is claimed as primary test target by two tasks without differentiation. The three cases where an AC token appears in two tasks' bodies are explicit ownership-disclaiming cross-references, not duplicate claims: T-003 states 'the optional-absent acceptance case is T-005's AC-026 and is not authored here' (line 385) while claiming AC-026 nowhere as its own target; T-004 states 'the positive proof is T-005's AC-005' (line 526) while its own primary target is AC-011; T-005 states '(paired with AC-018's negatives)' (line 638) as contrast only, while T-003 is the sole owner of AC-018's negative fixtures per the Negative Fixture Allocation table (line 76). Each AC has exactly one primary-target task."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers: field (T-001, T-002, T-003, T-004) resolves to an existing node in dependency-graph.json's nodes array ['T-001','T-002','T-003','T-004','T-005'] and to an existing '## T-NNN' section in tasks.md."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges (T-002->T-001, T-003->T-002, T-004->T-003, T-005->T-002, T-005->T-003, T-005->T-004) form a DAG: every path terminates at T-001 (which has no outgoing edge) with no node revisited. No cycle exists."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task addresses one coherent concern. T-001's title ('Author the v2 schema file and install the v1 drift lock') pairs schema authoring with a drift-lock test in the same suite file/commit; design.md's Test Strategy groups both under 'drift lock 2 種' (design.md lines 119-122), an inseparable verification pairing (calibration exception 1). T-005's title lists three items ('positive corpus, twin parity, and non-regression closure'), but design.md's Test Strategy (lines 115-144) treats these as one integrated closure phase of the same suite, and T-005's Scope explicitly justifies the bundling: 'the parity harness and the positive corpus exercise the complete validator, and the 73-fixture tally can only be verified once all three negative-fixture tasks have landed' (lines 598-602) -- verification work tied to the completed corpus, not two distinct feature concerns. T-002/T-003/T-004 titles carry no concern-joining 'and'."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item across all 5 tasks names a concrete test ID, AC ID, or command-inspectable output (e.g. T-001 'TEST-001 passes...the four root required keys' line 160-162; T-002 'AC-017 passes for both fixtures: non-zero exit, no partial result on stdout, no stack trace' lines 281-283; T-005 'AC-013 passes across the full corpus with identical exit codes and violation counts, or emits a named SKIP' lines 642-643). No item uses forbidden vague verbs ('ensure', 'consider', 'verify is correct', 'works correctly', bare 'review'/'confirm'). Each task names at least one concrete TEST-NNN or AC-NNN verification target. The 'Requirement traceability' items in T-002/T-003/T-004 (lines 289, 412, 529: 'traceability.md rows for REQ-XXX record this task's evidence paths') do not require editing traceability.md's frozen body: traceability.md's Evidence column already records the generic verification-path pattern per task at spec-authoring time (e.g. the REQ-004 row already reads 'specs/sdd-domain-concept-contract/verification/{T-002,T-003,T-004}/'), so the item is satisfiable by producing evidence at the already-declared path; any residual reading as a Status-column flip falls within the normalized-status-field exception to the post-gate freeze rule."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID in tasks.md (T-001..T-005) is cited in traceability.md's Evidence column (verified with a regex excluding 'TEST-NNN' substrings to avoid false matches, since a naive 'T-\\d{3}' grep spuriously matches inside 'TEST-006' etc.), and every REQ-NNN cited in traceability.md (REQ-001..REQ-007) exists in requirements.md. Each requirement row's Layer Spec column cites canonical anchors resolving to real headings in the hash-bound layer docs: REQ-001 cites security-spec.md#threat-considerations (heading 'Threat Considerations' at security-spec.md:11) and ux-spec.md#scope-and-user-journeys (heading 'Scope and User Journeys' at ux-spec.md:11); REQ-006 cites infra-spec.md#execution-environments and #ci--release-impact (headings 'Execution Environments' at infra-spec.md:8 and 'CI / Release Impact' at infra-spec.md:20). No dangling anchor or task/requirement ID found."
+    }
+  ],
+  "findings": []
+}

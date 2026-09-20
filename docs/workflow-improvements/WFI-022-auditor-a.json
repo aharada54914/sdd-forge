@@ -1,0 +1,75 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-022",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Problem Evidence contains no retrospective-metric or ticket references (the provided retrospective, 2026-08-20 sdd-domain-concept-contract, postdates and does not cover the cited 2026-08-04 events); every claim instead carries a file:line or commit citation, and all were verified against the repository. Verified: the matcher at plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:53 is exactly as described (field name, optional whitespace, approved word; no anchors, no multiline flag); the Bash path at :728 is verbatim '\"workflow-improvements/\" in cmd.lower() and WFI_APPROVAL_RE.search(cmd)'; the Edit path at :741-742 evaluates only new_string and never reads old_string; _wfi_write_content_increases is now at :749 (WFI cites :748 — moved by one line but present, treated as present). Commit 41fae3ff exists and its message body independently records the read-only grep refusal, the approval-removing sed refusal, the fields left lagging, and that the guard 'states it is never bypassed, so no string-avoiding workaround was attempted'. The template claim verified: plugins/sdd-quality-loop/templates/workflow-improvement.template.md:12 states the AI sets Applied. The fourth instance (this document authored with the approval field in split form throughout) is observable in the file itself and is a documented authoring technique, not an error."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found with the hypothesis itself: it names a specific mechanism — 'on two of its three paths it actually answers \"does this operation's text mention the approval field near a WFI path?\"', with the Edit path omitting the comparison operand, the Bash path having no notion of direction or read-versus-write, and the unanchored matcher compounding both — not a restatement of the symptom, and each element verified true in the guard source (:53, :728, :741-742 vs the correct :749). Caveat: the terminal-cause cross-check against the Why-Why chain could not be performed because the '## Why-Why Analysis' section is absent (Major under WHY-CHAIN-VALID); when the chain is added it must terminate at this same mechanism."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The '## Why-Why Analysis' section is entirely absent. The file's 15 headings run directly from '## Problem Evidence' (line 74) to '## Root Cause Hypothesis' (line 116) with no chain between them. Per check rule 1, a missing section is a Major finding: WFIs drafted before this section existed fail here on re-audit and must add the chain when revised. The evidentiary raw material for a valid chain already exists in Problem Evidence and was verified against the repository, so this is fixable without new investigation; a concrete chain is supplied in proposed_revisions."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category is 'plugin-improvement'. A full scan of '## Root Cause Hypothesis', '## Proposed Change' (Change Description column), and '## Expected Effect' (the Why-Why section being absent) found no term from the Forbidden Term column of wfi-category-guide.md Section 2. The only occurrences of 'sdd-quality-loop' in the file are literal file paths: line 78 sits in '## Problem Evidence' (exempt as direct evidence) and lines 131-134 sit in the Target File column, which the check does not scan; the guide forbids the plugin name only 'when describing the gate concept', which a path naming the change's actual target under the source-of-truth carve-out does not do."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All five rows name a specific file (four guard twins plus tests/guard-parity.tests.sh, all verified to exist) and carry non-vague descriptions: row 1 specifies the anchored-matcher form, the new_string-vs-old_string comparison including edits-list elements, and the read-only Bash exemption keyed to the existing SHELL_READ_ONLY_START_RE invariant (verified present at sdd-hook-guard.py:911/:939/:979); rows 2-4 incorporate row 1 by explicit reference ('The identical change; the four twins are parity-locked'), which is concrete; row 5 enumerates six named regression cases. The four plugins/ paths are not findings here because the NO-PLUGIN-SCOPE-CREEP carve-out applies on exactly the same conditions (all three verified — see that check), keeping the two checks consistent as required."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. '## Expected Effect' enumerates precisely which four non-granting operation classes go from refused to allowed and states that granting operations 'remain refused on every path', with the concrete first use named (advancing the four 2026-08-04 WFIs to Applied). The metric name and quantitative form are carried explicitly in '## Verification Metric' (Target-Metric named, Baseline: 4, Target: 0, Expected-Direction: decrease). Note: the guide's Section 2 generic-metric table contains no metric covering guard refusals, so the WFI defines its metric in generic workflow terms, which is the satisfiable reading for a guard-defect WFI; restating 'from 4 to 0' inline in Expected Effect would be tidier but its absence is not the vague-effect failure mode this check targets."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Exactly one primary metric is named ('count of guard refusals against a WFI file for an operation that does not increase the number of column-0 approval field lines'); the parity-suite condition is explicitly labeled 'Secondary (deterministic)', so priority is unambiguous. Baseline (4), Target (0), and checkpoint ('this change's verification run, then the next completed feature whose work applies or advances a WFI') are all present. The baseline is sourced from the four reproduced refusals rather than a retrospective row — the provided retrospective contains no row measuring guard refusals, and two of the four are independently corroborated by commit 41fae3ff's message — so none of the check's enumerated failure conditions applies."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "The plan's four steps ('(1) Replay all four reproduced false positives... (2) Replay the two real bypasses... (3) Confirm the four twins agree... (4) Advance WFI-012, 013, 014 and 015 through the Edit path...') are concrete, deterministic, and replayable, but none references the specific retrospective metric row that will be compared in the next cycle. The retrospective's 'Applied WFI Horizon Check' table is where an Applied WFI's Target-Metric current value is compared against baseline and target (see the 2026-08-20 report's table, e.g. its WFI-016 row for a guard-denial metric of the same shape), and the plan does not name that row for WFI-022."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Carve-out applied, explicitly, to the four plugins/sdd-quality-loop/scripts/sdd-hook-guard.* rows. All three conditions were verified: (1) the WFI declares 'Category: plugin-improvement'; (2) the '## Category' section states in its own words that 'this repository is that plugin's source of truth, so the change travels as a repository commit after human approval and the GitHub issue is a tracking record rather than the change vehicle'; (3) a '## GitHub-Issue' section is present with an explicit statement of when the tracking issue is filed ('none (filed after human approval, matching the WFI-016/017/021 sequence)'). The carve-out's provenance commit ffa2d6bb (2026-08-03) was verified to exist and predate this WFI, matching the WFI's own claim to be the first filed after it. The fifth row, tests/guard-parity.tests.sh, is a repository-root path outside plugins/ and does not trigger the rule."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Why-Why Analysis",
+      "change": "Insert a new '## Why-Why Analysis' section between '## Problem Evidence' and '## Root Cause Hypothesis' (4-row chain: text-mention vs net-increase semantics; only the Write path implements the delta; unanchored matcher; no parity-suite case for the mentions-but-does-not-grant class).",
+      "rationale": "Resolves the WHY-CHAIN-VALID Major (section absent). The chain is anchored to the Problem Evidence friction (row 1), each Because feeds the next Why, every row cites verified repository evidence or is marked (hypothesis), and the terminal cause is the same mechanism as the Root Cause Hypothesis, which also closes ROOT-CAUSE-PLAUSIBLE's deferred terminal-cause cross-check."
+    },
+    {
+      "section": "## Verification Plan",
+      "change": "Append a fifth step: the next retrospective's Applied WFI Horizon Check table gains a WFI-022 row comparing the Target-Metric count observed over the Horizon against Baseline 4 and Target 0.",
+      "rationale": "Resolves the VERIFICATION-PLAN-SPECIFIC Minor by naming the specific retrospective metric row that will be compared in the next cycle, matching how the 2026-08-20 retrospective already tracks Applied WFIs of the same shape (e.g. its WFI-016 guard-denial row)."
+    }
+  ]
+}

@@ -28,14 +28,14 @@
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
-| workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案 | quality-gate | — |
+| workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
 | sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 | wfi-audit-cycle | sdd-quality-loop | WFI-NNN.md Draft を2サイクルの独立監査（品質→影響/リスク）で審査し Human-Pending に移行するオーケストレーター | workflow-retrospective | — (人間承認待ち) |
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約）:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはありません。さらに、内部オーケストレーション用スキルは `user-invocable: false` も指定しており、スラッシュコマンドメニューには表示されず、ユーザーが直接呼び出すこともできません。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -216,7 +216,7 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 | `task-reviewer-b` | sdd-review-loop | `sonnet` | Quality and Risk（リスク階層の妥当性、タスクサイズ、エッジケース、テスト種別整合、ロールバック計画、スコープの排他性） | task-review-loop |
 | `domain-reviewer-a` | sdd-domain | `sonnet` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
 | `domain-reviewer-b` | sdd-domain | `sonnet` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性、god aggregate / anemic model リスク） | domain-review-loop |
-| `wfi-auditor-a` | sdd-quality-loop | `sonnet` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・カテゴリ整合の言語・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
+| `wfi-auditor-a` | sdd-quality-loop | `sonnet` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・なぜなぜ分析（5 Whys）チェーンの有効性・カテゴリ整合の言語・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
 | `wfi-auditor-b` | sdd-quality-loop | `sonnet` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
 | `panelist-gpt`（`sdd-panelist-gpt`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの OpenAI/GPT ベンダースロット。サニタイズ済み入力バンドル1件から `cross-model-verdict/v1` JSON を返す | cross-model-verify |
 | `panelist-gemini`（`sdd-panelist-gemini`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの Google/Gemini ベンダースロット。同上 | cross-model-verify |

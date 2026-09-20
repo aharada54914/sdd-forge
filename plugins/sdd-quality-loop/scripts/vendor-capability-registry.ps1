@@ -1,15 +1,15 @@
-# Thin argument-forwarding wrapper for vendor-capability-registry.py
-# (Python master). INV-014 (the sdd-hook-guard.sh pattern).
-$ErrorActionPreference = 'Stop'
-$scriptDir = $PSScriptRoot
-$pyScript = Join-Path $scriptDir 'vendor-capability-registry.py'
+# Thin PowerShell dispatcher for vendor-capability-registry (Python master).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
+$ErrorActionPreference = "Stop"
 
-$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
-if (-not $pythonCmd) {
-  Write-Error "vendor-capability-registry: python3 (or python) is required"
-  exit 1
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("vendor-capability-registry: VENDOR_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
 }
+. $lib
 
-& $pythonCmd.Source $pyScript @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "vendor-capability-registry.py") -DiagnosticPrefix "vendor-capability-registry: VENDOR_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE" -Arguments $args

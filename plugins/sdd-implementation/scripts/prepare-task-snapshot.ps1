@@ -14,7 +14,7 @@ function Test-RepoPath([object]$Path) {
   foreach ($part in $Path.Split('/')) {
     if ($part -eq '' -or $part -eq '.' -or $part -eq '..') { return $false }
   }
-  return $Path -match '^[A-Za-z0-9][A-Za-z0-9._/-]*$'
+  return $Path -cmatch '\A[A-Za-z0-9][A-Za-z0-9._/-]*\z'
 }
 function Get-SafeSource([string]$Repo, [string]$RelativePath) {
   $current = $Repo

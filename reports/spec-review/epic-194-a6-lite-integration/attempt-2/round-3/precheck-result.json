@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "fbcca3c04b1f66374cb7e03483c64a47dd9a32749b80f61ba8231272405df5f6",
+  "acceptance_sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "c181c329f68c99220559cf71d407035d3db4c2f3aca882650ce1585b244fc890",
+  "edit_summary": "Deployed the human-authorized amendment re-review lane (cherry-pick 726240f9346ac3f3bfc87d4b987dc25f07c51030: spec-review-calibration.md Amendment Re-Review Context section + both spec-reviewer role files). Authored investigation.md's Amendment Re-Review Context entry meeting the calibration's full evidence bar: full amendment commit hashes (9997091c71244e8cf3f9e46732f7ba164aa49843, fae561c9d323cf32914f6885cb6f3d24053bd9af), per-document SHA-256 as of each amendment commit, verbatim dated human approval (2026-08-23 「194/195/196の凍結文書について人間は承認する」 and 「限定デプロイ + WFI 起票でやれ」), and commit/SHA-256 citations for every referenced later-phase artifact (tasks.md, traceability.md, traceability.json, T-001 panelist verdicts). Reworded requirements.md's Overview dated note to point to that entry so its claims inherit the entry's citations instead of standing as bare assertions (round-2 CONSTRAINTS-EXPLICIT/CONTRADICTION/APPROVAL-BOUNDARY/DOWNSTREAM-READINESS findings). Note: the round-2 contract was validated with investigation.md at its round-1/2 reviewed bytes (45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6); the amended investigation.md (e82a6cd6fa5aad1a4da058d67e84f06daaa38eea18c10d980d6008009e8db593) is pinned by this round's reviewer invocation manifests.",
+  "reset": false,
+  "generated_at": "2026-08-23T14:21:53Z"
+}

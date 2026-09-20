@@ -172,7 +172,7 @@ if ($revExit -ne 0) {
 }
 
 $gitCommit = ($revResult | Out-String).Trim()
-if ($gitCommit -notmatch '^[0-9a-f]{40}$') {
+if ($gitCommit -cnotmatch '^[0-9a-f]{40}$') {
     Write-Error "generate-evidence-bundle: unexpected git HEAD format: $gitCommit"
     exit 1
 }
@@ -407,6 +407,34 @@ function Get-EvidenceCanonical {
 # Write bundle
 # ------------------------------------------------------------------
 
+# RT-20260821-005 / REQ-006 (design.md section 5): per-check telemetry,
+# derived from the verification contract (parity with the sh twin). The
+# generator does not execute checks, so command/exit_code/started_at/
+# finished_at pass through when recorded and are null otherwise;
+# evidence_sha256 is always freshly measured.
+$checksTelemetry = @()
+foreach ($chk in @($contract.checks)) {
+    if ($null -eq $chk) { continue }
+    $evRel = ([string]$chk.evidence).Trim()
+    $evSha = $null
+    if ($evRel) {
+        $evAbs = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $evRel))
+        if (Test-Path -LiteralPath $evAbs -PathType Leaf) { $evSha = Get-Sha256Hex $evAbs }
+    }
+    $prop = $chk.PSObject.Properties
+    $checksTelemetry += [ordered]@{
+        id              = $chk.id
+        required        = [bool]$chk.required
+        passes          = [bool]$chk.passes
+        command         = if ($prop['command']) { $chk.command } else { $null }
+        exit_code       = if ($prop['exit_code']) { $chk.exit_code } else { $null }
+        started_at      = if ($prop['started_at']) { $chk.started_at } else { $null }
+        finished_at     = if ($prop['finished_at']) { $chk.finished_at } else { $null }
+        evidence        = if ($evRel) { $evRel } else { $null }
+        evidence_sha256 = $evSha
+    }
+}
+
 $bundle = [ordered]@{
     task_id               = $taskId
     feature               = $feature
@@ -420,6 +448,7 @@ $bundle = [ordered]@{
     build_env             = $buildEnv
     builder               = $builder
     review_verdict        = $reviewVerdict
+    checks                = $checksTelemetry
     artifacts             = $artifacts
 }
 

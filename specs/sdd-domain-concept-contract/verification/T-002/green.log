@@ -1,0 +1,62 @@
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
+
+  Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
+    [+] the v2 schema file exists 24ms
+    [+] parses as valid JSON 24ms
+
+    Context once parsed
+      [+] declares draft-07 3ms
+      [+] declares the domain-contract/v2 schema const 2ms
+      [+] declares root required schema/meta/contexts/concepts, exactly those four 10ms
+      [+] declares a v1-shaped meta definition (version/status/generated_from) 16ms
+      [+] declares concepts as a required top-level array with minItems 1 3ms
+      [+] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 4ms
+      [+] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 1ms
+      [+] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 3ms
+
+  Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
+    [+] the v1 schema file still exists 1ms
+    [+] v1 schema file SHA-256 equals the recorded feature-start baseline 3ms
+
+  Describing validate-domain-contract twins exist (TEST-017/TEST-012 preconditions, REQ-004)
+    [+] the .sh twin exists 1ms
+    [+] the .ps1 twin exists 1ms
+
+  Describing validate-domain-contract fail-closed input handling (TEST-017, AC-017, REQ-004(a))
+
+    Context fixture 1 of 2 -- syntactically broken JSON (truncated body)
+      [+] ps1 twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 573ms
+      [+] sh twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 55ms
+
+    Context fixture 2 of 2 -- a file larger than the 10 MiB ceiling
+      [+] the fixture really does exceed the ceiling (non-vacuity) 32ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 541ms
+      [+] sh twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 66ms
+
+  Describing validate-domain-contract argument and path errors (REQ-004(a), Edge Cases fail-closed)
+
+    Context no argument
+      [+] ps1 twin: exits 1 with one V2-USAGE line 503ms
+      [+] sh twin: exits 1 with one V2-USAGE line 29ms
+
+    Context a path that does not exist
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FOUND line 564ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FOUND line 47ms
+
+    Context a path that is a directory, not a contract file
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FILE line 538ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FILE line 55ms
+
+    Context a regular file the process may not read (POSIX mode 000)
+      [+] ps1 twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 572ms
+      [+] sh twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 89ms
+
+  Describing validate-domain-contract v2 version dispatch (TEST-012, AC-012, REQ-004(b), DD-6)
+    [+] the v1 fixture really declares domain-contract/v1 (non-vacuity) 1ms
+    [+] ps1 twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 541ms
+    [+] sh twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 47ms
+Tests completed in 4.61s
+Tests Passed: 30, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 

@@ -267,6 +267,31 @@ def parse_review_verdict(report_path):
 
 review_verdict = parse_review_verdict(report_path)
 
+# RT-20260821-005 / REQ-006 (design.md section 5): per-check telemetry.
+# Derived from the verification contract. The generator does not execute
+# checks, so command/exit_code/started_at/finished_at are carried through
+# from the contract when the implementing session recorded them and are
+# null otherwise; evidence_sha256 is always freshly measured here.
+checks_telemetry = []
+for _check in contract.get("checks", []):
+    _ev_rel = str(_check.get("evidence") or "").strip()
+    _ev_sha = None
+    if _ev_rel:
+        _ev_abs = (abs_root / _ev_rel)
+        if _ev_abs.is_file():
+            _ev_sha = sha256_file(_ev_abs)
+    checks_telemetry.append({
+        "id": _check.get("id"),
+        "required": bool(_check.get("required")),
+        "passes": bool(_check.get("passes")),
+        "command": _check.get("command"),
+        "exit_code": _check.get("exit_code"),
+        "started_at": _check.get("started_at"),
+        "finished_at": _check.get("finished_at"),
+        "evidence": _ev_rel or None,
+        "evidence_sha256": _ev_sha,
+    })
+
 # ------------------------------------------------------------------
 # Build build_env
 # ------------------------------------------------------------------
@@ -383,6 +408,7 @@ bundle = {
     "build_env": build_env,
     "builder": builder,
     "review_verdict": review_verdict,
+    "checks": checks_telemetry,
     "artifacts": artifacts,
 }
 

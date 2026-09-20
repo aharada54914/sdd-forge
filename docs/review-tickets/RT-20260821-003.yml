@@ -1,0 +1,43 @@
+ticket_id: RT-20260821-003
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-004"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-contract.ps1"
+    - "plugins/sdd-quality-loop/scripts/check-contract.py"
+summary: >-
+  High/critical Red->Green enforcement is fail-open when required_workflow is
+  absent, empty, or whitespace; differential-baseline documentation never
+  delivered
+problem: |
+  QG evaluator (seq 0813, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T052500Z.md) accepted two Majors.
+
+  1. Pass 5 fires only on required_workflow == "tdd" and the risk->workflow
+     binding (check-contract.ps1:381 and the python twin) is guarded by
+     "if risk and required_workflow", so an absent, empty, or whitespace
+     field disables BOTH passes. Measured on both runtimes: risk high, no
+     required_workflow, zero red/green evidence => exit 0. The wrong-value
+     spelling ("bogus") is correctly rejected, so the gate catches the honest
+     mistake and misses the one-field evasion. The contract template ships
+     the field as an empty string, making the fail-open spelling the normal
+     template state. No delivered test covers absent/empty/whitespace.
+  2. tasks.md:150 Goal clause "Document red-evidence-for-refactor case
+     (differential baseline)" has no delivered artifact. Commit 236ecbdf
+     touched 6 files, zero documentation, and differential-test-policy.md
+     predates the field it would need to describe.
+expected_fix:
+  - "Make required_workflow mandatory and non-empty whenever risk is present, or derive it from risk per design.md:118 instead of trusting the field"
+  - "Add fixtures for the absent, empty-string, and whitespace spellings on BOTH runtimes, asserting rejection for high and critical tiers"
+  - "Deliver the differential-baseline documentation for the refactor red-evidence case, or cite the commit where it exists"
+  - "Re-run the quality gate for T-004 (new evaluator reservation) once fixed"
+references:
+  - "reports/quality-gate/20260821T052500Z.md"
+  - "specs/risk-adaptive-layer/requirements.md"
+  - "specs/risk-adaptive-layer/design.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

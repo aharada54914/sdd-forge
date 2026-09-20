@@ -19,10 +19,15 @@ New-Item -ItemType Directory -Path $scriptDir, $contractDir -Force | Out-Null
 foreach ($name in @(
   'generate-registry-digest.py', 'generate-registry-digest.sh',
   'generate-registry-digest.ps1', 'generate-registry-digest.js',
-  'registry_discovery.py', 'canonicalize-sdd-yaml.py'
+  'registry_discovery.py', 'canonicalize-sdd-yaml.py',
+  'lib/py-dispatch.sh', 'lib/py-dispatch.ps1'
 )) {
   $source = Join-Path $sourceDir $name
-  if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination (Join-Path $scriptDir $name) }
+  if (Test-Path -LiteralPath $source) {
+    $destination = Join-Path $scriptDir $name
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath $source -Destination $destination
+  }
 }
 
 function Install-Registry([string]$Name) {

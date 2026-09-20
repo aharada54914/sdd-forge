@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0767",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0767",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-2/precheck-result.json", "sha256": "5e85f6d47d0aa50693e01828fdc64a1ce4d9dee8575038287aee661f384515b9"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "a95d3f68a4394bf50d9f6991483ab84af6d812ca72f633f704aed71b0241d6c9"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This round's edit closes the prior REQ-TESTABILITY contradiction: requirements.md AC-009 (lines ~357-373) now says 'assert_artifacts_schema ... remains fully unmodified; assert_terminal's observable behaviour and signature ... are locked byte-identical at the re-baselined function-body hashes TEST-009 (acceptance-tests.md) records, whose one sanctioned change is the _loop_trace_emit done-transition:assert-terminal call', and acceptance-tests.md TEST-009 (row for AC-009) mirrors this exactly, naming the two concrete re-baselined SHA-256 values (f325a4df... for assert_terminal/EXPECTED_TERMINAL_SHA in tests/loop-inventory.tests.sh and 460467af... for Test-LoopTerminal in the .ps1 twin) as 'the binding truth condition'. The previously dangling cross-references (TEST-009.2 / 'T-005 cycle-2 correction' / 'pre-T-006 body') no longer appear in either spec-scope document. Every REQ-001 through REQ-007 clause names a concrete comparison oracle (byte diff, hash lock, schema check, event-trace match, static grep) an implementer/verifier can act on without guessing, so the requirement set is observable/measurable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal (REQ-001 through REQ-007) has one or more explicitly cited acceptance criteria: REQ-001→AC-001-004,AC-038; REQ-002→AC-005,AC-006,AC-030-031,AC-042-043; REQ-003→AC-008-012,AC-022-027,AC-032-033,AC-036-037,AC-039; REQ-004→AC-013,AC-017,AC-029; REQ-005→AC-014-016,AC-019-021,AC-028; REQ-006→AC-001,AC-018,AC-040-041; REQ-007→AC-016,AC-034-035. acceptance-tests.md's Requirement column corroborates every REQ→AC mapping row by row (e.g. AC-042/AC-043 rows tie F3/F5/F6 back to REQ-002/REQ-007). No goal is left without a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and comparisons throughout: byte-for-byte diffs (AC-002, AC-003, AC-011), fixed SHA-256 hash locks (AC-009, AC-018, AC-036), schema/count checks (AC-008, AC-009), event-trace equality against a named golden trace (AC-010, AC-022-027, AC-032), static text scans (AC-006, AC-040), and process-exit/negative-fixture checks (AC-035, AC-041). None rely on unmeasurable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (lines 229-255) explicitly excludes implementing Epics A1-A6 themselves, authoring the actual test code/fixtures/registry edits (Phase 2/3), registering a new loop-inventory id (a ninth loop), re-specifying Epic A5's own deferred suite in full, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task. This bounds the feature clearly against the otherwise-expandable capability-machinery surface."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: a Security Boundaries table (B1 golden-baseline capture/update trust boundary with maintainer-approval requirement and CI refusal guard; B2 shared registry/driver/run-record edit review rigor), a Roles and Permissions section fixing who may promote a candidate baseline to canonical and that CI never writes it, and REQ-006's two-stage candidate/canonical governance procedure (AC-018, AC-040, AC-041). Migration/compatibility constraints are fixed via ADR-0010/0016/0023 citations and the fixture-matrix scope (REQ-005)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section names Critical (Context-present assertions against unmerged upstream epics may drift), High (shared-surface blast radius), and Medium (deliberate 4-file Phase-1 scope deviation from check-sdd-structure.sh) risks, each paired with a concrete validation surface already reflected in the ACs: the Critical risk's mitigation is REQ-007's named-SKIP/allowlist design with AC-034/AC-035's fingerprint-drift hard-fail; the High risk's mitigation is design.md fixing exact field names before Phase 2/3 starts; the Medium risk's mitigation is the self-closing Phase-2-kickoff signal described in Main Workflows step 1."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this worktree (glob for domain/* returned no matches), so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json to check requirements.md's terminology against. Per the calibration/check definition, this check is skipped when domain/ is absent."
+    }
+  ]
+}

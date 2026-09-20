@@ -1,0 +1,80 @@
+diff --git a/specs/epic-136-phase2-gates/tasks.md b/specs/epic-136-phase2-gates/tasks.md
+index 704cd91..41cd16c 100644
+--- a/specs/epic-136-phase2-gates/tasks.md
++++ b/specs/epic-136-phase2-gates/tasks.md
+@@ -42,7 +42,7 @@ candidate is itself subject to the same human inspection.
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/117
+ 
+-Approval: Approved (sudo 2026-07-13T05:53:16.481Z)
++Approval: Approved (sudo 2026-07-13T05:53:16Z)
+ 
+ Status: Done
+ 
+@@ -128,7 +128,7 @@ None
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/118
+ 
+-Approval: Approved (sudo 2026-07-13T08:49:33.453Z)
++Approval: Approved (sudo 2026-07-13T08:49:33Z)
+ 
+ Status: Done
+ 
+@@ -204,7 +204,7 @@ T-001
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/119
+ 
+-Approval: Approved (sudo 2026-07-13T06:27:16.932Z)
++Approval: Approved (sudo 2026-07-13T06:27:16Z)
+ 
+ Status: Done
+ 
+@@ -276,7 +276,7 @@ None
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/121
+ 
+-Approval: Approved (sudo 2026-07-13T06:47:18.468Z)
++Approval: Approved (sudo 2026-07-13T06:47:18Z)
+ 
+ Status: Done
+ 
+diff --git a/specs/epic-192-a4-facet-manifest/tasks.md b/specs/epic-192-a4-facet-manifest/tasks.md
+index aed2205..80755e4 100644
+--- a/specs/epic-192-a4-facet-manifest/tasks.md
++++ b/specs/epic-192-a4-facet-manifest/tasks.md
+@@ -370,7 +370,7 @@ subprocess invocation is unaffected and can proceed to Done independently.)
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
+ 
+-Approval: Approved (human 2026-08-17T03:35Z)
++Approval: Approved (human 2026-08-17T03:35:00Z)
+ 
+ Status: Done
+ 
+@@ -543,7 +543,7 @@ Constraints, above.)
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
+ 
+-Approval: Approved (human 2026-08-17T03:35Z)
++Approval: Approved (human 2026-08-17T03:35:00Z)
+ 
+ Status: Done
+ 
+@@ -734,7 +734,7 @@ T-001, T-002
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
+ 
+-Approval: Approved (human 2026-08-17T03:35Z)
++Approval: Approved (human 2026-08-17T03:35:00Z)
+ 
+ Status: Done
+ 
+@@ -938,7 +938,7 @@ T-001, T-002, T-003
+ 
+ Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
+ 
+-Approval: Approved (human 2026-08-17T03:35Z)
++Approval: Approved (human 2026-08-17T03:35:00Z)
+ 
+ Status: Done
+ 

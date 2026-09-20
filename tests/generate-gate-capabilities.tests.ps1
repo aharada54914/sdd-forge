@@ -305,21 +305,28 @@ try {
   $humanCopyPy = Join-Path $root 'specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
 
   function Get-PyTupleConstant([string]$SourcePath, [string]$Name) {
-    # Extract a `NAME = ( "a", "b", ... )` python tuple-of-string-literals
-    # constant from module SOURCE TEXT. Returns an empty array (never
+    # Extract tuple/set string literals or dictionary key:value mappings
+    # from module SOURCE TEXT, without executing it. Returns an empty array (never
     # $null) if the constant is absent entirely -- e.g. EPIC_A1_TARGETS in
     # a pre-epic-189-a1-merge generator -- so downstream set-difference
     # logic reads that as "0 entries" (a removal of every live entry, not
     # a script error), and never errors under Set-StrictMode.
     if (-not (Test-Path -LiteralPath $SourcePath)) { return @() }
     $text = [IO.File]::ReadAllText($SourcePath)
-    $pattern = "(?ms)^$([regex]::Escape($Name)) = \($`r?`n(.*?)^\)`r?$"
+    $pattern = "(?ms)^$([regex]::Escape($Name)) = [({]$`r?`n(.*?)^[)}]`r?$"
     $m = [regex]::Match($text, $pattern)
     if (-not $m.Success) { return @() }
     $values = New-Object System.Collections.Generic.List[string]
     foreach ($line in $m.Groups[1].Value -split "`r?`n") {
-      $lm = [regex]::Match($line, '^\s*"([^"]+)",\s*$')
-      if ($lm.Success) { $values.Add($lm.Groups[1].Value) }
+      if ($line.TrimStart().StartsWith('#')) { continue }
+      if ($Name -cin @('REGEX_EXPORTS', 'ARRAY_EXPORTS')) {
+        $lm = [regex]::Match($line, '^\s*"([^"]+)":\s*"([^"]+)",\s*$')
+        if ($lm.Success) { $values.Add($lm.Groups[1].Value + ':' + $lm.Groups[2].Value) }
+      } else {
+        foreach ($lm in [regex]::Matches($line, '"([^"]+)"')) {
+          $values.Add($lm.Groups[1].Value)
+        }
+      }
     }
     return , $values.ToArray()
   }
@@ -329,7 +336,8 @@ try {
       return [PSCustomObject]@{ Rc = 1; Out = "script not found: $TargetPath" }
     }
     $removed = @()
-    foreach ($attr in @('PHASE2_TARGETS', 'BASELINE_SUFFIXES', 'EPIC_A1_TARGETS')) {
+    foreach ($attr in @('PHASE2_TARGETS', 'BASELINE_SUFFIXES', 'EPIC_A1_TARGETS',
+        'REQUIRED_SHELL', 'ARRAY_SHELL_KEYS', 'REGEX_EXPORTS', 'ARRAY_EXPORTS')) {
       $liveValues = Get-PyTupleConstant -SourcePath $LivePath -Name $attr
       $targetValues = Get-PyTupleConstant -SourcePath $TargetPath -Name $attr
       $removed += Get-RemovedEntries $attr $liveValues $targetValues
@@ -338,7 +346,7 @@ try {
       $message = "script drops $($removed.Count) live-protected entr(y/ies): " + ($removed -join '; ')
       return [PSCustomObject]@{ Rc = 1; Out = $message }
     }
-    return [PSCustomObject]@{ Rc = 0; Out = 'script tuples are a pure superset of live (0 removals)' }
+    return [PSCustomObject]@{ Rc = 0; Out = 'script constants and export mappings preserve live (0 removals)' }
   }
 
   $candidatePyCheck = Test-NoRegressionPy -TargetPath $candidatePy -LivePath $livePy
@@ -346,6 +354,26 @@ try {
     Ok "QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)"
   } else {
     Fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $($candidatePyCheck.Out)"
+  }
+
+  # Temporary source fixtures are parsed only, never executed.
+  $missingKeyPath = Join-Path $workDir 'missing-shell-key.candidate'
+  $sourceLines = [IO.File]::ReadAllLines($livePy)
+  [IO.File]::WriteAllLines($missingKeyPath, [string[]]@($sourceLines | Where-Object { $_ -cnotmatch '"patch_apply_cmds"' }))
+  $missingKeyCheck = Test-NoRegressionPy -TargetPath $missingKeyPath -LivePath $livePy
+  if ($missingKeyCheck.Rc -ne 0 -and $missingKeyCheck.Out.Contains('REQUIRED_SHELL') -and
+      $missingKeyCheck.Out.Contains('ARRAY_SHELL_KEYS') -and $missingKeyCheck.Out.Contains('ARRAY_EXPORTS')) {
+    Ok 'generator regression control rejects missing shell keys in all three contracts'
+  } else {
+    Fail "generator regression control did not reject missing shell keys correctly: $($missingKeyCheck.Out)"
+  }
+  $renamedExportPath = Join-Path $workDir 'renamed-export.candidate'
+  [IO.File]::WriteAllText($renamedExportPath, [IO.File]::ReadAllText($livePy).Replace('"SHELL_PATCH_APPLY_CMDS"', '"shell_patch_apply_cmds"'))
+  $renamedExportCheck = Test-NoRegressionPy -TargetPath $renamedExportPath -LivePath $livePy
+  if ($renamedExportCheck.Rc -ne 0 -and $renamedExportCheck.Out.Contains('ARRAY_EXPORTS')) {
+    Ok 'generator regression control rejects a case-changed export mapping'
+  } else {
+    Fail "generator regression control did not reject a case-changed export mapping: $($renamedExportCheck.Out)"
   }
 
   # =====================================================================
@@ -426,6 +454,60 @@ try {
   # (text markers only, no YAML-parsing dependency).
   # =====================================================================
   $liveWorkflow = Join-Path $root '.github/workflows/test.yml'
+
+  # Check all seven files, not just the workflow's manifest entry.
+  function Assert-CandidateBundle([string]$ManifestPath) {
+    $entries = [System.Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($line in [IO.File]::ReadAllLines($ManifestPath)) {
+      $match = [regex]::Match($line, '^([0-9a-f]{64})  (.+)$')
+      if (-not $match.Success -or $entries.ContainsKey($match.Groups[2].Value)) {
+        throw 'malformed or duplicate manifest entry'
+      }
+      $entries.Add($match.Groups[2].Value, $match.Groups[1].Value)
+    }
+    $files = @(Get-ChildItem -LiteralPath $candidateDir -Recurse -File -Force |
+      Where-Object { $_.Name.EndsWith('.candidate', [StringComparison]::Ordinal) -and $_.Name -cne 'MANIFEST.sha256.candidate' })
+    if ($files.Count -ne 7 -or $entries.Count -ne 7) { throw 'manifest must bind exactly seven files' }
+    foreach ($file in $files) {
+      $rel = [IO.Path]::GetRelativePath($candidateDir, $file.FullName).Replace('\', '/')
+      $rel = $rel.Substring(0, $rel.Length - 10)
+      if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or
+          -not $entries.ContainsKey($rel) -or
+          (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entries[$rel]) {
+        throw "candidate hash mismatch: $rel"
+      }
+    }
+  }
+  try {
+    Assert-CandidateBundle (Join-Path $candidateDir 'MANIFEST.sha256.candidate')
+    Ok 'candidate bundle: all seven manifest hashes match'
+  } catch {
+    Fail "candidate bundle manifest: $($_.Exception.Message)"
+  }
+
+  # Manifest-only mutations use the same checker without changing candidates.
+  $originalLines = [IO.File]::ReadAllLines((Join-Path $candidateDir 'MANIFEST.sha256.candidate'))
+  foreach ($mutation in @('missing', 'duplicate', 'malformed', 'hash')) {
+    $lines = [string[]]$originalLines.Clone()
+    switch -CaseSensitive ($mutation) {
+      'missing' { $lines = $lines[1..($lines.Length - 1)]; $expected = 'manifest must bind exactly' }
+      'duplicate' { $lines += $lines[0]; $expected = 'malformed or duplicate' }
+      'malformed' { $lines[0] = 'invalid ' + $lines[0]; $expected = 'malformed or duplicate' }
+      'hash' { $lines[0] = ('0' * 64) + $lines[0].Substring(64); $expected = 'candidate hash mismatch' }
+    }
+    $mutant = Join-Path $workDir "manifest-$mutation.txt"
+    [IO.File]::WriteAllLines($mutant, $lines)
+    try {
+      Assert-CandidateBundle $mutant
+      Fail "candidate bundle mutation $mutation was accepted"
+    } catch {
+      if ($_.Exception.Message.Contains($expected, [StringComparison]::Ordinal)) {
+        Ok "candidate bundle mutation $mutation rejected with expected diagnostic"
+      } else {
+        Fail "candidate bundle mutation $mutation failed for an unexpected reason: $($_.Exception.Message)"
+      }
+    }
+  }
 
   function Get-YamlJobKeys([string]$Path) {
     $lines = [IO.File]::ReadAllLines($Path)

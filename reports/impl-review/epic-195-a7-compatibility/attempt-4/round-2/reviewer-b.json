@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0940",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0940",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f1f8f41e2a3d7bf53544c440fd0e178add113ee32658f5e31a46ef29838e0"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-4/round-2/integrated-summary.json",
+      "sha256": "ee006df78d02d18b2f4fe9412998f535af2a0eaa96b11e960a7ecb20fef5628f"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-4/round-2/precheck.json",
+      "sha256": "d5eb643088637ea6c1a3b08214f1e5af67fb73e75bcae435753e68930e1e30fb"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f771232be85e88bd6208582fb1188a93b417777fc7dfed46307ba13ed6e790df"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "fa0cbe9139469a390e54293eb0f16ea41a6cfa96df059751463a2a5c3f91a316"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "bbca37d5ca89d9177734232351c4c9f9ba1ab65a33c40481a3e390981bc956c5"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "63437505ee4447643f324b338c532336531b4892962356ee1bb4b7176ae4b811"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "5eac2617a7697893c42de4dd5c99f348469382fd21d5e12dc216a2a76968ab3c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "7af258844e585d9f282041baaa81b4b09ca32d5a3a66485fbc42f081bb811050"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "4b31ae99ce6f33c46fd2a505ed4079b1eadc8c889bf2351c9481cc7c75f99163"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "532451dca2ea660b179d600f970920653829c8c43ba4e3953ded1eb69c35d99a"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md, Design Decisions, gives concrete bases for the suite placement, extension-only registry change, structural seam, fingerprint policy, and resolved OQ-001 through OQ-003 choices, including links to the investigation evidence and existing lifecycle constraints."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md, Open Questions, lists only OQ-001 through OQ-003 and says none carries forward, while its Data Plan, Test Strategy, and Constraint Compliance sections explicitly defer the known-unsatisfied AC-026 contract to OQ-004; requirements.md, Open Questions, confirms OQ-004 remains open. The governing design therefore omits the active question's role owner, Blocks Implementation value, and concrete Resolution Path field. Failure mode: implementers and gates cannot determine who must authorize or execute the correction, whether implementation is blocked, or what evidence closes the knowingly unmet contract. Add OQ-004 to the design's Open Questions with those fields and reconcile the contradictory 'none carries forward' statement."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The assumptions in design.md are tied to requirements.md and investigation.md evidence, and shared-state assumptions are guarded by implementation-time fingerprint re-verification and hard-fail behavior on drift."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The design does not silently contradict a requirement: its Constraint Compliance table maps the requirements and explicitly identifies AC-026 as known-unsatisfied and deferred with rationale under OQ-004, so the documented deferral is evaluated under the open-question and verification checks instead."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance, throughput, latency, concurrency, or numeric SLO requirement is present in requirements.md; infra-spec.md also explicitly records that no runtime service or concurrency/SLO work is introduced."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md, Deployment Plan, and infra-spec.md identify local and three-OS GitHub Actions targets, later registration in run-all-tests.sh and test.yml, staged activation through the existing SKIP allowlist, rollback by reverting the additive scripts/registrations, and the absence of secrets, schema migration, or a feature flag."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md, Data Plan, states that no persistent data entities or existing-data migration are introduced; the contract additions are optional or net-new evidence schemas, so no migration/backfill plan is required."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md identifies no new external integration and fully names the internal integration surfaces: lifecycle libraries, workflow state and evidence files, compatibility fixtures, suite registration, and CI execution. The layer specifications are consistent with that boundary."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The proposed work stays within REQ-001 through REQ-007: it adds the compatibility suite and fixtures, narrows the registry extension, preserves the existing lifecycle architecture, and explicitly avoids a ninth orchestration loop or unrelated UI/runtime work."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md, Test Strategy, now explicitly says AC-026 has no passing verification path in this package and that no test claims it; Constraint Compliance merely defers it to OQ-004. OQ-004 in requirements.md describes a future amendment of the AC-009 hash but supplies no command, CI job, metric, acceptance artifact, end-to-end artifact, rollout monitor, or named review artifact that will demonstrate corrected exactly-once firing semantics. Failure mode: the pinned implementation can continue emitting a false done-transition before comparison and omit early-return transitions without downstream evidence detecting the contract violation. Define a concrete post-amendment test/evidence path and its pass condition. This finding evaluates the substantively amended round-2 Test Strategy and Constraint Compliance content documented in investigation.md's Round-10 extension, so the TYPE-H convergence exception for byte-identical previously passed content does not apply."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists for this repository, so no domain specification applies."
+    }
+  ]
+}

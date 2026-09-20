@@ -99,6 +99,11 @@
       "cap": { "type": "gate-report-count", "value": 3 },
       "cap_source": "script",
       "cap_kind": "numeric",
+      "capability_applicability": {
+        "disabled-legacy": "not-applicable (disabled-legacy)",
+        "advisory": "advisory",
+        "required": "required"
+      },
       "driver_scripts": [
         "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh"
       ],

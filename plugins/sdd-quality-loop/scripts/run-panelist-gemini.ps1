@@ -12,7 +12,18 @@
 # tree and exits 1 without writing a verdict.
 # Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
+# CLI contract: the installed `gemini` CLI only runs non-interactively via
+# `-p/--prompt` ("Run in non-interactive (headless) mode with the given
+# prompt. Appended to input on stdin (if any)."). A bare `gemini --model
+# <m>` with piped stdin and no `-p` is not headless and can fail to produce
+# a verdict (e.g. "No input provided via stdin..."). This script supplies
+# the panelist instructions via `-p` and pipes the sanitized bundle on
+# stdin, per the CLI's own documented contract.
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure (CLI non-zero
+#             exit, timeout, or output that does not parse into a valid
+#             cross-model-verdict/v1 JSON object)  2=bad args. A run that
+#             fails for any reason writes NO verdict file.
 param()
 $ErrorActionPreference = "Stop"
 
@@ -122,12 +133,17 @@ Rules:
 - Do not include any text outside the JSON object.
 '@
 
+    # The panelist instructions go through -Prompt (the CLI's documented
+    # non-interactive entry point); the sanitized bundle is piped on stdin,
+    # which the CLI appends after the -p prompt. No prompt/bundle
+    # concatenation needed here (unlike the codex twin, which has no
+    # dedicated instruction flag and stays with one combined stdin blob).
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
-    $combined = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
-    $combinedFile = Join-Path $scratch "combined.txt"
-    Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
+    $stdinContent = "## Sanitized Input Bundle`n`n" + $bundleContent
+    $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
+    Set-Content -Encoding Utf8 -Path $stdinBundleFile -Value $stdinContent
 
-    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model (task=$TaskId feature=$Feature)")
+    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)")
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {
@@ -140,8 +156,8 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath "gemini" `
-                -ArgumentList "--model", $Model `
-                -RedirectStandardInput  $combinedFile `
+                -ArgumentList "--model", $Model, "-p", $promptText `
+                -RedirectStandardInput  $stdinBundleFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
                 -PassThru -NoNewWindow
@@ -153,13 +169,21 @@ Rules:
         # the absolute deadline so launch time cannot extend the timeout.
         $remainingMs = $panelistDeadlineEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
         $panelistWaitMs = [int][Math]::Min([Math]::Max($remainingMs, 0), [int]::MaxValue)
-        if (-not $proc.WaitForExit($panelistWaitMs)) {
+        $waitCompleted = $proc.WaitForExit($panelistWaitMs)
+        # Observe this exact handle, not the CLI worker's final output. A process
+        # may exit between the timed wait and HasExited; retain both observations.
+        $waitObservedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $observedExited = $proc.HasExited
+        if (-not $waitCompleted) {
             $proc.Kill($true)
             $proc.WaitForExit()
+            # Logging follows cleanup so it cannot delay termination.
+            [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=0 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=1")
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")
             exit 1
         }
         $proc.WaitForExit()
+        [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=1 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=0")
         if ($proc.ExitCode -ne 0) {
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exited $($proc.ExitCode)")
             Get-Content (Join-Path $scratch "stderr.txt") | ForEach-Object { [Console]::Error.WriteLine($_) }
@@ -171,16 +195,73 @@ Rules:
     }
 
     $raw = Get-Content -Raw -Encoding Utf8 $rawOutput
-    $jsonMatch = [regex]::Match($raw, '\{[\s\S]*\}')
-    if (-not $jsonMatch.Success) {
-        [Console]::Error.WriteLine("run-panelist-gemini: no JSON object found in gemini output")
-        exit 1
+    # Match the GPT runner's candidate selection: echoed objects are not
+    # verdicts, and braces inside quoted strings do not delimit objects.
+    $targetSchema = 'cross-model-verdict/v1'
+    $cleanedOutputText = [regex]::Replace($raw, '```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '')
+    function Get-JsonObjectCandidates([string]$Text) {
+        $candidates = [System.Collections.Generic.List[string]]::new()
+        $i = 0
+        while ($i -lt $Text.Length) {
+            if ($Text[$i] -cne '{') { $i++; continue }
+            $start = $i
+            $depth = 0
+            $inString = $false
+            $escape = $false
+            $closedAt = -1
+            for ($j = $i; $j -lt $Text.Length; $j++) {
+                $c = $Text[$j]
+                if ($inString) {
+                    if ($escape) { $escape = $false }
+                    elseif ($c -ceq '\') { $escape = $true }
+                    elseif ($c -ceq '"') { $inString = $false }
+                } else {
+                    if ($c -ceq '"') { $inString = $true }
+                    elseif ($c -ceq '{') { $depth++ }
+                    elseif ($c -ceq '}') {
+                        $depth--
+                        if ($depth -eq 0) { $closedAt = $j; break }
+                    }
+                }
+            }
+            if ($closedAt -ge 0) {
+                $candidates.Add($Text.Substring($start, $closedAt - $start + 1))
+                $i = $closedAt + 1
+            } else {
+                # A truncated echo must not hide later complete candidates.
+                $i = $start + 1
+            }
+        }
+        # Preserve a one-element list instead of unwrapping it to a string.
+        Write-Output -NoEnumerate $candidates
     }
-
-    try {
-        $verdict = $jsonMatch.Value | ConvertFrom-Json
-    } catch {
-        [Console]::Error.WriteLine("run-panelist-gemini: invalid JSON from gemini: $_")
+    $candidates = Get-JsonObjectCandidates $cleanedOutputText
+    $verdict = $null
+    $rejections = [System.Collections.Generic.List[string]]::new()
+    for ($ci = 0; $ci -lt $candidates.Count; $ci++) {
+        $candidateNum = $ci + 1
+        try { $parsed = $candidates[$ci] | ConvertFrom-Json -ErrorAction Stop }
+        catch {
+            $rejections.Add("candidate ${candidateNum}: parse error: $($_.Exception.Message)")
+            continue
+        }
+        if ($parsed -isnot [System.Management.Automation.PSCustomObject]) {
+            $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
+            continue
+        }
+        if (-not [string]::Equals([string]$parsed.schema, $targetSchema, [StringComparison]::Ordinal)) {
+            $rejections.Add("candidate ${candidateNum}: parsed but schema is '$($parsed.schema)' (expected '$targetSchema')")
+            continue
+        }
+        $verdict = $parsed # The last schema-matching candidate wins.
+    }
+    if (-not $verdict) {
+        if ($candidates.Count -eq 0) {
+            [Console]::Error.WriteLine("run-panelist-gemini: no JSON object found in gemini output")
+        } else {
+            [Console]::Error.WriteLine("run-panelist-gemini: no $targetSchema verdict found among $($candidates.Count) candidate JSON object(s) in gemini output")
+            foreach ($rejection in $rejections) { [Console]::Error.WriteLine("  $rejection") }
+        }
         exit 1
     }
 
@@ -190,7 +271,7 @@ Rules:
     if ($verdict.blind -ne $true) {
         [Console]::Error.WriteLine("run-panelist-gemini: blind must be true"); exit 1
     }
-    if ($verdict.input_digest -notmatch '^[0-9a-f]{64}$') {
+    if ($verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
         [Console]::Error.WriteLine("run-panelist-gemini: input_digest must be 64 lowercase hex"); exit 1
     }
     if ($verdict.verdict -notin @("PASS","NEEDS_WORK")) {
