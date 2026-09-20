@@ -550,15 +550,18 @@ Body text unrelated to any check.
 
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
     $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 54 -End 64 -ExpectedSha "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 3
-    $a5Merged = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
-    if ($a5Merged) {
+    # The live check activates only after A5's interviewer caller exists. The
+    # spec directory may be staged before that insertion point is wired.
+    $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and
+        [bool](Select-String -LiteralPath $a5SkillMd -SimpleMatch "resolve-project-context" -Quiet)
+    if ($a5CallerPresent) {
         if ($a5LiveResult.Match) {
             Test-Ok "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
         } else {
             Test-Fail "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
         }
     } else {
-        Write-Host "SKIP: TEST-019.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: $($a5LiveResult.Detail)"
+        Write-Host "SKIP: TEST-019.5c: AC-036 anchor-fingerprint drift check is inactive until the live interviewer caller references resolve-project-context (the spec directory alone is not activation evidence); current informational recomputation: $($a5LiveResult.Detail)"
     }
 
     # -------------------------------------------------------------------

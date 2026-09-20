@@ -590,7 +590,10 @@ A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer
 A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
   "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
   "### Full-Profile Layer Interview" 3 2>&1)" || true
-if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
+# The live check activates only after A5's interviewer caller exists.  The
+# spec directory and resolver scripts may be staged before that insertion
+# point, so directory presence is not evidence that the live contract is wired.
+if [[ -f "$A5_SKILL_MD" ]] && grep -Fq 'resolve-project-context' "$A5_SKILL_MD"; then
   if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
       "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
       "### Full-Profile Layer Interview" 3 >/dev/null; then
@@ -599,7 +602,7 @@ if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
     fail "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
   fi
 else
-  echo "SKIP: TEST-018.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: ${A5_LIVE_RESULT}"
+  echo "SKIP: TEST-018.5c: AC-036 anchor-fingerprint drift check is inactive until the live interviewer caller references resolve-project-context (the spec directory alone is not activation evidence); current informational recomputation: ${A5_LIVE_RESULT}"
 fi
 
 # ---------------------------------------------------------------------------
