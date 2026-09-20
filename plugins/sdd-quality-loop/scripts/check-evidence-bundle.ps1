@@ -441,7 +441,7 @@ if ($effectiveRisk -eq "critical") {
             }
         } elseif ($alg -eq "sigstore") {
             $verified = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_SIGSTORE_VERIFIED")
-            if ([string]::IsNullOrWhiteSpace($verified)) {
+            if ($verified -cne "1") {
                 Add-Failure "critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set"
             }
         } else {
