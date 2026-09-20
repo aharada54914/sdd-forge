@@ -506,7 +506,7 @@ try {
                 break
             }
             if ($inOutputs -and
-                $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                 [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
             }
         }
@@ -582,7 +582,7 @@ try {
                     break
                 }
                 if ($inPostFix -and
-                    $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                    $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                     [void]$gateReportOutputs.Add("$($Matches.path)`n$($Matches.sha)")
                 }
             }
