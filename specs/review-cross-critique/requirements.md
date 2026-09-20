@@ -5,7 +5,22 @@ Spec-Review-Status: Pending
 Source issue: [#130](https://github.com/aharada54914/sdd-forge/issues/130)
 (`enhancement`, `workflow-improvement`; Key **ENH-23**), including its 2026-07-10
 runtime addendum. Sibling: [#128](https://github.com/aharada54914/sdd-forge/issues/128)
-(**ENH-21**), which declares `Depends on: ENH-23`.
+(**ENH-21**), which declares `Depends on: ENH-23`. Follow-up issue: [#345](https://github.com/aharada54914/sdd-forge/issues/345)
+(`enhancement`, `workflow-improvement`; arXiv:2608.18167 reconciliation with ADR-0026 / ADR-0027).
+
+### Primary Sources and Literature
+
+1. **Internal prior art**: `skills/adversarial-review/` (proving run 2026-07-07), issue [#128](https://github.com/aharada54914/sdd-forge/issues/128) (ENH-21), issue [#130](https://github.com/aharada54914/sdd-forge/issues/130) (ENH-23).
+2. **External literature**: *Adversarial Review: Structured Disagreement for Grounded Agentic Code Review* (arXiv:2608.18167, published 2026-08-16, verified 2026-08-25; v1 rechecked 2026-09-12; https://arxiv.org/html/2608.18167v1).
+3. **Associated ADRs**:
+   - [ADR-0026](../../docs/adr/0026-gate-cross-critique-phase.md): *Risk- and Escalation-Gated Cross-Critique Phase for the Review Loops* (Status: Proposed).
+   - [ADR-0027](../../docs/adr/0027-risk-adaptive-adversarial-review-lane.md): *Risk-Adaptive Adversarial Review Lane* (Status: Proposed).
+
+### Core Definitions (arXiv:2608.18167, adapted in ADR-0026 / ADR-0027)
+
+- **Evidence-backed dissent**: a `PROPOSE-REJECT` or `PROPOSE-SEVERITY-CHANGE` verdict accompanied by a `code_evidence` or `spec_evidence` citation (`file:line` plus a concrete claim; `basis.kind` discriminator per issue #347). Contrasts with a *concern* — a plausible but unverified objection.
+- **False consensus**: a verdict of `SUPPORT` or an absence of `PROPOSE-REJECT` reflecting deference rather than genuine assessment. Mitigated by requiring concrete evidence citations for any proposed rejection or severity reduction.
+- **Scope creep**: a finding-driven change exceeding approved scope boundaries. Mitigated by classifying each finding's `scope` as `in_scope | out_of_scope | unclear` (issue #348).
 
 ## Overview
 
@@ -95,6 +110,12 @@ without having seen the other's reasoning. This requirement fixes that as a
 non-negotiable floor and scopes the entire tension (`investigation.md`
 `## The blind-independence tension`) to what happens *after* both verdicts are
 persisted.
+
+**Why blind-parallel first pass is maintained (not replaced by sequential Reviewer→Critic):**
+arXiv:2608.18167 studies sequential Reviewer→Critic panels. ADR-0026 (Correspondence Point 5 and § "Why blind-parallel first pass is maintained") and ADR-0027 (Decision 3 and Correspondence Point 4) maintain the blind-parallel first pass for three reasons:
+1. *Independence is the gate's assurance property*: Two reviewers who cannot see each other's reasoning cannot anchor on it. Their agreement constitutes corroborating evidence rather than an echo.
+2. *Reservation, verification, and continuation are distinct operations*: `validate-review-context-set.sh:368-400` verifies an existing persisted identity record while `:377-379` rejects duplicate reservations. Neither operation authorizes continuation or selects a model (OQ-6). Blind-first ordering rests on independence, not on an inference that reservation uniqueness precludes session continuation.
+3. *Lane consistency*: ADR-0027 Phase 1 also preserves blind-first review; the distinction between ADR-0026 and ADR-0027 lies in review scope and authority, not first-pass ordering.
 
 #### AC-003
 
@@ -224,10 +245,9 @@ an input — and removing a finding is what INV-015 forbids the orchestrator to 
 Two spellings are in play. Issue #130 says `SUPPORT / REJECT / SEVERITY_CHANGE /
 SUPPLEMENT`. The existing protocol says `SUPPORT / PROPOSE-SEVERITY-CHANGE /
 PROPOSE-REJECT / SUPPLEMENT`
-(`skills/adversarial-review/references/reviewer-prompts.md:154-155`). The
-`PROPOSE-` prefix is not cosmetic: under INV-015 the orchestrator may not waive
+(`skills/adversarial-review/references/reviewer-prompts.md:154-155`). The `PROPOSE-` prefix is not cosmetic: under INV-015 the orchestrator may not waive
 a finding, so "REJECT" as a decision and "PROPOSE-REJECT" as a request to a human
-are different contracts. Which is normative is **OQ-9**.
+are different contracts. Which is normative is **OQ-9**. ADR-0026 Decision 2 proposes adopting the `PROPOSE-` prefix (`SUPPORT / PROPOSE-SEVERITY-CHANGE / PROPOSE-REJECT / SUPPLEMENT`), accompanied by `basis.kind: code_evidence | spec_evidence | concern` (issue #347) and `scope: in_scope | out_of_scope | unclear` (issue #348). While proposed in ADR-0026, formal acceptance remains pending human review.
 
 The addendum requires both runtimes to return the same 判定, so exactly one
 spelling must exist in the delivered artifacts.
@@ -376,9 +396,13 @@ question in prose while the Open Question list still calls it open.
 
 Issue AC 3 is "ENH-21 の共通プロトコルと整合". ENH-21 is issue #128, which
 declares `Depends on: ENH-23` — this issue — and proposes formalizing
-`skills/adversarial-review` as a risk-adaptive lane (INV-018, INV-019). The
-shared protocol therefore does not exist, and #128 is waiting on this work. What
-"整合" requires is **OQ-13**.
+`skills/adversarial-review` as a risk-adaptive lane (INV-018, INV-019).
+[ADR-0027](../../docs/adr/0027-risk-adaptive-adversarial-review-lane.md) formalizes ENH-21 as a **pre-PR standalone review lane** operating outside the SDD gates, reviewing cumulative branch diffs (`git diff <merge-base>..<head>`).
+Meanwhile, [ADR-0026](../../docs/adr/0026-gate-cross-critique-phase.md) proposes an **in-gate advisory cross-critique phase** inside `sdd-review-loop` (between STEP 5 and STEP 6).
+
+The two protocols are complementary rather than conflicting (ADR-0026 Consequences; ADR-0027 Decision 1):
+- ADR-0027 reviews full branch diffs coarsely prior to PR creation, outputs to `reports/adversarial-review/<branch-slug>/report.md` in a separate evidence repository, and uses `CRITICAL|HIGH|MEDIUM|LOW` severity vocabulary.
+- ADR-0026 evaluates single round findings deeply within SDD gates, outputs an advisory `cross-critique.json` annex alongside the round contract, and uses the gate's `Critical|Major|Minor` vocabulary. Neither lane mutates deterministic gate verdicts. What remains open is formal ADR-0026 acceptance (OQ-13).
 
 #### AC-021
 
@@ -478,9 +502,9 @@ contradicting ENH-21's protocol.
   the re-verification instruction stated under REQ-007** (AGENTS.md sweep 3,
   `AGENTS.md:203-211`, WFI-013). It is 42 entries at HEAD `c19b40f8`; it is not
   owned by this branch.
-- **If this feature needs an ADR, its `docs/adr/NNNN-` number is a claimed-free
-  identifier in a shared sequential namespace** and must be re-verified at
-  drafting time, per the same sweep. No number is claimed here.
+- **ADR status and numbering**: The in-gate cross-critique phase is drafted as
+  [ADR-0026](../../docs/adr/0026-gate-cross-critique-phase.md) (Status: Proposed), and the companion standalone pre-PR review lane as
+  [ADR-0027](../../docs/adr/0027-risk-adaptive-adversarial-review-lane.md) (Status: Proposed). Both remain in Proposed status awaiting formal human review and acceptance via the WFI lane.
 - **The vendor-neutral runtime claim is unverified for Codex.** No reviewer role
   exists there (INV-024) and none can be created by an agent, so REQ-005's
   cross-runtime criterion rests on a design that OQ-12 has not chosen yet.
