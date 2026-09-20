@@ -2535,15 +2535,65 @@ Second Approval: Approved (bob 2026-06-13T11:00:00Z)
         throw "T-007b.4: should reject sudo as primary approver"
     }
 
-    # Test 5: REGRESSION - named Approval format accepted (not invalid)
+    # Test 5: critical + Done + distinct named approvals => no two-person diagnostic
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 "t007b-test5.md"
+    $t007b_5_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $workDir "t007b-test5.md") 2>&1
+    $t007b_5_text = ($t007b_5_out | Out-String)
+    if ($t007b_5_text -notmatch "Second Approval|two distinct|named approver|primary approver is 'sudo'") {
+        Write-Host "ok: T-007b.5: critical Done with alice + bob has no two-person diagnostic"
+    } else {
+        throw "T-007b.5: valid distinct approvals produced a two-person diagnostic: $t007b_5_text"
+    }
+
+    # Test 6: high + Done without Second Approval => no two-person diagnostic
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: high
+"@ | Set-Content -Encoding Utf8 "t007b-test6.md"
+    $t007b_6_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $workDir "t007b-test6.md") 2>&1
+    $t007b_6_text = ($t007b_6_out | Out-String)
+    if ($t007b_6_text -notmatch "Second Approval|two distinct|named approver|primary approver is 'sudo'") {
+        Write-Host "ok: T-007b.6: high Done without Second Approval has no two-person diagnostic"
+    } else {
+        throw "T-007b.6: high-risk task unexpectedly produced a two-person diagnostic: $t007b_6_text"
+    }
+
+    # Test 7: contract risk mismatch is rejected before risk-based approval checks
+    $t007b7Dir = Join-Path $workDir "t007b-test7"
+    $t007b7Verification = Join-Path $t007b7Dir "verification"
+    New-Item -ItemType Directory -Path $t007b7Verification -Force | Out-Null
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 (Join-Path $t007b7Dir "tasks.md")
+    '{"task_id":"T-001","risk":"high"}' | Set-Content -Encoding Utf8 (Join-Path $t007b7Verification "T-001.contract.json")
+    $t007b_7_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $t007b7Dir "tasks.md") 2>&1
+    if (($t007b_7_out | Out-String) -match "contract risk 'high' does not match tasks\.md risk 'critical'") {
+        Write-Host "ok: T-007b.7: contract/tasks risk mismatch is rejected"
+    } else {
+        throw "T-007b.7: expected contract/tasks risk mismatch diagnostic: $($t007b_7_out | Out-String)"
+    }
+
+    # Test 8: REGRESSION - named Approval format accepted (not invalid)
     @"
 ## T-001
 Approval: Approved (alice 2026-06-13T10:00:00Z)
 Status: In Progress
 "@ | Set-Content -Encoding Utf8 "t007b-test5.md"
-    Assert-ExitCode "T-007b.5: named Approval format accepted" (Invoke-Gate "check-task-state.ps1" @("t007b-test5.md")) 0
+    Assert-ExitCode "T-007b.8: named Approval format accepted" (Invoke-Gate "check-task-state.ps1" @("t007b-test5.md")) 0
 
-    # Test 6: REGRESSION - sudo format still accepted
+    # Test 9: REGRESSION - sudo format still accepted
     @"
 ## T-001
 Approval: Approved (sudo 2026-06-13T10:00:00Z)
