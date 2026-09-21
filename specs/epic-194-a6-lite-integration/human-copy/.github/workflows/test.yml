@@ -603,6 +603,11 @@ jobs:
             throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
           }
 
+      - name: Test remaining Windows version-gates lanes (pwsh, parallel)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/run-version-gates-windows.ps1
+
       - name: Test release.yml required loop-gate job (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -610,6 +615,7 @@ jobs:
         run: bash ./tests/release-loop-gate.tests.sh
 
       - name: Test release.yml required loop-gate job (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
@@ -621,6 +627,7 @@ jobs:
         run: bash ./tests/model-freshness-check.tests.sh
 
       - name: Test model-freshness-check suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
@@ -632,6 +639,7 @@ jobs:
         run: bash ./tests/project-context-schema.tests.sh
 
       - name: Test project-context-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
 
@@ -643,6 +651,7 @@ jobs:
         run: bash ./tests/approver-registry-schema.tests.sh
 
       - name: Test approver-registry-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/approver-registry-schema.tests.ps1
 
@@ -661,6 +670,7 @@ jobs:
         run: bash ./tests/canonicalize-sdd-yaml.tests.sh
 
       - name: Test canonicalize-sdd-yaml suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/canonicalize-sdd-yaml.tests.ps1
 
@@ -672,6 +682,7 @@ jobs:
         run: bash ./tests/generate-approval-sidecar.tests.sh
 
       - name: Test generate-approval-sidecar suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-approval-sidecar.tests.ps1
 
@@ -683,6 +694,7 @@ jobs:
         run: bash ./tests/detect-policy-weakening.tests.sh
 
       - name: Test detect-policy-weakening suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/detect-policy-weakening.tests.ps1
 
@@ -694,6 +706,7 @@ jobs:
         run: bash ./tests/validate-approval-sidecar.tests.sh
 
       - name: Test validate-approval-sidecar suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
@@ -705,6 +718,7 @@ jobs:
         run: bash ./tests/apply-human-copy.tests.sh
 
       - name: Test apply-human-copy publisher suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/apply-human-copy.tests.ps1
 
@@ -716,6 +730,7 @@ jobs:
         run: bash ./tests/check-hook-activation-handshake.tests.sh
 
       - name: Test hook-activation handshake suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-hook-activation-handshake.tests.ps1
 
@@ -727,6 +742,7 @@ jobs:
         run: bash ./tests/guard-invariants-epic-a1.tests.sh
 
       - name: Test epic-a1 guard-invariants registration (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/guard-invariants-epic-a1.tests.ps1
 
@@ -753,6 +769,7 @@ jobs:
         run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
 
       - name: Test hook-guard epic-a1 write-boundary matrix (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
 
@@ -768,6 +785,7 @@ jobs:
         run: bash ./tests/plugin-contracts-track-selection.tests.sh
 
       - name: Test plugin-contracts track-selection contract (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/plugin-contracts-track-selection.tests.ps1
 
@@ -785,6 +803,7 @@ jobs:
         run: bash ./tests/ship-track-selection-migration.tests.sh
 
       - name: Test ship track-selection migration (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
@@ -803,6 +822,7 @@ jobs:
         run: bash ./tests/capability-registry-schema.tests.sh
 
       - name: Test capability-registry-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/capability-registry-schema.tests.ps1
 
@@ -814,6 +834,7 @@ jobs:
         run: bash ./tests/evaluate-predicate.tests.sh
 
       - name: Test evaluate-predicate suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/evaluate-predicate.tests.ps1
 
@@ -825,6 +846,7 @@ jobs:
         run: bash ./tests/registry-discovery.tests.sh
 
       - name: Test registry-discovery suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/registry-discovery.tests.ps1
 
@@ -836,6 +858,7 @@ jobs:
         run: bash ./tests/validate-capability-registry.tests.sh
 
       - name: Test validate-capability-registry suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/validate-capability-registry.tests.ps1
 
@@ -847,6 +870,7 @@ jobs:
         run: bash ./tests/generate-registry-digest.tests.sh
 
       - name: Test generate-registry-digest suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-registry-digest.tests.ps1
 
@@ -858,6 +882,7 @@ jobs:
         run: bash ./tests/generate-gate-capabilities.tests.sh
 
       - name: Test generate-gate-capabilities suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-gate-capabilities.tests.ps1
 
@@ -874,6 +899,7 @@ jobs:
         run: bash ./tests/capability-registry-parity.tests.sh
 
       - name: Test capability-registry-parity suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/capability-registry-parity.tests.ps1
 
@@ -894,6 +920,7 @@ jobs:
         run: bash ./tests/component-path-resolver.tests.sh
 
       - name: Test component-path-resolver suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-resolver.tests.ps1
 
@@ -905,6 +932,7 @@ jobs:
         run: bash ./tests/component-path-diff-basis.tests.sh
 
       - name: Test component-path-diff-basis suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-diff-basis.tests.ps1
 
@@ -916,6 +944,7 @@ jobs:
         run: bash ./tests/ownership-digest.tests.sh
 
       - name: Test ownership-digest suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/ownership-digest.tests.ps1
 
@@ -927,6 +956,7 @@ jobs:
         run: bash ./tests/check-component-coverage.tests.sh
 
       - name: Test check-component-coverage suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-component-coverage.tests.ps1
 
@@ -938,6 +968,7 @@ jobs:
         run: bash ./tests/component-path-ownership-parity.tests.sh
 
       - name: Test component-path-ownership parity suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-ownership-parity.tests.ps1
 
@@ -959,6 +990,7 @@ jobs:
         run: bash ./tests/human-copy-runner-contract.tests.sh
 
       - name: Test human-copy-runner-contract suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/human-copy-runner-contract.tests.ps1
 
@@ -970,6 +1002,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
 
       - name: Test check-risk-upgrade-byte-identical suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
 
@@ -981,6 +1014,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
 
       - name: Test check-risk-upgrade-capability-merge suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
 
@@ -992,6 +1026,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
 
       - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
 
@@ -1003,6 +1038,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
 
       - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
 
@@ -1014,6 +1050,7 @@ jobs:
         run: bash ./tests/lite-spec-capability-block.tests.sh
 
       - name: Test lite-spec-capability-block suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-spec-capability-block.tests.ps1
 
@@ -1025,6 +1062,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-consumption.tests.sh
 
       - name: Test lite-gate-summary-consumption suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-consumption.tests.ps1
 
@@ -1036,6 +1074,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent.tests.sh
 
       - name: Test lite-gate-summary-absent suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent.tests.ps1
 
@@ -1047,6 +1086,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-invalid.tests.sh
 
       - name: Test lite-gate-summary-invalid suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-invalid.tests.ps1
 
@@ -1058,6 +1098,7 @@ jobs:
         run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
 
       - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
 
@@ -1069,6 +1110,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
 
       - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
 
