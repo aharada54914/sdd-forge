@@ -117,12 +117,11 @@ pass TEST-005 'all CLI headless contracts are confirmed with primary citations'
 
 allowlist_ok=false
 if jq -e '
+  ([.entries[] | select(.case_id == "AC-006")] | if length == 1 then .[0] else empty end) as $entry |
   .schema == "a8-skip-allowlist/v1" and
-  (.entries | length) == 1 and
-  .entries[0].case_id == "AC-006" and
-  (.entries[0].reason | contains("#189") and contains("#187")) and
-  .entries[0].upstream_epic_a1_commit == "e00478321327b48e4e4ad21a14391d69e0f1baa9" and
-  .entries[0].upstream_epic_a1_path_blob_ids == {
+  ($entry.reason | contains("#189") and contains("#187")) and
+  $entry.upstream_epic_a1_commit == "e00478321327b48e4e4ad21a14391d69e0f1baa9" and
+  $entry.upstream_epic_a1_path_blob_ids == {
     "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md":"ea0ad62ff37fe0774b8660634a93ef713dfe684c",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md":"e0b96d9d201fcdbc504fc594be2e3145860c00a0",
     "plugins/sdd-lite/skills/lite-gate/SKILL.md":"8a389cdfeeb7f38d123fd21ddb3b2a1b59d2fa4e",

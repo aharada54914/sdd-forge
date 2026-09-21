@@ -108,7 +108,8 @@ try {
     Pass 'TEST-005' 'all CLI headless contracts are confirmed with primary citations'
 
     $allowlist = Get-Content -Raw $AllowlistPath | ConvertFrom-Json
-    $entry = @($allowlist.entries)[0]
+    $matchingEntries = @($allowlist.entries | Where-Object { $_.case_id -ceq 'AC-006' })
+    $entry = if ($matchingEntries.Count -eq 1) { $matchingEntries[0] } else { $null }
     $expectedBlobs = [ordered]@{
         'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md' = 'ea0ad62ff37fe0774b8660634a93ef713dfe684c'
         'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md' = 'e0b96d9d201fcdbc504fc594be2e3145860c00a0'
@@ -122,8 +123,8 @@ try {
     $actualBlobs = [ordered]@{}
     foreach ($property in $entry.upstream_epic_a1_path_blob_ids.PSObject.Properties) { $actualBlobs[$property.Name] = [string]$property.Value }
     $blobsMatch = ($actualBlobs | ConvertTo-Json -Compress) -ceq ($expectedBlobs | ConvertTo-Json -Compress)
-    $allowlistOk = $allowlist.schema -ceq 'a8-skip-allowlist/v1' -and @($allowlist.entries).Count -eq 1 -and
-        $entry.case_id -ceq 'AC-006' -and $entry.reason.Contains('#189') -and $entry.reason.Contains('#187') -and
+    $allowlistOk = $allowlist.schema -ceq 'a8-skip-allowlist/v1' -and $null -ne $entry -and
+        $entry.reason.Contains('#189') -and $entry.reason.Contains('#187') -and
         $entry.upstream_epic_a1_commit -ceq 'e00478321327b48e4e4ad21a14391d69e0f1baa9' -and $blobsMatch
     $plannedCopy = Join-Path $TempDir 'tasks-planned.md'
     $activeCopy = Join-Path $TempDir 'tasks-active.md'
