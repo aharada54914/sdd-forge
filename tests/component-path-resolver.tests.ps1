@@ -34,18 +34,33 @@ function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
 
 function Invoke-ResolverRaw {
-    # Spawns a real pwsh subprocess; combines stdout+stderr into Output,
-    # exactly as a shell caller's `2>&1` would for any external command.
-    # PowerShell 7's ConciseView error formatter wraps a Write-Error
-    # message across "Line | ..." gutter continuation lines on its own
-    # heuristic — NOT controlled by Out-String -Width — so a caller's
-    # `-match` phrase check could otherwise land right on a wrap point.
-    # Collapsing every whitespace run (including newlines) to a single
-    # space sidesteps this without affecting JSON parsing (JSON treats any
-    # whitespace run between tokens as equivalent) or diagnostic substring
-    # matching.
+    # Spawn a real pwsh subprocess and read its pipes as UTF-8 bytes before
+    # decoding.  Capturing native output through `& ... 2>&1` lets the
+    # Windows PowerShell host transcode/normalize NFD path text, which breaks
+    # TEST-010's raw-byte identity contract even though the resolver emits
+    # the correct JSON.  Separate pipes retain the payload bytes on every
+    # host; diagnostics are appended after stdout, matching the assertions'
+    # existing substring/JSON semantics.
     param([string[]]$CliArgs)
-    $out = & $powerShell -NoProfile -ExecutionPolicy Bypass -File $scriptPs1 @CliArgs 2>&1 | Out-String -Width 4096
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $powerShell
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.StandardOutputEncoding = [System.Text.UTF8Encoding]::new($false)
+    $startInfo.StandardErrorEncoding = [System.Text.UTF8Encoding]::new($false)
+    foreach ($arg in @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $scriptPs1) + $CliArgs) {
+        [void]$startInfo.ArgumentList.Add([string]$arg)
+    }
+    $process = [System.Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw "could not start resolver subprocess" }
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit()
+    [System.Threading.Tasks.Task]::WaitAll(@($stdoutTask, $stderrTask))
+    $out = $stdoutTask.Result + $stderrTask.Result
     $flattened = $out -replace '\s+', ' '
     # ConciseView also inserts a literal " | " gutter marker at each wrapped
     # continuation line (e.g. "...an empty | paths.include list" for a
@@ -53,7 +68,7 @@ function Invoke-ResolverRaw {
     # line) — strip that formatting artifact too, then re-collapse any
     # doubled spaces its removal leaves behind.
     $flattened = ($flattened -replace ' \| ', ' ') -replace '\s+', ' '
-    return @{ Output = $flattened; ExitCode = $LASTEXITCODE }
+    return @{ Output = $flattened; ExitCode = $process.ExitCode }
 }
 
 function Invoke-ResolveFixture {
