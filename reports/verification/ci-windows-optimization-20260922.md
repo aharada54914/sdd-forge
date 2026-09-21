@@ -17,11 +17,15 @@ dispatcher runs the same scripts; POSIX jobs retain the original steps.
 - The new dispatcher was run locally with PowerShell 7.6.2 using
   `-Lane all`; governance, capability, ownership, and lite all passed and the
   process exited 0.
-- The PowerShell bump-version prerequisite now creates one tracked-file
-  `git archive` snapshot and extracts isolated fixtures from it; the prior
-  per-case recursive checkout copies were removed. The Bash suite still runs
-  unchanged. PowerShell 7.6.2 reported `12 passed, 0 failed`, and the Bash
+- The bump-version prerequisite now creates one tracked-file `git archive`
+  snapshot and one shared fixture baseline, resets that fixture between cases,
+  and stages only each case's changed paths. This removes repeated recursive
+  checkout copies and repeated full-index commits without removing or weakening
+  any case. PowerShell 7.6.2 reported `12 passed, 0 failed`, and the Bash
   suite reported `18 passed, 0 failed` after the change.
+- The shared-fixture refactor was rerun locally after the latest edit:
+  PowerShell reported `12 passed, 0 failed` (38.4s on macOS; TEST-001 is the
+  pre-existing BSD-sed skip) and Bash reported `18 passed, 0 failed` (41.2s).
 - `tests/human-copy-mirror-freshness.tests.sh`: 6 passed, 0 failed, 21
   pending informational.
 - `git diff --check`: passed.

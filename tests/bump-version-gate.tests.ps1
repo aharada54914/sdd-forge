@@ -25,6 +25,8 @@ function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
 $cleanupRoots = New-Object System.Collections.Generic.List[string]
 $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $bashCmd = Get-Command bash -ErrorAction SilentlyContinue
+$script:fixtureRoot = $null
+$script:fixtureBaseCommit = $null
 
 # Build one immutable tracked-file snapshot for all three fixture cases.  The
 # previous implementation recursively copied the whole checkout for every
@@ -72,14 +74,12 @@ function Expand-FixtureArchive {
     }
 }
 
-# New-Fixture -Label <label> — filesystem-copies the real repository
+# New-Fixture -Label <label> — filesystem-copies the real repository once
 # (excluding .git and the two mcp/*/node_modules trees, which neither
-# bump-version.sh nor either loop suite touches, for suite speed) into a
-# fresh temp root, Resolve-Path normalizes it (pwd -P equivalent,
-# CI-resilience/INV-017), and `git init`s it (no commit yet — the
-# baseline commit is taken by Set-FixtureBaseline AFTER all per-case
-# setup, so a subsequent `git status --porcelain` check measures ONLY
-# what bump-version.sh itself did). Returns the fixture root path.
+# bump-version.sh nor either loop suite touches, for suite speed),
+# Resolve-Path normalizes it (pwd -P equivalent, CI-resilience/INV-017),
+# and `git init`s it. The shared fixture is reset between cases; this avoids
+# three full checkout walks and three full-index commits on Windows.
 function New-Fixture {
     param([string]$Label)
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("bump-version-gate." + $Label + "." + [Guid]::NewGuid().ToString("N"))
@@ -156,6 +156,29 @@ function Set-FixtureBaseline {
     if ($LASTEXITCODE -ne 0) { throw "git add -A failed in $FixtureRoot" }
     & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
+    $script:fixtureBaseCommit = (& git -C $FixtureRoot rev-parse HEAD).Trim()
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($script:fixtureBaseCommit)) {
+        throw "could not record fixture baseline commit in $FixtureRoot"
+    }
+}
+
+# Reset-FixtureCase — restore the one committed source snapshot before a case.
+# Case-specific stubs and the changelog heading are then committed by the
+# caller with explicit paths, so the expensive full index walk happens once.
+function Reset-FixtureCase {
+    param([string]$FixtureRoot)
+    & git -C $FixtureRoot -c core.longpaths=true reset --hard -q $script:fixtureBaseCommit
+    if ($LASTEXITCODE -ne 0) { throw "git reset failed in $FixtureRoot" }
+    & git -C $FixtureRoot -c core.longpaths=true clean -fdx -q
+    if ($LASTEXITCODE -ne 0) { throw "git clean failed in $FixtureRoot" }
+}
+
+function Commit-FixtureCase {
+    param([string]$FixtureRoot, [string[]]$Paths)
+    & git -C $FixtureRoot -c core.longpaths=true add -- $Paths
+    if ($LASTEXITCODE -ne 0) { throw "git add failed in $FixtureRoot" }
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture case"
+    if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
 }
 
 # Invoke-BumpVersion -FixtureRoot <root> -Version <version> -OutputFile <path>
@@ -201,11 +224,16 @@ function Test-001 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "green"
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 0
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 0
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
+        "tests/loop-inventory.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
@@ -259,10 +287,14 @@ function Test-002 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "red-consistency"
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 1
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
@@ -293,10 +325,14 @@ function Test-003 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "red-inventory"
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 1
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-inventory.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
@@ -467,6 +503,8 @@ function Test-006 {
 try {
     $script:fixtureArchive = New-FixtureArchive
     $cleanupRoots.Add((Split-Path -Parent $script:fixtureArchive))
+    $script:fixtureRoot = New-Fixture -Label "shared"
+    Set-FixtureBaseline -FixtureRoot $script:fixtureRoot
     Test-001
     Test-002
     Test-003
