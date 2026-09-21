@@ -102,7 +102,14 @@ tasks.md and continue; the approval guard permits it.
 Sudo mode replaces human *waiting on approval*, not quality *evidence* and not
 human *judgment*. All automation and deterministic gates run as normal.
 
-## Implementation
+## Human-operated implementation
+
+The procedure below is executed by the human who invoked `/sdd-sudo`, or by a
+CLI implementation running outside the agent's tool surface. An agent must
+not create, modify, extend, or delete the `SDD_SUDO` flag file; the hook
+unconditionally denies those actions. If an agent needs to help, it may author
+the commands or a script for the human to inspect and run, then stop and ask
+the human to execute it.
 
 When `/sdd-sudo` is invoked with a duration:
 
@@ -112,7 +119,8 @@ When `/sdd-sudo` is invoked with a duration:
    - Else if `SDD_SUDO_KEY_FILE` env var is set, use that file.
    - Else use `<HOME>/.sdd/sudo-key` (where `HOME` = env `HOME` or `USERPROFILE`).
 
-   If `<HOME>/.sdd/sudo-key` does not exist and neither env var is set, create it:
+   If `<HOME>/.sdd/sudo-key` does not exist and neither env var is set, the
+   human or external CLI implementation creates it:
 
    **POSIX:**
    ```sh
@@ -171,7 +179,8 @@ When `/sdd-sudo` is invoked with a duration:
    $hmacObj.Dispose()
    ```
 
-4. **Write the `SDD_SUDO` file** at the project root with exactly these fields:
+4. **The human or external CLI implementation writes the `SDD_SUDO` file** at
+   the project root with exactly these fields:
 
    ```
    enabled-by: human via /sdd-sudo
