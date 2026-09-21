@@ -16,10 +16,9 @@
 #     `git status --porcelain` output (zero release-surface mutation).
 #   TEST-003 (AC-003) — red path B, independent leg:
 #     tests/loop-inventory.tests.sh replaced by a failing stub;
-#     tests/loop-consistency.tests.sh left as the real, unmodified copy
-#     (genuinely executed here, since it iterates first and must pass for
-#     the run to reach loop-inventory's failure) — proving both suites
-#     gate independently, not just one.
+#     tests/loop-consistency.tests.sh replaced by a passing fixture stub
+#     that emits a marker, so ordering and independent-leg proof do not
+#     rerun the already-covered full loop-consistency suite.
 #   TEST-004 (AC-004) — no-bypass grep self-check over the REAL
 #     scripts/bump-version.sh source: no environment-variable/CLI-flag
 #     conditional wraps the loop-gate invocation (OQ-007 decision).
@@ -51,6 +50,9 @@ FAIL=0
 ok()   { PASS=$((PASS + 1)); printf 'ok: %s\n' "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf 'FAIL: %s\n' "$1"; }
 
+SHARED_FIXTURE_ROOT=""
+SHARED_FIXTURE_BASE_COMMIT=""
+
 CLEANUP_ROOTS=()
 cleanup() {
   local d
@@ -60,13 +62,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# build_fixture <label> — tar-copies the real repository (excluding .git
+# build_fixture <label> — tar-copies the real repository once (excluding .git
 # and the two mcp/*/node_modules trees, which neither bump-version.sh nor
 # either loop suite touches, for suite speed) into a fresh mktemp root,
-# pwd -P normalizes it, and `git init`s it (no commit yet — the baseline
-# commit is taken by commit_fixture_baseline AFTER all per-case setup, so
-# a subsequent `git status --porcelain` check measures ONLY what
-# bump-version.sh itself did). Echoes the fixture root path.
+# pwd -P normalizes it, and `git init`s it. The shared fixture is reset
+# between cases so the suite avoids three full checkout walks and three
+# full-index commits on Windows. Echoes the fixture root path.
 #
 # NOTE: this function is always invoked via command substitution
 # (`fixture_root="$(build_fixture ...)"`), which runs it in a SUBSHELL --
@@ -91,6 +92,29 @@ build_fixture() {
 stub_suite() {
   local fixture_root="$1" relpath="$2" code="$3"
   printf '#!/usr/bin/env bash\nexit %s\n' "$code" > "${fixture_root}/${relpath}"
+  chmod +x "${fixture_root}/${relpath}"
+}
+
+pass_suite_with_marker() {
+  local fixture_root="$1" relpath="$2"
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
+    ': > "$marker_file"' \
+    'exit 0' > "${fixture_root}/${relpath}"
+  chmod +x "${fixture_root}/${relpath}"
+}
+
+fail_suite_after_marker() {
+  local fixture_root="$1" relpath="$2"
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
+    'if [[ -f "$marker_file" ]]; then' \
+    '  printf "%s\\n" "bump-gate-loop-consistency-pass" >&2' \
+    '  rm -f "$marker_file"' \
+    'fi' \
+    'exit 1' > "${fixture_root}/${relpath}"
   chmod +x "${fixture_root}/${relpath}"
 }
 
@@ -126,10 +150,10 @@ rename_changelog_heading() {
   fi
 }
 
-# commit_fixture_baseline <fixture_root> — commits the fixture's
-# post-setup state (tar-copy + CHANGELOG rename + per-case suite stubs) as
-# the git baseline every subsequent `git status --porcelain` call in this
-# suite is measured against.
+# commit_fixture_baseline <fixture_root> — commits the one shared source
+# snapshot as the reset baseline. Case-specific setup is committed by
+# commit_fixture_case with explicit paths, so the expensive full index walk
+# happens once.
 commit_fixture_baseline() {
   local fixture_root="$1"
   git -C "$fixture_root" \
@@ -138,6 +162,24 @@ commit_fixture_baseline() {
   git -C "$fixture_root" \
     -c user.email="bump-version-gate-tests@sdd-forge.invalid" \
     -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
+  SHARED_FIXTURE_BASE_COMMIT="$(git -C "$fixture_root" rev-parse HEAD)"
+}
+
+reset_fixture_case() {
+  local fixture_root="$1"
+  git -C "$fixture_root" reset --hard -q "$SHARED_FIXTURE_BASE_COMMIT"
+  git -C "$fixture_root" clean -fdx -q
+}
+
+commit_fixture_case() {
+  local fixture_root="$1"
+  shift
+  git -C "$fixture_root" \
+    -c user.email="bump-version-gate-tests@sdd-forge.invalid" \
+    -c user.name="bump-version-gate-tests" add -- "$@"
+  git -C "$fixture_root" \
+    -c user.email="bump-version-gate-tests@sdd-forge.invalid" \
+    -c user.name="bump-version-gate-tests" commit -q -m "fixture case"
 }
 
 # run_bump_version <fixture_root> <version> <output_file> — invokes the
@@ -167,12 +209,13 @@ run_test_001() {
     return
   fi
   local fixture_root output
-  fixture_root="$(build_fixture "green")"
-  CLEANUP_ROOTS+=("$(dirname "$fixture_root")")
+  fixture_root="$SHARED_FIXTURE_ROOT"
+  reset_fixture_case "$fixture_root"
   stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 0
   stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 0
   rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_baseline "$fixture_root"
+  commit_fixture_case "$fixture_root" \
+    tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
@@ -217,11 +260,12 @@ run_test_001() {
 run_test_002() {
   echo "=== TEST-002 (AC-002): red path A (loop-consistency.tests.sh stubbed failing) ==="
   local fixture_root output porcelain
-  fixture_root="$(build_fixture "red-consistency")"
-  CLEANUP_ROOTS+=("$(dirname "$fixture_root")")
+  fixture_root="$SHARED_FIXTURE_ROOT"
+  reset_fixture_case "$fixture_root"
   stub_suite "$fixture_root" "tests/loop-consistency.tests.sh" 1
   rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_baseline "$fixture_root"
+  commit_fixture_case "$fixture_root" \
+    tests/loop-consistency.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
@@ -240,24 +284,30 @@ run_test_002() {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, the
-# independent leg (loop-consistency.tests.sh left real and genuinely
-# executed, since it iterates first and must pass to reach the failure)
+# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, with a
+# passing marker stub for the preceding loop-consistency leg.
 # ---------------------------------------------------------------------------
 run_test_003() {
   echo "=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ==="
   local fixture_root output porcelain
-  fixture_root="$(build_fixture "red-inventory")"
-  CLEANUP_ROOTS+=("$(dirname "$fixture_root")")
-  stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 1
+  fixture_root="$SHARED_FIXTURE_ROOT"
+  reset_fixture_case "$fixture_root"
+  pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
+  fail_suite_after_marker "$fixture_root" "tests/loop-inventory.tests.sh"
   rename_changelog_heading "$fixture_root" "$VERSION"
-  commit_fixture_baseline "$fixture_root"
+  commit_fixture_case "$fixture_root" \
+    tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
     fail "TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0"
   else
-    ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)"
+    ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing"
+  fi
+  if grep -qF 'bump-gate-loop-consistency-pass' "$output"; then
+    ok "TEST-003 (AC-003): the preceding loop-consistency gate leg ran before the inventory failure"
+  else
+    fail "TEST-003 (AC-003): the preceding loop-consistency gate leg did not emit its execution marker"
   fi
   rm -f "$output"
 
@@ -452,6 +502,9 @@ run_test_006() {
 # ---------------------------------------------------------------------------
 # Run
 # ---------------------------------------------------------------------------
+SHARED_FIXTURE_ROOT="$(build_fixture shared)"
+CLEANUP_ROOTS+=("$(dirname "$SHARED_FIXTURE_ROOT")")
+commit_fixture_baseline "$SHARED_FIXTURE_ROOT"
 run_test_001
 run_test_002
 run_test_003

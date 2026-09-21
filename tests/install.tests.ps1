@@ -1,8 +1,13 @@
+param(
+    [ValidateSet('all', 'core', 'mcp', 'clients', 'context')]
+    [string]$Lane = 'all'
+)
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
+if ($Lane -in @('all', 'core')) {
 # Exercise the production archive-download branch without network or host install
 # writes. A failed tar may still leave a marketplace-shaped partial directory.
 & {
@@ -45,6 +50,8 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
         Write-Host "ok: archive extraction exit $code handled"
     }
     $global:LASTEXITCODE = 0
+}
+
 }
 
 $script:_SddFixtureMatrixBuilderSourced = $false
@@ -454,6 +461,7 @@ function Invoke-RemoteInstallerScenario {
     }
 }
 
+if ($Lane -in @('all', 'core')) {
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins @("sdd-lite")
@@ -989,6 +997,9 @@ finally {
 }
 
 # ---------------------------------------------------------------------------
+}
+
+if ($Lane -in @('all', 'mcp')) {
 # MCP scenarios (T-006): AC-007 / AC-008
 # ---------------------------------------------------------------------------
 
@@ -1446,6 +1457,9 @@ finally {
 # Cursor / VS Code upsert parity in install.ps1
 # ---------------------------------------------------------------------------
 
+}
+
+if ($Lane -in @('all', 'clients')) {
 # Scenario (y): AC-010/AC-013 Cursor registration. A pre-existing
 # ~/.cursor/mcp.json (via SDD_CURSOR_DIR) containing a foreign entry and an
 # unknown top-level key keeps both; the two selected MCPs are upserted under
@@ -1725,6 +1739,9 @@ finally {
     if (Test-Path $corruptVSCodeRoot) { Remove-Item -Path $corruptVSCodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
+}
+
+if ($Lane -in @('all', 'context')) {
 # T-003 context-presence invariant: FilesOnly output is byte-identical whether
 # an otherwise identical source fixture has project-context.yaml or not.
 $t003Absent = build_fixture absent absent disabled-legacy valid none
@@ -1754,6 +1771,8 @@ try {
     Write-Host 'ok: T-003 install output is unaffected by project-context presence'
 } finally {
     foreach ($path in @($t003Absent, $t003Present)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force } }
+}
+
 }
 
 Write-Host "Installer integration tests passed."

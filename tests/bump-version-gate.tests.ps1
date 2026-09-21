@@ -25,15 +25,61 @@ function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
 $cleanupRoots = New-Object System.Collections.Generic.List[string]
 $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $bashCmd = Get-Command bash -ErrorAction SilentlyContinue
+$script:fixtureRoot = $null
+$script:fixtureBaseCommit = $null
 
-# New-Fixture -Label <label> — filesystem-copies the real repository
+# Build one immutable tracked-file snapshot for all three fixture cases.  The
+# previous implementation recursively copied the whole checkout for every
+# case; on Windows that repeated filesystem walk dominated this gate.  The
+# archive is created once and each case extracts it into its own isolated
+# directory, so test isolation and the git baseline remain unchanged.
+$script:fixtureArchive = $null
+function New-FixtureArchive {
+    $archive = Join-Path ([IO.Path]::GetTempPath()) ("bump-version-gate-" + [Guid]::NewGuid().ToString("N") + ".tar")
+    & git -C $repoRoot archive --format=tar --output=$archive HEAD
+    if ($LASTEXITCODE -ne 0) { throw "git archive failed for $repoRoot" }
+    $archiveItem = Get-Item -LiteralPath $archive -ErrorAction Stop
+    if (-not $archiveItem.PSIsContainer -and $archiveItem.Length -gt 0) {
+        return $archive
+    }
+    throw "git archive produced an empty archive: $archive"
+}
+
+function Expand-FixtureArchive {
+    param([string]$Destination)
+    $tar = Get-Command tar -ErrorAction SilentlyContinue
+    if (-not $tar) {
+        # Keep the suite runnable on hosts without tar; Windows CI has tar
+        # (Git for Windows), so the optimized path is used there.
+        Get-ChildItem -LiteralPath $repoRoot -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+        }
+        Remove-Item -LiteralPath (Join-Path $Destination ".git") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        return
+    }
+    & $tar.Source -xf $script:fixtureArchive -C $Destination
+    if ($LASTEXITCODE -ne 0) {
+        # A host tar may reject a repository symlink without the privilege to
+        # recreate it.  Fall back to the pre-existing copy path rather than
+        # weakening the fixture or leaving a partially extracted tree.
+        Get-ChildItem -LiteralPath $Destination -Force | Remove-Item -Recurse -Force
+        Get-ChildItem -LiteralPath $repoRoot -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+        }
+        Remove-Item -LiteralPath (Join-Path $Destination ".git") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# New-Fixture -Label <label> — filesystem-copies the real repository once
 # (excluding .git and the two mcp/*/node_modules trees, which neither
-# bump-version.sh nor either loop suite touches, for suite speed) into a
-# fresh temp root, Resolve-Path normalizes it (pwd -P equivalent,
-# CI-resilience/INV-017), and `git init`s it (no commit yet — the
-# baseline commit is taken by Set-FixtureBaseline AFTER all per-case
-# setup, so a subsequent `git status --porcelain` check measures ONLY
-# what bump-version.sh itself did). Returns the fixture root path.
+# bump-version.sh nor either loop suite touches, for suite speed),
+# Resolve-Path normalizes it (pwd -P equivalent, CI-resilience/INV-017),
+# and `git init`s it. The shared fixture is reset between cases; this avoids
+# three full checkout walks and three full-index commits on Windows.
 function New-Fixture {
     param([string]$Label)
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("bump-version-gate." + $Label + "." + [Guid]::NewGuid().ToString("N"))
@@ -42,10 +88,8 @@ function New-Fixture {
     $cleanupRoots.Add($tempRoot)
 
     $fixtureRoot = Join-Path $tempRoot "repository"
-    Copy-Item -LiteralPath $repoRoot -Destination $fixtureRoot -Recurse -Force
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot ".git") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
+    Expand-FixtureArchive -Destination $fixtureRoot
 
     $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
     # core.longpaths=true: the fixture root already sits under a generated
@@ -62,6 +106,41 @@ function Set-SuiteStub {
     param([string]$FixtureRoot, [string]$RelPath, [int]$ExitCode)
     $target = Join-Path $FixtureRoot $RelPath
     $content = "#!/usr/bin/env bash`nexit $ExitCode`n"
+    [System.IO.File]::WriteAllText($target, $content, $utf8NoBom)
+    if (-not $IsWindows) {
+        & chmod +x $target
+    }
+}
+
+function Set-SuitePassStub {
+    param([string]$FixtureRoot, [string]$RelPath)
+    $target = Join-Path $FixtureRoot $RelPath
+    $content = @(
+        '#!/usr/bin/env bash'
+        'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"'
+        ': > "$marker_file"'
+        'exit 0'
+    ) -join "`n"
+    $content += "`n"
+    [System.IO.File]::WriteAllText($target, $content, $utf8NoBom)
+    if (-not $IsWindows) {
+        & chmod +x $target
+    }
+}
+
+function Set-SuiteFailAfterMarker {
+    param([string]$FixtureRoot, [string]$RelPath)
+    $target = Join-Path $FixtureRoot $RelPath
+    $content = @(
+        '#!/usr/bin/env bash'
+        'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"'
+        'if [[ -f "$marker_file" ]]; then'
+        '  printf "%s\n" "bump-gate-loop-consistency-pass" >&2'
+        '  rm -f "$marker_file"'
+        'fi'
+        'exit 1'
+    ) -join "`n"
+    $content += "`n"
     [System.IO.File]::WriteAllText($target, $content, $utf8NoBom)
     if (-not $IsWindows) {
         & chmod +x $target
@@ -112,6 +191,29 @@ function Set-FixtureBaseline {
     if ($LASTEXITCODE -ne 0) { throw "git add -A failed in $FixtureRoot" }
     & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
+    $script:fixtureBaseCommit = (& git -C $FixtureRoot rev-parse HEAD).Trim()
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrEmpty($script:fixtureBaseCommit)) {
+        throw "could not record fixture baseline commit in $FixtureRoot"
+    }
+}
+
+# Reset-FixtureCase — restore the one committed source snapshot before a case.
+# Case-specific stubs and the changelog heading are then committed by the
+# caller with explicit paths, so the expensive full index walk happens once.
+function Reset-FixtureCase {
+    param([string]$FixtureRoot)
+    & git -C $FixtureRoot -c core.longpaths=true reset --hard -q $script:fixtureBaseCommit
+    if ($LASTEXITCODE -ne 0) { throw "git reset failed in $FixtureRoot" }
+    & git -C $FixtureRoot -c core.longpaths=true clean -fdx -q
+    if ($LASTEXITCODE -ne 0) { throw "git clean failed in $FixtureRoot" }
+}
+
+function Commit-FixtureCase {
+    param([string]$FixtureRoot, [string[]]$Paths)
+    & git -C $FixtureRoot -c core.longpaths=true add -- $Paths
+    if ($LASTEXITCODE -ne 0) { throw "git add failed in $FixtureRoot" }
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture case"
+    if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
 }
 
 # Invoke-BumpVersion -FixtureRoot <root> -Version <version> -OutputFile <path>
@@ -157,11 +259,16 @@ function Test-001 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "green"
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 0
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 0
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
+        "tests/loop-inventory.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
@@ -215,10 +322,14 @@ function Test-002 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "red-consistency"
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
     Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh" -ExitCode 1
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
@@ -238,9 +349,8 @@ function Test-002 {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, the
-# independent leg (loop-consistency.tests.sh left real and genuinely
-# executed, since it iterates first and must pass to reach the failure)
+# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, with a
+# passing marker stub for the preceding loop-consistency leg.
 # ---------------------------------------------------------------------------
 function Test-003 {
     Write-Output "=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ==="
@@ -249,17 +359,29 @@ function Test-003 {
         return
     }
 
-    $fixtureRoot = New-Fixture -Label "red-inventory"
-    Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 1
+    $fixtureRoot = $script:fixtureRoot
+    Reset-FixtureCase -FixtureRoot $fixtureRoot
+    Set-SuitePassStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh"
+    Set-SuiteFailAfterMarker -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh"
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
-    Set-FixtureBaseline -FixtureRoot $fixtureRoot
+    Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
+        "tests/loop-inventory.tests.sh",
+        "CHANGELOG.md"
+    )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
+    $output = Get-Content -LiteralPath $outFile -Raw
     if ($rc -ne 0) {
-        Ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)"
+        Ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing"
     } else {
         Fail "TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0"
+    }
+    if ($output.Contains("bump-gate-loop-consistency-pass")) {
+        Ok "TEST-003 (AC-003): the preceding loop-consistency gate leg ran before the inventory failure"
+    } else {
+        Fail "TEST-003 (AC-003): the preceding loop-consistency gate leg did not emit its execution marker"
     }
     Remove-Item -LiteralPath $outFile -ErrorAction SilentlyContinue
 
@@ -421,6 +543,13 @@ function Test-006 {
 # Run
 # ---------------------------------------------------------------------------
 try {
+    $script:fixtureArchive = New-FixtureArchive
+    # Keep cleanup roots disjoint: the shared fixture lives under the system
+    # temp directory, so registering the archive's parent would make the
+    # fixture root a nested second deletion target.
+    $cleanupRoots.Add($script:fixtureArchive)
+    $script:fixtureRoot = New-Fixture -Label "shared"
+    Set-FixtureBaseline -FixtureRoot $script:fixtureRoot
     Test-001
     Test-002
     Test-003
