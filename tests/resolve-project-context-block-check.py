@@ -402,6 +402,7 @@ ALL_CASE_NAMES = (
         # diagnostic-id rows, plus AC-010's own fully-clean negative
         # fixture.
         "clean-full-track-publication",
+        "clean-lite-track-publication",
         "publication-journal-recovery-crash",
         "publication-journal-recovery",
         "artifact-publication-failed",
@@ -2480,6 +2481,77 @@ def run_t007_clean_publication_case(kind, counts):
             repr(staging_litter(feature_dir)),
         )
         return sentinels
+
+
+def run_t007_clean_lite_publication_case(kind, counts):
+    """Exercise the real Resolver's Lite publication set end to end.
+
+    A Lite resolve must publish exactly Capability Summary plus Resolver
+    Evidence.  The Full-track sentinels are intentionally planted by the
+    shared fixture builder so this case proves they remain untouched rather
+    than merely checking that the two expected files exist.
+    """
+    case_name = "clean-lite-track-publication"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-lite-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.check(
+            result.returncode == 0 and stdout == "" and stderr == "",
+            f"{case_name}: exit 0 with no diagnostic",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        summary_path = feature_dir / "capability-summary.yaml"
+        summary, summary_error = read_evidence(summary_path)
+        counts.check(
+            summary == {
+                "schema": "sdd-capability-summary/v1",
+                "feature": "example-feature",
+                "track": "lite",
+                "capabilities": [],
+                "required_lite_checks": [],
+                "full_upgrade_required": False,
+            },
+            f"{case_name}: exact published Capability Summary",
+            summary_error or repr(summary),
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, evidence_error = read_evidence(evidence_path)
+        counts.check(
+            isinstance(evidence, dict)
+            and evidence.get("schema") == "sdd-resolver-evidence/v1"
+            and evidence.get("feature") == "example-feature"
+            and evidence.get("capability_evaluations") == []
+            and evidence.get("diagnostics") == [],
+            f"{case_name}: Resolver Evidence is the second published artifact",
+            evidence_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+
+        counts.check(
+            sentinels[feature_dir / "facet-manifest.yaml"]
+            == (feature_dir / "facet-manifest.yaml").read_bytes()
+            and sentinels[scripts / "generated/project-context.resolved.json"]
+            == (scripts / "generated/project-context.resolved.json").read_bytes(),
+            f"{case_name}: Full-track artifacts remain untouched",
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: Complete leaves no journal or staging litter",
+            repr(staging_litter(feature_dir)),
+        )
 
 
 def run_t007_journal_recovery_cases(kind, counts):
@@ -4630,6 +4702,7 @@ def main():
         ):
             run_t004_case(args.launcher, case_name, counts)
         run_t007_clean_publication_case(args.launcher, counts)
+        run_t007_clean_lite_publication_case(args.launcher, counts)
         run_t007_journal_recovery_cases(args.launcher, counts)
         run_t007_artifact_publication_failed_case(args.launcher, counts)
         run_t007_post_publication_mismatch_case(args.launcher, counts)
