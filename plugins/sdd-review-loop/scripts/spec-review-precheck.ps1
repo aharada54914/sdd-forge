@@ -280,6 +280,15 @@ function Test-ValidateContract(
   try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json } catch { return $false }
   $precheck = $null
   try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
+  $investigationPath = Join-Path $specDir 'investigation.md'
+  $contractManifestInvestigationHashes = @()
+  foreach ($reviewer in @($contract.reviewers)) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if (Test-OrdinalEqual $entry.path $investigationPath) { $contractManifestInvestigationHashes += [string]$entry.sha256 }
+    }
+  }
+  $uniqueContractManifestInvestigationHashes = @($contractManifestInvestigationHashes | Select-Object -Unique)
+  $contractManifestInvestigationHash = if ($uniqueContractManifestInvestigationHashes.Count -eq 1) { $uniqueContractManifestInvestigationHashes[0] } else { '' }
   $priorInvestigationSha = if ($null -eq $precheck.investigation_sha256) { '' } else { [string]$precheck.investigation_sha256 }
   $legacyContractKeys = @('acceptance_sha256', 'attempt', 'feature', 'requirements_sha256', 'reviewers', 'round', 'run_id', 'schema', 'stage', 'verdict', 'warningCount')
   $investigationContractKeys = @('acceptance_sha256', 'attempt', 'feature', 'investigation_sha256', 'requirements_sha256', 'reviewers', 'round', 'run_id', 'schema', 'stage', 'verdict', 'warningCount')
@@ -287,8 +296,12 @@ function Test-ValidateContract(
     if (-not (Test-KeysExact $contract $legacyContractKeys) -and
         (-not (Test-KeysExact $contract $investigationContractKeys) -or $null -ne $contract.investigation_sha256)) { return $false }
   } else {
-    if (-not (Test-KeysExact $contract $investigationContractKeys)) { return $false }
-    if (-not (Test-OrdinalEqual $contract.investigation_sha256 $priorInvestigationSha)) { return $false }
+    if (Test-KeysExact $contract $investigationContractKeys) {
+      if (-not (Test-OrdinalEqual $contract.investigation_sha256 $priorInvestigationSha)) { return $false }
+    } elseif (Test-KeysExact $contract $legacyContractKeys) {
+      if (-not [string]::IsNullOrEmpty($contractManifestInvestigationHash) -and
+          -not (Test-OrdinalEqual $contractManifestInvestigationHash $priorInvestigationSha)) { return $false }
+    } else { return $false }
   }
   if (-not (Test-OrdinalEqual $contract.schema 'spec-review-contract/v1')) { return $false }
   if (-not (Test-OrdinalEqual $contract.stage 'spec')) { return $false }
@@ -323,9 +336,9 @@ function Test-ValidateContract(
   if (-not (Test-OrdinalEqual $precheck.acceptance_sha256 $contract.acceptance_sha256)) { return $false }
   if (-not ($null -eq $precheck.calibration_sha256 -or (Test-IsSha256 $precheck.calibration_sha256))) { return $false }
   if (-not ($null -eq $precheck.investigation_sha256 -or (Test-IsSha256 $precheck.investigation_sha256))) { return $false }
-  $contractInvestigationHash = if ($null -eq $contract.investigation_sha256) { '' } else { [string]$contract.investigation_sha256 }
+  $contractInvestigationHash = if ($null -eq $contract.investigation_sha256) { $contractManifestInvestigationHash } else { [string]$contract.investigation_sha256 }
   $precheckInvestigationHash = if ($null -eq $precheck.investigation_sha256) { '' } else { [string]$precheck.investigation_sha256 }
-  if (-not [string]::IsNullOrEmpty($precheckInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $precheckInvestigationHash)) { return $false }
+  if (-not [string]::IsNullOrEmpty($precheckInvestigationHash) -and -not [string]::IsNullOrEmpty($contractInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $precheckInvestigationHash)) { return $false }
 
   $roundDir = Split-Path -Parent $ContractPath
   $summaryPath = Join-Path $roundDir 'integrated-summary.json'
@@ -396,7 +409,6 @@ function Test-ValidateContract(
   # precheck-result.json here because the precheck schema records no
   # investigation_sha256 field -- unlike calibration_sha256 -- so the 'if the
   # precheck records it' clause has nothing to compare against.
-  $investigationPath = Join-Path $specDir 'investigation.md'
   $investigationHashes = @()
   foreach ($reviewer in $reviewers) {
     foreach ($entry in @($reviewer.allowed_input_manifest)) {

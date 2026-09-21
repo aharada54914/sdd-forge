@@ -226,7 +226,7 @@ validate_reviewer_output() {
 
 validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
-  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash contract_manifest_investigation_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
   local recorded_root recorded_prefix prior_investigation_sha prior_recorded_root prior_recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
@@ -234,13 +234,19 @@ validate_contract() {
   recorded_root="$(recorded_repo_root "$contract")"
   [[ "$recorded_root" != "__INVALID__" ]] || return 1
   recorded_prefix="${recorded_root:+$recorded_root/}"
-  jq -e --arg feature "$feature" --arg current_investigation_sha "$prior_investigation_sha" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
+  contract_manifest_investigation_hash="$(jq -r --arg investigation "$investigation" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $target) | .sha256] | unique |
+    if length == 1 then .[0] else "" end' "$contract")" || return 1
+  jq -e --arg feature "$feature" --arg current_investigation_sha "$prior_investigation_sha" --arg contract_manifest_investigation_sha "$contract_manifest_investigation_hash" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
     type == "object" and
     (if $current_investigation_sha == "" then
        (keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] or
         (keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == null))
      else
-       keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == $current_investigation_sha
+       ((keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == $current_investigation_sha) or
+        (keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
+          ($contract_manifest_investigation_sha == "" or ($contract_manifest_investigation_sha == $current_investigation_sha and ($contract_manifest_investigation_sha | test("^[0-9a-f]{64}$"))))))
      end) and
     .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
     (.requirements_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
@@ -254,8 +260,9 @@ validate_contract() {
     (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
     (.investigation_sha256 == null or (.investigation_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
   contract_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$contract")"
+  [[ -n "$contract_investigation_hash" || -z "$contract_manifest_investigation_hash" ]] || contract_investigation_hash="$contract_manifest_investigation_hash"
   precheck_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$precheck")"
-  [[ -z "$precheck_investigation_hash" || "$contract_investigation_hash" == "$precheck_investigation_hash" ]] || return 1
+  [[ -z "$precheck_investigation_hash" || -z "$contract_investigation_hash" || "$contract_investigation_hash" == "$precheck_investigation_hash" ]] || return 1
 
   round_dir="$(dirname "$contract")"
   summary="${round_dir}/integrated-summary.json"
