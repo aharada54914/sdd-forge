@@ -1,6 +1,6 @@
-651b34cf0fe150f1b8dfedc61a567ec97b39b13ed8e907c0f1a7fb1e8c301444  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
-2acc80f9449755afab761aa758f1379dbe9a37cf44da6d85fd8c5d6b23d6fb70  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
-3002dc8eb662c98f5b6645a115bd9faf85ece005bc5acc0a1991ca3dc0eb3794  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+6537e32f47bbeaa87ad645162b45ce0f78e70826d7108ca8a0fb462827051015  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+a520d69a04751df0630e641d6424d0f13f7f6ee299824fd98387279879215bc4  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+8df36c4c8041e136ba350cc877518ecfd8e62989253713b0bea27adbc02ad6b8  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840  plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
 ac18c5324a3d0bffd1a94cb825bfc02fddf286968ab8f5341c3df619ad2d92e6  plugins/sdd-quality-loop/scripts/check-contract.ps1
 40103332af2ad71f7effe873f0a118bceed32299c54710cc4f9b54a40aae3a5d  plugins/sdd-lite/references/risk-upgrade-policy.md
@@ -8,5 +8,5 @@ ac18c5324a3d0bffd1a94cb825bfc02fddf286968ab8f5341c3df619ad2d92e6  plugins/sdd-qu
 f627ab50b85a2855b7a65bece51948723a5b6a3ecdfb41f0122eb90d8348ff3c  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
 52d428aad3af3eabf65a6ba1380aa1cab3b5a8dc4b029a3c056557041ff81cd6  plugins/sdd-lite/skills/lite-spec/SKILL.md
 ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d  plugins/sdd-ship/skills/ship/SKILL.md
-28772388036f1826d76c84ef4780a7f71ad463636c46a31c871195c0f6eabfcd  tests/guard-parity.tests.sh
+d66881b314ed64de98dac682d1dd9ae3e9462d762d718b172aa52c1f7ca95823  tests/guard-parity.tests.sh
 bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
