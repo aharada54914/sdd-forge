@@ -14,7 +14,7 @@ diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 b/plugin
      $verdict = [string]($Bundle.review_verdict.verdict).Trim()
  
      $lines = @(
-@@ -196,6 +200,8 @@
+@@ -196,8 +200,14 @@
  $verificationContract = $bundle.verification_contract
  $gitCommit = $bundle.git_commit
  $gitGeneratedDirty = $bundle.git_generated_dirty
@@ -22,19 +22,23 @@ diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 b/plugin
 +$gitGeneratedDirtyIsTrue = $gitGeneratedDirtyIsBool -and $gitGeneratedDirty
  $artifacts = @()
  
++if (-not $gitGeneratedDirtyIsBool) {
++    Add-Failure "git_generated_dirty must be a JSON boolean"
++}
++
  if ($taskId -notmatch '^T-\d+$') {
-@@ -413,7 +419,9 @@
+     Add-Failure "task_id is invalid: $taskId"
+ }
+@@ -413,7 +423,7 @@
  
  # Critical-only signature verification (T-007a)
  if ($effectiveRisk -eq "critical") {
 -    if ($gitGeneratedDirty -eq $true) {
-+    if (-not $gitGeneratedDirtyIsBool) {
-+        Add-Failure "git_generated_dirty must be a JSON boolean"
-+    } elseif ($gitGeneratedDirtyIsTrue) {
++    if ($gitGeneratedDirtyIsTrue) {
          Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
      }
      $signature = $bundle.signature
-@@ -425,18 +433,20 @@
+@@ -425,18 +435,24 @@
          if ([string]::IsNullOrWhiteSpace($alg) -or [string]::IsNullOrWhiteSpace($value)) {
              Add-Failure "critical bundle signature requires non-empty alg and value"
          } elseif ($alg -eq "hmac-sha256") {
@@ -55,19 +59,23 @@ diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 b/plugin
 +                if ($null -eq $keyInfo) {
 +                    Add-Failure "critical bundle signature cannot be verified: no evidence key available"
 +                } else {
-+                    $canonical = Get-EvidenceCanonical -Bundle $bundle
-+                    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
-+                    # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
-+                    $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
-+                    $expectedBytes = $hmac.ComputeHash($canonicalBytes)
-+                    $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
-+                    if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
-+                        Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
++                    try {
++                        $canonical = Get-EvidenceCanonical -Bundle $bundle
++                        $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
++                        # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
++                        $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
++                        $expectedBytes = $hmac.ComputeHash($canonicalBytes)
++                        $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
++                        if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
++                            Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
++                        }
++                    } catch {
++                        Add-Failure "critical bundle canonicalization failed: $($_.Exception.Message)"
 +                    }
                  }
              }
          } elseif ($alg -eq "sigstore") {
-@@ -450,7 +460,7 @@
+@@ -450,7 +466,7 @@
      }
  }
  
@@ -92,6 +100,24 @@ diff --git a/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1 b/plu
      $verdict = [string]($Bundle.review_verdict.verdict).Trim()
  
      $lines = @(
+@@ -459,7 +463,16 @@
+         Write-Error "generate-evidence-bundle: risk=critical requires an evidence signing key (SDD_EVIDENCE_KEY / SDD_EVIDENCE_KEY_FILE / ~/.sdd/evidence-key); none found"
+         exit 1
+     }
+-    $canonical = Get-EvidenceCanonical -Bundle $bundle
++    if ($gitGeneratedDirty -isnot [bool]) {
++        Write-Error "generate-evidence-bundle: git_generated_dirty must be a JSON boolean"
++        exit 1
++    }
++    try {
++        $canonical = Get-EvidenceCanonical -Bundle $bundle
++    } catch {
++        Write-Error "generate-evidence-bundle: canonicalization failed: $($_.Exception.Message)"
++        exit 1
++    }
+     $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+     # Use ::new() so the byte[] key is passed as a single constructor argument.
+     # New-Object -ArgumentList splats an array into multiple ctor args (HMACSHA256
 diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
 --- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
 +++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
