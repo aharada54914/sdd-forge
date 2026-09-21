@@ -17,7 +17,7 @@ def old_whole_command_predicate(command):
     )
 
 allow_cases = [
-    "python3 -c \"open('/tmp/SDD_SUDO','w').write('x')\"",
+    "python3 -c \"print('SDD_SUDO > docs')\"",
     "echo SDD_SUDO > /tmp/other",
     "echo foo > /tmp/SDD_SUDO_KEY",
 ]
