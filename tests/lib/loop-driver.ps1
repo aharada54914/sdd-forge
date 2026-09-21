@@ -486,17 +486,19 @@ function Publish-LoopSpecRoundA {
 
     $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/requirements.md"
     $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/acceptance-tests.md"
+    $investigationPath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/investigation.md"
     $precheckPath = Join-Path $RoundDir "precheck-result.json"
     $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/spec-review-calibration.md"
     $requirementsSha = Get-LoopSha256 $requirementsPath
     $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $investigationSha = if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Get-Item -LiteralPath $investigationPath).LinkType) { Get-LoopSha256 $investigationPath } else { '' }
     $precheckSha = Get-LoopSha256 $precheckPath
     $calibrationSha = Get-LoopSha256 $calibrationPath
 
-    $reviewerAJq = '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids | {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    $reviewerAJq = '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids | {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
     & jq -n --arg result $aResult --arg severity $checkSeverity --arg verdict $aVerdict `
-        --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg precheck $precheckPath --arg calibration $calibrationPath `
-        --arg requirements_sha $requirementsSha --arg acceptance_sha $acceptanceSha --arg precheck_sha $precheckSha --arg calibration_sha $calibrationSha `
+        --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg investigation $investigationPath --arg precheck $precheckPath --arg calibration $calibrationPath `
+        --arg requirements_sha $requirementsSha --arg acceptance_sha $acceptanceSha --arg investigation_sha $investigationSha --arg precheck_sha $precheckSha --arg calibration_sha $calibrationSha `
         $reviewerAJq | Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
     return $true
@@ -517,11 +519,13 @@ function Publish-LoopSpecRoundBContract {
 
     $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/requirements.md"
     $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/acceptance-tests.md"
+    $investigationPath = Join-Path $script:LoopFixtureRoot "specs/$($script:LoopFixtureFeature)/investigation.md"
     $precheckPath = Join-Path $RoundDir "precheck-result.json"
     $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/spec-review-calibration.md"
     $summaryPath = Join-Path $RoundDir "integrated-summary.json"
     $requirementsSha = Get-LoopSha256 $requirementsPath
     $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $investigationSha = if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Get-Item -LiteralPath $investigationPath).LinkType) { Get-LoopSha256 $investigationPath } else { '' }
     $precheckSha = Get-LoopSha256 $precheckPath
     $calibrationSha = Get-LoopSha256 $calibrationPath
     $summarySha = Get-LoopSha256 $summaryPath
@@ -532,18 +536,18 @@ function Publish-LoopSpecRoundBContract {
         Set-Content -LiteralPath (Join-Path $RoundDir "integrated-verdict.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
-    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids | {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
-    & jq -n --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg precheck $precheckPath --arg summary $summaryPath `
-        --arg calibration $calibrationPath --arg requirements_sha $requirementsSha --arg acceptance_sha $acceptanceSha `
+    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids | {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    & jq -n --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg investigation $investigationPath --arg precheck $precheckPath --arg summary $summaryPath `
+        --arg calibration $calibrationPath --arg requirements_sha $requirementsSha --arg acceptance_sha $acceptanceSha --arg investigation_sha $investigationSha `
         --arg precheck_sha $precheckSha --arg summary_sha $summarySha --arg calibration_sha $calibrationSha `
         $reviewerBJq | Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
-    $contractJq = '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[{role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]},{role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]}],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}'
+    $contractJq = '({schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[{role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}]},{role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}]}],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning} + (if $investigation_sha256 == "" then {} else {investigation_sha256:$investigation_sha256} end) | .reviewers |= map(.allowed_input_manifest += (if $investigation_sha256 == "" then [] else [{path:$investigation,sha256:$investigation_sha256}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}] + (if .role == "spec-reviewer-b" then [{path:$summary,sha256:$summary_sha}] else [] end)))'
     & jq -n --arg feature $script:LoopFixtureFeature --arg verdict $Verdict `
-        --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha `
+        --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha --arg investigation_sha256 $investigationSha `
         --argjson round $round --argjson warning $warning `
-        --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg precheck $precheckPath --arg summary $summaryPath --arg calibration $calibrationPath `
+        --arg requirements $requirementsPath --arg acceptance $acceptancePath --arg investigation $investigationPath --arg precheck $precheckPath --arg summary $summaryPath --arg calibration $calibrationPath `
         --arg precheck_sha $precheckSha --arg summary_sha $summarySha --arg calibration_sha $calibrationSha `
         $contractJq | Set-Content -LiteralPath (Join-Path $RoundDir "spec-review-contract.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
@@ -552,22 +556,32 @@ function Publish-LoopSpecRoundBContract {
 
 function Get-LoopSpecManifestA([string]$RoundDir) {
     $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
-    return (Get-LoopManifestArray @(
+    $rels = @(
         "specs/$($script:LoopFixtureFeature)/requirements.md",
         "specs/$($script:LoopFixtureFeature)/acceptance-tests.md",
         "plugins/sdd-review-loop/references/spec-review-calibration.md",
         "$roundRel/precheck-result.json"
-    ))
+    )
+    $investigationRel = "specs/$($script:LoopFixtureFeature)/investigation.md"
+    if ((Test-Path -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel) -PathType Leaf) -and -not (Get-Item -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel)).LinkType) {
+        $rels = @($rels[0], $rels[1], $investigationRel, $rels[2], $rels[3])
+    }
+    return (Get-LoopManifestArray $rels)
 }
 function Get-LoopSpecManifestB([string]$RoundDir) {
     $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
-    return (Get-LoopManifestArray @(
+    $rels = @(
         "specs/$($script:LoopFixtureFeature)/requirements.md",
         "specs/$($script:LoopFixtureFeature)/acceptance-tests.md",
         "plugins/sdd-review-loop/references/spec-review-calibration.md",
         "$roundRel/precheck-result.json",
         "$roundRel/integrated-summary.json"
-    ))
+    )
+    $investigationRel = "specs/$($script:LoopFixtureFeature)/investigation.md"
+    if ((Test-Path -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel) -PathType Leaf) -and -not (Get-Item -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel)).LinkType) {
+        $rels = @($rels[0], $rels[1], $investigationRel, $rels[2], $rels[3], $rels[4])
+    }
+    return (Get-LoopManifestArray $rels)
 }
 
 function Invoke-LoopDriveSpecRound {

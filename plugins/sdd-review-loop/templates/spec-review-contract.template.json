@@ -6,6 +6,7 @@
   "round": 1,
   "requirements_sha256": "<sha256>",
   "acceptance_sha256": "<sha256>",
+  "investigation_sha256": "<sha256-or-null>",
   "reviewers": [
     {
       "role": "spec-reviewer-a",
@@ -13,6 +14,7 @@
       "host_session_id": "<distinct-host-session-id>",
       "allowed_input_manifest": [
         {"path": "<canonical-path-to-reviewed-input>", "sha256": "<sha256>"},
+        {"path": "<canonical-path-to-specs/<feature-slug>/investigation.md>", "sha256": "<sha256>"},
         {"path": "<canonical-path-to-plugins/sdd-review-loop/references/spec-review-calibration.md>", "sha256": "<sha256>"}
       ]
     },
@@ -22,6 +24,7 @@
       "host_session_id": "<distinct-host-session-id>",
       "allowed_input_manifest": [
         {"path": "<canonical-path-to-reviewed-input>", "sha256": "<sha256>"},
+        {"path": "<canonical-path-to-specs/<feature-slug>/investigation.md>", "sha256": "<sha256>"},
         {"path": "<canonical-path-to-plugins/sdd-review-loop/references/spec-review-calibration.md>", "sha256": "<sha256>"}
       ]
     }

@@ -684,23 +684,28 @@ _loop_emit_spec_round_a() {
      reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
     > "${round_dir}/integrated-summary.json" || return 1
 
-  local requirements_path acceptance_path precheck_path calibration_path
-  local requirements_sha acceptance_sha precheck_sha calibration_sha
+  local requirements_path acceptance_path investigation_path precheck_path calibration_path
+  local requirements_sha acceptance_sha investigation_sha precheck_sha calibration_sha
   requirements_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/requirements.md"
   acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/acceptance-tests.md"
+  investigation_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/investigation.md"
   precheck_path="${round_dir}/precheck-result.json"
   calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/spec-review-calibration.md"
   requirements_sha="$(_loop_sha256 "$requirements_path")"
   acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  investigation_sha=""
+  if [[ -f "$investigation_path" && ! -L "$investigation_path" ]]; then
+    investigation_sha="$(_loop_sha256 "$investigation_path")"
+  fi
   precheck_sha="$(_loop_sha256 "$precheck_path")"
   calibration_sha="$(_loop_sha256 "$calibration_path")"
 
   jq -n --arg result "$a_result" --arg severity "$check_severity" --arg verdict "$a_verdict" \
-    --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg precheck "$precheck_path" --arg calibration "$calibration_path" \
-    --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg precheck_sha "$precheck_sha" --arg calibration_sha "$calibration_sha" '
+    --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg calibration "$calibration_path" \
+    --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg investigation_sha "$investigation_sha" --arg precheck_sha "$precheck_sha" --arg calibration_sha "$calibration_sha" '
     ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
-     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],
+     allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),
      verdict:$verdict,
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${round_dir}/reviewer-a.json" || return 1
@@ -722,15 +727,20 @@ _loop_emit_spec_round_b_contract() {
     *) echo "_loop_emit_spec_round_b_contract: unknown severity: ${severity}" >&2; return 1 ;;
   esac
 
-  local requirements_path acceptance_path precheck_path calibration_path summary_path
-  local requirements_sha acceptance_sha precheck_sha calibration_sha summary_sha
+  local requirements_path acceptance_path investigation_path precheck_path calibration_path summary_path
+  local requirements_sha acceptance_sha investigation_sha precheck_sha calibration_sha summary_sha
   requirements_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/requirements.md"
   acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/acceptance-tests.md"
+  investigation_path="${LOOP_FIXTURE_ROOT}/specs/${LOOP_FIXTURE_FEATURE}/investigation.md"
   precheck_path="${round_dir}/precheck-result.json"
   calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/spec-review-calibration.md"
   summary_path="${round_dir}/integrated-summary.json"
   requirements_sha="$(_loop_sha256 "$requirements_path")"
   acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  investigation_sha=""
+  if [[ -f "$investigation_path" && ! -L "$investigation_path" ]]; then
+    investigation_sha="$(_loop_sha256 "$investigation_path")"
+  fi
   precheck_sha="$(_loop_sha256 "$precheck_path")"
   calibration_sha="$(_loop_sha256 "$calibration_path")"
   summary_sha="$(_loop_sha256 "$summary_path")"
@@ -742,29 +752,31 @@ _loop_emit_spec_round_b_contract() {
      finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
     > "${round_dir}/integrated-verdict.json" || return 1
 
-  jq -n --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg precheck "$precheck_path" --arg summary "$summary_path" \
-    --arg calibration "$calibration_path" --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" \
+  jq -n --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg summary "$summary_path" \
+    --arg calibration "$calibration_path" --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg investigation_sha "$investigation_sha" \
     --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" '
     ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
-     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],
+     allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),
      verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
     > "${round_dir}/reviewer-b.json" || return 1
 
   jq -n --arg feature "$LOOP_FIXTURE_FEATURE" --arg verdict "$verdict" \
-    --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
+    --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg investigation_sha256 "$investigation_sha" \
     --argjson round "$round" --argjson warning "$warning" \
-    --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg precheck "$precheck_path" --arg summary "$summary_path" --arg calibration "$calibration_path" \
+    --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg summary "$summary_path" --arg calibration "$calibration_path" \
     --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" '
-    {schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
+    ({schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
       {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}
+        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}
       ]},
       {role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}
+        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}
       ]}
-    ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}' \
+    ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}
+    + (if $investigation_sha256 == "" then {} else {investigation_sha256:$investigation_sha256} end)
+    | .reviewers |= map(.allowed_input_manifest += (if $investigation_sha256 == "" then [] else [{path:$investigation,sha256:$investigation_sha256}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}] + (if .role == "spec-reviewer-b" then [{path:$summary,sha256:$summary_sha}] else [] end)))' \
     > "${round_dir}/spec-review-contract.json" || return 1
 
   return 0
@@ -773,21 +785,31 @@ _loop_emit_spec_round_b_contract() {
 _loop_spec_manifest_a() {
   local round_dir="$1" round_rel
   round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
-  _loop_manifest_array \
+  local investigation_rel="specs/${LOOP_FIXTURE_FEATURE}/investigation.md"
+  local entries=( \
     "specs/${LOOP_FIXTURE_FEATURE}/requirements.md" \
     "specs/${LOOP_FIXTURE_FEATURE}/acceptance-tests.md" \
     "plugins/sdd-review-loop/references/spec-review-calibration.md" \
-    "${round_rel}/precheck-result.json"
+    "${round_rel}/precheck-result.json" )
+  if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
+    entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" )
+  fi
+  _loop_manifest_array "${entries[@]}"
 }
 _loop_spec_manifest_b() {
   local round_dir="$1" round_rel
   round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
-  _loop_manifest_array \
+  local investigation_rel="specs/${LOOP_FIXTURE_FEATURE}/investigation.md"
+  local entries=( \
     "specs/${LOOP_FIXTURE_FEATURE}/requirements.md" \
     "specs/${LOOP_FIXTURE_FEATURE}/acceptance-tests.md" \
     "plugins/sdd-review-loop/references/spec-review-calibration.md" \
     "${round_rel}/precheck-result.json" \
-    "${round_rel}/integrated-summary.json"
+    "${round_rel}/integrated-summary.json" )
+  if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
+    entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" "${entries[4]}" )
+  fi
+  _loop_manifest_array "${entries[@]}"
 }
 
 _loop_drive_spec_round() {
