@@ -17,6 +17,11 @@ dispatcher runs the same scripts; POSIX jobs retain the original steps.
 - The new dispatcher was run locally with PowerShell 7.6.2 using
   `-Lane all`; governance, capability, ownership, and lite all passed and the
   process exited 0.
+- The PowerShell bump-version prerequisite now creates one tracked-file
+  `git archive` snapshot and extracts isolated fixtures from it; the prior
+  per-case recursive checkout copies were removed. The Bash suite still runs
+  unchanged. PowerShell 7.6.2 reported `12 passed, 0 failed`, and the Bash
+  suite reported `18 passed, 0 failed` after the change.
 - `tests/human-copy-mirror-freshness.tests.sh`: 6 passed, 0 failed, 21
   pending informational.
 - `git diff --check`: passed.
@@ -24,8 +29,8 @@ dispatcher runs the same scripts; POSIX jobs retain the original steps.
 ## Protected-file note
 
 The live `.github/workflows/test.yml` is protected by the repository gate. The
-candidate workflow is therefore staged at
+staged payload at
 `specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml` and
-its digest is updated in the adjacent `MANIFEST.sha256`. A human must apply
-that staged payload with the feature-scoped runner before the new Windows CI
-dispatcher can run on GitHub.
+its adjacent `MANIFEST.sha256` were applied by the human-copy runner in commit
+`998c280a`; the live and staged workflow digests now match. The subsequent
+GitHub run is the authoritative check for the dispatcher.

@@ -26,6 +26,52 @@ $cleanupRoots = New-Object System.Collections.Generic.List[string]
 $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $bashCmd = Get-Command bash -ErrorAction SilentlyContinue
 
+# Build one immutable tracked-file snapshot for all three fixture cases.  The
+# previous implementation recursively copied the whole checkout for every
+# case; on Windows that repeated filesystem walk dominated this gate.  The
+# archive is created once and each case extracts it into its own isolated
+# directory, so test isolation and the git baseline remain unchanged.
+$script:fixtureArchive = $null
+function New-FixtureArchive {
+    $archive = Join-Path ([IO.Path]::GetTempPath()) ("bump-version-gate-" + [Guid]::NewGuid().ToString("N") + ".tar")
+    & git -C $repoRoot archive --format=tar --output=$archive HEAD
+    if ($LASTEXITCODE -ne 0) { throw "git archive failed for $repoRoot" }
+    $archiveItem = Get-Item -LiteralPath $archive -ErrorAction Stop
+    if (-not $archiveItem.PSIsContainer -and $archiveItem.Length -gt 0) {
+        return $archive
+    }
+    throw "git archive produced an empty archive: $archive"
+}
+
+function Expand-FixtureArchive {
+    param([string]$Destination)
+    $tar = Get-Command tar -ErrorAction SilentlyContinue
+    if (-not $tar) {
+        # Keep the suite runnable on hosts without tar; Windows CI has tar
+        # (Git for Windows), so the optimized path is used there.
+        Get-ChildItem -LiteralPath $repoRoot -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+        }
+        Remove-Item -LiteralPath (Join-Path $Destination ".git") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        return
+    }
+    & $tar.Source -xf $script:fixtureArchive -C $Destination
+    if ($LASTEXITCODE -ne 0) {
+        # A host tar may reject a repository symlink without the privilege to
+        # recreate it.  Fall back to the pre-existing copy path rather than
+        # weakening the fixture or leaving a partially extracted tree.
+        Get-ChildItem -LiteralPath $Destination -Force | Remove-Item -Recurse -Force
+        Get-ChildItem -LiteralPath $repoRoot -Force | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+        }
+        Remove-Item -LiteralPath (Join-Path $Destination ".git") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath (Join-Path $Destination "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # New-Fixture -Label <label> — filesystem-copies the real repository
 # (excluding .git and the two mcp/*/node_modules trees, which neither
 # bump-version.sh nor either loop suite touches, for suite speed) into a
@@ -42,10 +88,8 @@ function New-Fixture {
     $cleanupRoots.Add($tempRoot)
 
     $fixtureRoot = Join-Path $tempRoot "repository"
-    Copy-Item -LiteralPath $repoRoot -Destination $fixtureRoot -Recurse -Force
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot ".git") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/sdd-forge-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $fixtureRoot -Force | Out-Null
+    Expand-FixtureArchive -Destination $fixtureRoot
 
     $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
     # core.longpaths=true: the fixture root already sits under a generated
@@ -421,6 +465,8 @@ function Test-006 {
 # Run
 # ---------------------------------------------------------------------------
 try {
+    $script:fixtureArchive = New-FixtureArchive
+    $cleanupRoots.Add((Split-Path -Parent $script:fixtureArchive))
     Test-001
     Test-002
     Test-003
