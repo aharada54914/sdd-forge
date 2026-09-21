@@ -1638,12 +1638,50 @@ function Test-TargetPathIsSddSudo {
 
 function Test-ShellTargetsSddSudo {
     param([string]$Cmd)
-    # C-02: Return True if shell command targets SDD_SUDO file for write/delete.
+    # C-02: Return true only when a write/delete targets SDD_SUDO.
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
-    # Check if SDD_SUDO appears in the command (case-insensitive).
-    if (-not $Cmd.ToLower().Contains("sdd_sudo")) { return $false }
-    # Check if there's a write operator or destructive verb.
-    return [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $escaped = [regex]::Escape("SDD_SUDO")
+    if ([regex]::IsMatch($Cmd, "(?:>>?|\b(?:tee|touch|rm|cp|mv|set-content|out-file|new-item|remove-item)\b)\s*(?:[^;&|\n]*?\s)?(?:[^;&|\n]*[/\\])?$escaped(?![A-Za-z0-9_])", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)) { return $true }
+    $tokens = Tokenize-ShellCommand $Cmd
+    if ($null -ne $tokens) {
+        $segments = New-Object System.Collections.Generic.List[object]
+        $words = New-Object System.Collections.Generic.List[string]
+        foreach ($token in $tokens) {
+            if ($token[0] -eq 'sep') {
+                if ($words.Count -gt 0) { $segments.Add(@($words)); $words = New-Object System.Collections.Generic.List[string] }
+            } else { $words.Add([string]$token[1]) }
+        }
+        if ($words.Count -gt 0) { $segments.Add(@($words)) }
+        foreach ($segment in $segments) {
+            $plain = New-Object System.Collections.Generic.List[string]
+            for ($k = 0; $k -lt $segment.Count; $k++) {
+                $word = [string]$segment[$k]
+                if ($word.Contains('>')) {
+                    $match = [regex]::Match($word, $ShellRedirectTokenRe)
+                    if ($match.Success) {
+                        $rest = $match.Groups[2].Value
+                        if ($rest -eq '') { $k++; if ($k -lt $segment.Count -and (Test-TargetPathIsSddSudo $segment[$k])) { return $true } }
+                        elseif (-not $rest.StartsWith('&') -and (Test-TargetPathIsSddSudo $rest)) { return $true }
+                    }
+                }
+                $plain.Add($word)
+            }
+            for ($i = 0; $i -lt $plain.Count; $i++) {
+                $base = Get-ShellTokenBasename $plain[$i]
+                $args = @($plain | Select-Object -Skip ($i + 1) | Where-Object { -not $_.StartsWith('-') })
+                if ($ShellWriteArgCmds -contains $base -or $ShellPsWriteCmds -contains $base) {
+                    if (@($args | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
+                } elseif ($ShellWriteDestCmds -contains $base) {
+                    if ($args.Count -ge 2 -and (Test-TargetPathIsSddSudo $args[-1])) { return $true }
+                } elseif ($ShellIndirectCmds -contains $base) {
+                    if (@($plain | Select-Object -Skip ($i + 1) | Where-Object { Test-TargetPathIsSddSudo $_ }).Count -gt 0) { return $true }
+                }
+            }
+        }
+        return $false
+    }
+    $escaped = [regex]::Escape("SDD_SUDO")
+    return [regex]::IsMatch($Cmd, "(?:>>?|\b(?:tee|touch|rm|cp|mv|set-content|out-file|new-item|remove-item)\b)\s*(?:[^;&|\n]*?\s)?(?:[^;&|\n]*[/\\])?$escaped(?![A-Za-z0-9_])", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 }
 
 function Test-AgentRoleInvalid {

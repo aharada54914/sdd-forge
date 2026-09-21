@@ -886,6 +886,27 @@ for wfi048_case in \
         "$(wfi048_payload "${wfi048_case}")"
 done
 
+
+# ---------------------------------------------------------------------------
+# WFI-061: consent-token false-positive regression and write/delete guardrail.
+# ---------------------------------------------------------------------------
+parity_check "wfi061 grep prose mentioning token and Write (allow)" 0 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -n 'Write the SDD_SUDO file' plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md\"}}"
+parity_check "wfi061 key provisioning script mentions env vars (allow)" 0 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"python3 provision_key.py SDD_SUDO_KEY SDD_SUDO_KEY_FILE\"}}"
+parity_check "wfi061 read-only skill inspection (allow)" 0 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"sed -n '1,20p' plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md\"}}"
+parity_check "wfi061 redirect exact target (deny)" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"printf x > /tmp/SDD_SUDO\"}}"
+parity_check "wfi061 rm exact target (deny)" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"rm /tmp/SDD_SUDO\"}}"
+parity_check "wfi061 mv exact target (deny)" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"mv /tmp/source /tmp/SDD_SUDO\"}}"
+parity_check "wfi061 tee exact target (deny)" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"tee /tmp/SDD_SUDO\"}}"
+parity_check "wfi061 file tool exact target (deny)" 2 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"/tmp/SDD_SUDO\",\"content\":\"x\"}}"
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
