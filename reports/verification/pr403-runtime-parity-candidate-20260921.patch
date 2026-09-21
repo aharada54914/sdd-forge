@@ -1,0 +1,157 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+@@ -171,7 +171,11 @@
+     $hasher = [System.Security.Cryptography.SHA256]::Create()
+     $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+ 
+-    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
++    $dirtyValue = $Bundle.git_generated_dirty
++    if ($dirtyValue -isnot [bool]) {
++        throw "git_generated_dirty must be a JSON boolean"
++    }
++    $dirty = if ($dirtyValue) { "true" } else { "false" }
+     $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+ 
+     $lines = @(
+@@ -196,6 +200,8 @@
+ $verificationContract = $bundle.verification_contract
+ $gitCommit = $bundle.git_commit
+ $gitGeneratedDirty = $bundle.git_generated_dirty
++$gitGeneratedDirtyIsBool = $gitGeneratedDirty -is [bool]
++$gitGeneratedDirtyIsTrue = $gitGeneratedDirtyIsBool -and $gitGeneratedDirty
+ $artifacts = @()
+ 
+ if ($taskId -notmatch '^T-\d+$') {
+@@ -413,7 +419,9 @@
+ 
+ # Critical-only signature verification (T-007a)
+ if ($effectiveRisk -eq "critical") {
+-    if ($gitGeneratedDirty -eq $true) {
++    if (-not $gitGeneratedDirtyIsBool) {
++        Add-Failure "git_generated_dirty must be a JSON boolean"
++    } elseif ($gitGeneratedDirtyIsTrue) {
+         Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
+     }
+     $signature = $bundle.signature
+@@ -425,18 +433,20 @@
+         if ([string]::IsNullOrWhiteSpace($alg) -or [string]::IsNullOrWhiteSpace($value)) {
+             Add-Failure "critical bundle signature requires non-empty alg and value"
+         } elseif ($alg -eq "hmac-sha256") {
+-            $keyInfo = Resolve-EvidenceKey
+-            if ($null -eq $keyInfo) {
+-                Add-Failure "critical bundle signature cannot be verified: no evidence key available"
+-            } else {
+-                $canonical = Get-EvidenceCanonical -Bundle $bundle
+-                $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+-                # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
+-                $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
+-                $expectedBytes = $hmac.ComputeHash($canonicalBytes)
+-                $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+-                if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
+-                    Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
++            if ($gitGeneratedDirtyIsBool) {
++                $keyInfo = Resolve-EvidenceKey
++                if ($null -eq $keyInfo) {
++                    Add-Failure "critical bundle signature cannot be verified: no evidence key available"
++                } else {
++                    $canonical = Get-EvidenceCanonical -Bundle $bundle
++                    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
++                    # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
++                    $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
++                    $expectedBytes = $hmac.ComputeHash($canonicalBytes)
++                    $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
++                    if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
++                        Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
++                    }
+                 }
+             }
+         } elseif ($alg -eq "sigstore") {
+@@ -450,7 +460,7 @@
+     }
+ }
+ 
+-if ($gitGeneratedDirty -eq $true) {
++if ($gitGeneratedDirtyIsTrue) {
+     Write-Host "WARNING: evidence bundle for task ${taskId} was generated with a dirty working tree"
+ }
+ 
+diff --git a/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1 b/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1
+--- a/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1
++++ b/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1
+@@ -385,7 +385,11 @@
+     $hasher = [System.Security.Cryptography.SHA256]::Create()
+     $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+ 
+-    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
++    $dirtyValue = $Bundle.git_generated_dirty
++    if ($dirtyValue -isnot [bool]) {
++        throw "git_generated_dirty must be a JSON boolean"
++    }
++    $dirty = if ($dirtyValue) { "true" } else { "false" }
+     $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+ 
+     $lines = @(
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@ -67,7 +67,7 @@
+         $status[$currentTask] = $Matches[1].Trim()
+         $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^Risk:\s*(.+)$') {
+-        $risk[$currentTask] = $Matches[1].Trim().ToLower()
++        $risk[$currentTask] = $Matches[1].Trim().ToLowerInvariant()
+         $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
+         $second[$currentTask] = $Matches[1].Trim()
+@@ -79,7 +79,7 @@
+     } elseif ($currentTask -and $inBlockers) {
+         # Collect non-trivial blocker content
+         $stripped = $line -replace '^[\s\-\*]+', '' -replace '^\s+', ''
+-        if ($stripped -ne "" -and $stripped.ToLower() -ne "none") {
++        if ($stripped -ne "" -and $stripped.ToLowerInvariant() -ne "none") {
+             $blockers[$currentTask] += $stripped
+         }
+     }
+@@ -178,16 +178,16 @@
+             if ($primId -eq "") {
+                 $failures += "$task is critical Done but primary Approval lacks a named approver (need 'Approved (<id> <ISO>)')"
+             }
+-            if ($primId.ToLower() -eq "sudo") {
++            if ($primId.ToLowerInvariant() -eq "sudo") {
+                 $failures += "$task is critical Done but primary approver is 'sudo'; critical requires a named human approver"
+             }
+             if ($secValue -eq "" -or $secId -eq "") {
+                 $failures += "$task is critical Done but Second Approval is missing or not a named 'Approved (<id> <ISO>)'"
+             }
+-            if ($secId.ToLower() -eq "sudo") {
++            if ($secId.ToLowerInvariant() -eq "sudo") {
+                 $failures += "$task is critical Done but Second Approval approver is 'sudo'; critical requires a named human second approver"
+             }
+-            if ($primId -ne "" -and $primId.ToLower() -eq $secId.ToLower()) {
++            if ($primId -ne "" -and $primId.ToLowerInvariant() -eq $secId.ToLowerInvariant()) {
+                 $failures += "$task is critical Done but both approvals are by the same approver '$primId'; two distinct approvers required"
+             }
+         }
+diff --git a/tests/scripts.tests.ps1 b/tests/scripts.tests.ps1
+--- a/tests/scripts.tests.ps1
++++ b/tests/scripts.tests.ps1
+@@ -2351,6 +2351,18 @@
+         throw "T-007a.7: should fail with dirty tree. Got exit $t007a_check_7_exit"
+     }
+     Write-Host "ok: T-007a.7: critical with dirty tree fails"
++
++    # T-007a.7b: reject a non-boolean dirty marker before signature verification.
++    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
++    $t007a_bundle_json.git_generated_dirty = "false"
++    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
++    $t007a_check_7b_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
++    $t007a_check_7b_exit = $LASTEXITCODE
++    $t007a_check_7b_str = ($t007a_check_7b_output | Out-String)
++    if ($t007a_check_7b_exit -eq 0 -or $t007a_check_7b_str -notmatch "git_generated_dirty must be a JSON boolean") {
++        throw "T-007a.7b: non-boolean dirty marker should fail closed. Got exit $t007a_check_7b_exit. Output: $t007a_check_7b_str"
++    }
++    Write-Host "ok: T-007a.7b: non-boolean dirty marker fails closed"
+ 
+     # Restore bundle
+     $t007a_regen_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
