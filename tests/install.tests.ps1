@@ -221,7 +221,7 @@ function New-ArchiveFixture {
     $archiveSource = Join-Path $archiveRoot "repo"
     $archivePath = Join-Path $archiveRoot "source.tar.gz"
     New-Item -ItemType Directory -Path $archiveSource -Force | Out-Null
-    $trackedFiles = & git -C $SourceRoot ls-files
+    $trackedFiles = & git -c core.quotePath=false -C $SourceRoot ls-files
     if ($LASTEXITCODE -ne 0) {
         throw "Unable to enumerate tracked fixture files."
     }
