@@ -2,4 +2,4 @@
 f627ab50b85a2855b7a65bece51948723a5b6a3ecdfb41f0122eb90d8348ff3c  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
 40103332af2ad71f7effe873f0a118bceed32299c54710cc4f9b54a40aae3a5d  plugins/sdd-lite/references/risk-upgrade-policy.md
 52d428aad3af3eabf65a6ba1380aa1cab3b5a8dc4b029a3c056557041ff81cd6  plugins/sdd-lite/skills/lite-spec/SKILL.md
-2f2ca52697fe5f01019ac4d0120a8735dbe3aed4e2bbd733281fc2ee633e06b9  .github/workflows/test.yml
+3e87e82f11894aef293ea6be4bbf96a56ad4669a39e0c9a01fd16f5500d4a5a8  .github/workflows/test.yml

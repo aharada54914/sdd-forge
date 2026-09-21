@@ -162,6 +162,7 @@ jobs:
         run: ./tests/repository-release-validation.tests.sh
 
       - name: "[deterministic] Test deterministic gate scripts"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
@@ -178,6 +179,7 @@ jobs:
         run: bash ./tests/quality-gate-cycle-limit.tests.sh
 
       - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
@@ -186,6 +188,7 @@ jobs:
           ./tests/task-layer-review-inputs.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
 
@@ -200,6 +203,7 @@ jobs:
         run: bash ./tests/phase2-guard-invariants.tests.sh
 
       - name: "[deterministic] Test hook guards"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
@@ -231,10 +235,6 @@ jobs:
         run: |
           bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
 
-      - name: "[deterministic] Test panelist-input consent gate (pwsh)"
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/prepare-panelist.tests.ps1
 
       - name: "[deterministic] Test portable review-loop prechecks (bash)"
         if: runner.os != 'Windows'
@@ -1317,7 +1317,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1325,6 +1325,10 @@ jobs:
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-windows-heavy.result }}" != "success" ]; then
+            echo "test-windows-heavy job failed"
             exit 1
           fi
           if [ "${{ needs.installers.result }}" != "success" ]; then
@@ -1360,3 +1364,33 @@ jobs:
             exit 1
           fi
           echo "all required checks passed"
+  # Keep the Windows-only deterministic suites in a parallel job.
+  # Their assertions remain required by required-checks.
+  test-windows-heavy:
+    name: test-windows-heavy
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: "[deterministic] Setup step 1"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: "[deterministic] Test deterministic gate scripts"
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+      - name: "[deterministic] Test portable review-loop prechecks"
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
+      - name: "[deterministic] Test cross-model gate"
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+      - name: "[deterministic] Test hook guards"
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+      - name: "[deterministic] Test panelist-input consent gate"
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1
