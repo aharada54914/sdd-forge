@@ -33,6 +33,10 @@ $script:failCount = 0
 function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
 
+function ConvertTo-PsLiteral([string]$Value) {
+    return "'" + $Value.Replace("'", "''") + "'"
+}
+
 function Invoke-ResolverRaw {
     # Spawn a real pwsh subprocess and read its pipes as UTF-8 bytes before
     # decoding.  Capturing native output through `& ... 2>&1` lets the
@@ -50,7 +54,17 @@ function Invoke-ResolverRaw {
     $startInfo.RedirectStandardError = $true
     $startInfo.StandardOutputEncoding = [System.Text.UTF8Encoding]::new($false)
     $startInfo.StandardErrorEncoding = [System.Text.UTF8Encoding]::new($false)
-    foreach ($arg in @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $scriptPs1) + $CliArgs) {
+    $commandArgs = ($CliArgs | ForEach-Object {
+        if ($_ -match '^-?[A-Za-z][A-Za-z0-9]*$' -and $_ -like '-*') { $_ }
+        else { ConvertTo-PsLiteral $_ }
+    }) -join ' '
+    $utf8Command = @(
+        '$utf8 = [System.Text.UTF8Encoding]::new($false)'
+        '$OutputEncoding = $utf8'
+        '[Console]::OutputEncoding = $utf8'
+        '& ' + (ConvertTo-PsLiteral $scriptPs1) + ' ' + $commandArgs
+    ) -join '; '
+    foreach ($arg in @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $utf8Command)) {
         [void]$startInfo.ArgumentList.Add([string]$arg)
     }
     $process = [System.Diagnostics.Process]::new()
@@ -61,6 +75,8 @@ function Invoke-ResolverRaw {
     $process.WaitForExit()
     [System.Threading.Tasks.Task]::WaitAll(@($stdoutTask, $stderrTask))
     $out = $stdoutTask.Result + $stderrTask.Result
+    $ansiPattern = [string][char]27 + '\\[[0-?]*[ -/]*[@-~]'
+    $out = [regex]::Replace($out, $ansiPattern, '')
     $flattened = $out -replace '\s+', ' '
     # ConciseView also inserts a literal " | " gutter marker at each wrapped
     # continuation line (e.g. "...an empty | paths.include list" for a
