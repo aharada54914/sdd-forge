@@ -1735,17 +1735,68 @@ def _target_path_is_sdd_sudo(file_path):
 
 
 def _shell_targets_sdd_sudo(cmd):
-    """C-02: Return True if shell command targets SDD_SUDO file for write/delete."""
+    """C-02: Return True only when a write/delete targets SDD_SUDO."""
     if not isinstance(cmd, str):
         return False
-    # Check if SDD_SUDO appears in the command (case-insensitive).
-    if SDD_SUDO_NAME.lower() not in cmd.lower():
-        return False
-    # Check if there's a write operator or destructive verb.
-    if SHELL_SUDO_WRITE_RE.search(cmd):
-        return True
-    return False
 
+    def is_target(word):
+        normalized = str(word).replace("\\", "/").rstrip(",;:)")
+        return bool(normalized) and normalized.rsplit("/", 1)[-1].lower() == SDD_SUDO_NAME.lower()
+
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is not None:
+        segments, words = [], []
+        for kind, text in tokens:
+            if kind == "sep":
+                if words:
+                    segments.append(words)
+                    words = []
+            else:
+                words.append(text)
+        if words:
+            segments.append(words)
+        for segment in segments:
+            plain = []
+            k = 0
+            while k < len(segment):
+                word = segment[k]
+                if ">" in word:
+                    match = _SHELL_REDIRECT_TOKEN_RE.match(word)
+                    if match:
+                        rest = match.group(2)
+                        if rest == "":
+                            k += 1
+                            if k < len(segment) and is_target(segment[k]):
+                                return True
+                        elif not rest.startswith("&") and is_target(rest):
+                            return True
+                plain.append(word)
+                k += 1
+            bases = [_shell_token_basename(word) for word in plain]
+            for index, base in enumerate(bases):
+                args = [arg for arg in plain[index + 1:] if not arg.startswith("-")]
+                if base in _SHELL_WRITE_ARG_CMDS or base in _SHELL_PS_WRITE_CMDS:
+                    if any(is_target(arg) for arg in args):
+                        return True
+                elif base in _SHELL_WRITE_DEST_CMDS:
+                    if len(args) >= 2 and is_target(args[-1]):
+                        return True
+                elif base in _SHELL_INDIRECT_CMDS:
+                    # Interpreters and git subcommands may hide the write verb;
+                    # an exact target token in the same segment remains denied.
+                    if any(is_target(arg) for arg in plain[index + 1:]):
+                        return True
+        return False
+
+    # Unparseable syntax stays fail-closed only for a word-bounded target
+    # adjacent to a write operator/verb; unrelated prose cannot trigger it.
+    target = re.escape(SDD_SUDO_NAME)
+    return bool(re.search(
+        rf"(?:>>?|\b(?:tee|touch|rm|cp|mv|set-content|out-file|new-item|remove-item)\b)"
+        rf"\s*(?:[^;&|\n]*?\s)?(?:[./\\]{{0,2}})?{target}(?![A-Za-z0-9_])",
+        cmd,
+        re.IGNORECASE,
+    ))
 
 def payload_is_malformed(payload):
     """Return True if required fields for the tool type are missing or empty."""

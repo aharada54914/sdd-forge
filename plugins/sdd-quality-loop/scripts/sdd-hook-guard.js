@@ -1227,17 +1227,58 @@ function targetPathIsSddSudo(filePath) {
 }
 
 function shellTargetsSddSudo(cmd) {
-  // C-02: Return True if shell command targets SDD_SUDO file for write/delete.
+  // C-02: Return true only when a write/delete targets SDD_SUDO.
   if (typeof cmd !== 'string') return false;
-  // Check if SDD_SUDO appears in the command (case-insensitive).
-  if (!cmd.toLowerCase().includes(SDD_SUDO_NAME.toLowerCase())) {
+  const isTarget = word => {
+    const normalized = String(word).replace(/\\/g, '/').replace(/[,;:)]+$/, '');
+    return normalized && normalized.split('/').pop().toLowerCase() === SDD_SUDO_NAME.toLowerCase();
+  };
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens !== null) {
+    const segments = [];
+    let words = [];
+    for (const [kind, text] of tokens) {
+      if (kind === 'sep') {
+        if (words.length) { segments.push(words); words = []; }
+      } else words.push(text);
+    }
+    if (words.length) segments.push(words);
+    for (const segment of segments) {
+      const plain = [];
+      for (let k = 0; k < segment.length; k++) {
+        const word = segment[k];
+        if (word.includes('>')) {
+          const match = word.match(SHELL_REDIRECT_TOKEN_RE);
+          if (match) {
+            const rest = match[2];
+            if (rest === '') {
+              k++;
+              if (k < segment.length && isTarget(segment[k])) return true;
+            } else if (!rest.startsWith('&') && isTarget(rest)) return true;
+          }
+        }
+        plain.push(word);
+      }
+      const bases = plain.map(shellTokenBasename);
+      for (let index = 0; index < bases.length; index++) {
+        const base = bases[index];
+        const args = plain.slice(index + 1).filter(arg => !arg.startsWith('-'));
+        if (SHELL_WRITE_ARG_CMDS.includes(base) || SHELL_PS_WRITE_CMDS.includes(base)) {
+          if (args.some(isTarget)) return true;
+        } else if (SHELL_WRITE_DEST_CMDS.includes(base)) {
+          if (args.length >= 2 && isTarget(args[args.length - 1])) return true;
+        } else if (SHELL_INDIRECT_CMDS.includes(base)) {
+          if (plain.slice(index + 1).some(isTarget)) return true;
+        }
+      }
+    }
     return false;
   }
-  // Check if there's a write operator or destructive verb.
-  if (SHELL_SUDO_WRITE_RE.test(cmd)) {
-    return true;
-  }
-  return false;
+  const target = SDD_SUDO_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(
+    '(?:>>?|\\b(?:tee|touch|rm|cp|mv|set-content|out-file|new-item|remove-item)\\b)' +
+    '\\s*(?:[^;&|\\n]*?\\s)?(?:[./\\\\]{0,2})?' + target + '(?![A-Za-z0-9_])', 'i'
+  ).test(cmd);
 }
 
 function payloadIsMalformed(payload) {
