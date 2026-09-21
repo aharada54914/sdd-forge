@@ -225,19 +225,21 @@ function New-ArchiveFixture {
     )
 
     $archiveRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-archive-" + [guid]::NewGuid())
-    $archiveSource = Join-Path $archiveRoot "repo"
     $archivePath = Join-Path $archiveRoot "source.tar.gz"
-    New-Item -ItemType Directory -Path $archiveSource -Force | Out-Null
-    $trackedFiles = & git -c core.quotePath=false -C $SourceRoot ls-files
-    if ($LASTEXITCODE -ne 0) {
-        throw "Unable to enumerate tracked fixture files."
+    New-Item -ItemType Directory -Path $archiveRoot -Force | Out-Null
+
+    # Let Git write the archive so path quoting/encoding never crosses a
+    # PowerShell string boundary (notably for decomposed Unicode names on
+    # Windows). Keep archive creation and extraction as separate checked
+    # steps; a failed archive must not be mistaken for an empty fixture.
+    & git -C $SourceRoot archive --format=tar.gz "--prefix=repo/" "--output=$archivePath" HEAD
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
+        throw "Unable to create tracked fixture archive."
     }
-    foreach ($relativePath in $trackedFiles) {
-        $destination = Join-Path $archiveSource $relativePath
-        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-        Copy-Item -LiteralPath (Join-Path $SourceRoot $relativePath) -Destination $destination -Force
+    & tar -xzf $archivePath -C $archiveRoot
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
+        throw "Unable to extract tracked fixture archive."
     }
-    & tar -czf $archivePath -C $archiveRoot "repo"
     return $archivePath
 }
 
