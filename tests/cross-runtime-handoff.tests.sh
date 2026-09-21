@@ -104,6 +104,8 @@ assert source1.read_bytes() == expected1, 'handoff-01 initial bytes differ from 
 assert source2.read_bytes() == expected2, 'handoff-02 initial bytes differ from contract'
 allow = json.loads(allowlist_path.read_text(encoding='utf-8'))
 assert allow['schema'] == 'a8-skip-allowlist/v1'
+ac006_entries = [entry for entry in allow['entries'] if entry.get('case_id') == 'AC-006']
+assert len(ac006_entries) == 1, 'AC-006 must have exactly one allowlist entry'
 entries = {entry['case_id']: entry for entry in allow['entries']}
 assert {'AC-006', 'AC-015', 'AC-016'} <= set(entries)
 assert '#189' in entries['AC-006']['reason'] and '#187' in entries['AC-006']['reason']
@@ -143,6 +145,8 @@ fi
 python3 - "$allowlist" <<'PY' || fail "invalid AC-006 allowlist"
 import json, sys
 data=json.load(open(sys.argv[1], encoding="utf-8"))
+ac006_entries=[entry for entry in data.get("entries", []) if entry.get("case_id") == "AC-006"]
+assert len(ac006_entries)==1, "AC-006 must have exactly one allowlist entry"
 entries={entry.get("case_id"): entry for entry in data.get("entries", [])}
 assert data.get("schema")=="a8-skip-allowlist/v1"
 assert {"AC-006", "AC-015", "AC-016"} <= set(entries)

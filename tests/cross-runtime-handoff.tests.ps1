@@ -74,6 +74,8 @@ function Invoke-ContractSelfTest {
     if ([Convert]::ToBase64String([IO.File]::ReadAllBytes($two)) -cne [Convert]::ToBase64String($expectedTwo)) { Stop-Test 'handoff-02 initial bytes differ from contract' }
     $contract = Get-Content -LiteralPath $allowlist -Raw | ConvertFrom-Json
     if ($contract.schema -cne 'a8-skip-allowlist/v1') { Stop-Test 'invalid A8 skip allowlist schema' }
+    $ac006Entries = @($contract.entries | Where-Object { $_.case_id -ceq 'AC-006' })
+    if ($ac006Entries.Count -ne 1) { Stop-Test 'AC-006 must have exactly one allowlist entry' }
     $entries = @{}
     foreach ($entry in @($contract.entries)) { $entries[$entry.case_id] = $entry }
     foreach ($caseId in @('AC-006', 'AC-015', 'AC-016')) {
