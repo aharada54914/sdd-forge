@@ -544,7 +544,10 @@ function Test-006 {
 # ---------------------------------------------------------------------------
 try {
     $script:fixtureArchive = New-FixtureArchive
-    $cleanupRoots.Add((Split-Path -Parent $script:fixtureArchive))
+    # Keep cleanup roots disjoint: the shared fixture lives under the system
+    # temp directory, so registering the archive's parent would make the
+    # fixture root a nested second deletion target.
+    $cleanupRoots.Add($script:fixtureArchive)
     $script:fixtureRoot = New-Fixture -Label "shared"
     Set-FixtureBaseline -FixtureRoot $script:fixtureRoot
     Test-001
