@@ -59,6 +59,7 @@ spec_dir="${repo_root}/specs/${feature}"
 requirements="${spec_dir}/requirements.md"
 acceptance="${spec_dir}/acceptance-tests.md"
 calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibration.md"
+investigation="${spec_dir}/investigation.md"
 report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
 
@@ -128,6 +129,9 @@ recorded_repo_root() {
 [[ "$(canonical_dir "$spec_dir")" == "$spec_dir" ]] || fail "feature specification directory escapes repository"
 [[ -f "$requirements" && ! -L "$requirements" ]] || fail "requirements.md must be a regular non-symlink file"
 [[ -f "$acceptance" && ! -L "$acceptance" ]] || fail "acceptance-tests.md must be a regular non-symlink file"
+if [[ -e "$investigation" || -L "$investigation" ]]; then
+  [[ -f "$investigation" && ! -L "$investigation" ]] || fail "investigation.md must be a regular non-symlink file"
+fi
 [[ -f "$calibration" && ! -L "$calibration" ]] || fail "spec review calibration reference must be a regular non-symlink file"
 [[ -d "$reports_root" && ! -L "$reports_root" ]] || fail "reports root must be a real directory"
 [[ "$(canonical_dir "$reports_root")" == "$reports_root" ]] || fail "reports root escapes repository"
@@ -152,7 +156,13 @@ fi
 requirements_sha="$(sha256 "$requirements")"
 acceptance_sha="$(sha256 "$acceptance")"
 calibration_sha="$(sha256 "$calibration")"
-input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
+investigation_sha=""
+if [[ -f "$investigation" ]]; then investigation_sha="$(sha256 "$investigation")"; fi
+if [[ -n "$investigation_sha" ]]; then
+  input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"
+else
+  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
+fi
 
 validate_reviewer_output() {
   local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
@@ -218,22 +228,34 @@ validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
   local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
-  local recorded_root recorded_prefix
+  local recorded_root recorded_prefix prior_investigation_sha prior_recorded_root prior_recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
+  prior_investigation_sha="$(jq -r '.investigation_sha256 // empty' "$precheck")" || return 1
   recorded_root="$(recorded_repo_root "$contract")"
   [[ "$recorded_root" != "__INVALID__" ]] || return 1
   recorded_prefix="${recorded_root:+$recorded_root/}"
-  jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
-    type == "object" and keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
+  jq -e --arg feature "$feature" --arg current_investigation_sha "$prior_investigation_sha" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
+    type == "object" and
+    (if $current_investigation_sha == "" then
+       (keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] or
+        (keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == null))
+     else
+       keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == $current_investigation_sha
+     end) and
     .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
     (.requirements_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
+    (.investigation_sha256 == null or (.investigation_sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
     (.run_id | type == "string" and test("\\S")) and (.warningCount | type == "number" and . >= 0) and
     (.reviewers | type == "array" and length == 2 and ([.[].role] | sort) == ["spec-reviewer-a", "spec-reviewer-b"] and
       (([.[] | .host_session_id] | all(type == "string" and test("\\S"))) and ([.[] | .host_session_id] | unique | length == 2)) and
       all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))))))' "$contract" >/dev/null || return 1
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg requirements_sha "$(jq -r .requirements_sha256 "$contract")" --arg acceptance_sha "$(jq -r .acceptance_sha256 "$contract")" '
     .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha and
-    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
+    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
+    (.investigation_sha256 == null or (.investigation_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
+  contract_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$contract")"
+  precheck_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$precheck")"
+  [[ -z "$precheck_investigation_hash" || "$contract_investigation_hash" == "$precheck_investigation_hash" ]] || return 1
 
   round_dir="$(dirname "$contract")"
   summary="${round_dir}/integrated-summary.json"
@@ -289,6 +311,7 @@ validate_contract() {
     if length == 0 then "" elif length == 1 then .[0] else "__AMBIGUOUS__" end' "$contract")"
   if [[ -n "$investigation_hash" ]]; then
     is_sha256 "$investigation_hash" || return 1
+    [[ -z "$contract_investigation_hash" || "$contract_investigation_hash" == "$investigation_hash" ]] || return 1
     expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
   expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
@@ -342,7 +365,16 @@ if [[ "$round" -gt 1 ]]; then
     || fail "prior round contract is malformed or does not require work"
   prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
   prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
-  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
+  prior_investigation_sha="$(jq -r '.investigation_sha256 // empty' "$prior_contract")"
+  if [[ -z "$prior_investigation_sha" ]]; then
+    prior_recorded_root="$(recorded_repo_root "$prior_contract")"
+    [[ "$prior_recorded_root" != "__INVALID__" ]] || fail "prior round contract has an invalid recorded repository root"
+    prior_recorded_prefix="${prior_recorded_root:+$prior_recorded_root/}"
+    prior_investigation_sha="$(jq -r --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$prior_recorded_prefix" --arg target "$(relative_to_repo "$investigation")" "$jq_relative_path"'
+      [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $target) | .sha256] | unique |
+      if length == 1 then .[0] else "" end' "$prior_contract")"
+  fi
+  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" || "$investigation_sha" != "$prior_investigation_sha" ]] \
     || fail "reviewed inputs are unchanged from the prior round"
 fi
 
@@ -394,17 +426,19 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
   # and later validate_contract calls will actually see, never the pre-mutation
   # (Passed) bytes this same invocation just rewrote.
   requirements_sha="$(sha256 "$requirements")"
-  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
+  if [[ -n "$investigation_sha" ]]; then input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"; else input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"; fi
 fi
 
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+investigation_json='null'
+[[ -n "$investigation_sha" ]] && investigation_json="\"$investigation_sha\""
 jq -n \
   --arg schema "spec-review-precheck/v1" --arg feature "$feature" \
   --argjson attempt "$attempt" --argjson round "$round" \
   --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg calibration_sha256 "$calibration_sha" --arg input_sha256 "$input_sha" \
   --arg status "$status" --arg edit_summary "$edit_summary" --arg generated_at "$generated_at" \
-  --argjson reset "$reset" \
-  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at}' \
+  --argjson reset "$reset" --argjson investigation_sha256 "$investigation_json" \
+  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at}' \
   > "${report_dir}/precheck-result.json"
 
 echo "spec-review-precheck: complete. Output written to ${report_dir}/"

@@ -167,6 +167,7 @@ $specDir = Join-Path $root "specs/$Feature"
 $requirements = Join-Path $specDir 'requirements.md'
 $acceptance = Join-Path $specDir 'acceptance-tests.md'
 $calibration = Join-Path $root 'plugins/sdd-review-loop/references/spec-review-calibration.md'
+$investigation = Join-Path $specDir 'investigation.md'
 $reportRoot = Join-Path $reportsBase $Feature
 $reportDir = Join-Path $reportRoot (Join-Path "attempt-$attemptInt" "round-$roundInt")
 
@@ -176,6 +177,9 @@ if (-not (Test-RealDirectory $specDir)) { Fail 'feature specification directory 
 if (-not (Test-OrdinalEqual (Get-CanonicalDir $specDir) $specDir)) { Fail 'feature specification directory escapes repository' }
 if (-not (Test-Path -LiteralPath $requirements -PathType Leaf) -or (Test-IsSymlink $requirements)) { Fail 'requirements.md must be a regular non-symlink file' }
 if (-not (Test-Path -LiteralPath $acceptance -PathType Leaf) -or (Test-IsSymlink $acceptance)) { Fail 'acceptance-tests.md must be a regular non-symlink file' }
+if ((Test-Path -LiteralPath $investigation) -or (Test-IsSymlink $investigation)) {
+  if (-not (Test-Path -LiteralPath $investigation -PathType Leaf) -or (Test-IsSymlink $investigation)) { Fail 'investigation.md must be a regular non-symlink file' }
+}
 if (-not (Test-Path -LiteralPath $calibration -PathType Leaf) -or (Test-IsSymlink $calibration)) { Fail 'spec review calibration reference must be a regular non-symlink file' }
 if (-not (Test-RealDirectory $reportsRoot)) { Fail 'reports root must be a real directory' }
 if (-not (Test-OrdinalEqual (Get-CanonicalDir $reportsRoot) $reportsRoot)) { Fail 'reports root escapes repository' }
@@ -197,7 +201,8 @@ if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists 
 $requirementsSha = Get-Sha256File $requirements
 $acceptanceSha = Get-Sha256File $acceptance
 $calibrationSha = Get-Sha256File $calibration
-$inputSha = Get-Sha256Text "${requirementsSha}:${acceptanceSha}"
+$investigationSha = if (Test-Path -LiteralPath $investigation -PathType Leaf) { Get-Sha256File $investigation } else { '' }
+$inputSha = if ([string]::IsNullOrEmpty($investigationSha)) { Get-Sha256Text "${requirementsSha}:${acceptanceSha}" } else { Get-Sha256Text "${requirementsSha}:${acceptanceSha}:${investigationSha}" }
 
 # --- validate_reviewer_output translation ----------------------------------
 function Test-ValidateReviewerOutput(
@@ -273,7 +278,18 @@ function Test-ValidateContract(
 
   $contract = $null
   try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json } catch { return $false }
-  if (-not (Test-KeysExact $contract @('acceptance_sha256', 'attempt', 'feature', 'requirements_sha256', 'reviewers', 'round', 'run_id', 'schema', 'stage', 'verdict', 'warningCount'))) { return $false }
+  $precheck = $null
+  try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
+  $priorInvestigationSha = if ($null -eq $precheck.investigation_sha256) { '' } else { [string]$precheck.investigation_sha256 }
+  $legacyContractKeys = @('acceptance_sha256', 'attempt', 'feature', 'requirements_sha256', 'reviewers', 'round', 'run_id', 'schema', 'stage', 'verdict', 'warningCount')
+  $investigationContractKeys = @('acceptance_sha256', 'attempt', 'feature', 'investigation_sha256', 'requirements_sha256', 'reviewers', 'round', 'run_id', 'schema', 'stage', 'verdict', 'warningCount')
+  if ([string]::IsNullOrEmpty($priorInvestigationSha)) {
+    if (-not (Test-KeysExact $contract $legacyContractKeys) -and
+        (-not (Test-KeysExact $contract $investigationContractKeys) -or $null -ne $contract.investigation_sha256)) { return $false }
+  } else {
+    if (-not (Test-KeysExact $contract $investigationContractKeys)) { return $false }
+    if (-not (Test-OrdinalEqual $contract.investigation_sha256 $priorInvestigationSha)) { return $false }
+  }
   if (-not (Test-OrdinalEqual $contract.schema 'spec-review-contract/v1')) { return $false }
   if (-not (Test-OrdinalEqual $contract.stage 'spec')) { return $false }
   if (-not (Test-OrdinalEqual $contract.feature $Feature)) { return $false }
@@ -282,6 +298,7 @@ function Test-ValidateContract(
   if (-not (Test-OrdinalEqual $contract.verdict $ExpectedVerdict)) { return $false }
   if (-not (Test-IsSha256 $contract.requirements_sha256)) { return $false }
   if (-not (Test-IsSha256 $contract.acceptance_sha256)) { return $false }
+  if ($null -ne $contract.investigation_sha256 -and -not (Test-IsSha256 $contract.investigation_sha256)) { return $false }
   if (-not (Test-NonEmptyString $contract.run_id)) { return $false }
   if (-not (Test-IsJsonNumberGte0 $contract.warningCount)) { return $false }
 
@@ -297,8 +314,6 @@ function Test-ValidateContract(
     if (-not (Test-ManifestArrayValid $reviewer.allowed_input_manifest)) { return $false }
   }
 
-  $precheck = $null
-  try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
   if (-not (Test-OrdinalEqual $precheck.schema 'spec-review-precheck/v1')) { return $false }
   if (-not (Test-OrdinalEqual $precheck.stage 'spec')) { return $false }
   if (-not (Test-OrdinalEqual $precheck.feature $Feature)) { return $false }
@@ -307,6 +322,10 @@ function Test-ValidateContract(
   if (-not (Test-OrdinalEqual $precheck.requirements_sha256 $contract.requirements_sha256)) { return $false }
   if (-not (Test-OrdinalEqual $precheck.acceptance_sha256 $contract.acceptance_sha256)) { return $false }
   if (-not ($null -eq $precheck.calibration_sha256 -or (Test-IsSha256 $precheck.calibration_sha256))) { return $false }
+  if (-not ($null -eq $precheck.investigation_sha256 -or (Test-IsSha256 $precheck.investigation_sha256))) { return $false }
+  $contractInvestigationHash = if ($null -eq $contract.investigation_sha256) { '' } else { [string]$contract.investigation_sha256 }
+  $precheckInvestigationHash = if ($null -eq $precheck.investigation_sha256) { '' } else { [string]$precheck.investigation_sha256 }
+  if (-not [string]::IsNullOrEmpty($precheckInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $precheckInvestigationHash)) { return $false }
 
   $roundDir = Split-Path -Parent $ContractPath
   $summaryPath = Join-Path $roundDir 'integrated-summary.json'
@@ -389,6 +408,7 @@ function Test-ValidateContract(
   if ($uniqueInvestigationHashes.Count -eq 1) {
     $investigationHash = $uniqueInvestigationHashes[0]
     if (-not (Test-IsSha256 $investigationHash)) { return $false }
+    if (-not [string]::IsNullOrEmpty($contractInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $investigationHash)) { return $false }
     $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationHash })
   }
   $expectedA = @($expectedAList | Sort-Object path)
@@ -487,7 +507,18 @@ if ($roundInt -gt 1) {
   $priorData = Get-Content -LiteralPath $priorContract -Raw | ConvertFrom-Json
   $priorRequirementsSha = [string]$priorData.requirements_sha256
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
-  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha)) {
+  $priorInvestigationSha = if ($null -eq $priorData.investigation_sha256) { '' } else { [string]$priorData.investigation_sha256 }
+  if ([string]::IsNullOrEmpty($priorInvestigationSha)) {
+    $manifestInvestigationHashes = @()
+    foreach ($reviewer in @($priorData.reviewers)) {
+      foreach ($entry in @($reviewer.allowed_input_manifest)) {
+        if (Test-OrdinalEqual $entry.path $investigation) { $manifestInvestigationHashes += [string]$entry.sha256 }
+      }
+    }
+    $uniqueManifestInvestigationHashes = @($manifestInvestigationHashes | Select-Object -Unique)
+    if ($uniqueManifestInvestigationHashes.Count -eq 1) { $priorInvestigationSha = $uniqueManifestInvestigationHashes[0] }
+  }
+  if ((Test-OrdinalEqual $requirementsSha $priorRequirementsSha) -and (Test-OrdinalEqual $acceptanceSha $priorAcceptanceSha) -and (Test-OrdinalEqual $investigationSha $priorInvestigationSha)) {
     Fail 'reviewed inputs are unchanged from the prior round'
   }
 }
@@ -565,7 +596,7 @@ try {
     # and later contract validation will actually see, never the pre-mutation
     # (Passed) bytes this same invocation just rewrote.
     $requirementsSha = Get-Sha256File $requirements
-    $inputSha = Get-Sha256Text "${requirementsSha}:${acceptanceSha}"
+    $inputSha = if ([string]::IsNullOrEmpty($investigationSha)) { Get-Sha256Text "${requirementsSha}:${acceptanceSha}" } else { Get-Sha256Text "${requirementsSha}:${acceptanceSha}:${investigationSha}" }
   }
 
   $generatedAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -578,6 +609,7 @@ try {
     spec_review_status_field  = $status
     requirements_sha256       = $requirementsSha
     acceptance_sha256         = $acceptanceSha
+    investigation_sha256      = if ([string]::IsNullOrEmpty($investigationSha)) { $null } else { $investigationSha }
     calibration_sha256        = $calibrationSha
     input_sha256              = $inputSha
     edit_summary              = $EditSummary
