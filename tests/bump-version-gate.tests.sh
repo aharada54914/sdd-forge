@@ -16,10 +16,9 @@
 #     `git status --porcelain` output (zero release-surface mutation).
 #   TEST-003 (AC-003) — red path B, independent leg:
 #     tests/loop-inventory.tests.sh replaced by a failing stub;
-#     tests/loop-consistency.tests.sh left as the real, unmodified copy
-#     (genuinely executed here, since it iterates first and must pass for
-#     the run to reach loop-inventory's failure) — proving both suites
-#     gate independently, not just one.
+#     tests/loop-consistency.tests.sh replaced by a passing fixture stub
+#     that emits a marker, so ordering and independent-leg proof do not
+#     rerun the already-covered full loop-consistency suite.
 #   TEST-004 (AC-004) — no-bypass grep self-check over the REAL
 #     scripts/bump-version.sh source: no environment-variable/CLI-flag
 #     conditional wraps the loop-gate invocation (OQ-007 decision).
@@ -93,6 +92,29 @@ build_fixture() {
 stub_suite() {
   local fixture_root="$1" relpath="$2" code="$3"
   printf '#!/usr/bin/env bash\nexit %s\n' "$code" > "${fixture_root}/${relpath}"
+  chmod +x "${fixture_root}/${relpath}"
+}
+
+pass_suite_with_marker() {
+  local fixture_root="$1" relpath="$2"
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
+    ': > "$marker_file"' \
+    'exit 0' > "${fixture_root}/${relpath}"
+  chmod +x "${fixture_root}/${relpath}"
+}
+
+fail_suite_after_marker() {
+  local fixture_root="$1" relpath="$2"
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"' \
+    'if [[ -f "$marker_file" ]]; then' \
+    '  printf "%s\\n" "bump-gate-loop-consistency-pass" >&2' \
+    '  rm -f "$marker_file"' \
+    'fi' \
+    'exit 1' > "${fixture_root}/${relpath}"
   chmod +x "${fixture_root}/${relpath}"
 }
 
@@ -262,25 +284,30 @@ run_test_002() {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, the
-# independent leg (loop-consistency.tests.sh left real and genuinely
-# executed, since it iterates first and must pass to reach the failure)
+# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, with a
+# passing marker stub for the preceding loop-consistency leg.
 # ---------------------------------------------------------------------------
 run_test_003() {
   echo "=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ==="
   local fixture_root output porcelain
   fixture_root="$SHARED_FIXTURE_ROOT"
   reset_fixture_case "$fixture_root"
-  stub_suite "$fixture_root" "tests/loop-inventory.tests.sh" 1
+  pass_suite_with_marker "$fixture_root" "tests/loop-consistency.tests.sh"
+  fail_suite_after_marker "$fixture_root" "tests/loop-inventory.tests.sh"
   rename_changelog_heading "$fixture_root" "$VERSION"
   commit_fixture_case "$fixture_root" \
-    tests/loop-inventory.tests.sh CHANGELOG.md
+    tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh CHANGELOG.md
 
   output="$(mktemp)"
   if run_bump_version "$fixture_root" "$VERSION" "$output"; then
     fail "TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0"
   else
-    ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)"
+    ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing"
+  fi
+  if grep -qF 'bump-gate-loop-consistency-pass' "$output"; then
+    ok "TEST-003 (AC-003): the preceding loop-consistency gate leg ran before the inventory failure"
+  else
+    fail "TEST-003 (AC-003): the preceding loop-consistency gate leg did not emit its execution marker"
   fi
   rm -f "$output"
 

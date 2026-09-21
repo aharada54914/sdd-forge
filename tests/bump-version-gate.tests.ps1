@@ -112,6 +112,41 @@ function Set-SuiteStub {
     }
 }
 
+function Set-SuitePassStub {
+    param([string]$FixtureRoot, [string]$RelPath)
+    $target = Join-Path $FixtureRoot $RelPath
+    $content = @(
+        '#!/usr/bin/env bash'
+        'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"'
+        ': > "$marker_file"'
+        'exit 0'
+    ) -join "`n"
+    $content += "`n"
+    [System.IO.File]::WriteAllText($target, $content, $utf8NoBom)
+    if (-not $IsWindows) {
+        & chmod +x $target
+    }
+}
+
+function Set-SuiteFailAfterMarker {
+    param([string]$FixtureRoot, [string]$RelPath)
+    $target = Join-Path $FixtureRoot $RelPath
+    $content = @(
+        '#!/usr/bin/env bash'
+        'marker_file="$(cd "$(dirname "$0")/.." && pwd)/.bump-gate-loop-consistency-pass"'
+        'if [[ -f "$marker_file" ]]; then'
+        '  printf "%s\n" "bump-gate-loop-consistency-pass" >&2'
+        '  rm -f "$marker_file"'
+        'fi'
+        'exit 1'
+    ) -join "`n"
+    $content += "`n"
+    [System.IO.File]::WriteAllText($target, $content, $utf8NoBom)
+    if (-not $IsWindows) {
+        & chmod +x $target
+    }
+}
+
 # Set-FixtureChangelogHeading -FixtureRoot <root> -Version <version> —
 # satisfies bump-version.sh's own pre-existing CHANGELOG-heading
 # precondition (scripts/bump-version.sh:38-42) so each case isolates the
@@ -314,9 +349,8 @@ function Test-002 {
 }
 
 # ---------------------------------------------------------------------------
-# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, the
-# independent leg (loop-consistency.tests.sh left real and genuinely
-# executed, since it iterates first and must pass to reach the failure)
+# TEST-003 (AC-003): red path B — loop-inventory stubbed failing, with a
+# passing marker stub for the preceding loop-consistency leg.
 # ---------------------------------------------------------------------------
 function Test-003 {
     Write-Output "=== TEST-003 (AC-003): red path B (loop-inventory.tests.sh stubbed failing, independent leg) ==="
@@ -327,19 +361,27 @@ function Test-003 {
 
     $fixtureRoot = $script:fixtureRoot
     Reset-FixtureCase -FixtureRoot $fixtureRoot
-    Set-SuiteStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh" -ExitCode 1
+    Set-SuitePassStub -FixtureRoot $fixtureRoot -RelPath "tests/loop-consistency.tests.sh"
+    Set-SuiteFailAfterMarker -FixtureRoot $fixtureRoot -RelPath "tests/loop-inventory.tests.sh"
     Set-FixtureChangelogHeading -FixtureRoot $fixtureRoot -Version $version
     Commit-FixtureCase -FixtureRoot $fixtureRoot -Paths @(
+        "tests/loop-consistency.tests.sh",
         "tests/loop-inventory.tests.sh",
         "CHANGELOG.md"
     )
 
     $outFile = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString("N") + ".log")
     $rc = Invoke-BumpVersion -FixtureRoot $fixtureRoot -Version $version -OutputFile $outFile
+    $output = Get-Content -LiteralPath $outFile -Raw
     if ($rc -ne 0) {
-        Ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing (loop-consistency.tests.sh, run for real, passed first)"
+        Ok "TEST-003 (AC-003): bump-version.sh exits non-zero when loop-inventory.tests.sh is stubbed failing"
     } else {
         Fail "TEST-003 (AC-003): expected bump-version.sh to exit non-zero when loop-inventory.tests.sh is stubbed failing, but it exited 0"
+    }
+    if ($output.Contains("bump-gate-loop-consistency-pass")) {
+        Ok "TEST-003 (AC-003): the preceding loop-consistency gate leg ran before the inventory failure"
+    } else {
+        Fail "TEST-003 (AC-003): the preceding loop-consistency gate leg did not emit its execution marker"
     }
     Remove-Item -LiteralPath $outFile -ErrorAction SilentlyContinue
 
