@@ -17,6 +17,7 @@ cd "$ROOT"
 #   tests/validate-resolver-evidence.tests.sh
 #   tests/resolve-project-context-parity.tests.sh
 #   tests/resolve-project-context-metamorphic.tests.sh
+#   tests/resolve-project-context-caller-contract.tests.sh
 tests=()
 while IFS= read -r test_file || [[ -n "$test_file" ]]; do
   [[ -z "$test_file" || "$test_file" == \#* ]] && continue

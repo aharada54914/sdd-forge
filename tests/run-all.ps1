@@ -75,6 +75,7 @@ $tests = @(
     'tests/validate-resolver-evidence.tests.ps1',
     'tests/resolve-project-context-parity.tests.ps1',
     'tests/resolve-project-context-metamorphic.tests.ps1',
+    'tests/resolve-project-context-caller-contract.tests.ps1',
     'tests/compatibility-byte-identical.tests.ps1',
     'tests/golden-baseline-contract.tests.ps1',
     'tests/structural-compatibility.tests.ps1',
