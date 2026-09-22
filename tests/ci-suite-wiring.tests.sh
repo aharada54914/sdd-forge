@@ -106,9 +106,16 @@ assert_fallback disabled-step "$suite" "      - name: disabled
 assert_fallback disabled-step-after-run "$suite" "      - name: disabled
         run: bash ./$suite
         if: false"
+assert_fallback posix-step-condition '' "      - name: posix
+        if: runner.os != 'Windows'
+        run: bash ./$suite"
+assert_fallback posix-step-condition-after-run '' "      - name: posix
+        run: bash ./$suite
+        if: runner.os != \"Windows\""
 assert_fallback disabled-job "$suite" "      - run: bash ./$suite" "    if: false"
 assert_fallback disabled-job-after-steps "$suite" "      - run: bash ./$suite
     if: false"
+assert_fallback posix-job-condition '' "      - run: bash ./$suite" "    if: runner.os != 'Windows'"
 assert_fallback condition-does-not-leak '' "      - name: disabled
         if: false
         run: bash ./$suite
@@ -129,4 +136,4 @@ assert_fallback syntax-then-execution '' "      - name: execute
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./$suite 2>&1 | tee \"suite.log\""
-printf 'CI suite wiring behavioral controls passed (17 cases)\n'
+printf 'CI suite wiring behavioral controls passed (20 cases)\n'

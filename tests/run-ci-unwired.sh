@@ -17,6 +17,15 @@ missing=()
 # mentions. Only wholly simple run bodies qualify: unknown shell syntax,
 # heredocs and conditionals retain the suite in the fallback inventory.
 wired="$(awk '
+  function unknown_condition(line, expr) {
+    sub(/^[[:space:]]*(if:|- if:)[[:space:]]*/, "", line)
+    sub(/^[[:space:]]+/, "", line)
+    sub(/[[:space:]]+$/, "", line)
+    expr = line
+    if (expr == "runner.os != '\''Windows'\''") return 0
+    if (expr == "runner.os != \"Windows\"") return 0
+    return 1
+  }
   function command(line, path, tail) {
     sub(/^[[:space:]]+/, "", line)
     sub(/[[:space:]]+$/, "", line)
@@ -57,8 +66,8 @@ wired="$(awk '
     flush()
     if (line ~ /^      - / || line ~ /^  [^ ]/) flush_step()
     if (line ~ /^  [^ ]/) flush_job()
-    if (line ~ /^    if:/) job_conditional = 1
-    if (line ~ /^(        if:|      - if:)/) conditional = 1
+    if (line ~ /^    if:/ && unknown_condition(line)) job_conditional = 1
+    if (line ~ /^(        if:|      - if:)/ && unknown_condition(line)) conditional = 1
     if (line !~ /^(        run:|      - run:)[[:space:]]/) next
     sub(/^(        run:|      - run:)[[:space:]]+/, "", line)
     if (line ~ /^\|[-+]?[[:space:]]*$/) { block = 1; next }
@@ -75,7 +84,9 @@ for suite in "${registered[@]}"; do
 done
 
 if [[ "${1:-}" == "--list" ]]; then
-  printf '%s\n' "${missing[@]}"
+  if ((${#missing[@]})); then
+    printf '%s\n' "${missing[@]}"
+  fi
   exit 0
 fi
 
