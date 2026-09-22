@@ -377,7 +377,7 @@ if effective_risk == "critical":
                 if not hmac.compare_digest(expected, value):
                     fail("critical bundle signature is invalid (HMAC mismatch)")
         elif alg == "sigstore":
-            if not str(os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED", "")).strip():
+            if os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED") != "1":
                 fail("critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set")
         else:
             fail("critical bundle has unsupported signature alg: " + alg)
