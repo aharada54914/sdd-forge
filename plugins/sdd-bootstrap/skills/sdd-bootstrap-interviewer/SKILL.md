@@ -60,6 +60,45 @@ this file from its entry command:
    least one AC in the UI Integration Checklist of `acceptance-tests.md`
    asserting shell-level reachability before completing the interview.
 
+### Capability Interview Phase
+
+After Intake And Investigation has established a Project Context, run the
+capability interview once for the current bootstrap pass, before generating
+the full-profile layers. Invoke the repository dispatcher exactly once with
+the current config, target revision,
+and feature slug; the dispatcher is the only caller entry point and the Python
+resolver remains its single implementation.
+
+The invocation supplies the Resolver's required arguments explicitly:
+
+```text
+resolve-project-context.{sh,ps1} \
+  --config <current-project-context> \
+  [--source-rev <source-revision>] \
+  --target-rev <target-revision> \
+  --feature <feature-slug>
+```
+
+When no source revision is selected, omit `--source-rev` and let the Resolver
+apply its documented `HEAD` default; never infer or omit `--config`,
+`--target-rev`, or `--feature`.
+
+- If Project Context is absent, or its enforcement mode is
+  `disabled-legacy`, do not enter this phase and do not spawn a resolver
+  process. Continue with the existing bootstrap flow unchanged (the
+  no-Context path is event-identical).
+- For every other enforcement mode, consume the resolver's staged result. A
+  successful result supplies the capability and facet context for the rest of
+  the interview. A `Block` result surfaces the resolver's canonical
+  `capability-resolver: <check-id>: <detail>` diagnostic to the session and
+  stops the bootstrap; never silently fall back to a legacy flow.
+- Ask at most 15 capability questions in one pass. Persist unanswered items
+  under `Open Questions` with their identifiers and resume state so a later
+  pass continues from the recorded item instead of repeating completed work.
+- Do not invoke the resolver a second time later in the same capability
+  interview pass. Any later layer generation consumes the already captured
+  result.
+
 ### Full-Profile Layer Interview
 
 For non-LITE work, use `references/interview-question-bank.md` to cover product,
