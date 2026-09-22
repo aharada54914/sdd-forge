@@ -62,12 +62,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# build_fixture <label> — tar-copies the real repository once (excluding .git
-# and the two mcp/*/node_modules trees, which neither bump-version.sh nor
-# either loop suite touches, for suite speed) into a fresh mktemp root,
-# pwd -P normalizes it, and `git init`s it. The shared fixture is reset
-# between cases so the suite avoids three full checkout walks and three
-# full-index commits on Windows. Echoes the fixture root path.
+# build_fixture <label> — creates one tracked-file archive and extracts it
+# into a fresh mktemp root. The archive avoids the Windows/MSYS tar walk over
+# the live checkout (and never includes .git or ignored node_modules), while
+# preserving the same tracked fixture contents used by CI. The shared
+# fixture is reset between cases so the suite avoids three full checkout
+# walks and three full-index commits on Windows. Echoes the fixture root path.
 #
 # NOTE: this function is always invoked via command substitution
 # (`fixture_root="$(build_fixture ...)"`), which runs it in a SUBSHELL --
@@ -77,12 +77,17 @@ trap cleanup EXIT
 # scope.
 build_fixture() {
   local label="$1"
-  local temp_root fixture_root
+  local temp_root fixture_root archive
   temp_root="$(mktemp -d "${TMPDIR:-/tmp}/bump-version-gate.${label}.XXXXXX")"
   fixture_root="${temp_root}/repository"
+  archive="${temp_root}/repository.tar"
   mkdir -p "$fixture_root"
-  (cd "$ROOT" && tar --exclude='./.git' --exclude='./mcp/*/node_modules' -cf - .) \
-    | (cd "$fixture_root" && tar -xf -)
+  git -C "$ROOT" archive --format=tar --output="$archive" HEAD
+  [[ -s "$archive" ]] || {
+    printf 'fixture archive is empty: %s\n' "$archive" >&2
+    return 1
+  }
+  tar -xf "$archive" -C "$fixture_root"
   fixture_root="$(cd "$fixture_root" && pwd -P)"
   git -C "$fixture_root" init -q
   printf '%s' "$fixture_root"
