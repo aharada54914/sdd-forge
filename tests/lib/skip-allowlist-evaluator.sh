@@ -70,6 +70,21 @@ skip_allowlist_file_contains() {
   return 1
 }
 
+skip_allowlist_executable_contains() {
+  local repo="$1" main_ref="$2" root="$3" literal path mode
+  literal="$4"
+  [[ -n "$root" && -n "$literal" ]] || return 2
+  git -C "$repo" rev-parse --verify "$main_ref^{commit}" >/dev/null 2>&1 || return 1
+  while IFS=$'\t' read -r mode path; do
+    [[ "$path" == "$root"/* ]] || continue
+    [[ "$mode" == 100755 || "$path" == *.sh || "$path" == *.ps1 || "$path" == *.py || "$path" == *.js ]] || continue
+    if git -C "$repo" show "$main_ref:$path" 2>/dev/null | grep -Fq -- "$literal"; then
+      return 0
+    fi
+  done < <(git -C "$repo" ls-tree -r "$main_ref" 2>/dev/null | awk -F '\t' '{split($1,a," "); print a[1] "\t" $2}')
+  return 1
+}
+
 skip_allowlist_condition() {
   local manifest="$1" assertion="$2" repo="$3" main_ref="$4" condition token result=0 op=OR value
   condition="$(jq -er --arg ac "$assertion" '.[]|select(.assertion_id==$ac)|.activation_condition' "$manifest")" || return 2
@@ -85,6 +100,8 @@ skip_allowlist_condition() {
       if skip_allowlist_fingerprint_match "$manifest" "$assertion" "${BASH_REMATCH[1]}" "$repo" "$main_ref"; then value=0; else value=$?; fi
     elif [[ "$token" =~ ^file_contains\(([^,]+),([^\)]+)\)$ ]]; then
       if skip_allowlist_file_contains "$repo" "$main_ref" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"; then value=0; else value=$?; fi
+    elif [[ "$token" =~ ^executable_contains\(([^,]+),([^\)]+)\)$ ]]; then
+      if skip_allowlist_executable_contains "$repo" "$main_ref" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"; then value=0; else value=$?; fi
     else return 2; fi
     # Predicate errors are not evidence that a dependency is unmerged.
     if ((value > 1)); then return 2; fi
@@ -144,6 +161,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     audit) shift; skip_allowlist_audit "$@" ;;
     line) shift; skip_allowlist_line "$@" ;;
     file-contains) shift; skip_allowlist_file_contains "$@" ;;
-    *) printf 'usage: %s {merged|fingerprint-match|file-contains|condition|audit|line} ...\n' "$0" >&2; exit 2 ;;
+    executable-contains) shift; skip_allowlist_executable_contains "$@" ;;
+    *) printf 'usage: %s {merged|fingerprint-match|file-contains|executable-contains|condition|audit|line} ...\n' "$0" >&2; exit 2 ;;
   esac
 fi
