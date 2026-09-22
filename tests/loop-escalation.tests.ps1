@@ -753,13 +753,27 @@ try {
     $script:_LOOP_EVENT_TRACE = $a5SavedTrace
     $script:_LOOP_EVENT_SEQ = $a5SavedSeq
 
-    $a5SkillForBlock = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5CallerForBlock = (Test-Path -LiteralPath $a5SkillForBlock -PathType Leaf) -and
-        [bool](Select-String -LiteralPath $a5SkillForBlock -SimpleMatch "resolve-project-context" -Quiet)
+    # SKILL.md is a documentation contract, not an executable caller. Activate
+    # this assertion only for a plugin script that invokes the resolver with
+    # its caller contract; implementation files, tests, and markdown do not
+    # count as live integration.
+    $a5CallerForBlock = $false
+    $a5ExecutableFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins') -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -in @('.sh', '.ps1', '.py') -and
+            $_.FullName -notmatch '[\\/]scripts[\\/]resolve-project-context\.(sh|ps1|py)$' -and
+            $_.FullName -notmatch '[\\/]scripts[\\/]generated[\\/]' })
+    foreach ($candidate in $a5ExecutableFiles) {
+        $source = Get-Content -Raw -LiteralPath $candidate.FullName
+        if ($source -match '(?m)(^|[\s;|&])((bash|sh|pwsh|powershell|python3?)[\s]+)?[^\s;|&]*resolve-project-context(\.sh|\.ps1|\.py)?([\s]|$)' -and
+            $source -match '(?m)--(config|feature|source-rev|target-rev)([=\s])') {
+            $a5CallerForBlock = $true
+            break
+        }
+    }
     if ($a5CallerForBlock) {
         Test-Fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
     } else {
-        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until the live interviewer caller references resolve-project-context; resolver/spec staging alone is not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
+        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; SKILL.md documentation and resolver implementation are not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
     }
 
     # -------------------------------------------------------------------

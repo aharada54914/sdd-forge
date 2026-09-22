@@ -120,6 +120,7 @@ tests/resolve-project-context-lite.tests.sh
 tests/validate-resolver-evidence.tests.sh
 tests/resolve-project-context-parity.tests.sh
 tests/resolve-project-context-metamorphic.tests.sh
+tests/resolve-project-context-caller-contract.tests.sh
 tests/compatibility-byte-identical.tests.sh
 tests/golden-baseline-contract.tests.sh
 tests/structural-compatibility.tests.sh
