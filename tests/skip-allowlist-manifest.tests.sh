@@ -184,6 +184,34 @@ case_primitives() {
   else
     pass 'AND rejects one false primitive'
   fi
+
+  mkdir -p "$FIXTURE_REPO/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer"
+  printf '%s\n' 'caller marker: resolve-project-context' > "$FIXTURE_REPO/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+  git -C "$FIXTURE_REPO" add plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+  git -C "$FIXTURE_REPO" commit -q -m 'fixture caller marker'
+  jq '.[0].activation_condition = "file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context)"' "$FIXTURE_MANIFEST" > "$WORK/condition.json"
+  if run_evaluator file-contains "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
+    fail 'file_contains does not activate before target file reaches main'
+  else
+    pass 'file_contains stays false while the caller marker is not on main'
+  fi
+  if run_evaluator file-contains "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
+    fail 'file_contains activates when the target ref is unavailable'
+  else
+    pass 'file_contains fails closed when the target ref is unavailable'
+  fi
+  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
+    fail 'condition activates when the target ref is unavailable'
+  else
+    pass 'condition remains inactive when the target ref is unavailable'
+  fi
+  git -C "$FIXTURE_REPO" switch -q main
+  git -C "$FIXTURE_REPO" merge -q --no-ff feature/epic-999-fixture -m 'merge caller marker'
+  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
+    pass 'file_contains activates after the caller marker reaches main'
+  else
+    fail 'file_contains activates after the caller marker reaches main'
+  fi
 }
 
 case_manifest_contract() {
@@ -193,9 +221,9 @@ case_manifest_contract() {
   fi
   local expected
   expected='[
-    ["AC-004","A5","sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff","merged(A5)"],
+    ["AC-004","A5","sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A5) AND file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context)"],
     ["AC-007","A4","sha256:b84bd60bfba1bc9741bb76096d0502a461343c6867efcaa4bc57986b02d11157","merged(A4)"],
-    ["AC-021","A1+A5","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff","merged(A1) AND merged(A5)"],
+    ["AC-021","A1+A5","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A1) AND merged(A5) AND file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context)"],
     ["AC-042","A1","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a","merged(A1)"],
     ["AC-043","A1+A6","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:185d9e88b4ef19fd86d4993dabc6446f5e1b2e5dc9a84b3bacbb81f823f25134","merged(A1) AND merged(A6)"]
   ]'

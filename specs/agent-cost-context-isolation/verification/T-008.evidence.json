@@ -1,0 +1,211 @@
+{
+  "task_id": "T-008",
+  "feature": "agent-cost-context-isolation",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "ae63d6961be07a9428e4616aa9ed4b2a78f23f805e42b89628ec435f91111937",
+  "quality_report": "reports/quality-gate/20260922T050500Z-agent-cost-context-isolation-T-008.md",
+  "verification_contract": "specs/agent-cost-context-isolation/verification/T-008.contract.json",
+  "git_commit": "28390db0280b90136d652c6d9587918824047a91",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "evidence_sha256": "1c804a42c617a71ba021b5f577831a0debb4b4ad753fcf23ec993c0debb5ac7e"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "evidence_sha256": "1c804a42c617a71ba021b5f577831a0debb4b4ad753fcf23ec993c0debb5ac7e"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "evidence_sha256": "d55b1c0f84b7d4a233d0450d51672eb03853b7d9aed8ea085673b896809373df"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/placeholder-scan.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/task-state.log",
+      "evidence_sha256": "9977b1d4910e8d16888b2695f2da172ece097cbf1baf5e5dcbb173103f93837f"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "evidence_sha256": "d55b1c0f84b7d4a233d0450d51672eb03853b7d9aed8ea085673b896809373df"
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-008.contract.json",
+      "sha256": "7a637be51920b3e9e509c5319c1d5bafd8019bd457e4b1260365d5651087a5fc"
+    },
+    {
+      "path": "reports/quality-gate/20260922T050500Z-agent-cost-context-isolation-T-008.md",
+      "sha256": "69154b5ac0e140bb65e61b8038945a011973c331cac887a2e44e0f9789da1afd"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "sha256": "1c804a42c617a71ba021b5f577831a0debb4b4ad753fcf23ec993c0debb5ac7e"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "sha256": "d55b1c0f84b7d4a233d0450d51672eb03853b7d9aed8ea085673b896809373df"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/task-state.log",
+      "sha256": "9977b1d4910e8d16888b2695f2da172ece097cbf1baf5e5dcbb173103f93837f"
+    }
+  ]
+}

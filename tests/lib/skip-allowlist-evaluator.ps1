@@ -64,6 +64,17 @@ function Test-Fingerprint([string]$Manifest, [string]$Assertion, [int]$Index, [s
     }
     return $true
 }
+function Test-FileContains([string]$Repo, [string]$MainRef, [string]$Path, [string]$Literal) {
+    if ([string]::IsNullOrEmpty($Path) -or [string]::IsNullOrEmpty($Literal)) { throw 'file_contains requires path and literal' }
+    & git -C $Repo rev-parse --verify "$MainRef`^{commit}" 2>$null | Out-Null
+    # A shallow pull-request checkout may not materialize origin/main. Treat
+    # an unavailable activation ref as false so the skip stays fail-closed.
+    if ($LASTEXITCODE -ne 0) { return $false }
+    & git -C $Repo cat-file -e "${MainRef}:$Path" 2>$null
+    if ($LASTEXITCODE -ne 0) { return $false }
+    try { $content = (Invoke-GitText $Repo @('show', "${MainRef}:$Path") -join "`n") } catch { throw 'activation target file could not be read' }
+    return ([string]$content -clike "*$Literal*")
+}
 function Test-Condition([string]$Manifest, [string]$Assertion, [string]$Repo, [string]$MainRef) {
     $condition = [string](Get-Entry $Manifest $Assertion).activation_condition
     $tokens = @($condition.Split(' ', [StringSplitOptions]::RemoveEmptyEntries))
@@ -76,6 +87,7 @@ function Test-Condition([string]$Manifest, [string]$Assertion, [string]$Repo, [s
         }
         if ($tokens[$i] -cmatch '^merged\((A[0-9]+)\)$') { $value = Test-Merged $Manifest $Assertion $Matches[1] $Repo $MainRef }
         elseif ($tokens[$i] -cmatch '^fingerprint_match\(([0-9]+)\)$') { $value = Test-Fingerprint $Manifest $Assertion ([int]$Matches[1]) $Repo $MainRef }
+        elseif ($tokens[$i] -cmatch '^file_contains\(([^,]+),([^\)]+)\)$') { $value = Test-FileContains $Repo $MainRef $Matches[1] $Matches[2] }
         else { throw "invalid activation primitive: $($tokens[$i])" }
         if ($i -eq 0) { $result = $value }
         elseif ($operator -ceq 'AND') { $result = $result -and $value }
@@ -86,7 +98,7 @@ function Test-Condition([string]$Manifest, [string]$Assertion, [string]$Repo, [s
 function Invoke-Audit([string]$Manifest, [string]$Output, [string]$Repo, [string]$MainRef) {
     $marker = 'SK' + 'IP:'; $failures = 0; $count = 0
     foreach ($line in Get-Content -LiteralPath $Output) {
-        if (-not $line.Contains($marker)) { continue }
+        if (-not ([string]$line -clike "*$marker*")) { continue }
         $count++
         $ids = @([regex]::Matches($line, 'AC-[0-9]{3}') | ForEach-Object Value | Sort-Object -Unique)
         if ($ids.Count -eq 0) { [Console]::Error.WriteLine("ERROR: unrecognized skip-shaped line: $line"); $failures++; continue }
@@ -121,9 +133,10 @@ try {
     switch -CaseSensitive ($Command) {
         'merged' { if (Test-Merged $Rest[0] $Rest[1] $Rest[2] $Rest[3] $Rest[4]) { exit 0 } else { exit 1 } }
         'fingerprint-match' { if (Test-Fingerprint $Rest[0] $Rest[1] ([int]$Rest[2]) $Rest[3] $Rest[4]) { exit 0 } else { exit 1 } }
+        'file-contains' { if (Test-FileContains $Rest[0] $Rest[1] $Rest[2] $Rest[3]) { exit 0 } else { exit 1 } }
         'condition' { if (Test-Condition $Rest[0] $Rest[1] $Rest[2] $Rest[3]) { exit 0 } else { exit 1 } }
         'audit' { exit (Invoke-Audit $Rest[0] $Rest[1] $Rest[2] $Rest[3]) }
         'line' { if ($Rest.Count -lt 3) { throw 'line requires manifest, label, and assertion' }; Write-AllowlistedLine $Rest[0] $Rest[1] $Rest[2..($Rest.Count - 1)]; exit 0 }
-        default { throw 'usage: evaluator {merged|fingerprint-match|condition|audit|line} ...' }
+        default { throw 'usage: evaluator {merged|fingerprint-match|file-contains|condition|audit|line} ...' }
     }
 } catch { [Console]::Error.WriteLine("ERROR: $($_.Exception.Message)"); exit 2 }
