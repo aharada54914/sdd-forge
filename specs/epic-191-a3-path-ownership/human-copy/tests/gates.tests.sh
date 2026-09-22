@@ -2708,6 +2708,26 @@ else
     fail "T-007a.4: should fail without SDD_EVIDENCE_SIGSTORE_VERIFIED. Got: $t007a_4_out"
 fi
 
+export SDD_EVIDENCE_SIGSTORE_VERIFIED="0"
+t007a_4_zero_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_4_zero_out" | grep -q "SIGSTORE_VERIFIED"; then
+    ok "T-007a.4.zero: sigstore with SDD_EVIDENCE_SIGSTORE_VERIFIED=0 fails"
+else
+    fail "T-007a.4.zero: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=0. Got: $t007a_4_zero_out"
+fi
+unset SDD_EVIDENCE_SIGSTORE_VERIFIED
+
+export SDD_EVIDENCE_SIGSTORE_VERIFIED="false"
+t007a_4_false_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_4_false_out" | grep -q "SIGSTORE_VERIFIED"; then
+    ok "T-007a.4.false: sigstore with SDD_EVIDENCE_SIGSTORE_VERIFIED=false fails"
+else
+    fail "T-007a.4.false: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=false. Got: $t007a_4_false_out"
+fi
+unset SDD_EVIDENCE_SIGSTORE_VERIFIED
+
 # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
 # Create a fresh critical bundle for this test to avoid dirty tree issues
 # Create a new contract and bundle for T-201
