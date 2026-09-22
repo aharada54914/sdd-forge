@@ -144,19 +144,20 @@ function Test-Primitives {
     [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'AND rejects one false primitive' } else { Fail 'AND rejects one false primitive' }
 
-    $callerPath = Join-Path $fixture.Repo 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
+    $callerPath = Join-Path $fixture.Repo 'plugins/sdd-bootstrap/scripts/interviewer.sh'
     New-Item -ItemType Directory -Path (Split-Path -Parent $callerPath) -Force | Out-Null
     [IO.File]::WriteAllText($callerPath, "caller marker: resolve-project-context`n", [Text.UTF8Encoding]::new($false))
-    Invoke-Git $fixture.Repo @('add', 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md')
+    & chmod +x $callerPath
+    Invoke-Git $fixture.Repo @('add', 'plugins/sdd-bootstrap/scripts/interviewer.sh')
     Invoke-Git $fixture.Repo @('commit', '-q', '-m', 'fixture caller marker')
-    $document[0].activation_condition = 'file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context)'
+    $document[0].activation_condition = 'executable_contains(plugins/sdd-bootstrap,resolve-project-context)'
     [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
-    if ((Invoke-Evaluator @('file-contains', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'file_contains stays false while the caller marker is not on main' } else { Fail 'file_contains does not activate before target file reaches main' }
+    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'executable_contains stays false while the caller marker is not on main' } else { Fail 'executable_contains does not activate before target file reaches main' }
     if ((Invoke-Evaluator @('file-contains', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'file_contains fails closed when the target ref is unavailable' } else { Fail 'file_contains activates when the target ref is unavailable' }
     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'condition remains inactive when the target ref is unavailable' } else { Fail 'condition activates when the target ref is unavailable' }
     Invoke-Git $fixture.Repo @('switch', '-q', 'main')
     Invoke-Git $fixture.Repo @('merge', '-q', '--no-ff', 'feature/epic-999-fixture', '-m', 'merge caller marker')
-    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'file_contains activates after the caller marker reaches main' } else { Fail 'file_contains activates after the caller marker reaches main' }
+    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'executable_contains activates after the caller marker reaches main' } else { Fail 'executable_contains activates after the caller marker reaches main' }
 }
 function Test-ManifestContract {
     if (-not (Test-Path -LiteralPath $ShippedManifest)) { Fail 'AC-034 shipped manifest exists'; return }
@@ -188,7 +189,7 @@ function Test-ManifestContract {
     Pass 'AC-016 all five fixed SKIP assertions read from the manifest helper'
     $rendered = & pwsh -NoProfile -File $Evaluator line $ShippedManifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
     $renderExit = $LASTEXITCODE
-    $expectedLine = "$SkipPrefix TEST-019.10b/AC-004+AC-021 (Epic A1+Epic A5): blocked by issue #189+#193 until merged(A1) AND merged(A5) AND file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context);merged(A5) AND file_contains(plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md,resolve-project-context)"
+    $expectedLine = "$SkipPrefix TEST-019.10b/AC-004+AC-021 (Epic A1+Epic A5): blocked by issue #189+#193 until merged(A1) AND merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context);merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"
     if ($renderExit -eq 0 -and $rendered -ceq $expectedLine) { Pass 'compound dependency rendering matches the Bash manifest contract' }
     else { Fail 'compound dependency rendering matches the Bash manifest contract' }
 }
