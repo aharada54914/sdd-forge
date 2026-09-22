@@ -515,14 +515,13 @@ jobs:
         shell: pwsh
         run: ./tests/run-panelist-effort.tests.ps1
 
-  # version-gates -- keep the Bash/PowerShell twins, but run the slow bump
-  # fixtures concurrently on Windows.
+  # version-gates keeps the Bash/PowerShell twins on the POSIX matrix.
   version-gates:
     name: version-gates
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -539,74 +538,6 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/bump-version-gate.tests.ps1
-
-      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $workDir = (Get-Location).Path
-          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
-          $bashOut = "$logRoot-bash.out"
-          $bashErr = "$logRoot-bash.err"
-          $pwshOut = "$logRoot-pwsh.out"
-          $pwshErr = "$logRoot-pwsh.err"
-          $processes = @()
-          $bash = $null
-          $pwsh = $null
-          $launchError = $null
-          $deadline = [DateTime]::UtcNow.AddMinutes(20)
-          try {
-            $bashPath = (Get-Command bash -ErrorAction Stop).Path
-            $bash = Start-Process -FilePath $bashPath `
-              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $bashOut `
-              -RedirectStandardError $bashErr `
-              -PassThru
-            $processes += $bash
-            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
-            $pwsh = Start-Process -FilePath $pwshPath `
-              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
-              -WorkingDirectory $workDir `
-              -RedirectStandardOutput $pwshOut `
-              -RedirectStandardError $pwshErr `
-              -PassThru
-            $processes += $pwsh
-            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
-              if ([DateTime]::UtcNow -ge $deadline) {
-                throw 'bump-version-gate timed out after 20 minutes'
-              }
-              Start-Sleep -Seconds 1
-            }
-          } catch {
-            $launchError = $_
-          } finally {
-            foreach ($process in $processes) {
-              if (-not $process.HasExited) {
-                try { $process.Kill($true) } catch { $process.Kill() }
-                $process.WaitForExit()
-              }
-            }
-          }
-          Write-Host '=== bump-version-gate Bash output ==='
-          # Keep the separate logs in RUNNER_TEMP for failure diagnostics.
-          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
-          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
-          Write-Host '=== bump-version-gate PowerShell output ==='
-          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
-          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
-          if ($launchError) { throw $launchError }
-          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
-          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
-          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
-            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
-          }
-
-      - name: Test remaining Windows version-gates lanes (pwsh, parallel)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/run-version-gates-windows.ps1
 
       - name: Test release.yml required loop-gate job (bash)
         shell: bash
@@ -1114,6 +1045,94 @@ jobs:
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
 
+  # Windows version gates use separate runners so the four deterministic
+  # lanes do not contend for one runner's CPU.
+  version-gates-windows-bump:
+    name: version-gates-windows-bump
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $workDir = (Get-Location).Path
+          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
+          $bashOut = "$logRoot-bash.out"
+          $bashErr = "$logRoot-bash.err"
+          $pwshOut = "$logRoot-pwsh.out"
+          $pwshErr = "$logRoot-pwsh.err"
+          $processes = @()
+          $bash = $null
+          $pwsh = $null
+          $launchError = $null
+          $deadline = [DateTime]::UtcNow.AddMinutes(20)
+          try {
+            $bashPath = (Get-Command bash -ErrorAction Stop).Path
+            $bash = Start-Process -FilePath $bashPath `
+              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
+              -WorkingDirectory $workDir `
+              -RedirectStandardOutput $bashOut `
+              -RedirectStandardError $bashErr `
+              -PassThru
+            $processes += $bash
+            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
+            $pwsh = Start-Process -FilePath $pwshPath `
+              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
+              -WorkingDirectory $workDir `
+              -RedirectStandardOutput $pwshOut `
+              -RedirectStandardError $pwshErr `
+              -PassThru
+            $processes += $pwsh
+            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
+              if ([DateTime]::UtcNow -ge $deadline) {
+                throw 'bump-version-gate timed out after 20 minutes'
+              }
+              Start-Sleep -Seconds 1
+            }
+          } catch {
+            $launchError = $_
+          } finally {
+            foreach ($process in $processes) {
+              if (-not $process.HasExited) {
+                try { $process.Kill($true) } catch { $process.Kill() }
+                $process.WaitForExit()
+              }
+            }
+          }
+          Write-Host '=== bump-version-gate Bash output ==='
+          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
+          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
+          Write-Host '=== bump-version-gate PowerShell output ==='
+          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
+          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
+          if ($launchError) { throw $launchError }
+          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
+          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
+          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
+            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
+          }
+
+      - name: Test release.yml required loop-gate job (bash)
+        shell: bash
+        run: bash ./tests/release-loop-gate.tests.sh
+
+  version-gates-windows-lanes:
+    name: version-gates-windows-lanes (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [governance, capability, ownership, lite]
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test Windows version-gates lane
+        shell: pwsh
+        run: ./tests/run-version-gates-windows.ps1 -Lane ${{ matrix.lane }}
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
@@ -1317,7 +1336,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1341,6 +1360,14 @@ jobs:
           fi
           if [ "${{ needs.version-gates.result }}" != "success" ]; then
             echo "version-gates job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates-windows-bump.result }}" != "success" ]; then
+            echo "version-gates-windows-bump job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates-windows-lanes.result }}" != "success" ]; then
+            echo "version-gates-windows-lanes job failed"
             exit 1
           fi
           if [ "${{ needs.mcp-tests.result }}" != "success" ]; then
