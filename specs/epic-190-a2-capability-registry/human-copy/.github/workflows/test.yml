@@ -407,13 +407,18 @@ jobs:
 
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
-  # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Pure file/manifest assertions with no git-history or CLI dependency. The
+  # matrix intentionally covers both runtime families: Windows exercises
+  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
+  # PowerShell. macOS-specific behavior remains covered by the platform
+  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
+  # this platform-neutral lane on macOS adds runner cost without new coverage.
   loops-routing:
     name: loops-routing
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
