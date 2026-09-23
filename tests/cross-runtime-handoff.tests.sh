@@ -188,7 +188,7 @@ require_cli codex
 require_cli copilot
 
 prompt="In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. Do not inspect or modify anything else. Do not run shell commands. End with a short confirmation."
-(cd "$tmp" && claude --print --output-format text --permission-mode acceptEdits --permission-prompts none --allowedTools Read,Edit "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
+(cd "$tmp" && claude --print --output-format text --permission-mode acceptEdits --permission-prompts none --allowedTools Read,Edit -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
 actual01_sha=$(sha256_file "$fixture01")
 [[ "$actual01_sha" == "$expected01_sha" ]] || fail "Claude-produced handoff-01 bytes/hash mismatch"
 
