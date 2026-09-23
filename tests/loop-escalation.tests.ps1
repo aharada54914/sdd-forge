@@ -702,9 +702,19 @@ try {
         # caller exists, matching the Bash twin and loop-consistency suite.
         # The manifest contract still reserves skip_allowlist_line AC-004/AC-021
         # rendering when that future invocation driver is added.
-        $a5SkillMd = Join-Path $repoRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
-        $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and
-            [bool](Select-String -LiteralPath $a5SkillMd -SimpleMatch 'resolve-project-context' -Quiet)
+        $a5CallerPresent = $false
+        $a5ExecutableFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins') -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -in @('.sh', '.ps1', '.py') -and
+                $_.FullName -notmatch '[\\/]scripts[\\/]resolve-project-context\.(sh|ps1|py)$' -and
+                $_.FullName -notmatch '[\\/]scripts[\\/]generated[\\/]' })
+        foreach ($candidate in $a5ExecutableFiles) {
+            $source = Get-Content -Raw -LiteralPath $candidate.FullName
+            if ($source -match '(?m)(^|[\s;|&])((bash|sh|pwsh|powershell|python3?)[\s]+)?[^\s;|&]*resolve-project-context(\.sh|\.ps1|\.py)?([\s]|$)' -and
+                $source -match '(?m)--(config|feature|source-rev|target-rev)([=\s])') {
+                $a5CallerPresent = $true
+                break
+            }
+        }
         if ($a5CallerPresent) {
             Test-Fail 'TEST-019.10b: live resolver caller is wired but this suite still lacks a real invocation driver'
         } else {
