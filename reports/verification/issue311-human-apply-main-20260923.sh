@@ -57,6 +57,22 @@ root = Path(os.environ["TARGET_ROOT"])
 sh = root / "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 ps = root / "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
 
+def replace_once(path, old, new, marker, label):
+    text = path.read_text()
+    if marker in text:
+        return
+    if text.count(old) != 1:
+        raise SystemExit(f"{label} anchor count is not exactly one")
+    path.write_text(text.replace(old, new, 1))
+
+if "scratch_root=''" not in sh.read_text():
+    text = sh.read_text()
+    anchor = "gate_report_declaration_path=''\n"
+    state = "scratch_binding=''\nscratch_root=''\nif [[ \"$stage\" == quality ]] && jq -e 'has(\"scratch_root\")' \"$manifest\" >/dev/null 2>&1; then\n  scratch_root=$(jq -r '.scratch_root' \"$manifest\" | tr -d '\\r')\n  scratch_binding=$(printf '%s\\n%s' \"$feature\" \"$scratch_root\" | sha256_text)\nfi\n"
+    if text.count(anchor) != 1:
+        raise SystemExit("Bash scratch-state anchor count is not exactly one")
+    sh.write_text(text.replace(anchor, state + anchor, 1))
+
 sh_old = """  if jq -e --arg run \"$run_id\" --arg session \"$host_session_id\" '\n    any(.records[]; .host_session_id == $session and .run_id != $run)\n  ' \"$ledger\" >/dev/null 2>&1; then\n    fail IDENTITY 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'\n  fi\n\n  # Reservation of a new identity: today's behaviour, unchanged.\n"""
 sh_new = sh_old.replace(
     "  # Reservation of a new identity: today's behaviour, unchanged.\n",
@@ -70,10 +86,11 @@ sh_new = sh_old.replace(
   # Reservation of a new identity: today's behaviour, unchanged.
 """,
 )
-sh_text = sh.read_text()
-if sh_text.count(sh_old) != 1:
-    raise SystemExit("Bash anchor count is not exactly one")
-sh.write_text(sh_text.replace(sh_old, sh_new, 1))
+replace_once(
+    sh, sh_old, sh_new,
+    "WFI-034/#311: a new evaluator reservation must declare its isolated",
+    "Bash",
+)
 
 ps_old = """        if ($records | Where-Object { $_.host_session_id -ceq $document.host_session_id -and $_.run_id -cne $document.run_id }) {\n            Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'\n        }\n\n        # Reservation of a new identity: today's behaviour, unchanged.\n"""
 ps_new = ps_old.replace(
@@ -89,10 +106,11 @@ ps_new = ps_old.replace(
         # Reservation of a new identity: today's behaviour, unchanged.
 """,
 )
-ps_text = ps.read_text()
-if ps_text.count(ps_old) != 1:
-    raise SystemExit("PowerShell anchor count is not exactly one")
-ps.write_text(ps_text.replace(ps_old, ps_new, 1))
+replace_once(
+    ps, ps_old, ps_new,
+    "WFI-034/#311: a new evaluator reservation must declare its isolated",
+    "PowerShell",
+)
 PY
 
 cp "$candidate_test" "$TARGET_ROOT/tests/issue311-scratch-isolation.tests.py"
