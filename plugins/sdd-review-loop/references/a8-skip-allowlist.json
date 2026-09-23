@@ -1,0 +1,15 @@
+{
+  "version": "a8-skip-allowlist/v1",
+  "entries": [
+    {
+      "case_id": "AC-006",
+      "reason": "The hook-activation canary remains presence-only in T-001; Epic A1 live-host handshake verification is tracked by issues #189 and #187 and is owned by T-005.",
+      "upstream_epic_a1_commit": "c0aaf3a639f4cb4798b16acd115f0b05db44493f",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "62a8841c21fee332e83d7bc052dde93f6ab0d1f2",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "786a07d0cc5c48a46e35f066640d9b0c53708c43",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1": "2a1f04e019df351abd2fce038611cf23347f445e"
+      }
+    }
+  ]
+}
