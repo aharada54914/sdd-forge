@@ -3,7 +3,7 @@ index 50f9369e..f7ce7144 100644
 --- a/.github/workflows/test.yml
 +++ b/.github/workflows/test.yml
 @@ -389,5 +389,10 @@ jobs:
- 
+
    # loops-routing -- loop inventory/driver/consistency/escalation plus the
    # agent-model routing, capabilities, frontmatter and placeholder suites.
 -  # Pure file/manifest assertions with no git-history or CLI dependency.
@@ -25,7 +25,7 @@ index 50f9369e..f7ce7144 100644
 @@ -641,18 +646,33 @@ jobs:
          shell: pwsh
          run: ./tests/validate-approval-sidecar.tests.ps1
- 
+
 -      - name: Test apply-human-copy publisher suite (bash)
 -        if: runner.os != 'Windows'
 -        shell: bash
@@ -63,7 +63,7 @@ index 50f9369e..f7ce7144 100644
 +            echo "apply-human-copy failed: bash=$bash_status pwsh=$pwsh_status"
 +            exit 1
 +          fi
- 
+
        - name: Test hook-activation handshake suite (bash)
          if: runner.os != 'Windows'
          shell: bash
