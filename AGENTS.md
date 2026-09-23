@@ -102,6 +102,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/bootstrap-interviewer-enhancement/`
 - `specs/agent-cost-context-isolation/`
 - `specs/sdd-domain/`
+- `specs/sdd-domain-multitarget/`
 - `specs/local-env-mcp/`
 - `specs/ci-mcp/`
 - `specs/epic-136-phase2-gates/`
