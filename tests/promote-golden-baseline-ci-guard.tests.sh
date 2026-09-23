@@ -50,7 +50,10 @@ for token in "$PROMOTE_TOKEN" "$CANDIDATE_TOKEN"; do
     workflow_case_passes=false
   fi
 done
-printf 'run: %s %s\n' "${PROMOTE_TOKEN^^}" "${CANDIDATE_TOKEN^^}" >"${WORK}/workflow-miscased.yml"
+upper() {
+  printf '%s' "$1" | tr '[:lower:]' '[:upper:]'
+}
+printf 'run: %s %s\n' "$(upper "$PROMOTE_TOKEN")" "$(upper "$CANDIDATE_TOKEN")" >"${WORK}/workflow-miscased.yml"
 if ! workflow_is_safe "${WORK}/workflow-miscased.yml"; then
   workflow_case_passes=false
 fi
