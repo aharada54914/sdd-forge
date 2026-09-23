@@ -36,7 +36,8 @@ printf 'Backup: %s\nTarget: %s\nOrigin main: %s\n' "$backup" "$TARGET_ROOT" "$or
 for path in \
   plugins/sdd-quality-loop/scripts/validate-review-context-set.sh \
   plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 \
-  tests/issue311-scratch-isolation.tests.py; do
+  tests/issue311-scratch-isolation.tests.py \
+  tests/review-agent-isolation.tests.sh; do
   if [[ -e "$TARGET_ROOT/$path" ]]; then
     mkdir -p "$backup/$(dirname "$path")"
     cp -p "$TARGET_ROOT/$path" "$backup/$path"
@@ -115,6 +116,52 @@ PY
 
 cp "$candidate_test" "$TARGET_ROOT/tests/issue311-scratch-isolation.tests.py"
 chmod +x "$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+
+# The existing isolation suite creates the chronological evaluator manifests
+# through make_manifest().  Keep that suite green under WFI-034 by binding its
+# fixture to the same scratch-root contract; do not weaken the validator.
+export TARGET_ROOT
+python3 - <<'PY'
+from hashlib import sha256
+from pathlib import Path
+import os
+
+path = Path(os.environ["TARGET_ROOT"]) / "tests/review-agent-isolation.tests.sh"
+text = path.read_text()
+marker = 'scratch_root:"/tmp/quality-f"'
+if marker not in text:
+    baseline = "4c790340d1b7b51cbdb07414555ffe94c75d0575208f3e5dfbe3913dd05739f4"
+    if sha256(text.encode()).hexdigest() != baseline:
+        raise SystemExit("review-agent-isolation.tests.sh baseline hash mismatch")
+    old_manifest = '} + (if $role == "sdd-evaluator" then {task_id:"T-001"} else {} end))\' > "$output"'
+    new_manifest = '} + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))\' > "$output"'
+    if text.count(old_manifest) != 1:
+        raise SystemExit("review-agent isolation manifest anchor count is not exactly one")
+    old_anchor = '  ledger_hash="$(sha256 "$ledger")"\n'
+    new_anchor = '''  if [[ "$role" == "sdd-evaluator" ]]; then
+    local implementation_report="$repository/reports/implementation/f/T-001.md"
+    if ! grep -Fq '**Scratch Root**:' "$implementation_report"; then
+      printf '%s\\n' '- **Scratch Root**: /tmp/implementation-f' >> "$implementation_report"
+    fi
+  fi
+  ledger_hash="$(sha256 "$ledger")"\n'''
+    if text.count(old_anchor) != 1:
+        raise SystemExit("review-agent isolation ledger anchor count is not exactly one")
+    old_isolation = "printf '\\n## Isolation Evidence\\n\\n- **Scratch Root**: /tmp/wfi034/implementation/task\\n' >> \"$implementation_report\""
+    new_isolation = '''awk '{
+  if ($0 == "- **Scratch Root**: /tmp/implementation-f") {
+    print "- **Scratch Root**: /tmp/wfi034/implementation/task"
+    next
+  }
+  print
+}' "$implementation_report" > "$tmp/wfi034-report.md"
+mv "$tmp/wfi034-report.md" "$implementation_report"'''
+    if text.count(old_isolation) != 1:
+        raise SystemExit("review-agent isolation root anchor count is not exactly one")
+    text = text.replace(old_manifest, new_manifest, 1)
+    text = text.replace(old_anchor, new_anchor, 1)
+    path.write_text(text.replace(old_isolation, new_isolation, 1))
+PY
 
 # The candidate regression fixture invokes stable candidate basenames. Point
 # those names at the freshly patched current-main validators for the duration
