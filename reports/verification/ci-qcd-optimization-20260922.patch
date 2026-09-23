@@ -1,0 +1,69 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 50f9369e..f7ce7144 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -389,5 +389,10 @@ jobs:
+ 
+   # loops-routing -- loop inventory/driver/consistency/escalation plus the
+   # agent-model routing, capabilities, frontmatter and placeholder suites.
+-  # Pure file/manifest assertions with no git-history or CLI dependency.
++  # Pure file/manifest assertions with no git-history or CLI dependency. The
++  # matrix intentionally covers both runtime families: Windows exercises
++  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
++  # PowerShell. macOS-specific behavior remains covered by the platform
++  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
++  # this platform-neutral lane on macOS adds runner cost without new coverage.
+   loops-routing:
+@@ -396,6 +401,6 @@ jobs:
+       fail-fast: false
+       matrix:
+-        os: [windows-latest, macos-latest, ubuntu-latest]
++        os: [windows-latest, ubuntu-latest]
+     runs-on: ${{ matrix.os }}
+     timeout-minutes: 20
+     steps:
+@@ -641,18 +646,33 @@ jobs:
+         shell: pwsh
+         run: ./tests/validate-approval-sidecar.tests.ps1
+ 
+-      - name: Test apply-human-copy publisher suite (bash)
+-        if: runner.os != 'Windows'
+-        shell: bash
+-        # Invoked via bash explicitly so the step does not depend on the
+-        # committed exec bit (Windows-authored commits record mode 100644).
+-        run: bash ./tests/apply-human-copy.tests.sh
+-
+-      - name: Test apply-human-copy publisher suite (pwsh)
+-        if: runner.os != 'Windows'
+-        shell: pwsh
+-        run: ./tests/apply-human-copy.tests.ps1
++      # These suites use isolated temporary trees. Run both POSIX variants
++      # concurrently and preserve each exit status and log; Windows keeps the
++      # existing skip because this publisher is POSIX-only.
++      - name: Test apply-human-copy publisher suites (POSIX parallel)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: |
++          set -uo pipefail
++          bash_log="$RUNNER_TEMP/apply-human-copy-bash.log"
++          pwsh_log="$RUNNER_TEMP/apply-human-copy-pwsh.log"
++          bash ./tests/apply-human-copy.tests.sh >"$bash_log" 2>&1 &
++          bash_pid=$!
++          pwsh -NoProfile -File ./tests/apply-human-copy.tests.ps1 >"$pwsh_log" 2>&1 &
++          pwsh_pid=$!
++          bash_status=0
++          pwsh_status=0
++          wait "$bash_pid" || bash_status=$?
++          wait "$pwsh_pid" || pwsh_status=$?
++          echo '--- apply-human-copy bash ---'
++          cat "$bash_log"
++          echo '--- apply-human-copy pwsh ---'
++          cat "$pwsh_log"
++          if [ "$bash_status" -ne 0 ] || [ "$pwsh_status" -ne 0 ]; then
++            echo "apply-human-copy failed: bash=$bash_status pwsh=$pwsh_status"
++            exit 1
++          fi
+ 
+       - name: Test hook-activation handshake suite (bash)
+         if: runner.os != 'Windows'
+         shell: bash
