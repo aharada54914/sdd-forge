@@ -7,6 +7,7 @@ contract="contracts/rollback-1.5.0.json"
 repo_root="."
 validator=""
 inject_after=0
+inject_final_failure=0
 
 fail() {
   printf '%s: %s\n' "$1" "$2" >&2
@@ -24,6 +25,10 @@ while (($#)); do
       [[ "$inject_after" =~ ^[1-9][0-9]*$ ]] ||
         fail ROLLBACK_USAGE "--inject-apply-failure-after must be a positive integer"
       shift 2
+      ;;
+    --inject-final-verification-failure)
+      inject_final_failure=1
+      shift
       ;;
     *) fail ROLLBACK_USAGE "unknown argument: $1" ;;
   esac
@@ -153,7 +158,11 @@ done < <(jq -r '.files[] |
 
 tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/sdd-rollback.XXXXXX")" ||
   fail ROLLBACK_IO "cannot create transaction directory"
-stage="$tmp_root/stage"
+# Historical 1.4.0 workflow manifests may contain absolute paths whose
+# repository component is `sdd-forge`. Keep that component on the isolated
+# worktree so the pinned validator can canonicalize those paths by repository
+# identity without rewriting or weakening its checks.
+stage="$tmp_root/sdd-forge"
 backup="$tmp_root/backup"
 backup_state="$tmp_root/backup-state.tsv"
 mkdir -p "$stage" "$backup"
@@ -260,17 +269,23 @@ if ((apply_failed)); then
   fail ROLLBACK_APPLY "apply failed; original tree restored byte-for-byte"
 fi
 
-# Verify that every inventory path reached its baseline state.
+# Verify that every inventory path reached its baseline state. Keep the
+# original tree recoverable if this final check fails (including an injected
+# failure used by the regression suite).
+final_verification_failed=0
 while IFS=$'\t' read -r path baseline_hash; do
   target="$repo_root/$path"
   if [[ "$baseline_hash" == "__ABSENT__" ]]; then
-    [[ ! -e "$target" && ! -L "$target" ]] ||
-      fail ROLLBACK_APPLY "post-apply path should be absent: $path"
+    [[ ! -e "$target" && ! -L "$target" ]] || final_verification_failed=1
   else
     [[ -f "$target" && ! -L "$target" &&
-       "$(hash_file "$target")" == "$baseline_hash" ]] ||
-      fail ROLLBACK_APPLY "post-apply hash mismatch: $path"
+       "$(hash_file "$target")" == "$baseline_hash" ]] || final_verification_failed=1
   fi
 done < <(jq -r '.files[] | [.path, (.baseline_sha256 // "__ABSENT__")] | @tsv' "$contract")
+((inject_final_failure)) && final_verification_failed=1
+if ((final_verification_failed)); then
+  restore_original || fail ROLLBACK_RESTORE "final verification failed and original tree could not be restored"
+  fail ROLLBACK_APPLY "final verification failed; original tree restored byte-for-byte"
+fi
 
 printf 'ROLLBACK_OK: 1.5.0 -> 1.4.0 complete\n'

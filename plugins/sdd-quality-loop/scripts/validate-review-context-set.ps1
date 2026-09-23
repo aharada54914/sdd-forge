@@ -82,6 +82,17 @@ function Get-Sha256Text {
     }
 }
 
+function Test-ReportBytesClean {
+    param([string]$Path)
+    try { $bytes = [IO.File]::ReadAllBytes($Path) } catch { return $false }
+    foreach ($byte in $bytes) {
+        if (($byte -lt 0x20 -and $byte -notin @(0x09, 0x0A, 0x0D)) -or $byte -eq 0x7F) {
+            return $false
+        }
+    }
+    return $true
+}
+
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- byte-for-byte the same
 # recipe as check-workflow-state.ps1 Get-NormalizedHash for the task stage
 # (canonical form 1). The one scoped exception to the raw hash-equality rule
@@ -477,6 +488,9 @@ try {
         if (-not (Test-Path -LiteralPath $implementationReport -PathType Leaf)) {
             Fail-ReviewContext 'PATH' 'sdd-evaluator task implementation report is missing'
         }
+        if (-not (Test-ReportBytesClean $implementationReport)) {
+            Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report contains forbidden control bytes'
+        }
         $implementationReportLines = @(Get-Content -LiteralPath $implementationReport -Encoding UTF8)
         if ($implementationReportLines.Count -eq 0 -or
             $implementationReportLines[0] -cne "# Implementation Report: $($document.task_id)" -or
@@ -498,7 +512,7 @@ try {
         }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Outputs\s*$') {
+            if ($line -cmatch '^## Outputs$') {
                 $inOutputs = $true
                 continue
             }
@@ -531,7 +545,7 @@ try {
         # legacy grammar.
         $inLegacyOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Output Paths And Hashes\s*$') {
+            if ($line -cmatch '^## Output Paths And Hashes$') {
                 $inLegacyOutputs = $true
                 continue
             }
@@ -568,13 +582,16 @@ try {
             if (-not (Test-Path -LiteralPath $gateReport -PathType Leaf)) {
                 Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration is missing or is not a regular file: $gateReportDeclarationPath"
             }
+            if (-not (Test-ReportBytesClean $gateReport)) {
+                Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration contains forbidden control bytes: $gateReportDeclarationPath"
+            }
             $gateReportHash = (Get-FileHash -LiteralPath $gateReport -Algorithm SHA256).Hash.ToLowerInvariant()
             if ($gateReportHash -cne $gateReportDeclarationSha256) {
                 Fail-ReviewContext 'HASH' "sdd-evaluator gate-report declaration hash mismatch: $gateReportDeclarationPath"
             }
             $inPostFix = $false
             foreach ($line in @(Get-Content -LiteralPath $gateReport -Encoding UTF8)) {
-                if ($line -cmatch '^## Post-Fix Artifacts\s*$') {
+                if ($line -cmatch '^## Post-Fix Artifacts$') {
                     $inPostFix = $true
                     continue
                 }

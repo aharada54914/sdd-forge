@@ -91,6 +91,10 @@ Assert-Literal $Matrix 'Expected iterations are optimized first, then the weakes
 Assert-Literal $Matrix 'estimated_cost_per_attempt_usd' 'routing must use invocation-supplied cost estimate'
 Assert-Literal $Matrix 'cost_estimate_timestamp' 'routing must record cost estimate timestamp'
 Assert-Literal $Matrix 'lexicographically smaller provider/model' 'routing must define lexical final tie-break'
+Assert-Literal $Matrix 'preferred over flagged fallbacks' `
+    'routing must deprioritize registry-flagged fallbacks before the lexical tie-break'
+Assert-Literal $Adr 'preferred over flagged fallbacks' `
+    'the ADR must record the fallback-deprioritization rank'
 
 foreach ($failure in @('test', 'lint', 'typecheck', 'build', 'review-major', 'review-critical')) {
     Assert-Literal $Matrix "``$failure``" "missing closed failure enum: $failure"
@@ -1050,6 +1054,56 @@ Status: Planned
 
 } finally {
     Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+# RT-20260821-009 cycle-2 (seq 836): pin the fallback tie-break in the ps1
+
+# suite itself - the cross-runtime pin lived only in the sh suite, so a
+
+# Windows-only run missed a fallback regression in either twin.
+
+$fbSel = & $SelectorPs -Risk high -Candidate @('openai/gpt-5.1-codex-max:strong:0.090', 'openai/gpt-5.2-codex:strong:0.090')
+
+if ("$fbSel" -cne 'openai/gpt-5.2-codex strong') {
+
+    Fail "fallback model won the equal-cost tie on the ps1 twin: $fbSel"
+
+}
+
+# Gate seq 852: the probe above resolves to the v1 registry (no -Registry), so
+# stripping fallback_for from the v2 registry reintroduced the defect on both
+# twins with eight suites green. The capability matrix documents `matrix` as
+# the default effort policy, resolving from v2, so that file is a live path.
+Assert-Literal $RegistryV2 '"fallback_for": "openai/gpt-5.2-codex"' `
+    'v2 registry must keep the fallback_for designation'
+
+$fbSelV2 = & $SelectorPs -Risk high -Registry $RegistryV2 -Candidate @('openai/gpt-5.1-codex-max:strong:0.090', 'openai/gpt-5.2-codex:strong:0.090')
+
+if ("$fbSelV2" -cne 'openai/gpt-5.2-codex strong') {
+
+    Fail "fallback model won the equal-cost tie on the v2 registry (ps1 twin): $fbSelV2"
+
+}
+
+# RT-20260821-009 cycle-4 (seq 844): port the reviewer standard-minimum floor
+# to the ps1 twin. The sh suite pins all six reviewer declarations; the ps1
+# twin did not, so a Windows-only run could ship a Haiku-downgraded reviewer.
+foreach ($reviewerDecl in @(
+    'plugins/sdd-review-loop/agents/spec-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/spec-reviewer-b.md',
+    'plugins/sdd-review-loop/agents/impl-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/impl-reviewer-b.md',
+    'plugins/sdd-review-loop/agents/task-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/task-reviewer-b.md')) {
+
+    $declPath = Join-Path $root $reviewerDecl
+
+    if (-not (Select-String -LiteralPath $declPath -Pattern '^model: (sonnet|opus)$' -CaseSensitive -Quiet)) {
+
+        Fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewerDecl"
+
+    }
+
 }
 
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'

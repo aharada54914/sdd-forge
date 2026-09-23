@@ -23,15 +23,34 @@ schema_lines = re.findall(r"(?m)^Report Schema[^\n]*$", text)
 valid_schema_lines = re.findall(
     r"(?m)^Report Schema: implementation-report/v2$", text
 )
+# These promote a schema-less document into the STRICT branch. They were tested
+# with a bare `in text` substring scan, which has no anchoring, so a document
+# that merely QUOTES one -- a review report citing a validator diagnostic inside
+# backticks, mid-sentence -- was promoted and then failed as a malformed v2
+# report. That is the mention-versus-declaration confusion WFI-049 records for
+# section headings, one layer up: a citation is not a declaration. Each
+# indicator is now anchored to the start of its own line.
 v2_indicators = (
-    "## Output Paths And Hashes",
-    "## Test Evidence",
-    "## Iteration And Escalation",
-    "## Isolation Evidence",
-    "**Task Attempt Count**",
-    "**Handoff Reload Evidence Hash**",
+    r"^## Output Paths And Hashes[ \t]*$",
+    r"^## Test Evidence[ \t]*$",
+    r"^## Iteration And Escalation[ \t]*$",
+    r"^## Isolation Evidence[ \t]*$",
+    r"^- \*\*Task Attempt Count\*\*",
+    r"^- \*\*Handoff Reload Evidence Hash\*\*",
 )
-if not schema_lines and not any(indicator in text for indicator in v2_indicators):
+# The indicators are a heuristic for LEGACY implementation reports, which carry
+# no schema line. They must never promote a document that is not an
+# implementation report at all: an independent review report filed beside one
+# shares its section names ("## Test Evidence") without being one, and was
+# failing as a malformed v2 report. A document's own title is its declaration of
+# kind, and it is a sound discriminator here -- measured across all 228 shipped
+# reports, every one of the 145 carrying a schema line also claims the kind in
+# its title, and there is no counterexample.
+declares_implementation_report = bool(re.match(r"^# Implementation Report", text))
+if not schema_lines and not (
+    declares_implementation_report
+    and any(re.search(indicator, text, re.M) for indicator in v2_indicators)
+):
     print("IMPLEMENTATION_REPORT_LEGACY_OK")
     raise SystemExit(0)
 if not schema_lines:
@@ -52,10 +71,58 @@ required_headings = (
     "Session Handoff",
 )
 
-heading_matches = list(re.finditer(r"(?m)^## ([^\n]+)\s*$", text))
+# The capture is NON-GREEDY so trailing whitespace is excluded from the
+# section name. With a greedy `[^\n]+` the `\s*` absorbed nothing, so
+# `## Outputs ` keyed as "Outputs " -- a section this validator then never
+# found, never row-checked and never path-checked, while
+# validate-review-context-set.sh's evaluator_output_is_declared DID accept
+# it as an Outputs section. One invisible trailing byte therefore smuggled
+# arbitrary paths (including `../../etc/passwd`) into an evaluator's
+# authorized input set, past the very duplicate-section guard this file
+# delivers. Found at gate seq 851.
+# The first two fixes each banned the characters that cycle's evaluator had
+# demonstrated -- space and tab, then the C0 controls -- and each time the next
+# evaluator found more. str.strip() removes only characters where str.isspace()
+# is true, so U+200B, U+2060, U+FEFF, U+00AD, the bidi controls and 25 other
+# invisible forms all still keyed `## Outputs<pad>` to a section distinct from
+# `## Outputs` (gate seq 856). Ban the CLASS instead of enumerating members:
+#   * NFC-normalize, so decomposed and precomposed spellings key alike;
+#   * reject control, format, private-use, surrogate, unassigned and
+#     standalone-combining characters outright -- every one is invisible or
+#     near-invisible, and none belongs in a heading;
+#   * strip every Unicode separator, not only the ASCII subset.
+# Measured against all 228 shipped implementation reports before landing: zero
+# headings carry a banned character, so this rejects nothing already in the
+# corpus. The authorization boundary screens the same class at the byte level,
+# because awk silently DROPS a NUL and cannot be trusted to see it.
+import unicodedata
+
+HEADING_BANNED_CATEGORIES = {"Cc", "Cf", "Co", "Cs", "Cn", "Mn", "Me", "Zl", "Zp"}
+
+
+def canonical_heading_name(raw):
+    # Check the class on the RAW form AND on the normalized form. NFC COMBINES
+    # a trailing U+0301 into the preceding letter, erasing the standalone Mn, so
+    # a normalize-then-check order let `## Outputs` + combining acute key a
+    # section of its own -- the only pad form of 23 that survived the first
+    # draft of this rule.
+    normalized = unicodedata.normalize("NFC", raw)
+    for character in raw + normalized:
+        if unicodedata.category(character) in HEADING_BANNED_CATEGORIES:
+            print("IMPLEMENTATION_REPORT_FIELD: control or format character in "
+                  "section heading", file=sys.stderr)
+            raise SystemExit(1)
+    stripped = "".join(
+        character for character in normalized
+        if unicodedata.category(character) != "Zs" or character == " "
+    )
+    return stripped.strip()
+
+
+heading_matches = list(re.finditer(r"(?m)^## ([^\n]+)$", text))
 sections = {}
 for index, match in enumerate(heading_matches):
-    name = match.group(1)
+    name = canonical_heading_name(match.group(1))
     end = heading_matches[index + 1].start() if index + 1 < len(heading_matches) else len(text)
     sections.setdefault(name, []).append(text[match.end():end])
 
@@ -105,7 +172,8 @@ def canonical_repository_path(value, field_name):
         or value.startswith("/")
         or re.match(r"^[A-Za-z]:", value)
         or "\\" in value
-        or any(component in ("", ".", "..") for component in components)
+        or any(component in ("", ".", "..", "~") for component in components)
+        or value.startswith("~")
     ):
         fail(f"invalid {field_name}")
     return value
@@ -245,6 +313,33 @@ elif isolation_mode == "same-session-file-reload":
         fail("same-session fallback requires Handoff Reload Evidence Hash")
 else:
     fail("invalid Isolation Mode")
+
+# WFI-044: a quota interruption ends the recording agent's turn, so the
+# RESUMING orchestrator -- a different actor -- is the one that knows the run
+# fell back to same-session-file-reload, and nothing obliged it to say so.
+# Presence-only checking therefore let agci T-007 ship `fresh-agent` over a
+# narrative describing exactly that fallback (RT-20260821-016).
+#
+# The rule fires only on a `fresh-agent` declaration, and only when ONE
+# sentence carries both an interruption term and a resumption term -- the
+# conjunction is what distinguishes "this run was interrupted and resumed"
+# from the framework's ordinary talk of handoffs and reloads. Fail-closed: a
+# false positive is corrected by making the declaration truthful, never by
+# deleting the narrative.
+if isolation_mode == "fresh-agent":
+    _interruption = re.compile(
+        r"\b(quota|rate[- ]limit\w*|interrupt\w*|"
+        r"ran out of context|context (?:limit|window) (?:hit|exhausted))\b",
+        re.IGNORECASE,
+    )
+    _resumption = re.compile(
+        r"\b(resum\w+|took over|picked (?:it |the work )?up|"
+        r"orchestrator (?:completed|finished|continued))\b",
+        re.IGNORECASE,
+    )
+    for _sentence in re.split(r"(?<=[.!?])\s+", text):
+        if _interruption.search(_sentence) and _resumption.search(_sentence):
+            fail("isolation narrative contradicts declared mode")
 
 unresolved_body = sections["Unresolved Items"][0].strip()
 if is_unfilled(unresolved_body):

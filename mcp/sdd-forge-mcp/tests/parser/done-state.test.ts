@@ -138,6 +138,43 @@ test("Done with a contract.json whose task_id does not match fails", () => {
   }
 });
 
+test("Done with a matching contract whose risk disagrees with tasks.md fails", () => {
+  const { root, cleanup } = makeTempSddRoot("sdd-parser-done-contractriskmismatch");
+  try {
+    const tasksMd = [
+      "## T-001 Foo",
+      "",
+      `${APPROVAL_APPROVED}`,
+      "Status: Done",
+      "Risk: low",
+      "",
+      "### Blockers",
+      "None",
+      "",
+    ].join("\n");
+    writeFile(root.path, "specs/demo/tasks.md", tasksMd);
+    writeFile(root.path, "specs/demo/verification/T-001.evidence.json", "{}");
+    writeFile(
+      root.path,
+      "specs/demo/verification/T-001.contract.json",
+      JSON.stringify({ task_id: "T-001", risk: "HIGH" }),
+    );
+
+    const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.data.verdict, "fail");
+    const mismatch = findFailure(result.data.failures, "contract-risk-mismatch");
+    assert.ok(mismatch, "expected a contract-risk-mismatch failure");
+    assert.equal(
+      mismatch?.message,
+      "T-001 contract risk 'high' does not match tasks.md risk 'low'",
+    );
+  } finally {
+    cleanup();
+  }
+});
+
 test("Done with no quality-gate report mentioning the task id fails", () => {
   const { root, cleanup } = makeTempSddRoot("sdd-parser-done-noqg");
   try {

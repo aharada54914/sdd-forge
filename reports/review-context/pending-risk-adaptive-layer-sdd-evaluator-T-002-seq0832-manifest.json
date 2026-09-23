@@ -1,0 +1,62 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "risk-adaptive-layer",
+ "task_id": "T-002",
+ "run_id": "RUN-risk-adaptive-layer-qg-T-002-seq0832",
+ "host_session_id": "SESS-qg-risk-adaptive-layer-T-002-0832",
+ "sequence": 832,
+ "previous_record_sha256": "b828bc16dbc308341d49f671435ce34ceeb8dfc2e7f6cbc4372da57489358a81",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "ade592d099eeadaef38259bf6243cb5a17fec9f80dc2649799ee2d0f6297e3a4",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/risk-adaptive-layer/requirements.md",
+   "sha256": "6eeaa30e8c8348a8bb8e0f08c45ce3b7df0ee0725729a9adcf7438971542e7f0"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/design.md",
+   "sha256": "38b39607eda436d25f72748cd3df99db254c7070d15452702084b7958ff7f3ca"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+   "sha256": "bebcc8b7222d27dba533ced804898a6829f297cfff208013e807826e10201a73"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/tasks.md",
+   "sha256": "028232492079a2d654b3be296582dc5bf64aa376af0830d18ad678f020e848b5"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/traceability.md",
+   "sha256": "218b70f1877464b31834dad19558f7085cc30489ce49daa51fa448831677f6de"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/risk-adaptive-layer/T-002.md",
+   "sha256": "5463fdcac99844687237285fa5de871dbfd12467f52fea93ac033d3a0722bae3"
+  },
+  {
+   "path": ".gitignore",
+   "sha256": "06ad48c0f81282b296634ce7bf9bc8614c8894f16af90a4249401f645e046d98"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-002.green.log",
+   "sha256": "0a34384d510057661e1728b81d2bb0f8b45ede13320ba65a8fe98980f6535030"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-002.red.log",
+   "sha256": "ff2b0ac21db0adf87a3caf403b202829d33940be61b91c0f58280324689588a8"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260821T055500Z.md",
+  "sha256": "6d200a84c815e2bb9ed7f91801cd8ff63c668f413d74cf41d1bc539589640147"
+ }
+}

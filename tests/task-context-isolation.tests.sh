@@ -118,7 +118,15 @@ fi
 if touch "$VALID_SNAPSHOT/specs/demo/new.md" 2>/dev/null; then
   fail "published snapshot permitted post-publication file creation"
 fi
-if rm "$VALID_SNAPSHOT/specs/demo/requirements.md" 2>/dev/null; then
+if python3 - "$VALID_SNAPSHOT/specs/demo/requirements.md" <<'PY' 2>/dev/null
+import os
+import sys
+try:
+    os.unlink(sys.argv[1])
+except OSError:
+    sys.exit(1)
+PY
+then
   fail "published snapshot permitted post-publication deletion"
 fi
 

@@ -84,9 +84,7 @@ function Test-EscapeHatch {
 
 function Test-ReleaseHasNeeds {
     param([string]$SliceText)
-    if ($SliceText -cmatch '(?m)needs:\s*loop-gate\s*$') { return $true }
-    if ($SliceText -cmatch 'needs:\s*\[\s*loop-gate\s*\]') { return $true }
-    if ($SliceText -cmatch 'needs:\s*\n\s*-\s*loop-gate\b') { return $true }
+    if ($SliceText -cmatch '(?ms)^\s*needs:\s*(?:(?:\[[^\]]*\bloop-gate\b[^\]]*\])|loop-gate\b|(?:(?:\r?\n\s*-\s+[^\r\n]+)*\r?\n\s*-\s+loop-gate\b))') { return $true }
     return $false
 }
 
@@ -159,7 +157,25 @@ function Test-009 {
 
     $text = Get-Content -LiteralPath $releaseYml -Raw
     $lines = $text -split "`n"
-    $mutatedLines = $lines | Where-Object { $_ -cnotmatch '^\s*needs:\s*loop-gate\s*$' }
+    $mutatedLines = [System.Collections.Generic.List[string]]::new()
+    $inNeedsBlock = $false
+    foreach ($line in $lines) {
+        if ($line -cmatch '^(?<indent>[ \t]*)needs:[ \t]*\[(?<members>[^\]]*)\][ \t]*$') {
+            $members = (($Matches.members -split ',') | Where-Object { $_.Trim() -cne 'loop-gate' }) -join ', '
+            $mutatedLines.Add("$($Matches.indent)needs: [$members]")
+            $inNeedsBlock = $false
+        } elseif ($line -cmatch '^[ \t]*needs:[ \t]*loop-gate[ \t]*$') {
+            $inNeedsBlock = $false
+        } elseif ($line -cmatch '^[ \t]*needs:[ \t]*$') {
+            $mutatedLines.Add($line)
+            $inNeedsBlock = $true
+        } elseif ($inNeedsBlock -and $line -cmatch '^[ \t]*-[ \t]*loop-gate[ \t]*$') {
+            continue
+        } else {
+            $mutatedLines.Add($line)
+            if ($inNeedsBlock -and $line -notmatch '^[ \t]*-[ \t]*') { $inNeedsBlock = $false }
+        }
+    }
     $mutatedText = ($mutatedLines -join "`n")
     $fixtureCopy = Join-Path $tempRoot "release.yml"
     [System.IO.File]::WriteAllText($fixtureCopy, $mutatedText, $utf8NoBom)

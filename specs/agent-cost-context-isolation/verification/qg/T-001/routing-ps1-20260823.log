@@ -1,0 +1,6 @@
+COMMAND: pwsh -NoProfile -File tests/agent-model-routing.tests.ps1
+EXIT: 0
+Risk check passed for 1 task(s).
+Risk check FAILED:
+ - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)
+ok: turn-first model routing structure is defined (PowerShell twin)

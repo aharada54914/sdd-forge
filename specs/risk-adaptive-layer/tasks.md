@@ -19,7 +19,7 @@ Only `quality-gate` may set `Done`.
 
 Source Issue: investigation.md INV-001, INV-004
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: template/reference/doc changes only; no gate logic yet, but foundational for all later tasks.
 Required Workflow: acceptance-first
@@ -65,7 +65,7 @@ None
 
 Source Issue: investigation.md INV-001
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: introduces a new fail-closed deterministic control that other gates depend on; must be cross-runtime correct and unforgeable.
 Required Workflow: tdd
@@ -104,7 +104,7 @@ T-001
 
 Source Issue: investigation.md INV-002
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: modifies the core Default-FAIL gate; a regression here weakens every adopter's assurance. Backward compatibility is load-bearing.
 Required Workflow: tdd
@@ -143,7 +143,7 @@ T-001, T-002
 
 Source Issue: investigation.md INV-003
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: enforces TDD proof for high/critical; incorrect logic would either block valid work or admit fake TDD.
 Required Workflow: tdd
@@ -236,9 +236,9 @@ T-003
 ## T-007 Evidence signing + two-person approval (Critical controls)
 
 Source Issue: investigation.md INV-006, INV-007
-Approval: Approved
-Second Approval: (required — Risk: critical; see design.md §7. For bootstrap, the
-sole maintainer records both with rationale until a second approver exists.)
+Cross-Model: enabled
+Approval: Approved (aharada54914 2026-08-26T12:42:13Z)
+Second Approval: Approved (akiharada 2026-08-26T12:45:16Z)
 Status: Implementation Complete
 Risk: critical
 Risk Rationale: introduces cryptographic signing of evidence AND a new approval control; the highest-trust surface in the feature. Demonstrates the Critical workflow on itself.
@@ -311,8 +311,13 @@ Requirements: REQ-009, REQ-010
 ### Goal
 Author `docs/THREAT-MODEL.md` (consolidate sudo/kill-switch/install/risk-layer
 threats, trust assumptions, mitigations) and `docs/agent-capability-matrix.md`
-(per-agent tool scopes). Add `model` / reasoning routing to `.codex/agents/sdd-investigator.toml`
-and `sdd-evaluator.toml` (cost-aware: cheap for investigate, stronger for evaluate).
+(per-agent tool scopes). Document cost-aware `model` / reasoning routing for
+`.codex/agents/sdd-investigator.toml` and `sdd-evaluator.toml` as a RUNTIME
+control (`--model`/`--effort` at invocation, capability-matrix M-04; cheap for
+investigate, stronger for evaluate). The role toml files intentionally carry no
+`model` key (unconfirmed schema key → "malformed agent role" reject risk;
+RT-20260821-002 residual, reconciled 2026-08-23 — cycle-1's census missed this
+Goal line, measured in reports/quality-gate/20260823T090000Z.md).
 
 ### Must Read
 - specs/risk-adaptive-layer/design.md (§Security)
@@ -391,7 +396,7 @@ T-002..T-007
 
 Source Issue: reports/implementation/T-011.md Finding 1
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: changes check-contract Pass 4 (the gate engine); must keep all existing contract tests green and stay backward compatible.
 Required Workflow: tdd

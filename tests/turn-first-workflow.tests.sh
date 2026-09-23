@@ -579,8 +579,347 @@ for missing_text in "${missing_cases[@]}"; do
   esac
 done
 
+# RT-20260821-017 cycle-2 (seq 833): the required-headings enforcement had
+# ZERO coverage - a mutant that neutered the missing/duplicate-heading loop
+# survived every suite while accepting a report with two conflicting
+# ## Isolation Evidence sections (identity forgery surface, REQ-008).
+# Both polarities, pinned here.
+missing_heading_report="$REPORT_WORK/missing-heading.md"
+python3 - "$REPORT_WORK/current.md" "$missing_heading_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Session Handoff\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Session Handoff section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$missing_heading_report" 2>&1)" &&
+  fail "report with a MISSING required heading unexpectedly passed"
+[[ "$heading_output" == *'missing ## Session Handoff'* ]] ||
+  fail "unexpected missing-heading diagnostic: $heading_output"
+
+dup_heading_report="$REPORT_WORK/dup-heading.md"
+python3 - "$REPORT_WORK/current.md" "$dup_heading_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Isolation Evidence\n\n"
+          "- **Run ID**: ATTACKER-RUN\n"
+          "- **Isolation Mode**: same-session-file-reload\n"
+          "- **Fallback Reason**: operator-prefers-one-session\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$dup_heading_report" 2>&1)" &&
+  fail "report with a DUPLICATE ## Isolation Evidence section unexpectedly passed (identity forgery surface)"
+[[ "$heading_output" == *'duplicate ## Isolation Evidence'* ]] ||
+  fail "unexpected duplicate-heading diagnostic: $heading_output"
+
+# RT-20260821-017 cycle-3 (seq 840): the WFI-017 move of the outputs-section
+# enforcement into validate-implementation-report.sh lost ALL negative
+# coverage - four mutants (duplicate/missing section, duplicate path,
+# malformed row) survived every suite, two of them admitting forged
+# declaration reports into the evaluator authorization chain
+# (evaluator_output_is_declared parses the same section). The six cases below
+# pin the ## Outputs TABLE branch, each against its specific diagnostic.
+# NOTE (corrected at cycle 4, seq 843): the original wording claimed these
+# pinned EVERY outputs-section guard. That was false - the legacy
+# ## Output Paths And Hashes branch had four surviving mutants and is now
+# pinned separately further down.
+dup_outputs_report="$REPORT_WORK/dup-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$dup_outputs_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Outputs\n\n"
+          "| Path | SHA-256 |\n"
+          "|---|---|\n"
+          "| `plugins/ATTACKER-SMUGGLED.md` | `cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc` |\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
+  "$dup_outputs_report" \
+  "report with a SECOND ## Outputs table (declaration smuggling surface)"
+
+# Gate seq 851: the guard above was bypassable by ONE invisible byte. A greedy
+# heading capture left the trailing space in the section name, so `## Outputs `
+# keyed as a different section that this validator never parsed -- while the
+# authorization boundary's prefix matcher DID accept it as an Outputs section.
+# A smuggled `../../etc/passwd` row therefore reached an evaluator's authorized
+# input set past both the duplicate-section and the path-traversal guards.
+# Both whitespace forms pinned; the boundary now requires an exact heading.
+# Gate seq 853 broke the first fix: `[ \t]` covered only space and tab, so
+# form feed, vertical tab, NBSP and NUL still keyed a padded heading to a
+# different section, and the LEGACY heading was still matched by prefix at
+# the boundary. The whole whitespace-and-control class is enumerated here,
+# on BOTH headings, so the mutation that reopened it cannot survive.
+# Gate seq 856 charged that the heading grammar had been tightened one
+# character-class at a time for three consecutive cycles. Both components now
+# ban the CLASS, so this loop enumerates every invisible form that was ever
+# demonstrated -- ASCII whitespace, the C0 controls, the Unicode separators,
+# the format characters and the combining marks -- and asserts which of the two
+# fail-closed paths each one takes. Adding a form here costs one word.
+for pad_label in space tab cr ff vt nul nbsp ideographic en-space zwsp \
+    word-joiner bom mongolian-vs soft-hyphen lrm rlm lri pdi zwnj zwj \
+    comb-acute vs16 mixed; do
+  pad_report="$REPORT_WORK/pad-heading-$pad_label.md"
+  python3 - "$REPORT_WORK/current.md" "$pad_report" "$pad_label" <<'PYEOF'
+import sys
+source, destination, pad_label = sys.argv[1:]
+pads = {
+    "space": " ", "tab": "\t", "cr": "\r", "ff": "\x0c", "vt": "\x0b",
+    "nul": "\x00", "nbsp": "\u00a0", "ideographic": "\u3000",
+    "en-space": "\u2002", "zwsp": "\u200b", "word-joiner": "\u2060",
+    "bom": "\ufeff", "mongolian-vs": "\u180e", "soft-hyphen": "\u00ad",
+    "lrm": "\u200e", "rlm": "\u200f", "lri": "\u2066", "pdi": "\u2069",
+    "zwnj": "\u200c", "zwj": "\u200d", "comb-acute": "\u0301",
+    "vs16": "\ufe0f", "mixed": " \u200b\t",
+}
+pad = pads[pad_label]
+text = open(source, encoding="utf-8").read()
+text += (
+    "\n## Outputs" + pad + "\n\n"
+    "| Path | SHA-256 |\n"
+    "|---|---|\n"
+    "| `../../etc/passwd` | `" + "d" * 64 + "` |\n"
+)
+open(destination, "w", encoding="utf-8").write(text)
+PYEOF
+  # Two fail-closed paths, and every form takes exactly one of them:
+  #   * a Unicode separator (Zs) is stripped, so the padded heading collides
+  #     with the clean one and the duplicate-section guard fires;
+  #   * everything else -- control (Cc), format (Cf) and combining (Mn) -- is
+  #     refused outright, because it can never be stripped away safely.
+  # `comb-acute` sits in the second group only because the class is checked on
+  # the RAW name as well as the NFC form: NFC folds a trailing U+0301 into the
+  # preceding letter, erasing the standalone mark.
+  # `cr` joins the collide group rather than the refuse group: Python reads the
+  # report with universal newlines, so a lone CR is already a line terminator by
+  # the time the heading is keyed and never reaches the class check.
+  case "$pad_label" in
+    space|cr|nbsp|ideographic|en-space)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' ;;
+    *)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: control or format character in section heading' ;;
+  esac
+  expect_report_rejection "$pad_expect" \
+    "$pad_report" \
+    "second ## Outputs heading padded with a trailing $pad_label (one-byte authorization bypass)"
+done
+
+dup_legacy_report="$REPORT_WORK/dup-legacy-section.md"
+python3 - "$REPORT_WORK/dual-form-v2.md" "$dup_legacy_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Output Paths And Hashes\n\n"
+          "- **Path**: `plugins/ATTACKER-LEGACY.md`; **SHA-256**: `dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd`\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Output Paths And Hashes' \
+  "$dup_legacy_report" \
+  "report with a SECOND ## Output Paths And Hashes section"
+
+no_outputs_report="$REPORT_WORK/no-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$no_outputs_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Outputs\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Outputs section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing ## Outputs' \
+  "$no_outputs_report" \
+  "v2 report with NO outputs section (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/dup-output-path.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/dup-output-path.md" \
+  "report declaring the same output path twice in the Outputs table"
+
+replace_report_text \
+  "$REPORT_WORK/dual-form-v2.md" \
+  "$REPORT_WORK/cross-section-dup.md" \
+  '- **Path**: `plugins/example-legacy.md`; ' \
+  '- **Path**: `plugins/example.md`; '
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/cross-section-dup.md" \
+  "duplicate output path spanning the Outputs table and the legacy section"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| plugins/malformed.md | not-a-hash |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  "report with a malformed Outputs table row (silent-skip surface)"
+
+# RT-20260821-017 cycle-5 (seq 848): the 64-hex requirement was pinned on the
+# LEGACY branch only, so mutating the TABLE row pattern to `[0-9a-f]+` survived
+# every suite in the repository. The table branch is the form the template
+# emits and the form the authorization chain parses, so the hash half of
+# TEST-004's "path/hash" requirement needs the same mirror the path half has.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-short-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/short.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-short-hash.md" \
+  "table row carrying a 62-hex hash instead of 64"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-upper-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-upper-hash.md" \
+  "table row carrying an uppercase hash (the declared form is lowercase)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  '**SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '**SHA-256**: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  "legacy bullet carrying an uppercase hash"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-unquoted.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| plugins/example.md | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-unquoted.md" \
+  "table row without the backticks the authorization boundary matches on"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-tilde-path.md" \
+  '| `plugins/example.md` |' \
+  '| `~/secrets.md` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/table-tilde-path.md" \
+  "table row declaring a tilde-home path"
+
 # Boundary cases cover partial escalation records and isolation-mode-specific
 # fallback evidence rather than merely checking for non-empty labels.
+
+# RT-20260821-017 cycle-4 (seq 843): the cycle-3 remediation pinned only the
+# `## Outputs` TABLE branch. The legacy `## Output Paths And Hashes` branch --
+# which is the form this feature's own reports and their evaluator manifests
+# are authorized through -- still had zero negative coverage, and four of its
+# guards survived mutation. Pinned here against bullet-only-v2.md.
+python3 - "$REPORT_WORK/bullet-only-v2.md" "$REPORT_WORK/legacy-no-entry.md" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?m)^- \*\*Path\*\*: .*\n", "", text)
+assert n >= 1, "legacy bullet not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-no-entry.md" \
+  "legacy section present but declaring no output at all (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-malformed.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: plugins/malformed.md; SHA-256: not-a-hash'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-malformed.md" \
+  "malformed legacy bullet (silent-skip surface)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-traversal.md" \
+  '- **Path**: `plugins/example.md`;' \
+  '- **Path**: `../../etc/passwd`;'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/legacy-traversal.md" \
+  "legacy bullet declaring a path that escapes the repository"
+
+# A sole short-hash bullet reports 'missing ... entry' (the 64-hex pattern
+# matches nothing, so the not-found branch fires first). To pin the hex-length
+# requirement on the malformed branch instead, keep one valid bullet and add a
+# short-hash one: the parsed count then disagrees with the bullet count.
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: `plugins/short.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  "legacy bullet carrying a 62-hex hash instead of 64"
+
+# WFI-044 (RT-20260821-016): a quota interruption ends the recording agent's
+# turn, so the resuming orchestrator -- a different actor -- is the one that
+# knows the run fell back, and presence-only checking let agci T-007 ship
+# `fresh-agent` over a narrative describing exactly that fallback. Both
+# polarities plus the false-positive guard are pinned here.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe first attempt stopped when the host quota was hit, and the orchestrator resumed the work from the handoff file.\n'
+} > "$REPORT_WORK/isolation-contradiction.md"
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: isolation narrative contradicts declared mode' \
+  "$REPORT_WORK/isolation-contradiction.md" \
+  "fresh-agent declared over an interrupted-and-resumed narrative"
+
+python3 - "$REPORT_WORK/current.md" "$REPORT_WORK/isolation-truthful.md" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+text = (text.replace("- **Isolation Mode**: fresh-agent",
+                     "- **Isolation Mode**: same-session-file-reload")
+            .replace("- **Fallback Reason**: None",
+                     "- **Fallback Reason**: host-does-not-support-implementation-subagents")
+            .replace("- **Handoff Reload Evidence Hash**: None",
+                     "- **Handoff Reload Evidence Hash**: " + "a" * 64))
+text += ("\n\nThe first attempt stopped when the host quota was hit, and the "
+         "orchestrator resumed the work from the handoff file.\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text)
+PYEOF
+truthful_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-truthful.md")" ||
+  fail "a truthful same-session declaration with the same narrative was rejected"
+[[ "$truthful_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for truthful same-session narrative: $truthful_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe manifest is the only handoff input; chat history is forbidden. Evidence was reloaded from disk.\n'
+} > "$REPORT_WORK/isolation-ordinary-prose.md"
+ordinary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-ordinary-prose.md")" ||
+  fail "ordinary handoff/reload prose tripped the WFI-044 narrative rule (false positive)"
+[[ "$ordinary_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for ordinary handoff prose: $ordinary_output"
+
+# The rule's two NARROWING semantics need their own fixtures, or `and`->`or`
+# and per-sentence->whole-document both survive (seq 848). These two carry the
+# terms the previous false-positive fixture lacked.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe host quota was reached during the run. A later paragraph notes that the batch resumed normally afterwards.\n'
+} > "$REPORT_WORK/isolation-split-sentences.md"
+split_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-split-sentences.md")" ||
+  fail "WFI-044 fired across sentence boundaries (the rule is per-sentence)"
+[[ "$split_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for split-sentence narrative: $split_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe provider quota for this account is documented in the runbook.\n'
+} > "$REPORT_WORK/isolation-interruption-only.md"
+interrupt_only_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-interruption-only.md")" ||
+  fail "WFI-044 fired on an interruption term alone (the rule needs the conjunction)"
+[[ "$interrupt_only_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for interruption-only narrative: $interrupt_only_output"
+
 replace_report_text \
   "$REPORT_WORK/current.md" \
   "$REPORT_WORK/partial-escalation.md" \

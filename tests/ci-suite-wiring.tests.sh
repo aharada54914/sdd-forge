@@ -5,10 +5,18 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 RUN_ALL="$ROOT/tests/suite-inventory.posix"
 WORKFLOW="$ROOT/.github/workflows/test.yml"
 
-count="$(grep -Ec '^[[:space:]]*run: bash ./tests/run-ci-unwired\.sh[[:space:]]*$' "$WORKFLOW")"
-if [[ "$count" != "1" ]]; then
-  printf 'FAIL: expected exactly one CI invocation of tests/run-ci-unwired.sh, found %s\n' "$count" >&2
+serial_count="$(grep -Ec '^[[:space:]]*run: bash ./tests/run-ci-unwired\.sh[[:space:]]*$' "$WORKFLOW" || true)"
+shard_count="$(grep -Ec '^[[:space:]]*run: bash ./tests/run-ci-unwired\.sh --shard-index "\$\{\{ matrix\.shard \}\}" --shard-count 4[[:space:]]*$' "$WORKFLOW" || true)"
+if [[ "$serial_count" != "1" && "$shard_count" != "1" ]]; then
+  printf 'FAIL: expected one serial or one matrix invocation of tests/run-ci-unwired.sh, serial=%s shard=%s\n' "$serial_count" "$shard_count" >&2
   exit 1
+fi
+
+if [[ "$shard_count" == "1" ]]; then
+  grep -F 'shard: [0, 1, 2, 3]' "$WORKFLOW" >/dev/null || {
+    printf 'FAIL: POSIX shard matrix must cover indices 0..3\n' >&2
+    exit 1
+  }
 fi
 
 if ! test -s "$RUN_ALL"; then
