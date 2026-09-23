@@ -834,8 +834,18 @@ if [[ "$SPY_F1_RC" -eq 0 && "$SPY_F3_RC" -eq 0 && "$SPY_F4_RC" -eq 0 ]]; then
   # invocation driver before the assertion can be promoted.  The manifest
   # contract still reserves skip_allowlist_line AC-004/AC-021 rendering
   # when that future invocation driver is added.
-  A5_SKILL_MD="$REPO_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-  if [[ -f "$A5_SKILL_MD" ]] && grep -Fq 'resolve-project-context' "$A5_SKILL_MD"; then
+  # Only executable plugin sources can activate this assertion.  A skill
+  # document may mention the future resolver path without wiring a caller.
+  A5_LIVE_CALLER_FOUND=1
+  while IFS= read -r A5_CANDIDATE; do
+    if grep -Eq '(^|[[:space:];|&])((bash|sh|pwsh|powershell|python3?)[[:space:]]+)?[^[:space:];|&]*resolve-project-context(\.sh|\.ps1|\.py)?([[:space:]]|$)' "$A5_CANDIDATE" && \
+       grep -Eq -- '--(config|feature|source-rev|target-rev)([=[:space:]])' "$A5_CANDIDATE"; then
+      A5_LIVE_CALLER_FOUND=0
+      break
+    fi
+  done < <(find "${REPO_ROOT}/plugins" -type f \( -name '*.sh' -o -name '*.ps1' -o -name '*.py' \) \
+    ! -path '*/scripts/resolve-project-context.*' ! -path '*/scripts/generated/*' -print 2>/dev/null | sort)
+  if [[ "$A5_LIVE_CALLER_FOUND" -eq 0 ]]; then
     fail 'TEST-019.10b: live resolver caller is wired but this suite still lacks a real invocation driver'
   else
     ok 'TEST-019.10b: resolver non-invocation assertion deferred until the live caller is wired (no stale SKIP emitted)'
