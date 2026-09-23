@@ -1541,7 +1541,9 @@ def install_spy(repo):
     spy_bin.mkdir()
     for name in ("resolve-component-paths", "validate-capability-registry"):
         path = spy_bin / name
-        path.write_text(f"#!/bin/sh\nprintf fired > '{spy}'\nexit 91\n", encoding="utf-8", newline="\n")
+        # write_bytes preserves LF bytes and works on Python 3.9, where
+        # pathlib.Path.write_text has no newline keyword.
+        path.write_bytes(f"#!/bin/sh\nprintf fired > '{spy}'\nexit 91\n".encode("utf-8"))
         path.chmod(0o755)
     env = os.environ.copy()
     env["PATH"] = str(spy_bin) + os.pathsep + env.get("PATH", "")

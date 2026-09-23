@@ -806,7 +806,9 @@ def _install_spy_shims(scripts):
         live = scripts / f"{base_name}.py"
         real = scripts / f"{base_name}-real.py"
         shutil.copy2(live, real)
-        live.write_text(_SPY_SHIM_TEMPLATE, encoding="utf-8", newline="\n")
+        # Keep the generated shim byte-stable on Python 3.9, whose
+        # pathlib.Path.write_text does not accept the newline keyword.
+        live.write_bytes(_SPY_SHIM_TEMPLATE.encode("utf-8"))
 
 
 def _spy_repo(fixture_dir):
