@@ -12,10 +12,13 @@ Capabilities, Provider Bindings, and host adapters. It does not replace the
 Multi-target Foundation in #187 or claim that its planned integrations are
 complete.
 
-Baseline: `origin/main` at `51adb50b` (2026-09-23 checkout). Repository facts
-below cite the checked-out source and must be re-verified against the consuming
-files at spec/design review and implementation planning, since these files may
-change independently.
+Baseline: `origin/main` at `2b328e4050f6a2e3fbb647fc9530fcc55ac7ec70`
+(2026-09-23 review checkout). This supersedes the draft's earlier
+`51adb50b` snapshot and the Issue's 2026-09-13 investigation baseline
+`08baf03a45c7d47f5bc5e73bf2519e47ea500a5d`. Repository facts below cite the
+current review checkout and must be re-verified against the consuming files
+at spec/design review and implementation planning, since these files may
+change independently; see `traceability.md` for the observed drift.
 
 ## Problem
 

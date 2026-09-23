@@ -16,9 +16,13 @@ operations. Provider resource execution, new gate stages, facet-native-only
 output, and package restructuring remain deferred.
 
 All claims below about existing repository behavior cite checked-out
-`origin/main` (`51adb50b`) and must be re-verified against the consuming files
-at spec/design review and implementation planning. Line references describe
-the baseline, not a claim that integration work is complete.
+`origin/main` (`2b328e4050f6a2e3fbb647fc9530fcc55ac7ec70`) and must be
+re-verified against the consuming files at spec/design review and
+implementation planning. This supersedes the draft's earlier `51adb50b`
+snapshot and the Issue's 2026-09-13 investigation baseline
+`08baf03a45c7d47f5bc5e73bf2519e47ea500a5d`; see `traceability.md` for the
+observed drift. Line references describe the baseline, not a claim that
+integration work is complete.
 
 ## Architecture and Ownership
 
