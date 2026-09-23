@@ -70,5 +70,28 @@ else
     fail "apply-branch-protection.sh missing or unparseable"
 fi
 
+# 5. Release gating (RT-20260821-004, maintainer decision 2026-08-23):
+#    release.yml must carry the ci-green job, the release job must depend on
+#    it, and manual dispatch must be ref-restricted. Structure pins only; the
+#    live API check runs inside the workflow itself.
+RELEASE_YML="$ROOT/.github/workflows/release.yml"
+if python3 - "$RELEASE_YML" <<'PY'
+import re, sys
+text = open(sys.argv[1]).read()
+assert re.search(r"^  ci-green:", text, re.M), "ci-green job missing"
+assert re.search(r"^    needs: \[ci-green, loop-gate\]", text, re.M), \
+    "release job does not depend on ci-green + loop-gate"
+assert "workflow_dispatch is restricted to main or a tag ref" in text, \
+    "dispatch ref restriction missing"
+assert "actions/workflows/test.yml/runs?head_sha=" in text, \
+    "CI-success verification query missing"
+assert "status=success" in text, "CI-success query does not filter on success"
+PY
+then
+    ok "release.yml gates on ci-green with ref-restricted dispatch"
+else
+    fail "release.yml lost the ci-green gating shape (RT-20260821-004)"
+fi
+
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

@@ -23,6 +23,12 @@
       "id": "publish-notes",
       "stage": "artifact",
       "blocking": false
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
     }
   ],
   "capabilities": [

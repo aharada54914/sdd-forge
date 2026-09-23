@@ -149,6 +149,59 @@ Status: Done
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-good.json"
     Assert-ExitCode "check-contract passing" (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
 
+    # --- WFI-046 per-check execution record (design.md section 2) ---
+    # The rule shipped in the python master only; every malformed shape passed
+    # on this runtime while failing on POSIX, and neither suite had a fixture
+    # that entered the code path at all (gate seq 849). Both polarities pinned
+    # here and in the sh twin.
+    function New-Wfi046Contract {
+        param([hashtable]$Fields, [string]$OutFile)
+        $c = Get-Content -Raw -Encoding Utf8 "contract-good.json" | ConvertFrom-Json
+        foreach ($k in $Fields.Keys) {
+            $c.checks[0] | Add-Member -NotePropertyName $k -NotePropertyValue $Fields[$k] -Force
+        }
+        $c | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $OutFile
+    }
+
+    Assert-ExitCode "T-006.ps.7a: WFI-046 fields absent still passes (grandfathering)" `
+        (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
+
+    New-Wfi046Contract -Fields @{ command = "bash tests/unit.tests.sh"; exit_code = 0;
+        started_at = "2026-08-24T10:00:00Z"; finished_at = "2026-08-24T10:05:00Z" } `
+        -OutFile "contract-wfi046-valid.json"
+    Assert-ExitCode "T-006.ps.7b: WFI-046 valid execution record passes" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-valid.json", "-RepoRoot", ".")) 0
+
+    New-Wfi046Contract -Fields @{ command = "   " } -OutFile "contract-wfi046-cmd.json"
+    Assert-ExitCode "T-006.ps.7c: WFI-046 blank command is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-cmd.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ exit_code = "zero" } -OutFile "contract-wfi046-rc.json"
+    Assert-ExitCode "T-006.ps.7d: WFI-046 non-integer exit_code is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-rc.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ started_at = "2026-08-24T10:00:00" } `
+        -OutFile "contract-wfi046-ts.json"
+    Assert-ExitCode "T-006.ps.7e: WFI-046 timestamp without the UTC Z is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-ts.json", "-RepoRoot", ".")) 1
+
+    # gate seq 854 Major 1: ConvertFrom-Json maps a LOWERCASE `z` to
+    # DateTimeKind::Utc, so the Kind-based check accepted `...T10:00:00z` while
+    # the python master's regex rejected it -- a live parity break, and the
+    # narrow reason the Kind proxy had to be replaced by a raw-text read. 7f
+    # and 7g pin the two shapes the proxy could never see: a lowercase
+    # designator, and a string the coercion cannot parse at all (which used to
+    # skip the Kind branch entirely).
+    New-Wfi046Contract -Fields @{ started_at = "2026-08-24T10:00:00z" } `
+        -OutFile "contract-wfi046-tslower.json"
+    Assert-ExitCode "T-006.ps.7f: WFI-046 lowercase z designator is rejected (python-master parity)" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-tslower.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ finished_at = "not-a-timestamp" } `
+        -OutFile "contract-wfi046-tsjunk.json"
+    Assert-ExitCode "T-006.ps.7g: WFI-046 unparseable finished_at is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-tsjunk.json", "-RepoRoot", ".")) 1
+
     $contract.checks[0].evidence = "missing.log"
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-badev.json"
     Assert-ExitCode "check-contract missing evidence" (Invoke-Gate "check-contract.ps1" @("contract-badev.json", "-RepoRoot", ".")) 1
@@ -1852,6 +1905,58 @@ Quality gate report for T-100.
     }
     Write-Host "ok: T-006.ps.3d: review_verdict.verdict is PASS"
 
+    # T-006.ps.6 (RT-20260821-005 cycle 2, seq 845): the REQ-006 per-check
+    # telemetry ships but was guarded by nothing in either runtime -- deleting
+    # the emission left both suites fully green. Pinned here and in the sh twin.
+    # command/exit_code/timestamps are PASS-THROUGH from the contract and are
+    # null when the contract does not record them, so they are not asserted
+    # non-empty; what is asserted is what the generator guarantees.
+    # Assign the empty array FIRST: `$x = if (...) { @() }` assigns $null,
+    # because PowerShell unrolls an empty array in the output stream, which
+    # turned the intended guard into a PropertyNotFound on .Count instead.
+    $checksTel = @()
+    if ($highBundleJson.PSObject.Properties.Name -contains 'checks') {
+        $checksTel = @($highBundleJson.checks)
+    }
+    if ($checksTel.Count -lt 1) {
+        throw "T-006.ps.6a: generated bundle missing or empty 'checks' telemetry array"
+    }
+    Write-Host "ok: T-006.ps.6a: generated bundle contains non-empty 'checks' telemetry"
+
+    $highContractPath = "$t006Repo/specs/test-feature/verification/T-100.contract.json"
+    $contractChecks = @((Get-Content -Raw -Encoding Utf8 $highContractPath | ConvertFrom-Json).checks)
+    if ($checksTel.Count -ne $contractChecks.Count) {
+        throw "T-006.ps.6b: telemetry entry count $($checksTel.Count) != contract check count $($contractChecks.Count)"
+    }
+    Write-Host "ok: T-006.ps.6b: 'checks' telemetry has one entry per contract check"
+
+    foreach ($field in @('id', 'required', 'passes', 'command', 'exit_code', 'started_at', 'finished_at', 'evidence', 'evidence_sha256')) {
+        $absent = $checksTel | Where-Object { -not ($_.PSObject.Properties.Name -contains $field) }
+        if (@($absent).Count -gt 0) {
+            throw "T-006.ps.6c: a 'checks' telemetry entry is missing the structural key '$field'"
+        }
+    }
+    Write-Host "ok: T-006.ps.6c: every 'checks' entry carries the full REQ-006 key set"
+
+    $hashed = @($checksTel | Where-Object { $_.evidence_sha256 })
+    if ($hashed.Count -lt 1) {
+        throw "T-006.ps.6d: no 'checks' telemetry entry carries a computed evidence hash"
+    }
+    $badHash = @($hashed | Where-Object { "$($_.evidence_sha256)" -notmatch '^[a-f0-9]{64}$' })
+    if ($badHash.Count -gt 0) {
+        throw "T-006.ps.6d: 'checks' telemetry evidence_sha256 is not valid 64-char hex"
+    }
+    Write-Host "ok: T-006.ps.6d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
+
+    $requiredWorkflowValue = $null
+    if ($highBundleJson.PSObject.Properties.Name -contains 'required_workflow') {
+        $requiredWorkflowValue = $highBundleJson.required_workflow
+    }
+    if ([string]::IsNullOrWhiteSpace("$requiredWorkflowValue")) {
+        throw "T-006.ps.6e: generated bundle missing 'required_workflow' provenance field"
+    }
+    Write-Host "ok: T-006.ps.6e: generated bundle carries 'required_workflow'"
+
     # Test: T-006.ps.4 - same as .3 but quality report VERDICT: NEEDS_WORK → check FAILS
     @"
 Task ID: T-101
@@ -2118,6 +2223,26 @@ Quality gate report for T-200.
         throw "T-007a.4: should fail without SDD_EVIDENCE_SIGSTORE_VERIFIED. Got exit $t007a_check_4_exit"
     }
     Write-Host "ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails"
+
+    $env:SDD_EVIDENCE_SIGSTORE_VERIFIED = "0"
+    $t007a_check_4_zero_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_4_zero_exit = $LASTEXITCODE
+    $t007a_check_4_zero_str = ($t007a_check_4_zero_output | Out-String)
+    if ($t007a_check_4_zero_exit -eq 0 -or $t007a_check_4_zero_str -notmatch "SIGSTORE_VERIFIED") {
+        throw "T-007a.4.zero: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=0. Got exit $t007a_check_4_zero_exit"
+    }
+    Write-Host "ok: T-007a.4.zero: sigstore with SIGSTORE_VERIFIED=0 fails"
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
+
+    $env:SDD_EVIDENCE_SIGSTORE_VERIFIED = "false"
+    $t007a_check_4_false_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_4_false_exit = $LASTEXITCODE
+    $t007a_check_4_false_str = ($t007a_check_4_false_output | Out-String)
+    if ($t007a_check_4_false_exit -eq 0 -or $t007a_check_4_false_str -notmatch "SIGSTORE_VERIFIED") {
+        throw "T-007a.4.false: should fail with SDD_EVIDENCE_SIGSTORE_VERIFIED=false. Got exit $t007a_check_4_false_exit"
+    }
+    Write-Host "ok: T-007a.4.false: sigstore with SIGSTORE_VERIFIED=false fails"
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
 
     # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
     # Create fresh bundle for T-201
@@ -2410,15 +2535,65 @@ Second Approval: Approved (bob 2026-06-13T11:00:00Z)
         throw "T-007b.4: should reject sudo as primary approver"
     }
 
-    # Test 5: REGRESSION - named Approval format accepted (not invalid)
+    # Test 5: critical + Done + distinct named approvals => no two-person diagnostic
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 "t007b-test5.md"
+    $t007b_5_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $workDir "t007b-test5.md") 2>&1
+    $t007b_5_text = ($t007b_5_out | Out-String)
+    if ($t007b_5_text -notmatch "Second Approval|two distinct|named approver|primary approver is 'sudo'") {
+        Write-Host "ok: T-007b.5: critical Done with alice + bob has no two-person diagnostic"
+    } else {
+        throw "T-007b.5: valid distinct approvals produced a two-person diagnostic: $t007b_5_text"
+    }
+
+    # Test 6: high + Done without Second Approval => no two-person diagnostic
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: high
+"@ | Set-Content -Encoding Utf8 "t007b-test6.md"
+    $t007b_6_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $workDir "t007b-test6.md") 2>&1
+    $t007b_6_text = ($t007b_6_out | Out-String)
+    if ($t007b_6_text -notmatch "Second Approval|two distinct|named approver|primary approver is 'sudo'") {
+        Write-Host "ok: T-007b.6: high Done without Second Approval has no two-person diagnostic"
+    } else {
+        throw "T-007b.6: high-risk task unexpectedly produced a two-person diagnostic: $t007b_6_text"
+    }
+
+    # Test 7: contract risk mismatch is rejected before risk-based approval checks
+    $t007b7Dir = Join-Path $workDir "t007b-test7"
+    $t007b7Verification = Join-Path $t007b7Dir "verification"
+    New-Item -ItemType Directory -Path $t007b7Verification -Force | Out-Null
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 (Join-Path $t007b7Dir "tasks.md")
+    '{"task_id":"T-001","risk":"high"}' | Set-Content -Encoding Utf8 (Join-Path $t007b7Verification "T-001.contract.json")
+    $t007b_7_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") (Join-Path $t007b7Dir "tasks.md") 2>&1
+    if (($t007b_7_out | Out-String) -match "contract risk 'high' does not match tasks\.md risk 'critical'") {
+        Write-Host "ok: T-007b.7: contract/tasks risk mismatch is rejected"
+    } else {
+        throw "T-007b.7: expected contract/tasks risk mismatch diagnostic: $($t007b_7_out | Out-String)"
+    }
+
+    # Test 8: REGRESSION - named Approval format accepted (not invalid)
     @"
 ## T-001
 Approval: Approved (alice 2026-06-13T10:00:00Z)
 Status: In Progress
 "@ | Set-Content -Encoding Utf8 "t007b-test5.md"
-    Assert-ExitCode "T-007b.5: named Approval format accepted" (Invoke-Gate "check-task-state.ps1" @("t007b-test5.md")) 0
+    Assert-ExitCode "T-007b.8: named Approval format accepted" (Invoke-Gate "check-task-state.ps1" @("t007b-test5.md")) 0
 
-    # Test 6: REGRESSION - sudo format still accepted
+    # Test 9: REGRESSION - sudo format still accepted
     @"
 ## T-001
 Approval: Approved (sudo 2026-06-13T10:00:00Z)

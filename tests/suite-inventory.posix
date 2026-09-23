@@ -66,6 +66,7 @@ tests/deterministic-lane-selfcheck.tests.sh
 tests/guard-ps1-ascii.tests.sh
 tests/repository-release-validation.tests.sh
 tests/template-validator-parity.tests.sh
+tests/criterion-freeze.tests.sh
 tests/task-lifecycle-enum-parity.tests.sh
 tests/task-state-grammar-parity.tests.sh
 tests/task-plan-binding-durability.tests.sh
@@ -140,6 +141,7 @@ tests/lite-gate-summary-invalid.tests.sh
 tests/lite-gate-full-upgrade-backstop.tests.sh
 tests/lite-gate-summary-absent-active-enforcement.tests.sh
 tests/lite-gate-direct-edit-contract.tests.sh
+tests/lite-gate-cli-chain.tests.sh
 tests/capability-registry-schema.tests.sh
 tests/evaluate-predicate.tests.sh
 tests/registry-discovery.tests.sh

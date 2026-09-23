@@ -1,0 +1,48 @@
+HEADER: COMPENSATING GREEN CAPTURE, re-run 2026-08-26 against the CURRENT
+suite (pair of the compensating red capture; same clone-based scratch tree
+with the pristine generator restored byte-for-byte).
+
+RE-CAPTURE NOTICE (gate seq 854): the 2026-08-23 version was an honest
+pristine run of its time but went STALE for the THIRD time, by exactly the
+five assertions the cycle-4 remediation added -- T-006.8a through T-006.8e,
+introduced into tests/gates.tests.sh by the human apply commit 5a60b0f8. Its
+declared tallies (21 distinct ids, PASS 156) described a suite five
+assertions smaller than the one shipped beside it. This run covers the
+shipped suite; the stale figures are corrected wherever they were cited
+(this file, its red pair, the RT-20260821-005 waiver, and the T-006
+implementation report).
+COMMAND: bash tests/gates.tests.sh  (scratch clone, pristine)
+EXIT: 0
+DISTINCT T-006 ASSERTION IDS: 26
+ok: T-006.8a: WFI-046 fields absent still passes (grandfathering)
+ok: T-006.8b: WFI-046 valid execution record passes
+ok: T-006.8c: WFI-046 blank command is rejected
+ok: T-006.8d: WFI-046 non-integer exit_code is rejected
+ok: T-006.8e: WFI-046 timestamp without the UTC Z is rejected
+=== T-006: evidence provenance ===
+ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
+ok: T-006.1b: legacy bundle file created at expected path
+ok: T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)
+ok: T-006.2a: generated bundle contains 'risk' field
+ok: T-006.2b: generated bundle contains 'spec_revision' field
+ok: T-006.2c: generated bundle contains 'build_env' field
+ok: T-006.2d: generated bundle contains 'builder' field
+ok: T-006.2e: generated bundle contains 'review_verdict' field
+ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
+ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
+ok: T-006.3c: spec_revision is valid 64-char hex
+ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.5a: generated bundle contains non-empty 'checks' telemetry
+ok: T-006.5b: 'checks' telemetry has one entry per contract check
+ok: T-006.5c: every 'checks' entry carries the full REQ-006 key set
+ok: T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256
+ok: T-006.5e: generated bundle carries 'required_workflow'
+ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
+ok: T-006.5: high bundle with empty spec_revision fails check
+ok: T-006.6: risk mismatch (bundle vs contract) fails check
+ok: T-006.7: emptied bundle risk vs high contract fails closed
+
+====== Test Summary ======
+PASS: 161
+FAIL: 0
+==========================

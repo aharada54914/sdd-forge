@@ -119,15 +119,25 @@ is_forbidden_review_output() {
 #     requires the row to end at a pipe followed by nothing but whitespace,
 #     so that shape still fails to match and the row still fails to
 #     authorize -- unchanged from before this fix.
+# Markdown reports are byte text. Reject controls before parsing so an awk/bash
+# line reader cannot normalize a NUL or other hidden byte into an accepted heading.
+report_bytes_are_clean() {
+  local report=$1 offenders
+  [ -f "$report" ] && [ -r "$report" ] || return 1
+  offenders=$(LC_ALL=C tr -d '\11\12\15\40-\176\200-\377' < "$report" 2>/dev/null |
+    LC_ALL=C wc -c | tr -cd '0-9')
+  [ "$offenders" = "0" ]
+}
+
 evaluator_output_is_declared() {
   local path=$1 expected_hash=$2 report=$3 heading=$4
+  report_bytes_are_clean "$report" || return 1
   local row_pattern='^\|[[:space:]]*`([^`]+)`[^|]*\|[[:space:]]*`([0-9a-f]{64})`[^|]*\|[[:space:]]*$'
   local in_outputs=false found=false line remainder
   while IFS= read -r line || [[ -n "$line" ]]; do
     if ! $in_outputs; then
-      if [[ "$line" == "$heading"* ]]; then
-        remainder=${line#"$heading"}
-        [[ "$remainder" =~ ^[[:space:]]*$ ]] && in_outputs=true
+      if [[ "$line" == "$heading" ]]; then
+        in_outputs=true
       fi
       continue
     fi
@@ -158,9 +168,9 @@ evaluator_output_is_declared() {
 # channel (WFI-036) defines its own table form and gains no legacy grammar.
 implementation_report_legacy_declares() {
   local path=$1 expected_hash=$2 report=$3
+  report_bytes_are_clean "$report" || return 1
   awk -v expected_path="$path" -v expected_hash="$expected_hash" '
-    index($0, "## Output Paths And Hashes") == 1 &&
-      substr($0, length("## Output Paths And Hashes") + 1) ~ /^[[:space:]]*$/ {
+    $0 == "## Output Paths And Hashes" {
       in_legacy = 1
       next
     }
@@ -519,6 +529,13 @@ else
     any(.records[]; .host_session_id == $session and .run_id != $run)
   ' "$ledger" >/dev/null 2>&1; then
     fail IDENTITY 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
+  fi
+
+  # WFI-034/#311: a new evaluator reservation must declare its isolated
+  # scratch root. Historical ledger records remain compatible because they
+  # are handled by the persisted branch above.
+  if $reserve && [[ "$stage:$role" == quality:sdd-evaluator && -z "$scratch_root" ]]; then
+    fail PATH 'new sdd-evaluator reservation requires scratch_root'
   fi
 
   # Reservation of a new identity: today's behaviour, unchanged.

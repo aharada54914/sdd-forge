@@ -82,6 +82,17 @@ function Get-Sha256Text {
     }
 }
 
+function Test-ReportBytesClean {
+    param([string]$Path)
+    try { $bytes = [IO.File]::ReadAllBytes($Path) } catch { return $false }
+    foreach ($byte in $bytes) {
+        if (($byte -lt 0x20 -and $byte -notin @(0x09, 0x0A, 0x0D)) -or $byte -eq 0x7F) {
+            return $false
+        }
+    }
+    return $true
+}
+
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- byte-for-byte the same
 # recipe as check-workflow-state.ps1 Get-NormalizedHash for the task stage
 # (canonical form 1). The one scoped exception to the raw hash-equality rule
@@ -433,6 +444,14 @@ try {
             Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
         }
 
+        # WFI-034/#311: a new evaluator reservation must declare its isolated
+        # scratch root. Historical ledger records remain compatible because
+        # they are handled by the persisted branch above.
+        if ($Reserve -and "$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator' -and
+            -not $document.ContainsKey('scratch_root')) {
+            Fail-ReviewContext 'PATH' 'new sdd-evaluator reservation requires scratch_root'
+        }
+
         # Reservation of a new identity: today's behaviour, unchanged.
         if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
@@ -477,6 +496,9 @@ try {
         if (-not (Test-Path -LiteralPath $implementationReport -PathType Leaf)) {
             Fail-ReviewContext 'PATH' 'sdd-evaluator task implementation report is missing'
         }
+        if (-not (Test-ReportBytesClean $implementationReport)) {
+            Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report contains forbidden control bytes'
+        }
         $implementationReportLines = @(Get-Content -LiteralPath $implementationReport -Encoding UTF8)
         if ($implementationReportLines.Count -eq 0 -or
             $implementationReportLines[0] -cne "# Implementation Report: $($document.task_id)" -or
@@ -498,7 +520,7 @@ try {
         }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Outputs\s*$') {
+            if ($line -cmatch '^## Outputs$') {
                 $inOutputs = $true
                 continue
             }
@@ -531,7 +553,7 @@ try {
         # legacy grammar.
         $inLegacyOutputs = $false
         foreach ($line in $implementationReportLines) {
-            if ($line -cmatch '^## Output Paths And Hashes\s*$') {
+            if ($line -cmatch '^## Output Paths And Hashes$') {
                 $inLegacyOutputs = $true
                 continue
             }
@@ -568,13 +590,16 @@ try {
             if (-not (Test-Path -LiteralPath $gateReport -PathType Leaf)) {
                 Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration is missing or is not a regular file: $gateReportDeclarationPath"
             }
+            if (-not (Test-ReportBytesClean $gateReport)) {
+                Fail-ReviewContext 'PATH' "sdd-evaluator gate-report declaration contains forbidden control bytes: $gateReportDeclarationPath"
+            }
             $gateReportHash = (Get-FileHash -LiteralPath $gateReport -Algorithm SHA256).Hash.ToLowerInvariant()
             if ($gateReportHash -cne $gateReportDeclarationSha256) {
                 Fail-ReviewContext 'HASH' "sdd-evaluator gate-report declaration hash mismatch: $gateReportDeclarationPath"
             }
             $inPostFix = $false
             foreach ($line in @(Get-Content -LiteralPath $gateReport -Encoding UTF8)) {
-                if ($line -cmatch '^## Post-Fix Artifacts\s*$') {
+                if ($line -cmatch '^## Post-Fix Artifacts$') {
                     $inPostFix = $true
                     continue
                 }

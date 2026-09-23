@@ -14,6 +14,7 @@ assert_contains() {
   local pattern="$2"
   local message="$3"
   grep -Eq "$pattern" "$file" || fail "$message"
+  printf 'ok: %s\n' "$message"
 }
 
 assert_literal() {
@@ -21,6 +22,7 @@ assert_literal() {
   local text="$2"
   local message="$3"
   grep -Fq "$text" "$file" || fail "$message"
+  printf 'ok: %s\n' "$message"
 }
 
 # Portable SHA-256 (mirrors tests/agent-capabilities-v2.tests.sh's
@@ -76,6 +78,10 @@ assert_literal "$MATRIX" "Expected iterations are optimized first, then the weak
 assert_literal "$MATRIX" "estimated_cost_per_attempt_usd" "routing must use invocation-supplied cost estimate"
 assert_literal "$MATRIX" "cost_estimate_timestamp" "routing must record cost estimate timestamp"
 assert_literal "$MATRIX" "lexicographically smaller provider/model" "routing must define lexical final tie-break"
+assert_literal "$MATRIX" "preferred over flagged fallbacks" \
+  "routing must deprioritize registry-flagged fallbacks before the lexical tie-break"
+assert_literal "$ADR" "preferred over flagged fallbacks" \
+  "the ADR must record the fallback-deprioritization rank"
 
 for failure in test lint typecheck build review-major review-critical; do
   assert_literal "$MATRIX" "\`$failure\`" "missing closed failure enum: $failure"
@@ -119,6 +125,22 @@ assert_literal "$MATRIX" '| sdd-evaluator | strong | Anthropic Opus | OpenAI/Cod
 assert_contains "$INVESTIGATOR" '^model: haiku$' "Claude investigator must be downgraded to Haiku"
 assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
 assert_contains "$EVALUATOR" '^model: opus$' "Claude evaluator must remain Opus"
+
+# RT-20260821-009 cycle-2 (seq 836): reviewer floor pins. The standard-minimum
+# reviewer floor was matrix-prose-only - downgrading any reviewer declaration
+# to Haiku shipped green (measured on 4/4 tested files by the cycle-2
+# evaluator). Pin all six declarations at sonnet-or-stronger.
+for reviewer_decl in \
+  plugins/sdd-review-loop/agents/spec-reviewer-a.md \
+  plugins/sdd-review-loop/agents/spec-reviewer-b.md \
+  plugins/sdd-review-loop/agents/impl-reviewer-a.md \
+  plugins/sdd-review-loop/agents/impl-reviewer-b.md \
+  plugins/sdd-review-loop/agents/task-reviewer-a.md \
+  plugins/sdd-review-loop/agents/task-reviewer-b.md; do
+  grep -Eq '^model: (sonnet|opus)$' "$ROOT/$reviewer_decl" ||
+    fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewer_decl"
+  printf 'ok: reviewer declaration meets the standard floor: %s\n' "$reviewer_decl"
+done
 
 assert_literal "$ADR" "Turn-first routing optimizes expected iteration count before token price." \
   "ADR must record turn-first routing decision"
@@ -1178,5 +1200,24 @@ if command -v pwsh >/dev/null 2>&1; then
 fi
 grep -q '"fallback_for": "openai/gpt-5.2-codex"' "$REGISTRY" ||
   fail "registry lost the fallback_for designation (design.md:44)"
+
+# Gate seq 852: the RT-20260821-009 fix designated the fallback in BOTH
+# registries, but every probe above resolves to v1 (no --registry), so
+# stripping the designation from the v2 registry reintroduced the exact defect
+# on both twins while eight suites stayed green. The capability matrix
+# documents `matrix` as the default effort policy, resolving from v2, so a
+# caller on the documented default gets its tie-breaking from this file.
+grep -q '"fallback_for": "openai/gpt-5.2-codex"' "$REGISTRY_V2" ||
+  fail "v2 registry lost the fallback_for designation (design.md:44)"
+fb_sel_v2="$(bash "$SELECTOR_SH" --risk high --registry "$REGISTRY_V2" \
+  --candidate openai/gpt-5.1-codex-max:strong:0.090 \
+  --candidate openai/gpt-5.2-codex:strong:0.090)"
+[[ "$fb_sel_v2" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "fallback model won an equal-cost tie against its primary on the v2 registry: $fb_sel_v2"
+if command -v pwsh >/dev/null 2>&1; then
+  fb_ps_v2="$(pwsh -NoProfile -Command "& '$SELECTOR_PS' -Risk high -Registry '$REGISTRY_V2' -Candidate @('openai/gpt-5.1-codex-max:strong:0.090','openai/gpt-5.2-codex:strong:0.090')")"
+  [[ "$fb_ps_v2" == "openai/gpt-5.2-codex strong" ]] ||
+    fail "PowerShell selector let the fallback win the equal-cost tie on the v2 registry: $fb_ps_v2"
+fi
 
 printf 'ok: turn-first model routing structure is defined\n'

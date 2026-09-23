@@ -29,8 +29,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - name: Install contract validator
-        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
       - name: Test guard dispatch fallback
@@ -57,9 +55,27 @@ jobs:
       - name: Test design sync standing consent (PowerShell)
         shell: pwsh
         run: ./tests/design-sync-standing-consent.tests.ps1
-      - name: Run every otherwise-unwired POSIX suite
+
+  # The inventory remains the source of truth, but otherwise-unwired suites
+  # run as independent shards so the longest POSIX lane is bounded by one
+  # shard instead of the full serial inventory.
+  posix-unwired-sharded:
+    name: POSIX unwired shard (${{ matrix.shard }})
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Run POSIX inventory shard
         shell: bash
-        run: bash ./tests/run-ci-unwired.sh
+        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4
 
   test:
     strategy:
@@ -389,13 +405,18 @@ jobs:
 
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
-  # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Pure file/manifest assertions with no git-history or CLI dependency. The
+  # matrix intentionally covers both runtime families: Windows exercises
+  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
+  # PowerShell. macOS-specific behavior remains covered by the platform
+  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
+  # this platform-neutral lane on macOS adds runner cost without new coverage.
   loops-routing:
     name: loops-routing
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -483,6 +504,12 @@ jobs:
       - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
+
+      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
+        run: bash ./tests/release-config-lock.tests.sh
+
+      - name: Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)
+        run: bash ./tests/criterion-freeze.tests.sh
 
       - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
