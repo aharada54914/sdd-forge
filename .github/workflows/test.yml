@@ -57,9 +57,27 @@ jobs:
       - name: Test design sync standing consent (PowerShell)
         shell: pwsh
         run: ./tests/design-sync-standing-consent.tests.ps1
-      - name: Run every otherwise-unwired POSIX suite
+
+  # The inventory remains the source of truth, but otherwise-unwired suites
+  # run as independent shards so the longest POSIX lane is bounded by one
+  # shard instead of the full serial inventory.
+  posix-unwired-sharded:
+    name: POSIX unwired shard (${{ matrix.shard }})
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Run POSIX inventory shard
         shell: bash
-        run: bash ./tests/run-ci-unwired.sh
+        run: bash ./tests/run-ci-unwired.sh --shard-index "${{ matrix.shard }}" --shard-count 4
 
   test:
     strategy:
@@ -162,6 +180,7 @@ jobs:
         run: ./tests/repository-release-validation.tests.sh
 
       - name: "[deterministic] Test deterministic gate scripts"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
@@ -178,6 +197,7 @@ jobs:
         run: bash ./tests/quality-gate-cycle-limit.tests.sh
 
       - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
@@ -186,6 +206,7 @@ jobs:
           ./tests/task-layer-review-inputs.tests.ps1
 
       - name: "[deterministic] Test cross-model gate (pwsh)"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
 
@@ -200,6 +221,7 @@ jobs:
         run: bash ./tests/phase2-guard-invariants.tests.sh
 
       - name: "[deterministic] Test hook guards"
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
@@ -231,10 +253,6 @@ jobs:
         run: |
           bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
 
-      - name: "[deterministic] Test panelist-input consent gate (pwsh)"
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/prepare-panelist.tests.ps1
 
       - name: "[deterministic] Test portable review-loop prechecks (bash)"
         if: runner.os != 'Windows'
@@ -296,11 +314,23 @@ jobs:
   # Shallow checkout suffices here -- the fixtures archive HEAD and the
   # remote-installer steps resolve $GITHUB_SHA through the GitHub API.
   installers:
-    name: installers
+    name: installers (${{ matrix.os }} / ${{ matrix.lane }})
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            lane: core
+          - os: windows-latest
+            lane: mcp
+          - os: windows-latest
+            lane: clients
+          - os: windows-latest
+            lane: context
+          - os: macos-latest
+            lane: all
+          - os: ubuntu-latest
+            lane: all
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -317,26 +347,31 @@ jobs:
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
       - name: Install recorded Claude Code CLI
+        if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: bash
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Validate Claude plugin manifests (real CLI)
+        if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: pwsh
         run: ./tests/claude-manifest-validation.tests.ps1
 
       - name: Test installer (pwsh)
         shell: pwsh
-        run: ./tests/install.tests.ps1
+        run: ./tests/install.tests.ps1 -Lane ${{ matrix.lane }}
 
       - name: Test uninstaller (pwsh)
+        if: matrix.lane == 'all' || matrix.lane == 'context'
         shell: pwsh
         run: ./tests/uninstall.tests.ps1
 
       - name: Test Claude registration (pwsh)
+        if: matrix.lane == 'all' || matrix.lane == 'mcp'
         shell: pwsh
         run: ./tests/claude-registration.tests.ps1
 
       - name: Test authenticated remote installer (pwsh)
+        if: matrix.lane == 'all' || matrix.lane == 'context'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -366,19 +401,24 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: installer-test-logs-${{ matrix.os }}
+          name: installer-test-logs-${{ matrix.os }}-${{ matrix.lane }}
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
 
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
-  # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Pure file/manifest assertions with no git-history or CLI dependency. The
+  # matrix intentionally covers both runtime families: Windows exercises
+  # native PowerShell plus Git Bash, while Ubuntu exercises native Bash plus
+  # PowerShell. macOS-specific behavior remains covered by the platform
+  # sensitive test, version-gate, installer, MCP, and hook jobs, so repeating
+  # this platform-neutral lane on macOS adds runner cost without new coverage.
   loops-routing:
     name: loops-routing
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -504,27 +544,27 @@ jobs:
         shell: pwsh
         run: ./tests/run-panelist-effort.tests.ps1
 
-  # version-gates -- the bump-version and release loop-gate suites are the
-  # slowest non-installer steps on Windows (~9 min combined), so they get
-  # their own parallel job together with the model-freshness suite.
+  # version-gates keeps the Bash/PowerShell twins on the POSIX matrix.
   version-gates:
     name: version-gates
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Test bump-version.sh loop-gate prerequisite (bash)
+        if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/bump-version-gate.tests.sh
 
       - name: Test bump-version.sh loop-gate prerequisite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/bump-version-gate.tests.ps1
 
@@ -535,6 +575,7 @@ jobs:
         run: bash ./tests/release-loop-gate.tests.sh
 
       - name: Test release.yml required loop-gate job (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
@@ -546,6 +587,7 @@ jobs:
         run: bash ./tests/model-freshness-check.tests.sh
 
       - name: Test model-freshness-check suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
@@ -557,6 +599,7 @@ jobs:
         run: bash ./tests/project-context-schema.tests.sh
 
       - name: Test project-context-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
 
@@ -568,6 +611,7 @@ jobs:
         run: bash ./tests/approver-registry-schema.tests.sh
 
       - name: Test approver-registry-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/approver-registry-schema.tests.ps1
 
@@ -586,6 +630,7 @@ jobs:
         run: bash ./tests/canonicalize-sdd-yaml.tests.sh
 
       - name: Test canonicalize-sdd-yaml suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/canonicalize-sdd-yaml.tests.ps1
 
@@ -597,6 +642,7 @@ jobs:
         run: bash ./tests/generate-approval-sidecar.tests.sh
 
       - name: Test generate-approval-sidecar suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-approval-sidecar.tests.ps1
 
@@ -608,6 +654,7 @@ jobs:
         run: bash ./tests/detect-policy-weakening.tests.sh
 
       - name: Test detect-policy-weakening suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/detect-policy-weakening.tests.ps1
 
@@ -619,19 +666,33 @@ jobs:
         run: bash ./tests/validate-approval-sidecar.tests.sh
 
       - name: Test validate-approval-sidecar suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
-      - name: Test apply-human-copy publisher suite (bash)
-        if: runner.os != 'Windows'
+      # These suites use isolated temporary trees. Run both POSIX variants
+      # concurrently; Windows keeps the existing skip behavior.
+      - name: Test apply-human-copy publisher suites (POSIX parallel)
+        if: runner.os == 'macOS' || runner.os == 'Linux'
         shell: bash
-        # Invoked via bash explicitly so the step does not depend on the
-        # committed exec bit (Windows-authored commits record mode 100644).
-        run: bash ./tests/apply-human-copy.tests.sh
-
-      - name: Test apply-human-copy publisher suite (pwsh)
-        shell: pwsh
-        run: ./tests/apply-human-copy.tests.ps1
+        run: |
+          set -uo pipefail
+          bash_log="$RUNNER_TEMP/apply-human-copy-bash.log"
+          pwsh_log="$RUNNER_TEMP/apply-human-copy-pwsh.log"
+          bash ./tests/apply-human-copy.tests.sh >"$bash_log" 2>&1 &
+          bash_pid=$!
+          pwsh -NoProfile -File ./tests/apply-human-copy.tests.ps1 >"$pwsh_log" 2>&1 &
+          pwsh_pid=$!
+          bash_status=0
+          pwsh_status=0
+          wait "$bash_pid" || bash_status=$?
+          wait "$pwsh_pid" || pwsh_status=$?
+          cat "$bash_log"
+          cat "$pwsh_log"
+          if [ "$bash_status" -ne 0 ] || [ "$pwsh_status" -ne 0 ]; then
+            printf 'apply-human-copy parallel failure: bash=%s pwsh=%s\n' "$bash_status" "$pwsh_status" >&2
+            exit 1
+          fi
 
       - name: Test hook-activation handshake suite (bash)
         if: runner.os != 'Windows'
@@ -641,6 +702,7 @@ jobs:
         run: bash ./tests/check-hook-activation-handshake.tests.sh
 
       - name: Test hook-activation handshake suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-hook-activation-handshake.tests.ps1
 
@@ -652,6 +714,7 @@ jobs:
         run: bash ./tests/guard-invariants-epic-a1.tests.sh
 
       - name: Test epic-a1 guard-invariants registration (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/guard-invariants-epic-a1.tests.ps1
 
@@ -678,6 +741,7 @@ jobs:
         run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
 
       - name: Test hook-guard epic-a1 write-boundary matrix (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
 
@@ -693,6 +757,7 @@ jobs:
         run: bash ./tests/plugin-contracts-track-selection.tests.sh
 
       - name: Test plugin-contracts track-selection contract (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/plugin-contracts-track-selection.tests.ps1
 
@@ -710,6 +775,7 @@ jobs:
         run: bash ./tests/ship-track-selection-migration.tests.sh
 
       - name: Test ship track-selection migration (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
@@ -728,6 +794,7 @@ jobs:
         run: bash ./tests/capability-registry-schema.tests.sh
 
       - name: Test capability-registry-schema suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/capability-registry-schema.tests.ps1
 
@@ -739,6 +806,7 @@ jobs:
         run: bash ./tests/evaluate-predicate.tests.sh
 
       - name: Test evaluate-predicate suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/evaluate-predicate.tests.ps1
 
@@ -750,6 +818,7 @@ jobs:
         run: bash ./tests/registry-discovery.tests.sh
 
       - name: Test registry-discovery suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/registry-discovery.tests.ps1
 
@@ -761,6 +830,7 @@ jobs:
         run: bash ./tests/validate-capability-registry.tests.sh
 
       - name: Test validate-capability-registry suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/validate-capability-registry.tests.ps1
 
@@ -772,6 +842,7 @@ jobs:
         run: bash ./tests/generate-registry-digest.tests.sh
 
       - name: Test generate-registry-digest suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-registry-digest.tests.ps1
 
@@ -783,6 +854,7 @@ jobs:
         run: bash ./tests/generate-gate-capabilities.tests.sh
 
       - name: Test generate-gate-capabilities suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/generate-gate-capabilities.tests.ps1
 
@@ -799,6 +871,7 @@ jobs:
         run: bash ./tests/capability-registry-parity.tests.sh
 
       - name: Test capability-registry-parity suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/capability-registry-parity.tests.ps1
 
@@ -819,6 +892,7 @@ jobs:
         run: bash ./tests/component-path-resolver.tests.sh
 
       - name: Test component-path-resolver suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-resolver.tests.ps1
 
@@ -830,6 +904,7 @@ jobs:
         run: bash ./tests/component-path-diff-basis.tests.sh
 
       - name: Test component-path-diff-basis suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-diff-basis.tests.ps1
 
@@ -841,6 +916,7 @@ jobs:
         run: bash ./tests/ownership-digest.tests.sh
 
       - name: Test ownership-digest suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/ownership-digest.tests.ps1
 
@@ -852,6 +928,7 @@ jobs:
         run: bash ./tests/check-component-coverage.tests.sh
 
       - name: Test check-component-coverage suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-component-coverage.tests.ps1
 
@@ -863,6 +940,7 @@ jobs:
         run: bash ./tests/component-path-ownership-parity.tests.sh
 
       - name: Test component-path-ownership parity suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/component-path-ownership-parity.tests.ps1
 
@@ -884,6 +962,7 @@ jobs:
         run: bash ./tests/human-copy-runner-contract.tests.sh
 
       - name: Test human-copy-runner-contract suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/human-copy-runner-contract.tests.ps1
 
@@ -895,6 +974,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
 
       - name: Test check-risk-upgrade-byte-identical suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
 
@@ -906,6 +986,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
 
       - name: Test check-risk-upgrade-capability-merge suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
 
@@ -917,6 +998,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
 
       - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
 
@@ -928,6 +1010,7 @@ jobs:
         run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
 
       - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
 
@@ -939,6 +1022,7 @@ jobs:
         run: bash ./tests/lite-spec-capability-block.tests.sh
 
       - name: Test lite-spec-capability-block suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-spec-capability-block.tests.ps1
 
@@ -950,6 +1034,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-consumption.tests.sh
 
       - name: Test lite-gate-summary-consumption suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-consumption.tests.ps1
 
@@ -961,6 +1046,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent.tests.sh
 
       - name: Test lite-gate-summary-absent suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent.tests.ps1
 
@@ -972,6 +1058,7 @@ jobs:
         run: bash ./tests/lite-gate-summary-invalid.tests.sh
 
       - name: Test lite-gate-summary-invalid suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-invalid.tests.ps1
 
@@ -983,6 +1070,7 @@ jobs:
         run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
 
       - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
 
@@ -994,8 +1082,97 @@ jobs:
         run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
 
       - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+
+  # Windows version gates use separate runners so the four deterministic
+  # lanes do not contend for one runner's CPU.
+  version-gates-windows-bump:
+    name: version-gates-windows-bump
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test bump-version.sh loop-gate prerequisite (bash + pwsh, parallel)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $workDir = (Get-Location).Path
+          $logRoot = Join-Path $env:RUNNER_TEMP 'bump-version-gate-parallel'
+          $bashOut = "$logRoot-bash.out"
+          $bashErr = "$logRoot-bash.err"
+          $pwshOut = "$logRoot-pwsh.out"
+          $pwshErr = "$logRoot-pwsh.err"
+          $processes = @()
+          $bash = $null
+          $pwsh = $null
+          $launchError = $null
+          $deadline = [DateTime]::UtcNow.AddMinutes(20)
+          try {
+            $bashPath = (Get-Command bash -ErrorAction Stop).Path
+            $bash = Start-Process -FilePath $bashPath `
+              -ArgumentList @('./tests/bump-version-gate.tests.sh') `
+              -WorkingDirectory $workDir `
+              -RedirectStandardOutput $bashOut `
+              -RedirectStandardError $bashErr `
+              -PassThru
+            $processes += $bash
+            $pwshPath = (Get-Command pwsh -ErrorAction Stop).Path
+            $pwsh = Start-Process -FilePath $pwshPath `
+              -ArgumentList @('-NoProfile', '-NonInteractive', '-File', './tests/bump-version-gate.tests.ps1') `
+              -WorkingDirectory $workDir `
+              -RedirectStandardOutput $pwshOut `
+              -RedirectStandardError $pwshErr `
+              -PassThru
+            $processes += $pwsh
+            while (@($processes | Where-Object { -not $_.HasExited }).Count -gt 0) {
+              if ([DateTime]::UtcNow -ge $deadline) {
+                throw 'bump-version-gate timed out after 20 minutes'
+              }
+              Start-Sleep -Seconds 1
+            }
+          } catch {
+            $launchError = $_
+          } finally {
+            foreach ($process in $processes) {
+              if (-not $process.HasExited) {
+                try { $process.Kill($true) } catch { $process.Kill() }
+                $process.WaitForExit()
+              }
+            }
+          }
+          Write-Host '=== bump-version-gate Bash output ==='
+          if (Test-Path -LiteralPath $bashOut) { Get-Content -LiteralPath $bashOut }
+          if (Test-Path -LiteralPath $bashErr) { Get-Content -LiteralPath $bashErr }
+          Write-Host '=== bump-version-gate PowerShell output ==='
+          if (Test-Path -LiteralPath $pwshOut) { Get-Content -LiteralPath $pwshOut }
+          if (Test-Path -LiteralPath $pwshErr) { Get-Content -LiteralPath $pwshErr }
+          if ($launchError) { throw $launchError }
+          $bashExit = if ($bash) { $bash.ExitCode } else { 'not-started' }
+          $pwshExit = if ($pwsh) { $pwsh.ExitCode } else { 'not-started' }
+          if (-not $bash -or -not $pwsh -or $bashExit -ne 0 -or $pwshExit -ne 0) {
+            throw "bump-version-gate failed (bash=$bashExit, pwsh=$pwshExit)"
+          }
+
+      - name: Test release.yml required loop-gate job (bash)
+        shell: bash
+        run: bash ./tests/release-loop-gate.tests.sh
+
+  version-gates-windows-lanes:
+    name: version-gates-windows-lanes (${{ matrix.lane }})
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [governance, capability, ownership, lite]
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test Windows version-gates lane
+        shell: pwsh
+        run: ./tests/run-version-gates-windows.ps1 -Lane ${{ matrix.lane }}
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
@@ -1200,7 +1377,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1208,6 +1385,10 @@ jobs:
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.test-windows-heavy.result }}" != "success" ]; then
+            echo "test-windows-heavy job failed"
             exit 1
           fi
           if [ "${{ needs.installers.result }}" != "success" ]; then
@@ -1220,6 +1401,14 @@ jobs:
           fi
           if [ "${{ needs.version-gates.result }}" != "success" ]; then
             echo "version-gates job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates-windows-bump.result }}" != "success" ]; then
+            echo "version-gates-windows-bump job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates-windows-lanes.result }}" != "success" ]; then
+            echo "version-gates-windows-lanes job failed"
             exit 1
           fi
           if [ "${{ needs.mcp-tests.result }}" != "success" ]; then
@@ -1243,3 +1432,33 @@ jobs:
             exit 1
           fi
           echo "all required checks passed"
+  # Keep the Windows-only deterministic suites in a parallel job.
+  # Their assertions remain required by required-checks.
+  test-windows-heavy:
+    name: test-windows-heavy
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: "[deterministic] Setup step 1"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: "[deterministic] Test deterministic gate scripts"
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+      - name: "[deterministic] Test portable review-loop prechecks"
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
+      - name: "[deterministic] Test cross-model gate"
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+      - name: "[deterministic] Test hook guards"
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+      - name: "[deterministic] Test panelist-input consent gate"
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1

@@ -464,13 +464,11 @@ try {
     # deliberately-constructed positive/negative fixtures (Scope: "a
     # deliberately drifted anchor window ... before the implementation"),
     # unconditionally live and gating pass/fail normally. TEST-019.5c then
-    # runs the SAME checker against the live SKILL.md, reported for
-    # provenance only -- AC-036's own Test Type (acceptance-tests.md) fixes
-    # this as a named SKIP until Epic A5 merges, matching design.md Test
-    # Strategy item 6 ("once Epic A5's caller insertion point is
-    # implemented," never merely once the digest happens to still match).
+    # runs the SAME checker against the live SKILL.md; before the caller
+    # insertion exists it remains informational, and after that point AC-036
+    # makes it an active gate, matching design.md Test Strategy item 6.
     # -------------------------------------------------------------------
-    Write-Host "=== TEST-019.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+    Write-Host "=== TEST-019.5 (AC-036): anchor-fingerprint drift check (active after Epic A5 caller integration) ==="
 
     function Test-A5AnchorFingerprint {
         param(
@@ -549,7 +547,7 @@ Body text unrelated to any check.
     }
 
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 54 -End 64 -ExpectedSha "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 3
+    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 63 -End 102 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 4
     # The live check activates only after A5's interviewer caller exists. The
     # spec directory may be staged before that insertion point is wired.
     $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and

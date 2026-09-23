@@ -900,13 +900,24 @@ fi
 _LOOP_EVENT_TRACE="$_SAVED_TRACE"
 _LOOP_EVENT_SEQ="$_SAVED_SEQ"
 
-# A5's specs and resolver can be staged before the interviewer caller is
-# wired. Only the live caller reference activates this integration assertion.
-if [[ -f "${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md" ]] && \
-   grep -Fq 'resolve-project-context' "${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"; then
+# A5's contract is currently documented in SKILL.md, but that document is not
+# an executable caller. Activate this assertion only when an executable plugin
+# script invokes the resolver with its caller contract; implementation files,
+# tests, and markdown references must not count as live integration.
+A5_LIVE_CALLER_FOUND=1
+while IFS= read -r A5_CANDIDATE; do
+  if grep -Eq '(^|[[:space:];|&])((bash|sh|pwsh|powershell|python3?)[[:space:]]+)?[^[:space:];|&]*resolve-project-context(\.sh|\.ps1|\.py)?([[:space:]]|$)' "$A5_CANDIDATE" && \
+     grep -Eq -- '--(config|feature|source-rev|target-rev)([=[:space:]])' "$A5_CANDIDATE"; then
+    A5_LIVE_CALLER_FOUND=0
+    break
+  fi
+done < <(find "${REPO_ROOT}/plugins" -type f \( -name '*.sh' -o -name '*.ps1' -o -name '*.py' \) \
+  ! -path '*/scripts/resolve-project-context.*' ! -path '*/scripts/generated/*' -print 2>/dev/null | sort)
+
+if [[ "$A5_LIVE_CALLER_FOUND" -eq 0 ]]; then
   fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
 else
-  echo "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until the live interviewer caller references resolve-project-context; resolver/spec staging alone is not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
+  echo "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; SKILL.md documentation and resolver implementation are not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
 fi
 
 # =============================================================================

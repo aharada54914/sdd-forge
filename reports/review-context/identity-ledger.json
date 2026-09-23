@@ -10368,6 +10368,36 @@
       "host_session_id": "SESS-a7-task-a7r1-b-b471f234-75e3-4dd4-9090-37b251ba12ee",
       "previous_record_sha256": "cabad42d71c2b0315b3dbfd6b1946121f51da6cd78a70561a9eed21c98a5746c",
       "record_sha256": "7a5cfb7aa1a87cc1cbcfef370470b2af2e581a17948e28be0c6ad425338087d4"
+    },
+    {
+      "sequence": 1153,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-20260922",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-20260922",
+      "previous_record_sha256": "7a5cfb7aa1a87cc1cbcfef370470b2af2e581a17948e28be0c6ad425338087d4",
+      "record_sha256": "2209ada8efd8835a19a417dfd7cb2ef6a16a193eb6b212e8902871d802b03dcb",
+      "scratch_declaration_sha256": "26f8dd88f3c137742d4831d94447bee2469984b80b43951bec58af4fa3b162bd"
+    },
+    {
+      "sequence": 1154,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-remediation-20260922",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-remediation-20260922",
+      "previous_record_sha256": "2209ada8efd8835a19a417dfd7cb2ef6a16a193eb6b212e8902871d802b03dcb",
+      "record_sha256": "3a53d2c700fc87feb737f7a6405c7e1ac4b8e8b0b6e0f59d966af587c39209a9",
+      "scratch_declaration_sha256": "da34e3069bdbffab00a5ec8c45b4d102f51e8c65b881901ba92b63e199263aae"
+    },
+    {
+      "sequence": 1155,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-remediation2-20260922",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-remediation2-20260922",
+      "previous_record_sha256": "3a53d2c700fc87feb737f7a6405c7e1ac4b8e8b0b6e0f59d966af587c39209a9",
+      "record_sha256": "4ad9cf6f3fc3634ed36493cbc97f339d125f996ffd8558231f1c1d2c8493f452",
+      "scratch_declaration_sha256": "8563a092650f27dcdcdcf0c1c09bffd3d31983d229542f78ec11d49cd4dd5744"
     }
   ]
 }

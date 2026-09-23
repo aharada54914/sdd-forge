@@ -118,10 +118,15 @@ fi
 if touch "$VALID_SNAPSHOT/specs/demo/new.md" 2>/dev/null; then
   fail "published snapshot permitted post-publication file creation"
 fi
-# BSD rm prompts before deleting a non-writable file when the suite inherits a
-# TTY.  Force the negative probe to be non-interactive; the assertion is about
-# the read-only snapshot contract, not an interactive confirmation prompt.
-if rm -f "$VALID_SNAPSHOT/specs/demo/requirements.md" 2>/dev/null; then
+if python3 - "$VALID_SNAPSHOT/specs/demo/requirements.md" <<'PY' 2>/dev/null
+import os
+import sys
+try:
+    os.unlink(sys.argv[1])
+except OSError:
+    sys.exit(1)
+PY
+then
   fail "published snapshot permitted post-publication deletion"
 fi
 

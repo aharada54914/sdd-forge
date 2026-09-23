@@ -475,7 +475,7 @@ T-001, T-002, T-003, T-004, T-005, T-006
 
 Approval: Approved
 
-Status: In Progress
+Status: Done
 
 Risk: medium
 

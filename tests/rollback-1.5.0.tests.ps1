@@ -73,6 +73,18 @@ if ((Get-Content -Raw present.txt) -ne "baseline`n") { throw "not baseline" }
         throw "PowerShell-native partial-apply restoration failed"
     }
 
+    $finalFailure = Join-Path $temp "final-failure"
+    Invoke-Git clone -q $source $finalFailure
+    $before = (Get-FileHash -Algorithm SHA256 (Join-Path $finalFailure "present.txt")).Hash
+    $failureOutput = (& (Get-Process -Id $PID).Path -NoProfile -File $runner `
+        -RepoRoot $finalFailure -Contract $contract -Validator $validator `
+        -InjectFinalVerificationFailure 2>&1) -join "`n"
+    $failed = $LASTEXITCODE -ne 0 -and $failureOutput -match "ROLLBACK_APPLY"
+    $after = (Get-FileHash -Algorithm SHA256 (Join-Path $finalFailure "present.txt")).Hash
+    if (-not $failed -or $before -cne $after) {
+        throw "PowerShell-native final-verification restoration failed"
+    }
+
     Write-Output "ok: PowerShell-native rollback integration passed"
 } finally {
     Remove-Item -Recurse -Force -LiteralPath $temp -ErrorAction SilentlyContinue
