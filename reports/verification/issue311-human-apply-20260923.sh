@@ -5,6 +5,10 @@ set -euo pipefail
 # rejects agent writes to the validator and critical-test files, so this
 # script refuses to mutate them unless the operator explicitly opts in.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
+# This entry point previously targeted an obsolete origin/main snapshot and a
+# stale fixture patch. Delegate to the current-main atomic helper so reruns are
+# idempotent and do not fail on the old fixture hunk.
+exec bash "$ROOT/reports/verification/issue311-human-apply-main-20260923.sh" "$@"
 SOURCE_ROOT="${ISSUE311_SOURCE_ROOT:-/Users/jrmag/.codex/worktrees/issue311-scratch-audit}"
 if [[ "${ISSUE311_APPLY:-}" != 1 ]]; then
   printf '%s\n' 'Refusing protected-file writes. Re-run with ISSUE311_APPLY=1.' >&2
