@@ -444,6 +444,14 @@ try {
             Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
         }
 
+        # WFI-034/#311: a new evaluator reservation must declare its isolated
+        # scratch root. Historical ledger records remain compatible because
+        # they are handled by the persisted branch above.
+        if ($Reserve -and "$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator' -and
+            -not $document.ContainsKey('scratch_root')) {
+            Fail-ReviewContext 'PATH' 'new sdd-evaluator reservation requires scratch_root'
+        }
+
         # Reservation of a new identity: today's behaviour, unchanged.
         if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
             Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'

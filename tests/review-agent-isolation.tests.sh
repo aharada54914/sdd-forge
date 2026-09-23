@@ -135,6 +135,12 @@ make_manifest() {
   local path stage ledger_hash previous sequence input_hash
   path="$(input_for_role "$role")"
   stage="$(stage_for_role "$role")"
+  if [[ "$role" == "sdd-evaluator" ]]; then
+    local implementation_report="$repository/reports/implementation/f/T-001.md"
+    if ! grep -Fq '**Scratch Root**:' "$implementation_report"; then
+      printf '%s\n' '- **Scratch Root**: /tmp/implementation-f' >> "$implementation_report"
+    fi
+  fi
   ledger_hash="$(sha256 "$ledger")"
   previous="$(jq -r '.records[-1].record_sha256' "$ledger")"
   sequence="$(jq '.records[-1].sequence + 1' "$ledger")"
@@ -157,7 +163,7 @@ make_manifest() {
       previous_record_sha256:$previous,
       sequence:$sequence,
       allowed_input_manifest:[{path:$path,sha256:$input_hash}]
-    } + (if $role == "sdd-evaluator" then {task_id:"T-001"} else {} end))' > "$output"
+    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))' > "$output"
 }
 
 run_bash() {
@@ -788,7 +794,14 @@ fi
 # WFI-034: the evaluator scratch root must not equal, contain, or be contained
 # by the implementation root. The same manifest drives both validators.
 implementation_report="$wfi036_repository/reports/implementation/f/T-001.md"
-printf '\n## Isolation Evidence\n\n- **Scratch Root**: /tmp/wfi034/implementation/task\n' >> "$implementation_report"
+awk '{
+  if ($0 == "- **Scratch Root**: /tmp/implementation-f") {
+    print "- **Scratch Root**: /tmp/wfi034/implementation/task"
+    next
+  }
+  print
+}' "$implementation_report" > "$tmp/wfi034-report.md"
+mv "$tmp/wfi034-report.md" "$implementation_report"
 make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
 
 wfi034_manifest() {
