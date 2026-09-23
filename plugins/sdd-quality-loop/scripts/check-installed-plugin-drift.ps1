@@ -1,6 +1,10 @@
 [CmdletBinding()]
 param(
-    [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
+    [string]$InstallRoot = $(if ($env:LOCALAPPDATA) {
+        Join-Path $env:LOCALAPPDATA "sdd-plugins"
+    } else {
+        Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"
+    }),
     [ValidateSet("preflight", "verify")]
     [string]$Mode = "preflight"
 )
