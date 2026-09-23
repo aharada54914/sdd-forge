@@ -37,8 +37,12 @@ for path in \
   plugins/sdd-quality-loop/scripts/validate-review-context-set.sh \
   plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 \
   tests/issue311-scratch-isolation.tests.py; do
-  mkdir -p "$backup/$(dirname "$path")"
-  cp -p "$TARGET_ROOT/$path" "$backup/$path"
+  if [[ -e "$TARGET_ROOT/$path" ]]; then
+    mkdir -p "$backup/$(dirname "$path")"
+    cp -p "$TARGET_ROOT/$path" "$backup/$path"
+  else
+    printf 'Backup note: %s did not exist before application\n' "$path"
+  fi
 done
 
 export TARGET_ROOT
