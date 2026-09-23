@@ -390,12 +390,15 @@ jobs:
   # loops-routing -- loop inventory/driver/consistency/escalation plus the
   # agent-model routing, capabilities, frontmatter and placeholder suites.
   # Pure file/manifest assertions with no git-history or CLI dependency.
+  # Windows covers native PowerShell plus Git Bash, and Ubuntu covers native
+  # Bash plus PowerShell. Platform-sensitive macOS coverage remains in the
+  # test, version-gates, installers, MCP, and hook jobs above.
   loops-routing:
     name: loops-routing
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
