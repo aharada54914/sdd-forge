@@ -1,5 +1,7 @@
 # Requirements: sdd-domain-multitarget (Issue #423 Phase 1)
 
+Spec-Review-Status: Pending
+
 ## Overview
 
 This specification defines a bounded first migration slice for applying the

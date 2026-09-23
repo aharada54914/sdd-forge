@@ -1,5 +1,7 @@
 # Design: sdd-domain-multitarget (Issue #423 Phase 1)
 
+Impl-Review-Status: Pending
+
 Feature Type: staged architecture-boundary migration
 
 ## Technical Summary
