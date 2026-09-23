@@ -425,6 +425,10 @@
     {
       "feature": "epic-195-a7-compatibility",
       "profile": "full"
+    },
+    {
+      "feature": "sdd-domain-multitarget",
+      "profile": "full"
     }
   ]
 }
