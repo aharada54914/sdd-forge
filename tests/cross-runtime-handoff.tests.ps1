@@ -7,6 +7,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$fixtureNewline = [char]10
 $repoRoot = (& git rev-parse --show-toplevel).Trim()
 if (-not $Fixture) { $Fixture = Join-Path $repoRoot 'tests/fixtures/cross-runtime-handoff' }
 $tasksFile = if ($env:SDD_CROSS_RUNTIME_TASKS_PATH) { $env:SDD_CROSS_RUNTIME_TASKS_PATH } else { Join-Path $repoRoot 'specs/epic-196-a8-integration/tasks.md' }
@@ -67,8 +68,8 @@ function Invoke-ActivationSelfTest {
 function Invoke-ContractSelfTest {
     $one = Join-Path $Fixture 'handoff-01-claude-to-codex.yaml'
     $two = Join-Path $Fixture 'handoff-02-codex-to-copilot.md'
-    $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + [Environment]::NewLine)
-    $expectedTwo = [Text.Encoding]::UTF8.GetBytes('<!-- nonce: PLACEHOLDER -->' + [Environment]::NewLine)
+    $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + $fixtureNewline)
+    $expectedTwo = [Text.Encoding]::UTF8.GetBytes('<!-- nonce: PLACEHOLDER -->' + $fixtureNewline)
     if ([Convert]::ToBase64String([IO.File]::ReadAllBytes($one)) -cne [Convert]::ToBase64String($expectedOne)) { Stop-Test 'handoff-01 initial bytes differ from contract' }
     if ([Convert]::ToBase64String([IO.File]::ReadAllBytes($two)) -cne [Convert]::ToBase64String($expectedTwo)) { Stop-Test 'handoff-02 initial bytes differ from contract' }
     $contract = Get-Content -LiteralPath $allowlist -Raw | ConvertFrom-Json
@@ -90,12 +91,12 @@ function Invoke-ContractSelfTest {
     $bytesOne = [IO.File]::ReadAllBytes($copyOne)
     $textOne = [Text.Encoding]::UTF8.GetString($bytesOne).Replace('<PLACEHOLDER>', $nonce1)
     [IO.File]::WriteAllText($copyOne, $textOne, [Text.UTF8Encoding]::new($false))
-    if ([IO.File]::ReadAllText($copyOne) -cne ('token: "' + $nonce1 + '"' + [Environment]::NewLine)) { Stop-Test 'pseudo Claude producer changed unexpected handoff-01 bytes' }
+    if ([IO.File]::ReadAllText($copyOne) -cne ('token: "' + $nonce1 + '"' + $fixtureNewline)) { Stop-Test 'pseudo Claude producer changed unexpected handoff-01 bytes' }
     $consumerStdout = 'HANDOFF-01:' + ([IO.File]::ReadAllText($copyOne) -replace '(?s)^token: "([^"]+)"\r?\n$', '$1')
     if (-not $consumerStdout.Contains('HANDOFF-01:' + $nonce1)) { Stop-Test 'pseudo Codex consumer marker mismatch' }
     $textTwo = [IO.File]::ReadAllText($copyTwo).Replace('PLACEHOLDER', $nonce2)
     [IO.File]::WriteAllText($copyTwo, $textTwo, [Text.UTF8Encoding]::new($false))
-    if ([IO.File]::ReadAllText($copyTwo) -cne ('<!-- nonce: ' + $nonce2 + ' -->' + [Environment]::NewLine)) { Stop-Test 'pseudo Codex producer changed unexpected handoff-02 bytes' }
+    if ([IO.File]::ReadAllText($copyTwo) -cne ('<!-- nonce: ' + $nonce2 + ' -->' + $fixtureNewline)) { Stop-Test 'pseudo Codex producer changed unexpected handoff-02 bytes' }
     $output = Join-Path $work 'handoff-02-output.txt'
     [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))
     $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))).ToLowerInvariant()
@@ -129,8 +130,8 @@ function Invoke-LiveE2E {
     while ($nonce1 -ceq $nonce2) { $nonce2 = [guid]::NewGuid().ToString('N') }
     $initial1 = Get-Sha256 $one
     $initial2 = Get-Sha256 $two
-    $expected1 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('token: "' + $nonce1 + '"' + [Environment]::NewLine)))).ToLowerInvariant()
-    $expected2 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('<!-- nonce: ' + $nonce2 + ' -->' + [Environment]::NewLine)))).ToLowerInvariant()
+    $expected1 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('token: "' + $nonce1 + '"' + $fixtureNewline)))).ToLowerInvariant()
+    $expected2 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('<!-- nonce: ' + $nonce2 + ' -->' + $fixtureNewline)))).ToLowerInvariant()
     $prompt = "In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. Do not inspect or modify anything else. Do not run shell commands. End with a short confirmation."
     [void](Invoke-Cli 'claude' @('--print', '--output-format', 'text', '--permission-mode', 'acceptEdits', '--permission-prompts', 'none', '--allowedTools', 'Read,Edit', $prompt) $work (Join-Path $evidenceDir 'claude-producer.log'))
     if ((Get-Sha256 $one) -cne $expected1) { Stop-Test 'Claude-produced handoff-01 bytes/hash mismatch' }
