@@ -29,8 +29,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - name: Install contract validator
-        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
       - name: Test guard dispatch fallback
