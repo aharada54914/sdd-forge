@@ -1,0 +1,37 @@
+ok contract-mismatch-self-check schema
+ok contract-mismatch-self-check mode
+ok contract-mismatch-self-check install_root
+ok contract-mismatch-self-check state
+ok contract-mismatch-self-check surface
+ok contract-mismatch-self-check source_ref
+ok contract-mismatch-self-check installed_ref
+ok contract-mismatch-self-check change_type
+ok contract-mismatch-self-check installed_sha256
+ok contract-mismatch-self-check repo_sha256
+ok wrapper-contract ps1 rejects mis-cased mode
+ok wrapper-contract ps1 Windows default deferred to Windows CI
+ok TEST-023 not_installed preflight
+ok TEST-023 not_installed verify
+ok TEST-023 installed_synced preflight
+ok TEST-023 installed_synced verify
+ok TEST-022 all surfaces and TEST-023 drift preflight
+ok TEST-022 file/added exact entry
+ok TEST-022 file/removed exact entry
+ok TEST-022 file/modified exact entry
+ok TEST-022 file/type-changed exact entry
+ok TEST-022 delimited-region/added exact entry
+ok TEST-022 delimited-region/removed exact entry
+ok TEST-022 delimited-region/modified exact entry
+ok TEST-022 delimited-region/type-changed exact entry
+ok TEST-022 all surfaces and TEST-023 drift verify
+ok TEST-022 file/added exact entry
+ok TEST-022 file/removed exact entry
+ok TEST-022 file/modified exact entry
+ok TEST-022 file/type-changed exact entry
+ok TEST-022 delimited-region/added exact entry
+ok TEST-022 delimited-region/removed exact entry
+ok TEST-022 delimited-region/modified exact entry
+ok TEST-022 delimited-region/type-changed exact entry
+ok TEST-022 negative lifecycle initial sync
+ok TEST-022 negative lifecycle detects later mutation
+PASS TEST-022 and TEST-023; read-only digest assertions passed
