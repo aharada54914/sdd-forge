@@ -98,8 +98,8 @@ anchors() {
 # The declared gate report must be canonical, symlink-free, a regular file
 # under reports/quality-gate/, and hash to the pinned value before any row is
 # read from it.
-:588-604 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
-:588-604 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+:595-611 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:595-611 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
 
 # Its `## Post-Fix Artifacts` rows are the second authorization source.
 :197-202 validator gate_report_output_is_declared() {
@@ -120,33 +120,33 @@ anchors() {
 
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
-:535 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:879 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:542 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:886 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
-:537 validator [[ "$sequence" -eq "$expected_sequence"
+:544 validator [[ "$sequence" -eq "$expected_sequence"
 
 # The record-hash construction a reviewer is told to recompute: the chain-walk
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
 :436 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:867 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:874 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
-:557-570 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
-:557-570 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+:563-577 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:563-577 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
 # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
 # no symlink component. One row per clause the field table claims.
-:619-625 validator is_canonical_path "$path"
-:619-625 validator is_forbidden_review_output "$path"
-:619-625 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+:626-632 validator is_canonical_path "$path"
+:626-632 validator is_forbidden_review_output "$path"
+:626-632 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
 
 # Manifest hash equality against the file on disk.
-:637 validator actual_hash=$(sha256_file "$candidate")
+:644 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:879-889 validator '.records += [{
+:896-905 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
