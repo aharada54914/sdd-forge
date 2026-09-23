@@ -112,7 +112,9 @@ def main() -> int:
     )
     with tempfile.TemporaryDirectory(prefix="a5-caller-contract-") as temp:
         candidate = Path(temp) / "SKILL.md"
-        candidate.write_text(mutated, encoding="utf-8", newline="\n")
+        # write_bytes preserves LF bytes and remains compatible with the
+        # Python 3.9 runtime used by the macOS runner.
+        candidate.write_bytes(mutated.encode("utf-8"))
         try:
             _anchor(mutated)
         except AssertionError:
