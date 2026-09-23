@@ -45,6 +45,9 @@ for path in \
   fi
 done
 
+candidate_alias_sh="$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.issue311-candidate.sh"
+candidate_alias_ps="$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.issue311-candidate.ps1"
+
 export TARGET_ROOT
 python3 - <<'PY'
 from pathlib import Path
@@ -94,6 +97,17 @@ PY
 
 cp "$candidate_test" "$TARGET_ROOT/tests/issue311-scratch-isolation.tests.py"
 chmod +x "$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+
+# The candidate regression fixture invokes stable candidate basenames. Point
+# those names at the freshly patched current-main validators for the duration
+# of the run; never install the stale candidate validator snapshots.
+ln -s validate-review-context-set.sh "$candidate_alias_sh"
+ln -s validate-review-context-set.ps1 "$candidate_alias_ps"
+cleanup_aliases() {
+  rm -f "$candidate_alias_sh" "$candidate_alias_ps"
+}
+trap cleanup_aliases EXIT
+
 bash -n "$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 pwsh -NoProfile -Command "[System.Management.Automation.Language.Parser]::ParseFile('$TARGET_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1',[ref]\$null,[ref]\$null) | Out-Null"
 python3 "$TARGET_ROOT/tests/issue311-scratch-isolation.tests.py" --repo "$TARGET_ROOT"
