@@ -72,8 +72,11 @@ def exercise(source, runtime, case):
         manifest = root / "invocation.json"
         write_json(manifest, invocation)
         scripts = source / "plugins/sdd-quality-loop/scripts"
-        validator_sh = scripts / "validate-review-context-set.issue311-candidate.sh"
-        validator_ps1 = scripts / "validate-review-context-set.issue311-candidate.ps1"
+        # Exercise the validators shipped in the tree.  Candidate-only filenames
+        # are not part of the repository and made this regression silently fail
+        # with exit 127 outside the author's temporary symlink setup.
+        validator_sh = scripts / "validate-review-context-set.sh"
+        validator_ps1 = scripts / "validate-review-context-set.ps1"
         command = (["bash", str(validator_sh), str(manifest), str(root), "--reserve"]
                    if runtime == "bash" else
                    ["pwsh", "-NoProfile", "-File", str(validator_ps1),
