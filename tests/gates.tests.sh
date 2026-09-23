@@ -1795,6 +1795,71 @@ else
     fail "T-004V.7: v2 medium should not require spec_revision: $(run_check_contract "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium")"
 fi
 
+# T-006.8 (WFI-046, gate seq 849): the per-check execution record shipped with
+# NO fixture in either suite, so the format-check code path was never entered
+# and its total absence from the ps1 twin went unnoticed. Both polarities
+# pinned here; the ps1 twin carries T-006.ps.7a-7e.
+wfi046_root="${WORK}/wfi046"
+mkdir -p "$wfi046_root/specs/test-feature"
+printf 'PASS\n' > "$wfi046_root/ev.log"
+write_wfi046_contract() {
+    # $1 = output path, $2 = JSON fragment merged into the first check
+    python3 - "$1" "$2" <<'PY'
+import json, sys
+out, fragment = sys.argv[1], sys.argv[2]
+contract = {
+    "task_id": "T-046", "feature": "test-feature", "risk": "low",
+    # risk: low requires every baseline id at required:true, so the fixture
+    # marks them all required and passing -- otherwise the tier-minimum rule
+    # rejects it before the WFI-046 checks are ever reached.
+    "checks": [
+        {"id": cid, "required": True, "passes": True, "evidence": "ev.log",
+         "waiver_reason": "", "requirement_ids": []}
+        for cid in ("lint", "typecheck", "unit-tests", "build",
+                    "placeholder-scan", "task-state-check")
+    ],
+}
+if fragment:
+    contract["checks"][0].update(json.loads(fragment))
+open(out, "w").write(json.dumps(contract, indent=2) + "\n")
+PY
+}
+
+write_wfi046_contract "$wfi046_root/absent.json" ""
+if check_contract_passes "$wfi046_root/absent.json" "$wfi046_root"; then
+    ok "T-006.8a: WFI-046 fields absent still passes (grandfathering)"
+else
+    fail "T-006.8a: contract without the execution record should pass: $(run_check_contract "$wfi046_root/absent.json" "$wfi046_root")"
+fi
+
+write_wfi046_contract "$wfi046_root/valid.json" '{"command": "bash tests/unit.tests.sh", "exit_code": 0, "started_at": "2026-08-24T10:00:00Z", "finished_at": "2026-08-24T10:05:00Z"}'
+if check_contract_passes "$wfi046_root/valid.json" "$wfi046_root"; then
+    ok "T-006.8b: WFI-046 valid execution record passes"
+else
+    fail "T-006.8b: valid execution record should pass: $(run_check_contract "$wfi046_root/valid.json" "$wfi046_root")"
+fi
+
+write_wfi046_contract "$wfi046_root/blank-command.json" '{"command": "   "}'
+if check_contract_passes "$wfi046_root/blank-command.json" "$wfi046_root"; then
+    fail "T-006.8c: blank command should be rejected"
+else
+    ok "T-006.8c: WFI-046 blank command is rejected"
+fi
+
+write_wfi046_contract "$wfi046_root/bad-rc.json" '{"exit_code": "zero"}'
+if check_contract_passes "$wfi046_root/bad-rc.json" "$wfi046_root"; then
+    fail "T-006.8d: non-integer exit_code should be rejected"
+else
+    ok "T-006.8d: WFI-046 non-integer exit_code is rejected"
+fi
+
+write_wfi046_contract "$wfi046_root/bad-ts.json" '{"started_at": "2026-08-24T10:00:00"}'
+if check_contract_passes "$wfi046_root/bad-ts.json" "$wfi046_root"; then
+    fail "T-006.8e: timestamp without the UTC Z should be rejected"
+else
+    ok "T-006.8e: WFI-046 timestamp without the UTC Z is rejected"
+fi
+
 # ============================================================================
 # T-004: Red→Green evidence enforcement
 # ============================================================================
@@ -2364,6 +2429,49 @@ if python3 -c "import json; b=json.load(open('${high_bundle}')); assert b.get('r
     ok "T-006.3d: review_verdict.verdict is PASS"
 else
     fail "T-006.3d: review_verdict.verdict is not PASS"
+fi
+
+# Test: T-006.5 (RT-20260821-005 cycle 2, seq 845) - the REQ-006 per-check
+# telemetry ships but was guarded by nothing in either runtime: deleting the
+# emission from either generator left both suites fully green. Pinned here and
+# in the ps1 twin (T-006.ps.5a-5e).
+#
+# What is asserted is what the generator actually guarantees: one telemetry
+# entry per contract check, every structural key present, and a real 64-hex
+# evidence_sha256 for each entry whose evidence file exists. The command /
+# exit_code / started_at / finished_at values are PASS-THROUGH from the
+# contract, so they are null for contracts that do not record them; asserting
+# them non-empty would assert a behavior the generator does not have.
+t006_high_contract="${T006_REPO}/specs/test-feature/verification/T-100.contract.json"
+
+if python3 -c "import json; b=json.load(open('${high_bundle}')); c=b.get('checks'); assert isinstance(c, list) and len(c) >= 1, 'checks missing, not a list, or empty'" 2>/dev/null; then
+    ok "T-006.5a: generated bundle contains non-empty 'checks' telemetry"
+else
+    fail "T-006.5a: generated bundle missing or empty 'checks' telemetry array"
+fi
+
+if python3 -c "import json; b=json.load(open('${high_bundle}')); c=json.load(open('${t006_high_contract}')); assert len(b.get('checks') or []) == len(c.get('checks') or []), 'telemetry entry count != contract check count'" 2>/dev/null; then
+    ok "T-006.5b: 'checks' telemetry has one entry per contract check"
+else
+    fail "T-006.5b: 'checks' telemetry does not mirror the contract's check list"
+fi
+
+if python3 -c "import json; keys={'id','required','passes','command','exit_code','started_at','finished_at','evidence','evidence_sha256'}; b=json.load(open('${high_bundle}')); assert all(keys <= set(e) for e in (b.get('checks') or [])), 'telemetry entry missing a structural key'" 2>/dev/null; then
+    ok "T-006.5c: every 'checks' entry carries the full REQ-006 key set"
+else
+    fail "T-006.5c: a 'checks' telemetry entry is missing a structural key"
+fi
+
+if python3 -c "import json, re; b=json.load(open('${high_bundle}')); h=[e for e in (b.get('checks') or []) if e.get('evidence_sha256')]; assert h, 'no computed evidence hash'; assert all(re.fullmatch(r'[a-f0-9]{64}', e['evidence_sha256']) for e in h), 'evidence_sha256 not 64-hex'" 2>/dev/null; then
+    ok "T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
+else
+    fail "T-006.5d: 'checks' telemetry lacks a valid computed evidence_sha256"
+fi
+
+if python3 -c "import json; b=json.load(open('${high_bundle}')); assert (b.get('required_workflow') or '').strip(), 'required_workflow empty'" 2>/dev/null; then
+    ok "T-006.5e: generated bundle carries 'required_workflow'"
+else
+    fail "T-006.5e: generated bundle missing 'required_workflow' provenance field"
 fi
 
 # Test: T-006.4 - high bundle with VERDICT: NEEDS_WORK (not PASS) → check FAILS

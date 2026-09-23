@@ -1,0 +1,11 @@
+--- a/specs/risk-adaptive-layer/design.md
++++ b/specs/risk-adaptive-layer/design.md
+@@ -47,7 +47,7 @@
+ 
+ ### 1. Task fields (tasks.template.md / ai-task.template.md)
+ 
+-Add three fields to each task, after `Status:`:
++Add four fields to each task, after `Status:`:
+ 
+ ```
+ Risk: high            # low | medium | high | critical   (REQUIRED; agent proposes, human confirms)

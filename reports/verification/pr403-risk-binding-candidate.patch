@@ -1,0 +1,33 @@
+diff --git a/tests/gates.tests.sh b/tests/gates.tests.sh
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -3217,6 +3217,25 @@
+     fail "T-007b.6: should not enforce two-person for non-critical: $output"
+ fi
+ 
++# Candidate T-007b.7: contract risk mismatch is rejected before approval checks.
++mkdir -p "${WORK}/t007b_test7_contract/verification"
++cat > "${WORK}/t007b_test7_contract/tasks.md" <<'EOF'
++# Tasks
++
++## T-001
++
++Approval: Approved (alice 2026-06-13T10:00:00Z)
++Status: Done
++Risk: critical
++Second Approval: Approved (bob 2026-06-13T11:00:00Z)
++EOF
++cat > "${WORK}/t007b_test7_contract/verification/T-001.contract.json" <<'EOF'
++{"task_id":"T-001","risk":"high"}
++EOF
++output=$(run_check_task_state "${WORK}/t007b_test7_contract/tasks.md" \
++    "${WORK}/t007b_test7_contract/reports/quality-gate" \
++    "${WORK}/t007b_test7_contract/reports/implementation" \
++    "${WORK}/t007b_test7_contract")
++if echo "$output" | grep -q "contract risk 'high' does not match tasks.md risk 'critical'"; then
++    ok "T-007b.7: contract/tasks risk mismatch is rejected"
++else
++    fail "T-007b.7: expected contract/tasks risk mismatch diagnostic: $output"
++fi
++
+ # Test 7: REGRESSION - named Approval format accepted (not invalid)

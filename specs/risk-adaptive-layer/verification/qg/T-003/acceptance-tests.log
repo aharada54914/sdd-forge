@@ -1,0 +1,59 @@
+COMMAND: bash tests/scenario.tests.sh
+EXIT: 0
+=== Scenario A: full-chain multi-tier lifecycle ===
+--- A.1: check-risk passes ---
+ok: A.1: check-risk passes for well-formed three-task tasks.md
+--- A.2: check-risk fails-closed on missing Required Workflow ---
+ok: A.2: check-risk fails-closed when T-102 drops Required Workflow: tdd
+--- A.3: check-contract passes T-101 with docs stack ---
+ok: A.3: check-contract passes T-101 (docs stack, compile checks waived with waiver_reason)
+--- A.4: check-contract passes T-102 ---
+ok: A.4: check-contract passes T-102 (high risk, tdd, full evidence)
+--- A.5: check-contract fails on required passes:false ---
+ok: A.5: check-contract fails when required check has passes:false
+--- A.6: check-traceability passes complete chain ---
+ok: A.6: check-traceability passes complete REQ->AC->TEST->evidence chain
+--- A.7: check-traceability fails-closed on empty tests[] ---
+ok: A.7: check-traceability fails-closed on empty tests[] link
+--- A.8: check-task-state blocks Done with Approval: Draft ---
+ok: A.8: check-task-state BLOCKS Done while Approval: Draft
+--- A.9: check-task-state passes non-critical Done with named Approval ---
+ok: A.9: check-task-state PASSES non-critical Done with named Approval: Approved (alice)
+ok: A.9b: evidence bundle emits the per-check telemetry array (REQ-006)
+--- A.10: check-task-state blocks critical Done without Second Approval ---
+ok: A.10: check-task-state BLOCKS critical Done without Second Approval
+--- A.11: check-task-state blocks critical Done with same-name approvers ---
+ok: A.11: check-task-state BLOCKS critical Done with same-name approvers (alice==alice)
+--- A.12: check-task-state blocks critical Done with sudo approver ---
+ok: A.12: check-task-state BLOCKS critical Done with 'sudo' as primary approver
+--- A.13: evidence bundle round-trip for high task T-102 ---
+ok: A.13a: generate-evidence-bundle succeeds for high task T-102
+ok: A.13b: check-evidence-bundle passes for high task T-102
+=== Scenario B1: hook contract — all 3 CLI forms ===
+--- B1.1: Claude Code node --emit exit ---
+ok: B1.1a: Claude Code node guard exits 2 on self-approval (deny)
+ok: B1.1b: Claude Code node guard exits 0 on benign payload (allow)
+--- B1.2: Codex sh --emit exit ---
+ok: B1.2a: Codex sh guard exits 2 on self-approval (deny)
+ok: B1.2b: Codex sh guard exits 0 on benign payload (allow)
+--- B1.3: Copilot sh --emit copilot ---
+ok: B1.3a: Copilot sh guard emits permissionDecision=deny on self-approval (exit 0)
+ok: B1.3b: Copilot sh guard emits permissionDecision=allow on benign payload (exit 0)
+--- B1.4: drift guard — hook configs reference the correct CLI invocations ---
+ok: B1.4a: claude-hooks.json references sdd-hook-guard.js with --emit exit
+ok: B1.4b: hooks.json references sdd-hook-guard.sh --emit exit
+ok: B1.4c: copilot-hooks.json references sdd-hook-guard.sh --emit copilot
+=== Scenario E: critical signing round-trip ===
+--- E.1: generate signed critical bundle ---
+ok: E.1: generate-evidence-bundle succeeds for critical task with SDD_EVIDENCE_KEY
+ok: E.1b: signed bundle contains hmac-sha256 signature field
+--- E.2: check-evidence-bundle with correct key passes ---
+ok: E.2: check-evidence-bundle PASS with correct SDD_EVIDENCE_KEY
+--- E.3: tampered bundle fails signature check ---
+ok: E.3: tampered critical bundle fails check-evidence-bundle (mentions signature/HMAC)
+ok: RT008.1: unknown mode argument is a usage error (fail closed)
+ok: RT008.2: sh rejects repo-escaping evidence symlink
+ok: RT008.3: ps1 rejects repo-escaping evidence symlink
+ok: RT007-DG: check-contract RISK_TIERS equals the risk-gate-matrix machine form (all 4 tiers)
+
+Results: 32 passed, 0 failed.

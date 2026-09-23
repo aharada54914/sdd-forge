@@ -31,8 +31,11 @@ bounded, file-backed context.
   policy-inconsistent value before routing.
   The minimum predicted attempts win; ties choose the lower tier; only
   equal-tier provider routes compare the invocation-supplied
-  `estimated_cost_per_attempt_usd` decimal; equal cost is resolved by the
-  lexicographically smaller `provider/model` identifier. The estimate and its
+  `estimated_cost_per_attempt_usd` decimal; at equal cost, models NOT
+  flagged `fallback_for` in the capability registry are preferred over
+  flagged fallbacks (a fallback wins only when it is strictly cheaper or no
+  primary remains), and the final tie-break is the lexicographically smaller
+  `provider/model` identifier. The estimate and its
   source timestamp are recorded, so the workflow does not embed stale prices.
   Failure classes are the closed enum `test`, `lint`, `typecheck`, `build`,
   `review-major`, and `review-critical`; equality means the same enum value for

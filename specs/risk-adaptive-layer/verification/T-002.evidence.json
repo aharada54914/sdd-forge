@@ -1,0 +1,160 @@
+{
+  "task_id": "T-002",
+  "feature": "risk-adaptive-layer",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "2ee68af230361024b5c0982e776abebe24fba00795e3b43dbe352f272e362420",
+  "quality_report": "reports/quality-gate/20260823T093000Z.md",
+  "verification_contract": "specs/risk-adaptive-layer/verification/T-002.contract.json",
+  "git_commit": "35c7da11fa5db6f1696717c59996f41d47ccd0e5",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/regression.log",
+      "evidence_sha256": "fb4b01a141c7b4e4f9f7789ea66d6d9f3b9207701d8b3ecba3459c7c9709599f"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/acceptance-tests.log",
+      "evidence_sha256": "b9f1ebb87f33a5662b43a490b6aa1953e1bbd27b1ac5b5f9bf4899fcdf86328f"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/regression.log",
+      "evidence_sha256": "fb4b01a141c7b4e4f9f7789ea66d6d9f3b9207701d8b3ecba3459c7c9709599f"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/traceability.log",
+      "evidence_sha256": "0035c741a8098b8ff4df4acb2cecaf6f2a6a6814f6fbe9ca7f2aec9342ad0b2a"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/placeholder-scan.log",
+      "evidence_sha256": "f9b9cd5f49b8e96c760ea888a1782d1e6c339b7cf2e744db8a9d8eadd8fc8606"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/risk-adaptive-layer/verification/qg/T-002/task-state.log",
+      "evidence_sha256": "4c8cd135d2b76a8fd5cd862846f03b85b5a60c0dc6660a32a6690f66bb0bc2d6"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/risk-adaptive-layer/verification/T-002.contract.json",
+      "sha256": "05dc94b777743aa6fc2654553df8b95f74eb6f2fb1476793ab282739d2dffd00"
+    },
+    {
+      "path": "reports/quality-gate/20260823T093000Z.md",
+      "sha256": "7ce6000eac668f3b36248054716aa454aeff0d95cc5cb80095a1cedffcaaef26"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/qg/T-002/acceptance-tests.log",
+      "sha256": "b9f1ebb87f33a5662b43a490b6aa1953e1bbd27b1ac5b5f9bf4899fcdf86328f"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/qg/T-002/placeholder-scan.log",
+      "sha256": "f9b9cd5f49b8e96c760ea888a1782d1e6c339b7cf2e744db8a9d8eadd8fc8606"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/qg/T-002/regression.log",
+      "sha256": "fb4b01a141c7b4e4f9f7789ea66d6d9f3b9207701d8b3ecba3459c7c9709599f"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/qg/T-002/task-state.log",
+      "sha256": "4c8cd135d2b76a8fd5cd862846f03b85b5a60c0dc6660a32a6690f66bb0bc2d6"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/verification/qg/T-002/traceability.log",
+      "sha256": "0035c741a8098b8ff4df4acb2cecaf6f2a6a6814f6fbe9ca7f2aec9342ad0b2a"
+    }
+  ]
+}
