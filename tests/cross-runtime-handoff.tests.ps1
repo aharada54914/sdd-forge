@@ -73,9 +73,15 @@ function Invoke-ContractSelfTest {
     if ([Convert]::ToBase64String([IO.File]::ReadAllBytes($one)) -cne [Convert]::ToBase64String($expectedOne)) { Stop-Test 'handoff-01 initial bytes differ from contract' }
     if ([Convert]::ToBase64String([IO.File]::ReadAllBytes($two)) -cne [Convert]::ToBase64String($expectedTwo)) { Stop-Test 'handoff-02 initial bytes differ from contract' }
     $contract = Get-Content -LiteralPath $allowlist -Raw | ConvertFrom-Json
-    if ($contract.version -cne 'a8-skip-allowlist/v1' -or $contract.entries.Count -ne 1 -or $contract.entries[0].case_id -cne 'AC-006') { Stop-Test 'invalid AC-006 allowlist contract' }
-    $blobIdCount = @($contract.entries[0].upstream_epic_a1_path_blob_ids.PSObject.Properties).Count
-    if ($contract.entries[0].reason -notlike '*#189*' -or $contract.entries[0].reason -notlike '*#187*' -or $blobIdCount -ne 3) { Stop-Test 'AC-006 allowlist lacks issue references or A1 blob IDs' }
+    if ($contract.schema -cne 'a8-skip-allowlist/v1') { Stop-Test 'invalid A8 skip allowlist schema' }
+    $entries = @{}
+    foreach ($entry in @($contract.entries)) { $entries[$entry.case_id] = $entry }
+    foreach ($caseId in @('AC-006', 'AC-015', 'AC-016')) {
+        if (-not $entries.ContainsKey($caseId)) { Stop-Test "missing $caseId allowlist entry" }
+    }
+    $ac006 = $entries['AC-006']
+    $blobIdCount = @($ac006.upstream_epic_a1_path_blob_ids.PSObject.Properties).Count
+    if ($ac006.reason -notlike '*#189*' -or $ac006.reason -notlike '*#187*' -or $blobIdCount -ne 3) { Stop-Test 'AC-006 allowlist lacks issue references or A1 blob IDs' }
 
     $work = Join-Path $evidenceDir 'pseudo-cli'
     [void](New-Item -ItemType Directory -Path $work)
