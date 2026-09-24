@@ -40,7 +40,7 @@ shared and continues to change.
 
 | Acceptance criterion | Test rows |
 |---|---|
-| AC-001 | TEST-001a, TEST-001b, TEST-001c, TEST-001d, TEST-001e, TEST-001f, TEST-001g, TEST-001h |
+| AC-001 | TEST-001a, TEST-001b, TEST-001c, TEST-001d, TEST-001e, TEST-001f, TEST-001g, TEST-001h, TEST-001i |
 | AC-002 | TEST-002 |
 | AC-003 | TEST-003a (CLI/library), TEST-003b (UI), TEST-003c (design-only candidate selection and separate gate evaluation), TEST-003d (IaC/cloud), TEST-003e (low-code) |
 | AC-004 | TEST-004 |
@@ -65,3 +65,17 @@ shared and continues to change.
 | REQ-004 | Compatibility Strategy; Constraints and Deferred Decisions | N/A — cross-layer only: migration compatibility |
 | REQ-005 | UI Provider Boundary; Compatibility Strategy; Test and Evidence Strategy | N/A — cross-layer only: provider boundary |
 | REQ-006 | Target Selection Examples | N/A — cross-layer only: reviewable examples |
+
+## Requirement to Task Anchors
+
+| Task | Requirements | Acceptance criteria | Test rows |
+|---|---|---|---|
+| T-001 | REQ-001 | AC-001 | TEST-001a, TEST-001b, TEST-001c, TEST-001d, TEST-001e, TEST-001f, TEST-001g, TEST-001h, TEST-001i |
+| T-002 | REQ-001, REQ-002 | AC-002, AC-012 | TEST-002, TEST-012 |
+| T-003 | REQ-003, REQ-006 | AC-003, AC-004, AC-013 | TEST-003a, TEST-003b, TEST-003c, TEST-003d, TEST-003e, TEST-004, TEST-013 |
+| T-004 | REQ-004 | AC-005, AC-006, AC-007 | TEST-005, TEST-006, TEST-007 |
+| T-005 | REQ-005 | AC-008, AC-009 | TEST-008a, TEST-008b, TEST-008c, TEST-008d, TEST-008e, TEST-008f, TEST-008g, TEST-009a, TEST-009b |
+| T-006 | REQ-002, REQ-004, REQ-005, REQ-006 | AC-010, AC-011, AC-014 | TEST-010, TEST-011, TEST-014 |
+
+Task review status is `Pending`; all task approvals remain `Draft` until the
+task-review gate and explicit human approval are complete.
