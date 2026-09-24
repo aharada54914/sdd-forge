@@ -1,0 +1,27 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -364,1 +364,9 @@
++      - name: Test prior-PASS receipt suite (bash)
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/task-prior-pass-receipt.tests.sh
++
++      - name: Test prior-PASS receipt suite (pwsh)
++        shell: pwsh
++        run: ./tests/task-prior-pass-receipt.tests.ps1
+       - name: Test loop driver smoke suite (pwsh)
+
+diff --git a/tests/run-all.ps1 b/tests/run-all.ps1
+--- a/tests/run-all.ps1
++++ b/tests/run-all.ps1
+@@ -40,1 +40,2 @@
++    'tests/task-prior-pass-receipt.tests.ps1',
+     'tests/loop-consistency.tests.ps1',
+
+diff --git a/tests/run-all.sh b/tests/run-all.sh
+--- a/tests/run-all.sh
++++ b/tests/run-all.sh
+@@ -76,1 +76,2 @@
++  tests/task-prior-pass-receipt.tests.sh
+   tests/loop-consistency.tests.sh
