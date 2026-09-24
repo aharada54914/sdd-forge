@@ -24,6 +24,7 @@ $tests = @(
     'tests/scenario.tests.ps1',
     'tests/install.tests.ps1',
     'tests/installer-idempotency.tests.ps1',
+    'tests/install-uninstall-matrix.tests.ps1',
     'tests/uninstall.tests.ps1',
     'tests/claude-registration.tests.ps1',
     'tests/workflow-state-registry.tests.ps1',

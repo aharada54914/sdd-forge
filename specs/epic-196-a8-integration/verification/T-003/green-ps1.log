@@ -1,0 +1,13 @@
+TDD GREEN (2026-09-24, PowerShell 7.6.2)
+Commands:
+  pwsh -NoProfile -File tests/install-uninstall-matrix.tests.ps1 -Target All
+  pwsh -NoProfile -File tests/install-uninstall-matrix.tests.ps1 -Target Codex
+  pwsh -NoProfile -File tests/install-uninstall-matrix.tests.ps1 -Target Claude
+  pwsh -NoProfile -File tests/install-uninstall-matrix.tests.ps1 -Target Copilot
+Results:
+  All: 6 passed, 0 failed
+  Codex: 6 passed, 0 failed
+  Claude: 6 passed, 0 failed
+  Copilot: 6 passed, 0 failed
+  Total: 24 passed, 0 failed
+PowerShell parser: OK
