@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "d2baf54d0a31c27d45f0ba5b6271d61d8c59467d14944ec9a5a470096615ce9f",
+  "tasks_sha256_form": "raw",
+  "requirements_sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298",
+  "acceptance_sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad",
+  "design_sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119",
+  "traceability_sha256": "f261e81b10637e295ab43ed3525e403f0f06cc26734f9038bd6134dada0bdbf3",
+  "frozen_artifact_done_when": [{"task":"T-001","line":29,"item":"- [ ] A machine-readable boundary inventory records each consumer disposition from `design.md` and its owning axis."}],
+  "layer_sha256": {"ux-spec.md":"f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed","frontend-spec.md":"b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481","infra-spec.md":"60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560","security-spec.md":"600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"},
+  "input_sha256": "e9280f536bbe101f66d191eed87ed4b0c0cf10d04f3135c70c92a6254847d73d",
+  "generated_at": "2026-09-24T20:41:50Z"
+}
