@@ -117,6 +117,7 @@ STAGED_SCRIPTS = [
     "check-contract.py", "check-hook-activation-handshake.py",
     "check-component-coverage.py",
     "check-criterion-freeze.py",
+    "check-installed-plugin-drift.py",
     # The shared python-master dispatcher every .sh/.ps1 wrapper above
     # sources; an installed plugin ships it beside the wrappers, and
     # without it every wrapper denies RUNTIME_UNAVAILABLE (exit 3).

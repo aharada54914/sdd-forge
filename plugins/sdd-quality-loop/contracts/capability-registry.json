@@ -6,6 +6,12 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
+    },
+    {
+      "id": "check-installed-plugin-drift",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
     }
   ],
   "capabilities": [

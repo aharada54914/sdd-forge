@@ -1,0 +1,18 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -1472,3 +1472,14 @@ jobs:
+         if: runner.os != 'Windows'
+         shell: bash
+         run: bash ./tests/cross-runtime-handoff.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-runtime-handoff-tests.log"
++
++      # epic-196-a8-integration T-002 (REQ-005, AC-022..AC-023): read-only
++      # installed-plugin drift comparison in both wrapper runtimes.
++      - name: "[deterministic] Test installed-plugin drift check (pwsh)"
++        shell: pwsh
++        run: ./tests/check-installed-plugin-drift.tests.ps1
++
++      - name: "[deterministic] Test installed-plugin drift check (bash)"
++        if: runner.os != 'Windows'
++        shell: bash
++        run: bash ./tests/check-installed-plugin-drift.tests.sh 2>&1 | tee "${{ runner.temp }}/check-installed-plugin-drift-tests.log"
