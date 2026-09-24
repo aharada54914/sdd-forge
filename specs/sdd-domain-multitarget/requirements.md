@@ -1,6 +1,6 @@
 # Requirements: sdd-domain-multitarget (Issue #423 Phase 1)
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 ## Overview
 
@@ -18,7 +18,7 @@ Baseline: `origin/main` at `2b328e4050f6a2e3fbb647fc9530fcc55ac7ec70`
 `08baf03a45c7d47f5bc5e73bf2519e47ea500a5d`. Repository facts below cite the
 current review checkout and must be re-verified against the consuming files
 at spec/design review and implementation planning, since these files may
-change independently; see `traceability.md` for the observed drift.
+change independently.
 
 ## Problem
 

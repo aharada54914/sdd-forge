@@ -50,13 +50,13 @@ reimplemented or replaced here.
    versioned contract, migration, and evidence semantics are approved. No
    implementation task is implied by this investigation.
 
-The Phase 1 requirements, design, acceptance tests, and traceability artifact
-therefore describe a staged boundary migration only. They do not claim that
-Resolver, cloud providers, or facet-native artifacts are implemented.
+The Phase 1 requirements and acceptance tests therefore describe a staged
+boundary migration only. They do not claim that Resolver, cloud providers, or
+facet-native artifacts are implemented.
 
 ## Reproduction and verification notes
 
 The source observations above were obtained from the review checkout with
-read-only `nl`/`git diff` checks. The traceability validator was run against
-the new artifact and requirements and passed. No external service, provider,
-credential, or deployment state was used.
+read-only `nl`/`git diff` checks. Static consistency checks were run against
+the current inputs and passed. No external service, provider, credential, or
+deployment state was used.

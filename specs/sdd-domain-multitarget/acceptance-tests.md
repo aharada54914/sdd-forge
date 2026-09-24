@@ -10,6 +10,7 @@
 | AC-001: Each named consumer has one explicit decision, rationale, and source mapping re-verified against current code at review time. | REQ-001 | TEST-001f | review + static inventory | ci-mcp package | Planned |
 | AC-001: Each named consumer has one explicit decision, rationale, and source mapping re-verified against current code at review time. | REQ-001 | TEST-001g | review + static inventory | Provider state and gate stage boundaries | Planned |
 | AC-001: Each named consumer has one explicit decision, rationale, and source mapping re-verified against current code at review time. | REQ-001 | TEST-001h | review + static inventory | Host adapters and artifact-layout migration | Planned |
+| AC-001: Each named consumer has one explicit decision, rationale, and source mapping re-verified against current code at review time. | REQ-001 | TEST-001i | review + static inventory | Compile/build/lint checks on non-code targets | Planned |
 | AC-002: Shared Core, Capability/Registry, Provider Adapter/Binding, Host Adapter, and optional UI provider each have explicit ownership and non-ownership; Capability examples contain no provider names or credentials; provider-specific Project Context details are represented only by Provider Binding IDs, while other approved context fields remain allowed. | REQ-002 | TEST-002 | contract/schema + review | Capability/Registry and Provider Binding contracts; `sdd/project-context.yaml` fixture | Planned |
 | AC-003: A CLI/library profile resolves interface/contract, behavior, packaging, and security artifacts and applicable code verification; it does not require UI artifacts or cloud deployment. | REQ-003, REQ-006 | TEST-003a | integration | CLI/library Resolver fixture | Planned |
 | AC-003: A UI application profile resolves user flows/states, UX/UI facets, API/data contracts, security, and available UI verification; it does not require a remote design service. | REQ-003, REQ-006 | TEST-003b | integration | UI application Resolver fixture | Planned |
@@ -37,7 +38,7 @@
 
 ## Coverage Notes
 
-- TEST-001a through TEST-001h each inspect the listed consumer groups; an
+- TEST-001a through TEST-001i each inspect the listed consumer groups; an
   absent or multiply classified consumer is a failure.
 - TEST-003a through TEST-003e are separate target fixtures, so aggregate
   coverage cannot hide an untested target.
