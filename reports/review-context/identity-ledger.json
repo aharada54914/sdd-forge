@@ -10486,6 +10486,26 @@
       "previous_record_sha256": "fbbf7f050a69a60ebac248c54844c80c8a31e738b876c34d4e50ec2bb75fdd09",
       "record_sha256": "a5c72aab1321b152d0eaa7214ccfef472c647acfeabbbda986aeef10da73abec",
       "allowed_inputs_sha256": "01ad08a6a401f8bfcfba21b996d4ac4069afd97e24a4ca7e83de0ea473711924"
+    },
+    {
+      "sequence": 1165,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-sdd-domain-multitarget-impl-a1r1-a-20260925-local",
+      "host_session_id": "SESS-impl-a1r1-a-sdd-domain-multitarget-20260925-local",
+      "previous_record_sha256": "a5c72aab1321b152d0eaa7214ccfef472c647acfeabbbda986aeef10da73abec",
+      "record_sha256": "e0f4f3a447a3f87846d2719428b5107867f1b5cde9205863be2255aa9d035012",
+      "allowed_inputs_sha256": "5be545695051c94da020dfa02366b14750be68289de757f5c5e6b63529ed1cd8"
+    },
+    {
+      "sequence": 1166,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-sdd-domain-multitarget-impl-a1r1-b-20260925-local",
+      "host_session_id": "SESS-impl-a1r1-b-sdd-domain-multitarget-20260925-local",
+      "previous_record_sha256": "e0f4f3a447a3f87846d2719428b5107867f1b5cde9205863be2255aa9d035012",
+      "record_sha256": "555a8940c037e7b78ca3f4c1c133d6cca8f7572c12326f9dd15f93cccfbff2c9",
+      "allowed_inputs_sha256": "6a16951b20a7f3970d6574755815e667c7e4291389fec7790e483ac3ab4a8afd"
     }
   ]
 }
