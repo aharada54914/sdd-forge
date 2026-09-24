@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="${STRUCTURAL_COMPAT_REPO_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd -P)}"
+EVIDENCE_REPO="${STRUCTURAL_COMPAT_EVIDENCE_REPO:-$REPO_ROOT}"
 CANON="$REPO_ROOT/tests/lib/markdown-ast-canonicalizer.sh"
 CORPUS="$REPO_ROOT/tests/fixtures/structural-fixture-corpus"
 BOOTSTRAP_SKILL="$REPO_ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
@@ -256,7 +257,7 @@ emit_compound_skip() {
     fail "$fixture compound named skip matches task and acceptance dependencies"
   fi
 }
-if skip_allowlist_condition "$SKIP_MANIFEST" AC-007 "$REPO_ROOT" origin/main; then
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-007 "$EVIDENCE_REPO" origin/main; then
   printf '%s\n' 'AC-007 active: checking recorded F4 full-track artifacts'
   validate_track full "$CORPUS/f4-required.json"
 elif (( $? == 1 )); then
@@ -271,7 +272,7 @@ emit_compound_skip F6
 # Formatting assertions alone cannot prove that a dependency is still absent.
 # Audit the lines actually emitted; never turn an obsolete skip into success.
 assert_true "emitted dependency skips remain allowed on origin/main" \
-  skip_allowlist_audit "$SKIP_MANIFEST" "$tmp/emitted-skips.log" "$REPO_ROOT" origin/main
+   skip_allowlist_audit "$SKIP_MANIFEST" "$tmp/emitted-skips.log" "$EVIDENCE_REPO" origin/main
 
 if registered_suites="$(bash "$REPO_ROOT/tests/run-all.sh" --list)" &&
   grep -Fx 'tests/structural-compatibility.tests.sh' <<< "$registered_suites" >/dev/null; then
