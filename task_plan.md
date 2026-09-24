@@ -77,13 +77,14 @@ Latest execution: PR389 MERGED into remote and local main as ca023cc85d9db5d44f6
 - [ ] Establish matching dependency task/gate and ownership coverage; use normal GitHub approval or the newly authorized conditional administrator exception after fresh exact-head/base/required-check verification
 - [ ] Run required independent implementation reviews
 - [ ] Run required quality gates and regression suites
-- [ ] Integrate only passing changes into local `main`
+- [x] Integrate PR #496 fast-uri 3.1.8 refresh after all hosted checks passed, using the authorized administrator exception
+- [ ] Integrate only other passing changes into local `main`
 - **Status:** in_progress
 
 ### Phase 5: Branch Hygiene and Delivery
 - [x] Produce keep/merge/supersede/archive/delete recommendations in BRANCH_INVENTORY.md
 - [x] Verify remote-ref backup; explicitly exclude owner local-only and uncommitted work
-- [ ] Apply only explicitly authorized remote destructive actions
+- [x] Apply only explicitly authorized remote destructive actions (local temporary branches/worktrees proven merged or disposable were cleaned; occupied work preserved)
 - [ ] Deliver final evidence, remaining risks, and next-wave backlog
 - **Status:** pending
 
@@ -135,3 +136,22 @@ Latest execution: PR389 MERGED into remote and local main as ca023cc85d9db5d44f6
 - Do not execute Symphony against any real repository while its dependency audit or upstream test suite is failing.
 - Re-read this file before each major decision and update it after every phase.
 - Never classify a branch as abandoned from PR absence alone; require reachability, patch-equivalence, last-update, worktree occupancy, and handoff evidence.
+
+### 2026-09-24 continuation
+
+- PR #496 (`fix(mcp): update fast-uri to 3.1.8`) passed every required hosted check at exact head `e0aa28ba8c1f2abf4ac3d0ee0b048f51ac86c978`; the authorized administrator exception was used only because GitHub still reported `REVIEW_REQUIRED`. It merged as `0519a52b8c00e8cfc047e6fb34a70e46710f29eb`.
+- Post-merge detached `origin/main` verification confirmed all three MCP lockfiles resolve `node_modules/fast-uri` to `3.1.8`; pre-merge package checks were 51/51, 148/148, and 272/272, and hosted CI was fully green.
+- Vendor capability-registry canonical/vendored SHA-256 pairs were independently equal for all seven files; no drift was found.
+- Remaining work is not a merge-ready code change: #311 needs human-only protected-file apply plus five genuine auditable evaluator runs; #478 needs repository secret/OAuth refresh and a successful workflow dispatch; #423/#401/#137/#195/#196/#197/#290/#66 remain specification, live-environment, or external-project work. Do not close them based on synthetic or documentation-only evidence.
+
+### 2026-09-24 post-merge verification
+
+- Main push workflow `35997997118` for merge `0519a52b8c00e8cfc047e6fb34a70e46710f29eb` completed `success`; macOS, Ubuntu, Windows, installers, MCP, POSIX, version-gates, and required-checks jobs all passed.
+- The merged remote branch `codex/fast-uri-refresh` was deleted after confirming PR #496 was merged. Unmerged A8/A9 and issue branches remain preserved.
+
+### 2026-09-24 open-queue re-audit
+
+- The GitHub open-PR inventory contains only #401. It is a conflicting Draft specification PR with pending spec/design/task approvals and no implementation or quality-gate evidence; it is not safe to merge or close automatically.
+- No remote branch outside the already tracked A8/A9 and current coordination branches contains an isolated unmerged fix. The large A8 branch remains divergent; its fast-uri commits are superseded by #496 and its other commits are interleaved with feature work.
+- #311 remains human-gated: the candidate wiring patch is validated against clean `origin/main`, but protected `tests/run-all.sh` and `.github/workflows/test.yml` still require human application, followed by CI and five genuine isolated evaluator runs.
+- #478 remains externally blocked on the repository `CLAUDE_CODE_OAUTH_TOKEN`; local Claude re-authentication does not update that GitHub secret. No workflow rerun is justified until the secret is refreshed.

@@ -127,3 +127,24 @@ The exact-head #386 owner/governance/integration handoff is not established. No 
 
 ## Visual/Browser Findings
 - None yet.
+
+## 2026-09-24 integration evidence
+
+- PR #496 is the only newly merge-ready implementation found after the unmerged-branch audit. It updates `fast-uri` to 3.1.8 in the three MCP package locks and current bundles from a clean `origin/main` base. The intentionally small six-file diff avoided importing the obsolete large generated-bundle delta from the old A8 branch.
+- Every required check for #496 passed, including macOS/Ubuntu/Windows tests, MCP suites, installers, POSIX shards, version gates, Windows-heavy, and required-checks. GitHub still reported `REVIEW_REQUIRED`; the user's standing administrator-bypass authorization was applied after the green-check audit only.
+- Merge result: `0519a52b8c00e8cfc047e6fb34a70e46710f29eb` on `origin/main`. The temporary implementation and post-merge worktrees were clean and removed; the root dirty worktree was untouched.
+- Post-merge lockfile evidence: `mcp/ci-mcp`, `mcp/local-env-mcp`, and `mcp/sdd-forge-mcp` each contain `node_modules/fast-uri` version `3.1.8` with the same registry tarball integrity. Vendor capability-registry canonical and vendored copies match for all seven checked files.
+- Protected-file boundary remains active. A diagnostic read command naming issue311 protected test paths was denied by the SDD gate; no rerouting or bypass was attempted. #311 is therefore still human-blocked, not silently treated as complete.
+
+### 2026-09-24 post-merge verification
+
+- Main push workflow `35997997118` completed `success` after merge `0519a52b8c00e8cfc047e6fb34a70e46710f29eb`; no regression was found after the fast-uri update.
+- Vendor capability-registry canonical/vendored pairs remain equal for all seven checked files. No additional autonomous code fix was justified by the open-issue audit.
+
+### 2026-09-24 open-queue re-audit
+
+- PR #401 is the sole open PR and is a conflicting Draft/spec-only change. Its required human approvals, task decomposition, implementation, and quality gate are absent; merge or auto-close would discard active work.
+- `origin/feature/epic-196-a8-integration` is a large divergent history, not a safe source for cherry-picking. The only obvious recent fast-uri updates are already represented by the merged #496 change.
+- Issue #311 has no remaining autonomous validator fix: main already contains the scratch-root guard and regression suite. The remaining gap is protected CI wiring plus five real evaluator executions, neither of which can be replaced by synthetic tests.
+- Issue #478's repeated failures occur after checkout inside the Claude action and report no model usage; this is consistent with a repository-secret/OAuth failure, not a product regression.
+- Issue #423's merged PRs contain specification/traceability only. On current `origin/main`, its requirements and design review statuses are still Pending, acceptance rows are Planned, and no `tasks.md` exists; a fresh spec-review lifecycle must be run from a clean review-capable checkout before any implementation is authorized.

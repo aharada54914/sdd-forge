@@ -1,5 +1,13 @@
 # Progress Log
 
+## 2026-09-24 continuation — PR #496 integrated
+
+- PR #496 (`fix(mcp): update fast-uri to 3.1.8`) was rechecked at exact head `e0aa28ba8c1f2abf4ac3d0ee0b048f51ac86c978`; all required hosted checks passed.
+- GitHub merge state remained `REVIEW_REQUIRED`, so the already-authorized administrator exception was used without changing branch-protection rules. Merge commit: `0519a52b8c00e8cfc047e6fb34a70e46710f29eb`.
+- Post-merge clean checkout confirmed all three MCP lockfiles resolve `fast-uri` to `3.1.8`; `git diff --check` was clean. The implementation and verification worktrees were removed after confirming no uncommitted changes.
+- Vendor capability registry parity: 7/7 canonical-vendored SHA pairs equal; no drift.
+- Open blockers unchanged: #311 protected-file human apply + five real evaluator runs; #478 repository Claude OAuth secret refresh; #423/#401/#137/#195/#196/#197/#290/#66 non-ready specification/live/external work. Continue with independent non-blocked audits; do not claim all issues resolved.
+
 ## Session: 2026-09-05
 
 ### Human handshake-denial reproduction received
@@ -272,3 +280,16 @@
 | What's the goal? | Safely consolidate backlog into a stronger `main` using Symphony under repository governance |
 | What have I learned? | See `findings.md` |
 | What have I done? | See above |
+
+### 2026-09-24 main CI completion
+
+- Post-merge workflow `35997997118` finished `success` on merge `0519a52b8c00e8cfc047e6fb34a70e46710f29eb`.
+- The only merged feature branch created in this continuation (`codex/fast-uri-refresh`) was removed remotely after merge; all other unmerged branches/worktrees were left untouched pending ownership or human-gated work.
+
+### 2026-09-24 open-queue re-audit
+
+- Open PR count is one (#401, Draft/CONFLICTING); no autonomous merge-ready PR remains.
+- Remote branch audit found no isolated unPR'd fix. Occupied A8/A9 and issue worktrees remain preserved.
+- #311 candidate wiring remains ready for the human-only protected-file apply; final CI and five genuine evaluator runs are still outstanding.
+- #478 still requires the repository owner to refresh `CLAUDE_CODE_OAUTH_TOKEN` before another workflow dispatch.
+- #423 was rechecked after PR #480/#476: only spec bookkeeping is merged, so it remains intentionally open pending fresh spec review, task decomposition/approval, implementation, and quality gate.
