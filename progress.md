@@ -298,3 +298,7 @@
 
 - Added and pushed guarded human-apply helper commit `b4e527d8` on `codex/t002-failure-diagnostics`.
 - Autonomous tests remain blocked only at the protected citation layer; after human application, rerun `rtk proxy bash tests/review-context-boundary.tests.sh` before classifying the outstanding dirty implementation changes.
+
+### 2026-09-24 A7 re-audit
+
+- Confirmed #195's only current code repair is already in `origin/main` via merged PR #494. Remaining A7 work is quality-gate/evidence completion, not an unmerged implementation.

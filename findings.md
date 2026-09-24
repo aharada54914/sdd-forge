@@ -153,3 +153,8 @@ The exact-head #386 owner/governance/integration handoff is not established. No 
 
 - `tests/review-context-boundary.tests.sh` and `plugins/sdd-review-loop/references/review-context-boundary.md` still cite pre-WFI-037 line numbers, while the current validator is longer and the cited constructs have moved.
 - Direct edits are protected. The guarded helper `reports/verification/review-context-citation-refresh-human-20260924.sh` derives replacement ranges from the protected test's exact anchor strings and current validator content, so a changed validator or target refuses the operation instead of guessing.
+
+### 2026-09-24 A7 re-audit
+
+- Issue #195 has no open A7 PR. PR #494 merged the mutation-proof repair with green POSIX/Windows/macOS CI; the old draft #404 is superseded and closed.
+- A7 remains open because T-004 still needs its quality-gate Done transition and T-010--T-013 acceptance evidence/approval, including the historical live-refresh limitation. No unmerged A7 code is safe to cherry-pick.
