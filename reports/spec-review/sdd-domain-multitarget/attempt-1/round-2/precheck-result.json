@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "25c19c3309321825be2fe1a5f8ff38fd09bb435b4e55811d4785ac528ea2428b",
+  "acceptance_sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad",
+  "investigation_sha256": "41cfa346a50c4b7d64a3d014b287ca600cc47ba8a2bec2b53698ed038e86f113",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "c09a901dea6dffb92edf42dba4cda8e3778fbb85727ec17e1506d2fddef7dbd6",
+  "edit_summary": "Removed downstream artifact references, added TEST-001i coverage, and repaired round-1 reviewer evidence schema.",
+  "reset": false,
+  "generated_at": "2026-09-24T19:06:22Z"
+}
