@@ -12,6 +12,24 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+    },
+    {
+      "id": "check-a8-classification-table",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py"
+    },
+    {
+      "id": "check-a8-scope-boundary",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
+    },
+    {
+      "id": "check-a8-citation-compliance",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
     }
   ],
   "capabilities": [

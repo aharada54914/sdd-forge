@@ -255,6 +255,17 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: bash ./tests/check-installed-plugin-drift.tests.sh
+
+      # epic-196-a8-integration T-007 (REQ-006/REQ-007, AC-025/AC-029/AC-030):
+      # deterministic static checks for classification, scope, and citations.
+      - name: Test A8 process-integrity suite (PowerShell)
+        shell: pwsh
+        run: ./tests/check-a8-process-integrity.tests.ps1
+
+      - name: Test A8 process-integrity suite (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/check-a8-process-integrity.tests.sh
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

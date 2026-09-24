@@ -140,6 +140,8 @@ STAGED_SCRIPTS = [
     # implementation-ref-missing fires inside the simulated layout.
     "check-contract.py", "check-hook-activation-handshake.py",
     "check-component-coverage.py",
+    "check-a8-classification-table.py", "check-a8-scope-boundary.py",
+    "check-a8-citation-compliance.py",
     # check-criterion-freeze.py joined the scan root with WFI-045; by the
     # same rule as check-component-coverage above, registering it in the
     # fixture's gates[] means this list must ship it too, or check (b)

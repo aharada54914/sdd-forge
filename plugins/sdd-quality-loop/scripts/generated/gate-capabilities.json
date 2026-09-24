@@ -2,10 +2,28 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "1105650802b04b11072d81f22c806c4cfbb4f0e8e5a759c48b6acd1255fd512b",
+    "sha256": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
+    {
+      "id": "check-a8-citation-compliance",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+    },
+    {
+      "id": "check-a8-classification-table",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py"
+    },
+    {
+      "id": "check-a8-scope-boundary",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
+    },
     {
       "id": "check-installed-plugin-drift",
       "stage": "implementation",
