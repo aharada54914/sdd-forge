@@ -148,3 +148,8 @@ The exact-head #386 owner/governance/integration handoff is not established. No 
 - Issue #311 has no remaining autonomous validator fix: main already contains the scratch-root guard and regression suite. The remaining gap is protected CI wiring plus five real evaluator executions, neither of which can be replaced by synthetic tests.
 - Issue #478's repeated failures occur after checkout inside the Claude action and report no model usage; this is consistent with a repository-secret/OAuth failure, not a product regression.
 - Issue #423's merged PRs contain specification/traceability only. On current `origin/main`, its requirements and design review statuses are still Pending, acceptance rows are Planned, and no `tasks.md` exists; a fresh spec-review lifecycle must be run from a clean review-capable checkout before any implementation is authorized.
+
+### 2026-09-24 citation-drift repair
+
+- `tests/review-context-boundary.tests.sh` and `plugins/sdd-review-loop/references/review-context-boundary.md` still cite pre-WFI-037 line numbers, while the current validator is longer and the cited constructs have moved.
+- Direct edits are protected. The guarded helper `reports/verification/review-context-citation-refresh-human-20260924.sh` derives replacement ranges from the protected test's exact anchor strings and current validator content, so a changed validator or target refuses the operation instead of guessing.

@@ -155,3 +155,9 @@ Latest execution: PR389 MERGED into remote and local main as ca023cc85d9db5d44f6
 - No remote branch outside the already tracked A8/A9 and current coordination branches contains an isolated unmerged fix. The large A8 branch remains divergent; its fast-uri commits are superseded by #496 and its other commits are interleaved with feature work.
 - #311 remains human-gated: the candidate wiring patch is validated against clean `origin/main`, but protected `tests/run-all.sh` and `.github/workflows/test.yml` still require human application, followed by CI and five genuine isolated evaluator runs.
 - #478 remains externally blocked on the repository `CLAUDE_CODE_OAUTH_TOKEN`; local Claude re-authentication does not update that GitHub secret. No workflow rerun is justified until the secret is refreshed.
+
+### 2026-09-24 citation-drift repair
+
+- The review-context boundary suite is currently blocked by stale line citations after the validator gained the scratch-root and gate-report checks.
+- Added `reports/verification/review-context-citation-refresh-human-20260924.sh` as a guarded human-only repair. It pins the three current input hashes, computes every validator anchor from the exact text asserted by the protected test, backs up both protected targets, and refuses a no-op or mismatched state.
+- The helper was syntax-checked, committed as `b4e527d8`, and pushed. It has not been run by the agent because it writes protected files.

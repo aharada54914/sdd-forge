@@ -293,3 +293,8 @@
 - #311 candidate wiring remains ready for the human-only protected-file apply; final CI and five genuine evaluator runs are still outstanding.
 - #478 still requires the repository owner to refresh `CLAUDE_CODE_OAUTH_TOKEN` before another workflow dispatch.
 - #423 was rechecked after PR #480/#476: only spec bookkeeping is merged, so it remains intentionally open pending fresh spec review, task decomposition/approval, implementation, and quality gate.
+
+### 2026-09-24 citation-drift repair
+
+- Added and pushed guarded human-apply helper commit `b4e527d8` on `codex/t002-failure-diagnostics`.
+- Autonomous tests remain blocked only at the protected citation layer; after human application, rerun `rtk proxy bash tests/review-context-boundary.tests.sh` before classifying the outstanding dirty implementation changes.
