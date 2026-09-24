@@ -54,6 +54,19 @@ else
   printf 'SKIP: pwsh not found; guard-r10-port.tests.ps1 not run\n'
 fi
 
+# Scratch-root isolation is a Python suite because it exercises both shipped
+# validators. Keep it outside the Bash-only inventory and continue collecting
+# independent failures in the same way as the shell suites.
+if command -v python3 >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then
+  echo "==> tests/issue311-scratch-isolation.tests.py"
+  if ! python3 tests/issue311-scratch-isolation.tests.py --repo "$ROOT"; then
+    echo "FAILED: tests/issue311-scratch-isolation.tests.py"
+    failed+=("tests/issue311-scratch-isolation.tests.py")
+  fi
+else
+  echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
+fi
+
 if [[ ${#failed[@]} -gt 0 ]]; then
   printf '\n%d failing suite(s):\n' "${#failed[@]}"
   printf '  %s\n' "${failed[@]}"
