@@ -1,0 +1,34 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-domain-multitarget-impl-a1r1-b-20260925-local",
+  "host_session_id": "SESS-impl-a1r1-b-sdd-domain-multitarget-20260925-local",
+  "verdict": "PASS",
+  "allowed_input_manifest": [
+    {"path":"specs/sdd-domain-multitarget/requirements.md","sha256":"412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"},
+    {"path":"specs/sdd-domain-multitarget/acceptance-tests.md","sha256":"8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"},
+    {"path":"specs/sdd-domain-multitarget/design.md","sha256":"6426d7c4f3a7c6de705a26b4f415d5a53c8fe073c75e6d245491c7f18fa33c27"},
+    {"path":"specs/sdd-domain-multitarget/investigation.md","sha256":"41cfa346a50c4b7d64a3d014b287ca600cc47ba8a2bec2b53698ed038e86f113"},
+    {"path":"specs/sdd-domain-multitarget/ux-spec.md","sha256":"f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"},
+    {"path":"specs/sdd-domain-multitarget/frontend-spec.md","sha256":"b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"},
+    {"path":"specs/sdd-domain-multitarget/infra-spec.md","sha256":"60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"},
+    {"path":"specs/sdd-domain-multitarget/security-spec.md","sha256":"600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/sdd-domain-multitarget/attempt-1/round-1/precheck-result.json","sha256":"0b31e853438451ddec43867fbb6c3a5a46755aa6554a29c7cead0f546c91c0ec"},
+    {"path":"reports/impl-review/sdd-domain-multitarget/attempt-1/round-1/integrated-summary.json","sha256":"fd1a6ef27645fc629ae6de083e69fbceb641a4c6f46c2741cf6d949c8790f05d"}
+  ],
+  "checks": [
+    {"id":"DECISION-JUSTIFIED","result":"PASS","severity":"Major","finding":"The design explains why legacy documents remain, why facet-hybrid precedes facet-native, why DesignSync is an optional provider boundary, and why provider writes and promotion stages are deferred."},
+    {"id":"OPEN-QUESTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"The Resolution Model, Compatibility Strategy, and Factual-Claim Reverification sections provide concrete resolution and re-check paths for the investigation questions and shared-state assumptions."},
+    {"id":"ASSUMPTIONS-VALID","result":"PASS","severity":"Major","finding":"Baseline behavior claims carry checked-out commit and file/line citations, and the design requires re-verification at design review and task-decomposition planning."},
+    {"id":"NO-REQ-CONTRADICTION","result":"PASS","severity":"Critical","finding":"The design preserves additive target selection, legacy required checks, fail-closed unknown/unrun handling, existing consent semantics, and provider-binding separation without contradicting the passed requirements or acceptance tests."},
+    {"id":"PERF-ADDRESSED","result":"PASS","severity":"Major","finding":"The design limits this slice to deterministic selection and contract consumers, defers runtime provider work, and identifies bounded verification-plan and host-matrix evidence rather than introducing an unbounded runtime path."},
+    {"id":"DEPLOYMENT-CONCRETE","result":"PASS","severity":"Major","finding":"Deployment is explicitly absent for this slice; host adapters, local/CI verification, optional provider operations, and no-egress fallback are scoped with their operational boundaries."},
+    {"id":"MIGRATION-PLANNED","result":"PASS","severity":"Major","finding":"The compatibility strategy defines the staged migration, legacy artifact retention, facet-hybrid posture, separate approval for facet-native omission, rollback-safe additive behavior, and deferred work."},
+    {"id":"INTEGRATION-IDENTIFIED","result":"PASS","severity":"Major","finding":"Existing bootstrap, quality-loop contract checks, DesignSync, ci-mcp, host manifests, capability registry, and provider binding surfaces are identified with KEEP/PARAMETERIZE/EXTRACT/DEFER dispositions."},
+    {"id":"DESIGN-WITHIN-SCOPE","result":"PASS","severity":"Major","finding":"The bounded migration does not add provider runtime execution, cloud writes, new gate stages, package restructuring, or a second registry; target selection and compatibility boundaries are the stated scope."},
+    {"id":"VERIFICATION-PATH-CONCRETE","result":"PASS","severity":"Major","finding":"The Test and Evidence Strategy names target fixtures, legacy/hybrid comparisons, consent cases, provider evidence provenance, host matrix checks, and rejection of artifact/promotion claims."},
+    {"id":"DOMAIN-CONFORMANCE","result":"PASS","severity":"Major","finding":"The design consistently treats capability classification as provider-neutral, bindings as provider-specific, and core approval/evidence rules as the single domain contract."}
+  ]
+}
