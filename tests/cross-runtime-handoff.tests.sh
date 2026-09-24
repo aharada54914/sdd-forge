@@ -103,10 +103,11 @@ source2 = fixture_dir / 'handoff-02-codex-to-copilot.md'
 assert source1.read_bytes() == expected1, 'handoff-01 initial bytes differ from contract'
 assert source2.read_bytes() == expected2, 'handoff-02 initial bytes differ from contract'
 allow = json.loads(allowlist_path.read_text(encoding='utf-8'))
-assert allow['version'] == 'a8-skip-allowlist/v1'
-assert len(allow['entries']) == 1 and allow['entries'][0]['case_id'] == 'AC-006'
-assert '#189' in allow['entries'][0]['reason'] and '#187' in allow['entries'][0]['reason']
-assert len(allow['entries'][0]['upstream_epic_a1_path_blob_ids']) == 3
+assert allow['schema'] == 'a8-skip-allowlist/v1'
+entries = {entry['case_id']: entry for entry in allow['entries']}
+assert {'AC-006', 'AC-015', 'AC-016'} <= set(entries)
+assert '#189' in entries['AC-006']['reason'] and '#187' in entries['AC-006']['reason']
+assert len(entries['AC-006']['upstream_epic_a1_path_blob_ids']) == 3
 
 with tempfile.TemporaryDirectory(prefix='sdd-a8-pseudo-cli-') as raw:
     root = pathlib.Path(raw).resolve()
@@ -142,11 +143,11 @@ fi
 python3 - "$allowlist" <<'PY' || fail "invalid AC-006 allowlist"
 import json, sys
 data=json.load(open(sys.argv[1], encoding="utf-8"))
-entries=data.get("entries")
-assert data.get("version")=="a8-skip-allowlist/v1"
-assert isinstance(entries,list) and len(entries)==1 and entries[0].get("case_id")=="AC-006"
-assert "#189" in entries[0].get("reason","") and "#187" in entries[0].get("reason","")
-assert len(entries[0].get("upstream_epic_a1_path_blob_ids",{}))==3
+entries={entry.get("case_id"): entry for entry in data.get("entries", [])}
+assert data.get("schema")=="a8-skip-allowlist/v1"
+assert {"AC-006", "AC-015", "AC-016"} <= set(entries)
+assert "#189" in entries["AC-006"].get("reason","") and "#187" in entries["AC-006"].get("reason","")
+assert len(entries["AC-006"].get("upstream_epic_a1_path_blob_ids",{}))==3
 PY
 
 if ((!live_e2e)); then
