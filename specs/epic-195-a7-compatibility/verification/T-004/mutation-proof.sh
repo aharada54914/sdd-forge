@@ -42,9 +42,11 @@ copy_surface() {
     "$destination/plugins/sdd-lite/skills" "$destination/plugins/sdd-lite" \
     "$destination/specs/epic-195-a7-compatibility"
   for relative in \
-    tests/run-all.sh tests/run-all.ps1 \
+    tests/run-all.sh tests/run-all.ps1 tests/suite-inventory.posix \
     tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 \
     tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 \
+    tests/lib/skip-allowlist-evaluator.sh tests/lib/skip-allowlist-evaluator.ps1 \
+    tests/fixtures/skip-allowlist-manifest.json \
     plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md \
     plugins/sdd-lite/skills/lite-spec/SKILL.md \
     specs/epic-195-a7-compatibility/design.md \
@@ -74,7 +76,7 @@ require_source_change() {
 mutate_case() {
   local id="$1" target_root="$2"
   local corpus="$target_root/tests/fixtures/structural-fixture-corpus"
-  local blocked_one blocked_two before
+  local blocked_one blocked_two before inactive_tree inactive_commit
   blocked_one='Fac'; blocked_one+='et'
   blocked_two='capab'; blocked_two+='ility'
   case "$id" in
@@ -180,11 +182,16 @@ mutate_case() {
       require_source_change "$before" "$target_root/tests/structural-compatibility.tests.sh"
       ;;
     f3-skip) update_json "$corpus/f3-advisory.json" '.skip.dependencies = []' ;;
-    f4-skip) update_json "$corpus/f4-required.json" '.skip.dependencies = []' ;;
+    f4-skip)
+      inactive_tree="$(git -C "$ROOT" rev-parse origin/main^{tree})"
+      inactive_commit="$(printf 'T-004 inactive activation fixture\n' | git -C "$ROOT" -c user.name=mutation -c user.email=mutation@example.invalid commit-tree "$inactive_tree" -p origin/main)"
+      update_json "$target_root/tests/fixtures/skip-allowlist-manifest.json" --arg commit "$inactive_commit" '(.[] | select(.assertion_id == "AC-007") | .dependencies[0].merged_commit) = $commit'
+      update_json "$corpus/f4-required.json" '.skip.dependencies = []'
+      ;;
     compound-without-a1) perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
     compound-without-a6) perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
-    runner-sh) perl -0pi -e 's/^  tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/run-all.sh" ;;
-    runner-ps1) perl -0pi -e 's/^    "tests\/structural-compatibility\.tests\.ps1"\n//m' "$target_root/tests/run-all.ps1" ;;
+    runner-sh) perl -0pi -e 's/^tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/suite-inventory.posix" ;;
+    runner-ps1) perl -0pi -e "s/^\\s*['\"]tests\\/structural-compatibility\\.tests\\.ps1['\"],?\\r?\\n//m" "$target_root/tests/run-all.ps1" ;;
     *) printf 'unknown mutation: %s\n' "$id" >&2; exit 2 ;;
   esac
 }
@@ -194,11 +201,11 @@ run_one() {
   set +e
   if [[ "$runtime" == sh ]]; then
     suite="$target_root/tests/structural-compatibility.tests.sh"
-    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" bash "$suite" 2>&1)"
+    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" bash "$suite" 2>&1)"
     rc=$?
   else
     suite="$target_root/tests/structural-compatibility.tests.ps1"
-    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" pwsh -NoProfile -File "$suite" 2>&1)"
+    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" pwsh -NoProfile -File "$suite" 2>&1)"
     rc=$?
   fi
   set -e
@@ -275,9 +282,11 @@ copy_surface "$runner_root"; mutate_case runner-ps1 "$runner_root"
 run_one runner-ps1 ps1 'FAIL: PowerShell aggregate runner registers this shipped suite' "$runner_root"
 
 empty_root="$work/empty-product-root"
-mkdir -p "$empty_root/tests"
+mkdir -p "$empty_root/tests/lib" "$empty_root/tests/fixtures"
 cp "$SH_SUITE" "$empty_root/tests/structural-compatibility.tests.sh"
 cp "$PS_SUITE" "$empty_root/tests/structural-compatibility.tests.ps1"
+cp "$ROOT/tests/lib/skip-allowlist-evaluator.sh" "$empty_root/tests/lib/"
+cp "$ROOT/tests/fixtures/skip-allowlist-manifest.json" "$empty_root/tests/fixtures/"
 run_one empty-product-root sh 'FAIL: required shipped product surface exists:' "$empty_root"
 run_one empty-product-root ps1 'FAIL: required shipped product surface exists:' "$empty_root"
 
