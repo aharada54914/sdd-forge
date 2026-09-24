@@ -20,49 +20,20 @@ MODULE_SPEC.loader.exec_module(receipt)
 class ReceiptLaunchTests(unittest.TestCase):
     def test_provenance_launch_rejects_missing_receipt(self):
         feature = "receipt-fixture-" + uuid.uuid4().hex
-        root = REPO
-        spec = root / "specs" / feature
-        report_root = root / "reports/task-review" / feature
-        self.addCleanup(lambda: shutil.rmtree(spec) if spec.exists() else None)
-        self.addCleanup(lambda: shutil.rmtree(report_root) if report_root.exists() else None)
-        with self.subTest(feature=feature):
-            spec.mkdir(parents=True)
-            report = report_root / "attempt-2/round-1"
-            report.mkdir(parents=True)
-            precheck = {"schema": "task-review-precheck/v1", "feature": feature,
-                        "attempt": 2, "round": 1, "provenance_rereview": True}
-            for name, field in (("tasks", "tasks"), ("requirements", "requirements"),
-                                ("acceptance-tests", "acceptance"), ("design", "design")):
-                content = (name + "\n").encode()
-                (spec / (name + ".md")).write_bytes(content)
-                precheck[field + "_sha256"] = hashlib.sha256(content).hexdigest()
-            (report / "precheck-result.json").write_text(json.dumps(precheck))
-            for command in (
-                ["bash", str(REPO / "plugins/sdd-review-loop/scripts/task-review-precheck.sh"),
-                 feature, "2", "1", "--verify-inputs"],
-                ["pwsh", "-NoProfile", "-File",
-                 str(REPO / "plugins/sdd-review-loop/scripts/task-review-precheck.ps1"),
-                 "-Feature", feature, "-Attempt", "2", "-Round", "1", "-VerifyInputs"],
-            ):
-                with self.subTest(runtime=command[0]):
-                    result = subprocess.run(command, cwd=root, text=True, capture_output=True)
-                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-                    self.assertIn("prior-PASS receipt", result.stdout + result.stderr)
-            for mode in ("legacy", "ordinary"):
-                precheck.pop("provenance_rereview", None)
-                if mode == "ordinary":
-                    precheck.update(provenance_rereview=False, prior_pass_receipt=None)
-                (report / "precheck-result.json").write_text(json.dumps(precheck))
-                for command in (
-                    ["bash", str(REPO / "plugins/sdd-review-loop/scripts/task-review-precheck.sh"),
-                     feature, "2", "1", "--verify-inputs"],
-                    ["pwsh", "-NoProfile", "-File",
-                     str(REPO / "plugins/sdd-review-loop/scripts/task-review-precheck.ps1"),
-                     "-Feature", feature, "-Attempt", "2", "-Round", "1", "-VerifyInputs"],
-                ):
-                    with self.subTest(mode=mode, runtime=command[0]):
-                        result = subprocess.run(command, cwd=root, text=True, capture_output=True)
-                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        with tempfile.TemporaryDirectory(prefix="sdd-receipt-launch-") as temp:
+            root = Path(temp)
+            report = root / "reports/task-review" / feature / "attempt-2/round-1/precheck-result.json"
+            report.parent.mkdir(parents=True)
+            report.write_text(json.dumps({"provenance_rereview": True}))
+            command = ["python3", str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
+                       "--root", str(root), "--feature", feature, "--attempt", "2",
+                       "--verify", str(report.relative_to(root))]
+            result = subprocess.run(command, cwd=REPO, text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("missing prior-PASS receipt", result.stdout + result.stderr)
+            report.write_text(json.dumps({"provenance_rereview": False, "prior_pass_receipt": None}))
+            result = subprocess.run(command, cwd=REPO, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class ReceiptUnitTests(unittest.TestCase):

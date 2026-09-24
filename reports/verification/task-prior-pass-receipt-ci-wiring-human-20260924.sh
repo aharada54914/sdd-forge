@@ -11,9 +11,9 @@ patch="$source/reports/verification/task-prior-pass-receipt-ci-wiring-candidate-
 [[ -f "$patch" ]] || { printf 'candidate patch missing: %s\n' "$patch" >&2; exit 2; }
 
 cd "$repo"
-expected_run_all_sh='8d0ff443973b9cf6836c55b6f49eef633bb3ec500cffe3e5e0270e3d94deb3c4'
-expected_run_all_ps1='6865172c96ad890fbce4de83555cb738f3720912e7ad198291d0287463c8d079'
-expected_workflow='dc0cc24c18c7edda87c7591f4cc1f0938ea10c5c6788eeb986426c168141d2b0'
+expected_run_all_sh='7ff854d20d3eadaf353c29ddd0c2ce391c9bd1d111c7235f4da4280ca656a3c6'
+expected_run_all_ps1='57ec5e6657afb475b93bae4f998d7c2a5fdb0df8df9ff6be25e24bc19016ad20'
+expected_workflow='7a09e5c8be03d63c42b90e9e0b119ea54b2fa16451a29ec46d0a8fe92542d7ba'
 for pair in \
   "tests/run-all.sh:$expected_run_all_sh" \
   "tests/run-all.ps1:$expected_run_all_ps1" \
