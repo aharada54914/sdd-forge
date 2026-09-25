@@ -133,14 +133,25 @@ def capture_install_state(snapshot: Path, workspace: Path, environment: dict[str
             raise RuntimeError("PowerShell is required to capture install state on Windows")
         install_command = [shell, "-NoProfile", "-File", str(snapshot / "install.ps1"), "-SourceDirectory", str(snapshot), "-InstallRoot", str(install_root), "-Target", "FilesOnly", "-SkipAgentInstall", "-SkipMcp"]
         uninstall_command = [shell, "-NoProfile", "-File", str(snapshot / "uninstall.ps1"), "-InstallRoot", str(install_root), "-Target", "FilesOnly", "-SkipAgentUninstall", "-SkipMcpUninstall"]
+        install_environment = environment
     else:
-        install_command = ["bash", str(snapshot / "install.sh"), "--source-directory", str(snapshot), "--install-root", str(install_root), "--target", "FilesOnly", "--skip-agent-install", "--skip-mcp"]
+        # Bash 3.2 treats an empty array under `set -u` as an error. Select a
+        # valid MCP while making node unavailable, so the pinned installer
+        # exercises its real no-MCP-output path without that false rollback.
+        no_node = workspace / "capture-no-node"
+        no_node.mkdir()
+        node_shim = no_node / "node"
+        node_shim.write_text("#!/bin/sh\nexit 127\n")
+        node_shim.chmod(0o755)
+        install_environment = dict(environment)
+        install_environment["PATH"] = f"{no_node}{os.pathsep}{environment.get('PATH', os.defpath)}"
+        install_command = ["bash", str(snapshot / "install.sh"), "--source-directory", str(snapshot), "--install-root", str(install_root), "--target", "FilesOnly", "--skip-agent-install", "--mcp", "sdd-forge-mcp"]
         uninstall_command = ["bash", str(snapshot / "uninstall.sh"), "--install-root", str(install_root), "--target", "FilesOnly", "--skip-agent-uninstall", "--skip-mcp-uninstall"]
-    installed = run(install_command, cwd=snapshot, environment=environment)
+    installed = run(install_command, cwd=snapshot, environment=install_environment)
     if installed.returncode != 0:
         raise RuntimeError(f"pinned install failed: {installed.stderr.decode('utf-8', 'replace').strip()}")
     install_manifest = filesystem_manifest(install_root)
-    uninstalled = run(uninstall_command, cwd=snapshot, environment=environment)
+    uninstalled = run(uninstall_command, cwd=snapshot, environment=install_environment)
     if uninstalled.returncode != 0:
         raise RuntimeError(f"pinned uninstall failed: {uninstalled.stderr.decode('utf-8', 'replace').strip()}")
     return install_manifest, filesystem_manifest(install_root)

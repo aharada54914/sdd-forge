@@ -2,7 +2,7 @@
   "capture_scripts": [
     {
       "path": "tests/capture-golden-baseline.sh",
-      "sha256": "2d47e5aae1b2fa0012e54aba92bf99fbf7d5a7be3dd48e2e314678a4d1e38af3"
+      "sha256": "5b07b5b188a3ae7b4f4dd25668c59069751fcb039968448d876a2df6ac45bc2d"
     },
     {
       "path": "tests/capture-golden-baseline.ps1",
