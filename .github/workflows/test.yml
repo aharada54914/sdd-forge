@@ -230,6 +230,25 @@ jobs:
         shell: pwsh
         run: ./tests/scenario.tests.ps1
 
+      # Epic A7's PowerShell compatibility suites are already part of the
+      # runner inventory, but must also execute on the native Windows leg.
+      # Keep them in one step to avoid five separate shell invocations.
+      - name: "[deterministic] Test Epic A7 compatibility suites (pwsh)"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tests = @(
+            './tests/compatibility-byte-identical.tests.ps1'
+            './tests/golden-baseline-contract.tests.ps1'
+            './tests/structural-compatibility.tests.ps1'
+            './tests/skip-allowlist-manifest.tests.ps1'
+            './tests/promote-golden-baseline-ci-guard.tests.ps1'
+          )
+          foreach ($test in $tests) {
+            & $test
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
       - name: "[deterministic] Test guards (bash)"
         if: runner.os != 'Windows'
         shell: bash

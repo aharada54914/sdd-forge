@@ -13,7 +13,9 @@ function Get-Entry([string]$Path, [string]$Assertion) {
 function Invoke-GitText([string]$Repo, [string[]]$Arguments) {
     $text = & git -C $Repo @Arguments 2>$null
     if ($LASTEXITCODE -ne 0) { throw "git failed: $($Arguments -join ' ')" }
-    return @($text)
+    # Native git emits CRLF on Windows; keep ref names and blob lines
+    # identical to the POSIX evaluator before matching or hashing.
+    return @($text | ForEach-Object { ([string]$_).TrimEnd("`r") })
 }
 function Find-EpicBranch([string]$Repo, [int]$Issue) {
     $refs = Invoke-GitText $Repo @('for-each-ref', '--format=%(refname:short)', 'refs/heads', 'refs/remotes')
@@ -41,7 +43,9 @@ function Test-Merged([string]$Manifest, [string]$Assertion, [string]$Epic, [stri
     & git -C $Repo merge-base --is-ancestor $branch $MainRef 2>$null
     if ($LASTEXITCODE -gt 1) { throw 'integration ancestry evidence unavailable' }
     if ($LASTEXITCODE -ne 0) { return $false }
-    $specDir = Split-Path -Parent ([string]$dependency[0].fingerprints[0].source)
+    # Git tree paths always use '/', including on Windows; Split-Path would
+    # produce '\\' and make `git show <ref>:<path>` miss the terminal files.
+    $specDir = ([string]$dependency[0].fingerprints[0].source) -replace '/[^/]+$',''
     return (Test-Terminal $Repo $MainRef "$specDir/requirements.md") -and (Test-Terminal $Repo $MainRef "$specDir/design.md")
 }
 function Get-Sha256([string]$Text) {

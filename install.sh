@@ -397,6 +397,7 @@ mcp_selected() {
     # Returns 0 if the given MCP name is in MCP_SELECTION.
     local name="$1"
     local m
+    [[ $SKIP_MCP -eq 1 ]] && return 1
     for m in "${MCP_SELECTION[@]}"; do
         [[ "$m" == "$name" ]] && return 0
     done
