@@ -33,10 +33,12 @@ jq -e --arg state "$STATE" --arg refresh 'tests/structural-compatibility-live-re
 
 skill="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 if [[ "$track" == full ]]; then
-  mapfile -t expected < <(awk '/^## Required Outputs$/ { on=1; next } on && /^Phase 2 outputs/ { exit } on && /^- `specs\/<feature>\/[^`]+\.md`$/ { x=$0; sub(/^- `specs\/<feature>\//,"",x); sub(/`$/,"",x); print x }' "$skill")
+  expected=()
+  while IFS= read -r path; do expected+=("$path"); done < <(awk '/^## Required Outputs$/ { on=1; next } on && /^Phase 2 outputs/ { exit } on && /^- `specs\/<feature>\/[^`]+\.md`$/ { x=$0; sub(/^- `specs\/<feature>\//,"",x); sub(/`$/,"",x); print x }' "$skill")
 else
   skill="$ROOT/plugins/sdd-lite/skills/lite-spec/SKILL.md"
-  mapfile -t expected < <(awk '/次の3ファイルを `specs\/<feature>\/` に生成/ { on=1; next } on && /^4\./ { exit } on && /- `[^`]+\.md`/ { x=$0; sub(/^.*- `/,"",x); sub(/`.*/,"",x); print x }' "$skill")
+  expected=()
+  while IFS= read -r path; do expected+=("$path"); done < <(awk '/次の3ファイルを `specs\/<feature>\/` に生成/ { on=1; next } on && /^4\./ { exit } on && /- `[^`]+\.md`/ { x=$0; sub(/^.*- `/,"",x); sub(/`.*/,"",x); print x }' "$skill")
 fi
 jq -r '.artifacts[].path' "$FIXTURE" | LC_ALL=C sort > "$tmp/actual"
 printf '%s\n' "${expected[@]}" | LC_ALL=C sort > "$tmp/expected"
@@ -62,6 +64,7 @@ if [[ "$DRY" -eq 1 ]]; then
   echo 'PASS: malformed fixture rejected without corpus modification'
   exit 0
 fi
-jq --arg model "${SDD_LIVE_MODEL_NAME:-${SDD_LIVE_MODEL_CMD:-live-model}}" --arg commit "$(git -C "$ROOT" rev-parse HEAD)" '.recorded_at_model=$model | .recorded_at_commit=$commit' "$FIXTURE" > "$target.tmp.$$" || fail 'cannot prepare corpus JSON'
-mv -f -- "$target.tmp.$$" "$target"
+tmp_target="$(mktemp "${target}.XXXXXX")" || fail 'cannot allocate corpus temporary file'
+jq --arg model "${SDD_LIVE_MODEL_NAME:-${SDD_LIVE_MODEL_CMD:-live-model}}" --arg commit "$(git -C "$ROOT" rev-parse HEAD)" '.recorded_at_model=$model | .recorded_at_commit=$commit' "$FIXTURE" > "$tmp_target" || fail 'cannot prepare corpus JSON'
+mv -f -- "$tmp_target" "$target"
 echo "PASS: refreshed $STATE corpus entry"
