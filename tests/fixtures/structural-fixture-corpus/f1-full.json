@@ -1,8 +1,8 @@
 {
   "schema": "structural-fixture-corpus/v1",
   "fixture_state": "F1",
-  "recorded_at_model": "recorded-response/epic-195-a7-compatibility",
-  "recorded_at_commit": "25e0b66c552a7fdc052486cc0a6822dadcd82e41",
+  "recorded_at_model": "claude-sonnet",
+  "recorded_at_commit": "b5fe98447efce8e738e442fb1f3ffda3bebd51a9",
   "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
   "artifacts": [
     {
