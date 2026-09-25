@@ -199,11 +199,11 @@ actual01_sha=$(sha256_file "$fixture01")
 
 prompt="Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml in this isolated workspace. Extract its token field and emit exactly the marker HANDOFF-01:<token> in your final response. Do not modify files or run shell commands."
 codex_first_output="$evidence_dir/codex-consumer.log"
-codex exec --ephemeral --skip-git-repo-check --sandbox read-only --ask-for-approval never --cd "$tmp" "$prompt" > "$codex_first_output" 2>&1 || fail "Codex consumer invocation failed"
+codex --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox read-only --cd "$tmp" "$prompt" > "$codex_first_output" 2>&1 || fail "Codex consumer invocation failed"
 grep -Fq "HANDOFF-01:$nonce1" "$codex_first_output" || fail "Codex consumer output did not contain the exact handoff marker"
 
 prompt="Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and verify its token is $nonce1. Then edit only tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, replacing the exact PLACEHOLDER in its HTML comment with $nonce2, preserving all other bytes. Do not run shell commands and do not modify any other file. End with the exact marker CODEX-PRODUCED:$nonce2."
-codex exec --ephemeral --skip-git-repo-check --sandbox workspace-write --ask-for-approval never --cd "$tmp" "$prompt" > "$evidence_dir/codex-producer.log" 2>&1 || fail "Codex producer invocation failed"
+codex --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox workspace-write --cd "$tmp" "$prompt" > "$evidence_dir/codex-producer.log" 2>&1 || fail "Codex producer invocation failed"
 grep -Fq "CODEX-PRODUCED:$nonce2" "$evidence_dir/codex-producer.log" || fail "Codex producer did not attest its nonce"
 actual02_sha=$(sha256_file "$fixture02")
 [[ "$actual02_sha" == "$expected02_sha" ]] || fail "Codex-produced handoff-02 bytes/hash mismatch"
