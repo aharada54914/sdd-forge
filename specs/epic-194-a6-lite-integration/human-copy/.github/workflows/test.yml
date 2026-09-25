@@ -232,13 +232,13 @@ jobs:
 
       # Epic A7's PowerShell compatibility suites are already part of the
       # runner inventory, but must also execute on the native Windows leg.
-      # Keep them in one step to avoid five separate shell invocations.
+      # Keep the two expensive capture suites in separate required Windows
+      # jobs so their independent assertions run in parallel.
       - name: "[deterministic] Test Epic A7 compatibility suites (pwsh)"
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $tests = @(
-            './tests/compatibility-byte-identical.tests.ps1'
             './tests/golden-baseline-contract.tests.ps1'
             './tests/structural-compatibility.tests.ps1'
             './tests/skip-allowlist-manifest.tests.ps1'
@@ -1461,12 +1461,20 @@ jobs:
   test-windows-heavy:
     name: test-windows-heavy
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      # A7's byte-identical suite performs independent full baseline captures.
+      # It remains a required native-Windows assertion, but runs in parallel
+      # with the golden-baseline suite in the main Windows test job.
+      - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
+        shell: pwsh
+        run: ./tests/compatibility-byte-identical.tests.ps1
+
       - name: "[deterministic] Test deterministic gate scripts"
         shell: pwsh
         run: ./tests/scripts.tests.ps1
