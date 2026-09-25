@@ -10764,6 +10764,66 @@
       "previous_record_sha256": "4f2a7f73d930adab25e63d61ca6a803c6037e4940bdcc4c756e3462503d338fc",
       "record_sha256": "007ac3bdea68566f49d2b6d83373bedd2ee525062264a84c68287e531863f237",
       "allowed_inputs_sha256": "d0dc57edae57a2422d51bb4f8719eb39aa798fd4b29d210478356ba4d67eb8cb"
+    },
+    {
+      "sequence": 1194,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0d95b-b275-7380-bcc0-35cb52a06b0a",
+      "host_session_id": "01a0d95b-b275-7380-bcc0-35cb52a06b0a",
+      "previous_record_sha256": "007ac3bdea68566f49d2b6d83373bedd2ee525062264a84c68287e531863f237",
+      "record_sha256": "e3fe1e108957330b573831d16fbc977a4f322912c2bd8b5dfab99ec026dcbbb9",
+      "allowed_inputs_sha256": "54079123e47fd20835c14d1c6172557f91316f1a533ad85406f00efe01756cc2"
+    },
+    {
+      "sequence": 1195,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0d95f-3c91-7d60-942c-848375c6939d",
+      "host_session_id": "01a0d95f-3c91-7d60-942c-848375c6939d",
+      "previous_record_sha256": "e3fe1e108957330b573831d16fbc977a4f322912c2bd8b5dfab99ec026dcbbb9",
+      "record_sha256": "7aeca12c7fb49fd366517c8aaf2a474d0669fa247526a9ca4f5281b01c84d76b",
+      "allowed_inputs_sha256": "6d874962b9191c8159f1e777515db061937706854e2683a75d1d543d314f9241"
+    },
+    {
+      "sequence": 1196,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0d96c-c473-7901-bbfe-25e905e49b5f",
+      "host_session_id": "01a0d96c-c473-7901-bbfe-25e905e49b5f",
+      "previous_record_sha256": "7aeca12c7fb49fd366517c8aaf2a474d0669fa247526a9ca4f5281b01c84d76b",
+      "record_sha256": "d9589167d4e59b7217dace36287e546b541b2b2c131cbccaa7130429f306851b",
+      "allowed_inputs_sha256": "e2c4f73c1f76c60175b2a340be06367f86d0b7d24fc7ff89024f2283627dce69"
+    },
+    {
+      "sequence": 1197,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0d970-3248-70b0-b392-070e021dbec6",
+      "host_session_id": "01a0d970-3248-70b0-b392-070e021dbec6",
+      "previous_record_sha256": "d9589167d4e59b7217dace36287e546b541b2b2c131cbccaa7130429f306851b",
+      "record_sha256": "012a5a2f926693208045fdb9e16450ff11aa5c5c5a4c820099eaa7cbac42ad7e",
+      "allowed_inputs_sha256": "742b39509a25cb7b90ea41725086aa3d938dc3645a28b5bf805ff88912ea0856"
+    },
+    {
+      "sequence": 1198,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+      "host_session_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+      "previous_record_sha256": "012a5a2f926693208045fdb9e16450ff11aa5c5c5a4c820099eaa7cbac42ad7e",
+      "record_sha256": "9c079e0befcaf16c7f5e9e73c293be0ab8e2c965dec69745e09af4329566d7a5",
+      "allowed_inputs_sha256": "317bbf828fdfb3f1464967411c0154f8b0552a58c0f098bceb2b5b5495d7df85"
+    },
+    {
+      "sequence": 1199,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+      "host_session_id": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+      "previous_record_sha256": "9c079e0befcaf16c7f5e9e73c293be0ab8e2c965dec69745e09af4329566d7a5",
+      "record_sha256": "ae50c7d3d6f663c9149b87eaf22edd091f878a8996649392371435c2b522c986",
+      "allowed_inputs_sha256": "55a9d11e626e06ff90c56d9b6ef827c64734e60cea7dbe18b2920170c222c4f6"
     }
   ]
 }

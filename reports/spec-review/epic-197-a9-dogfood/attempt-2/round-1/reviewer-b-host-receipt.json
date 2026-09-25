@@ -1,0 +1,65 @@
+{
+  "host": "Codex app-server",
+  "rpc": "thread/start",
+  "rpc_id": 9,
+  "thread": {
+    "id": "01a0d95f-3c91-7d60-942c-848375c6939d",
+    "sessionId": "01a0d95f-3c91-7d60-942c-848375c6939d",
+    "ephemeral": true,
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "status": {
+      "type": "idle"
+    },
+    "turns": [],
+    "createdAt": 1790353292
+  },
+  "model": "gpt-6-luna",
+  "approvalPolicy": "never",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "config": {
+    "web_search": "disabled",
+    "features.apps": false,
+    "features.hooks": true,
+    "features.multi_agent": false,
+    "mcp_servers.playwright.enabled": false,
+    "mcp_servers.node_repl.enabled": false,
+    "mcp_servers.computer-use.enabled": false,
+    "mcp_servers.sdd-forge-mcp.enabled": false,
+    "mcp_servers.local-env-mcp.enabled": false,
+    "mcp_servers.ci-mcp.enabled": false,
+    "mcp_servers.pencil.enabled": false,
+    "plugins.codex-app-tools@openai-bundled.mcp_servers.codex_app.enabled": false,
+    "plugins.unified-computer-use@openai-bundled.mcp_servers.cua_repl.enabled": false,
+    "plugins.openai-developers@openai-curated.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "plugins.creative-production@openai-curated-remote.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.creative-production@openai-curated.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.openai-developers@openai-curated-remote.mcp_servers.openai-api-key-local-confirmation.enabled": false
+  },
+  "verification": {
+    "mcpServerStatus": {
+      "threadId": "01a0d95f-3c91-7d60-942c-848375c6939d",
+      "all_disabled": true,
+      "tools_count": 0,
+      "nextCursor": null
+    },
+    "apps": {
+      "threadId": "01a0d95f-3c91-7d60-942c-848375c6939d",
+      "all_enabled_false": true,
+      "all_callable_false": true
+    },
+    "security_hooks": {
+      "kill_switch_enabled": true,
+      "sdd_hook_guard_enabled": true
+    }
+  },
+  "identity_mapping": {
+    "run_id": "thread.id",
+    "host_session_id": "thread.sessionId"
+  },
+  "review_execution_started": false
+}
