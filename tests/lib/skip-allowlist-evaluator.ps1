@@ -13,7 +13,9 @@ function Get-Entry([string]$Path, [string]$Assertion) {
 function Invoke-GitText([string]$Repo, [string[]]$Arguments) {
     $text = & git -C $Repo @Arguments 2>$null
     if ($LASTEXITCODE -ne 0) { throw "git failed: $($Arguments -join ' ')" }
-    return @($text)
+    # Native git emits CRLF on Windows; keep ref names and blob lines
+    # identical to the POSIX evaluator before matching or hashing.
+    return @($text | ForEach-Object { ([string]$_).TrimEnd("`r") })
 }
 function Find-EpicBranch([string]$Repo, [int]$Issue) {
     $refs = Invoke-GitText $Repo @('for-each-ref', '--format=%(refname:short)', 'refs/heads', 'refs/remotes')
