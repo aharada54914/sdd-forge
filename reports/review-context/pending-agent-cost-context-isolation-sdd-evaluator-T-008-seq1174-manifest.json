@@ -1,0 +1,139 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "agent-cost-context-isolation",
+  "task_id": "T-008",
+  "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini8-20260925",
+  "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini8-20260925",
+  "sequence": 1174,
+  "previous_record_sha256": "767d6e717d86570a68467d3628cd4b0ade71855e153a2c01a766a416eeca67ef",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "99aa85b72f5fdd8047c64ca4b2b85fb0364ff0fbc14fe55d2cb6648d1b05d63e",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "scratch_root": "/tmp/sdd-gemini-qg-agent-cost-context-isolation-T-008-8-20260925",
+  "gate_report_declaration": {
+    "path": "reports/quality-gate/20260922T050500Z-agent-cost-context-isolation-T-008.md",
+    "sha256": "69154b5ac0e140bb65e61b8038945a011973c331cac887a2e44e0f9789da1afd"
+  },
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/agent-cost-context-isolation/T-008.md",
+      "sha256": "513fdb6f7f92c42531877cccefdaa2887e9476096f644399dc06c3ee9b60c609"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "a386237a9e36d0e584374ef67a3bc56dc048e671213d49bff4c96c5e71e8696a"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/design.md",
+      "sha256": "c7700c4ff46be38e886635b00ebf4e685192f573f128289bea354e45697903f5"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/tasks.md",
+      "sha256": "56ba60faf6853d3392c31240b46d3915e084355fb6b4e0c2295c41a592e35927"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/traceability.md",
+      "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/ux-spec.md",
+      "sha256": "926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/frontend-spec.md",
+      "sha256": "0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/infra-spec.md",
+      "sha256": "2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/security-spec.md",
+      "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+    },
+    {
+      "path": "contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197"
+    },
+    {
+      "path": "scripts/rollback-1.5.0.sh",
+      "sha256": "6eea918fa80135ff34fa2e0aa8c9719e34ca2efcf133ddd036c6a755b1117127"
+    },
+    {
+      "path": "scripts/rollback-1.5.0.ps1",
+      "sha256": "953efb6192206b7d91519403e18890851330d89e8163f775b56ed0399d9985bc"
+    },
+    {
+      "path": "tests/rollback-1.5.0.tests.sh",
+      "sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965"
+    },
+    {
+      "path": "tests/rollback-1.5.0.tests.ps1",
+      "sha256": "957746c3468adcd5c54789d97512fbaef2ad763324f3674519fa376ddd839166"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.sh",
+      "sha256": "6b12e9ddd97327606d67d28a4e165ce3391afba28cfeaa04d68379f50f77fd9b"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-008.contract.json",
+      "sha256": "7a637be51920b3e9e509c5319c1d5bafd8019bd457e4b1260365d5651087a5fc"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-008/green.log",
+      "sha256": "31a7d4e60cfb0de65b7569ce3e4d29478c529de0936935ed60a738d9335c279d"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/contract.log",
+      "sha256": "10b2a3242a721b464a4c0f63de8f2f4126e112db824fa61dd21afc1c4b05a3d0"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/traceability.log",
+      "sha256": "e67dd3a38d01ead7c4b9a40189643aff8cc76f9e612e5b562ba1da51094eb36a"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/focused-tests.log",
+      "sha256": "1c804a42c617a71ba021b5f577831a0debb4b4ad753fcf23ec993c0debb5ac7e"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/regression.log",
+      "sha256": "d55b1c0f84b7d4a233d0450d51672eb03853b7d9aed8ea085673b896809373df"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/task-state.log",
+      "sha256": "9977b1d4910e8d16888b2695f2da172ece097cbf1baf5e5dcbb173103f93837f"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/workflow-state.log",
+      "sha256": "9dfb6a97026191929fdc824e86f32773bc8c21d5424d895778b0b92fbecd252c"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/posix-aggregate-20260922.log",
+      "sha256": "a568a07751f79d82bcb7c140760563cf6476892c8fc69cf1606364d1384f75b0"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/qg/T-008/powershell-aggregate-20260922.log",
+      "sha256": "7af72799ca8c7eadb41fc8d6a6f6e8258b2a4efb7f210fbbea584c5863e028a7"
+    }
+  ]
+}
