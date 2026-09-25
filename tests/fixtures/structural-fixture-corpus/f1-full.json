@@ -2,7 +2,7 @@
   "schema": "structural-fixture-corpus/v1",
   "fixture_state": "F1",
   "recorded_at_model": "claude-sonnet",
-  "recorded_at_commit": "b5fe98447efce8e738e442fb1f3ffda3bebd51a9",
+  "recorded_at_commit": "e973307f05f9ada72c11b2817e56b143525cc3b7",
   "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
   "artifacts": [
     {
