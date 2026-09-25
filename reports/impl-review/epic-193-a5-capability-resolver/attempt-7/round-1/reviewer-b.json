@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a7r1-seq0854",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a7r1-0854",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "35dc2737b968a9e11ea6e9b054eb987fa1f146e89dd5005582d0a1331f601b11"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "c2837dddd02a319011faf0db2410b389bcec885b12ac28b6dc0477737ca0dda9"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-7/round-1/precheck-result.json", "sha256": "62cd1053761836694061a02fc86efea4ed6b76b44e42aead09b542f41784a527"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-7/round-1/integrated-summary.json", "sha256": "e95e6de5472d8448e4e4f5671d054467f8398c67117436294360be0eac5609c8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Design decisions carry inline rationale throughout (e.g. Data Plan's B7 declaration_index-keying decision cites `specs/epic-190-a2-capability-registry/requirements.md:169-173`; Security Boundaries' AC-059 scanned-set narrowing cites requirements.md's own Field Definitions; ADR Change Log frames the six new decisions as narrow mechanical extensions rather than unjustified choices). design.md is unchanged (modulo the AC-059/Security-Boundaries fix, verified below under VERIFICATION-PATH-CONCRETE) from the content investigation.md records as already bound by a prior attempt's persisted `Impl-Review-Status: Passed` (per-document sha256 f5baa3b7... at commit bf618824); no unjustified decision found in this round's review. Recorded per the TYPE-H convergence rule."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Open Questions (lines 2996-3011) restates OQ-001 (Context Projection regeneration cadence) and OQ-002 (future caller of `compare-facet-manifest-staleness`) in prose rather than with literal `Blocks Implementation: yes/no` / `Resolution Path:` fields; OQ-002 names its resolution as deferral to 'that future epic' rather than a role owner. This format gap is unchanged from the design.md content investigation.md records as already bound by a prior attempt's persisted impl-review PASS (sha256 f5baa3b7... at commit bf618824, Impl-Review-Status: Passed). Per the TYPE-H convergence rule this is carried as an advisory, not a new Major finding: a future revision should adopt the literal field format for clarity, but no open question here blocks implementation without a stated resolution path (OQ-003 is explicitly resolved in this same section)."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-020). design.md's ## Assumptions section (restated from requirements.md) states three assumptions, each grounded: upstream Epic A1/A2/A3/A4 contracts landing unmodified from their `Spec-Review-Status: Passed` shapes; the protected-suffix reservation being live in `guard-invariants.json` per issue #187's stated sequencing (with an explicit fallback path recorded in the Protected-File Statement/Open Questions); and SKILL.md's unprotected status being a live-repository snapshot re-verified at future task start. No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a `## Constraint Compliance` section (lines 2948-2984) addressing AGENTS.md rules (contract-update/ADR requirements), this task's own hard scope boundary (no edits under plugins/**, scripts/**, .github/**, tests/**, contracts/**, docs/**), Security constraints (cross-referenced to ## Security Boundaries and ## Global Constraints), and Compatibility constraints (upstream Epic A1-A4 contracts treated as frozen, no redefinition). A scan of requirements.md for explicit constraint keywords ('must not', 'shall not') found only CLI-input-acceptance and evidence-write rules already covered by the API/Contract Plan and Data Plan; no distinct, unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (no numeric latency/throughput/concurrency threshold or SLA language present)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Deployment / CI Plan (lines 2913-2946) describes CI pipeline changes (vendoring `resolver-evidence.schema.json` with a `--check` drift entry; registering nine new `tests/*.tests.sh`/`.tests.ps1` suites in the existing `test.yml`, staged under `specs/.../human-copy/` for human application since this Phase 1 package performs no CI wiring itself) and per-task CHANGELOG discipline. Migration execution order is not applicable -- Data Plan states 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature.' No feature-flag strategy is stated, consistent with an internal CLI script family with no user-facing incremental rollout; this is unchanged from the content investigation.md records as already bound by a prior attempt's persisted impl-review PASS, carried per the TYPE-H convergence rule."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states 'Existing Data Affected: none written' and 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature.' (lines 701-724). No schema/column/table change is declared, so this check's PASS condition for a 'No data changes' Data Plan applies directly."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## External Integrations` section (line 2907) states 'None -- every input and output this feature touches is repository-local (project-context.yaml, capability-registry.json, git, and the contracts/specs/generated filesystem paths already named above).' Consistent with the rest of the package: all dependency subprocess invocations (`resolve-component-paths`, `evaluate-predicate`, `generate-registry-digest`, `canonicalize-sdd-yaml`) are repository-local sibling-epic CLIs, not third-party or cross-service integrations, and each is described with its own CLI contract in the Dependencies/API-Contract-Plan sections rather than mentioned only in passing."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's API/Contract Plan and Data Plan implement exactly REQ-001 through REQ-008 as stated in requirements.md's Goals (Resolver script family, Block taxonomy, state-awareness, Resolver Evidence, determinism, test registration, caller integration contract, CHANGELOG discipline); no additional component, endpoint, or data model without a corresponding requirement was found in this round's review. Project carries no `design-system/` contract requiring separate scrutiny. This is unchanged from the content investigation.md records as already bound by a prior attempt's persisted impl-review PASS, carried per the TYPE-H convergence rule."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified the fix to the attempt-6 Major this role raised: the finding held that the registered AC-059/TEST-059 grep's coverage of `validate-resolver-evidence.*` leaned on the check being a per-commit CI gate, which design.md's own Deployment/CI Plan contradicts (no CI wiring performed by this Phase 1 package; GitHub-Actions gating waits on a human-applied `test.yml` patch). The remediation (investigation.md 'AC-059's real error was one level up', commit bf618824) goes upstream of the finding rather than adding a bridging clause: requirements.md's Field Definitions (line 981-984) fix **Resolver** as `resolve-project-context.{py,sh,ps1}` and state the term 'never refers to a different script anywhere in this package'; AC-059 (acceptance-tests.md line 120, requirements.md line 977) and design.md's Security Boundaries (lines 2765-2806) and security-spec.md's B6 boundary/TEST-059 row (lines 72, 205) all consistently narrow the scanned set to the Resolver alone, which T-007 itself authors, so T-007 verifies the whole scanned set by direct execution at its own gate, with no dependency on T-008 (which authors the validator afterward) or on any later human CI action. Grepped requirements.md, acceptance-tests.md, design.md, and security-spec.md for 'per-commit'/'per commit': the phrase appears exactly once, in design.md line 2793, describing in past tense why the rejected earlier bridge was unsound -- no live per-commit-CI-gate claim survives anywhere in the readable documents. The validator's own write-scope deferral is stated honestly rather than papered over: design.md line 2803-2806 and investigation.md both state the validator's write scope 'remains governed by Epic A1's guard-invariants.json suffix enforcement at write time and by the boundary prose above, and is left to a future criterion rather than asserted here in a form no task could discharge' -- an explicit scope-narrowing with a named alternative enforcement mechanism, not a silent coverage gap. This satisfies VERIFICATION-PATH-CONCRETE for the approval-surface write-scope risk surface that prompted the original finding."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: repository has no `domain/` directory (verified via `ls domain/` -- No such file or directory), so no Approved domain model exists to check requirements.md/design.md against."
+    }
+  ]
+}

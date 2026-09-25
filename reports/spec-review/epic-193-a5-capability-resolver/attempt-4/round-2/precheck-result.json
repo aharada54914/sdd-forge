@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 4,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "956f52d32d492b2ea38ce8ce84c00b6f180854cf3fcff48d14798d3407944cf6",
+  "acceptance_sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "555e7edc7af1f729b9159b31ad669d03b1015eeef597ee9bcdc967f4f96c6386",
+  "edit_summary": "Round-1 findings closed: investigation.md gained the full-evidence C(1)/C(2) approval record; AC-057/AC-058 added with TEST-057/TEST-058 propagated; C(1) wording re-anchored to REQ-001 lettered steps (e)/(f)-(g).",
+  "reset": false,
+  "generated_at": "2026-08-26T14:01:24Z"
+}

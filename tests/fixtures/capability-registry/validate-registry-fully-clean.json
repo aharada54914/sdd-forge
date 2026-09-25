@@ -23,6 +23,36 @@
       "id": "publish-notes",
       "stage": "artifact",
       "blocking": false
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-installed-plugin-drift",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+    },
+    {
+      "id": "check-a8-classification-table",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-classification-table.py"
+    },
+    {
+      "id": "check-a8-scope-boundary",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
+    },
+    {
+      "id": "check-a8-citation-compliance",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
     }
   ],
   "capabilities": [

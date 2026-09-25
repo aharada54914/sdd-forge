@@ -1,0 +1,4 @@
+{
+  "$id": "https://example.invalid/deliberately-wrong/facet-manifest.schema.json",
+  "note": "TEST-002 negative control: missing $schema key + wrong $id, deliberately fails this artifact's own ADR-0025 version check (registry_discovery.check_capability_registry_schema / resolve-project-context._governing_schema_version_ok) -- planted only at the git-root fallback location, which the packaged-copy-preferred fixture must never reach"
+}

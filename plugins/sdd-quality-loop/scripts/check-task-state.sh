@@ -83,6 +83,7 @@ function approver_id(s,   rest) {
   }
 }
 function finish() {
+  contract_risk = ""
   if (approval == "") fail(task " has no Approval line")
   else {
     # Accept: Draft | Approved | Approved (<id> <ISO8601, seconds, Z>) — the
@@ -141,6 +142,29 @@ function finish() {
         }
       }
     }
+    # Check contract risk for Done tasks
+    if (PYTHON_CMD != "") {
+      py_risk_cmd = PYTHON_CMD " -c \"import json; c=json.load(open(\\\"" contract_path "\\\")); r=c.get(\\\"risk\\\"); print(r if r is not None else \\\"\\\")\" 2>/dev/null"
+      py_risk_cmd | getline raw_risk; close(py_risk_cmd)
+      contract_risk = tolower(raw_risk)
+      gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
+      if (contract_risk != "") {
+        if (risk != "" && contract_risk != risk) {
+          fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
+        }
+      }
+    } else {
+      raw_risk = ""
+      grep_risk_cmd = "grep -E \"^[[:space:]]*\\\"risk\\\"[[:space:]]*:[[:space:]]*\\\"[^\\\"]+\\\"\" \"" contract_path "\" | sed -n \"1s/.*:[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p\" | tr \"[:upper:]\" \"[:lower:]\""
+      grep_risk_cmd | getline raw_risk; close(grep_risk_cmd)
+      contract_risk = raw_risk
+      gsub(/^[ \t\r]+|[ \t\r]+$/, "", contract_risk)
+      if (contract_risk != "") {
+        if (risk != "" && contract_risk != risk) {
+          fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
+        }
+      }
+    }
     # The evidence-bundle gate above validates its declared quality_report,
     # including repository confinement, task identity, digest, and PASS verdict.
     # Do not search the shared report directory by task id: task ids are only
@@ -156,8 +180,10 @@ function finish() {
   if (status == "Blocked") {
     if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
   }
+  # Effective risk for Done tasks: use contract_risk if non-empty, else tasks.md risk
+  effective_risk = (status == "Done" && contract_risk != "") ? contract_risk : risk
   # Two-person approval enforcement for critical Done tasks
-  if (status == "Done" && risk == "critical") {
+  if (status == "Done" && effective_risk == "critical") {
     prim_id = approver_id(approval)
     sec_id = approver_id(second)
 

@@ -7,34 +7,22 @@ Impl-Review-Status: Pending
 This document is deliberately incomplete in one specific way, and the incompleteness
 is the design position rather than an unfinished draft.
 
-Issue #130 asks for a cross-critique phase inside `sdd-review-loop`. Fifteen
-decisions that determine the phase's shape are undetermined by the issue
-(`investigation.md` `## Open Questions`), and four of them — OQ-1 (what triggers
-it), OQ-4 (where it sits relative to the round counter), OQ-5 (what happens to
-blind independence), OQ-7 (whether its verdicts may move the gate) — are load
-bearing on the gate that decides whether work is acceptable. Choosing any of them
-here would create a contract nobody agreed to, on the mechanism whose entire job
-is to be a contract people agreed to. So this document does three things and
-refuses the fourth:
+Issue #130 asks for a cross-critique phase inside `sdd-review-loop`. Follow-up issue [#345](https://github.com/aharada54914/sdd-forge/issues/345) reconciles this with arXiv:2608.18167v1 (*Adversarial Review: Structured Disagreement for Grounded Agentic Code Review*, https://arxiv.org/html/2608.18167v1) and formalizes the lane separation in [ADR-0026](../../docs/adr/0026-gate-cross-critique-phase.md) (*Risk- and Escalation-Gated Cross-Critique Phase for the Review Loops*, Status: Proposed) and [ADR-0027](../../docs/adr/0027-risk-adaptive-adversarial-review-lane.md) (*Risk-Adaptive Adversarial Review Lane*, Status: Proposed).
+
+Fifteen decisions that determine the phase's shape were undetermined by the original issue (`investigation.md` `## Open Questions`), and four of them — OQ-1 (what triggers it), OQ-4 (where it sits relative to the round counter), OQ-5 (what happens to blind independence), OQ-7 (whether its verdicts may move the gate) — are load bearing on the gate that decides whether work is acceptable. ADR-0026 records proposed resolutions for several of these, but remains `Status: Proposed` awaiting formal human review and acceptance via the WFI lane (Decision 5). Crucially, key decisions (OQ-6 continuation compatibility vs fresh context, OQ-10 annex schema, OQ-12 Codex reviewer role, OQ-14 one-sided findings) remain genuinely unresolved. Choosing any of them here without explicit human decision would create a contract nobody agreed to, on the mechanism whose entire job is to be a contract people agreed to. So this document does three things and refuses the fourth:
 
 1. **States the structural constraints** any resolution must survive, each with
    `file:line` evidence. These are facts about the repository, not choices.
 2. **Enumerates the candidate shapes** for each open decision, with the concrete
-   consequence of each — so the human deciding has the trade-off in front of
-   them rather than having to re-derive it.
+   consequence of each — aligning them with the proposed positions in ADR-0026/0027 so the human deciding has the trade-off in front of them rather than having to re-derive it.
 3. **Fixes the decision-independent parts**: the invariants (requirements
    REQ-001 … REQ-010), the artifacts that any resolution touches, and the
    verification plan.
 4. **Does not pick.** `## Design Decisions (Resolving Open Questions)` records
-   every one of the fifteen as UNRESOLVED with a named owner, and AC-020 /
-   TEST-022 exist specifically to fail this document if a decision leaks into it
-   unattributed.
+   the proposed ADR-0026/0027 positions alongside the explicitly UNRESOLVED decisions with their human owners, and AC-020 / TEST-022 exist specifically to fail this document if an unapproved decision leaks into it unattributed.
 
 **The one thing that is architecturally settled.** Blind independence of the
-*first* pass is a floor, not a variable (requirements BL-001 / REQ-002). Every
-candidate shape below preserves it. The design space is entirely about what may
-cross the boundary *after* both verdicts are persisted, who may act on it, and
-whether the gate's arithmetic changes.
+*first* pass is a floor, not a variable (requirements BL-001 / REQ-002; ADR-0026 Correspondence Point 5). Every candidate shape below preserves it. The design space is entirely about what may cross the boundary *after* both verdicts are persisted, who may act on it, and whether the gate's arithmetic changes.
 
 ## The structural constraints — facts, not choices
 
@@ -45,7 +33,7 @@ here so no candidate shape below has to restate them.
 |---|---|---|
 | C1 | A raw reviewer report is refused in **any** role's manifest, unconditionally, before role authorization is even consulted | `validate-review-context-set.sh:57-61`, applied at `:287-288`; stated as having no exception at `review-context-boundary.md:134-136` |
 | C2 | `stage:role` is a closed enumeration of nine pairs; an unknown pair fails at launch, and `path_is_authorized` defaults to `return 1` | `validate-review-context-set.sh:189-192`, `:126` |
-| C3 | A reservation requires a globally-unique `run_id` **and** `host_session_id`; a resumed session cannot reserve | `validate-review-context-set.sh:234-235`, `:262-265`, chain check at `:260-261` |
+| C3 | An existing identity cannot be reserved twice; verification of its persisted record is a separate operation, not authorization for cross-critique continuation | At main `08baf03a`, `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:368-400`, especially `:377-379`. Reverify these shared-code references at review and implementation time. |
 | C4 | Rounds are capped at 3 by a shell script, not by prose | `spec-review-precheck.sh:35` |
 | C5 | A round is refused unless a reviewed document changed since the prior round | `spec-review-precheck.sh:286-287`; `--edit-summary` at `:36-38` |
 | C6 | A round directory is write-once; replay is refused | `spec-review-precheck.sh:138`, `:314` |
@@ -56,13 +44,13 @@ here so no candidate shape below has to restate them.
 Two of these deserve a sentence of consequence, because they are the ones most
 likely to be discovered late.
 
-**C3 kills the source protocol's cost model.** `skills/adversarial-review/SKILL.md:37`
-runs cross-critique by resuming the same two agents — "context preserved — no
-re-reading cost". Inside `sdd-review-loop` that reservation fails at
-`validate-review-context-set.sh:262-265`. A cross-critique participant is
-therefore a fresh context that re-reads every input, which is exactly the cost the
-source protocol was designed to avoid. Any cost argument that assumes resumption
-is wrong here.
+**C3 does not establish a continuation contract or its cost.** The validator
+distinguishes a new reservation from verification of an existing record. Its
+duplicate-reservation rejection does not decide whether an already-running
+reviewer may receive new inputs after its blind verdict. That launch/input
+boundary is OQ-6, not permission to bypass the ledger or the blind-pass boundary.
+ADR-0026 Decision 2 proposes continuation but remains Proposed. Neither a
+mandatory fresh launch nor a zero-cost continuation follows from C3 alone.
 
 **C8 makes "synthesis" almost inert by default.** Severity is the only input to
 all four derivations. A `SEVERITY_CHANGE` verdict changes nothing unless a
@@ -85,7 +73,7 @@ second table is not a plan; it is the blast-radius map the OQ owner needs.
 | `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md` | **YES** | same, task stage — human-applied (OQ-15) |
 | `plugins/sdd-review-loop/references/review-context-boundary.md` | no | correct the stale INV-023 item (AC-008); state the phase's boundary |
 | `tests/` — a new or extended suite | no | the AC-001 … AC-021 cases |
-| `docs/adr/NNNN-<slug>.md` | no | an ADR is likely required: this changes a deterministic gate's contract. The number is a claimed-free identifier in a shared namespace and must be re-verified at drafting time (AGENTS.md sweep 3, `AGENTS.md:203-211`) |
+| `docs/adr/0026-gate-cross-critique-phase.md` | no | Proposed ADR for the in-gate cross-critique phase (Status: Proposed; gated on human acceptance via WFI; complements ADR-0027 pre-PR standalone lane) |
 
 ### Touched only under some resolutions
 
@@ -133,8 +121,10 @@ Stated as alternatives with consequences, not as a recommendation.
 **Shape A — a sub-phase inside a round, after both verdicts are persisted.**
 The round counter never sees it, so C4 and C5 are untouched and the human's
 three-edit budget is preserved. Blind independence of the first pass is intact by
-construction. Cost: two extra fresh-context launches per triggering round (C3),
-each re-reading the full input set. Its verdicts cannot move the merged verdict
+construction. If OQ-6 selects two fresh-context critics, this adds two launches
+per triggering round, each re-reading the full input set. A continuation model
+would need its own authorization and cost evidence; C3 does not select either
+model. Its verdicts cannot move the merged verdict
 without also changing C8's four derivations. It cannot prevent a round-3 BLOCKED
 that a severity re-calibration would have avoided, because the verdict is already
 computed by the time it runs (requirements Edge Case 5).
@@ -258,28 +248,34 @@ Authorization and data classification:
 
 ## Design Decisions (Resolving Open Questions)
 
-**None of the fifteen is resolved by this document.** Each row states what is
-undetermined, who must decide, and what this design has already fixed so the
-decision is smaller than it looks. AC-020 / TEST-022 fail this document if a
-decision appears here without an attributed human resolution.
+Following PR #426 and the reconciliation with arXiv:2608.18167, [ADR-0026](../../docs/adr/0026-gate-cross-critique-phase.md) (*Risk- and Escalation-Gated Cross-Critique Phase for the Review Loops*, Status: Proposed) and [ADR-0027](../../docs/adr/0027-risk-adaptive-adversarial-review-lane.md) (*Risk-Adaptive Adversarial Review Lane*, Status: Proposed) record proposed positions for several open questions. However, ADR-0026 remains `Status: Proposed` awaiting formal human approval via the WFI lane (ADR-0026 Decision 5).
 
-| OQ | Status | Owner | What this design already fixes around it |
+Crucially, key decisions remain **genuinely unresolved** and must not be resolved by inference:
+1. **OQ-6 (fresh vs resumed context)**: ADR-0026 Decision 2 proposes session continuation without appending ledger records, but explicitly states (lines 93-96) that continuation compatibility remains an unresolved open question (OQ-6) to be verified with launch/input boundaries before wiring. Constraint C3 distinguishes verification from reservation, but does not authorize continuation.
+2. **OQ-10 (artifact schema and location)**: ADR-0026 Decision 3 proposes `cross-critique.json` in the round directory alongside the contract, but explicitly notes (Correspondence Point 4) that the annex schema remains unresolved under OQ-10.
+3. **OQ-12 (Codex coverage)**: No reviewer role exists in Codex (INV-024) and agent creation is blocked; human placement with `developer_instructions` is required.
+4. **OQ-14 (one-sided findings handling)**: The protocol when only one reviewer produces findings is not decided by ADR-0026.
+5. **ADR acceptance**: Implementation of ADR-0026's proposed positions (OQ-1, OQ-2, OQ-3, OQ-4, OQ-5, OQ-7, OQ-8, OQ-9, OQ-11, OQ-13, OQ-15) is gated on human acceptance via the WFI lane.
+
+The table below reconciles each Open Question with ADR-0026 and ADR-0027, explicitly identifying proposed positions and unresolved dependencies:
+
+| OQ | Status | Owner | Reconciliation with ADR-0026 / ADR-0027 & Remaining Unresolved Aspect |
 |---|---|---|---|
-| OQ-1 trigger vocabulary | **UNRESOLVED** | human | both readings tabulated under `## Trigger evaluation`, with the stage-availability and manifest consequences of each |
-| OQ-2 which stages | **UNRESOLVED** | human | blocked on OQ-1; the per-stage bridge asymmetry (INV-005/INV-006) and protected-file asymmetry (INV-020) are mapped |
-| OQ-3 number of exchanges | **UNRESOLVED** | human | the source protocol runs exactly one (`adversarial-review/SKILL.md:37`); no default assumed |
-| OQ-4 round-counter placement | **UNRESOLVED** | human | Shapes A / B / C with consequences; C4, C5, C6 stated as the constraints each must survive |
-| OQ-5 blind independence | **UNRESOLVED** | human | Shapes α / β / γ with consequences; the evasion-by-renaming option is refused on the record |
-| OQ-6 fresh vs resumed context | **UNRESOLVED** | human | C3 shows resumption is unavailable, so the real question is whether the re-read cost is accepted or the participant is exempted from the ledger |
-| OQ-7 verdicts vs synthesis | **UNRESOLVED** | human | C8 shows the change is all-four-derivations or nothing; TEST-010c fails on a silent resolution |
-| OQ-8 disagreement handling | **UNRESOLVED** | human | C9 shows the orchestrator cannot be the tie-breaker as currently written; TEST-010d fails on a silent resolution |
-| OQ-9 verdict spelling | **UNRESOLVED** | human | TEST-011b/c pass under either spelling and fail under a mixture, so the decision can be made late without re-work |
-| OQ-10 artifact location | **UNRESOLVED** | human | C7 shows the coordinated-bump cost of the in-round option; REQ-008 fixes that whatever is chosen must be gate-validated |
-| OQ-11 cost-neutrality meaning | **UNRESOLVED** | human | REQ-001 fixes the structural reading as the one that is checkable today; the measured reading is named as a separate feature |
-| OQ-12 Codex coverage | **UNRESOLVED** | human | INV-024 confirms no reviewer role exists and none can be agent-created; TEST-013a–d are runnable under the shared-SKILL branch and human-gated under the other |
-| OQ-13 ENH-21 relationship | **UNRESOLVED** | human | #128 depends on this issue, so the protocol does not exist; REQ-010 fixes that the relationship must be *stated* whichever way it resolves |
-| OQ-14 one-sided findings | **UNRESOLVED** | human | three defensible behaviours named (requirements Edge Case 1); the source protocol's mandatory verified-non-findings list is the third |
-| OQ-15 protected-file delivery | **UNRESOLVED** | human | the six protected targets are enumerated (INV-020) and the `human-copy/` convention is identified; blocks Phase 2 |
+| OQ-1 trigger vocabulary | Proposed in ADR-0026 | human | ADR-0026 Decision 1 proposes the hybrid trigger: inserted between STEP 5 and STEP 6; fires if merged round has >= 1 Critical finding, OR BLOCKED / round 3 escalation, OR feature carries human-confirmed `Risk: high\|critical` tier. Pending ADR-0026 acceptance. |
+| OQ-2 which stages | Proposed in ADR-0026 | human | ADR-0026 proposes all three loops (`spec`, `impl`, `task`), with Decision 5 noting `impl` and `task` stages require human-copy staging for protected files (OQ-15). Pending ADR-0026 acceptance. |
+| OQ-3 number of exchanges | Proposed in ADR-0026 | human | ADR-0026 Decision 2 proposes exactly one advisory cross-critique exchange round. Pending ADR-0026 acceptance. |
+| OQ-4 round-counter placement | Proposed in ADR-0026 | human | ADR-0026 Decision 1 & 3 propose Shape A (inserted between STEP 5 and STEP 6 as an advisory annex `cross-critique.json` alongside the contract; does not advance round counter; preserves human 3-edit budget and C4/C5). Pending ADR-0026 acceptance. |
+| OQ-5 blind independence | Proposed in ADR-0026 | human | ADR-0026 Decision 2 proposes Shape α (original reviewers post-verdict). Blind-parallel first pass is strictly preserved (not replaced by sequential Reviewer→Critic per arXiv:2608.18167 Correspondence Point 5). Pending ADR-0026 acceptance. |
+| OQ-6 fresh vs resumed context | **UNRESOLVED** | human | **Explicitly Unresolved Decision**. ADR-0026 Decision 2 proposes session continuation (same `run_id`/`host_session_id` without ledger record), but explicitly notes continuation compatibility remains unresolved under OQ-6 until verified against launch/input boundaries before wiring. C3 duplicate-reservation rejection does not authorize continuation or verify host support. |
+| OQ-7 verdicts vs synthesis | Proposed in ADR-0026 | human | ADR-0026 Decision 3 proposes advisory annex only (`cross-critique.json`), never mutating persisted verdicts or gate arithmetic (deterministic gates preserved per ADR-0001; C8 derivations untouched). Pending ADR-0026 acceptance. |
+| OQ-8 disagreement handling | Proposed in ADR-0026 | human | ADR-0026 Decision 3 proposes disputed findings are labeled in the annex for human escalation or author revision; no orchestrator waiver (C9 preserved). Pending ADR-0026 acceptance. |
+| OQ-9 verdict spelling | Proposed in ADR-0026 | human | ADR-0026 Decision 2 & arXiv:2608.18167 Correspondence Point 1 & 7 propose normative vocabulary: `SUPPORT / PROPOSE-SEVERITY-CHANGE / PROPOSE-REJECT / SUPPLEMENT`, with `basis.kind: code_evidence \| spec_evidence \| concern` (issue #347) and `scope: in_scope \| out_of_scope \| unclear` (issue #348). Pending ADR-0026 acceptance. |
+| OQ-10 artifact location | **UNRESOLVED** | human | **Explicitly Unresolved Decision**. ADR-0026 Decision 3 proposes `cross-critique.json` in the round directory alongside the contract, but ADR-0026 Correspondence Point 4 explicitly notes the annex schema remains unresolved OQ-10. Must satisfy REQ-008. |
+| OQ-11 cost-neutrality meaning | Proposed in ADR-0026 | human | ADR-0026 Context & Consequences notes structural cost-neutrality applies to non-triggering runs (REQ-001); token telemetry is deferred (INV-021). Pending ADR-0026 acceptance. |
+| OQ-12 Codex coverage | **UNRESOLVED** | human | **Explicitly Unresolved Decision**. No reviewer role exists in Codex (INV-024) and agent creation is blocked; human placement with `developer_instructions` required. |
+| OQ-13 ENH-21 relationship | Proposed in ADR-0027 | human | ADR-0027 formalizes ENH-21 (`skills/adversarial-review/`) as the pre-PR standalone lane (cumulative diff review outside gates); ADR-0026 Consequences confirms ADR-0026 (in-gate round annex) and ADR-0027 (outside-gate pre-PR lane) are complementary separate lanes. Pending ADR-0026 acceptance. |
+| OQ-14 one-sided findings | **UNRESOLVED** | human | **Explicitly Unresolved Decision**. Behavior when only one reviewer produces findings is not specified in ADR-0026; requires explicit human decision. |
+| OQ-15 protected-file delivery | Proposed in ADR-0026 | human | ADR-0026 Decision 5 specifies human-copy staging via `human-copy/` convention for protected reviewer roles and skills. Pending ADR-0026 acceptance. |
 
 **Two dependencies worth stating separately.** OQ-1 blocks OQ-2. OQ-5 and OQ-7
 cannot be answered independently: if the phase's purpose is to prevent an

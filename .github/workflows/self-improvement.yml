@@ -106,11 +106,12 @@ jobs:
             || : > "$RUNNER_TEMP/pre_session_pr_refs.txt"
 
       - name: Run Claude self-improvement session
+        id: claude_session
         # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@3f854a8fb5146b39d5cbf8b57f70d80810e1366f # v1.0.198
+        uses: anthropics/claude-code-action@7b0b255830a1fab6e602658672acad11c12d841d # v1.0.226
         env:
           # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
@@ -142,6 +143,7 @@ jobs:
       # gh/jq の取得自体が失敗した場合は set -e / pipefail でランを失敗させる(fail-closed;
       # 未ガードの PR を通さない)。
       - name: Enforce enforcement-chain guard on session PRs
+        id: enforce_guard
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -168,6 +170,7 @@ jobs:
       # ため何もしない(ラベルは警告用途なので fail-open で良い)。PR 番号は jq の
       # .number(整数)のみを使い、外部由来文字列をシェルに補間しない。
       - name: Label session PRs that triggered no CI
+        id: label_no_ci
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -207,8 +210,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PREFLIGHT_REASON: ${{ steps.preflight.outputs.failure_reason }}
+          CLAUDE_STEP_OUTCOME: ${{ steps.claude_session.outcome }}
+          GUARD_STEP_OUTCOME: ${{ steps.enforce_guard.outcome }}
+          CI_SAFETY_STEP_OUTCOME: ${{ steps.label_no_ci.outcome }}
         run: |
-          reason="${PREFLIGHT_REASON:-Claude セッションまたは後続ステップが失敗しました。実行ログを確認してください。}"
+          if [ -n "$PREFLIGHT_REASON" ]; then
+            reason="$PREFLIGHT_REASON"
+          elif [ "$CLAUDE_STEP_OUTCOME" = failure ]; then
+            reason="Claude self-improvement action step failed. The issue report omits execution payload; inspect the action's sanitized run log."
+          elif [ "$GUARD_STEP_OUTCOME" = failure ]; then
+            reason="The enforcement-chain guard step failed. Inspect the run log for the guard's deterministic finding."
+          elif [ "$CI_SAFETY_STEP_OUTCOME" = failure ]; then
+            reason="The session-PR CI safety-net step failed. Inspect the run log for the failing command."
+          else
+            reason="A workflow step failed; inspect the run log for the failing step."
+          fi
           run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           body="$(printf -- '- 実行日時: %s\n- 推定原因: %s\n- 実行ログ: %s' \
             "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$reason" "$run_url")"

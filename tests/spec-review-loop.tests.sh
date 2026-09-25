@@ -38,7 +38,7 @@ expect_failure() {
 
 write_contract() {
   local directory="$1" verdict="$2" severity="$3"
-  local requirements_sha acceptance_sha precheck_sha summary_sha calibration calibration_sha round attempt a_verdict a_result a_fails a_passes critical major minor warning check_severity
+  local requirements_sha acceptance_sha investigation_sha investigation_json precheck_sha summary_sha calibration calibration_sha round attempt a_verdict a_result a_fails a_passes critical major minor warning check_severity
   round="$(jq -r .round "${directory}/precheck-result.json")"
   attempt="$(jq -r .attempt "${directory}/precheck-result.json")"
   case "${severity}" in
@@ -59,24 +59,27 @@ write_contract() {
     > "${directory}/integrated-summary.json"
   requirements_sha="$(jq -r .requirements_sha256 "${directory}/precheck-result.json")"
   acceptance_sha="$(jq -r .acceptance_sha256 "${directory}/precheck-result.json")"
+  investigation_sha="$(jq -r '.investigation_sha256 // empty' "${directory}/precheck-result.json")"
+  investigation_json='null'
+  [[ -n "${investigation_sha}" ]] && investigation_json="\"${investigation_sha}\""
   precheck_sha="$(sha256sum "${directory}/precheck-result.json" | awk '{print $1}')"
   summary_sha="$(sha256sum "${directory}/integrated-summary.json" | awk '{print $1}')"
   calibration="${ROOT}/plugins/sdd-review-loop/references/spec-review-calibration.md"
   calibration_sha="$(sha256sum "${calibration}" | awk '{print $1}')"
   jq -n --arg feature "${FEATURE}" --arg result "${a_result}" --arg severity "${check_severity}" --arg verdict "${a_verdict}" \
-    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg calibration "${calibration}" \
-    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg calibration_sha "${calibration_sha}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg precheck "${directory}/precheck-result.json" --arg calibration "${calibration}" \
+    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg investigation_sha "${investigation_sha}" --arg precheck_sha "${precheck_sha}" --arg calibration_sha "${calibration_sha}" \
     '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
-     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],
+     allowed_input_manifest: ([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),
      verdict:$verdict,
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${directory}/reviewer-a.json"
-  jq -n --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
-    --arg calibration "${calibration}" --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
+  jq -n --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
+    --arg calibration "${calibration}" --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg investigation_sha "${investigation_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
     '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
-     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],
+     allowed_input_manifest: ([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),
      verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
     > "${directory}/reviewer-b.json"
@@ -84,17 +87,17 @@ write_contract() {
     '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,reviewer_a_run_id:"fixture-a",reviewer_b_run_id:"fixture-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
     > "${directory}/integrated-verdict.json"
   jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" \
-    --arg requirements_sha256 "${requirements_sha}" --arg acceptance_sha256 "${acceptance_sha}" \
+    --arg requirements_sha256 "${requirements_sha}" --arg acceptance_sha256 "${acceptance_sha}" --argjson investigation_sha256 "${investigation_json}" \
     --argjson attempt "${attempt}" --argjson round "${round}" --argjson warning "${warning}" \
-    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" --arg calibration "${calibration}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg investigation "${SPEC_DIR}/investigation.md" --arg investigation_sha "${investigation_sha}" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" --arg calibration "${calibration}" \
     --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
-    '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
-      {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}
-      ]},
-      {role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}
-      ]}
+    '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,reviewers:[
+      {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:
+        ([{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}])
+      },
+      {role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:
+        ([{path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}])
+      }
     ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}' \
     > "${directory}/spec-review-contract.json"
 }
@@ -120,6 +123,11 @@ cat > "${SPEC_DIR}/acceptance-tests.md" <<'EOF'
 |---|---|---|
 | AC-001 | REQ-001 | Planned |
 EOF
+cat > "${SPEC_DIR}/investigation.md" <<'EOF'
+# Investigation
+
+- Initial repository observation.
+EOF
 
 # Clean first round writes immutable hashes before any reviewer runs.
 "${PRECHECK}" "${FEATURE}" 1 1
@@ -133,13 +141,20 @@ before_hash="$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')
 expect_failure "${PRECHECK}" "${FEATURE}" 1 1
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2
 expect_failure "${PRECHECK}" "../escape" 1 1
-expect_failure "${PRECHECK}" "${FEATURE^^}" 0 1
+FEATURE_UPPER=$(printf '%s' "$FEATURE" | tr '[:lower:]' '[:upper:]')
+expect_failure "${PRECHECK}" "${FEATURE_UPPER}" 0 1
 [[ "${before_hash}" == "$(sha256sum "${ROUND_ONE}/precheck-result.json" | awk '{print $1}')" ]] || fail "replay overwrote evidence"
 
 # A NEEDS_WORK result authorizes exactly one edited next round; stale input is rejected.
 write_contract "${ROUND_ONE}" NEEDS_WORK Major
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
-printf '\n- Human correction recorded.\n' >> "${SPEC_DIR}/requirements.md"
+tmp_contract="${ROUND_ONE}/spec-review-contract.missing-investigation.tmp"
+jq 'del(.investigation_sha256)' "${ROUND_ONE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_ONE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="missing investigation hash"
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
+round_one_investigation_sha="$(jq -r .investigation_sha256 "${ROUND_ONE}/precheck-result.json")"
+printf '\n- Investigation-only correction recorded.\n' >> "${SPEC_DIR}/investigation.md"
 tmp_reviewer="${ROUND_ONE}/reviewer-a.tmp"
 jq '.checks = [.checks[0]]' "${ROUND_ONE}/reviewer-a.json" > "${tmp_reviewer}"
 mv "${tmp_reviewer}" "${ROUND_ONE}/reviewer-a.json"
@@ -152,9 +167,10 @@ mv "${tmp_contract}" "${ROUND_ONE}/spec-review-contract.json"
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
 write_contract "${ROUND_ONE}" NEEDS_WORK Major
 "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+ROUND_TWO="${REPORT_ROOT}/attempt-1/round-2"
+[[ "$(jq -r .investigation_sha256 "${ROUND_TWO}/precheck-result.json")" != "${round_one_investigation_sha}" ]] || fail "investigation-only edit did not change the recorded hash"
 
 # Round-three Minor-only PASS is represented by a PASS contract with warnings.
-ROUND_TWO="${REPORT_ROOT}/attempt-1/round-2"
 write_contract "${ROUND_TWO}" NEEDS_WORK Major
 printf '\n- Another human correction.\n' >> "${SPEC_DIR}/requirements.md"
 "${PRECHECK}" "${FEATURE}" 1 3 --edit-summary="addressed major findings"
@@ -236,7 +252,8 @@ live_requirements_sha="$(sha256sum "${SPEC_DIR}/requirements.md" | awk '{print $
 [[ "$(jq -r .requirements_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${live_requirements_sha}" ]] ||
   fail "reset persisted a stale requirements hash (pre-reset bytes)"
 live_acceptance_sha="$(jq -r .acceptance_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")"
-expected_input_sha="$(printf '%s:%s' "${live_requirements_sha}" "${live_acceptance_sha}" | sha256sum | awk '{print $1}')"
+live_investigation_sha="$(jq -r .investigation_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")"
+expected_input_sha="$(printf '%s:%s:%s' "${live_requirements_sha}" "${live_acceptance_sha}" "${live_investigation_sha}" | sha256sum | awk '{print $1}')"
 [[ "$(jq -r .input_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${expected_input_sha}" ]] ||
   fail "reset persisted a stale composite input hash"
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
@@ -322,12 +339,12 @@ pin_investigation() {
   for file in reviewer-a.json reviewer-b.json; do
     tmp="${directory}/${file}.tmp"
     jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
-      '.allowed_input_manifest += [{path:$path,sha256:$sha}]' "${directory}/${file}" > "${tmp}"
+      'if any(.allowed_input_manifest[]; .path == $path) then . else .allowed_input_manifest += [{path:$path,sha256:$sha}] end' "${directory}/${file}" > "${tmp}"
     mv "${tmp}" "${directory}/${file}"
   done
   tmp="${directory}/spec-review-contract.tmp"
   jq --arg path "${SPEC_DIR}/investigation.md" --arg sha "${sha}" \
-    '.reviewers[].allowed_input_manifest += [{path:$path,sha256:$sha}]' \
+    'if any(.reviewers[].allowed_input_manifest[]; .path == $path) then . else .reviewers[].allowed_input_manifest += [{path:$path,sha256:$sha}] end' \
     "${directory}/spec-review-contract.json" > "${tmp}"
   mv "${tmp}" "${directory}/spec-review-contract.json"
 }
@@ -358,7 +375,13 @@ printf '\n## Amendment Re-Review Context\n\n- Recorded after the round was seale
 # invalidated by the file appearing in the tree afterwards either.
 rm -rf "${REPORT_ROOT}/attempt-2"
 rm -f "${SPEC_DIR}/investigation.md"
+tmp_precheck="${SEALED}/precheck-result.no-investigation.tmp"
+jq '.investigation_sha256 = null' "${SEALED}/precheck-result.json" > "${tmp_precheck}"
+mv "${tmp_precheck}" "${SEALED}/precheck-result.json"
 write_contract "${SEALED}" PASS none
+tmp_contract="${SEALED}/spec-review-contract.no-investigation.tmp"
+jq 'del(.investigation_sha256)' "${SEALED}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${SEALED}/spec-review-contract.json"
 "${PRECHECK}" "${FEATURE}" 2 1 --reset ||
   fail "baseline: a contract with no investigation.md pin must validate"
 rm -rf "${REPORT_ROOT}/attempt-2"

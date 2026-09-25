@@ -6,6 +6,7 @@ tests/wfi-034-scratch-metric.tests.sh
 tests/adversarial-review-contracts.tests.sh
 tests/install.tests.sh
 tests/installer-idempotency.tests.sh
+tests/install-uninstall-matrix.tests.sh
 tests/uninstall.tests.sh
 tests/guards.tests.sh
 tests/approval-boundary.tests.sh
@@ -66,6 +67,7 @@ tests/deterministic-lane-selfcheck.tests.sh
 tests/guard-ps1-ascii.tests.sh
 tests/repository-release-validation.tests.sh
 tests/template-validator-parity.tests.sh
+tests/criterion-freeze.tests.sh
 tests/task-lifecycle-enum-parity.tests.sh
 tests/task-state-grammar-parity.tests.sh
 tests/task-plan-binding-durability.tests.sh
@@ -111,9 +113,21 @@ tests/ship-track-selection-migration.tests.sh
 tests/guard-staging-exemption.tests.sh
 tests/design-sync-standing-consent.tests.sh
 tests/design-sync-scan.tests.sh
+tests/resolver-evidence-schema.tests.sh
+tests/resolve-project-context-block.tests.sh
+tests/resolve-project-context-match.tests.sh
+tests/resolve-project-context-cli.tests.sh
+tests/resolve-project-context-discovery.tests.sh
+tests/resolve-project-context-lite.tests.sh
+tests/validate-resolver-evidence.tests.sh
+tests/resolve-project-context-parity.tests.sh
+tests/resolve-project-context-metamorphic.tests.sh
+tests/resolve-project-context-caller-contract.tests.sh
 tests/compatibility-byte-identical.tests.sh
 tests/golden-baseline-contract.tests.sh
 tests/structural-compatibility.tests.sh
+tests/skip-allowlist-manifest.tests.sh
+tests/promote-golden-baseline-ci-guard.tests.sh
 tests/path-lineending-regression.tests.sh
 tests/validate-live-host-proof.tests.sh
 tests/human-copy-runner-contract.tests.sh
@@ -128,6 +142,7 @@ tests/lite-gate-summary-invalid.tests.sh
 tests/lite-gate-full-upgrade-backstop.tests.sh
 tests/lite-gate-summary-absent-active-enforcement.tests.sh
 tests/lite-gate-direct-edit-contract.tests.sh
+tests/lite-gate-cli-chain.tests.sh
 tests/capability-registry-schema.tests.sh
 tests/evaluate-predicate.tests.sh
 tests/registry-discovery.tests.sh
@@ -140,3 +155,6 @@ tests/component-path-diff-basis.tests.sh
 tests/ownership-digest.tests.sh
 tests/check-component-coverage.tests.sh
 tests/component-path-ownership-parity.tests.sh
+tests/cross-runtime-handoff.tests.sh
+tests/check-installed-plugin-drift.tests.sh
+tests/check-a8-process-integrity.tests.sh

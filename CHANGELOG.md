@@ -398,6 +398,508 @@
 
 ## v1.16.0 (2026-08-22)
 
+- **Capability Resolver steps 0-3 (Issue #193, epic-193-a5 T-002)**:
+  Project Context の入力検証、workflow state 導出、2-pass canonicalization、
+  Context Projection のメモリ内 staging、および早期 Block の 5 診断行を
+  実装。`resolve-project-context-block.tests.{sh,ps1}`（共有ドライバは
+  `tests/resolve-project-context-block-check.py`）で **10 invocation /
+  73 アサーション** を固定した — 無効 workflow の 2 分岐を含む Block
+  マトリクスの 6 invocation、step 3 Context Projection の組み立て
+  2 invocation、および step 3 自身の 2 回目 canonicalizer パスの Block
+  2 invocation。sh/ps1 とも 73 passed / 0 failed、TDD RED は同一ドライバで
+  2 passed / 10 failed。step 3 の 35 アサーションは 14 mutation で
+  非空虚性を実証済み。
+  R-10 保護対象の適用候補 4 件 — `plugins/sdd-quality-loop/scripts/
+  resolve-project-context.{py,sh,ps1}` と `.github/workflows/test.yml` —
+  は `specs/epic-193-a5-capability-resolver/human-copy/` 配下のミラー先
+  パスに staged 済み（同ディレクトリの `MANIFEST.sha256` は 4 entry で
+  `shasum -a 256 -c` が 4/4 OK, exit 0）。
+  **必要な人間アクション: この 4 件をレビューして適用すること。** 適用まで
+  live の `plugins/**` と live の `.github/workflows/test.yml` は
+  byte-unchanged で、この機能はまだ実行経路に入らない。
+- **Capability Resolver steps 4-9 (Issue #193, epic-193-a5 T-003)**:
+  `resolve-component-paths` 呼び出し、ADR-0025 Registry discovery +
+  `validate-capability-registry`、`registry_digest`
+  (`generate-registry-digest --whole`)、Capability ごと・affected
+  component ごとの trigger 評価と matched Capability の
+  conditional-facet 評価（いずれも `evaluate-predicate` 実呼び出し）、
+  および any-branch WARN チェック（B2 の拡張スコープ）を実装。
+  既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
+  が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
+  自身が所有する fixture として **20 fixture directory**
+（2026-08-26 ruling C(1)/C(2) 実測: 凍結文書 amendment により step 6.5
+recheck を正式化して `registry-swapped-during-validation` を復帰、
+absent-component fail-closed の `affected-component-absent-from-context`
+を新設。同日 route-(a) cross-model panel round 2 の openai Major 是正で
+`evaluate-predicate-output-malformed-nested` を追加し、step-7 の
+evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。round 3 の
+openai Major 是正で同検証を evidenceNode contract の鏡像へ強化
+（キー集合・enum・必須 path・warn→reason・children 配列限定）し、同
+fixture の payload を必須フィールド欠落の子へ更新。gate cycle 7 の
+Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
+`evaluate-predicate-output-malformed-unhashable` を追加。round 4 の
+openai Major 是正で step 4 に重複 component id 拒否を追加し
+`affected-component-duplicate-ids` を新設。round 5 の openai Major
+是正で context_binding の型検査を field access 前に追加し
+`resolve-component-paths-binding-not-object` を新設。gate cycle 10 の
+Major 是正で pass-2 projection の型検証を追加（projection stub の
+json-wrong-type / json-components-wrong-type サブケース、新規 dir
+なし）。block suite
+は両ランタイム 256/0、red-baseline-recaptured-v11 は 112 passed /
+137 failed）
+  （`run_t003_case`: `affected-component-resolution-failed` /
+  `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
+  `registry-discovery-unimportable` / `registry-validation-failed` /
+  `validate-capability-registry-launch-failed` /
+  `dependency-subprocess-failed` / `evaluate-predicate-output-malformed` /
+  `dsl-warn-on-matched-capability` ×3 fixture ほか — この列挙は初期世代の
+  抜粋であり、確定的な全列挙は
+  `tests/resolve-project-context-block-check.py` の `run_t003_case`
+  case tuple（20 エントリ）が権威）を追加。
+  **訂正 (2026-08-23, cross-model panel remediation)**: この項目が
+  以前記載していた「5 診断行・6 invocation・sh/ps1 とも 102 passed /
+  0 failed」は、この共有ドライバが後続タスク（T-004 の steps 10-13、
+  および本パスの panel 是正）で成長し続けた後の値とはもはや一致せず
+  不正確だった（cross-model panel が T-003 自身の Critical 指摘として
+  再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
+  同一ファイルに同居するため、
+  スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
+  すぐ陳腐化する — T-003 自身の寄与分（上記 20 fixture）
+  のみをここでは確定的に記載し、スイート全体の現在合計は
+  `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
+  「Cross-Model Panel Remediation」節、および
+  `specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+  focused-tests-{sh,ps1}.log` を参照。
+  R-10 保護対象の適用候補のうち `resolve-project-context.py` を
+  steps 4-9 分だけ更新し、`.sh`/`.ps1`/`.github/workflows/test.yml` は
+  byte-unchanged（新規 CI 登録なし）。`MANIFEST.sha256` は
+  `resolve-project-context.py` の 1 エントリのみ更新し、
+  `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
+  **必要な人間アクション: T-002 と共通の staged candidate 4 件（うち
+  1 件がこの更新差分）をレビューして適用すること。**
+  **訂正 (2026-08-23, cycle-3 cross-model panel remediation)**: refreshed
+  panel の Major 2 件を是正 — (1) `evaluate-predicate` の
+  `PREDICATE_SCHEMA_ERROR` 分類がハードコードされた `returncode == 2`
+  magic number に依存していた点を、`evaluate-predicate` 自身の契約が
+  固定するのは exit code ではなく安定した stderr トークン
+  `PREDICATE_SCHEMA_ERROR` のみである（investigation.md）ことを確認した
+  上で、step 6 の `canonicalizer-failed` トークン判定と同じ方式に修正。
+  (2) steps 7-8 の abort 経路（`registry-validation-failed` /
+  `dependency-subprocess-failed` / `dependency-output-malformed`）が
+  abort 直前まで収集済みの `severity: "warn"` diagnostics を破棄していた
+  点を、AC-056 の frozen sentence（「no other id ever carries
+  severity: "warn"」）と衝突しないことを確認した上で転送するよう修正。
+  この段自身の寄与は **13 fixture directory・65 assertion** に増加
+  （新規 2 fixture: `evaluate-predicate-schema-error` /
+  `evaluate-predicate-failure-after-warn`）。スイート全体の現在合計は
+  引き続き `reports/implementation/epic-193-a5-capability-resolver/
+  T-003.md` および `verification/qg/T-003/focused-tests-{sh,ps1}.log`
+  を参照（本箇条書きには固定値を記載しない — 直上の訂正と同じ理由）。
+- **Capability Resolver steps 10-13 (Issue #193, epic-193-a5 T-004)**:
+  track branch（`full` は Facet Manifest、`lite` は Capability Summary、
+  同一 invocation で両方 staging されることはない — B4）、Resolver
+  Evidence 組み立て（`context_binding.dependency_pointers[]` の RFC 6901
+  正準導出、`resolver.version`/`resolver.rule_set_revision` の単一
+  ソース化 — B9）、staged 済み全アーティファクトの出力スキーマ自己検証
+  （Resolver Evidence 自身が失敗した場合は一切書き込まない唯一の例外を
+  含む — B3）、および pre-publication snapshot recheck（`ownership_digest`
+  だけでなく `affected_components` 集合も再導出して比較する — B8）を実装。
+  既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-block-check.py`）に、
+  この段の診断行 3 種・4 invocation（`lite-check-source-undefined` /
+  `output-schema-validation-failed` ×2 fixture[AC-055 の Evidence 自身
+  失敗 / 非 Evidence アーティファクト失敗] / `snapshot-generation-mismatch`
+  [digest-mismatch 側の最初の 1 fixture]）を追加し、sh/ps1 とも
+  **121 passed / 0 failed**（T-002/T-003 由来の既存 102 assertion を
+  含む）。TDD RED は同一ドライバ・同一フィクスチャ集合を T-003 時点の
+  実装（steps 0-9 のみ）に対して実行し、sh/ps1 とも 107 passed / 14 failed
+  で新規 4 fixture のみが一貫して失敗することを確認済み。Epic A4 の
+  `capability-summary.schema.json`/`context-projection.schema.json` は
+  このブランチにまだ着地していないため、この suite 自身の
+  test-harness-only スタンドインを新規フィクスチャとして追加(本番コード
+  側は ADR-0025 discovery 経由で実 contracts/ を読むので、Epic A4 着地後
+  はそのまま実スキーマを解決する)。
+  R-10 保護対象の適用候補のうち `resolve-project-context.py` を
+  steps 10-13 分だけ更新し、`.sh`/`.ps1`/`.github/workflows/test.yml` は
+  byte-unchanged（新規 CI 登録なし）。`MANIFEST.sha256` は
+  `resolve-project-context.py` の 1 エントリのみ更新し、
+  `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
+  **必要な人間アクション: T-002/T-003 と共通の staged candidate 4 件
+  （うち 1 件がこの更新差分）をレビューして適用すること。**
+  **訂正 (2026-08-23, cycle-3 cross-model panel remediation)**: refreshed
+  panel の Major 3 件を是正 — (1) 出力スキーマ自己検証の discovery に
+  `$schema`/`$id` の per-artifact version check を追加（従来はファイルの
+  存在とパース可否のみ確認していた）。(2) スキーマ読込/パース失敗時に
+  生の例外テキストを診断へ埋め込んでいた箇所を、例外クラス名のみを含む
+  安全な文言に修正（絶対パス漏洩防止）。(3)
+  `_pre_publication_recheck` 自身の内部依存 subprocess 失敗が
+  `snapshot-generation-mismatch` に誤ラベルされない、という Fourth Pass の
+  既存修正に対して「テストが存在しない」という指摘を、実際に到達可能な
+  fixture（`recheck-dependency-failed`）を追加して解消。この段自身の
+  寄与は新規 3 fixture（`contract-discovery-failed-governing-schema-
+  wrong-version` / `contract-discovery-failed-governing-schema-malformed`
+  / `recheck-dependency-failed`）および draft-07 governing-schema
+  keyword-coverage のメタアサーション（`draft7-keyword-coverage`、
+  4 assertion）を追加。スイート全体の現在合計は `reports/implementation/
+  epic-193-a5-capability-resolver/T-004.md`「Fifth Pass」節、および
+  `verification/qg/T-004/focused-tests-{sh,ps1}.log` を参照。
+
+- **Capability Resolver full-pipeline match suite (Issue #193, epic-193-a5
+  T-005)**: T-002/T-003/T-004 が実装済みの評価パイプライン（steps 0-13）を
+  実サブプロセス経由で end-to-end に検証する新規スイート
+  `tests/resolve-project-context-match.tests.{sh,ps1}`（共有ドライバ
+  `tests/resolve-project-context-match-check.py`）を追加し、`tests/run-all.
+  {sh,ps1}` に登録。sh/ps1 とも **125 passed / 0 failed**（2026-08-26
+gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-match
+  (AC-006)、cross-Capability / 同一 Capability 内の同名 facet 二重宣言の
+  facet-name 集約 (AC-043/AC-052)、Context Projection のバイト一致
+  (AC-003)、`resolve-component-paths`/`generate-registry-digest --whole`
+  の引数パススルー・バインディング (AC-004/AC-005)、advisory/required 間の
+  Resolver Evidence バイト一致 (AC-016) を、いずれも実 fixture 経由で検証。
+  **この branch では public writes が T-007 の step 14（未着地）に一元化
+  されているため**、Facet Manifest 自身の内容（AC-007 field-assembly /
+  AC-008 schema-conformance）は、この suite 自身のドライバが同一の
+  staged `.py` を `importlib` 経由でロードし、実サブプロセス実行で
+  既に検証済みの `capability_evaluations[]` を渡して
+  `_assemble_facet_manifest` 等の本番関数をそのまま呼び出す形で再構成し、
+  実の `validate-facet-manifest` に対して検証する手法（本タスクの実装
+  レポート「Specification Differences」で開示）を採用。**AC-056
+  （`diagnostics[]` の warn/block cardinality）は同日中の第2パスで実装
+  完了**——`_write_evidence`/`_block` を、`outcome: "warn"` ノード1件に
+  つき `severity: "warn"` エントリ1件を追加し、既存の要約
+  `severity: "block"` エントリ1件がそれに続く形へ拡張(この production
+  側の修正は T-004 自身の宣言済みスコープ内での完了作業として T-004 が
+  実施、T-005 は REQ-006 item (d) の既存 any-branch-WARN fixture 再利用
+  1件＋新規 multi-node fixture 1件を TDD RED→GREEN で追加し、2方向の
+  mutation kill も確認済み)。詳細は両タスクの実装レポート「Second Pass —
+  AC-056 Remediation」節を参照。
+- **Capability Resolver CLI/discovery/Lite-track 3 スイート (Issue #193,
+  epic-193-a5 T-006)**: T-002/T-003/T-004 が実装済みのコア評価エンジンを
+  一切変更せず、3つの追加観点から検証する新規スイートを3本追加し
+  `tests/run-all.{sh,ps1}` に登録。
+  `tests/resolve-project-context-cli.tests.{sh,ps1}`（TEST-001/AC-001）は
+  `--config`/`--target-rev`/`--feature` を1つずつ省略した各ケースが
+  usage error (exit 2) として拒否されること、および `--source-rev`
+  省略時に `resolve-component-paths` へ `HEAD` がそのまま渡ることを検証。
+  `tests/resolve-project-context-discovery.tests.{sh,ps1}`（TEST-002/
+  AC-002・TEST-028/AC-028）は、この機能のスクリプトが探索する
+  contracts/* 6種すべてが ADR-0025 の script-relative→git-root-fallback
+  手順で一貫して解決されること（packaged copy 優先・git-root
+  fallback・環境変数不参照の3ケース）と、installed-standalone-plugin
+  レイアウト（packaged copy のみ・到達可能な `.git` なし）を
+  py/sh/ps1 各ランタイム1件ずつ計3 fixture で検証
+  （**gate-cycle-1 是正、2026-08-27**: 初版は `py` ランタイムの
+  installed-layout ケースが実装から欠落しており実質2ランタイムしか
+  検証していなかった。`resolve-project-context-parity-check.py` の
+  `_run_kind` と同じ `kind == "py"` 直接起動パターンを追加し、
+  `main()` の `--launcher` に依存せず3ランタイム全てをループする形へ
+  是正済み）。
+  `tests/resolve-project-context-lite.tests.{sh,ps1}`（TEST-009/AC-009）は
+  Epic A6 adversarial verification finding B5 で narrowing された
+  advisory-missing / zero-match の2状態それぞれで、書き出される
+  `capability-summary.yaml` が実の `validate-capability-summary` で
+  validate されること、および同一 invocation が `facet-manifest.yaml`/
+  `project-context.resolved.json` のいずれも書かないこと（track-exclusive
+  publication set, B4）を検証。
+  **この branch では public writes が T-007 の step 14（未着地）に一元化
+  されているため**、`resolve-project-context-lite` は
+  `resolve-project-context-match` と同じ disclosed oracle-reconstruction
+  手法（実サブプロセスを強制的に snapshot-generation-mismatch へ導き、
+  同一 staged `.py` を `importlib` 経由でロードして
+  `_assemble_capability_summary` を実行時に検証済みの
+  `capability_evaluations[]` で直接呼び出す）を採用。
+  `resolve-project-context-discovery` の installed-layout fixture 3件は、
+  Epic A2 の `validate-capability-registry.py` が `--repo-root` 省略時に
+  `git rev-parse`/`.git` 探索を必須とするため、「到達可能な `.git` が
+  一切ない」という AC-028 自身の前提と構造的に両立できず、この1依存のみ
+  disclosed stub に置き換えた（`plugins/**` 編集禁止スコープ外の
+  Epic A2 own 依存であり、実 git repository を使う T-003 側で別途
+  カバー済み）。sh/ps1 とも 3 スイート全 assertion が両ランタイム一致
+  （cli 11/11、discovery 22/22、lite 16/16。登録セルフチェック2件を
+  含めた総計はそれぞれ 13/13・24/24・18/18、gate-cycle-1 是正後の実測値）。
+  既存の `resolve-project-context-block`（306/0、本タスク側の編集は無く
+  他タスクの fixture 増加による再測定値）・`resolve-project-context-match`
+  （125/0）は無編集で回帰なし。CI ステップ候補は T-005 の staged
+  candidate に追記し、
+  `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` を
+  新しい hash に更新した。
+- **Capability Resolver の crash-recovery scan と journaled publication
+  transaction (Issue #193, epic-193-a5 T-007)**: design.md の
+  「Resolver publication transactional bundle contract」を staged
+  `resolve-project-context.{py,sh,ps1}` に実装し、steps 0-13 の
+  staged-only 体制を終わらせて**この機能で唯一の live 書き込み経路**を
+  追加した。step 0.5 の crash-recovery scan は全 invocation で引数検証
+  直後・step 1 の前に走り、`--feature` 配下の
+  `specs/<feature>/.resolver-staging/*/TRANSACTION.json` を
+  fully-applied / fully-reverted のいずれかへ収束させるか、収束不能なら
+  `publication-journal-recovery` で Block する（live 状態は発見時のまま
+  維持し、部分 rollback は行わない）。step 14 は Prepare（全 staged
+  candidate の一括 re-hash と、live content を持つ target の byte-exact
+  PRE-image backup）→ Journal（**いかなる live rename よりも前**に
+  all-or-nothing で `TRANSACTION.json` を書く）→ Commit（journal 記録順に
+  atomic rename）→ Post-publication verification（3 回目の
+  `resolve-component-paths` 呼び出しと digest/`affected_components` の
+  再導出。不一致なら完了済み rename を journal 経由で全て巻き戻して
+  `post-publication-generation-mismatch` で Block）→ Complete（journal
+  削除・exit 0）。in-process の write/fsync/rename 失敗は
+  `artifact-publication-failed` で Block し、同一 commit sub-sequence の
+  完了済み rename は journal の `pre/<target-basename>` backup から
+  **復元**する — bare `unlink` は使わない（adversarial review B1 の
+  「既存 live bytes が復元不能なまま破壊される」ギャップを閉じる）。
+  Block 経路の Resolver Evidence は**この transaction を通さない** —
+  Evidence が書き込み集合の全体である以上、cross-file atomicity は不要で、
+  `temp file + fsync + rename` の直接書き込みになる（design.md:1419 と
+  :2846 が「no staging area, no journal」を明示的に要求している）。
+  **訂正 2026-08-28**: この行は当初「同一 transaction の 1-target
+  インスタンスとして publish する」と述べていたが、それはパネル round 5 が
+  撤回した経路であり、出荷コードの挙動でもない。docstring だけを直して
+  この兄弟記述を取り残していた。
+  step 0.5 の scan が書き込み・削除する path は、すべて事前に
+  requirements.md:1144-1151 が名指しで固定した publication target set と
+  照合する（journal は unprotected な repository-local staging 領域に
+  あるため content は攻撃者到達可能）。set 外・traversal・重複 path は
+  ファイルに一切触れる前に fail-closed で Block する。
+  なお in-process rollback が **不完全**に終わった場合、retain された
+  journal が listing する `resolver-evidence.yaml` を Block Evidence が
+  上書きするため、次回 scan は自動収束ではなく
+  `publication-journal-recovery`（手動介入）で Block する — REQ-002 の
+  2 つの mandate が衝突する凍結仕様上の論点。**2026-08-27 にリポジトリ
+  オーナーが「(a) 現行 fail-closed を既知制限として受容（推奨）」を裁定
+  済み**（journal-amend 操作も design 改訂も承認せず）。この二重劣化
+  コーナーでの手動介入は仕様どおりの挙動であり、未解決の欠陥ではない
+  （実装レポートの Panel Round 1 Remediation, MAJOR 2 参照）。
+  `tests/resolve-project-context-block.tests.{sh,ps1}` に 6 fixture を
+  追加し、REQ-002 の 16 行 Block マトリクスを完成させた —
+  `publication-journal-recovery`（2 renames の間で殺す
+  test-harness-only kill hook と、pre-image backup 破損の companion）、
+  `artifact-publication-failed`、`post-publication-generation-mismatch`、
+  AC-040 の 2 本目 `snapshot-generation-mismatch`（全 digest 同一で
+  `affected_components` 集合差のみ）、および AC-010 が要求する
+  完全クリーンな negative fixture `clean-full-track-publication`。
+  さらにパネル round 2-5 の指摘対応で containment 回帰 fixture を 4 本
+  追加した（`publication-journal-target-escape`,
+  `publication-staging-parent-symlink`,
+  `publication-target-parent-symlink`,
+  `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
+  シナリオ追加であり新しい diagnostic-id 行は導入しないので、
+  マトリクスは 16 行のまま。round 12 の leaf-symlink scenario を含む
+  T-007 自身の fixture scenario directory 総数は 14 本。
+  新しい TEST-010 完全性チェックは**カバレッジ検査**であって
+  emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
+  `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
+  の enum であり、resolver が実際にその id を出したかは各ケース自身の
+  canonical-line assertion が個別に主張する。fixture を失った行、
+  実行リストに繋がっていない fixture、閉じた enum に無い id が
+  それぞれここで落ちる。
+  また AC-059（ruling E, 2026-08-28）の TEST-059 を同スイートに追加した —
+  Resolver（`resolve-project-context.{py,sh,ps1}` の 3 本のみ）が
+  `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
+  いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
+  TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
+  sh/ps1 とも 398 passed / 0 failed（TDD RED は同一ドライバで
+  341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
+  に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
+  step 13 を digest 比較のみにする、Resolver に承認面パスの言及を
+  1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、Evidence を rollback
+  集合へ戻す、journal パスを末端解決へ戻す（末端 symlink fixture が
+  3 アサーションで撃墜）、の mutation で非空虚性を実証済み。
+  さらに `_block` の本体を `_block_reporting(...) -> (exit_code,
+  wrote_evidence)` へ切り出し、post-publication の 2 経路が journal を
+  捨てる条件を `complete and wrote` にした — 従来は rollback の完了だけを
+  見ており、Evidence 書き込みが失敗しても journal を消していた。
+  `_block` は薄いラッパのままなので 40 箇所の呼び出しは無変更。
+  さらに round 15 で、journal のターゲット集合が Full / Lite バンドルで
+  あることを要求する `_legitimate_journal_bundles` を追加した — 各エントリが
+  許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
+  実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
+  検査を外す mutation が 4 アサーションで死ぬ）。
+  **現在の未カバーは 4 件（F・O・Q・T）**。到達不能とした主張は D・M と
+  2 度誤りだったと判明している（D は round 19 の
+  `nonce-names-another-batch`、M は round 22 の fsync 故障注入 fixture が
+  それぞれ kill した）。21 mutant 中 17 件が被覆済み（round 24 で staging chain の
+  永続化障壁を mutant P として追加し、専用 fixture で kill）。この段落自体、
+  「F のみ」→「F と M」→「F と O」と 3 度書き換わっており、散文中の
+  件数が賞味期限を持つことの実例になっている。（訂正 2026-08-29: 見出しを「3 件」→「2 件」に直した
+  際、直下の列挙を 3 件のまま残していた。しかも先頭に挙げていた
+  「journal 削除順序」は round 15 で fixture を書いて被覆済みで、その
+  括弧書きは `mutation-proofs.log` 自身が撤回した「kill hook が無ければ
+  観測できない」という主張を保持していた。見出しだけ直して兄弟記述を
+  取り残す欠陥が、まさにその欠陥を直す行で再発したもの） —
+  F はその代表で、上記の `complete and wrote` を `complete` だけに戻す変更
+  （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
+  feature ディレクトリを不正にすれば publication targets も不正になり
+  commit 前に publish が拒否されるため、fixture では作れない — panelist
+  検証済みの論証）。O・Q・T は fsync 故障の重ね合わせが要る同族で、いずれも
+  実測障害つきで mutation ログに開示している。
+  **残る 4 件（F・O・Q・T）は rollback / Evidence / journal 経路にあり、この領域の
+  正しさはその範囲でテストでなくレビューに依存している。**
+  既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
+  `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
+  新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
+  `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` は
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。
+- **`validate-resolver-evidence.{py,sh,ps1}` と provenance-binding スイート
+  (Issue #193, epic-193-a5 T-008)**: Resolver Evidence の
+  schema conformance・exact-set/cardinality・双方向整合・**provenance
+  binding** を検査する stdlib-only の validator を新規追加した（Epic A4 の
+  3 validator と同じ手書き draft-07 部分エンジンと
+  `resolver-evidence: <check-id>: <detail>` 診断行規約。check-id は
+  REQ-002 の Block 分類とは独立した**この script 自身の閉じた 12 値 enum**
+  — `schema-invalid`, `registry-digest-unbound`, `capability-set-mismatch`,
+  `capability-evaluation-id-duplicate`,
+  `affected-component-provenance-mismatch`,
+  `trigger-evaluation-set-mismatch`, `component-evaluation-id-duplicate`,
+  `matched-result-contradiction`, `conditional-facet-set-mismatch`,
+  `conditional-facet-evaluation-set-mismatch`,
+  `applied-result-contradiction`, `array-not-stable-sorted`)。
+  **B6 provenance binding**: `--registry`/`--affected-components` は
+  ground truth ではなく任意の override になった。Registry は既定で
+  ADR-0025 self-discovery され、self-resolved か override かに関わらず
+  whole-Registry digest を計算して `context_binding.registry_digest` との
+  一致を**あらゆる exact-set 検査より前に**要求する（不一致は
+  `registry-digest-unbound` を単独で出して打ち切る — 「別の・より小さい
+  Registry を指す」攻撃を塞ぐ）。affected-component 集合は Evidence 自身の
+  `context_binding.dependency_pointers[]` から導出し、co-located Facet
+  Manifest（`--manifest`、無指定なら `--evidence` の兄弟
+  `facet-manifest.yaml`）の同フィールドと集合同値であることを要求、
+  override は導出を*代替*できるが*矛盾*はできない。
+  `conditional-facet-set-mismatch` は **`declaration_index` キー**で、
+  facet 名キーではない（B7 — Epic A2 の Registry schema は 1 Capability 内で
+  同一 facet 名の複数宣言を禁じていないため、名前集合比較では「2 回宣言」と
+  「1 回宣言」を区別できない）。`--evidence`/`--manifest` を読む**前**に、
+  読もうとしている path を名指しする live な
+  `RESOLVER_PUBLICATION_IN_PROGRESS` journal (T-007 の `TRANSACTION.json`)
+  を検出して fail closed する（AC-054）。digest 計算は
+  `generate-registry-digest.py` 自身の `canonical_digest()` を呼ぶ
+  単一経路で、self-discovery と override が分岐しない。
+  `tests/validate-resolver-evidence.tests.{sh,ps1}`（共有ドライバは
+  `tests/validate-resolver-evidence-check.py`）に **25 fixture /
+  138 アサーション**を追加 — 12 check-id それぞれの独立発火 fixture、
+  clean fixture、TEST-050 の Registry binding ペア＋一致 control、
+  TEST-051 の Manifest 不一致と override 矛盾のペア＋2 control、
+  TEST-054 の live journal fixture＋journal 無し control。
+  sh/ps1 とも 138 passed / 0 failed（TDD RED は同一ドライバで
+  133 passed / 5 failed、両ランタイム一致）。binding-before-exact-set の
+  順序を外す・`conditional-facet-set-mismatch` を facet 名キーにする・
+  reader-side journal 検査を落とす、の 3 mutation で非空虚性を実証済み
+  （scratch tree で実施、無変異 control は green）。既存の
+  `resolve-project-context-block`（327/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・
+  `resolver-evidence-schema`（20/0）は sh/ps1 とも無編集で回帰なし。
+  `tests/run-all.{sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-006 の 3 スイート直後へ append し、`MANIFEST.sha256` を
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
+- **`resolve-project-context-parity` 双方向ランタイム parity + 決定論スイート
+  (Issue #193, epic-193-a5 T-009)**: `.py`/`.sh`/`.ps1` の 3 ランタイム
+  横断で REQ-005 の byte-identity 保証を検査する新規スイートを追加した
+  （既存の block/match/cli/discovery/lite/validate-resolver-evidence の
+  各スイートは `.sh`/`.ps1` の thin dispatcher しか実行しておらず、`.py`
+  master を直接起動する検査はこのスイートが初めて）。
+  **TEST-022**（AC-022）: 同一入力の `.py` 単独 2 回実行が
+  track-exclusive 出力集合（stdout/stderr/exit code + 生成物バイト列）で
+  byte-identical。**TEST-023**（AC-023）: `.py`/`.sh`/`.ps1` 3 ランタイム
+  横断で同じく byte-identical、かつ stderr がこの機能自身の
+  `capability-resolver: <id>: <detail>` 正規行のみである（M8 -- 依存
+  subprocess 自身の生 stderr を比較対象にしない）ことを直接確認。
+  Windows 風 `\` 区切りパス引数の fixture を含む。`validate-resolver-
+  evidence`（T-008 の 3 ランタイム triad）も同じ parity 保証の対象として
+  reuse。**TEST-024**（AC-024）: Registry `capabilities[]` の宣言順を
+  意図的に非昇順にした新規 fixture（`resolve-project-context-match`
+  の `full-pipeline-match` 入力を再利用し、Registry のみ差し替え）で
+  `capability_evaluations[]` が `capability_id` で stable-sort されて
+  いることを 3 ランタイムで確認。加えて `resolve-project-context.py` の
+  `_assemble_facet_manifest` を直接呼ぶ no-subprocess white-box 検査で
+  `required_facets`/`resolved_gates`/`capabilities` の stable-sort を
+  独立に実証し、`diagnostics[]` の `(id, detail)` sort は
+  `resolve-project-context-block` 自身の既存 `dsl-warn-unsorted-
+  affected-components` fixture を再利用（reuse、reinvent しない）。
+  **TEST-025**（AC-025）: staged `resolve-project-context.{py,sh,ps1}`
+  と live `validate-resolver-evidence.{py,sh,ps1}` の計 6 ファイルに対する
+  repository-wide grep self-check で `datetime.now()`/`time.time()`/
+  network primitive/provider-API client の不在を確認（provider term scan
+  は Epic A2 の `provider-terms.json` allowlist と
+  `facet-manifest-parity.tests.sh` 自身の `key=lambda` idiom マスク技法を
+  そのまま再利用）。dirty/clean fixture ペアで非空虚性・偽陽性排除を証明。
+  `tests/resolve-project-context-parity.tests.{sh,ps1}`（共有ドライバは
+  `tests/resolve-project-context-parity-check.py`）で **70 assertion**を
+  固定 -- sh/ps1 とも 70 passed / 0 failed。acceptance-first: 4 mutation
+  （scratch tree のみ、実ファイル無改変）で非空虚性を実証 -- 繰り返し
+  invocation に per-process 値を混入・ps1 側に余分な 1 byte を出力・
+  `capability_evaluations[]` の sort を除去・`time.time()` 呼び出しを
+  混入、いずれも対応する assertion が FAIL することを確認済み。既存の
+  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・`validate-resolver-
+  evidence`（117/0）は sh/ps1 とも無編集で回帰なし。`tests/run-all.
+  {sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-008 の 2 ステップ直後へ append し、`MANIFEST.sha256` を
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
+- **Capability Resolver metamorphic completeness suite (Issue #193,
+  epic-193-a5 T-010, FINAL)**: design.md Test Strategy item 9（M10）を
+  全項目実装した `resolve-project-context-metamorphic.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-metamorphic-check.py`、
+  T-002/T-005/T-008 の既存ヘルパーを `_load_module` 経由で再利用）を
+  新設。**(a)** 2-affected-component `trigger` の TT/TF/FT/FF 全 4 通りで
+  union-match 規則どおりの `matched` を検証。**(b)** 同一 fixture の
+  `affected_components[]` を 2 通りの順序で与え、stdout/stderr/Resolver
+  Evidence/Facet Manifest/Context Projection の全 byte が順序に不変で
+  あることを固定順序スタブ経由で確認（REQ-005）。**(c)** 3 component 中
+  2 つが true になる fixture で Capability が `capability_evaluations[]`
+  に重複なく 1 回だけ記録されることを確認。**(d)** `applied: false` の
+  `conditional_facets[]` の `reason` が exact template と verbatim 一致
+  することを確認。**(e)** matched-capability-trigger-WARN /
+  unmatched-capability-trigger-WARN / matched-capability-conditional-
+  facet-WARN の 3 つの WARN 分岐 fixture が独立して Block することを、
+  Resolver Evidence 全体の厳密一致で確認（B2）。**(f)** ネスト配列
+  完全性を T-008 の `validate-resolver-evidence-check.py` 自身の
+  fixture/helper を再利用して検証 — `capability_evaluations[]`/
+  `trigger_evaluations[]`/`conditional_facet_evaluations[]`/
+  `evaluations[]` の 4 段全てに対応する既存 corrupted fixture（および
+  `clean`）を実行し、exit code と check-id が exact 一致することを
+  確認。**(g)** 依存 subprocess の起動順序スパイ — canonicalize-sdd-yaml
+  ×2 → resolve-component-paths → validate-capability-registry →
+  generate-registry-digest → evaluate-predicate ×2 の厳密な 7 呼び出し
+  順を確認し、各位置で強制非ゼロ終了させた 7 通りの sub-fixture が
+  その位置固有の正しい診断 id で Block し、より後段の subprocess を
+  一切呼ばないことを確認。
+  **仕様差異の開示**: design.md item 9(g) 本文が第 4 位置を "Registry
+  discovery" と呼ぶが、実装上その discovery 自体（`_discover_registry`）
+  は同梱 sibling module の in-process import であり subprocess ではない
+  ため、この位置で実際に観測可能な唯一の subprocess は
+  `validate-capability-registry` である。spy はこの実際の呼び出しを
+  対象とし（driver 自身の module docstring に詳細を記載）、
+  `generate-registry-digest` 内部から `canonicalize-sdd-yaml` へ及ぶ
+  grandchild 呼び出しは `SDD_SPY_SUPPRESS` 環境変数の伝播で親呼び出し列
+  から除外している。
+  さらに Done When が要求する feature-wide 完全性チェックを同スイート
+  末尾に実装 — REQ-006 fixture-matrix 項目 (a)-(h) の代表 fixture が
+  `tests/fixtures/capability-resolver/` 配下に存在すること、および
+  T-001〜T-010 の 9 スイート（item 10 の live-caller-contract は Global
+  Constraints の "Deferred, Not Scheduled" により対象外、AC-026 "nine of
+  ten"）が `tests/run-all.{sh,ps1}` に登録済みであることを確認
+  （AC-027）。
+  sh/ps1 とも **150 assertion, 150 passed / 0 failed**。acceptance-first:
+  4 mutation（scratch tree のみ、実ファイル無改変） — union-match を
+  AND-match へ反転（(a) が 2 件 FAIL）、matched かつ複数 true の
+  Capability の dedup を除去（(c) が 3 件 FAIL、schema self-validation
+  自体も Block）、`applied: false` の reason template を改変（(d) が
+  1 件 FAIL）、step 5/6（validate-capability-registry/
+  generate-registry-digest）の呼び出し順を入れ替え（(g) が 3 件 FAIL）
+  — いずれも対応する assertion が FAIL することを確認し、real/staged
+  ファイルは一切変更せず復元後 150/150 green を再確認済み。既存の
+  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・`validate-resolver-
+  evidence`（117/0）・`-parity`（70/0）は sh/ps1 とも無編集で回帰なし。
+  `tests/run-all.{sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-009 の 2 ステップ直後へ append（この feature の staged
+  candidate の最終エントリ）し、`MANIFEST.sha256` を実測 hash に更新
+  （`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
 ### Added
 
 - **Epic A7 orchestration-event trace: TEST-018 (Issue #195, T-006)**: wired
@@ -2102,6 +2604,43 @@
 
 ### 追加
 
+- **Resolver Evidence 契約とスキーマ適合スイート (Issue #193, epic-193-a5
+  T-001)**: `contracts/resolver-evidence.schema.json`(schema
+  `sdd-resolver-evidence/v1`、draft-07)を新規追加。Capability Resolver
+  (`resolve-project-context`、T-002〜T-004 で実装予定)が毎回の呼び出しで
+  出力する、この機能唯一の新規アーティファクト
+  `specs/<feature>/resolver-evidence.yaml` の構造契約を固定する。
+  `capability_evaluations[]` は Registry の `capabilities[]` と exact-set
+  対応し、`matched: false` の場合は `conditional_facet_evaluations` キー
+  自体を持てない (`if`/`then`)。`diagnostics[].id` は REQ-002 の16値
+  closed enum。新スイート `tests/resolver-evidence-schema.tests.sh` /
+  `.ps1` が、スタンドアロンの stdlib-only Python 検証器
+  (`tests/resolver-evidence-schema-check.py`、draft-07 のこの契約が使う
+  キーワードのみを実装した hand-rolled サブセット検証器。第三者ライブラリ
+  なし)を介して、hand-crafted な有効/無効フィクスチャ12件
+  (`tests/fixtures/capability-resolver/resolver-evidence-schema/`)を
+  この契約に対して直接検証する — ライブの Registry/Resolver 呼び出しは
+  一切行わない(それは T-002〜T-004 の範囲)。`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイートを直接登録。受け入れ先行
+  (acceptance-first、medium tier)で RED
+  (`specs/epic-193-a5-capability-resolver/verification/T-001-red-sh.log`,
+  `T-001-red-ps1.log`: スキーマ不在によりスイートが fail)→ GREEN
+  (`T-001-green-sh.log`, `T-001-green-ps1.log`)の順で実装。
+
+  **人手適用待ち(HUMAN APPLY STEP)**: R-10 保護ファイルである
+  `.github/workflows/test.yml` は、その human-copy ステージング先
+  (`specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml`)自体も同一の保護 suffix 判定に一致し、エージェントによる
+  書き込みが hook-guard により deny された(迂回は行っていない)。意図した
+  完全な補正版(既存ライブ内容+本スイートの新規CIステップ2件)は
+  `reports/implementation/epic-193-a5-capability-resolver/T-001.md` の
+  Human Apply Step セクションに sha256
+  (`aadf23b77f53bb5ce057295f8880f9815f3d591e2e97afedb910241d6892209b`)
+  とともに記載済み。`MANIFEST.sha256` はこのハッシュ値を記録済みだが、
+  対応する `test.yml` 自体は human-copy 配下にまだ存在しない — 人間が
+  報告書の内容を直接適用し、ハッシュ一致を確認する必要がある。
+  詳細は `reports/implementation/epic-193-a5-capability-resolver/T-001.md`
+  を参照。
 - **Registry validator + provider-terms allowlist (Issue #190,
   epic-190-a2-capability-registry T-004)**:
   `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}`

@@ -1,0 +1,41 @@
+FAIL: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch): got 0 stderr=''
+FAIL: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed): stdout='' stderr=''
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)
+PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
+FAIL: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
+FAIL: full-pipeline-match: Resolver Evidence readable: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-swfixqsb/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-advisory: exit 1: got 0 stderr=''
+FAIL: enforcement-byte-identity-advisory: canonical diagnostic only: stdout='' stderr=''
+FAIL: enforcement-byte-identity-advisory: state field records 'advisory': [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-enf-11b1itgd/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-advisory: Resolver Evidence schema agreement: evidence absent
+PASS: enforcement-byte-identity-advisory: no partial live artifact
+FAIL: enforcement-byte-identity-required: exit 1: got 0 stderr=''
+FAIL: enforcement-byte-identity-required: canonical diagnostic only: stdout='' stderr=''
+FAIL: enforcement-byte-identity-required: state field records 'required': [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-match-enf-vf9qgfr9/specs/example-feature/resolver-evidence.yaml'
+FAIL: enforcement-byte-identity-required: Resolver Evidence schema agreement: evidence absent
+PASS: enforcement-byte-identity-required: no partial live artifact
+FAIL: enforcement-byte-identity: both advisory/required Resolver Evidence readable
+Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 541, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 529, in main
+    run_facet_manifest_state_independence_check(resolver_module, counts)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/tests/resolve-project-context-match-check.py", line 504, in run_facet_manifest_state_independence_check
+    params = set(inspect.signature(resolver_module._assemble_facet_manifest).parameters)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'resolve_project_context_oracle' has no attribute '_assemble_facet_manifest'
+
+NOTE (T-005 RED capture method, PowerShell launcher): identical revert
+technique as red-sh.log (same document); this run additionally launches
+the CLI under test via `pwsh -File resolve-project-context.ps1` (the
+`--launcher ps1` value threading through this task's own driver's
+`launcher_args`), while the Python driver/oracle-reconstruction logic
+itself is runtime-independent. The pre-T-004 `.ps1` dispatcher already
+delegated unconditionally to the identical, then-pre-T-004 `.py` master
+(T-002's own established parity), so this run's own failure pattern
+matches red-sh.log's exactly. resolve-project-context.py was restored to
+its exact HEAD (T-004) content immediately after this capture, verified
+byte-identical via `diff`.

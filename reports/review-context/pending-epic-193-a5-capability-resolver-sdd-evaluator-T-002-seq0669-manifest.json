@@ -1,0 +1,170 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "task_id": "T-002",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-002-seq0669",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-002-0669",
+  "sequence": 669,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "8509e75a54afd36e720ed57d5a2ecfd84888274e029c78a84b3591ec00d392db",
+  "previous_record_sha256": "bf556045592efff1c80efef6250da971aae5643bed5992cef0b4eb357768ade4",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+      "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+      "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "9d88304142b01219ea4935a2753153af84ddc098edfd9a26e0dce2b2f51d26cc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+      "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-002.md",
+      "sha256": "22edd621811ac6e07c0515487917c5d2ad1daea90066f40f73557a35c4662a88"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "0b228bee3f42c21b78b8c12253b0252764c0c0f3198a039901507322f854daa1"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "f19ba9155a51ff335351962056b281c94c3ffe752796781b408a872f91bbff78"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "55094255c977072e667f517a67bc3a6c128d2a7703d0983f0cf1c7e51cd43770"
+    },
+    {
+      "path": "tests/resolve-project-context-block.tests.sh",
+      "sha256": "330ff957b81b9555f82040491c8ab11114ba88bebe8dc22448b46519b6a744be"
+    },
+    {
+      "path": "tests/resolve-project-context-block.tests.ps1",
+      "sha256": "88cac0e1ab250bd1e5c254950146bd8bae63ade2a34eb5e827b3bde60d6474f2"
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "sha256": "e1fceb42cb727d3adfdc9c42abc231a2ed7ae0fb5b111409dcecd2b24e7297e4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/canonicalize-sdd-yaml.py",
+      "sha256": "d4fc38410ab6783feebcdfcd83a33f36dfe05a95616bea9915eff44229041e8f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/project-context.yaml",
+      "sha256": "3e6f3f19f2305735fc202a2c8ba7214e641f43f60b18aee59bc38f1c2e4033a8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/canonicalize-sdd-yaml.py",
+      "sha256": "5c03e3a40fc22a6b84be1f84fd74643745686150984b35dd97aa9de50763be09"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/project-context.yaml",
+      "sha256": "ace500086f147c22e5e567105f0fc4f84becca78c35f3242556ad798cda3adb9"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/project-context-validation-failed/missing-enforcement.yaml",
+      "sha256": "70bef174f2ac3ce391f8705eb75aeba6df8f5a9e57d306dc73a96e5d90e20962"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/full-lite-layout.yaml",
+      "sha256": "314e462c73fb27f5ac4b191a4e4007f38292e9976ae687f802bb91dae48130a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/lite-wrong-layout.yaml",
+      "sha256": "9f7a3e766432f0fd93fb66bf62b8a1f751103cd98f2b2e8bbcaa2c5dde4997e3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py",
+      "sha256": "82ebec8b2fa1e21f621b50b72efe0ffebd7d08695147b931b31bac8446a37599"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/omits-components.yaml",
+      "sha256": "4b61a1c2bfafa72688216d30e267ad74edf2c6cfdf48c3767d26c7ba16f2094b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/two-components.yaml",
+      "sha256": "d6689e8863fd3a8d464c3febfedf14a87018e8ec17ec7a4ed6147ae3ee80d4ae"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+      "sha256": "ffa4a078ada56b2f1b45d14db906d72d8d674520f965ffcc94991e815e51ae9f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+      "sha256": "752d65b54a464e307c8cb2c7d0e572643b35629ce14183058a755b3c4dff0483"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+      "sha256": "d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "75cee723f66d916778d65261afdb9113b402b31a3cd07a3325b502119b91f9d8"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+      "sha256": "03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/blocker-preflight.log",
+      "sha256": "59f93ebe27653e55f9e4ac0d32d7d550b599caf41fbc4277377b6b2f5fa125e7"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/green-ps1.log",
+      "sha256": "faf5105cc339afc665896d622452cbce4c074f02c73a6c8245a4841f5cdc1424"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/green-sh.log",
+      "sha256": "636f4b496bb607c6c6c4207b652ec9c4c1ed646b3827af8651b6d4a5d648df8f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/red-ps1.log",
+      "sha256": "7bf718a5e1276b6ee8377fdc30f92ab6bed8e16ea9f444e6fd1a4d0cc60a6240"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/red-sh.log",
+      "sha256": "fe1cdf5011480caa1008b790e3da89f6adf0cbdbb7054604b543cbe0e6aa70fc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-002/step3-mutation-evidence.log",
+      "sha256": "0860ad82b53e8213009374113ac9be4cd35ed95a0055d324b621a387a6f9c003"
+    }
+  ]
+}

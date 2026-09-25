@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a5r1-seq0794",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a5r1-0794",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "1028bf2c256f337971c7bb669133209fe96550bbcdc7d8460710d9d9a2bda0af"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-5/round-1/precheck-result.json",
+      "sha256": "6e036497fa428c530531c02be7c7172bd93488504492ff16c06ea6507cae5440"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-5/round-1/integrated-summary.json",
+      "sha256": "e0091ec2e4137ce8d857901664358d3cc1a7f47b9a00dd4e0cba0a6e50d24524"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, states, and diagnostic conditions are concrete and closed-enumerated (16-row Block taxonomy, 12-value validator enum, exact CLI flags/algorithm). One internal cross-reference (requirements.md:368 'step 5' alongside 'step (e)' for the same read) is self-resolvable from the same sentence and does not meet the downstream-implementer-cannot-decide bar."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-002/REQ-003/AC-016/AC-056 amendments (rulings A(1)/B(1)/C(1)/C(2)) are each framed and cross-referenced as explicit addenda to, not conflicts with, their governing rows; diagnostic-id counts (16, 12) match their own prose claims; no direct requirement/AC/non-goal conflict found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section and AC-038/039/040/041/047/048/049/055/057/058 cover zero-affected-components, any-branch WARN, duplicate-facet aggregation, TOCTOU pre- and post-publication races, crash recovery, and the two new C(1)/C(2) sub-triggers with dedicated fixtures."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three stated Assumptions each name a fallback re-verification procedure if the assumption fails to hold by implementation time, matching sibling-epic precedent; none is left as an unresolved open decision."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The disabled-legacy fail-closed Block (a caller-contract/workflow boundary) is testable via AC-015/AC-042; the protected-path human-copy boundary is testable via AC-026's staged-candidate/MANIFEST.sha256 requirement, appropriately deferred to a human action at implementation time."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001's lettered processing sequence, REQ-002's closed diagnostic taxonomy, and REQ-004's field-by-field Resolver Evidence shape leave no product-behavior decision for a design reviewer to invent."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory found at repository root (Glob domain/context-map.md returned no match); check does not apply."
+    }
+  ]
+}

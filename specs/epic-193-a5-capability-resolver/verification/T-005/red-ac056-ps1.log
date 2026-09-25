@@ -1,0 +1,60 @@
+PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)
+PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
+PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
+PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
+PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
+PASS: full-pipeline-match: Resolver Evidence schema agreement
+PASS: full-pipeline-match: no partial live artifact
+PASS: full-pipeline-match: independently-recomputed affected_components matches the fixture's own three components
+PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
+PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- white-box: never written to any live path pre-T-007, so cross-invocation/cross-runtime identity is a structural consequence of .sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)
+PASS: full-pipeline-match: required_facets (AC-007)
+PASS: full-pipeline-match: capabilities (AC-007)
+PASS: full-pipeline-match: resolved_gates (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
+PASS: full-pipeline-match: lite_eligibility (AC-007)
+PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'solo-never-facet' (single contributing instance, not applied) names cap-alpha[2] in its own reason (AC-043's own N/A-reason case)
+PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
+PASS: enforcement-byte-identity-advisory: exit 1
+PASS: enforcement-byte-identity-advisory: canonical diagnostic only
+PASS: enforcement-byte-identity-advisory: state field records 'advisory'
+PASS: enforcement-byte-identity-advisory: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-advisory: no partial live artifact
+PASS: enforcement-byte-identity-required: exit 1
+PASS: enforcement-byte-identity-required: canonical diagnostic only
+PASS: enforcement-byte-identity-required: state field records 'required'
+PASS: enforcement-byte-identity-required: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-required: no partial live artifact
+PASS: enforcement-byte-identity: Resolver Evidence byte-identical across advisory/required except state (AC-016)
+PASS: enforcement-byte-identity: _assemble_facet_manifest takes no state/capability_enforcement parameter (structural proof the Facet Manifest itself is enforcement-independent on the Full track, AC-016 remainder)
+PASS: warn-cardinality-single-node: exit 1
+PASS: warn-cardinality-single-node: canonical diagnostic only, no upstream stderr embedded (M8)
+FAIL: warn-cardinality-single-node: exactly 1 severity:warn entry, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}]
+PASS: warn-cardinality-single-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-single-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-single-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-single-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-single-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-single-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-single-node: no partial live artifact
+FAIL: warn-cardinality-single-node: the severity:warn entry's own detail names this node's own capability_id/component_id location (AC-056): []
+PASS: warn-cardinality-multi-node: exit 1
+PASS: warn-cardinality-multi-node: canonical diagnostic only, no upstream stderr embedded (M8)
+FAIL: warn-cardinality-multi-node: exactly 3 severity:warn entries, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}]
+PASS: warn-cardinality-multi-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-multi-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-multi-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+FAIL: warn-cardinality-multi-node: each of the three severity:warn entries names its own distinct component_id location (AC-056): []
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 55 passed, 4 failed

@@ -1,0 +1,24 @@
+diff --git a/tests/run-all.sh b/tests/run-all.sh
+--- a/tests/run-all.sh
++++ b/tests/run-all.sh
+@@ -43,0 +44,12 @@
++# Scratch-root isolation is a Python suite because it exercises both shipped
++# validators. Keep it outside the Bash-only inventory and continue collecting
++# independent failures in the same way as the shell suites.
++if command -v python3 >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then
++  echo "==> tests/issue311-scratch-isolation.tests.py"
++  if ! python3 tests/issue311-scratch-isolation.tests.py --repo "$ROOT"; then
++    echo "FAILED: tests/issue311-scratch-isolation.tests.py"
++    failed+=("tests/issue311-scratch-isolation.tests.py")
++  fi
++else
++  echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
++fi
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -33,0 +34,3 @@ jobs:
++      - name: Test evaluator scratch isolation (Bash and PowerShell)
++        shell: bash
++        run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+       - name: Test guard dispatch fallback

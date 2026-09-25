@@ -35,5 +35,11 @@
     "operator-signature-replayed-as-reviewer",
     "malformed-public-key",
     "malformed-signature"
+  ],
+  "t008_acceptance_cases": [
+    "TEST-013",
+    "TEST-014",
+    "TEST-015",
+    "TEST-016"
   ]
 }

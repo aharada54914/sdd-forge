@@ -407,6 +407,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-193-a5-capability-resolver",
+      "profile": "full"
+    },
+    {
       "feature": "sdd-domain-concept-contract",
       "profile": "full"
     },
@@ -420,6 +424,10 @@
     },
     {
       "feature": "epic-195-a7-compatibility",
+      "profile": "full"
+    },
+    {
+      "feature": "sdd-domain-multitarget",
       "profile": "full"
     },
     {

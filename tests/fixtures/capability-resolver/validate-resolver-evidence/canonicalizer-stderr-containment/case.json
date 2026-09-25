@@ -1,0 +1,14 @@
+{
+  "description": "Major 1 (B5): the canonicalizer fails under both declared input formats while emitting distinctive garbage on stderr; this validator must report a canonical, Resolver-owned refusal naming WHICH attempts failed and must never copy that raw stderr into its own diagnostic line",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "canonicalizer-invocation-failed"
+  ],
+  "forbidden_strings": [
+    "CANARY_RAW_STDERR_LEAK_9f3b",
+    "/Users/secret-operator/private/leak-target.yaml",
+    "line 42"
+  ]
+}

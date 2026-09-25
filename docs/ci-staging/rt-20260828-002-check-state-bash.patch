@@ -1,0 +1,36 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+index c964e96b..a7ca2207 100755
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+@@ -85,0 +86 @@ function finish() {
++  contract_risk = ""
+@@ -143,0 +145,23 @@ function finish() {
++    # Check contract risk for Done tasks
++    if (PYTHON_CMD != "") {
++      py_risk_cmd = PYTHON_CMD " -c \"import json; c=json.load(open(\\\"" contract_path "\\\")); r=c.get(\\\"risk\\\"); print(r if r is not None else \\\"\\\")\" 2>/dev/null"
++      py_risk_cmd | getline raw_risk; close(py_risk_cmd)
++      contract_risk = tolower(raw_risk)
++      gsub(/^[ \t]+|[ \t]+$/, "", contract_risk)
++      if (contract_risk != "") {
++        if (risk != "" && contract_risk != risk) {
++          fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
++        }
++      }
++    } else {
++      raw_risk = ""
++      grep_risk_cmd = "grep -E \"^[[:space:]]*\\\"risk\\\"[[:space:]]*:[[:space:]]*\\\"[^\\\"]+\\\"\" \"" contract_path "\" | sed -n \"1s/.*:[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p\" | tr \"[:upper:]\" \"[:lower:]\""
++      grep_risk_cmd | getline raw_risk; close(grep_risk_cmd)
++      contract_risk = raw_risk
++      gsub(/^[ \t]+|[ \t]+$/, "", contract_risk)
++      if (contract_risk != "") {
++        if (risk != "" && contract_risk != risk) {
++          fail(task " contract risk \047" contract_risk "\047 does not match tasks.md risk \047" risk "\047")
++        }
++      }
++    }
+@@ -158,0 +183,2 @@ function finish() {
++  # Effective risk for Done tasks: use contract_risk if non-empty, else tasks.md risk
++  effective_risk = (status == "Done" && contract_risk != "") ? contract_risk : risk
+@@ -160 +186 @@ function finish() {
+-  if (status == "Done" && risk == "critical") {
++  if (status == "Done" && effective_risk == "critical") {

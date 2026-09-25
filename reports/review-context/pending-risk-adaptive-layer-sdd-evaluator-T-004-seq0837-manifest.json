@@ -1,0 +1,82 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "risk-adaptive-layer",
+ "task_id": "T-004",
+ "run_id": "RUN-risk-adaptive-layer-qg-T-004-seq0837",
+ "host_session_id": "SESS-qg-risk-adaptive-layer-T-004-0837",
+ "sequence": 837,
+ "previous_record_sha256": "488e37de5e4bb7a2dbba27f6c0a247ab36ef3b795684c27d9e09e43137439fcc",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "24956389b871ad9bd104111126f7cf90759485421b9bad8dad6432b353cf4836",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/risk-adaptive-layer/requirements.md",
+   "sha256": "6eeaa30e8c8348a8bb8e0f08c45ce3b7df0ee0725729a9adcf7438971542e7f0"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/design.md",
+   "sha256": "38b39607eda436d25f72748cd3df99db254c7070d15452702084b7958ff7f3ca"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+   "sha256": "bebcc8b7222d27dba533ced804898a6829f297cfff208013e807826e10201a73"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/tasks.md",
+   "sha256": "a2ba274d182c747359745406d41f95d7bfbaf821d812d67f468302d80c4359e6"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/traceability.md",
+   "sha256": "218b70f1877464b31834dad19558f7085cc30489ce49daa51fa448831677f6de"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/risk-adaptive-layer/T-004.md",
+   "sha256": "cfabe0141953457a5c7d77091da84813e7e28726e241125564666bae200c8bda"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+   "sha256": "df5024e272dbed45e693726d7b9e77440f11489d5484bf768653509bf1f12fd6"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+   "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-004.green.log",
+   "sha256": "003630cd6a7e2730899f67cce9cf38ea0c73db8f37933a697c39e9c0d7e76662"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-004.red.log",
+   "sha256": "ae00cb4ddf493a62daf597294c5ec72a5dbd187d0e1d5c119751d649f3240834"
+  },
+  {
+   "path": "tests/gates.tests.sh",
+   "sha256": "28eb94559159bf881c82b1a6dd0d884e9d38bbb2109517e61e4df5b4f321221f"
+  },
+  {
+   "path": "tests/scripts.tests.ps1",
+   "sha256": "255987cf0efce47b5ac46d5a484f95b166e51f7a2116ce964910de4792481a07"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+   "sha256": "50257bb16d2fd7820798bc1033244e233d20a6572cc465a48b72cbecb20cc6ac"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/differential-test-policy.md",
+   "sha256": "2d33e60894e7b736d64b4e227fad22e8da8d00de04742356468b2957c8497ca0"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260821T052500Z.md",
+  "sha256": "426a0d7cb7717d864cead8aca9c7a1ed5c0400d8ae034cc329a3b794b864fa7f"
+ }
+}

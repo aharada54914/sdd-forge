@@ -1,0 +1,37 @@
+{
+  "schema": "a8-skip-allowlist/v1",
+  "entries": [
+    {
+      "case_id": "AC-006",
+      "reason": "The hook-activation canary remains presence-only in T-001; Epic A1 live-host handshake verification is tracked by issues #189 and #187 and is owned by T-005.",
+      "upstream_epic_a1_commit": "c0aaf3a639f4cb4798b16acd115f0b05db44493f",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "62a8841c21fee332e83d7bc052dde93f6ab0d1f2",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "786a07d0cc5c48a46e35f066640d9b0c53708c43",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1": "2a1f04e019df351abd2fce038611cf23347f445e"
+      }
+    },
+    {
+      "case_id": "AC-015",
+      "reason": "Live-host semantic-cell evidence remains an unsigned draft SKIP until the human apply step and Epic A1 activation gate are satisfied; tracked by sdd-forge issue #189 and epic #187.",
+      "upstream_epic_a1_commit": "c0aaf3a639f4cb4798b16acd115f0b05db44493f",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "62a8841c21fee332e83d7bc052dde93f6ab0d1f2",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "786a07d0cc5c48a46e35f066640d9b0c53708c43",
+        "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1": "2a1f04e019df351abd2fce038611cf23347f445e"
+      }
+    },
+    {
+      "case_id": "AC-016",
+      "reason": "Epic A1's five hook-consuming entry points remain a fingerprinted draft SKIP until the human apply step and activation gate are satisfied; tracked by sdd-forge issue #189 and epic #187.",
+      "upstream_epic_a1_commit": "c0aaf3a639f4cb4798b16acd115f0b05db44493f",
+      "upstream_epic_a1_path_blob_ids": {
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "548112c966227a6f1d983a2a4c17e0e5c61a83de",
+        "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "c3adc68681c4fabf0ebad6d2f6ef4af299af5327",
+        "plugins/sdd-lite/skills/lite-gate/SKILL.md": "5ca654fa714b182dcbd488b40517b924f7428e63",
+        "plugins/sdd-lite/skills/lite-spec/SKILL.md": "111c240d1959f7449a8dc0030a64a8d0d4138b4f",
+        "plugins/sdd-ship/skills/ship/SKILL.md": "74b04579a9ad0527f345d7bbacc619f59c748e1c"
+      }
+    }
+  ]
+}

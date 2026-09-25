@@ -15,9 +15,10 @@ WORKFLOW = pathlib.Path(sys.argv.pop(1)) if len(sys.argv) > 1 else (
     pathlib.Path(__file__).resolve().parents[1] / '.github/workflows/test.yml'
 )
 REQUIRED = (
-    'test', 'installers', 'loops-routing', 'version-gates', 'mcp-tests',
+    'test', 'test-windows-heavy', 'installers', 'loops-routing', 'version-gates',
+    'version-gates-windows-bump', 'version-gates-windows-lanes', 'mcp-tests',
     'local-env-mcp-tests', 'ci-mcp-tests', 'cli-hook-enforcement',
-    'posix-regression',
+    'posix-regression', 'posix-unwired-sharded',
 )
 
 

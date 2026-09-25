@@ -65,7 +65,10 @@ The selector reads the approved task's `Risk:` and verifies it against
 routing. Missing, invalid, or policy-inconsistent risk fails before any model is
 selected. Predicted attempts come from the REQ-001 matrix. Minimum attempts win;
 ties select the lower canonical tier; equal-tier candidates compare the
-invocation-supplied decimal cost and then lexical `provider/model`.
+invocation-supplied decimal cost, then prefer models NOT flagged
+`fallback_for` in the capability registry over flagged fallbacks (a fallback
+is selected only when it is strictly cheaper or no primary remains), and
+then lexical `provider/model`.
 
 Canonical provider mappings are:
 

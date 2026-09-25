@@ -4,6 +4,7 @@ param(
     [string]$Validator = "",
     [ValidateRange(0, [int]::MaxValue)]
     [int]$InjectApplyFailureAfter = 0
+    , [switch]$InjectFinalVerificationFailure
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -136,7 +137,8 @@ try {
         $null -ne (Get-Item -LiteralPath $Contract).LinkType) {
         Fail-Rollback "ROLLBACK_CONTRACT" "contract must be a regular non-symlink file"
     }
-    if (@(Invoke-Git -C $repo status --porcelain=v1 --untracked-files=all).Count -ne 0) {
+    $statusOutput = (@(Invoke-Git -C $repo status --porcelain=v1 --untracked-files=all) -join "`n").Trim()
+    if ($statusOutput.Length -ne 0) {
         Fail-Rollback "ROLLBACK_DIRTY" "repository must be clean"
     }
 
@@ -202,7 +204,11 @@ try {
     }
 
     $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("sdd-rollback-" + [guid]::NewGuid())
-    $stage = Join-Path $tempRoot "stage"
+    # Historical 1.4.0 workflow manifests may contain absolute paths whose
+    # repository component is `sdd-forge`. Keep that component on the isolated
+    # worktree so the pinned validator can canonicalize those paths by
+    # repository identity without rewriting or weakening its checks.
+    $stage = Join-Path $tempRoot "sdd-forge"
     $backup = Join-Path $tempRoot "backup"
     New-Item -ItemType Directory -Path $tempRoot, $backup -Force | Out-Null
     & git -C $repo worktree add --quiet --detach $stage $baseline
@@ -314,16 +320,37 @@ try {
         Fail-Rollback "ROLLBACK_APPLY" "apply failed; original tree restored byte-for-byte ($applyError)"
     }
 
+    $finalVerificationFailed = $false
     foreach ($entry in @($data.files)) {
         $target = Join-Path $repo $entry.path
         if ($null -eq $entry.baseline_sha256) {
             if (Test-Path -LiteralPath $target) {
-                Fail-Rollback "ROLLBACK_APPLY" "post-apply path should be absent: $($entry.path)"
+                $finalVerificationFailed = $true
             }
         } elseif (-not (Test-Path -LiteralPath $target -PathType Leaf) -or
             (Get-LowerHash $target) -cne $entry.baseline_sha256) {
-            Fail-Rollback "ROLLBACK_APPLY" "post-apply hash mismatch: $($entry.path)"
+            $finalVerificationFailed = $true
         }
+    }
+    if ($InjectFinalVerificationFailure) { $finalVerificationFailed = $true }
+    if ($finalVerificationFailed) {
+        try {
+            foreach ($state in $backupState) {
+                $target = Join-Path $repo $state.Path
+                if (-not $state.Present) {
+                    Remove-Item -Force -LiteralPath $target -ErrorAction SilentlyContinue
+                } else {
+                    New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+                    Copy-Item -Force -LiteralPath (Join-Path $backup $state.Path) -Destination $target
+                    if ((Get-LowerHash $target) -cne $state.Hash) {
+                        throw "restored hash mismatch: $($state.Path)"
+                    }
+                }
+            }
+        } catch {
+            Fail-Rollback "ROLLBACK_RESTORE" "final verification failed and original tree could not be restored"
+        }
+        Fail-Rollback "ROLLBACK_APPLY" "final verification failed; original tree restored byte-for-byte"
     }
     Write-Output "ROLLBACK_OK: 1.5.0 -> 1.4.0 complete"
 } finally {

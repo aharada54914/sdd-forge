@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a11r1-seq0851",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a11r1-0851",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "f2247851e7f6f7f9876bf7cf6d80b44234ef4b0c141499b965dba177c9e2fe22"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "c2837dddd02a319011faf0db2410b389bcec885b12ac28b6dc0477737ca0dda9"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-11/round-1/precheck-result.json", "sha256": "1aeb024bec7ec24f003bcf7fd3f68a546cb3bcccf1f0e70eebd3e16882e4789c"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001 through REQ-008, requirements.md:221-836) is stated as a concrete, fixture-verifiable procedure: REQ-001's sixteen-step processing sequence, REQ-002's closed sixteen-row diagnostic taxonomy, REQ-003's byte-identity scope, REQ-004's exact-set/cardinality Evidence rules, REQ-005's determinism/parity guarantees, REQ-006's fixture matrix, REQ-007's design-content citations, and REQ-008's per-task discipline are all measurable via named fixtures or grep self-checks in acceptance-tests.md. No in-scope requirement is stated only as intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ (goal) maps to at least one AC row in requirements.md's Acceptance Criteria table (lines 917-977) and a corresponding TEST row in acceptance-tests.md (lines 65-120): REQ-001 (AC-001-009, AC-038, AC-043, AC-052, AC-059), REQ-002 (AC-010-014, AC-039-041, AC-047-049, AC-055, AC-057-058), REQ-003 (AC-015-016), REQ-004 (AC-017-021, AC-044, AC-050-051, AC-054, AC-056), REQ-005 (AC-022-024), REQ-006 (AC-026-028, AC-045), REQ-007 (AC-029-032, AC-042, AC-046, AC-053), REQ-008 (AC-033-034). No goal is left untraced."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outcomes throughout: specific fixture behaviors, exit codes, file existence/non-existence, byte-identity comparisons, and grep self-checks (e.g. AC-011's 'none of the three paths exists, or is unchanged... after a Blocked run', AC-013's exit-code contract, AC-025/AC-059's repository-wide grep self-checks). No AC rests on unverifiable intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (lines 838-890) explicitly excludes building the Resolver itself, editing any Epic A1-A4 contract file, adding a Registry field, re-specifying check-component-coverage, implementing compare-facet-manifest-staleness's caller, computing full effective enforcement, editing SKILL.md, authoring a new ADR, and running review loops against this package. Scope is bounded concretely."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Security Boundaries section (requirements.md:1293-1340+) fixes the Resolver's write-path allowlist and denylist (including the approval-surface denylist locked by AC-059/TEST-059, now correctly scoped to the Resolver alone per the Field Definitions' 'Resolver' term, requirements.md:981-984, and acceptance-tests.md:120), transactional/rollback scope rules, and CLI-misuse framing. Data/compatibility constraints (schema reuse, digest binding, discovery contract) are stated throughout Dependencies. No material constraint implied by the requirements is left unstated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:1440-1540+) names each high-risk claim with an explicit validation surface: the Lite-track required-enforcement gap cites investigation.md INV-019 and is bounded by the narrowed lite-check-source-undefined diagnostic (REQ-002) plus AC-009/AC-010's fixture matrix; the new orchestration decisions (multi-component matching, facet-name aggregation) cite AC-006/AC-043 and design.md Design Decisions; the anchor-fingerprint drift risk explicitly names its interim mitigation (recorded sha256/ordinal pair, AC-053) and its deferred-suite discharge path rather than leaving it silently unvalidated."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in the target project (Glob for `domain/*` returned no files), so the Approved domain-model precondition for this check is absent. Skipped per the explicit skip condition."
+    }
+  ]
+}

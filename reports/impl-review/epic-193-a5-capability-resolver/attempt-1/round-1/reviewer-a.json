@@ -1,0 +1,108 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-seq0326",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-193-a5-capability-resolver-0326",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "9cfe0ae51a78a50183f3fa3d3df5b6e3fd3dd1bfe7be2c43ef0ddcd03bb7c668"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+      "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+      "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+      "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-1/precheck-result.json",
+      "sha256": "dfcd4f3134f0c5ad6a023d0d8747106d795b95a8e44920b07983019d63b6b05b"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md '## Architecture' (design.md:61-181) gives a 120+-line pipeline diagram naming every processing stage (state derivation, canonicalize-sdd-yaml, Context Projection assembly, resolve-component-paths, Registry discovery, evaluate-predicate fan-out, WARN check, track branch, Resolver Evidence assembly, pre-publication recheck, atomic commit) and explicitly describes how this feature integrates with Epic A1/A2/A3/A4's already-Passed components (each labeled inline, e.g. '(A1)', '(A3)', '(A2, ADR-0025)') -- far more than a one-sentence description that merely names components. Technology choices are fixed immediately adjacent, not restated inline in the Architecture prose itself: the Components table (design.md:182-194) gives a Technology column (Python; POSIX sh/PowerShell; JSON Schema; YAML) for every component Architecture names, and Layer Specifications (design.md:299-306) states Frontend/Infra are N/A with rationale (no UI, no new runtime deployment). No implementation ambiguity results from the technology statement living in the adjacent Components table rather than inside the Architecture section's own prose block."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture (design.md:61-181) and Cross-Layer Dependencies (design.md:321-393) describe only one-directional, upstream-only dependencies: this feature's Resolver depends on Epic A1's canonicalize-sdd-yaml, Epic A2's evaluate-predicate/generate-registry-digest/Registry, Epic A3's resolve-component-paths, and Epic A4's three schemas; no sibling epic or component is stated to depend back on this feature's own Resolver, and this feature's own Non-goals (requirements.md:695-701) explicitly forbids editing any of those upstream contract files. The pipeline itself is a strict linear DAG (state derivation -> canonicalize -> Context Projection -> resolve-component-paths -> Registry discovery -> evaluate-predicate -> WARN check -> track branch -> Evidence assembly -> recheck -> commit) with no back-edge found in either section."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' section (design.md:447-671) gives an explicit 'Data Entities:' list (design.md:449) and an explicit 'Migration Strategy:' statement (design.md:660, 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature'), but never gives the third check-required sub-field label, 'Existing Data Affected:' (confirmed absent by grep across the whole file). The section does discuss reads of existing sibling-epic artifacts in prose -- 'Registry Capability read set (Epic A2, read not redefined)' (design.md:536) and 'Context Projection read set (Epic A4, read not redefined...)' (design.md:554) -- but never under the required label, and the section never states an explicit 'no existing data modified' sentence for that sub-field the way it does for Migration Strategy. A downstream reviewer or tool relying on the canonical three-labeled-sub-field Data Plan structure this check's own contract requires will not find an 'Existing Data Affected:' field at all."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## API / Contract Plan' section (design.md:672-1635) is not empty: it exhaustively specifies the CLI contract (flags = request shape) and output-artifact/exit-code contract (response shape) for both new scripts this feature introduces (resolve-project-context.{py,sh,ps1}; validate-resolver-evidence.{py,sh,ps1}) -- the CLI-feature equivalent of endpoint-level request/response schemas. Whether any existing contract is deprecated or breaking-changed is addressed specifically, if not with the literal words 'deprecated'/'breaking': Non-goals (requirements.md:695-701) states this feature edits no existing Epic A1-A4 contract file, and the ADR Change Log (design.md:411-417) states 'this feature adds no field to any of the three [Epic A4 schemas], and does not redefine context_binding's meaning...' -- i.e., purely additive, nothing existing is deprecated or changed."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Security Boundaries' section (design.md:2218-2272) names every trust boundary this feature crosses (canonicalizer subprocess parse boundary; publication transactional-bundle boundary; protected-file-reservation boundary; no-credential/no-network boundary) and states the authz mechanism at each (guard-invariants.json suffix-match deny for the two Epic-A1-reserved paths; fail-closed CLI-misuse Block for disabled-legacy). PII data classification is addressed in the normative-refinement security-spec.md Data Classification table ('No Facet Manifest, Capability Summary, Context Projection, or Resolver Evidence field carries a credential, secret, or PII value', security-spec.md:118-122), and OWASP Top-10 concerns are addressed in security-spec.md's explicit OWASP Mapping table (security-spec.md:124-133) covering Injection, Software and Data Integrity Failures, Security Misconfiguration, Broken Access Control, Cryptographic Failures, and Identification/Authentication Failures."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is a cli/library-shaped feature, not fullstack. design.md's Feature Type header (design.md:4-9) describes this feature as 'one new deterministic script family...plus companion validator scripts...one new contracts/resolver-evidence.schema.json contract, and a documented (not implemented) caller-side integration contract' -- no browser/client UI and no new runtime service. design.md contains no '## Frontend Plan' or '## Backend Plan' section; Layer Specifications (design.md:299-306), ux-spec.md, and frontend-spec.md all explicitly state 'N/A -- no UI/browser surface, no client-side state, no routes, no API client'. This matches the check's skip condition for a non-fullstack (cli) feature type."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Test Strategy' section (design.md:1636-1873) names ten concrete suite files under tests/*.tests.sh/.ps1 with fixture paths under tests/fixtures/capability-resolver/, each mapped to specific AC-NNN criteria via acceptance-tests.md's own AC<->TEST-NNN table. Unit-level scope: items 1/2/3/4/7 (CLI flags, 16-row Block-diagnostic matrix, match/WARN matrix, Lite track, schema fixtures). Integration-level scope: item 9(g) ('a dependency-invocation-order spy fixture...asserting this invocation's own subprocess call order is exactly canonicalize-sdd-yaml...resolve-component-paths...Registry discovery...evaluate-predicate') and item 6 (discovery contract across every script). Acceptance-criteria verification: explicit AC-NNN<->TEST-NNN mapping. Concrete planned evidence: exact suite/fixture names, tests/run-all.sh/.ps1 registration, staged test.yml candidate (design.md:1867-1873). An end-to-end/user-journey path is explicitly named for this CLI feature's one live integration point: item 10, 'resolve-project-context-caller-contract' (design.md:1836-1865), a contract test against the live sdd-bootstrap-interviewer/SKILL.md."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component this feature's own design defines and references (resolve-project-context.*, validate-resolver-evidence.*, contracts/resolver-evidence.schema.json, generated/project-context.resolved.json, per-Feature *.yaml artifacts, SKILL.md) is defined in the '## Components' table (design.md:182-194). External components referenced in Architecture/API-Contract-Plan (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, generate-registry-digest, capability-registry.json) are not redefined in this feature's own Components table, but are identifiable, established sibling-epic components, each cited with its own investigation.md finding (INV-004 Epic A4 schemas; INV-005 Epic A2 evaluator/digest/discovery; INV-006 Epic A3 resolve-component-paths; INV-007 Epic A1 canonicalizer) -- satisfying the check's own exception for an already-established system component identifiable from investigation.md."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's ADR Change Log (design.md:394-417) states 'Every design decision this package makes is already recorded in docs/adr/0016-workflow-axes-separation.md, ..., docs/adr/0021-context-projection-staleness.md, docs/adr/0023-track-selection-contract-migration.md, and (in the Epic A2 worktree) docs/adr/0025-registry-discovery-contract.md', citing the last as a normal file path. 'ls docs/adr/' in this worktree (/Users/jrmag/Projects/active/sdd-forge-wt-epic-193) returns only 0001-0024 plus README.md -- docs/adr/0025-registry-discovery-contract.md does not exist as a file here, though it is referenced roughly twenty times across design.md/requirements.md/investigation.md as the normative basis for this feature's own Discovery contract (design.md:1614-1634) and every contracts/* artifact lookup this feature's scripts perform. design.md and investigation.md (INV-005, INV-020, INV-021) both self-disclose this ('Accepted in the Epic A2 worktree...not yet present in this worktree's own docs/adr/'), so it is not an undisclosed defect, and the design's own prose restates ADR-0025's three-step discovery procedure verbatim, so the design remains implementable without the file present. It is nonetheless the exact file-existence gap ADR-PRESENT's own rule flags as Major: a reader of this worktree cannot consult ADR-0025's actual accepted text, only this feature's paraphrase of it. The other six referenced ADRs (0016/0017/0019/0020/0021/0023) do all exist at their cited paths."
+    }
+  ]
+}

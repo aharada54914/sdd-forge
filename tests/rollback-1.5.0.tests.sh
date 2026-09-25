@@ -98,8 +98,13 @@ run_case() {
   else
     local ps_args=(-RepoRoot "$repo" -Contract "$contract" -Validator "$validator")
     if (($#)); then
-      [[ "$1" == "--inject-apply-failure-after" ]] || fail "unknown test argument"
-      ps_args+=(-InjectApplyFailureAfter "$2")
+      if [[ "$1" == "--inject-apply-failure-after" ]]; then
+        ps_args+=(-InjectApplyFailureAfter "$2")
+      elif [[ "$1" == "--inject-final-verification-failure" ]]; then
+        ps_args+=(-InjectFinalVerificationFailure)
+      else
+        fail "unknown test argument"
+      fi
     fi
     pwsh -NoProfile -File "$PS_RUNNER" "${ps_args[@]}"
   fi
@@ -156,6 +161,16 @@ for runtime in bash powershell; do
      -f "$repo/release-only.txt" ]] ||
     fail "$runtime partial apply did not restore original absent/present files byte-for-byte"
 
+  repo="$(clone_fixture "$runtime-final-verification-failure")"
+  before="$(snapshot "$repo")"
+  set +e
+  output="$(run_case "$runtime" "$repo" "$pass_validator" --inject-final-verification-failure 2>&1)"
+  status=$?
+  set -e
+  after="$(snapshot "$repo")"
+  [[ $status -ne 0 && "$output" == *"ROLLBACK_APPLY"* && "$before" == "$after" ]] ||
+    fail "$runtime final verification failure did not restore original tree"
+
   tampered_contract="$TMP/$runtime-contract-tamper.json"
   jq '.unexpected = true' "$contract" > "$tampered_contract"
   repo="$(clone_fixture "$runtime-contract-tamper")"
@@ -198,23 +213,21 @@ jq -e '
 # past 1.5.0, so the release tree is pinned by commit instead of copying the
 # current worktree files, whose hashes legitimately drift after the release.
 t008_release_commit="9ce412176eea876aff945e665ccd0884a1540181"
-canonical_release="$TMP/canonical-release"
+canonical_release="$TMP/canonical-release-bash"
 git clone -q "$ROOT" "$canonical_release"
 git -C "$canonical_release" checkout -q "$t008_release_commit"
-baseline_release_validator="$TMP/baseline-release-validator.sh"
-cat > "$baseline_release_validator" <<'VALIDATOR'
-#!/usr/bin/env bash
-set -euo pipefail
-grep -q '^## v1\.4\.0' CHANGELOG.md
-for manifest in plugins/*/.claude-plugin/plugin.json \
-  plugins/*/.codex-plugin/plugin.json plugins/*/.plugin/plugin.json; do
-  [[ "$(jq -r '.version' "$manifest")" == "1.4.0" ]]
-done
-VALIDATOR
-chmod +x "$baseline_release_validator"
 bash "$BASH_RUNNER" --repo-root "$canonical_release" \
-  --contract "$canonical_release/contracts/rollback-1.5.0.json" \
-  --validator "$baseline_release_validator" >/dev/null
+  --contract "$canonical_release/contracts/rollback-1.5.0.json" >/dev/null
+
+# Each runtime gets a clean clone.  The first transaction intentionally
+# changes its worktree, and the PowerShell runner must reject a dirty tree
+# before it starts; sharing the clone would turn a valid post-run state into a
+# misleading precondition failure.
+canonical_release_ps="$TMP/canonical-release-powershell"
+git clone -q "$ROOT" "$canonical_release_ps"
+git -C "$canonical_release_ps" checkout -q "$t008_release_commit"
+pwsh -NoProfile -File "$PS_RUNNER" --RepoRoot "$canonical_release_ps" \
+  --Contract "$canonical_release_ps/contracts/rollback-1.5.0.json" >/dev/null
 
 while IFS=$'\t' read -r path baseline_hash; do
   if [[ "$baseline_hash" == "__ABSENT__" ]]; then

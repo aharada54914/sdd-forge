@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-seq0322",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-193-a5-capability-resolver-0322",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "d5343f2f74181021daf7de3c0501ffaf95a9948f33688f10e94d0996b9c8e7c5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json", "sha256": "05bdd3d2c52de71ec7c7410d7c24d6bd13b4987a352964cee02398ea62e83776"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-008 is stated with concrete, measurable criteria: REQ-002's sixteen-row Block diagnostic-id table (requirements.md:346-363) gives each condition a fixed trigger; REQ-004's diagnostics[] severity cardinality rule (requirements.md:486-508) and REQ-005's byte-identity/stable-sort rules are each backed by TEST-010/TEST-055/TEST-056/TEST-024 in acceptance-tests.md. No requirement relies on unobservable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's front matter (lines 29-33) and table (rows for AC-055/REQ-002/TEST-055 and AC-056/REQ-004/TEST-056, lines 94-95) present AC-055/AC-056 as this round's own remedy for the prior EDGE-CASE-COVERAGE and AMBIGUITY findings, but requirements.md's own 'Acceptance Criteria' table stops at AC-054 (requirements.md:766-820); AC-056 appears in requirements.md only as a parenthetical prose citation (requirements.md:508) and AC-055 does not appear anywhere in requirements.md by that number. This breaks acceptance-tests.md's own declared 'map 1:1 to requirements.md's Acceptance Criteria by matching row number' contract (acceptance-tests.md:4-6) outside its one documented exception class (AC-035/036/037, which runs the opposite direction). AC-038 through AC-054 were correctly mirrored into requirements.md's own table when added, confirming this is an incomplete propagation, not an intentional design. A task author building tasks.md/traceability.md from requirements.md's own AC table would not discover AC-055/AC-056 exist, silently dropping coverage for the output-schema-validation-failed dual-fixture rule and the diagnostics[] warn/block cardinality rule this round's remedy was meant to newly guarantee."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every acceptance criterion states a concrete, externally checkable outcome (byte-identical output, exit codes, file existence/non-existence, specific diagnostic-id/detail format, e.g. AC-011/AC-013/AC-022/AC-023). The four design-content-review items (AC-029-032, REQ-007) are still verified against specific citable text/line locations (SKILL.md:54-64, decision doc v2 sections), meeting calibration's allowance for non-automated observable evidence."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:686-738) explicitly excludes building the Resolver scripts, editing any Epic A1-A4 schema, adding a required_lite_checks field to the Registry, re-implementing check-component-coverage's Fail conditions, implementing/deciding-when-to-call compare-facet-manifest-staleness, computing decision doc v2 section 10's full effective enforcement, editing plugins/**, and authoring a new ADR -- each with a stated rationale and owner."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries (requirements.md:1083-1142) states concrete write-path, provider/credential/network, and approval-sidecar-exclusion constraints; the disabled-legacy Block is framed as an explicit CLI-misuse/approval boundary (REQ-002/REQ-003, INV-013); Dependencies (requirements.md:137-156) names an explicit, owned Epic A2 Registry-schema migration prerequisite for Epic A6, with scope/owner/migration behavior all stated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risks-section item (requirements.md:1193-1277) names a concrete validation surface: the Lite-track-Blocked risk maps to Dependencies' explicit Epic A6 prerequisite plus AC-009's zero-matched-Capability fixture; the multi-component matching/facet-aggregation risk maps to AC-006/AC-043; the A4/A2 addendum-candidate risk maps to a named future-addendum recommendation; the transactional-complexity risk maps to AC-038/039/047-049; the protected-suffix-timing risk maps to the Assumptions section's re-verification procedure; the anchor-fingerprint drift risk maps to AC-053."
+    }
+  ]
+}

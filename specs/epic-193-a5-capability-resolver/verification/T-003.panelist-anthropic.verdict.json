@@ -1,0 +1,17 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-003",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "verdict": "PASS",
+  "findings": [
+    {"severity": "Minor", "ref": "reports/implementation/epic-193-a5-capability-resolver/T-003.md ## Test Evidence", "note": "The CURRENT marker chain's self-styled 'final marker — supersedes every earlier one' still states 244 passed / 0 failed, while the current suite is 256/0 (green-{sh,ps1}.log, focused-tests logs, the contract's cycle-10 paragraph, the Outputs derivation note, and TRACEABILITY-LOG-LIVE-TOTAL-V9 all agree at 256/0). Stale in-file marker only; every authoritative evidence surface is consistent."},
+    {"severity": "Minor", "ref": "verification/T-003/red-baseline-recaptured-v11-*.log (and sibling logs)", "note": "The bundle header forbids absolute paths, yet the captured test logs embed absolute macOS tempdir paths (/private/var/folders/...) in FAIL detail lines. Recurring sanitizer tmpdir-hygiene item, already recorded as a standing Minor in round 6; re-recorded, not blocking."},
+    {"severity": "Minor", "ref": "T-003.md ## Outputs (rows tests/run-panelist-effort.tests.ps1/.sh)", "note": "Another feature's suite (epic-159-pillar-c T-006 panel-runner tests) is declared in this task's Outputs table. The derivation note discloses it as commit-range honesty ('not claimed as tasks.md Planned Files'), and the extracted bytes hash to the declared values, but it remains scope noise in a T-003 declared-output set."},
+    {"severity": "Minor", "ref": "verification/qg/T-003/traceability.log", "note": "The live 'Implemented:' bullet still reads 216/0 with a fifteen-fixture census and carries the superseded 'warn forwarding is now REVERSED' sentence; corrections exist only as appended trailers plus a reading-order note (current truth: twenty-directory census, forwarding restored under ruling A(1), LIVE-TOTAL-V9 256/0). The file's own earlier discipline of fixing the live bullet directly was abandoned mid-file, so a reader anchoring on the bullet is misled until the tail."}
+  ],
+  "blind": true,
+  "input_digest": "c81dc4d346ec1ee497c5e9728bbb769007add3cf65087d7ead5aca111bcecd40",
+  "consent": {"kind": "human-flag", "ref": "tasks.md T-003 Cross-Model: enabled"}
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "sdd-domain-multitarget",
+  "run_id": "RUN-spec-sdd-domain-multitarget-a1r2-reviewer-a-20260925-gemini",
+  "host_session_id": "SESS-spec-sdd-domain-multitarget-a1r2-reviewer-a-20260925-gemini",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "sequence": 1163,
+  "previous_record_sha256": "8e413080c1516a59ad626ce905319b61ff6bc00b936672cea4b8590f552255f3",
+  "identity_ledger_sha256": "556cecb8c980dff3db97e2be03918e11f6d3fb47826e109aeae9346abc61f635",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "25c19c3309321825be2fe1a5f8ff38fd09bb435b4e55811d4785ac528ea2428b"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/investigation.md",
+      "sha256": "41cfa346a50c4b7d64a3d014b287ca600cc47ba8a2bec2b53698ed038e86f113"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-multitarget/attempt-1/round-2/precheck-result.json",
+      "sha256": "1911954c8dc7e6a2e3e539402f64df0044e3075826baa27367831ee36d615c29"
+    }
+  ]
+}

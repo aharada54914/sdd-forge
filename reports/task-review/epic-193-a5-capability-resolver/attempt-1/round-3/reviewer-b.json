@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a1r3-seq0343",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a1r3-0343",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "de7583f46fe83e04885ea6c095877acdc871c878585477fe8291346d8f99cc29"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "31992fa3a51d60398dc88a2a8572dc56edef64fac5463777f1388c937e699e11"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-3/precheck-result.json", "sha256": "f89f556bde003fb42f85d6dfc023a0b50eefba9f7ff8bde879a0fece73983d76"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-3/integrated-summary.json", "sha256": "92939fa3a83519deecf347fc3a6bff73bb82bebd2760e1ae5180b0511ef3be66"},
+      {"path": "reports/review-context/identity-ledger.json", "sha256": "97d0d75900363f7493249f00793c4257613d87899cfd0f3d746796c92324c3c2"},
+      {"path": "reports/review-context/pending-epic-193-a5-capability-resolver-task-reviewer-b-seq0343-manifest.json", "sha256": "76affb311c8238a40baaa68a54bc609bccb9fb8e315d5d3dba01adc36b956b23"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-002/T-005 (Risk: high) and T-006 (Risk: high) each touch a genuine sensitive surface named in risk-classification-policy.md (T-002: the union-match/facet-aggregation/WARN-Block orchestration whose silent misclassification 'defeats decision document v2 section19's own governing rule'; T-005: 'the ONLY code path in this feature that ever writes a live artifact', a data-mutation surface with crash/rollback exposure; T-006: a provenance-binding validator closing a spoofing/tampering gap, per security-spec.md STRIDE row B4) and none of the three is scoped to only UI copy/CSS/docs/test-only changes. T-001's new contracts/resolver-evidence.schema.json is Risk: medium with an explicit, policy-grounded Risk Rationale (not high: no upstream dependency, defects are T-005-catchable downstream; not low: sole structural contract every other task's fixtures validate against) -- a repo-internal JSON Schema for build tooling is not the 'externally-visible API contract' sentinel the policy targets (its own Examples name payment/auth/PII surfaces, not internal contract documents). T-003/T-004/T-007/T-008 (Risk: medium, test-only tasks exercising an already-built engine, explicit rationale in each) correctly avoid high/critical since they add no new production code path and do not touch a sentinel surface directly."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Every Risk: high task (T-002, T-005, T-006) carries a Done When 'TDD evidence' item citing explicit RED (failing fixture against a deliberately broken/regressed/permissive implementation) and GREEN (full suite against the correct implementation) evidence, plus 'An independent quality-gate verdict records PASS' in each -- tasks.md's own Lifecycle section fixes quality-gate as the sole, non-implementing-agent verdict-recording mechanism ('Only quality-gate may set Done'), satisfying the independent-review-verdict requirement under this repository's own established convention. No Risk: critical task exists in this decomposition, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002 ('Author resolve-project-context.{py,sh,ps1}'s core evaluation engine (steps 0-13)') still bundles at least eleven distinct implementation areas in one task after two remedy rounds that relocated only test suites, never the engine's own production-code scope (tasks.md T-002 Goal/Scope): (1) argument validation, (2) state derivation with two Block checks (disabled-legacy-invocation, workflow-combination-invalid), (3) Project Context canonicalization + structural re-validation, (4) Context Projection assembly (two-pass canonicalizer, verbatim Epic A4 procedure), (5) resolve-component-paths invocation + snapshot, (6) Registry discovery via ADR-0025 + registry_digest --whole, (7) per-capability/per-component trigger-evaluation fan-out with no short-circuit, (8) matched-capability conditional-facet evaluation fan-out, (9) the any-branch WARN check, (10) dual-track branch staging (Facet Manifest vs. Capability Summary, including the cross-Capability facet-name aggregation rule), and (11) Resolver Evidence assembly + output-schema self-validation + the TOCTOU pre-publication snapshot recheck. This exceeds the 'Scope section spans more than three distinct implementation areas' oversized indicator, and the task's own title, naming 'steps 0-13' (fourteen sequential stages), matches the check's own 'title implies multiple sequential phases' oversizing pattern. tasks.md's own Global Constraints 'Task-decomposition note' records round-1's finding as '12+ pipeline stages plus five new test suites in one unit of work' and round-2's finding as 'T-002 still bundled the entire undivided 12+-stage engine with two full TDD suites' -- but round-2's actual remedy (isolating the twelve-fixture block suite into T-003) left the underlying fourteen-step engine exactly as undivided as after round 1; the note itself states isolating the match suite too 'was deliberately rejected, since it would leave T-002 with no test suite of its own', showing the engine's own scope was never itself reconsidered, only which suite stays attached to it. This is the feature's single Risk: high, Required Workflow: tdd task whose own Risk Rationale states a defect here 'defeats decision document v2 section19's own [Block-on-ambiguity] governing rule' -- the highest-consequence task in the decomposition remains also the largest, unreduced by either remedy round, and is unlikely to be completable in a single focused session (the check's own sizing standard)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every functional (non-test-only) task has explicit, dedicated error-path/edge-case acceptance criteria beyond happy-path coverage: T-001's Done When requires TEST-018/TEST-019 negative fixtures (required-field omission, wrong-type, the matched:false/conditional_facet_evaluations if/then branch) alongside the positive TEST-017/TEST-020 fixtures (AC-018, AC-019). T-002's own match suite includes TEST-016 (byte-identity edge case), TEST-043/TEST-052 (cross-Capability and same-Capability duplicate-facet aggregation edge cases), and TEST-056 (warn/block cardinality edge case), and T-002's own Done When additionally requires all twelve non-transactional REQ-002 Block diagnostic code paths to be correctly implemented even though their dedicated fixtures are T-003's own. T-005 is definitionally edge-case/error-path work (crash recovery, TOCTOU races, in-process publication failure, post-publication rollback -- TEST-039/TEST-047/TEST-049). T-006's own Done When requires provenance-mismatch and reader-side-journal-conflict fixtures (TEST-050/TEST-051/TEST-054) beyond the clean-fixture case. acceptance-tests.md's own sixteen-row Block diagnostic matrix (AC-010) and three-state Lite-track matrix (AC-009) are each fully covered across T-002/T-003/T-004/T-005's Done When sections."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. This feature does not use the literal unit/integration/e2e labels; acceptance-tests.md's own 'Test Type' column instead names bespoke behavioral labels (e.g. 'union-match lock', 'Block diagnostic-id table lock'), and every task's Done When explicitly cites specific AC-NNN ids (e.g. T-001 cites AC-017/018/019/020; T-002 cites AC-003 through AC-008, AC-016, AC-043/044/052/056; T-006 cites AC-021/050/051/054), satisfying the check's Acceptance-test criterion ('must reference a specific AC-NNN'). Every declared suite's actual scope is consistent with the level of testing its own name implies: each fixture invokes resolve-project-context/validate-resolver-evidence as a real subprocess against real sibling-epic scripts (T-002/T-004 Depends On: '...invokes them as real subprocesses, not mocked stand-ins, matching this Epic set's own established integration-test convention'), i.e. genuinely integration-level (2+ system components: this feature's own script plus Epic A1/A2/A3's already-landed CLIs), and no suite is mislabeled as an isolated single-function unit test or as a full end-user workflow it does not traverse. No mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All three Risk: high tasks carry an explicit Rollback field: T-002 ('revert this task's two commits (B then A, or both). If the human-copy candidate ... was already applied to the live protected path by a human cp, a revert PR states explicitly whether a human should also hand-revert that applied content'), T-005 (identical pattern, naming reversion back to T-002's own prior staged version), and T-006 ('revert this task's two commits ... Nothing protected is touched'). Each names the concrete revert mechanism for its own touched surface (human-copy re-application for the two protected-path tasks, plain git revert for the unprotected T-006)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003 and T-004 both edit the identical shared files (tests/run-all.sh/.ps1 and the staged specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml candidate) with no Blockers relationship between them (T-003 Blockers: T-002; T-004 Blockers: T-002 -- neither lists the other), yet both explicitly claim the identical insertion point: T-003's own Planned Files/Scope state its CI steps are 'appended after T-002's own', and T-004's own Planned Files/Scope use the same phrase, 'appended after T-002's own' / 'appending to T-002's own staged candidate'. Per tasks.md's own Global Constraints ('Test-suite/CI-registration serialization, T-001 to T-002 to T-003 to T-004 to T-006 to T-007 to T-008 ... in that exact order'), T-004 should append after T-003's own contribution, not T-002's -- the two tasks' own text is self-contradictory about who appends where in the same shared staged file, with no Blockers field to resolve the ordering. This is exactly the 'uncoordinated parallel scope overlap (both tasks claim to modify the same file with no blocking relationship)' the check defines as a Major finding; the 'legitimate multi-task scope sharing... provided the Blockers field enforces the ordering' exception does not apply since the Blockers field does not enforce it here."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md's own Global Constraints declares a mandatory shared-file registration order for tests/run-all.sh/.ps1 and the staged human-copy/.github/workflows/test.yml candidate: T-001 to T-002 to T-003 to T-004 to T-006 to T-007 to T-008 (T-005 excluded, since 'T-005 registers no new suite'). Computing each task's transitive Blockers closure shows three of the seven required consecutive-pair dependencies are missing, each with the dependent task's own Scope text presupposing the omitted task's prior output: (1) T-004 (Blockers: T-002 only; transitive closure {T-001, T-002}) omits T-003, even though T-004's own Scope claims to append 'to T-002's own staged candidate' -- contradicting the declared T-003-before-T-004 order and leaving T-004's own Done When ('the staged .github/workflows/test.yml candidate carries this task's own three suites' steps appended after T-002's own') unsatisfiable if T-003 has already run first, as the declared order requires; (2) T-006 (Blockers: T-001, T-005; transitive closure {T-001, T-002, T-003, T-005}) omits T-004, even though T-006's own Scope explicitly states its CI append lands 'appended after T-004's own (the last suite-owning task before this one)'; (3) T-008 (Blockers: T-002, T-005, T-006; transitive closure {T-001, T-002, T-003, T-005, T-006}) omits T-007, even though T-008's own Scope states its CI append lands 'appended after T-007's own (the final entry in this feature's own staged candidate)'. Each omission is a missing blocker whose own task text depends on the omitted task's prior output to the shared staged file/MANIFEST.sha256, and whose absence would let the two tasks run out of the declared order, corrupting the staged CI-registration file's own ordering or producing a MANIFEST.sha256 entry a downstream task's own Done When cannot verify. Round 2's own remedy (tasks.md Global Constraints 'Task-decomposition note') fixed the analogous gap for T-007, which now correctly cites T-002/T-003/T-004/T-005/T-006 as Blockers, but did not extend the identical fix to T-004, T-006, or T-008, which retain the same class of gap in the same shared-file serialization chain."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. Every task (T-001..T-008) is net-new feature work in a Phase-1-to-Phase-2 spec-to-implementation package (each task's own Data Migration: none, Breaking API: no); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident-remediation task by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "T-002 still bundles eleven distinct implementation areas (argument validation; state derivation with two Block checks; Project Context canonicalization + structural re-validation; two-pass Context Projection assembly; resolve-component-paths invocation + snapshot; Registry discovery + digest; per-capability/per-component trigger-evaluation fan-out; conditional-facet evaluation fan-out; any-branch WARN check; dual-track branch staging including facet-name aggregation; Resolver Evidence assembly + output-schema self-validation + TOCTOU pre-publication recheck) in one task, exceeding the 'more than three distinct implementation areas' oversized indicator; its own title names 'steps 0-13' (fourteen sequential stages), matching the 'title implies multiple sequential phases' pattern. Round 1's and round 2's own recorded findings both explicitly named the '12+-stage engine' as part of the sizing problem, but round 2's actual remedy (isolating the block suite into T-003) left the fourteen-step engine itself exactly as undivided as after round 1 -- only test-suite placement was addressed, not the engine's own production-code scope. This is the decomposition's single Risk: high, Required Workflow: tdd task whose Risk Rationale states a defect here 'defeats decision document v2 section19's own governing rule.'"
+    },
+    {
+      "check_id": "SCOPE-DISJOINT",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-003 and T-004 both edit the same shared files (tests/run-all.sh/.ps1, the staged human-copy/.github/workflows/test.yml candidate) with no Blockers relationship between them, and both explicitly claim their own CI steps are 'appended after T-002's own' -- self-contradictory given tasks.md's own declared T-002-then-T-003-then-T-004 registration order, with no Blockers field to resolve which task's append actually lands first."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004's Blockers field (T-002 only) omits T-003, even though tasks.md's own Global Constraints declares T-003 must precede T-004 in the shared tests/run-all.sh/.ps1 and staged test.yml registration order, and T-004's own Scope text presupposes T-002's (not T-003's) prior contribution -- contradicting the declared order."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-006",
+      "finding": "T-006's Blockers field (T-001, T-005; transitive closure {T-001, T-002, T-003, T-005}) omits T-004, even though T-006's own Scope text explicitly requires its CI append to land 'after T-004's own (the last suite-owning task before this one)' -- a real dependency on T-004's prior output that no Blockers entry, direct or transitive, enforces."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-008",
+      "finding": "T-008's Blockers field (T-002, T-005, T-006; transitive closure {T-001, T-002, T-003, T-005, T-006}) omits T-007, even though T-008's own Scope text explicitly requires its CI append to land 'after T-007's own (the final entry in this feature's own staged candidate)' -- a real dependency on T-007's prior output that no Blockers entry, direct or transitive, enforces."
+    }
+  ]
+}

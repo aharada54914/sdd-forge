@@ -1,0 +1,13 @@
+{
+  "description": "Major 3: a --registry override whose own schema token is not `capability-registry/v1`. The version check must fire fail-closed BEFORE the digest binding and before any exact-set check -- this override's capability set and digest BOTH also diverge, so a sole-diagnostic expectation proves the ordering",
+  "feature": "example-feature",
+  "args": [
+    "--registry",
+    "@OVERRIDE_REGISTRY@"
+  ],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "registry-version-mismatch"
+  ],
+  "forbidden_strings": []
+}

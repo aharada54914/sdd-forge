@@ -1,0 +1,14 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-008",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "verdict": "PASS",
+  "findings": [
+    { "severity": "Minor", "ref": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py:9599-9615", "note": "The all-formats-rejected canonicalizer detail tells the operator to 'see the canonicalizer's own diagnostics on stderr', and the adjacent comment asserts that stderr 'remains visible to a human operator on the terminal', but the subprocess is launched with stderr=subprocess.PIPE and the captured stderr is discarded (validator writes only to stdout; the suite asserts its own stderr is empty). The referenced diagnostics are not actually surfaced. Labeling/doc inaccuracy only; validation soundness and B5 containment are unaffected." }
+  ],
+  "blind": true,
+  "input_digest": "adfde612d0362344e4785898de91825ec6fa3c11cfe44b95305ad581a94bb68e",
+  "consent": { "kind": "sudo", "ref": "SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044" }
+}

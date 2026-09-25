@@ -6,12 +6,12 @@
   "spec_revision": "2ee68af230361024b5c0982e776abebe24fba00795e3b43dbe352f272e362420",
   "quality_report": "reports/quality-gate/20260821T070000Z.md",
   "verification_contract": "specs/risk-adaptive-layer/verification/T-010.contract.json",
-  "git_commit": "e00478321327b48e4e4ad21a14391d69e0f1baa9",
+  "git_commit": "f7a656cc5ff387d923d95c8987ca927621bdd426",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
-    "git": "git version 2.50.1 (Apple Git-155)",
+    "git": "git version 2.54.0 (Apple Git-157)",
     "lockfile_sha256": null
   },
   "builder": {

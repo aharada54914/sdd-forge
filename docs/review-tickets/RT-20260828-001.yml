@@ -1,5 +1,5 @@
 ticket_id: RT-20260828-001
-status: open
+status: resolved
 type: correctness
 severity: major
 target:
@@ -143,5 +143,15 @@ references:
   - "requirements.md REQ-002 / acceptance-tests.md AC-027"
   - "plugins/sdd-lite/references/risk-upgrade-policy.md (Capability-derived trigger source 節の fail-closed 契約)"
 auto_fix_allowed: false
-requires_human_decision: true
+requires_human_decision: false
 review_cycles: 0
+resolution:
+  resolved_at: "2026-09-21"
+  decision: "Repository-owner approval for the recorded design amendment and remediation was supplied in the active task context; historical findings above are retained unchanged."
+  evidence:
+    - "plugins/sdd-lite/scripts/check-risk-upgrade.sh:185-201 validates upgrade_reasons shape and token grammar for every capability entry before eligibility emission."
+    - "plugins/sdd-lite/scripts/check-risk-upgrade.ps1:172-213 mirrors the same pre-eligibility fail-closed validation."
+    - "tests/check-risk-upgrade-fragment-fail-closed.tests.sh: TEST-013ag..TEST-013aj; 67 passed, 0 failed."
+    - "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1: TEST-013ag..TEST-013aj; 67 passed, 0 failed."
+    - "specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh and .ps1 are byte-identical to live files; MANIFEST.sha256 entries match both hashes."
+  residual: "Formal PR CI and merge gates remain separate from this ticket resolution."

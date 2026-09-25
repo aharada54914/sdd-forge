@@ -1,0 +1,12 @@
+{
+  "check_id": "check-component-coverage",
+  "fail_conditions": [],
+  "manifest_status": "not-consulted",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "f2ec1f5bff9aceca04fa51ae5f46d8774790b7e77b3f6b7befdc5076d8b49b45"
+  },
+  "schema": "check-component-coverage-verdict/v1",
+  "state": "not-applicable (disabled-legacy)",
+  "warnings": []
+}

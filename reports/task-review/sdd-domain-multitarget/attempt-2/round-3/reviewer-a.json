@@ -1,0 +1,29 @@
+{
+  "schema":"task-reviewer-a/v1","stage":"task-review","role":"reviewer-a",
+  "feature":"sdd-domain-multitarget","attempt":2,"round":3,
+  "run_id":"RUN-gemini-423-a-r2-rebind","host_session_id":"gemini-423-a-r2-rebind","verdict":"PASS",
+  "checks":[
+    {"id":"CHK-COV-001","status":"PASS","severity":"Minor","summary":"All acceptance branches map to tests."},
+    {"id":"CHK-DEP-001","status":"PASS","severity":"Minor","summary":"The dependency graph is acyclic."},
+    {"id":"CHK-RSK-001","status":"PASS","severity":"Minor","summary":"Risk, rollback, and high-risk evidence are explicit."},
+    {"id":"CHK-LCY-001","status":"PASS","severity":"Minor","summary":"Lifecycle fields remain valid after status rebind."},
+    {"id":"CHK-BLK-001","status":"PASS","severity":"Minor","summary":"Blockers are explicit and ordered."},
+    {"id":"CHK-SCP-001","status":"PASS","severity":"Minor","summary":"Scope stays within the approved foundation tranche."},
+    {"id":"OBSERVABLE-DONE","status":"PASS","severity":"Minor","finding":"T-001 evidence is recorded in implementation and review reports without editing frozen traceability.md.","summary":"Frozen-artifact Done When is adjudicated."}
+  ],
+  "findings":[],
+  "manifest":[
+    {"path":"specs/sdd-domain-multitarget/tasks.md","sha256":"ade126153389be40a75d174734c17eea0a00e0b519bcd7ab18e545f72ec78181"},
+    {"path":"specs/sdd-domain-multitarget/requirements.md","sha256":"412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"},
+    {"path":"specs/sdd-domain-multitarget/design.md","sha256":"161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"},
+    {"path":"specs/sdd-domain-multitarget/acceptance-tests.md","sha256":"8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"},
+    {"path":"specs/sdd-domain-multitarget/traceability.md","sha256":"b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"},
+    {"path":"specs/sdd-domain-multitarget/ux-spec.md","sha256":"f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"},
+    {"path":"specs/sdd-domain-multitarget/frontend-spec.md","sha256":"b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"},
+    {"path":"specs/sdd-domain-multitarget/infra-spec.md","sha256":"60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"},
+    {"path":"specs/sdd-domain-multitarget/security-spec.md","sha256":"600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/sdd-domain-multitarget/attempt-2/round-3/precheck-result.json","sha256":"46447930a08545974c39709d6c3a2ce0de259f6be5f5ed05bfb0eaa3a661d929"},
+    {"path":"reports/task-review/sdd-domain-multitarget/attempt-2/round-3/dependency-graph.json","sha256":"651b886b7038e52c630f6bbf8bc560c4c9a97509288d4b30ad87c524d3f9d13f"}
+  ]
+}

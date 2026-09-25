@@ -118,6 +118,8 @@ lite ゲートとして実行してよいか、full quality-gate に切り替え
 
 この契約は境界付き（文法チェック1つ + 固定・チェックイン済みの2箇所のみで、無制限の探索は行わない）であり、構造上パストラバーサル・シンボリックリンク/リパースポイント脱出・シェル補間に対して fail-closed であり（NEW-01）、移植可能（OS 固有のみの探索を行わず、デュアルランタイム・ペアリング規則はどのランタイムが実行中かに関わらず同一に適用される）— evidence-bundle / cross-model / 二者承認機構を一切追加しない（ADR-0022 item 4 自身の境界、不変）。
 
+実行アダプタ: Step 2b は `plugins/sdd-lite/lib/run-lite-gate.py` を POSIX/PowerShell 共通の Python 実行器として呼び、`--summary`、`--enforcement`、`--repo-root`、`--runtime` を渡す。アダプタは既存の Summary バリデータを呼び、子プロセスの stdout、stderr、終了コード、タイムアウト、実行時間を JSON に記録する。非ゼロ終了またはタイムアウトは必ず FAIL とし、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.*` は発見規則のテスト専用で実行証跡には使わない。
+
 3. `reports/quality-gate/<task-id>.md` を `templates/quality-report-lite.md` から生成する。先頭に `Task ID: <task-id>` と `VERDICT: PASS|FAIL` を必ず置く（`check-task-state-lite` の Done 判定が依存）。各チェックの PASS/FAIL と根拠を列挙する。Step 1/2/2a/2b のいずれかに1つでも FAIL があれば（Step 2 自身の既存規約による `N/A` を除く）`VERDICT: FAIL` を記録し、`Status` は変えず実装者へ差し戻して終了する。
 4. `VERDICT: PASS` のときのみ `tasks.md` の対象タスクを `Status: Done` にする。
 5. **最終検証**: Done 化と品質レポート生成の**後**に `plugins/sdd-lite/scripts/check-task-state-lite.sh`（または `.ps1`）を実行し、`Done` 状態を決定論的に検証する（実装レポートのタスク ID 言及 + 品質レポートの `VERDICT: PASS` 言及を含む Done 専用チェックがここで初めて実走する）。失敗したら `Status` を `Implementation Complete` に戻し、レポートに失敗理由を記録して差し戻す（`Done` のまま残さない）。

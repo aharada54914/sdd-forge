@@ -1,0 +1,8 @@
+TDD GREEN (2026-09-24, macOS local run)
+Command: bash tests/install-uninstall-matrix.tests.sh
+All: 5 cell assertions passed
+Codex: 5 cell assertions passed
+Claude: 5 cell assertions passed
+Copilot: 5 cell assertions passed
+FilesOnly: explicitly out-of-matrix assertion passed
+install-uninstall-matrix: 20 passed, 0 failed

@@ -1,8 +1,13 @@
+param(
+    [ValidateSet('all', 'core', 'mcp', 'clients', 'context')]
+    [string]$Lane = 'all'
+)
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
+if ($Lane -in @('all', 'core')) {
 # Exercise the production archive-download branch without network or host install
 # writes. A failed tar may still leave a marketplace-shaped partial directory.
 & {
@@ -47,6 +52,8 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
     $global:LASTEXITCODE = 0
 }
 
+}
+
 $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
 $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
@@ -68,6 +75,12 @@ function New-TrackedFixture {
         if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
         Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
         & git -C $Destination init -q
+        # Windows MAX_PATH: the epic-193 capability-resolver fixtures nest
+        # deeply enough (~150 chars repo-relative) that, prefixed with this
+        # fixture's temp directory, `git add -A` fails with "Filename too
+        # long" unless long paths are enabled repo-locally. Harmless on the
+        # other platforms (POSIX ignores it).
+        & git -C $Destination config core.longpaths true
         # Commits in this repository can spawn detached background maintenance
         # (auto gc) that races teardown's Remove-Item ("Directory not empty").
         # Disable it repo-locally so no git process outlives any scenario.
@@ -212,19 +225,21 @@ function New-ArchiveFixture {
     )
 
     $archiveRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-archive-" + [guid]::NewGuid())
-    $archiveSource = Join-Path $archiveRoot "repo"
     $archivePath = Join-Path $archiveRoot "source.tar.gz"
-    New-Item -ItemType Directory -Path $archiveSource -Force | Out-Null
-    $trackedFiles = & git -C $SourceRoot ls-files
-    if ($LASTEXITCODE -ne 0) {
-        throw "Unable to enumerate tracked fixture files."
+    New-Item -ItemType Directory -Path $archiveRoot -Force | Out-Null
+
+    # Let Git write the archive so path quoting/encoding never crosses a
+    # PowerShell string boundary (notably for decomposed Unicode names on
+    # Windows). Keep archive creation and extraction as separate checked
+    # steps; a failed archive must not be mistaken for an empty fixture.
+    & git -C $SourceRoot archive --format=tar.gz "--prefix=repo/" "--output=$archivePath" HEAD
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
+        throw "Unable to create tracked fixture archive."
     }
-    foreach ($relativePath in $trackedFiles) {
-        $destination = Join-Path $archiveSource $relativePath
-        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-        Copy-Item -LiteralPath (Join-Path $SourceRoot $relativePath) -Destination $destination -Force
+    & tar -xzf $archivePath -C $archiveRoot
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath (Join-Path $archiveRoot "repo") -PathType Container)) {
+        throw "Unable to extract tracked fixture archive."
     }
-    & tar -czf $archivePath -C $archiveRoot "repo"
     return $archivePath
 }
 
@@ -448,6 +463,7 @@ function Invoke-RemoteInstallerScenario {
     }
 }
 
+if ($Lane -in @('all', 'core')) {
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins @("sdd-lite")
@@ -983,6 +999,9 @@ finally {
 }
 
 # ---------------------------------------------------------------------------
+}
+
+if ($Lane -in @('all', 'mcp')) {
 # MCP scenarios (T-006): AC-007 / AC-008
 # ---------------------------------------------------------------------------
 
@@ -1440,6 +1459,9 @@ finally {
 # Cursor / VS Code upsert parity in install.ps1
 # ---------------------------------------------------------------------------
 
+}
+
+if ($Lane -in @('all', 'clients')) {
 # Scenario (y): AC-010/AC-013 Cursor registration. A pre-existing
 # ~/.cursor/mcp.json (via SDD_CURSOR_DIR) containing a foreign entry and an
 # unknown top-level key keeps both; the two selected MCPs are upserted under
@@ -1719,6 +1741,9 @@ finally {
     if (Test-Path $corruptVSCodeRoot) { Remove-Item -Path $corruptVSCodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
+}
+
+if ($Lane -in @('all', 'context')) {
 # T-003 context-presence invariant: FilesOnly output is byte-identical whether
 # an otherwise identical source fixture has project-context.yaml or not.
 $t003Absent = build_fixture absent absent disabled-legacy valid none
@@ -1748,6 +1773,8 @@ try {
     Write-Host 'ok: T-003 install output is unaffected by project-context presence'
 } finally {
     foreach ($path in @($t003Absent, $t003Present)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force } }
+}
+
 }
 
 Write-Host "Installer integration tests passed."

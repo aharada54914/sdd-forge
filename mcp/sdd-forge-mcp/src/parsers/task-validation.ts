@@ -77,7 +77,7 @@ export function finishTask(
   }
 
   if (status === "Done") {
-    validateDoneEvidence(root, taskId, tasksDir, reportsDir, fail);
+    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail);
   }
 
   if (status === "Implementation Complete") {
@@ -116,6 +116,7 @@ export function finishTask(
 function validateDoneEvidence(
   root: SddRoot,
   taskId: string,
+  taskRisk: string,
   tasksDir: string,
   reportsDir: string,
   fail: (rule: string, message: string) => void,
@@ -148,10 +149,12 @@ function validateDoneEvidence(
   } else {
     const contractRead = guardedRead(root, contractRelPath);
     let contractTaskIdMatches = false;
+    let contractRisk = "";
     if (contractRead.ok) {
       try {
-        const parsed = JSON.parse(contractRead.data.contents) as { task_id?: unknown };
+        const parsed = JSON.parse(contractRead.data.contents) as { task_id?: unknown; risk?: unknown };
         contractTaskIdMatches = String(parsed.task_id ?? "") === taskId;
+        contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
       } catch {
         contractTaskIdMatches = false;
       }
@@ -160,6 +163,12 @@ function validateDoneEvidence(
       fail(
         "done-contract-task-id-mismatch",
         `${taskId} is Done but verification/${taskId}.contract.json has mismatched task_id`,
+      );
+    }
+    if (contractTaskIdMatches && contractRisk !== "" && taskRisk !== "" && contractRisk !== taskRisk) {
+      fail(
+        "contract-risk-mismatch",
+        `${taskId} contract risk '${contractRisk}' does not match tasks.md risk '${taskRisk}'`,
       );
     }
   }

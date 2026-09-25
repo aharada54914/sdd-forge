@@ -1,0 +1,320 @@
+Requirement-traceability check (manual -- no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run) passed for T-003:
+[HEADER SUPERSEDED 2026-08-26, gate cycle 6: the premise above is stale
+-- specs/epic-193-a5-capability-resolver/traceability.json exists
+(machine-derived from traceability.md, REQ-002 carrying
+AC-057/AC-058/TEST-057/TEST-058) and the deterministic
+check-traceability.sh gate now runs and passes: exit 0, 8 link(s). The
+manual mapping below is retained as history and corroboration.]
+
+ - tasks.md T-003 Requirements line -> REQ-001 (steps 4-9 share), REQ-002
+   (share -- five more of sixteen rows), REQ-004 (share), REQ-005 (share),
+   REQ-006 (share), REQ-008 (share). All six present in requirements.md
+   (grep hit counts, re-measured 2026-08-23 cycle-3 remediation: REQ-001=38,
+   REQ-002=60, REQ-004=19, REQ-005=11, REQ-006=5, REQ-008=4 -- higher than
+   this log's own prior capture since later passes on this same branch have
+   since added more REQ mentions) and in traceability.md's REQ table rows,
+   which name T-003 explicitly in the REQ-001 and REQ-002 rows' own Code
+   Target cells ("steps 4-9 ... fan-out -- T-003") and in the Task Mapping
+   table's own T-003 row (traceability.md:59).
+ - AC-010..AC-015 (this task's own five-rows share) and AC-038 (share) are
+   present in acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2,
+   AC-012=2, AC-013=1, AC-014=1, AC-015=1, AC-038=3) and TEST-010..TEST-015
+   / TEST-038 are present there too (hit counts: TEST-010=5, TEST-011=1,
+   TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2) -- unchanged
+   from this log's own prior capture, re-confirmed directly.
+ - Implemented: tests/resolve-project-context-block-check.py's own
+   ALL_CASE_NAMES tuple (line 308) and run_t003_case() function (line 479)
+   enumerate exactly T-003's own FIFTEEN fixtures (unchanged in count/
+   identity since the confirmation-panel 2026-08-24 pass; this round-2
+   pass edits fixture LOGIC/comments only, adds no new fixture) --
+   affected-component-resolution-failed, resolve-component-paths-launch-
+   failed, contract-discovery-failed, registry-discovery-unimportable,
+   registry-discovery-syntax-error, registry-validation-failed,
+   validate-capability-registry-launch-failed, registry-swapped-during-
+   validation, dependency-subprocess-failed, evaluate-predicate-output-
+   malformed, evaluate-predicate-schema-error, evaluate-predicate-failure-
+   after-warn (round-2 confirmation-panel fix, both vendors: the abort-path
+   `warn_diagnostics` forwarding this fixture's own comment previously
+   described is now REVERSED -- collected warns are dropped, not forwarded,
+   on this non-dsl-warn-summary abort path, per requirements.md:526-528's
+   own AC-056 sentence), dsl-warn-unmatched-trigger, dsl-warn-matched-
+   nondetermining, dsl-warn-unsorted-affected-components -- each invoked
+   from both tests/resolve-project-context-block.tests.sh and .ps1 (thin
+   dispatchers onto the shared Python driver). Confirmed executed and
+   passing in this same verification run: see focused-tests-sh.log /
+   focused-tests-ps1.log (216 passed, 0 failed, both runtimes -- the WHOLE
+   shared driver's own current total: T-002's steps 0-3, T-003's own
+   fifteen fixtures above (net +1 assertion the bookkeeping-lag pass added:
+   the AC-004 SUPPLIED-half pass-through assertion wired into the
+   dsl-warn-unsorted-affected-components fixture, closing the Anthropic v3
+   Minor that no caller in this driver ever exercised
+   `include_untracked=True` -- see
+   reports/implementation/epic-193-a5-capability-resolver/T-003.md), T-004's
+   own ELEVEN fixtures (nine above plus this delta's own two new
+   governing-schema-malformed-input fixtures -- see the live bullet in
+   traceability.log's own T-004 sibling for detail), and the
+   draft7-validator-keywords / draft7-keyword-coverage unit-style checks
+   (8 assertions)). Both
+   tests/resolve-project-context-block.tests.sh and .ps1 now also emit a
+   leading `# runner: bash` / `# runner: pwsh` marker line (recurring Minor
+   every round) -- present in this run's own captures but outside the
+   driver's own PASS/FAIL count.
+ - Not independently re-verified in this pass: REQ-004/REQ-005/REQ-006/
+   REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
+   shared REQ ids spanning multiple tasks' own scope, out of T-003's own
+   diff, per tasks.md Global Constraints.
+
+Superseded 2026-08-23 (cycle-3 cross-model panel remediation, both Critical
+findings on this same log): this log previously enumerated exactly SIX
+T-003 fixtures, cited a `CASE_NAMES` symbol that does not exist in the
+reviewed driver (the real symbol is `ALL_CASE_NAMES`), cited stale line
+numbers (160-165 / 247), and claimed 102 passed / 0 failed while the
+adjacent focused logs already recorded 155 passed / 0 failed -- describing
+three generations of prior state at once. This capture reads the CURRENT
+driver directly (ALL_CASE_NAMES at line 276, run_t003_case at line 437,
+thirteen T-003 fixtures, 184 passed / 0 failed both runtimes) rather than
+carrying forward any of that stale text.
+
+Superseded 2026-08-24 (confirmation-panel remediation, T-004 Major, same
+staleness class): re-verified against the CURRENT driver directly rather
+than carrying forward the 184-count above. `ALL_CASE_NAMES`/
+`run_t003_case` now enumerate FIFTEEN T-003 fixtures (thirteen above plus
+this pass's own `registry-swapped-during-validation` -- the Critical/
+Major registry-snapshot-binding detection, step 6.5 -- and
+`registry-discovery-syntax-error` -- the widened `except Exception` Minor,
+B5); `run_t004_case` now enumerates NINE T-004 fixtures (eight above plus
+this pass's own `output-schema-validation-failed-facet-manifest`, closing
+the previously-untested track_artifact self-validation branch);
+`draft7-validator-keywords` gained one new trailing-newline `pattern`
+assertion (the ECMA-262-vs-Python `$` fix). REQ-001=38/REQ-002=60/
+REQ-004=19/REQ-005=11/REQ-006=5/REQ-008=4 and every AC-010..AC-015/AC-038
+hit count re-measured identical to the cycle-3 capture above (unchanged --
+requirements.md/acceptance-tests.md were not edited by this pass).
+human-copy MANIFEST entry for resolve-project-context.py:
+`673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f`
+(regenerated via `shasum -a 256` from the human-copy root this pass;
+`shasum -a 256 -c MANIFEST.sha256` reports 4/4 OK). Confirmed executed and
+passing in this same verification run: 201 passed, 0 failed, both
+runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log) -- the WHOLE
+shared driver's own current total, never the 184 this log's own prior
+revision carried.
+
+Superseded 2026-08-24 round-2 (confirmation-panel round-2 remediation,
+Anthropic Minor -- "only an appended Superseded paragraph corrects the
+count, the line numbers are never corrected"): this round FIXES the live
+"Implemented:" bullet's own line numbers/counts directly (ALL_CASE_NAMES
+308, run_t003_case 477, fifteen fixtures, 205/0) rather than appending a
+fourth Superseded paragraph describing yet another generation while
+leaving the live bullet itself stale -- closing this recurrence class
+instead of repeating it. Also this round: `evaluate-predicate-failure-
+after-warn`'s own fixture comment/expected-shape reversed (Reversal 1,
+both vendors' confirmation-panel finding) -- see the live bullet above.
+
+Superseded 2026-08-24 bookkeeping-lag pass (a fresh two-vendor confirmation
+panel, Anthropic v3 Critical/Major, OpenAI v3 Minor): this pass FIXES the
+live "Implemented:" bullet's own count directly (206/0), the same
+discipline round-2 established, rather than appending a fifth paragraph
+that leaves the live bullet stale. The one substantive change this pass
+made to this driver's own T-003 scope is the AC-004 SUPPLIED-half
+pass-through assertion described in the live bullet above; T-003's own
+fixture identity/count (fifteen) and line numbers (ALL_CASE_NAMES 308,
+run_t003_case 477) are unchanged from round-2's own correction, confirmed
+by direct grep this pass rather than assumed carried-forward.
+
+Superseded 2026-08-24 governing-schema delta (unfroze-for-exactly-this,
+T-004 OpenAI v3 Major 3): the live "Implemented:" bullet's own count is
+fixed directly again (216/0), same discipline. This delta's own diff is
+entirely T-004-scope (`_load_governing_schema`'s new `UnicodeDecodeError`
+catch, the new `_draft7_conforms_or_raise` wrapper, two new T-004
+fixtures) -- T-003's own fixture identity/count (fifteen) is unchanged,
+but `run_t003_case`'s own line number shifted 477->479 (the two new
+`ALL_CASE_NAMES` tuple entries above it), corrected in the live bullet
+above, confirmed by direct grep this pass.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 216 passed, 0 failed"
+
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Re-derived against the current tree. Every figure below was measured in
+this run, not carried forward.
+
+REQUIREMENT -> ASSERTION additions this pass:
+
+* REQ-005 / security-spec.md B5 (import containment): three new
+  `sys-path-hygiene` assertions in
+  tests/resolve-project-context-block-check.py bind
+  `_discover_registry`'s own `sys.path` prepend to a `try`/`finally`
+  restore -- clean-return path, ContractDiscoveryFailed path, and
+  the first-occurrence-only removal discipline that preserves a
+  caller's own pre-existing entry. Mutation-killed 219/0 -> 216/3 ->
+  219/0, both runtimes, collateral-free
+  (verification/qg/T-003/mutation-kill-sys-path-restore.log).
+
+STALE FIGURES IN THIS LOG'S OWN PRIOR REVISION, corrected here rather
+than left to a later round to find:
+
+  (a) This log's own prior revision recorded the block suite's live
+      total as 216. The suite is now 219 (+3, the sys-path-hygiene
+      assertions). Corrected in the trailer below.
+  (b) No figure in this log was found wrong on re-measurement other
+      than (a) -- checked, not assumed.
+
+CONFIRMED EXECUTED AND PASSING IN THIS SAME VERIFICATION RUN:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> 125 passed, 0 failed
+
+requirements.md and acceptance-tests.md were NOT edited by this pass. The
+two 2026-08-24 amendments this pass depends on (ruling A(1) on AC-056,
+d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
+it.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 219 passed, 0 failed"
+
+GATE-CYCLE-1 CORRECTION TRAILER (2026-08-26, quality-gate seq 0780):
+The independent evaluator found, and the gate confirmed by direct
+re-measurement, three statements above that are wrong against the tree
+this log certifies. They are corrected here; nothing above is deleted.
+  (1) Live line numbers: ALL_CASE_NAMES is at
+      tests/resolve-project-context-block-check.py:322 (not 308) and
+      run_t003_case() at :493 (not 479) -- the 2026-08-25 pass shifted
+      both by 14 and the bullet above was not refreshed.
+  (2) The "abort-path warn forwarding is now REVERSED -- collected warns
+      are dropped, not forwarded" sentence above describes the
+      intermediate 1811ed0e state, which was itself later reversed under
+      human ruling A(1) (d5701194). The current staged resolver FORWARDS
+      warn_diagnostics on all three steps-7/8 abort paths
+      (resolve-project-context.py:1605,1608,1611; the code comment at
+      :1600-1603 records the A(1) restoration explicitly).
+  (3) The claim "(b) No figure in this log was found wrong on
+      re-measurement other than (a) -- checked, not assumed" is
+      retracted: items (1) and (2) above falsify it.
+RE-CONFIRMED AT CORRECTION TIME:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+
+RT-20260826-001 ROUTE (b) TRAILER (2026-08-26, human-approved):
+Step 6.5 (_recheck_registry_snapshot) and its registry-swapped-during-
+validation fixture were REMOVED to restore conformance with the frozen
+documents (design.md "two rechecks", requirements.md snapshot-generation-
+mismatch trigger, tasks.md fixture allocation). The Implemented bullet's
+FIFTEEN-fixture enumeration above therefore becomes FOURTEEN; every other
+REQ->AC->TEST mapping above is unaffected (the removed fixture served no
+REQ-002 row allocated to this task -- that was the drift).
+RE-CONFIRMED AFTER REMOVAL:
+  bash tests/resolve-project-context-block.tests.sh   -> 214 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 214 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V2: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 214 passed, 0 failed"
+
+GATE-CYCLE-2 LINE-CITATION CORRECTION (2026-08-26, quality-gate seq 0783):
+The route (b) removal above shifted the very line numbers the
+GATE-CYCLE-1 trailer cited, recreating the citation-staleness class that
+trailer was written to close. Current values, measured against the
+post-removal tree (the cycle-2 evaluator's independent measurement,
+re-confirmed by the gate):
+  - run_t003_case() is at tests/resolve-project-context-block-check.py:492
+    (ALL_CASE_NAMES:322 remains correct).
+  - The three steps-7/8 abort-path warn-forwarding sites are at
+    resolve-project-context.py:1540,1543,1546 (canonical ids
+    registry-validation-failed / dependency-subprocess-failed /
+    dependency-output-malformed), and the Amendment A(1) comment block
+    begins at :1526.
+The SUBSTANCE of the cycle-1 trailer's claims is unchanged and was
+re-verified by the cycle-2 evaluator: warn_diagnostics is FORWARDED on
+all three abort paths. Future readers should anchor on the function name
+and the canonical diagnostic ids above, not on line numbers, which rot
+with every upstream edit.
+
+RULINGS C(1)/C(2) TRAILER (2026-08-26, human-approved route (a)):
+The frozen-document amendment (commit 5dcacc8e) sanctioned the step-6.5
+Registry recheck as design.md's third recheck / REQ-002's second
+snapshot-generation-mismatch trigger site, and defined the
+absent-component fail-closed sub-trigger on dependency-output-malformed.
+Implementation and fixtures followed: registry-swapped-during-validation
+reinstated, affected-component-absent-from-context added, so the
+Implemented bullet's fixture enumeration is now SIXTEEN (the route-(b)
+trailer's FOURTEEN is superseded). The removed-fixture rationale in the
+route-(b) trailer no longer applies: the step-6.5 site is now allocated
+to this task by the amended tasks.md REQ-002 share. Every other
+REQ->AC->TEST mapping above is unaffected (both rulings reuse existing
+diagnostic ids; the enum stays sixteen).
+RE-CONFIRMED AFTER RULINGS C(1)/C(2):
+  bash tests/resolve-project-context-block.tests.sh   -> 224 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 224 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V3: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 224 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-2 CLOSURE (2026-08-26,
+nested evidence-shape fix + evaluate-predicate-output-malformed-nested
+fixture):
+  bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V4: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-3 CLOSURE (2026-08-26,
+evidenceNode field-validation strengthening; the nested fixture's
+payload now exercises the missing-required-field class):
+  bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V5: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE GATE CYCLE-7 CRITICAL CLOSURE (2026-08-26,
+hash-safe enum membership; new fixture
+evaluate-predicate-output-malformed-unhashable -- T-003's own fixture
+census is now EIGHTEEN directories, the seventeen the CENSUS
+CORRECTION above enumerates via the driver's case tuple plus this
+pass's unhashable fixture; the driver's case tuple, now eighteen
+entries, remains the authoritative list):
+  bash tests/resolve-project-context-block.tests.sh   -> 234 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 234 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V6: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 234 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-4 CLOSURE (2026-08-26,
+duplicate-component-id rejection at step 4; new fixture
+affected-component-duplicate-ids -- census now NINETEEN, the driver's
+case tuple remains the authoritative list at nineteen entries):
+  bash tests/resolve-project-context-block.tests.sh   -> 239 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 239 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V7: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 239 passed, 0 failed"
+CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
+enumeration is now SEVENTEEN. The authoritative list is
+run_t003_case's own case tuple in
+tests/resolve-project-context-block-check.py -- seventeen case names,
+all seventeen fixture directories confirmed on disk, ending with the
+two rulings-C fixtures and this pass's
+evaluate-predicate-output-malformed-nested. The FIFTEEN-name
+enumeration near the top of this log and the SIXTEEN count in the
+rulings-C trailer above are historical snapshots of earlier
+generations, not the current census.
+
+READING-ORDER NOTE (2026-08-26, gate cycle 9): the CENSUS CORRECTION
+block immediately above was written at gate cycle 6 and predates the
+V6/V7 trailers that appear EARLIER in this file (they were appended by
+Edit-anchoring at the then-latest trailer line, landing physically
+before this tail block). The current census is NINETEEN, per the
+LIVE-TOTAL-V7 trailer and the driver's nineteen-entry case tuple; the
+SEVENTEEN in the block above is itself now a historical snapshot.
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-5 CLOSURE (2026-08-26,
+context_binding type check at step 4; new fixture
+resolve-component-paths-binding-not-object -- census now TWENTY, the
+driver's case tuple remains the authoritative list at twenty entries):
+  bash tests/resolve-project-context-block.tests.sh   -> 244 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 244 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V8: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 244 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE GATE CYCLE-10 MAJOR CLOSURE (2026-08-26,
+pass-2 projection type validation; two new projection stub sub-cases
+projection-output-not-object / projection-components-not-object --
+sub-cases of the existing projection fixture family, no new fixture
+directory: T-003's own directory census stays TWENTY):
+  bash tests/resolve-project-context-block.tests.sh   -> 256 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 256 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V9: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 256 passed, 0 failed"

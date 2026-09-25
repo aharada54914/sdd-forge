@@ -22,7 +22,7 @@
 # is untrusted diff input only -- it is NEVER executed, NEVER written
 # verbatim into any repository file, and NEVER embedded verbatim into an
 # issue body. Only model-ID tokens that pass the charset allowlist
-# `[A-Za-z0-9.-]` (and additionally contain at least one digit, this
+# `[A-Za-z0-9.-]` (with a claude-/gpt-/o-digit prefix and at least one digit, this
 # script's own conservative-heuristic noise filter -- Non-goals) ever reach
 # an issue body. This script never opens any path under `contracts/` for
 # writing (Security Boundaries B2) -- registry corrections remain a
@@ -113,7 +113,8 @@ fetch_source_or_unavailable() {
 # compute_divergence <anthropic_text> <openai_text> <registry_file>
 #   Pure function: no network, no gh. Extracts whitespace-delimited
 #   candidate tokens from the fetched text, keeping only tokens that (a)
-#   consist ENTIRELY of the allowlisted charset [A-Za-z0-9.-] and (b)
+#   consist ENTIRELY of the allowlisted charset [A-Za-z0-9.-], (b)
+#   begin with claude-, gpt-, or o followed by a digit, and (c)
 #   contain at least one digit (this script's own conservative-heuristic
 #   noise filter, discarding ordinary prose words -- Non-goals: "false
 #   negatives acceptable... not a precise parser"). Any token failing the
@@ -156,10 +157,12 @@ TOKENS
 }
 
 # extract_candidate_tokens -- reads text on stdin, prints sorted-unique
-# whitespace-delimited words that match the full charset allowlist
-# [A-Za-z0-9.-] end-to-end AND contain at least one digit.
+# whitespace-delimited model-family tokens (claude-, gpt-, or o + digit).
+# Keep the full charset allowlist and digit requirement. This is a conservative
+# discovery heuristic, not a model catalog or HTML parser: numeric CSS/SVG and
+# version tokens must not generate registry-divergence issues (#298).
 extract_candidate_tokens() {
-  tr -s '[:space:]' '\n' | grep -E '^[A-Za-z0-9.-]+$' | grep -E '[0-9]' | sort -u || true
+  tr -s '[:space:]' '\n' | grep -E '^(claude-|gpt-|o[0-9])[A-Za-z0-9.-]*$' | grep -E '[0-9]' | sort -u || true
 }
 
 # extract_registry_tokens <file> -- prints each models[].name value AND its

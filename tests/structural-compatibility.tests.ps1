@@ -2,12 +2,14 @@ $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = if ($env:STRUCTURAL_COMPAT_REPO_ROOT) { $env:STRUCTURAL_COMPAT_REPO_ROOT } else { Split-Path -Parent $ScriptDir }
+$EvidenceRepo = if ($env:STRUCTURAL_COMPAT_EVIDENCE_REPO) { $env:STRUCTURAL_COMPAT_EVIDENCE_REPO } else { $RepoRoot }
 $Canon = Join-Path $RepoRoot 'tests/lib/markdown-ast-canonicalizer.ps1'
 $Corpus = Join-Path $RepoRoot 'tests/fixtures/structural-fixture-corpus'
 $BootstrapSkill = Join-Path $RepoRoot 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
 $LiteSkill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-spec/SKILL.md'
 $Design = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/design.md'
 $Acceptance = Join-Path $RepoRoot 'specs/epic-195-a7-compatibility/acceptance-tests.md'
+$EmittedSkips = [Collections.Generic.List[string]]::new()
 $script:Passed = 0
 $script:Failed = 0
 
@@ -94,11 +96,26 @@ Assert-True 'fingerprinted Required Outputs injection anchor is unchanged' ($Act
 $Temp = Join-Path ([IO.Path]::GetTempPath()) ("structural-compat-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Temp | Out-Null
 try {
-    function Invoke-Canon([string]$Path) {
+function Invoke-Canon([string]$Path) {
         $global:LASTEXITCODE = 0
-        $Output = & $Canon $Path 2>$null | Out-String
-        $ExitCode = $LASTEXITCODE
-        [pscustomobject]@{ Text = $Output.Trim(); ExitCode = $ExitCode }
+        $HostPath = (Get-Process -Id $PID).Path
+        $StartInfo = [System.Diagnostics.ProcessStartInfo]::new()
+        $StartInfo.FileName = $HostPath
+        foreach ($Argument in @('-NoProfile', '-File', $Canon, $Path)) { $StartInfo.ArgumentList.Add($Argument) }
+        $StartInfo.UseShellExecute = $false
+        $StartInfo.RedirectStandardOutput = $true
+        $StartInfo.RedirectStandardError = $true
+        $Process = [System.Diagnostics.Process]::Start($StartInfo)
+        $Stdout = [System.IO.MemoryStream]::new()
+        $Stderr = [System.IO.MemoryStream]::new()
+        $CopyStdout = $Process.StandardOutput.BaseStream.CopyToAsync($Stdout)
+        $CopyStderr = $Process.StandardError.BaseStream.CopyToAsync($Stderr)
+        $Process.WaitForExit()
+        $CopyStdout.GetAwaiter().GetResult()
+        $CopyStderr.GetAwaiter().GetResult()
+        $Output = [System.Text.Encoding]::UTF8.GetString($Stdout.ToArray())
+        $Error = [System.Text.Encoding]::UTF8.GetString($Stderr.ToArray())
+        [pscustomobject]@{ Text = $Output.Trim(); Error = $Error; ExitCode = $Process.ExitCode }
     }
     function Invoke-CanonText([string]$Text, [string]$Name) {
         $Path = Join-Path $Temp $Name
@@ -147,12 +164,10 @@ try {
     [Array]::Sort($ExpectedReorderedPaths, [StringComparer]::Ordinal)
     Assert-True 'corpus artifact array order is comparison-irrelevant' (($ExpectedReorderedPaths -join "`n") -ceq ($ReorderedPaths -join "`n"))
 
-    $BadFront = Join-Path $Temp 'bad-frontmatter.md'; [IO.File]::WriteAllText($BadFront, "---`ntitle: broken`n")
-    & pwsh -NoProfile -File $Canon $BadFront *> $null
-    Assert-True 'malformed frontmatter is a hard failure' ($LASTEXITCODE -ne 0)
-    $BadHeading = Join-Path $Temp 'bad-heading.md'; [IO.File]::WriteAllText($BadHeading, '####### Broken heading grammar')
-    & pwsh -NoProfile -File $Canon $BadHeading *> $null
-    Assert-True 'unrecognized heading grammar is a hard failure' ($LASTEXITCODE -ne 0)
+    $BadFront = Invoke-CanonText "---`ntitle: broken`n" 'bad-frontmatter.md'
+    Assert-True 'malformed frontmatter is a hard failure with its process exit captured' ($BadFront.ExitCode -eq 2 -and $BadFront.Error.Contains('markdown AST parse failure:'))
+    $BadHeading = Invoke-CanonText '####### Broken heading grammar' 'bad-heading.md'
+    Assert-True 'unrecognized heading grammar is a hard failure with its process exit captured' ($BadHeading.ExitCode -eq 2 -and $BadHeading.Error.Contains('markdown AST parse failure:'))
 
     $NormA = Invoke-CanonText "---`nzeta:  one`nalpha: two`n---`n# Heading   text `n" 'norm-a.md'
     $NormB = Invoke-CanonText "---`r`nalpha: two`r`nzeta: one `r`n---`r`n# Heading text`r`n" 'norm-b.md'
@@ -177,6 +192,16 @@ try {
 
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]
+        if ($Fixture -ceq 'F4') {
+            $AuditHost = (Get-Process -Id $PID).Path
+            & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') condition (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') AC-007 $EvidenceRepo origin/main
+            if ($LASTEXITCODE -eq 0) {
+                Write-Output 'AC-007 active: checking recorded F4 full-track artifacts'
+                Validate-Track 'full' $F4
+                continue
+            }
+            if ($LASTEXITCODE -ne 1) { Fail 'F4 activation evidence is unavailable or invalid'; continue }
+        }
         $Row = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains("($Fixture", [StringComparison]::Ordinal) }
         $Ac = (($Row -csplit '\|')[1]).Trim()
         $ExpectedDependencies = @([regex]::Matches($Row, 'Epic A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
@@ -184,9 +209,17 @@ try {
         $ValidSkip = $Entry.skip.name -ceq $Fixture -and $Entry.skip.acceptance_criterion -ceq $Ac -and
             -not [string]::IsNullOrEmpty($Entry.skip.reason) -and (($ExpectedDependencies -join "`n") -ceq ($ActualDependencies -join "`n"))
         if ($ValidSkip) {
-            $SkipLine = "SKIP: $Fixture/$Ac ($($ActualDependencies -join '+')): $($Entry.skip.reason)"
+            $AuditHost = (Get-Process -Id $PID).Path
+            $Evaluator = Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+            $Manifest = Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+            switch ($Ac) {
+                'AC-007' { $SkipLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$Ac" AC-007 }
+                'AC-042' { $SkipLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$Ac" AC-042 }
+                default { Fail "$Fixture assertion has no manifest entry: $Ac"; continue }
+            }
             Assert-SkipLine "$Fixture named skip line renders in the twin-identical shape" $SkipLine
             Write-Output $SkipLine
+            $EmittedSkips.Add($SkipLine)
         } else { Fail "$Fixture named skip metadata matches its acceptance dependency" }
     }
     $TaskSkipSpan = [regex]::Match($TasksText, 'F5/F6 structural-identity assertions are named `SKIP`s[\s\S]*?until they merge', [Text.RegularExpressions.RegexOptions]::CultureInvariant).Value
@@ -196,11 +229,22 @@ try {
     $TaskDependencies = @([regex]::Matches($TaskSkipSpan, 'A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
     foreach ($Fixture in @('F5', 'F6')) {
         if ($AcceptanceDependencies.Count -gt 1 -and (($AcceptanceDependencies -join "`n") -ceq ($TaskDependencies -join "`n"))) {
-            $CompoundLine = "SKIP: $Fixture/$CompoundAc ($($AcceptanceDependencies -join '+')): compound dependency not merged"
+            $AuditHost = (Get-Process -Id $PID).Path
+            $Evaluator = Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+            $Manifest = Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+            $CompoundLine = & $AuditHost -NoProfile -File $Evaluator line $Manifest "$Fixture/$CompoundAc" AC-043
             Assert-SkipLine "$Fixture compound skip line renders in the twin-identical shape" $CompoundLine
             Write-Output $CompoundLine
+            $EmittedSkips.Add($CompoundLine)
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
+    # Audit the actual emitted lines, not just their formatting or unit fixtures.
+    $SkipLog = Join-Path $Temp 'emitted-skips.log'
+    [IO.File]::WriteAllLines($SkipLog, $EmittedSkips)
+    $AuditHost = (Get-Process -Id $PID).Path
+    & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') audit (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') $SkipLog $EvidenceRepo origin/main
+    Assert-True 'emitted dependency skips remain allowed on origin/main' ($LASTEXITCODE -eq 0)
+
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')
     # Array entries may use either quote style and an optional trailing comma.
     # Anchor the whole line so comments and longer paths are not registrations.

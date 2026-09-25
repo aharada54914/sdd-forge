@@ -22,6 +22,7 @@ VALIDATOR = Path(
         ROOT / "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
     )
 ).resolve()
+VALIDATOR_PY = (ROOT / "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py").resolve()
 
 CELLS = {
     "Claude-active": ("claude", "not_applicable", "claude-hooks.json"),
@@ -29,6 +30,25 @@ CELLS = {
     "Codex-disabled-expected-unavailable": ("codex", "disabled", "hooks.json"),
     "Copilot-primary-active": ("copilot", "not_applicable", "copilot-hooks.json"),
     "Copilot-subagent-expected-unavailable": ("copilot", "not_applicable", "copilot-hooks.json"),
+}
+T008_EXPECTED_CASES = {
+    "TEST-013": "semantic-cell-classification",
+    "TEST-014": "fallback-classification",
+    "TEST-015": "skip-pass-fail-matrix",
+    "TEST-016": "fingerprinted-consumer-inventory",
+}
+T008_A1_COMMIT = "c0aaf3a639f4cb4798b16acd115f0b05db44493f"
+T008_HANDSHAKE_PATHS = {
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "62a8841c21fee332e83d7bc052dde93f6ab0d1f2",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh": "786a07d0cc5c48a46e35f066640d9b0c53708c43",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1": "2a1f04e019df351abd2fce038611cf23347f445e",
+}
+T008_CONSUMER_PATHS = {
+    "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md": "548112c966227a6f1d983a2a4c17e0e5c61a83de",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "c3adc68681c4fabf0ebad6d2f6ef4af299af5327",
+    "plugins/sdd-lite/skills/lite-gate/SKILL.md": "5ca654fa714b182dcbd488b40517b924f7428e63",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md": "111c240d1959f7449a8dc0030a64a8d0d4138b4f",
+    "plugins/sdd-ship/skills/ship/SKILL.md": "74b04579a9ad0527f345d7bbacc619f59c748e1c",
 }
 FILENAMES = {
     cell: cell.lower().replace("claude", "claude").replace("codex", "codex").replace("copilot", "copilot") + ".json"
@@ -370,6 +390,35 @@ def validator_command(fixture):
     return [sys.executable, str(VALIDATOR), *args]
 
 
+def load_validator_module():
+    spec = importlib.util.spec_from_file_location("live_host_validator_t008", VALIDATOR_PY)
+    if spec is None or spec.loader is None:
+        raise AssertionError("live-host validator module could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def git_blob_at_commit(commit, relative_path):
+    result = subprocess.run(
+        ["git", "rev-parse", f"{commit}:{relative_path}"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr.strip()
+    return result.stdout.strip()
+
+
+def t008_committed_records():
+    records_dir = ROOT / "tests/hook-activation-live-proof"
+    return {
+        cell: json.loads((records_dir / FILENAMES[cell]).read_text(encoding="utf-8"))
+        for cell in CELLS
+    }
+
+
 def invoke(fixture):
     return subprocess.run(validator_command(fixture), text=True, capture_output=True, check=False)
 
@@ -573,6 +622,98 @@ def _skip_bad_citation(fixture):
     fixture.save_record(record)
 
 
+def t008_acceptance_cases():
+    validator = load_validator_module()
+    records = t008_committed_records()
+    allowlist = json.loads(
+        (ROOT / "plugins/sdd-review-loop/references/a8-skip-allowlist.json").read_text(encoding="utf-8")
+    )
+    entries = {entry["case_id"]: entry for entry in allowlist["entries"]}
+    results = []
+
+    schema_ok = True
+    for cell, record in records.items():
+        try:
+            validator.validate_record_schema(record, cell)
+        except validator.ValidationError:
+            schema_ok = False
+
+    codex_records = [records["Codex-enabled-active"], records["Codex-disabled-expected-unavailable"]]
+    runtime_negative = run_failure_case(
+        "T008-TEST-013-runtime-mismatch",
+        "ERR_CELL_RUNTIME_MISMATCH",
+        lambda fixture: _mutate_record(
+            fixture,
+            lambda record: record.update({
+                "runtime": "copilot",
+                "installed_feature_config_ref": None,
+                "installed_feature_config_digest": None,
+            }),
+        ),
+    )[0]
+    results.append((
+        "TEST-013 semantic-cell-classification",
+        schema_ok
+        and runtime_negative
+        and all(
+            record["verdict"] == "SKIP"
+            and record["invocation_mode"] == "manual"
+            and "manual-required" in (record.get("notes") or "")
+            for record in codex_records
+        ),
+        "Codex enabled/disabled classifications and runtime negative fixture",
+    ))
+
+    primary = records["Copilot-primary-active"]
+    subagent = records["Copilot-subagent-expected-unavailable"]
+    results.append((
+        "TEST-014 fallback-classification",
+        "primary-active semantic cell" in (primary.get("notes") or "")
+        and "subagent-expected-unavailable semantic cell" in (subagent.get("notes") or "")
+        and "docs/troubleshooting.md" in (subagent.get("notes") or "")
+        and all(record["verdict"] == "SKIP" for record in (primary, subagent)),
+        "Copilot primary/subagent fallback is recorded as manual SKIP",
+    ))
+
+    matrix_results = [
+        run_failure_case(
+            "T008-TEST-015-missing",
+            "ERR_MISSING_CELL",
+            lambda fixture: fixture.record_path("Claude-active").unlink(),
+            {cell: "SKIP" for cell in CELLS},
+        )[0],
+        run_success_case("T008-TEST-015-valid-skip", "pending", {cell: "SKIP" for cell in CELLS})[0],
+        run_failure_case(
+            "T008-TEST-015-stale-skip",
+            "ERR_STALE_SKIP",
+            _stale_skip,
+            {cell: "SKIP" for cell in CELLS},
+        )[0],
+        run_success_case("T008-TEST-015-all-pass", "discharged", None)[0],
+        run_failure_case(
+            "T008-TEST-015-fail-verdict",
+            "ERR_SCHEMA_INVALID",
+            lambda fixture: _mutate_record(fixture, lambda record: record.update({"verdict": "FAIL"})),
+        )[0],
+    ]
+    results.append(("TEST-015 skip-pass-fail-matrix", all(matrix_results), "missing/valid/stale SKIP plus PASS and FAIL"))
+
+    inventory_ok = (
+        allowlist.get("schema") == "a8-skip-allowlist/v1"
+        and entries.get("AC-015", {}).get("upstream_epic_a1_commit") == T008_A1_COMMIT
+        and entries.get("AC-015", {}).get("upstream_epic_a1_path_blob_ids") == T008_HANDSHAKE_PATHS
+        and entries.get("AC-016", {}).get("upstream_epic_a1_commit") == T008_A1_COMMIT
+        and entries.get("AC-016", {}).get("upstream_epic_a1_path_blob_ids") == T008_CONSUMER_PATHS
+        and all(
+            git_blob_at_commit(T008_A1_COMMIT, path) == blob
+            for path, blob in {**T008_HANDSHAKE_PATHS, **T008_CONSUMER_PATHS}.items()
+        )
+        and all("AC-016" in (record.get("notes") or "") for record in records.values())
+    )
+    results.append(("TEST-016 fingerprinted-consumer-inventory", inventory_ok, "three handshake and five consumer blob IDs match"))
+    return results
+
+
 def crypto_known_answer_case():
     spec = importlib.util.spec_from_file_location(
         "live_host_validator",
@@ -667,6 +808,9 @@ def main():
     if set(fixture_cases) != ERRORS or any(name != value for name, value in fixture_cases.items()):
         print("not ok - fixture tree needs exactly one descriptor per named error")
         return 1
+    if set(descriptor.get("t008_acceptance_cases", [])) != set(T008_EXPECTED_CASES):
+        print("not ok - fixture descriptor does not cover the exact T-008 acceptance set")
+        return 1
 
     results = []
     for expected, mutation in named_cases():
@@ -688,6 +832,7 @@ def main():
     results.extend(transaction_cases())
     crypto_ok, crypto_detail = crypto_known_answer_case()
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
+    results.extend(t008_acceptance_cases())
 
     passed = 0
     for name, ok, detail in results:

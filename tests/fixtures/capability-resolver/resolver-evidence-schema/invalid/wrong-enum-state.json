@@ -1,0 +1,7 @@
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "epic-193-a5-capability-resolver",
+  "state": "bogus",
+  "capability_evaluations": [],
+  "diagnostics": []
+}
