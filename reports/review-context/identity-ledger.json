@@ -10606,6 +10606,24 @@
       "previous_record_sha256": "88263731d8289bd6c3fe42a834a094d5dc701659df7243159c3399f49e469ad6",
       "record_sha256": "8357201b765d7178652ed72748efd11b918f2b56518288c45a1120b7a81e371b",
       "scratch_declaration_sha256": "bc9f1157db76a6b32f824a5402363baf165687dd4dc7a8e2f417051c8fa6b73f"
+    },
+    {
+      "sequence": 1177,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt7r1-sonnet",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-attempt7r1-sonnet",
+      "previous_record_sha256": "8357201b765d7178652ed72748efd11b918f2b56518288c45a1120b7a81e371b",
+      "record_sha256": "c665358ae74aaa0bd3daa7e06575a71bb764f87edaf2a0664c92232ac9a42e63"
+    },
+    {
+      "sequence": 1178,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt7r1-sonnet",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-attempt7r1-sonnet",
+      "previous_record_sha256": "c665358ae74aaa0bd3daa7e06575a71bb764f87edaf2a0664c92232ac9a42e63",
+      "record_sha256": "4655de18409aef5c8ec535bd52632cc530151dc8958cbb34be39d8f3633756f7"
     }
   ]
 }
