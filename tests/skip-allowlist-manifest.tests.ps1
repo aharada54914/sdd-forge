@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'clean', 'primitives', 'manifest-contract')]
+    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'clean', 'primitives', 'case-sensitive-terminal', 'manifest-contract')]
     [string]$Case = 'all'
 )
 
@@ -159,6 +159,20 @@ function Test-Primitives {
     Invoke-Git $fixture.Repo @('merge', '-q', '--no-ff', 'feature/epic-999-fixture', '-m', 'merge caller marker')
     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'executable_contains activates after the caller marker reaches main' } else { Fail 'executable_contains activates after the caller marker reaches main' }
 }
+function Test-CaseSensitiveTerminal {
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    $specDir = Join-Path $fixture.Repo 'specs/epic-999-fixture'
+    foreach ($file in @('requirements.md', 'design.md')) {
+        $path = Join-Path $specDir $file
+        $content = [IO.File]::ReadAllText($path).Replace('Spec-Review-Status:', 'spec-review-status:').Replace('Impl-Review-Status:', 'impl-review-status:')
+        [IO.File]::WriteAllText($path, $content, [Text.UTF8Encoding]::new($false))
+    }
+    Invoke-Git $fixture.Repo @('add', 'specs/epic-999-fixture/requirements.md', 'specs/epic-999-fixture/design.md')
+    Invoke-Git $fixture.Repo @('commit', '-q', '-m', 'mis-cased terminal statuses')
+    if ((Invoke-Evaluator @('merged', $fixture.Manifest, 'AC-900', 'A9', $fixture.Repo, 'main')) -ne 0) {
+        Pass 'mis-cased terminal status keys do not activate merged(A9)'
+    } else { Fail 'mis-cased terminal status keys do not activate merged(A9)' }
+}
 function Test-ManifestContract {
     if (-not (Test-Path -LiteralPath $ShippedManifest)) { Fail 'AC-034 shipped manifest exists'; return }
     $manifest = @(Get-Content -Raw -LiteralPath $ShippedManifest | ConvertFrom-Json)
@@ -201,8 +215,9 @@ try {
         'fingerprint-drift' { Test-FingerprintDrift }
         'clean' { Test-Clean }
         'primitives' { Test-Primitives }
+        'case-sensitive-terminal' { Test-CaseSensitiveTerminal }
         'manifest-contract' { Test-ManifestContract }
-        'all' { Test-ManifestContract; Test-Primitives; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-Clean }
+        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-Clean }
     }
     Write-Output "$script:Pass passed, $script:Fail failed"
     if ($script:Fail -ne 0) { exit 1 }
