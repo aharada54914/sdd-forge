@@ -1397,7 +1397,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1449,6 +1449,10 @@ jobs:
           fi
           if [ "${{ needs.posix-regression.result }}" != "success" ]; then
             echo "posix-regression job failed"
+            exit 1
+          fi
+          if [ "${{ needs.posix-unwired-sharded.result }}" != "success" ]; then
+            echo "posix-unwired-sharded job failed"
             exit 1
           fi
           echo "all required checks passed"
