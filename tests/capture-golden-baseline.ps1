@@ -38,10 +38,12 @@ def extract_snapshot(repo,destination,environment):
             target.write_bytes(source.read()); target.chmod(member.mode & 0o777)
 def filesystem_manifest(root):
     if not root.exists(): return b""
-    return "".join(f"{sha256(path)}  {path.relative_to(root).as_posix()}\n" for path in sorted(item for item in root.rglob("*") if item.is_file())).encode()
+    paths = sorted((item for item in root.rglob("*") if item.is_file()), key=lambda item: item.relative_to(root).parts)
+    return "".join(f"{sha256(path)}  {path.relative_to(root).as_posix()}\n" for path in paths).encode()
 def directory_listing(root):
     if not root.exists(): return b""
-    return "".join(path.relative_to(root).as_posix()+("/" if path.is_dir() else "")+"\n" for path in sorted(root.rglob("*"))).encode()
+    paths = sorted(root.rglob("*"), key=lambda item: item.relative_to(root).parts)
+    return "".join(path.relative_to(root).as_posix()+("/" if path.is_dir() else "")+"\n" for path in paths).encode()
 def raw_tuple(stdout,stderr): return struct.pack(">Q",len(stdout))+stdout+struct.pack(">Q",len(stderr))+stderr
 def write_target(destination,relative,content):
     path=destination/relative; path.parent.mkdir(parents=True,exist_ok=True); path.write_bytes(content)

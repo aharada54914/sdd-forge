@@ -85,7 +85,10 @@ def filesystem_manifest(root: Path) -> bytes:
     if not root.exists():
         return b""
     lines = []
-    for path in sorted(item for item in root.rglob("*") if item.is_file()):
+    for path in sorted(
+        (item for item in root.rglob("*") if item.is_file()),
+        key=lambda item: item.relative_to(root).parts,
+    ):
         lines.append(f"{sha256(path)}  {path.relative_to(root).as_posix()}\n")
     return "".join(lines).encode("utf-8")
 
@@ -94,7 +97,7 @@ def directory_listing(root: Path) -> bytes:
     if not root.exists():
         return b""
     lines = []
-    for path in sorted(root.rglob("*")):
+    for path in sorted(root.rglob("*"), key=lambda item: item.relative_to(root).parts):
         suffix = "/" if path.is_dir() else ""
         lines.append(path.relative_to(root).as_posix() + suffix + "\n")
     return "".join(lines).encode("utf-8")
