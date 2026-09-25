@@ -10506,6 +10506,106 @@
       "previous_record_sha256": "e0f4f3a447a3f87846d2719428b5107867f1b5cde9205863be2255aa9d035012",
       "record_sha256": "555a8940c037e7b78ca3f4c1c133d6cca8f7572c12326f9dd15f93cccfbff2c9",
       "allowed_inputs_sha256": "6a16951b20a7f3970d6574755815e667c7e4291389fec7790e483ac3ab4a8afd"
+    },
+    {
+      "sequence": 1167,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini1-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini1-20260925",
+      "previous_record_sha256": "555a8940c037e7b78ca3f4c1c133d6cca8f7572c12326f9dd15f93cccfbff2c9",
+      "record_sha256": "7c1b0fefaca353058b134f813c53d1f8ab68341fd06d03569ef5f7e26ea5d77b",
+      "scratch_declaration_sha256": "fa104c1a6f442618de426a62c27ccb68808c3bdf05687ec5700807d2e4939064"
+    },
+    {
+      "sequence": 1168,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini2-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini2-20260925",
+      "previous_record_sha256": "7c1b0fefaca353058b134f813c53d1f8ab68341fd06d03569ef5f7e26ea5d77b",
+      "record_sha256": "53e8fd19e1db886af660b401d47c049b36b82277c426e17ea5c717a9fbd6e3a3",
+      "scratch_declaration_sha256": "c317219f43f4ce7089b0de407fea5df7e7842d6567bcd2d04e158307d8d26995"
+    },
+    {
+      "sequence": 1169,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini3-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini3-20260925",
+      "previous_record_sha256": "53e8fd19e1db886af660b401d47c049b36b82277c426e17ea5c717a9fbd6e3a3",
+      "record_sha256": "fb9a7b7a8e2407a8c0734d921e817b32f3145ffefff7f1ec0680a99091a4482f",
+      "scratch_declaration_sha256": "9358d29babbab62bed9917517d6a1504718786368ecd7a48ffc5b8c0c5d210be"
+    },
+    {
+      "sequence": 1170,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini4-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini4-20260925",
+      "previous_record_sha256": "fb9a7b7a8e2407a8c0734d921e817b32f3145ffefff7f1ec0680a99091a4482f",
+      "record_sha256": "395bcae6c68d290190325c91eca88d16813fd740171e994f541d2266b8271076",
+      "scratch_declaration_sha256": "0841e84642b13b14cd8327e96b8c7d30e697bf1a688b0ae17efd79c40232e131"
+    },
+    {
+      "sequence": 1171,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini5-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini5-20260925",
+      "previous_record_sha256": "395bcae6c68d290190325c91eca88d16813fd740171e994f541d2266b8271076",
+      "record_sha256": "b5dfd6d3c0767ce4e8655389594c012516e1a553f02908dede35c9980f5183f1",
+      "scratch_declaration_sha256": "376e207619f52cd5980c08d520fe00858936949151cb4bfa90bf217cb43c8a60"
+    },
+    {
+      "sequence": 1172,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini6-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini6-20260925",
+      "previous_record_sha256": "b5dfd6d3c0767ce4e8655389594c012516e1a553f02908dede35c9980f5183f1",
+      "record_sha256": "ace2cb0d638f923eab936e6100d5cfed8a697762df9a4952cf5268882412a7bf",
+      "scratch_declaration_sha256": "c18f068a603a969ae22dd882391d40749c88323418c8562adfd39d22eae4a9a2"
+    },
+    {
+      "sequence": 1173,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini7-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini7-20260925",
+      "previous_record_sha256": "ace2cb0d638f923eab936e6100d5cfed8a697762df9a4952cf5268882412a7bf",
+      "record_sha256": "767d6e717d86570a68467d3628cd4b0ade71855e153a2c01a766a416eeca67ef",
+      "scratch_declaration_sha256": "9e9179a87cff1e5522ec9b3c5079254bd190552c9a37cde6575b9a38d8a23586"
+    },
+    {
+      "sequence": 1174,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini8-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini8-20260925",
+      "previous_record_sha256": "767d6e717d86570a68467d3628cd4b0ade71855e153a2c01a766a416eeca67ef",
+      "record_sha256": "8e01446a06c4ec501ce8446abf3634c7b8700db12c1f7acc205485c3d08eccd7",
+      "scratch_declaration_sha256": "0d86871b43779a73c191245b85e7d614e4b99cde2cb2508ddf37fa209b774718"
+    },
+    {
+      "sequence": 1175,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini9-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini9-20260925",
+      "previous_record_sha256": "8e01446a06c4ec501ce8446abf3634c7b8700db12c1f7acc205485c3d08eccd7",
+      "record_sha256": "88263731d8289bd6c3fe42a834a094d5dc701659df7243159c3399f49e469ad6",
+      "scratch_declaration_sha256": "0246b22a3011ee024604bfc24ebb7c38cb70459d669c70c6f6fb4b1c0e36359a"
+    },
+    {
+      "sequence": 1176,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-008-gemini10-20260925",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-008-gemini10-20260925",
+      "previous_record_sha256": "88263731d8289bd6c3fe42a834a094d5dc701659df7243159c3399f49e469ad6",
+      "record_sha256": "8357201b765d7178652ed72748efd11b918f2b56518288c45a1120b7a81e371b",
+      "scratch_declaration_sha256": "bc9f1157db76a6b32f824a5402363baf165687dd4dc7a8e2f417051c8fa6b73f"
     }
   ]
 }
