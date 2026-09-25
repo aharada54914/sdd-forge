@@ -51,6 +51,54 @@ platform targets, characteristics, distribution channels, data classification,
 provider bindings, and path rules; omitted optional fields shall be justified,
 not silently guessed (`contracts/project-context.schema.json:21-65`).
 
+**A9 classification oracle (draft policy, 2026-09-26).** The approved nine IDs
+and ownership in the 2026-09-08 OQ-001 amendment remain unchanged. The labels
+below are proposed A9 values, not schema enums. Product-level evidence names
+developer tooling / CLI / plugin package, GitHub Release / multi-runtime
+installation, Windows/macOS/Linux, and Claude/Codex/Copilot
+(`docs/ai-dlc-foundation-decision-v2.md:483-492`); README documents the
+component boundaries and behaviors (`README.md:108-175`).
+
+| Approved ID | artifact_kinds | runtime_classes | distribution_channels | data_classification | paths |
+|---|---|---|---|---|---|
+| `sdd-bootstrap` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content]` | OQ-002 plugin rule |
+| `sdd-review-loop` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence]` | OQ-002 plugin rule |
+| `sdd-implementation` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence]` | OQ-002 plugin rule |
+| `sdd-quality-loop` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence, credential_material]` | OQ-002 plugin rule |
+| `sdd-ship` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence]` | OQ-002 plugin rule |
+| `sdd-lite` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence]` | OQ-002 plugin rule |
+| `sdd-domain` | `[plugin_package]` | `[host_cli_plugin]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, workflow_evidence]` | `plugins/sdd-domain/**` only |
+| `mcp` | `[mcp_server]` | `[local_mcp_server]` | `[github_release, multi_runtime_plugin_install]` | `[repository_content, host_metadata, ci_metadata, credential_material]` | `mcp/**` |
+| `installer` | `[installer_script]` | `[shell_installer]` | `[github_release]` | `[repository_content, host_configuration]` | OQ-002 installer paths |
+
+Data labels identify kinds of material read, written, or processed: `repository_content`
+is source/spec/task files; `workflow_evidence` is review, implementation, and
+quality-gate records; `host_metadata` is OS/toolchain facts; `ci_metadata` is
+CI runs, jobs, logs, and artifact metadata; `credential_material` is a
+credential consumed by a component (not a claim it emits one); and
+`host_configuration` is client/plugin/MCP registration configuration. This
+classification does **not** assert absence of PII or credentials in repository
+content, logs, or any data. The labels are proposed A9 policy grounded in
+`README.md:108-175` and plugin package surfaces, not pre-existing schema enums.
+The `sdd-quality-loop` credential label is specifically grounded in its
+evidence-bundle signer reading a configured signing key and producing an
+HMAC-SHA256 signature (`plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh:418-425`);
+the `mcp` credential label is grounded in `ci-mcp`'s required read-only GitHub
+token (`README.md:140-150`).
+
+For all nine rows omit `platform_targets`: the product decision is not a
+per-component support matrix and the schema requires both OS and architecture
+(`docs/ai-dlc-foundation-decision-v2.md:483-489`;
+`contracts/project-context.schema.json:31-40`). Omit `characteristics`
+rather than infer booleans: the exact schema keys are `pii`, `ui`,
+`auto_update`, `local_persistence`, `long_running`, `replayable`, and
+`human_in_the_loop` (`contracts/project-context.schema.json:41-53`); omission
+does not mean false, especially for `pii`. Omit `provider_binding_ids` because
+ADR-0018 separates binding records from Context and no approved A9 binding IDs
+are supplied (`docs/adr/0018-provider-binding-separation.md:49-78`). For
+`paths`, use only exact OQ-002 rules; do not broaden ownership. These optional
+field omissions are not claims of “none” or “no sensitive data.”
+
 ### REQ-003 — Complete path ownership
 
 The Context shall encode the human-approved OQ-002 include/exclude/shared map and
@@ -74,10 +122,10 @@ owner ruling of 2026-09-04 (recorded under OQ-001), the Context schema's
 component records shall accept an additive, optional list of scoped
 characteristic-override entries.
 
-**Valid override characteristic namespace.** The seven base characteristics
-used on component and shared-path records (e.g. `has_ui`, `is_published`,
-`is_runtime`, `is_privileged`, `is_public_api`, `is_installable`,
-`is_test_only`) remain entirely unchanged by this extension. The only
+**Valid override characteristic namespace.** The seven base schema keys are
+`pii`, `ui`, `auto_update`, `local_persistence`, `long_running`, `replayable`,
+and `human_in_the_loop`; they remain unchanged by this extension
+(`contracts/project-context.schema.json:41-53`). The only
 additional machine names introduced for use inside `characteristic_overrides`
 entries are `credential_bearing` (human label: "credential-bearing") and
 `release_write` (human label: "release-write"). Any name other than these two
@@ -95,11 +143,23 @@ override-only machine names above), `value` (a boolean), and `rationale` (a
 non-empty one-line string). Entries with any missing or extra field, any
 unrecognised `characteristic` name, a `scope` not covered by the owning
 component's include set or the referenced cross-cutting rule, or a `value`
-equal to the record's own baseline (a no-op override) shall be rejected.
+equal to the record's baseline for that override characteristic (a no-op
+override) shall be rejected. **Override-only baseline rule (proposed A9
+policy, 2026-09-26):** for resolving these two override-only characteristics,
+an absent value on the owning record is baseline `false`; a `false` override
+is therefore a no-op and rejects. This applies only to override resolution;
+it is not a security assertion or classification of any other path, component,
+or schema characteristic.
+
+The OQ-002 cross-cutting rule for `.github/**` is the release-automation
+override owner; its canonical `scope` value is exactly `.github/**`. The
+release-write classification is exercised against the tracked release workflow
+`.github/workflows/release.yml`. This uses the already-approved OQ-002 pattern;
+it creates no third ownership rule or new paths.
 
 The live Context shall carry exactly two such overrides in Phase 1: `mcp/ci-mcp`
 with `characteristic: credential_bearing` and `value: true` on the `mcp`
-component record, and the approved release-automation cross-cutting rule with
+component record, and the `.github/**` cross-cutting rule with
 `characteristic: release_write` and `value: true`. Characteristic tests
 (AC-007) shall read overrides when distinguishing the CI-MCP credential and
 release-write cases. The extension is additive: a Context with no overrides
@@ -146,13 +206,27 @@ with required capability enforcement (`issue-197-full-body.md:28`).
 
 ### REQ-009 — Policy-weakening rollback
 
-A required-to-advisory rollback shall follow the human-approved OQ-004 procedure
-and ADR-0019: two distinct approvals when at least two real identities are
-registered, otherwise a first approval plus an HMAC-bound 24-hour cooldown. Early,
-unsigned, self-approved, or identity-duplicated application shall fail
-(`docs/adr/0019-approval-sidecar-protection.md:49-94`).
+A required-to-advisory rollback shall follow the human-approved OQ-004
+procedure: two distinct approvals when at least two real identities are
+registered, otherwise first approval plus a 24-hour cooldown represented by
+the signed `effective_at` boundary; re-evaluate current registry membership
+at application. The persisted rollback record
+uses OQ-004's Ed25519 live-host-proof machinery (JCS, domain-separated
+signatures, trusted-signer registry); the approval sidecar separately remains
+under ADR-0019's external-key HMAC protection. Neither substitutes for the
+other (`docs/adr/0019-approval-sidecar-protection.md:49-94`;
+`docs/adr/0028-live-host-proof-ed25519-signing.md:56-98`). Early, unsigned,
+self-approved, or identity-duplicated application shall fail.
 The two policy branches are field-test requirements of this epic, not optional
 test variants (`issue-197-full-body.md:22`).
+
+**Zero-identity fail-closed clarification (2026-09-26):** OQ-004's historical
+resolution defines count ≥2 and count ==1. If the trusted approver registry
+contains zero real registered identities at request or application time,
+rollback rejects without issuing a request or applying a record. Neither the
+solo approval nor signature verification can be grounded to an authorized
+identity in that state. This fail-closed case adds no approval branch and
+preserves the signed-record and current-registry requirements.
 
 ### REQ-010 — Operational-friction capture
 
@@ -217,8 +291,8 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 |---|---|---|
 | AC-001 | REQ-001 | A schema test accepts exactly the Phase-1 workflow tuple `full` / `legacy-seven-layer` / `advisory`. |
 | AC-002 | REQ-001 | Publication tests reject missing/invalid approval binding and demonstrate the human-copy boundary. |
-| AC-003 | REQ-002 | A fixture asserts every approved component ID and its required classification fields against the OQ-001 decision record. |
-| AC-004 | REQ-002 | Separate fixtures reject omission of each of the nine required component IDs, an extra unapproved ID, and an unjustified empty classification. |
+| AC-003 | REQ-002 | A fixture asserts all nine approved IDs, supported classifications, explicitly omitted optional fields, and OQ-002 paths against the OQ-001 decision and the dated A9 classification oracle. |
+| AC-004 | REQ-002 | Separate fixtures reject omission of each of the nine required IDs, an extra ID, an unjustified empty classification, and each incorrect classification field (TEST-003c–i). |
 | AC-005 | REQ-003 | Ownership validation reports zero unexplained overlaps for the approved map and blocks Phase-1 publication when a tracked path newly matches multiple components without an approved shared rule. |
 | AC-006 | REQ-003 | Ownership validation reports zero unexplained unowned tracked paths, verifies every approved shared-path rule, and blocks Phase-1 publication when a tracked path matches neither a component nor a shared rule. |
 | AC-007 | REQ-004 | Characteristic tests distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases. |
@@ -231,8 +305,8 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-014 | REQ-008 | Schema/resolver tests accept the atomic Phase-2 tuple `full` / `facet-hybrid` / `required`. |
 | AC-015 | REQ-008 | Tests reject each partial promotion: layout-only and enforcement-only. |
 | AC-016 | REQ-009 | A two-or-more-identity fixture requires two distinct valid approvals for required-to-advisory rollback. |
-| AC-017 | REQ-009 | A single-identity fixture rejects rollback before 24 hours and accepts it at/after the signed effective time. |
-| AC-018 | REQ-009 | Rollback fixtures reject unsigned, self-approved, duplicated-identity, and non-bound sidecars. A registry change between request and effective time triggers validation against the current registry; elapsed cooldown alone cannot authorize rollback when the current registry requires two distinct approvals. |
+| AC-017 | REQ-009 | For the solo branch, `effective_at` is the HMAC-authorized first-approval time plus 24 hours: TEST-017a rejects one second before that signed boundary, TEST-017b accepts exactly at it, and TEST-017c accepts one second after it, all with valid signed rollback evidence. |
+| AC-018 | REQ-009 | TEST-018a/b revalidate a changed registry; TEST-018c/c2 reject zero identities at request/application; TEST-018d–g separately reject unsigned, unbound, self-approved, and duplicate-identity approval sidecars; TEST-018h/i reject invalid/untrusted Ed25519-signed rollback records. |
 | AC-019 | REQ-010 | A dogfood friction fixture produces a Draft WFI with all required analysis sections and no Approved status. |
 | AC-020 | REQ-011 | Dependency preflight blocks when any A1–A8 required surface is absent/incompatible and records the failing dependency. |
 | AC-021 | REQ-011 | Shared-state preflight records fresh hashes/inventories for Registry, guards, components, Active Specs, WFI namespace, and protected targets. |
@@ -244,8 +318,8 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-027 | REQ-006 | Release-cycle evidence identifies explicit start/end releases and proves every PR in that complete cycle passed the advisory capability-mode Gate. |
 | AC-028 | REQ-008 | After required promotion, saved evidence proves at least one real feature completed the full workflow end-to-end under `facet-hybrid`. |
 | AC-029 | REQ-010 | The dogfood cycle records WFI references for observed friction or the literal result `none` when zero, covering path ownership, staleness, and approval flow. |
-| AC-030 | REQ-004 | The live Context carries exactly two `characteristic_overrides` entries and no others: (a) on the `mcp` component record, `scope: mcp/ci-mcp`, `characteristic: credential_bearing`, `value: true`; and (b) on the approved release-automation cross-cutting rule, `characteristic: release_write`, `value: true`. Characteristic tests read both entries and use them for the AC-007 distinctions. A fixture with any other count, any differing scope, characteristic, or value rejects. |
-| AC-031 | REQ-004 | Override validation rejects: (a) any entry whose `characteristic` value is not `credential_bearing` or `release_write` (unknown name); (b) any entry whose `scope` is not covered by the owning component's include set or the referenced cross-cutting rule (out-of-scope); (c) any entry whose `value` equals the record's own baseline for that characteristic (no-op). Each rejection condition is exercised by a separate negative fixture. |
+| AC-030 | REQ-004 | The live Context carries exactly two `characteristic_overrides` entries and no others: (a) on `mcp`, `scope: mcp/ci-mcp`, `characteristic: credential_bearing`, `value: true`; (b) on the OQ-002 `.github/**` cross-cutting rule, `scope: .github/**`, `characteristic: release_write`, `value: true`, exercised against `.github/workflows/release.yml`. Any other count, scope, characteristic, or value rejects. |
+| AC-031 | REQ-004 | Override validation rejects unknown names and out-of-scope entries; rejects `value: false` as a no-op for each absent override-only baseline; rejects each missing/extra entry field (TEST-031e–i) and each placement on a record type other than component or cross-cutting rule (TEST-031j–k). |
 | AC-032 | REQ-003 | Ownership validation verifies that every component include set matches tracked paths and that the recomputed ownership digest matches the recorded digest; an empty include match or mismatched digest each blocks publication. |
 | AC-033 | REQ-008 | Required-enforcement activation rejects when the selected Pack evidence is missing, resolver evidence is missing, or both are missing. |
 | AC-034 | REQ-009 | A registry-cardinality change between rollback request and effective time forces branch re-evaluation with the current registry (a solo cooldown in progress becomes two-party when a second identity is registered). |
@@ -474,6 +548,22 @@ via the established human-copy staging route. Rationale: composition by
 reference structurally avoids the Risks-section duplicate-registry-entry
 failure, and keeping the two capabilities separate preserves
 decomposability when later Packs arrive.
+
+**Dated factual clarification and precedence (2026-09-26; no change to human
+approval):** the immediately preceding 2026-09-02 resolution preserves its
+verbatim approval/history. Its phrase “existing Epic A2 capability-registry
+entries” was inaccurate as a current-tree statement: the current Registry
+contains only `durable-workflow`, and A2 assigns fragment selection to A5
+(`contracts/capability-registry.json:1-67`;
+`specs/epic-190-a2-capability-registry/requirements.md:311-318`). A9 shall add
+the two approved IDs using A2's existing Registry schema and A5's existing
+capability-ID fragment-selection mechanism for Resolver composition; the
+schema defines capability and gate records but no Pack record
+(`contracts/capability-registry.schema.json:5-19,40-76`;
+`specs/epic-190-a2-capability-registry/design.md:121-128,1025-1028`). This
+clarifies the implementation basis only: the human-approved IDs, composition,
+predicates/facets/gates, Lite policy, enforcement minimum, and delivery remain
+unchanged. Historical approval and review records are not rewritten.
 
 ## Risks
 

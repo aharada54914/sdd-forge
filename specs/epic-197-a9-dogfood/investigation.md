@@ -17,12 +17,10 @@ Issue #197.
 
 ## Authoritative Issue Inputs
 
-- `/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/b1de79a2-362c-4249-a415-6247ab35e3a1/scratchpad/issue-197-full-body.md`,
-  lines 8-37: complete
+- `issue-197-full-body.md`, lines 8-37: complete
   verbatim Issue #197 body, including Scope, Notes, Done conditions, dependency,
   and parent tracking.
-- `/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/b1de79a2-362c-4249-a415-6247ab35e3a1/scratchpad/issue-187-tracking.md`,
-  lines 4-48: complete parent
+- `issue-187-tracking.md`, lines 4-48: complete parent
   tracking body; line 25 lists #197 and line 27 places it after #188-#196.
 
 These local captures are the source of truth for issue content in this
@@ -38,10 +36,10 @@ Domain-Sync: `domain-sync skipped: no domain/ directory`
 | INV-002 | Epic A9 starts with `legacy-seven-layer` plus `advisory`, then promotes to `facet-hybrid` plus `required`. | Fixes the two lifecycle phases. | `docs/ai-dlc-foundation-decision-v2.md:551-555` |
 | INV-003 | A required-to-advisory rollback is policy weakening. With one maintainer it uses first approval plus a 24-hour cooldown; with two or more real registered identities it requires distinct two-party approval. | Makes rollback approval a security/governance boundary. | `docs/adr/0019-approval-sidecar-protection.md:83-94` |
 | INV-004 | The Project Context schema requires `schema` and `workflow`; workflow requires `spec_profile`, `artifact_layout`, and `capability_enforcement`. | Defines the live YAML contract. | `contracts/project-context.schema.json:1-20` |
-| INV-005 | Component records can carry artifact kinds, runtime classes, OS/architecture targets, seven boolean characteristics, distribution, classification, provider bindings, and include/exclude paths. | Defines the component inventory decision surface. | `contracts/project-context.schema.json:21-65` |
+| INV-005 | Component records can carry artifact kinds, runtime classes, OS/architecture targets, seven boolean characteristics (`pii`, `ui`, `auto_update`, `local_persistence`, `long_running`, `replayable`, `human_in_the_loop`), distribution, classification, provider bindings, and include/exclude paths. | Defines the component inventory decision surface. | `contracts/project-context.schema.json:21-65` |
 | INV-006 | Shared paths are represented either by a component list or the `cross-cutting` classification. | Defines the ownership exception surface. | `contracts/project-context.schema.json:67-76` |
 | INV-007 | The generic starter is explicitly not a live sdd-forge instance; it seeds `full`, `legacy-seven-layer`, `advisory`, an empty component list, and six cross-cutting patterns. | Useful starting point, but copying it would not complete dogfood. | `contracts/project-context.template.yaml:1-30` |
-| INV-008 | The current Capability Registry contains one `durable-workflow` capability and one implementation gate; it contains no developer-tooling or cli-library entry. | The first Pack must be added rather than selected from existing content. | `contracts/capability-registry.json:1-43` |
+| INV-008 | The current Capability Registry contains one `durable-workflow` capability and one implementation gate; it contains no developer-tooling or cli-library entry. | The first Pack must be added rather than selected from existing content. | `contracts/capability-registry.json:1-67` |
 | INV-009 | sdd-forge presents itself as a three-host plugin and documents the human approval transition from Draft tasks. | Confirms consumer surfaces and approval boundary. | `README.md:1-16` |
 | INV-010 | Root installers cover macOS/Linux and Windows and register plugins and MCP services into Claude, Codex, and Copilot targets. | Installer/release paths must be owned or shared. | `README.md:148-175` |
 | INV-011 | Three MCP servers are documented as read-only; `ci-mcp` alone consumes a read-only GitHub token. | Component characteristics must not flatten distinct credential/data boundaries. | `README.md:108-144` |
@@ -86,10 +84,52 @@ post-promotion end-to-end, zero-friction `none`, A3 cross-cutting-bootstrap, and
 #187 provenance criteria. Issue #197 line 17 also resolved OQ-005's Pack choice
 and priority; the issue does not settle the Pack's internal encoding.
 
-## Open Questions Carried Forward
+## Historical Open-Question Carryforward — Superseded 2026-09-26
 
-OQ-001 component decomposition; OQ-002 path ownership; OQ-003 promotion
-criteria beyond the issue's minimum one-release-cycle condition; OQ-004 exact
-conditional rollback operator workflow; OQ-006 exact first-Pack capabilities,
-facets, checks, gates, and delivery strategy. OQ-005 is resolved by
-`issue-197-full-body.md:17`.
+The preceding carry-forward list was accurate only when this investigation was
+first drafted. It is superseded for current Phase-1 review by the resolved
+normative decisions in `requirements.md`: OQ-001/OQ-002 (2026-09-02, amended
+2026-09-08), OQ-003/OQ-004 (2026-09-02), OQ-005 (`issue-197-full-body.md:17`),
+and OQ-006 (2026-09-02, with the dated current-tree clarification there).
+Those requirements govern; this historical paragraph does not state that the
+questions remain open. The frozen sibling `design.md` and `security-spec.md`
+retain earlier open-question framing and are not edited here; for component,
+ownership, promotion, rollback, and Pack decisions, the dated resolutions in
+`requirements.md` supersede those stale statements for the next Phase-1 review
+and must be rebound before any later gate.
+
+## Current-tree classification reconciliation (2026-09-26)
+
+The schema provides optional string-array fields rather than controlled
+classification vocabularies for artifact, runtime, distribution, and data;
+platform entries require both `os` and `architecture`, and the seven
+characteristic keys are exactly those listed in INV-005
+(`contracts/project-context.schema.json:21-65`). The decision's OS list is
+product-wide, not a per-component architecture matrix
+(`docs/ai-dlc-foundation-decision-v2.md:483-489`). ADR-0018 keeps provider
+details in separate binding records and the Context uses IDs only; no approved
+A9 binding IDs are present (`docs/adr/0018-provider-binding-separation.md:49-78`).
+The requirements' dated A9 classification table is a proposed classification
+policy using only these facts; omitted optional values mean unasserted, not
+false and not absence of sensitive content.
+
+The A2 Registry currently has only `durable-workflow`, and A2 specifies
+capability/gate records plus fragment selection by ID for A5; no Pack record
+or developer-tooling/cli-library entries exist
+(`contracts/capability-registry.json:1-67`;
+`contracts/capability-registry.schema.json:5-19,40-76`;
+`specs/epic-190-a2-capability-registry/requirements.md:311-318`). The dated
+OQ-006 clarification in requirements preserves the 2026-09-02 approval while
+stating that A9 adds the two approved capabilities under the existing schema
+and composes them through A5's capability-ID fragment-selection mechanism; it
+does not invent a Pack schema.
+
+The release-write override uses the already-approved `.github/**` cross-cutting
+rule from OQ-002 (`requirements.md:445-462`) and targets the tracked release
+workflow `.github/workflows/release.yml` (`.github/workflows/release.yml:10-28`);
+no additional ownership rule is introduced. OQ-004's two historical registry
+branches are augmented only by the fail-closed zero-identity case, tested
+separately; the existing HMAC-protected approval sidecar and Ed25519-signed
+rollback proof remain distinct mechanisms
+(`docs/adr/0019-approval-sidecar-protection.md:83-94`;
+`docs/adr/0028-live-host-proof-ed25519-signing.md:56-99`).

@@ -6,8 +6,8 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 |---|---|---|---|---|---|
 | AC-001 | REQ-001 | TEST-001 | automated | schema accepts exact Phase-1 tuple | Planned |
 | AC-002 | REQ-001 | TEST-002 | security | missing/invalid binding rejected; human-copy path demonstrated | Planned |
-| AC-003 | REQ-002 | TEST-003 | contract | exact nine IDs/fields equal OQ-001 as amended 2026-09-08; `sdd-domain` owns `plugins/sdd-domain/**` independently | Planned |
-| AC-004 | REQ-002 | TEST-004 | negative | omission cases TEST-004a–i, extra-ID TEST-004j, and empty-classification TEST-004k each reject | Planned |
+| AC-003 | REQ-002 | TEST-003 | contract | exact nine IDs, classification values/justified omissions, and OQ-002 paths equal approved decomposition and dated A9 classification oracle; domain path remains exclusively owned | Planned |
+| AC-004 | REQ-002 | TEST-004 | negative | omission cases TEST-004a–i, extra-ID TEST-004j, empty-classification TEST-004k, and per-field negatives TEST-003c–i each reject | Planned |
 | AC-005 | REQ-003 | TEST-005 | ownership | zero unexplained overlaps; TEST-005b rejects a newly introduced overlap | Planned |
 | AC-006 | REQ-003 | TEST-006 | ownership | zero unexplained unowned paths; shared rules verified; TEST-006b rejects an unowned tracked path | Planned |
 | AC-007 | REQ-004 | TEST-007 | contract | plugin/MCP/installer/CI/release characteristics remain distinct | Planned |
@@ -20,8 +20,8 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-014 | REQ-008 | TEST-014 | automated | schema/resolver accept exact Phase-2 tuple | Planned |
 | AC-015 | REQ-008 | TEST-015 | negative | layout-only and enforcement-only transitions each reject | Planned |
 | AC-016 | REQ-009 | TEST-016 | security | multi-identity rollback requires two distinct approvals | Planned |
-| AC-017 | REQ-009 | TEST-017 | security | solo rollback rejects before and accepts at/after effective time | Planned |
-| AC-018 | REQ-009 | TEST-018 | security | unsigned, self-approved, duplicate, unbound sidecars each reject; TEST-018a/b revalidate changed registry | Planned |
+| AC-017 | REQ-009 | TEST-017a–c | security | with `effective_at` set to first approval + 24h, reject immediately before, accept exactly at, and accept immediately after the signed boundary for a valid one-identity rollback | Planned |
+| AC-018 | REQ-009 | TEST-018a–i, TEST-018c2 | security | separate changed-registry, zero-identity-at-request/application, four invalid sidecar, and invalid Ed25519-record-signature assertions | Planned |
 | AC-019 | REQ-010 | TEST-019 | process | observed friction yields complete Draft WFI, never Approved | Planned |
 | AC-020 | REQ-011 | TEST-020 | preflight | one absent/incompatible A1–A8 surface blocks with identity | Planned |
 | AC-021 | REQ-011 | TEST-021 | preflight | six named shared-state inventories/hashes recorded | Planned |
@@ -33,8 +33,8 @@ All rows are Planned first-draft mappings. No test has been implemented or run.
 | AC-027 | REQ-006 | TEST-027 | operational | every PR in one bounded full release cycle passed advisory Gate | Planned |
 | AC-028 | REQ-008 | TEST-028 | end-to-end | one real post-promotion feature completes under facet-hybrid/required | Planned |
 | AC-029 | REQ-010 | TEST-029 | process | friction WFI references recorded, or literal `none` when zero | Planned |
-| AC-030 | REQ-004 | TEST-030 | contract | live Context has exactly two `characteristic_overrides` entries: `mcp` component / `scope: mcp/ci-mcp` / `characteristic: credential_bearing` / `value: true`; release-automation rule / `characteristic: release_write` / `value: true`; characteristic tests read both; any other count, scope, characteristic, or value rejects | Planned |
-| AC-031 | REQ-004 | TEST-031 | negative | TEST-031a: entry with `characteristic` not in {`credential_bearing`, `release_write`} rejects (unknown name); TEST-031b: entry with `scope` outside owning component include set or cross-cutting rule rejects (out-of-scope); TEST-031c: entry with `value` matching the record's own baseline rejects (no-op) | Planned |
+| AC-030 | REQ-004 | TEST-030 | contract | live Context has exactly two entries: `mcp` / `mcp/ci-mcp` / `credential_bearing: true`; OQ-002 `.github/**` rule / `.github/**` / `release_write: true`, exercised on `.github/workflows/release.yml`; other count/scope/name/value rejects | Planned |
+| AC-031 | REQ-004 | TEST-031a–k | negative | unknown name, out-of-scope, both per-characteristic no-ops, four missing fields, extra field, and each invalid record placement independently reject | Planned |
 | AC-032 | REQ-003 | TEST-032 | ownership | each component includes tracked paths and recomputed ownership digest equals recorded digest | Planned |
 | AC-033 | REQ-008 | TEST-033 | negative | required activation rejects each missing-evidence case TEST-033a–c | Planned |
 | AC-034 | REQ-009 | TEST-034 | security | registry-cardinality change mid-cooldown re-evaluates the branch with the current registry | Planned |
@@ -47,11 +47,57 @@ friction and zero-friction branches and names path ownership, staleness, and
 approval flow individually. AC-030 covers the two approved characteristic
 overrides with exact field-level oracle (machine names `credential_bearing` and
 `release_write`, exact scope, value, and record type); AC-031 expands the
-unknown-name, out-of-scope, and no-op rejection branches as three separately
-exercised negative fixtures TEST-031a–c. AC-032 covers the reverse-coverage and
-ownership-digest checks; AC-033 covers premature required-enforcement
+unknown-name, out-of-scope, and both override-specific no-op rejection branches
+as separately exercised negative fixtures TEST-031a–d; TEST-031e–i each reject
+one missing/extra entry field and TEST-031j–k reject each invalid placement.
+TEST-017a–c separately cover pre-boundary, exact-boundary, and post-boundary
+time. TEST-018c/c2 separately cover zero identities at request and application;
+TEST-018d–g cover unsigned authorization, unbound HMAC sidecar, self-approval,
+and duplicate identity; TEST-018h/i reject invalid/untrusted Ed25519 rollback
+signatures. The HMAC sidecar authenticates approval input, while Ed25519 signs
+the persisted rollback proof. AC-032 covers the
+reverse-coverage and ownership-digest checks; AC-033 covers premature required-enforcement
 activation; AC-034 covers a registry-cardinality change during rollback
 cooldown.
+
+## A9 classification and override-oracle additions (draft, 2026-09-26)
+
+These are planned, separately named negative fixtures for each schema
+classification field; they do not add runtime implementation or alter the nine
+approved IDs/ownership. Each starts with the valid TEST-003 fixture and changes
+only the named field/value. Optional omissions are rejected if silently
+replaced with an invented value; no test asserts that data is PII-free or
+credential-free.
+
+| AC | REQ | TEST | Assertion / Oracle | Status |
+|---|---|---|---|---|
+| AC-004 | REQ-002 | TEST-003c | Change one component's `artifact_kinds` from its table value; classification oracle rejects. | Planned |
+| AC-004 | REQ-002 | TEST-003d | Change one component's `runtime_classes` from its table value; classification oracle rejects. | Planned |
+| AC-004 | REQ-002 | TEST-003e | Add an invented `platform_targets` entry, including unsupported architecture; omitted-field oracle rejects. | Planned |
+| AC-004 | REQ-002 | TEST-003f | Add or alter a `characteristics` boolean not specified by the inventory; omission oracle rejects without inferring a `pii` value. | Planned |
+| AC-004 | REQ-002 | TEST-003g | Change one component's `distribution_channels`; classification oracle rejects. | Planned |
+| AC-004 | REQ-002 | TEST-003h | Change one component's `data_classification`; classification oracle rejects. | Planned |
+| AC-004 | REQ-002 | TEST-003i | Add an unapproved `provider_binding_ids` value; omission oracle rejects. | Planned |
+| AC-031 | REQ-004 | TEST-031c | Set only the `mcp` / `mcp/ci-mcp` `credential_bearing` override to `false`; absent override-only baseline is false, so reject as no-op. | Planned |
+| AC-031 | REQ-004 | TEST-031d | Set only the `.github/**` `release_write` override's value to `false`; its absent override-only baseline is false, so reject as no-op. | Planned |
+| AC-031 | REQ-004 | TEST-031e | Remove only `scope` from an otherwise valid override entry; reject because the entry must have exactly four fields. | Planned |
+| AC-031 | REQ-004 | TEST-031f | Remove only `characteristic`; reject because the entry must have exactly four fields. | Planned |
+| AC-031 | REQ-004 | TEST-031g | Remove only `value`; reject because the entry must have exactly four fields. | Planned |
+| AC-031 | REQ-004 | TEST-031h | Remove only `rationale`; reject because the entry must have exactly four fields. | Planned |
+| AC-031 | REQ-004 | TEST-031i | Add one unrecognized fifth entry field; reject because the entry must have exactly four fields. | Planned |
+| AC-031 | REQ-004 | TEST-031j | Put an otherwise valid override on a workflow record rather than the owning `.github/**` cross-cutting rule; reject placement. | Planned |
+| AC-031 | REQ-004 | TEST-031k | Put an otherwise valid override at Context top level rather than on an allowed component or cross-cutting record; reject placement. | Planned |
+| AC-018 | REQ-009 | TEST-018c | At request time, an empty trusted approver registry rejects rollback request; no unanchored identity or signed record may be created. | Planned |
+| AC-018 | REQ-009 | TEST-018c2 | After a valid request, remove the final trusted approver before application; current-registry revalidation rejects application and does not use the request-time identity set. | Planned |
+| AC-018 | REQ-009 | TEST-018d | Remove the HMAC-authenticated approval sidecar from an otherwise valid solo rollback; reject the unsigned authorization. | Planned |
+| AC-018 | REQ-009 | TEST-018e | Bind an otherwise correctly HMAC-signed approval sidecar to different canonical content; reject the unbound sidecar. | Planned |
+| AC-018 | REQ-009 | TEST-018f | Use the requester as the sole approving identity; reject self-approval. | Planned |
+| AC-018 | REQ-009 | TEST-018g | Populate both approval slots with the same registered identity; reject duplicated-identity authorization. | Planned |
+| AC-018 | REQ-009 | TEST-018h | Alter the signed rollback record after Ed25519 signing; reject the invalid live-host-proof signature. | Planned |
+| AC-018 | REQ-009 | TEST-018i | Remove the Ed25519 signer from the trusted-signer registry before application; reject the now-untrusted signature. | Planned |
+| AC-017 | REQ-009 | TEST-017a | Set HMAC-authorized `effective_at` to first approval + 24h; applying a correctly Ed25519-signed solo rollback one second before that boundary rejects. | Planned |
+| AC-017 | REQ-009 | TEST-017b | Apply the same valid solo rollback exactly at its HMAC-authorized `effective_at` boundary (first approval + 24h); accept the time condition. | Planned |
+| AC-017 | REQ-009 | TEST-017c | Apply the same valid solo rollback one second after its HMAC-authorized `effective_at` boundary; accept the time condition. | Planned |
 
 ## OQ-001 amendment coverage (2026-09-08)
 
@@ -63,7 +109,10 @@ component or cross-cutting. TEST-004 has a separate omitted-ID case for each
 of those nine IDs and a separate unjustified-empty-classification case.
 TEST-006 includes the actual tracked domain-plugin files in its coverage input;
 a fixture using only the nonexistent historical spelling `plugins/domain/**`
-cannot satisfy that coverage. The other round-1 findings remain unresolved.
+cannot satisfy that coverage. The sealed round-1 findings remain historical
+review evidence; this dated draft addition supplies classification and
+override-baseline oracles for a future round and does not rewrite or
+retroactively change those findings.
 
 The following individually identified cases expand the amended component-set
 contract. They are specifications only; none is implementation or PASS evidence.
@@ -122,8 +171,8 @@ AC-014/TEST-014 covers the corresponding valid Phase-2 tuple with all required
 evidence; the negative cases must not weaken that existing positive case.
 AC-030/031 are now reconciled: their exact oracles (machine names
 `credential_bearing` and `release_write`, four required entry fields, exact
-positive and three separate negative fixtures TEST-031a–c) are defined in
-REQ-004 and reflected in the main table above and coverage note.
+positive and negative fixtures TEST-031a–k) are defined in REQ-004 and
+reflected in the main table above and coverage note.
 
 ## Growing-path clarification coverage (2026-09-08)
 
