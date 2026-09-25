@@ -133,3 +133,55 @@ separately; the existing HMAC-protected approval sidecar and Ed25519-signed
 rollback proof remain distinct mechanisms
 (`docs/adr/0019-approval-sidecar-protection.md:83-94`;
 `docs/adr/0028-live-host-proof-ed25519-signing.md:56-99`).
+
+## Amendment Re-Review Context
+
+Amendment snapshot commit: `40684ed6dafe987f751f1c054a8318cff8af7f09`.
+The following SHA-256 values identify the three amended documents **at that
+commit**, before this declaration was appended. They are not claims about
+the self-containing current investigation hash; the next review manifest
+binds its actual current bytes separately.
+
+| Document at the amendment commit | SHA-256 |
+|---|---|
+| `specs/epic-197-a9-dogfood/requirements.md` | `49af2cb252bfb92013abf20d1087df72b0019ca1526cbb5898c4754e1f6d8834` |
+| `specs/epic-197-a9-dogfood/acceptance-tests.md` | `4905f3c5a542fdbd9cc84827236848f6a29cbc06af4f6cce578b46e268cbbf9e` |
+| `specs/epic-197-a9-dogfood/investigation.md` | `1bc941111128aa95739924a5bfe30df17cab9ec2d1d9a0f85a906e8f8329b2af` |
+
+Human approvals, quoted verbatim from the originating conversation (UTC):
+
+- 2026-09-08T01:03:10.532Z: 「A9 を進めるため、plugins/domain/** を独立した「9番目のコンポーネント」として扱う設計変更を承認」
+- 2026-09-09T12:09:41.400Z: 「その他の設計変更も承認する」
+- 2026-09-09T12:24:26.062Z:
+
+  > そのほかの作業についても承認を求めなくてよい
+  > 人間がターミナルで実行しなければいけないコマンド以外は全て君の判断で実装せよ
+
+The first statement authorizes the ninth-component amendment; its historical
+path spelling is reconciled by OQ-001. The later statements authorize the
+additional bounded specification repairs, not a fabricated task approval,
+review verdict, or claim of successful implementation. This declaration is
+the durable conversation-approval record once committed and review-pinned.
+
+Later-phase and historical artifacts cited by this package are pinned below.
+Every entry is a file **at commit
+`40684ed6dafe987f751f1c054a8318cff8af7f09`**, not an unqualified live-path
+reference. The pins disclose history; they do not certify current acceptance
+or unlock a later phase.
+
+| Referenced artifact at the pinned commit | Reason for reference |
+|---|---|
+| `specs/epic-197-a9-dogfood/design.md` | Historical A9 design; resolved Phase-1 decisions supersede its stale OQ framing. |
+| `specs/epic-197-a9-dogfood/security-spec.md` | Historical A9 security layer; same precedence. |
+| `specs/epic-197-a9-dogfood/traceability.md` | Existing A9 traceability, not new completion evidence. |
+| `specs/epic-190-a2-capability-registry/requirements.md` | Existing A2 fragment-selection contract cited by OQ-006. |
+| `specs/epic-190-a2-capability-registry/design.md` | Existing A2 schema/composition design cited by OQ-006. |
+| `specs/epic-195-a7-compatibility/tasks.md` | Historical T-010 cross-task suite observation in OQ-002. |
+| `specs/epic-196-a8-integration/tasks.md` | Historical T-005 signing scope cited by OQ-004. |
+| `reports/implementation/epic-196-a8-integration/T-005.md` | Historical signing implementation, not a fresh A8 verification claim. |
+| `docs/workflow-improvements/WFI-047.md` | Transferred future backlog, explicitly outside this REQ/AC set. |
+| `plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh` | Existing signing-key consumer supporting the classification inventory. |
+
+The amendment remains pending independent specification review. Historical
+reviews and later-phase artifacts are preserved; subsequent gates must bind
+the amended inputs rather than inherit historical PASS results.
