@@ -43,7 +43,9 @@ function Test-Merged([string]$Manifest, [string]$Assertion, [string]$Epic, [stri
     & git -C $Repo merge-base --is-ancestor $branch $MainRef 2>$null
     if ($LASTEXITCODE -gt 1) { throw 'integration ancestry evidence unavailable' }
     if ($LASTEXITCODE -ne 0) { return $false }
-    $specDir = Split-Path -Parent ([string]$dependency[0].fingerprints[0].source)
+    # Git tree paths always use '/', including on Windows; Split-Path would
+    # produce '\\' and make `git show <ref>:<path>` miss the terminal files.
+    $specDir = ([string]$dependency[0].fingerprints[0].source) -replace '/[^/]+$',''
     return (Test-Terminal $Repo $MainRef "$specDir/requirements.md") -and (Test-Terminal $Repo $MainRef "$specDir/design.md")
 }
 function Get-Sha256([string]$Text) {
