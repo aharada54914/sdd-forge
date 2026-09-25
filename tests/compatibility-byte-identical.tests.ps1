@@ -27,6 +27,27 @@ function Test-BytesEqual([string]$Left, [string]$Right) {
     return [Linq.Enumerable]::SequenceEqual([byte[]]$a, [byte[]]$b)
 }
 
+function Write-ManifestDiff([string]$Left, [string]$Right, [string]$Label) {
+    $leftRows = @{}
+    $rightRows = @{}
+    foreach ($line in [IO.File]::ReadAllLines($Left)) {
+        if ($line -match '^([0-9a-f]{64})  (.+)$') { $leftRows[$Matches[2]] = $Matches[1] }
+    }
+    foreach ($line in [IO.File]::ReadAllLines($Right)) {
+        if ($line -match '^([0-9a-f]{64})  (.+)$') { $rightRows[$Matches[2]] = $Matches[1] }
+    }
+    $missing = @($rightRows.Keys | Where-Object { -not $leftRows.ContainsKey($_) } | Sort-Object)
+    $extra = @($leftRows.Keys | Where-Object { -not $rightRows.ContainsKey($_) } | Sort-Object)
+    $changed = @($rightRows.Keys | Where-Object { $leftRows.ContainsKey($_) -and $leftRows[$_] -cne $rightRows[$_] } | Sort-Object)
+    Write-Host "diagnostic: $Label rows left=$($leftRows.Count) right=$($rightRows.Count) missing=$($missing.Count) extra=$($extra.Count) changed=$($changed.Count)"
+    if ($missing.Count -gt 0) { Write-Host "diagnostic: $Label missing=$((($missing | Select-Object -First 5) -join ','))" }
+    if ($extra.Count -gt 0) { Write-Host "diagnostic: $Label extra=$((($extra | Select-Object -First 5) -join ','))" }
+    if ($changed.Count -gt 0) {
+        $sample = $changed | Select-Object -First 5 | ForEach-Object { "$_ ($($leftRows[$_]) != $($rightRows[$_]))" }
+        Write-Host "diagnostic: $Label changed=$($sample -join ',')"
+    }
+}
+
 function Invoke-FixedCapture([string]$Fixture, [string]$Destination) {
     $captureHome = Join-Path $Fixture '.compat-home'
     New-Item -ItemType Directory -Path $captureHome -Force | Out-Null
@@ -107,7 +128,13 @@ try {
             }
             if ((Test-BytesEqual $left $right) -and (Test-BytesEqual $left $golden)) {
                 Add-Pass "$row $($target.name) is byte-identical across two fixed-environment invocations and canonical"
-            } else { Add-Fail "$row $($target.name) differs across invocation or canonical" }
+            } else {
+                Add-Fail "$row $($target.name) differs across invocation or canonical"
+                if ($target.name -ceq 'install-result') {
+                    Write-ManifestDiff $left $right "$row invocation"
+                    Write-ManifestDiff $left $golden "$row canonical"
+                }
+            }
         }
     }
 
