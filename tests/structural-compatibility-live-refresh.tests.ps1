@@ -46,9 +46,11 @@ foreach ($Line in $Lines) {
     }
 }
 $Actual = @($Entry.artifacts | ForEach-Object path)
-[Array]::Sort([string[]]$Expected, [StringComparer]::Ordinal)
-[Array]::Sort([string[]]$Actual, [StringComparer]::Ordinal)
-if (($Expected -join "`n") -cne ($Actual -join "`n")) { throw 'required output paths/count differ' }
+$ExpectedSorted = $Expected.ToArray()
+$ActualSorted = [string[]]$Actual
+[Array]::Sort($ExpectedSorted, [StringComparer]::Ordinal)
+[Array]::Sort($ActualSorted, [StringComparer]::Ordinal)
+if (($ExpectedSorted -join "`n") -cne ($ActualSorted -join "`n")) { throw 'required output paths/count differ' }
 $Temp = Join-Path ([IO.Path]::GetTempPath()) ('live-refresh-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Temp | Out-Null
 try {
@@ -74,6 +76,15 @@ try {
     if ($DryRun) {
         Write-Output 'PASS: fixture validates; dry-run left corpus unchanged'
         if ($env:SDD_LIVE_REFRESH_SELF_CHECK -ceq '1') { exit 0 }
+        $Entry.artifacts = @($Entry.artifacts | Sort-Object path -Descending)
+        $Reordered = Join-Path $Temp 'reordered.json'
+        $Entry | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $Reordered -Encoding utf8
+        $RefreshScript = Join-Path $PSScriptRoot 'structural-compatibility-live-refresh.tests.ps1'
+        $env:SDD_LIVE_REFRESH_SELF_CHECK = '1'
+        try { & $HostPath -NoProfile -File $RefreshScript -State $State -Fixture $Reordered -DryRun *> $null; $ReorderedCode = $LASTEXITCODE }
+        finally { Remove-Item Env:SDD_LIVE_REFRESH_SELF_CHECK -ErrorAction SilentlyContinue }
+        if ($ReorderedCode -ne 0) { throw 'reordered valid fixture rejected' }
+        Write-Output 'PASS: reordered valid fixture accepted'
         $Before = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Corpus $TargetName)).Hash
         $Entry.artifacts[0].content = "---`nbroken frontmatter"
         $Bad = Join-Path $Temp 'rejected.json'
