@@ -25,7 +25,7 @@ function Find-EpicBranch([string]$Repo, [int]$Issue) {
 }
 function Test-Terminal([string]$Repo, [string]$Ref, [string]$Path) {
     try { $lines = Invoke-GitText $Repo @('show', "${Ref}:$Path") } catch { return $false }
-    $status = @($lines | Where-Object { $_ -match '^(?:Spec-Review-Status|Impl-Review-Status): ' } | Select-Object -First 1)
+    $status = @($lines | Where-Object { $_ -cmatch '^(?:Spec-Review-Status|Impl-Review-Status): ' } | Select-Object -First 1)
     return $status.Count -eq 1 -and (($status[0] -replace '^[^:]+: ', '') -ceq 'Passed')
 }
 function Test-Merged([string]$Manifest, [string]$Assertion, [string]$Epic, [string]$Repo, [string]$MainRef) {
