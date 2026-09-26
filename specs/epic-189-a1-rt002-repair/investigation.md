@@ -38,3 +38,36 @@ At preparation, repository structure validation succeeded; `domain/`, `sdd/proje
 ## Remaining proof
 
 Complete the two direct assertions; independently review this new feature; run both original-path suites and native Windows CI; then verify the installed candidate, fresh nonce, one actual native dispatch, unchanged response and original installed verifier result. A plain-file verifier cannot authenticate a forged collector transcript or establish persistent replay prevention (recovery contract `117-122`). No new attestation service or ledger is in scope.
+
+## Amendment Re-Review Context
+
+The separate repair-plan amendment was recorded in commit `231cfbb80eb4cfc0cd290541933b45112fb0f6e1`; the exact normative byte contract was added in commit `2ae13f266cf5a4bdce9324d950775495bcd9d02f`. The following SHA-256 values are the three documents **as of commit `2ae13f266cf5a4bdce9324d950775495bcd9d02f`**, before adding this declaration. The current review manifest separately pins this declaration's complete bytes; the table is not a self-referential claim about the current investigation hash.
+
+| Document | SHA-256 at the amendment snapshot |
+|---|---|
+| `specs/epic-189-a1-rt002-repair/requirements.md` | `c46aff291620cd66cc638571d4deed1fa24877ff0b9140315e46031576fe322a` |
+| `specs/epic-189-a1-rt002-repair/acceptance-tests.md` | `77f43e0da6461da182d7f03dd9bb756dc52949185dfd246bc45916947b145689` |
+| `specs/epic-189-a1-rt002-repair/investigation.md` | `684cec221ea081d23b21a6e6cbd2406483b51b2769c78de09ff764c8cedf4a50` |
+
+Human approval, verbatim, 2026-09-26 (conversation; this committed declaration is its durable record):
+
+> 再試行を承認する
+>
+> 今回の修復だけを別計画として扱う変更を承認する
+
+This authorizes a separate acceptance-first revalidation of existing repair code, not retrospective test-first evidence, a replacement for failed verdicts, or additional product scope. The initial implementation commit is `c0aaf3a639f4cb4798b16acd115f0b05db44493f`; the comparison baseline is `5362378989f046a851b5005637abad6f942b1841` and recorded candidate is `4a4713380a5cbf8791fcc2fd7be1c7e0c1e3c80a`. Referenced later-phase artifacts are pinned below, without admitting their contents to the spec reviewers or treating their observations as new PASS results.
+
+| Referenced artifact | SHA-256 |
+|---|---|
+| `reports/verification/rt002-a1-repair-plan-draft-20260926.md` | `b6f58e82c1075cfa29f72c243ba079e9996815f18c038618cf0f51f5d9b7fef2` |
+| `reports/verification/rt002-original-path-regression-20260926.md` | `c185beeea761c437ad03cf2acc3b9972513a8f65340fcbfa6e00c3f79b5b2728` |
+| `docs/review-tickets/RT-20260909-002.yml` | `ae2b554aa9416c2997bef00143183f3cbcc7d79610c000d7c7b8928175241d74` |
+| `reports/verification/hook-recovery-entry-contract-20260909.md` | `2ca4125082c495724b0bbde33e7451edb21fc4042827c1e67b4354eb9215e79f` |
+| `plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py` | `bb388dfba366a9f300f1c0060fa6282468d7a896dc7e72986f3bf3452f08c3d5` |
+| `tests/check-hook-activation-handshake.tests.sh` | `bf0ca7472e4fc508f5e7da34c3559be79c620e89bb4744441cbb449d798d0dcd` |
+| `tests/check-hook-activation-handshake.tests.ps1` | `9506cb7c0605ab37355ba697d8b40129e7492755cb633964532503c79ca47d05` |
+| `specs/epic-189-a1-project-context/tasks.md` | `bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044` |
+| `reports/task-review/epic-189-a1-project-context/attempt-8/round-1/task-review-contract.json` | `16fe95cd4b18f36108a50e2c80a5867c7b8fd2c33b0c03516a66e5215f62004e` |
+| `reports/task-review/epic-189-a1-project-context/attempt-8/round-1/integrated-verdict.json` | `2fbdb1a7fe75b442acec29100d9f522464a1ab72f9ebe3d94027ffd6bbb88c4f` |
+
+The parent task's Done and historical BLOCKED remain unchanged (the pinned task and integrated verdict above). Fresh verification obligations remain AC-006, not assumed success.
