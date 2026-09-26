@@ -73,17 +73,10 @@
 #     table (T-005 cycle-2: an earlier cycle had this event recorded from
 #     the test case instead, behind an incorrect byte-identity lock on
 #     `assert_terminal` -- see this task's implementation report,
-#     "Specification Differences"). The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
-#     leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
-#     AC-027) is a named `SKIP`: design.md's own producer table cites that
-#     call site as "a new, dedicated fail-closed stop-detection call site
-#     in the fixture drive's own Context-validation guard (Test Strategy
-#     item 1, future task)" -- it does not exist anywhere in the tree yet,
-#     and the Compatibility Matrix's own F3/F4-invalid row disposition is
-#     `SKIP-with-activation -> AC-019, AC-020 (until Epic A1 merges)`
-#     unconditionally, so this is the documented, not-yet-active state,
-#     never a workaround. See this task's implementation report
-#     Specification Differences for the full reasoning.
+#     "Specification Differences"). The F3/F4-invalid leg now runs the
+#     real A1 validator through this suite's own fixture Context-validation
+#     guard and compares its PROJECT_CONTEXT_INVALID stop-only trace with
+#     a golden file. This does not prove a production interviewer invocation.
 #
 # All driven scripts (check-quality-gate-cycle-limit.sh, select-agent-model.sh,
 # check-terminal-tier-resume.sh, validate-review-context-set.sh) and
@@ -626,7 +619,7 @@ fi
 
 # =============================================================================
 # TEST-019 (AC-010, AC-019, AC-020, AC-025, AC-026, AC-027): quality-gate-outcome
-# + done-transition event trace (Context-absent F1), and the SKIP-gated
+# + done-transition event trace (Context-absent F1), and the A1-activated
 # PROJECT_CONTEXT_INVALID stop-event leg for F3-invalid/F4-invalid
 # =============================================================================
 echo "=== TEST-019: quality-gate-outcome + done-transition event trace (F1) ==="
@@ -734,38 +727,96 @@ else
 fi
 
 # -----------------------------------------------------------------------
-# TEST-019.8..9 (AC-019, AC-020, AC-027; named SKIP until Epic A1 merges):
+# TEST-019.8..9 (AC-019, AC-020, AC-027; activated after Epic A1):
 # F3-invalid/F4-invalid's own distinct PROJECT_CONTEXT_INVALID
 # skip-stop-message:stop event, and the assertion that this trace never
-# reaches the Context-absent compatibility-fallback path. design.md's own
-# producer table cites the skip-stop-message:stop call site as "a new,
-# dedicated fail-closed stop-detection call site in the fixture drive's
-# own Context-validation guard (Test Strategy item 1, future task)" --
-# unwired anywhere in the current tree -- and the Compatibility Matrix's
-# own F3-invalid/F4-invalid row disposition is unconditionally
-# SKIP-with-activation -> AC-019, AC-020 (until Epic A1 merges), so this
-# is the documented not-yet-active state, not a workaround. The fixture
-# variants themselves ARE constructed for real via T-001's own
-# build_fixture, to prove the SKIP is not merely a hand-waved placeholder
-# but a genuinely present, currently-unassertable fixture state.
+# reaches the Context-absent compatibility-fallback path. The dedicated
+# fixture guard checks physical presence first and then runs A1's real
+# approval validator; a signed v1 positive control must pass, while both
+# signed v0 variants must return CONTENT_SCHEMA_VIOLATION (32).
 # -----------------------------------------------------------------------
-EVT_F3_INVALID_ROOT="$(build_fixture present absent advisory PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && \
-  EVT_F3_INVALID_RC=0 || EVT_F3_INVALID_RC=$?
-if [[ "$EVT_F3_INVALID_RC" -eq 0 && -n "$EVT_F3_INVALID_ROOT" ]]; then
-  CLEANUP_ROOTS+=("$EVT_F3_INVALID_ROOT")
-  echo "SKIP: TEST-019.8: F3-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event (AC-019, AC-027) -- the producer call site does not exist anywhere in the tree yet (design.md's own 'future task'); SKIP-with-activation until Epic A1 merges (design.md Compatibility Matrix, F3-invalid row)"
+EVT_INVALID_GOLDEN="${REPO_ROOT}/tests/fixtures/compatibility-event-trace/f3-f4-project-context-invalid.json"
+EVT_GEN="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh"
+EVT_VALIDATE="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh"
+EVT_FIXTURE_KEY='t007-event-trace-fixture-only-key'
+
+prepare_context_sidecar() {
+  local root="$1" stage="$1/fixtures/approval-stage" basename='project-context'
+  mkdir -p "$root/fixtures"
+  printf '%s\n' 'schema: sdd-approver-registry/v1' 'approvers:' \
+    '  - id: fixture-approver' '    name: Fixture Approver' \
+    > "$root/fixtures/registry.yaml" || return 1
+  SDD_CONTEXT_KEY="$EVT_FIXTURE_KEY" "$EVT_GEN" \
+    --schema sdd-project-context-approval/v1 \
+    --content "$root/sdd/project-context.yaml" --approver fixture-approver \
+    --status Approved --live-sidecar "$root/fixtures/no-live" \
+    --stage-dir "$stage" >/dev/null 2>&1 || return 1
+  [[ -f "$stage/sdd/${basename}.approval.json" ]]
+}
+
+# Fixture-drive guard, not an executable interviewer caller. Physical presence
+# is checked before the real A1 REQ-005 validator, matching the C1/C2 contract.
+context_validation_guard() {
+  local root="$1" basename='project-context' rc
+  EVT_ROUTE=''
+  EVT_VALIDATION_RC=0
+  EVT_VALIDATION_OUTPUT=''
+  if [[ ! -f "$root/sdd/project-context.yaml" ]]; then
+    EVT_ROUTE='COMPATIBILITY_FALLBACK'
+    return 0
+  fi
+  EVT_VALIDATION_OUTPUT="$(SDD_CONTEXT_KEY="$EVT_FIXTURE_KEY" "$EVT_VALIDATE" \
+    --content "$root/sdd/project-context.yaml" \
+    --sidecar "$root/fixtures/approval-stage/sdd/${basename}.approval.json" \
+    --approver-registry "$root/fixtures/registry.yaml" 2>&1)" && rc=0 || rc=$?
+  EVT_VALIDATION_RC=$rc
+  if [[ "$rc" -ne 0 ]]; then
+    EVT_ROUTE='PROJECT_CONTEXT_INVALID'
+    _loop_trace_emit skip-stop-message skip-stop-message:stop '"PROJECT_CONTEXT_INVALID"'
+    return $?
+  fi
+  EVT_ROUTE='VALID_CONTEXT'
+}
+
+EVT_SAVED_TRACE="$_LOOP_EVENT_TRACE"
+EVT_VALID_ROOT="$(build_fixture present absent advisory valid --full)"
+CLEANUP_ROOTS+=("$EVT_VALID_ROOT")
+_LOOP_EVENT_TRACE='[]'
+if prepare_context_sidecar "$EVT_VALID_ROOT" && \
+   context_validation_guard "$EVT_VALID_ROOT" && \
+   [[ "$EVT_ROUTE" == 'VALID_CONTEXT' && "$EVT_VALIDATION_RC" -eq 0 &&
+      "$EVT_VALIDATION_OUTPUT" == 'VALID' && "$_LOOP_EVENT_TRACE" == '[]' ]]; then
+  ok 'TEST-019.8/9 control: signed v1 Context passes real A1 validation without a stop event'
 else
-  fail "TEST-019.8: build_fixture could not construct the F3-invalid fixture needed to even name this SKIP (rc=${EVT_F3_INVALID_RC})"
+  fail 'TEST-019.8/9 control: signed v1 Context must pass real A1 validation'
 fi
 
-EVT_F4_INVALID_ROOT="$(build_fixture present absent required PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && \
-  EVT_F4_INVALID_RC=0 || EVT_F4_INVALID_RC=$?
-if [[ "$EVT_F4_INVALID_RC" -eq 0 && -n "$EVT_F4_INVALID_ROOT" ]]; then
-  CLEANUP_ROOTS+=("$EVT_F4_INVALID_ROOT")
-  echo "SKIP: TEST-019.9: F4-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event, and 'never reaches the Context-absent compatibility-fallback path' (AC-019, AC-020, AC-027) -- same unwired-producer reasoning as TEST-019.8; SKIP-with-activation until Epic A1 merges"
+EVT_ABSENT_ROOT="$(build_fixture absent absent disabled-legacy valid --full)"
+CLEANUP_ROOTS+=("$EVT_ABSENT_ROOT")
+_LOOP_EVENT_TRACE='[]'
+if context_validation_guard "$EVT_ABSENT_ROOT" && \
+   [[ "$EVT_ROUTE" == 'COMPATIBILITY_FALLBACK' && "$_LOOP_EVENT_TRACE" == '[]' ]]; then
+  ok 'TEST-019.8/9 control: physically absent Context alone takes the fallback route'
 else
-  fail "TEST-019.9: build_fixture could not construct the F4-invalid fixture needed to even name this SKIP (rc=${EVT_F4_INVALID_RC})"
+  fail 'TEST-019.8/9 control: physically absent Context did not take the fallback route'
 fi
+
+for EVT_CASE in 'F3 advisory' 'F4 required'; do
+  read -r EVT_NAME EVT_ENFORCEMENT <<<"$EVT_CASE"
+  EVT_INVALID_ROOT="$(build_fixture present absent "$EVT_ENFORCEMENT" PROJECT_CONTEXT_INVALID --full)"
+  CLEANUP_ROOTS+=("$EVT_INVALID_ROOT")
+  _LOOP_EVENT_TRACE='[]'
+  if prepare_context_sidecar "$EVT_INVALID_ROOT" && \
+     context_validation_guard "$EVT_INVALID_ROOT" && \
+     [[ "$EVT_VALIDATION_RC" -eq 32 && "$EVT_VALIDATION_OUTPUT" == *CONTENT_SCHEMA_VIOLATION* &&
+        "$EVT_ROUTE" == 'PROJECT_CONTEXT_INVALID' ]] && \
+     assert_event_trace "$EVT_INVALID_GOLDEN"; then
+    ok "TEST-019.8/9: $EVT_NAME invalid Context is validator-rejected, stop-only, and never falls back"
+  else
+    fail "TEST-019.8/9: $EVT_NAME invalid Context did not produce the distinct stop-only trace"
+  fi
+done
+_LOOP_EVENT_TRACE="$EVT_SAVED_TRACE"
 
 # =============================================================================
 # TEST-019.10 (T-008 / Issue #195 / epic-195-a7-compatibility AC-004,
@@ -874,14 +925,9 @@ fi
 # correctly detected as surfaced. Both assertions are unconditionally live
 # and gate pass/fail normally.
 #
-# TEST-019.11c is the named SKIP for the real production check: the
-# skip-stop-message:stop producer call site ("a new, dedicated fail-closed
-# stop-detection call site in the fixture drive's own Context-validation
-# guard," design.md's own producer table, Test Strategy item 1, future
-# task) does not exist anywhere in the tree yet -- the identical
-# unwired-producer reasoning TEST-019.8/.9 already established (T-007) --
-# so there is no real REQ-002 Block fixture to drive yet. Named SKIP until
-# Epic A5 merges (tasks.md T-008 Scope).
+# TEST-019.11c remains a named SKIP for the production interviewer route:
+# the fixture-only guard in TEST-019.8/.9 does not invoke the resolver, and
+# no executable interviewer caller exists to drive a real REQ-002 Block.
 # =============================================================================
 echo "=== TEST-019.11 (AC-037): REQ-002 Block surfaces, never falls back silently (named SKIP until Epic A5 merges) ==="
 
@@ -927,7 +973,7 @@ done < <(find "${REPO_ROOT}/plugins" -type f \( -name '*.sh' -o -name '*.ps1' -o
 if [[ "$A5_LIVE_CALLER_FOUND" -eq 0 ]]; then
   fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
 else
-  echo "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; SKILL.md documentation and resolver implementation are not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
+  echo "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; the TEST-019.8/.9 fixture guard is not that caller"
 fi
 
 # =============================================================================
