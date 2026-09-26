@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-a-seq0966",
+  "host_session_id": "SESS-spec-a1r2-a-epic-197-a9-dogfood-0966",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-2/precheck-result.json",
+      "sha256": "009cbaca0b45733b15d7ad6722e9186806bddef6ad19db6ab6126a4fb06892d7"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "cf489d484d1757b0f18ab414e1be4115698e11128198c12c1c4e94626e0435ee"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "2161a0c2ece3ded9e7f430fa05cf546d9939f727c1818a32a10543cdce01c04b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All fourteen in-scope requirements (REQ-001–REQ-014) are observable or measurable. Each maps to at least one AC whose assertion names a concrete oracle: schema acceptance of a specific tuple, fixture rejection with named conditions, evidence record field enumeration, digest equality, cardinality counts, named status values. All OQs are resolved and their resolutions are normative (OQ-001 closed nine-component set; OQ-002 closed path ownership map; OQ-003 closed four mechanically checkable promotion preconditions; OQ-004 closed registry-cardinality branch selection; OQ-005 closed Pack selection; OQ-006 closed Pack internal contract). No requirement depends on an unresolved design decision that would block verification. No requirement is stated only in terms of internal state invisible to an independent verifier."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated goal has at least one matching acceptance criterion. REQ-001: AC-001, AC-002. REQ-002: AC-003, AC-004. REQ-003: AC-005, AC-006, AC-032. REQ-004: AC-007, AC-030, AC-031. REQ-005: AC-008, AC-009. REQ-006: AC-010, AC-011, AC-027. REQ-007: AC-012, AC-013. REQ-008: AC-014, AC-015, AC-028, AC-033. REQ-009: AC-016, AC-017, AC-018, AC-034. REQ-010: AC-019, AC-029. REQ-011: AC-020, AC-021. REQ-012: AC-022, AC-023, AC-024. REQ-013: AC-025. REQ-014: AC-026. The acceptance-tests table and the expanded sub-case tables (OQ-001 amendment coverage, edge-case repair, growing-path clarification coverage) confirm the traceability chain for AC-003/004/005/006/018/025 sub-cases."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 34 acceptance criteria describe externally observable behavior, state, or artifact changes. Examples: AC-001 asserts schema acceptance of an exact three-field tuple; AC-003 asserts every approved component ID equals the OQ-001 record; AC-004 enumerates nine separate rejection cases by named ID plus two structural rejection cases; AC-012 asserts presence of enumerated fields and links in a saved promotion record; AC-016/017/018/034 specify timing, cardinality, and registry-state conditions for rollback acceptance/rejection; AC-021 names six specific shared-state inventories whose hashes must be recorded; AC-027 specifies a release-cycle boundary (explicit start/end releases) and a universal quantifier over every PR in that cycle; AC-032 names the reverse-coverage and digest-equality oracle separately. No criterion describes only agent intent or internal process state invisible to an independent verifier."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes the five most plausible expansion directions: (1) creating any live sdd/ file during specification bootstrap; (2) implementing later desktop, cloud-service, or durable-workflow Packs; (3) replacing existing Registry/ownership resolver/Facet Manifest/approval model machinery; (4) adding a UI, cloud deployment, or new CI workflow; (5) approving this spec, any task, approval sidecar, or WFI. REQ-005 additionally constrains Pack scope to developer-tooling/cli-library only, with AC-009 providing a negative oracle. REQ-004 limits characteristic overrides to additive entries with no behavioral change to existing consumers. The Field Definitions section pins the meaning of Representative Change (full-track plugin code, never docs-only) preventing scope creep in the advisory-run evidence requirement."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated where implied by the requirements. Security/approval constraints: protected HMAC-bound approval sidecar required for Context publication (REQ-001), atomic two-axis Phase-2 transition through protected workflow (REQ-008), rollback requires registry-cardinality-selected approval branch (REQ-009), characteristic overrides validated against named rules (REQ-004). Data constraints: nine-component set is closed by OQ-001 resolution; path ownership map is closed by OQ-002; override entries limited to known characteristics, scoped paths, and non-no-op values. Migration constraints: A1–A8 must be merged and usable before any live artifact changes (REQ-011, REQ-014); A3 cross-cutting bootstrap must be verified before dogfood (REQ-013). Compatibility constraints: existing CI topology and three-OS matrix must be preserved (REQ-012). Promotion constraints: four mechanically checkable preconditions from OQ-003 resolution. Rollback constraints: Ed25519 signed record via human-copy staging, registry cardinality re-evaluated at effective time (OQ-004 resolution; AC-034)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each high-risk claim identified in the investigation and requirements carries a planned validation surface. (1) Approval-sidecar bypass risk: AC-002 tests the human-copy boundary; AC-016–018 test unsigned/self-approved/duplicated/unbound sidecar rejection. (2) Premature required enforcement: AC-033 plans three negative fixtures (missing Pack evidence, missing resolver evidence, both missing); OQ-003 resolution converts the Risks-section warning into four machine-checkable promotion preconditions verified by AC-012/013. (3) Pack duplication risk: OQ-006 resolution specifies composition by reference to existing A2 entries; AC-008 verifies Pack resolution against the defined representative change. (4) Rollback governance unusability: OQ-004 resolution specifies registry-cardinality branch selection and reuses tested Ed25519 machinery; AC-016/017/034 provide positive and edge-case validation surfaces. (5) Over-broad ownership hiding boundaries: AC-005/006/032 provide overlap, unowned-path, reverse-coverage, and ownership-digest validation surfaces."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No top-level domain/ directory exists in the repository. The required domain/context-map.md and domain/domain-contract.json are absent. Skip condition met per check definition."
+    }
+  ]
+}

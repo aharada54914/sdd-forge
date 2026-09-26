@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b3-seq0963",
+  "host_session_id": "SESS-spec-a1r1-b3-epic-197-a9-dogfood-0963",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-197-a9-dogfood/requirements.md", "sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e"},
+    {"path": "specs/epic-197-a9-dogfood/acceptance-tests.md", "sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7"},
+    {"path": "specs/epic-197-a9-dogfood/investigation.md", "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/precheck-result.json", "sha256": "1bddbaaa8974fc791af0c9fc8840e2ed95d04fe4a752d5068b514674ccd62d40"},
+    {"path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/integrated-summary.json", "sha256": "2b98a6b858608370d90992496e61eca1890279d4dd77c7458268cbe34c1a74d9"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:274-284 (OQ-001 resolution) names 'mcp' as a single Context component ('the MCP service group under mcp/') among a fixed count of eight. requirements.md:62-68 (REQ-004) requires that 'credential-bearing CI MCP and release publication shall not inherit a blanket \"no credentials/no write\" characteristic from the read-only local services,' and acceptance-tests.md AC-007/TEST-007 requires characteristic tests to 'distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases.' investigation.md:41 (INV-005) states Context component records carry characteristics (seven booleans) and provider bindings as component-level fields, with no documented per-sub-path override within one component. Downstream failure: two implementers would build different Contexts from the same resolved decision -- one treating 'mcp' as one component with one characteristic set (satisfying OQ-001's literal eight-component count but unable to differentiate CI-MCP's credential-bearing nature per AC-007), the other splitting mcp into multiple component records to satisfy AC-007 (contradicting OQ-001's fixed count and singular naming). This is a specification-level decision gap in the human-approved OQ-001/OQ-002 text itself, not an implementation detail an implementation-policy reviewer should resolve. Severity Major: it is a downstream-mismatch-causing ambiguity in a component-characteristic requirement, not a direct safety/workflow-boundary contradiction."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:274-284 (OQ-001 resolution) enumerates exactly six plugin components ('sdd-bootstrap', 'sdd-review-loop', 'sdd-implementation', 'sdd-quality-loop', 'sdd-ship', 'sdd-lite') plus 'mcp' and 'installer'. investigation.md:48 (INV-012), part of the same reviewed package, finds 'seven top-level plugin packages: bootstrap, domain, implementation, lite, quality-loop, review-loop, and ship' -- 'domain' has no corresponding entry in OQ-001's list. requirements.md:295-297 (OQ-002 resolution) states the general ownership rule 'plugins/<name>/** -> its plugin component,' which would route plugins/domain/** to a component that OQ-001 never named, and OQ-002's cross-cutting (shared) list (requirements.md:298-303) also omits plugins/domain/**. Under the spec's own Edge Cases section (requirements.md:240: 'A tracked path matches no component and no shared rule: block Phase 1'), plugins/domain/** would be unowned and block Phase 1 bootstrap, with no statement in the reviewed package explaining whether the domain plugin was removed, folded into another component, or simply omitted from the approved decomposition. This is a direct conflict between the human-approved resolution text and the investigation's own repository-inventory finding inside the same Phase-1 package, not something implementation review can resolve since OQ-001/OQ-002 are presented as already Resolved decisions. Severity Major under the classification rule (ambiguity/conflict causing downstream mismatch), not Critical, since it is a component-decomposition completeness gap rather than a direct safety or workflow-boundary contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:244 (Edge Cases) names an explicit edge case: 'Approver registry changes between rollback request and effective time: re-run approval validation with the current registry.' REQ-009 (requirements.md:108-116) and OQ-004's resolution (requirements.md:335-346) build the rollback governance model on registry cardinality. The corresponding acceptance criteria -- AC-016 (two-or-more-identity approvals), AC-017 (solo-identity 24-hour cooldown boundary), and AC-018 (unsigned/self-approved/duplicated/non-bound sidecar rejection), and their mapped TEST-016/017/018 in acceptance-tests.md:22-24 -- cover multi-identity, solo-identity-timing, and malformed-sidecar branches, but none tests registry membership changing between the rollback request and its effective time. Downstream failure: an implementer could ship a rollback flow that captures approver count/identity only at request time, and no acceptance criterion exists for a task or quality-gate reviewer to check that the current registry is re-evaluated at effective time, silently defeating the exact edge case the requirements document itself names as material for this security-sensitive governance boundary. This is a Phase-1 acceptance-criteria completeness gap for a requirement-named edge case, squarely spec review's responsibility."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:259-265 lists four assumptions, each either grounded in investigation or explicitly deferred: (1) the Issue #197/#187 reconciliation is dated 2026-09-01 and recorded in investigation.md's Issue-Reconciliation Result section; (2) A1-A8 availability is explicitly marked as mutable shared state that 'must be re-verified at spec review and implementation, never assumed from this draft,' operationalized by REQ-011/AC-020 rather than assumed; (3) the specs/-cross-cutting assumption is explicitly stated as 'verified by REQ-013/AC-025, not accepted without evidence'; (4) WFI numbering is explicitly deferred to record-creation time rather than silently assumed. All six Open Questions (OQ-001 through OQ-006, requirements.md:269-373) carry dated resolutions with verbatim human-approval quotations. No assumption is left unresolved without either an investigation citation or an explicit decision-needed/deferred marker."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The specification names multiple human-approval/governance boundaries and each has a testable, observable acceptance criterion: REQ-001's protected approval publication workflow (requirements.md:37-44) is tested by AC-002 (missing/invalid binding rejected, human-copy boundary demonstrated); REQ-007/REQ-008's promotion authorization and atomic Phase-2 transition (requirements.md:90-106) are tested by AC-012/AC-013/AC-014/AC-015; REQ-009's rollback governance (requirements.md:108-116) is tested by AC-016/AC-017/AC-018; REQ-010's 'Agents shall not approve WFI records' (requirements.md:125) is tested by AC-019 ('no Approved status'). The Non-goals section (requirements.md:164) explicitly excludes approving the spec, tasks, sidecar, or WFI from this epic's own scope, consistent with the boundaries it requires elsewhere. These boundaries are in scope and testable; the check does not SKIP."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same two gaps cited under AMBIGUITY and CONTRADICTION -- whether 'mcp' is one Context component or must decompose further to satisfy REQ-004/AC-007's CI-MCP credential differentiation (requirements.md:274-284 vs. :62-68/acceptance-tests.md AC-007), and whether plugins/domain/** is owned, shared, or intentionally absent from OQ-001's six-plugin enumeration (requirements.md:274-284/295-303 vs. investigation.md:48) -- are presented as already-Resolved human decisions (OQ-001, OQ-002) rather than open items. A design/implementation-policy reviewer handed this package would have to invent these two component-decomposition decisions rather than execute an unambiguous, already-approved plan, which is exactly the invention this check exists to prevent at the design stage. This is a readiness gap in the Phase-1 handoff, not a missing implementation detail the false-positive guard would excuse."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md:31 records 'Domain-Sync: `domain-sync skipped: no domain/ directory`', confirming no `domain/` directory exists at the project root. This meets the check's explicit skip condition (domain/ absent), so DOMAIN-CONFORMANCE is recorded as skipped rather than evaluated against a context map or domain contract."
+    }
+  ]
+}

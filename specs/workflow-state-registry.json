@@ -429,6 +429,10 @@
     {
       "feature": "sdd-domain-multitarget",
       "profile": "full"
+    },
+    {
+      "feature": "epic-197-a9-dogfood",
+      "profile": "full"
     }
   ]
 }

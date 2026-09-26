@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f407d20d258fea55e936c8ba7749e6327dd087f03c3bd873325b10a7123f4946",
+  "acceptance_sha256": "19836e34a5e8630b8c8dc9063fbc8dc48f2a74600b1600863ffef23f0ed85642",
+  "investigation_sha256": "eef9d4caa7139553ba4c4d0ca365a193050adeb5e482f5aac696e76329c7acc9",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "3db7549d051c98955d432bf1e2bd592aee337e6a1087a877db69b77184af2e8f",
+  "edit_summary": "Define nine-component classification oracle and optional omissions; define override-only false baseline and per-field negative cases; reconcile Registry composition and rollback signatures without changing historical approvals.",
+  "reset": false,
+  "generated_at": "2026-09-25T16:36:00Z"
+}
