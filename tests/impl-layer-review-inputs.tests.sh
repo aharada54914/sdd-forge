@@ -163,12 +163,22 @@ jq --arg feature "$FEATURE" '(.entries[] | select(.feature == $feature) | .profi
 mv "$REGISTRY.tmp" "$REGISTRY"
 reset_impl_report
 run_precheck >/dev/null || fail "legacy-compatible profile should retain the core-only precheck"
-legacy_expected="$(printf '%s:%s:%s' \
+legacy_material="$(printf '%s:%s:%s' \
   "$(sha256 "$SPEC_DIR/design.md")" "$(sha256 "$SPEC_DIR/requirements.md")" \
-  "$(sha256 "$SPEC_DIR/acceptance-tests.md")" | shasum -a 256 | awk '{print $1}')"
-jq -e --arg expected "$legacy_expected" \
-  '.layer_sha256 == {} and .input_sha256 == $expected' "$PRECHECK" >/dev/null ||
-  fail "legacy-compatible profile changed the historical core-input contract hash"
-pass "isolated rollback fixture preserves the legacy core-input contract hash"
+  "$(sha256 "$SPEC_DIR/acceptance-tests.md")")"
+legacy_expected="$(printf '%s' "$legacy_material" | shasum -a 256 | awk '{print $1}')"
+current_lite_expected="$(printf '%s:adr_inputs/v1:[]' "$legacy_material" | shasum -a 256 | awk '{print $1}')"
+jq -e --arg expected "$current_lite_expected" \
+  '.layer_sha256 == {} and .adr_inputs == [] and .input_sha256 == $expected' "$PRECHECK" >/dev/null ||
+  fail "lite producer did not persist the versioned empty-ADR input contract"
+pass "lite producer persists an empty ADR set with versioned input hash"
+
+jq --arg expected "$legacy_expected" 'del(.adr_inputs) | .input_sha256 = $expected' \
+  "$PRECHECK" > "$PRECHECK.tmp"
+mv "$PRECHECK.tmp" "$PRECHECK"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 1 1 --verify-inputs) >/dev/null ||
+  fail "historical precheck without ADR extension should remain accepted"
+pass "VerifyInputs accepts historical precheck without ADR extension"
 
 printf 'PASS: implementation-review layer inputs\n'
