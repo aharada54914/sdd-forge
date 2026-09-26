@@ -169,6 +169,8 @@ function Assert-ProcessObservation {
     else { Fail "$Name awaited process observation" }
 }
 
+Push-Location $workDir
+try {
 $script:powerShellHost = (Get-Process -Id $PID).Path
 $script:panelistStubPath = Join-Path $workDir "panelist-stubs"
 $script:panelistInput = Join-Path $workDir "panelist-input.txt"
@@ -266,9 +268,68 @@ if ($env:STUB_PHASE_FILE) {
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 
 if ($IsWindows) {
+    # Keep interpreter startup out of the PowerShell worker's runtime path.
+    $python = Get-Command python -ErrorAction Stop
+    & $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
+    if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the Windows panelist fixture' }
+    $panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
+    @'
+import json
+import os
+import subprocess
+import sys
+import time
+
+def now():
+    return time.time_ns() // 1_000_000
+
+def receipt(name, value):
+    path = os.environ.get(name)
+    if path:
+        with open(path, 'w', encoding='utf-8') as handle:
+            handle.write(str(value))
+
+receipt('STUB_START_FILE', now())
+receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', ''))
+receipt('STUB_CALLED_FILE', 'called')
+receipt('STUB_PID_FILE', os.getpid())
+if os.environ.get('STUB_MODE') == 'hang':
+    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    receipt('STUB_CHILD_PID_FILE', child.pid)
+    time.sleep(30)
+
+response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
+    feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
+    findings=[], blind=True, input_digest='a' * 64,
+    consent=dict(kind='human-flag', ref='test fixture')), separators=(',', ':'))
+if os.environ.get('STUB_WARMUP') != '1':
+    margin = os.environ.get('STUB_COMPLETE_BEFORE_DEADLINE_MS')
+    target = (int(os.environ['SDD_PANELIST_DEADLINE_EPOCH_MS']) - int(margin)
+              if margin else int(os.environ.get('STUB_COMPLETE_AT_EPOCH_MS', '0')))
+    remaining = target - now()
+    if remaining > 0:
+        time.sleep(remaining / 1000)
+
+phase_path = os.environ.get('STUB_PHASE_FILE')
+if phase_path:
+    with open(phase_path, 'a', encoding='utf-8') as handle:
+        handle.write(f'wait_end={now()}\n')
+receipt_end = now()
+console = sys.stdout
+console_ready = now()
+console.write(response + '\n')
+write_end = now()
+console.flush()
+flush_end = now()
+if phase_path:
+    with open(phase_path, 'a', encoding='utf-8') as handle:
+        handle.write(f'output_end={now()}\nreceipt_end={receipt_end}\n'
+                     f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+'@ | Set-Content -Encoding Utf8 -Path $panelistWorker
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath "$commandName.cmd"
-        "@echo off`r`n`"$script:powerShellHost`" -NoProfile -File `"$panelistWorker`" %*`r`n" |
+        "@echo off`r`n`"$($python.Source)`" `"$panelistWorker`" %*`r`n" |
             Set-Content -Encoding Ascii -NoNewline -Path $wrapper
     }
 } else {
@@ -295,8 +356,6 @@ $panelistRunners = @(
     }
 )
 
-Push-Location $workDir
-try {
     # ============================================================================
     # AC-002: Diversity checks
     # ============================================================================
