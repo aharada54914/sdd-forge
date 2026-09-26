@@ -10,10 +10,15 @@ constraints and known gaps: `specs/sdd-context-continuity/investigation.md`
 
 ## Acceptance criteria: minimum observable assertions
 
+The 2026-09-26 human decisions qualify the source issue's raw/complete-capture
+wording: below, source/raw evidence means the original statement after secret
+redaction, not an unredacted copy. Expired or redacted content is not recoverable;
+persistence failure must be reported, never represented as successful capture.
+
 | AC | Minimum assertion(s) |
 |---|---|
-| 1 | Before interpretation, persist the user input; resume reports B accepted and A rejected, each traceable to raw WAL evidence. |
-| 2 | Preserve the complete composite raw statement; recovery can recover/reference its exception even when extraction omits it. |
+| 1 | Attempt persistence before interpretation; on success resume reports B accepted and A rejected, each traceable to redacted source WAL evidence. On persistence failure warn and continue without claiming capture. |
+| 2 | Preserve the composite source statement except disclosed secret redactions; recover/reference retained exceptions even when extraction omits them. Redacted content is explicitly unrecoverable. |
 | 3 | Forced extractor failure leaves raw evidence durable and available for recovery. |
 | 4 | A simulated pre-Stop automatic compact reconciles transcript-tail events observable to the runtime but absent from WAL. |
 | 5 | A verified materialized decision is not redundantly injected as a full body; authoritative artifact remains the reference. |
@@ -43,7 +48,7 @@ constraints and known gaps: `specs/sdd-context-continuity/investigation.md`
 | 12 | Stale journal from another feature/repository | Reject/quarantine before it influences resume. |
 | 13 | Claude compact/resume | Exercise actual Claude command-hook input and compact-source resume path. |
 | 14 | Codex compact/resume | Exercise actual Codex command-hook input and compact-source resume without requiring a compact summary. |
-| 15 | Hook process failure | Surface failure rather than claiming success; prompt failure policy remains unresolved. |
+| 15 | Hook process failure | User-input persistence failure warns and continues without claiming capture. Manual-compaction safety checks remain separate; automatic compaction is never blocked. |
 | 16 | Duplicate hook delivery/retry | Deduplicate only when the same event has stable identity; keep legitimate repeated content distinct. |
 | 17 | Windows path and CRLF | Preserve equivalent parsed state under CRLF/Windows paths; reject unsafe traversal separately. |
 | 18 | No-SDD repository | Graceful no-op and no journal writes outside an SDD project root. |
@@ -61,9 +66,12 @@ constraints and known gaps: `specs/sdd-context-continuity/investigation.md`
 - Upstream hook documentation is not proof that a particular installed host
   version has the candidate hook registered or delivers the expected payload
   (`investigation.md`, lines 61–63 and 79–81).
-- Product decisions still pending: WAL retention/deletion, secret redaction and
-  accepted recovery loss, and whether a failed user-prompt append stops input or
-  continues with a warning (`investigation.md`, OQ-001–OQ-003, lines 85–90).
+- Product decisions resolved by the human on 2026-09-26: delete automatically
+  after 30 days; remove secrets before persistence and disclose recovery loss;
+  warn and continue if user-input persistence fails (`investigation.md`,
+  OQ-001–OQ-003). Add assertions for the retention boundary, secret absence in
+  persisted/derived records, and warning without a false capture claim. The
+  redaction rules and expiry mechanics still need concrete design and tests.
 - Technical contracts still pending: worktree/repository identity and storage
   isolation, retry identity, portable durability semantics, missing/partial
   transcript-tail handling, host-version support, and safety for missing ignore

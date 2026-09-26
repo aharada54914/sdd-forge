@@ -17,9 +17,11 @@ implementation, approval, review PASS, or runtime-support claim is recorded here
 
 ## Summary
 
-Reuse the existing read-only task-state interpretation. Add conversation storage
-only after retention, redaction, failure handling, and runtime hook support are
-settled. Upstream hook documentation is not evidence of installed-host activation.
+Reuse the existing read-only task-state interpretation. The human selected
+30-day automatic deletion, secret redaction and warn-and-continue persistence
+failure handling on 2026-09-26. Concrete contracts and runtime hook support still
+need verification before implementation. Upstream hook documentation is not
+evidence of installed-host activation.
 
 ## Findings
 
@@ -84,9 +86,9 @@ Actual payloads, retry behavior and failure barriers remain unverified.
 
 | ID | Question | Owner / resolution | Blocking |
 |----|----------|--------------------|----------|
-| OQ-001 | Retain until explicit deletion or impose a retention period? | Product owner; interview response | yes |
-| OQ-002 | Which secrets must be removed before persistence, and what recovery loss is acceptable? | Product/security owner; interview response and concrete examples | yes |
-| OQ-003 | If durable append fails, stop incoming prompt processing or continue with a warning? Automatic compaction must not be blocked. | Product owner; interview response plus runtime feasibility | yes |
+| OQ-001 | Retain until explicit deletion or impose a retention period? | Resolved by human, 2026-09-26: automatically delete after 30 days. Expiry implementation and boundary tests remain design work. | no |
+| OQ-002 | Remove secrets before persistence and accept the resulting recovery loss? | Resolved by human, 2026-09-26: remove secrets before saving and disclose that removed portions cannot be recovered exactly. Concrete redaction rules/examples remain security design work; no claim of perfect secret detection. | no |
+| OQ-003 | If durable append fails, stop incoming prompt processing or continue with a warning? Automatic compaction must not be blocked. | Resolved by human, 2026-09-26: warn and continue work. Do not claim successful capture; manual-compaction safety checks remain separate. | no |
 | OQ-004 | Local-only, Git-excluded, worktree-separated storage. | Issue #137 already requires project-local, Git-excluded state; worktree identity/isolation is an implementation decision to verify, not a new permission request. | no |
 | OQ-005 | How are retries identified when the host supplies no stable turn ID? Identical legitimate messages must remain distinct. | Implementer; inspect actual host events, then design | yes |
 | OQ-006 | Which durability and atomic-replacement guarantees are portable across supported OSes? | Implementer; filesystem/API contract and fault-injection checks | yes |
@@ -106,7 +108,8 @@ Actual payloads, retry behavior and failure barriers remain unverified.
 
 ## Recommended Next Steps
 
-1. Resolve product-policy questions without assuming answers.
+1. Carry the recorded OQ-001–OQ-003 human decisions into concrete retention,
+   redaction and failure-handling contracts; do not reopen the same choices.
 2. Specify the smallest journal and recovery contract, reusing authoritative readers.
    Preferred reuse candidate: a small read-only entry point bundling existing core
    readers and root/path validation, without importing MCP startup. Existing

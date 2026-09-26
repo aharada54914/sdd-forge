@@ -55,7 +55,8 @@ See INV-017 before relying on `getSpecStatus` for a safety decision.
 
 - Journal implementation: not found in bounded search A; no implementation generated.
 - Actual lifecycle event payloads and installed candidate registration: pending probes.
-- Retention, redaction and append-failure policy: pending product decisions.
+- Retention, redaction and append-failure policy: human decisions recorded in
+  investigation OQ-001–OQ-003 on 2026-09-26; implementation and tests pending.
 - Cross-platform durability, retry identity and recovery tests: pending design.
 
 Recheck shared registrations and path guards before consuming this map in review.
