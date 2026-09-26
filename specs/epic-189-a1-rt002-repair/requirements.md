@@ -40,6 +40,24 @@ A caller can distinguish an operation-bound guard denial from missing metadata, 
 - AC-005 (REQ-004): Each challenge emits the normative Codex patch with exactly the generated nonce and no terminal newline. Claude/Copilot emitted objects remain `Write` to `sdd/.hook-canary-sentinel` with empty content. Generating/verifying evidence does not perform the canary write or cleanup itself.
 - AC-006 (REQ-005): New repair-only spec/design/task reviews pass with normal identities, hashes and other preconditions. The new task is human-approved before ordinary execution; actual activation is required for ordinary entry. Both original-path suites and latest-head required CI including native Windows pass. After permitted protected application, an actual fresh challenge, one native dispatch, unchanged response and original installed verifier prove `HOOK_ACTIVE`. Retain actual failures, parent target, prior task state and review history. Fixtures alone do not satisfy live proof.
 
+## Normative Codex bytes
+
+For REQ-001/REQ-004 and AC-001/AC-003/AC-005, decode each JSON string below as UTF-8 text, then replace its single literal `<nonce>` with the challenge's generated 32-lowercase-hex nonce. No other substitution, trimming, Unicode normalization or line-ending conversion is permitted. Neither decoded string has a terminal newline. These are the complete templates, reproduced from the recovery contract, not evidence of a live result.
+
+Emitted `tool_call_template.codex-cli.tool_input.patch`:
+
+```json
+"*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+Accepted `raw_result`:
+
+```json
+"Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+The response object has exactly `schema`, `runtime`, `nonce`, `executed`, `raw_result`; values are `sdd-codex-host-denial/v1`, `codex-cli`, that nonce, boolean `false`, and the substituted raw string respectively. No plugin flag is inferred or added. AC-002 specifies rejection categories. This selector applies only to response verification, never cleanup (AC-004).
+
 ## Roles and Permissions
 
 The implementer may prepare repair-specific inputs and verification within the approved scope. Independent reviewers own review outcomes; only quality-gate owns Done. Human-only protected application remains human-only if the guard denies agent editing. The trusted collector records its own actual native response; it may not fabricate flags or normalize that response.
