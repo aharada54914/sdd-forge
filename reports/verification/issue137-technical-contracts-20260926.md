@@ -15,8 +15,11 @@ The human answered OQ-001–OQ-003 on 2026-09-26:
   manual-compaction safety checks or allow automatic compaction to be blocked.
 
 Expiry must also cover derived copies and repair/quarantine data, not just the
-primary journal. Exact expiry scheduling, redaction rules and warning delivery
-remain design/test work; no existing log has been deleted or processed.
+primary journal. The human additionally approved an OS-standard daily job:
+exclude records from recovery at 30 days, delete normally within 24 hours, and
+catch up after power-off/sleep. Only this feature's logs are deletion targets.
+Scheduler integration, redaction rules and warning delivery remain design/test
+work; no scheduled job has been installed and no existing log deleted or processed.
 
 ## Smallest proposed technical boundaries
 
@@ -28,6 +31,7 @@ remain design/test work; no existing log has been deleted or processed.
 | OQ-007 | Capture only observed hook/transcript records. With absent or unknown transcript, disclose incomplete coverage. Preserve a valid prefix and retry an incomplete tail; do not treat interior corruption as a harmless tail. | Real transcript formats, partial records and recovery interruptions. |
 | OQ-008 | Validate lifecycle delivery separately from PreToolUse enforcement, for each installed host and candidate registration. Unsupported events remain unavailable; ordinary file-based SDD remains usable. | UserPromptSubmit, Stop, manual/auto PreCompact and compact SessionStart through real entry points. |
 | OQ-009 | Require untracked and effectively ignored storage; reject unsafe paths or failed Git checks. Do not auto-change the index or delete tracked files. | Missing/negated ignore rules, tracked files, Git errors and symlink targets. |
+| OQ-010 | Use the approved daily OS job and catch-up policy, without a new resident service. A content-free list of explicitly registered owned worktrees permits cleanup without opening the worktree. | Native scheduler registration/removal, inactive worktrees, sleep/shutdown catch-up, failed deletion and foreign-path rejection. Never recursively scan arbitrary directories. |
 
 ## Reuse and source checks
 
