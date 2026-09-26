@@ -8,6 +8,10 @@ $ImplReport = Join-Path $Root "reports/impl-review/$Feature"
 $Registry = Join-Path $Root 'specs/workflow-state-registry.json'
 $RegistryOriginal = [IO.File]::ReadAllText($Registry)
 $LayerFiles = @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')
+$AdrRelativePath = "docs/adr/9876-impl-layer-inputs-$([guid]::NewGuid().ToString('N')).md"
+$AdrPath = Join-Path $Root ($AdrRelativePath.Replace('/', [IO.Path]::DirectorySeparatorChar))
+$AdrCreated = $false
+$AdrOriginalText = '# impl-layer ADR fixture'
 
 function Hash([string]$Path) {
     (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLower()
@@ -31,6 +35,10 @@ function Write-Inputs {
     foreach ($name in $LayerFiles) {
         "# $name" | Set-Content (Join-Path $Spec $name) -Encoding utf8NoBOM
     }
+}
+
+function Write-AdrDesign {
+    "Impl-Review-Status: Pending`nDecision: ``$AdrRelativePath``" | Set-Content (Join-Path $Spec 'design.md') -Encoding utf8NoBOM
 }
 
 function Write-SpecPass {
@@ -69,10 +77,21 @@ function Write-SpecPass {
 }
 
 try {
+    if (-not (Test-Path -LiteralPath (Split-Path -Parent $AdrPath) -PathType Container)) {
+        throw 'FAIL: ADR fixture parent is missing'
+    }
+    $adrStream = [IO.File]::Open($AdrPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    $AdrCreated = $true
+    try {
+        $adrBytes = [Text.UTF8Encoding]::new($false).GetBytes($AdrOriginalText + "`n")
+        $adrStream.Write($adrBytes, 0, $adrBytes.Length)
+    } finally { $adrStream.Dispose() }
+
     $registryData = $RegistryOriginal | ConvertFrom-Json
     $registryData.entries = @($registryData.entries) + [pscustomobject]@{feature=$Feature;profile='full'}
     $registryData | ConvertTo-Json -Depth 10 | Set-Content $Registry -Encoding utf8NoBOM
     Write-Inputs
+    Write-AdrDesign
     Write-SpecPass
 
     & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 | Out-Null
@@ -83,7 +102,32 @@ try {
     }
     Write-Host 'PASS: PowerShell complete layer input set is hash-bound'
 
+    if (@($precheck.adr_inputs).Count -ne 1 -or
+        $precheck.adr_inputs[0].path -cne $AdrRelativePath -or
+        $precheck.adr_inputs[0].sha256 -cne (Hash $AdrPath)) {
+        throw 'FAIL: PowerShell did not persist the declared ADR path and content hash'
+    }
+    $expectedLayers = [ordered]@{
+        'frontend-spec.md' = Hash (Join-Path $Spec 'frontend-spec.md')
+        'infra-spec.md' = Hash (Join-Path $Spec 'infra-spec.md')
+        'security-spec.md' = Hash (Join-Path $Spec 'security-spec.md')
+        'ux-spec.md' = Hash (Join-Path $Spec 'ux-spec.md')
+    }
+    $expectedAdr = @([ordered]@{path=$AdrRelativePath;sha256=(Hash $AdrPath)})
+    $layerJson = ConvertTo-Json -InputObject $expectedLayers -Compress
+    $adrJson = ConvertTo-Json -InputObject $expectedAdr -Depth 4 -Compress
+    $inputMaterial = @(
+        $precheck.design_sha256, $precheck.requirements_sha256, $precheck.acceptance_sha256,
+        $layerJson, 'adr_inputs/v1', $adrJson
+    ) -join ':'
+    $expectedInputHash = ([BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.UTF8Encoding]::new($false).GetBytes($inputMaterial)))).Replace('-', '').ToLower()
+    if ($precheck.input_sha256 -cne $expectedInputHash) {
+        throw 'FAIL: PowerShell input hash did not bind the nonempty ADR set'
+    }
+    Write-Host 'PASS: PowerShell precheck binds the nonempty ADR set into input hash'
+
     & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null
+    Write-Host 'PASS: PowerShell VerifyInputs accepts the unchanged nonempty ADR set'
     $registryData = Get-Content $Registry -Raw | ConvertFrom-Json
     @($registryData.entries | Where-Object feature -eq $Feature)[0].profile = 'lite'
     $registryData | ConvertTo-Json -Depth 10 | Set-Content $Registry -Encoding utf8NoBOM
@@ -98,6 +142,27 @@ try {
     @($registryData.entries | Where-Object feature -eq $Feature)[0].profile = 'full'
     $registryData | ConvertTo-Json -Depth 10 | Set-Content $Registry -Encoding utf8NoBOM
     Write-Inputs
+    Write-AdrDesign
+
+    [IO.File]::WriteAllText($AdrPath, '# changed impl-layer ADR fixture' + "`n", [Text.UTF8Encoding]::new($false))
+    $adrTamperFailed = $false
+    try {
+        & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null
+    } catch { $adrTamperFailed = $true }
+    if (-not $adrTamperFailed) { throw 'FAIL: PowerShell VerifyInputs accepted changed ADR content' }
+    [IO.File]::WriteAllText($AdrPath, $AdrOriginalText + "`n", [Text.UTF8Encoding]::new($false))
+    Write-Host 'PASS: PowerShell VerifyInputs rejects ADR content tampering'
+
+    $precheckPath = Join-Path $ImplReport 'attempt-1/round-1/precheck-result.json'
+    $caseVariantPrecheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+    $caseVariantPrecheck.adr_inputs[0].path = $AdrRelativePath.Replace('impl-layer-inputs', 'Impl-layer-inputs')
+    $caseVariantPrecheck | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $precheckPath -Encoding utf8NoBOM
+    $adrCaseFailed = $false
+    try {
+        & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null
+    } catch { $adrCaseFailed = $true }
+    if (-not $adrCaseFailed) { throw 'FAIL: PowerShell VerifyInputs accepted case-variant persisted ADR path' }
+    Write-Host 'PASS: PowerShell VerifyInputs rejects a case-variant ADR path'
 
     foreach ($name in $LayerFiles) {
         Remove-Item $ImplReport -Recurse -Force -ErrorAction SilentlyContinue
@@ -133,13 +198,26 @@ try {
     & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 | Out-Null
     $legacyPrecheck = Get-Content (Join-Path $ImplReport 'attempt-1/round-1/precheck-result.json') -Raw | ConvertFrom-Json
     $legacyMaterial = "$(Hash (Join-Path $Spec 'design.md')):$(Hash (Join-Path $Spec 'requirements.md')):$(Hash (Join-Path $Spec 'acceptance-tests.md'))"
-    $legacyExpected = ([BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($legacyMaterial)))).Replace('-', '').ToLower()
-    if (@($legacyPrecheck.layer_sha256.psobject.Properties).Count -ne 0 -or $legacyPrecheck.input_sha256 -ne $legacyExpected) {
-        throw 'FAIL: PowerShell legacy-compatible profile changed the historical core-input contract hash'
+    $currentLiteMaterial = $legacyMaterial + ':adr_inputs/v1:[]'
+    $currentLiteExpected = ([BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($currentLiteMaterial)))).Replace('-', '').ToLower()
+    if (@($legacyPrecheck.layer_sha256.psobject.Properties).Count -ne 0 -or
+        $legacyPrecheck.adr_inputs -isnot [array] -or @($legacyPrecheck.adr_inputs).Count -ne 0 -or
+        $legacyPrecheck.input_sha256 -ne $currentLiteExpected) {
+        throw 'FAIL: PowerShell lite producer changed its versioned empty-ADR input contract'
     }
-    Write-Host 'PASS: PowerShell rollback fixture preserves the legacy core-input contract hash'
+    Write-Host 'PASS: PowerShell lite producer persists empty ADR set with versioned input hash'
+
+    $legacyPrecheckPath = Join-Path $ImplReport 'attempt-1/round-1/precheck-result.json'
+    $persistedLegacyPrecheck = Get-Content -LiteralPath $legacyPrecheckPath -Raw | ConvertFrom-Json
+    [void]$persistedLegacyPrecheck.PSObject.Properties.Remove('adr_inputs')
+    $legacyInputHash = ([BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($legacyMaterial)))).Replace('-', '').ToLower()
+    $persistedLegacyPrecheck.input_sha256 = $legacyInputHash
+    $persistedLegacyPrecheck | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $legacyPrecheckPath -Encoding utf8NoBOM
+    & (Join-Path $Root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1') -Feature $Feature -Attempt 1 -Round 1 -VerifyInputs | Out-Null
+    Write-Host 'PASS: PowerShell VerifyInputs accepts historical precheck without ADR extension'
 } finally {
     [IO.File]::WriteAllText($Registry, $RegistryOriginal)
     Remove-Item -LiteralPath $Spec,$SpecReport,$ImplReport -Recurse -Force -ErrorAction SilentlyContinue
+    if ($AdrCreated) { [IO.File]::Delete($AdrPath) }
 }
 exit 0

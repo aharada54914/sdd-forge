@@ -65,3 +65,33 @@ relaxed; this does not assert Windows execution or a formal review verdict.
 These results supersede the earlier boundary-incomplete limitation only; past
 failed observations remain above. Windows CI, formal SDD review, and main
 integration are not claimed by this report.
+
+## PR #516 CI follow-up
+
+CI run 36227301660 on 4f02bc83368d7b9d2cc4409cbd759f2bab1ccae4 failed;
+that run is not a passing baseline. Two fixture assumptions were stale:
+
+- Loop drivers emitted legacy check lists and omitted the ADR extension even
+  when the precheck declared it. Both drivers now retain the legacy branch for
+  old inputs and propagate canonical checks, relative paths, and ADR entries
+  for extended inputs. No production acceptance rule was weakened.
+- Layer-input suites expected a core-only hash from a newly produced lite
+  precheck. New producers bind even an empty ADR array. Both suites now assert
+  that contract and separately verify historical persisted inputs without the
+  extension, using their original core-only hash.
+
+Sequential original-path verification on macOS after these test-only repairs:
+
+- Bash loop consistency: 34 passed, 0 failed, exit 0.
+- PowerShell loop consistency: 38 passed, 0 failed, exit 0.
+- Bash and PowerShell implementation-layer input suites: exit 0.
+- PowerShell additionally checks nonempty ADR hash binding, unchanged-input
+  acceptance, content tampering, and a case-variant persisted path. This is not
+  a claim about Windows filesystem case sensitivity.
+- Bash/PowerShell syntax checks and git diff --check: exit 0.
+- Temporary ADR/spec/report fixtures were removed and the workflow registry
+  restored; only the four intended test files remained modified.
+
+The parent reviewed all four test changes. Native Windows execution and fresh
+CI on the updated head remain required; these local results are not a formal
+review verdict or live host activation proof.
