@@ -157,8 +157,8 @@ implementation is approved, not another request for those same product choices.
 | OQ-008 | Runtime integration implementer | Real candidate registration plus prompt/Stop/manual+auto compact/resume evidence on both hosts | Live acceptance |
 | OQ-009 | Security implementer | Verify effective ignore/tracked/path checks before writes, including failure cases | Storage safety |
 | OQ-010 | Infrastructure designer | Human resolved 2026-09-26: OS-standard daily execution, exclusion at 30 days, physical deletion normally within 24 hours, catch-up after power-off/sleep. Only this feature's logs are targets. Native scheduling, catch-up and failure tests remain required. | Mechanism verification; policy resolved |
-| OQ-011 | Security designer | Enumerate bounded redaction rules, false-negative limits and failure behavior; test every persistent/output path with synthetic secrets | Redaction design |
-| OQ-012 | Runtime designer | Fix wall-clock handling, hook timeout and injection-budget measurement against observed host limits | Timing and budget contract |
+| OQ-011 | Security designer | [Bounded redaction grammar candidate](security-spec.md#rule-version-1-grammar-and-processing-order), false-negative limits and failure behavior are defined; independent review and synthetic verification of every persistent/output path remain unperformed | Redaction design |
+| OQ-012 | Runtime designer | [Timeout/UTF-8 budget candidates](frontend-spec.md#performance-budget) and [wall-clock policy candidate](infra-spec.md#data-residency-and-retention) are defined; independent review, performance measurement and native host-limit verification remain unperformed; byte budget is not a proven token count | Timing and budget contract |
 
 ## Risks
 

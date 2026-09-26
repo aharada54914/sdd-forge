@@ -110,9 +110,14 @@ must be visible rather than an unconditional reboot guarantee.
 
 ### Remaining contracts
 
-TEST-034/060 await numeric timeout/token measurement (OQ-012), TEST-044 awaits
-native verification of the human-approved daily/catch-up expiry mechanism
-(OQ-010; policy resolved 2026-09-26), and TEST-045 awaits the bounded redaction rule set
-(OQ-011). Storage/platform and live-host tests depend on OQ-005–OQ-009 evidence.
+TEST-034/060 have [numeric timeout/UTF-8 budget candidates](frontend-spec.md#performance-budget)
+and a [wall-clock policy candidate](infra-spec.md#data-residency-and-retention)
+(OQ-012); independent review, performance measurement and native host-limit
+verification remain unperformed. The byte budget is not a proven token count.
+TEST-044 awaits native verification of the human-approved daily/catch-up expiry
+mechanism (OQ-010; policy resolved 2026-09-26). TEST-045/046 have a
+[bounded redaction grammar candidate](security-spec.md#rule-version-1-grammar-and-processing-order)
+(OQ-011); independent review and synthetic verification remain unperformed.
+Storage/platform and live-host tests depend on OQ-005–OQ-009 evidence.
 This draft is not ready for a PASS or task generation while those contracts remain
 open. No UI Integration Checklist: no new user-facing command/view is introduced.
