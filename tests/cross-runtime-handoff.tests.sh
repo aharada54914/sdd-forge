@@ -209,8 +209,8 @@ actual02_sha=$(sha256_file "$fixture02")
 [[ "$actual02_sha" == "$expected02_sha" ]] || fail "Codex-produced handoff-02 bytes/hash mismatch"
 
 prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network."
-copilot -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='read,write' --allow-tool='read,write' > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
 output_file="$tmp/tests/fixtures/cross-runtime-handoff/handoff-02-output.txt"
+copilot -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
 [[ -f "$output_file" ]] || fail "Copilot did not produce handoff-02-output.txt"
 expected_output_sha=$(printf 'COPILOT-CONSUMED:%s' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
 actual_output_sha=$(sha256_file "$output_file")

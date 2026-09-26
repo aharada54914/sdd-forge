@@ -151,8 +151,8 @@ function Invoke-LiveE2E {
     if (-not $codexProducer.Contains('CODEX-PRODUCED:' + $nonce2)) { Stop-Test 'Codex producer did not attest its nonce' }
     if ((Get-Sha256 $two) -cne $expected2) { Stop-Test 'Codex-produced handoff-02 bytes/hash mismatch' }
     $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'
-    [void](Invoke-Cli 'copilot' @('-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=read,write', '--allow-tool=read,write') $work (Join-Path $evidenceDir 'copilot-consumer.log'))
     $output = Join-Path $fixtureWork 'handoff-02-output.txt'
+    [void](Invoke-Cli 'copilot' @('-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=view,create', ("--allow-tool=write($output)")) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
     if (-not (Test-Path -LiteralPath $output -PathType Leaf)) { Stop-Test 'Copilot did not produce handoff-02-output.txt' }
     $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2)
     $expectedOutput = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($outputBytes)).ToLowerInvariant()
