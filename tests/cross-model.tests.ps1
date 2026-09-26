@@ -706,18 +706,10 @@ $panelistRunners = @(
     # ============================================================================
     # The runner exports the one absolute deadline it uses for both process
     # launch and WaitForExit. The stub completes at a fixed margin before that
-    # same deadline. TEST-004(a)/005 already exercise the strict short-timeout
-    # path; this repeated success case must not turn Windows hosted-runner
-    # process-start scheduling noise into a false failure.
+    # same deadline, preserving the two-second bound on every platform.
     Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
-    # Windows hosted runners can add more than two seconds of process launch
-    # and console-flush jitter even after the warm-up. Keep the production
-    # timeout unchanged; use a slightly wider fixture-only budget for this
-    # success probe so it measures an in-deadline completion rather than host
-    # scheduling noise. The timeout/fail-closed contract remains covered by
-    # TEST-004(a)/005 with a one-second bound.
     $nearBoundaryMarginMs = if ($IsWindows) { 1200 } else { 800 }
-    $nearBoundaryBudgetSec = if ($IsWindows) { 3 } else { 2 }
+    $nearBoundaryBudgetSec = 2
     foreach ($runner in $panelistRunners) {
         # Windows-hosted runners can pay a one-time process/runtime startup
         # cost on the first Gemini invocation. Warm the exact runner + stub
