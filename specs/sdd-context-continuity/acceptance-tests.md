@@ -42,7 +42,7 @@ as unavailable, never a fixture-derived PASS. Test secrets must be synthetic.
 | AC-009 | REQ-007, REQ-008 | TEST-031 | adapter | Unsupported manual barrier: explicit unavailable result, no fabricated protection | Planned |
 | AC-010 | REQ-007 | TEST-032 | adapter | Auto write failure: allow compact, content-free diagnostic | Planned |
 | AC-010 | REQ-007 | TEST-033 | adapter | Auto read failure: allow compact, no invented capture | Planned |
-| AC-010 | REQ-007 | TEST-034 | adapter | Auto deadline exhaustion: return within specified bound, no background model retry | Planned |
+| AC-010 | REQ-007 | TEST-034 | adapter | Auto core deadline exhaustion at 1,000 ms monotonically from process entry: stop work/retry; separately verify native 2-second kill proceeds in TEST-035 | Planned |
 | AC-010 | REQ-007 | TEST-035 | e2e | Hook process termination: actual host proceeds, no blocking protocol response | Planned |
 | AC-011 | REQ-008 | TEST-036 | live-host | Claude candidate-loaded lifecycle lane: AC-001–AC-010, record individual case outcomes and host version | Planned |
 | AC-011 | REQ-008 | TEST-037 | live-host | Codex candidate-loaded lifecycle lane: AC-001–AC-010, no Claude-only summary/field dependency | Planned |
@@ -68,7 +68,7 @@ as unavailable, never a fixture-derived PASS. Test secrets must be synthetic.
 | AC-017 | REQ-006 | TEST-057 | unit | Proven stable event ID duplicate: no second append; same ID/different content rejected | Planned |
 | AC-017 | REQ-006 | TEST-058 | unit | Equal text without stable ID persists as distinct deliveries | Planned |
 | AC-017 | REQ-006 | TEST-059 | unit | Same turn ID with distinct observed events persists both | Planned |
-| AC-018 | REQ-010 | TEST-060 | unit | Small/empty view, exact budget, overflow, Unicode and escaped content respect measured bound and safe pointers | Planned |
+| AC-018 | REQ-010 | TEST-060 | unit | Small/empty view, exact 8,192-byte serialized UTF-8 output, overflow, Unicode and escaped content include envelope/pointers; whole entries only, minimal unavailable if envelope cannot fit | Planned |
 | AC-018 | REQ-011 | TEST-061 | regression | Existing MCP read-only/static and core snapshot suites unchanged | Planned |
 | AC-018 | REQ-011 | TEST-062 | native-platform | Windows path/CRLF task interpretation matches existing canonical parser; Ubuntu/macOS controls | Planned |
 | AC-001, AC-002 | REQ-002 | TEST-063 | integration | A superseded by B: keep both source records, present B as current | Planned |
@@ -110,14 +110,36 @@ must be visible rather than an unconditional reboot guarantee.
 
 ### Remaining contracts
 
-TEST-034/060 have [numeric timeout/UTF-8 budget candidates](frontend-spec.md#performance-budget)
-and a [wall-clock policy candidate](infra-spec.md#data-residency-and-retention)
-(OQ-012); independent review, performance measurement and native host-limit
-verification remain unperformed. The byte budget is not a proven token count.
+TEST-034/060 use the numeric time/UTF-8 contract in requirements.md, including
+1 MiB input and 8 MiB transcript scan boundaries. Independent review, performance
+measurement and native host-limit verification remain unperformed. The byte
+budget is not a proven token count.
 TEST-044 awaits native verification of the human-approved daily/catch-up expiry
-mechanism (OQ-010; policy resolved 2026-09-26). TEST-045/046 have a
-[bounded redaction grammar candidate](security-spec.md#rule-version-1-grammar-and-processing-order)
-(OQ-011); independent review and synthetic verification remain unperformed.
+mechanism (OQ-010; policy resolved 2026-09-26). TEST-045/046 use the bounded
+secret families and fail-before-write policy in requirements.md (OQ-011).
+Independent review and synthetic verification remain unperformed.
 Storage/platform and live-host tests depend on OQ-005–OQ-009 evidence.
-This draft is not ready for a PASS or task generation while those contracts remain
-open. No UI Integration Checklist: no new user-facing command/view is introduced.
+Specification review assesses defined acceptance and resolvable technical
+questions, not completed execution. Design/task approval must resolve the
+contracts needed by their scope; implementation and live acceptance still require
+the measurements and native evidence above. No review PASS substitutes for them.
+No UI Integration Checklist: no new user-facing command/view is introduced.
+
+### TEST-045/046 synthetic branches
+
+Each TEST-045 branch asserts removal from journal, staging, projections,
+quarantine, content-bearing cursors and diagnostics, plus omission disclosure
+and absence of raw digests/backups. Each TEST-046 branch asserts no write/raw
+output, a content-free warning and continued ordinary work. All remain Planned.
+
+| Test ID | Concrete assertion |
+|---|---|
+| TEST-045a | Each of the four named PEM labels, multiline and exact 4,096-byte boundary, is removed as a whole block. |
+| TEST-045b | Each of the nine named keys, bare/single/double-quoted, mixed case, colon/equal, escaped quote/backslash and CRLF forms, has its value removed. |
+| TEST-045c | Authorization Bearer and Basic headers remove the entire line value, including spaces. |
+| TEST-045d | HTTP and HTTPS userinfo, and each named query key with one-pass percent/plus decoding, remove the whole original URL. |
+| TEST-045e | Each of sk-/ghp_/github_pat_/AKIA/ASIA and JWT-shaped tokens obeys the specified case, lengths and boundaries; overlapping spans and Unicode surroundings remain valid. |
+| TEST-045f | Non-key substrings, unsupported schemes, short tokens, nested encoding and unlabeled PII are explicit gap/negative controls, never comprehensive-DLP proof. |
+| TEST-046a | Each unclosed PEM/quote, invalid escape/schema/JSON/surrogate and identified YAML block value rejects capture. |
+| TEST-046b | Malformed sensitive URL and each oversized PEM/value/token/input reject capture; exact allowed bounds are positive controls. |
+| TEST-046c | 512 spans fit; 513 spans, scanner exception and deadline exhaustion reject capture without raw fallback. |

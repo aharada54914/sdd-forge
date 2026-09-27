@@ -92,6 +92,46 @@ decisions and cross-cutting boundaries testable. Planned test rows are in
 | AC-017 | Host-stable identity permits idempotent retry; reused identity with different content is an error. Without proven event identity, equal text and equal turn ID remain separate deliveries, never an exactly-once claim. |
 | AC-018 | Recovery input remains within its declared budget; overflow has safe local pointers. MCP read-only checks and task parsing compatibility remain unchanged, including Windows paths and CRLF. |
 
+## Bounded acceptance contract (OQ-011/OQ-012)
+
+These are design limits, not measured host capabilities. TEST-034 requires a
+1,000 ms total core deadline measured monotonically from process entry, with no
+work/retry after exhaustion. The native timeout candidate is 2 seconds; its
+support and automatic-compaction process termination require separate live proof.
+Observation input is limited to 1 MiB UTF-8 and transcript suffix scanning to
+8 MiB per invocation; oversize input is not silently truncated into a successful
+capture. TEST-060 limits the complete serialized recovery response to 8,192 UTF-8
+bytes, including escaping, keys, diagnostics and pointers. Fit whole entries or
+emit minimal unavailable; this is not a token-count guarantee.
+
+TEST-045/046 use synthetic data and the following bounded secret families:
+
+- Matching PEM PRIVATE KEY, RSA PRIVATE KEY, EC PRIVATE KEY and OPENSSH PRIVATE
+  KEY blocks: remove the complete block, at most 4,096 UTF-8 bytes.
+- ASCII case-insensitive whole keys `password`, `passwd`, `secret`, `api_key`,
+  `apikey`, `access_token`, `refresh_token`, `client_secret`, `authorization`:
+  remove values in bare/single/double-quoted colon/equal assignments. Support
+  single-line JSON/YAML/dotenv subsets, not arbitrary YAML. Authorization headers
+  remove the entire remainder of the line, including Bearer/Basic schemes.
+- Absolute HTTP/HTTPS URLs containing userinfo or those sensitive query keys
+  after one percent/plus decoding pass: remove the whole original URL.
+- Case-sensitive `sk-`, `ghp_`, `github_pat_` tokens followed by 20–256 ASCII
+  alphanumeric/underscore/hyphen characters; AKIA/ASIA followed by exactly 16
+  uppercase alphanumeric characters; three dot-separated JWT-shaped base64url
+  segments of 8–2,048 characters each. Require token boundaries; detection is not
+  a provider/signature validity claim.
+
+Process host-decoded text once in memory, merge overlapping spans, replace with
+`[REDACTED:<rule-family>]` and omission=true before any copy/output. No recursive
+decoding, raw span/digest/backup, environment harvesting or complete-DLP claim.
+An identified value is limited to 4,096 bytes and an observation to 512 spans.
+Unclosed/oversized PEM or quoted values, invalid escapes/schema/JSON/surrogates,
+unsupported identified YAML block values, malformed sensitive URLs, oversized
+tokens/input, span/deadline exhaustion and scanner failure reject capture before
+all writes, warn content-free and continue ordinary work. Unknown unlabeled,
+encoded/obfuscated secrets and PII may evade detection; redacted content stays
+private and removed content is explicitly unrecoverable.
+
 ## Roles and Permissions
 
 The local developer owns retention and disclosure policy. The hook can append
@@ -157,8 +197,8 @@ implementation is approved, not another request for those same product choices.
 | OQ-008 | Runtime integration implementer | Real candidate registration plus prompt/Stop/manual+auto compact/resume evidence on both hosts | Live acceptance |
 | OQ-009 | Security implementer | Verify effective ignore/tracked/path checks before writes, including failure cases | Storage safety |
 | OQ-010 | Infrastructure designer | Human resolved 2026-09-26: OS-standard daily execution, exclusion at 30 days, physical deletion normally within 24 hours, catch-up after power-off/sleep. Only this feature's logs are targets. Native scheduling, catch-up and failure tests remain required. | Mechanism verification; policy resolved |
-| OQ-011 | Security designer | [Bounded redaction grammar candidate](security-spec.md#rule-version-1-grammar-and-processing-order), false-negative limits and failure behavior are defined; independent review and synthetic verification of every persistent/output path remain unperformed | Redaction design |
-| OQ-012 | Runtime designer | [Timeout/UTF-8 budget candidates](frontend-spec.md#performance-budget) and [wall-clock policy candidate](infra-spec.md#data-residency-and-retention) are defined; independent review, performance measurement and native host-limit verification remain unperformed; byte budget is not a proven token count | Timing and budget contract |
+| OQ-011 | Security designer | Bounded acceptance contract above defines the families, limits and failure policy; security-spec elaborates parsing. Independent review and synthetic verification of every persistent/output path remain unperformed | Design review and subsequent redaction verification |
+| OQ-012 | Runtime designer | Bounded acceptance contract above defines time/UTF-8 limits. Retention uses original UTC receipt and maximum observed UTC watermark, never retry age; rollback cannot revive known-expired data, abnormal clocks may delay expiry or expire data early. Independent review, performance measurement and native host-limit verification remain unperformed; byte budget is not a proven token count | Design review and subsequent timing/native verification |
 
 ## Risks
 
