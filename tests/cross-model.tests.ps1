@@ -227,10 +227,8 @@ if os.environ.get('STUB_WARMUP') != '1':
     if remaining > 0:
         time.sleep(remaining / 1000)
 
+wait_end = now()
 phase_path = os.environ.get('STUB_PHASE_FILE')
-if phase_path:
-    with open(phase_path, 'a', encoding='utf-8') as handle:
-        handle.write(f'wait_end={now()}\n')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
@@ -238,9 +236,10 @@ console.write(response + '\n')
 write_end = now()
 console.flush()
 flush_end = now()
+output_end = now()
 if phase_path:
-    with open(phase_path, 'a', encoding='utf-8') as handle:
-        handle.write(f'output_end={now()}\nreceipt_end={receipt_end}\n'
+    with open(phase_path, 'w', encoding='utf-8') as handle:
+        handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
                      f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 if ($IsWindows) {
