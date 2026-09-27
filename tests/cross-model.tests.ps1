@@ -184,106 +184,12 @@ $script:panelistInput = Join-Path $workDir "panelist-input.txt"
 New-Item -ItemType Directory -Path $script:panelistStubPath -Force | Out-Null
 Set-Content -Encoding Utf8 -Path $script:panelistInput -Value "sanitized test input"
 
-$panelistWorker = Join-Path $script:panelistStubPath "panelist-worker.ps1"
+$pythonName = if ($IsWindows) { 'python' } else { 'python3' }
+$python = Get-Command $pythonName -ErrorAction Stop
+& $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
+if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the panelist fixture' }
+$panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
 @'
-$ErrorActionPreference = "Stop"
-# STUB_START_FILE records the instant this process ran its first statement, so
-# the harness can separate the stub's own launch cost (process creation plus
-# pwsh cold start, which sits INSIDE the runner's WaitForExit window) from the
-# delay the stub was asked to introduce.
-if ($env:STUB_START_FILE) {
-    [IO.File]::WriteAllText($env:STUB_START_FILE, [string][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
-}
-if ($env:STUB_DEADLINE_FILE) {
-    [IO.File]::WriteAllText($env:STUB_DEADLINE_FILE, $env:SDD_PANELIST_DEADLINE_EPOCH_MS)
-}
-# These receipts are inside the deadline. Avoid provider/cmdlet cold-start
-# work here; keep their contents and the timeout assertions unchanged.
-if ($env:STUB_CALLED_FILE) { [IO.File]::WriteAllText($env:STUB_CALLED_FILE, "called") }
-if ($env:STUB_PID_FILE) { [IO.File]::WriteAllText($env:STUB_PID_FILE, [string]$PID) }
-
-if ($env:STUB_MODE -eq "hang") {
-    $childStdout = "$($env:STUB_CHILD_PID_FILE).stdout"
-    $childStderr = "$($env:STUB_CHILD_PID_FILE).stderr"
-    $child = Start-Process -FilePath (Get-Process -Id $PID).Path `
-        -ArgumentList "-NoProfile", "-Command", "Start-Sleep -Seconds 30" `
-        -RedirectStandardOutput $childStdout -RedirectStandardError $childStderr -PassThru
-    if ($env:STUB_CHILD_PID_FILE) { [IO.File]::WriteAllText($env:STUB_CHILD_PID_FILE, [string]$child.Id) }
-    Start-Sleep -Seconds 30
-}
-
-# Prepare the fixed response before the timed wait. Serializing it after the
-# wait adds cold ConvertTo-Json/JIT work to the intended completion instant.
-# Output still happens only after the same deadline-relative wait below.
-$stubResponse = @{
-    schema = "cross-model-verdict/v1"
-    task_id = "T-901"
-    feature = "timeout-test"
-    vendor = "stub"
-    model = "stub-model"
-    verdict = "PASS"
-    findings = @()
-    blind = $true
-    input_digest = ("a" * 64)
-    consent = @{ kind = "human-flag"; ref = "test fixture" }
-} | ConvertTo-Json -Compress -Depth 5
-if ($env:STUB_WARMUP -eq "1") {
-    # Prime the same wrapper/pwsh process path used by the timed boundary
-    # cases, without introducing a second timing contract into the test.
-    [Console]::Out.WriteLine($stubResponse)
-    exit 0
-}
-
-# Boundary cases derive their target from the exact absolute deadline exported
-# by the runner. This deducts child startup jitter without moving completion
-# earlier relative to the timeout clock.
-$completeAtEpochMs = if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
-    [long]$env:SDD_PANELIST_DEADLINE_EPOCH_MS - [long]$env:STUB_COMPLETE_BEFORE_DEADLINE_MS
-} elseif ($env:STUB_COMPLETE_AT_EPOCH_MS) {
-    [long]$env:STUB_COMPLETE_AT_EPOCH_MS
-} else { 0 }
-if ($completeAtEpochMs -gt 0) {
-    if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
-        # Use a kernel wait instead of Start-Sleep (which has shown large
-        # overshoots on windows-latest) or a busy spin (which can starve a
-        # two-core hosted runner across the ten consecutive boundary cases).
-        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        if ($remainingMs -gt 0) {
-            $waitHandle = [Threading.ManualResetEvent]::new($false)
-            try { $null = $waitHandle.WaitOne([int]$remainingMs) }
-            finally { $waitHandle.Dispose() }
-        }
-    } else {
-        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
-    }
-}
-if ($env:STUB_PHASE_FILE) {
-    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`n")
-}
-$receiptEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-$stubConsole = [Console]::Out
-$consoleReady = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-$stubConsole.WriteLine($stubResponse)
-$writeEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-if ($env:STUB_PHASE_FILE) {
-    $stubConsole.Flush()
-    $flushEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-    # Emit after output; these are operation timings, not process-exit proof.
-    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`nreceipt_end=$receiptEnd`nconsole_ready=$consoleReady`nwrite_end=$writeEnd`nflush_end=$flushEnd`n")
-    # The synthetic worker has no cleanup; avoid PowerShell shutdown after
-    # the response and receipts have been flushed inside the timed window.
-    [Environment]::Exit(0)
-}
-'@ | Set-Content -Encoding Utf8 -Path $panelistWorker
-
-if ($IsWindows) {
-    # Keep interpreter startup out of the PowerShell worker's runtime path.
-    $python = Get-Command python -ErrorAction Stop
-    & $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
-    if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the Windows panelist fixture' }
-    $panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
-    @'
 import json
 import os
 import subprocess
@@ -337,17 +243,18 @@ if phase_path:
         handle.write(f'output_end={now()}\nreceipt_end={receipt_end}\n'
                      f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
+if ($IsWindows) {
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath "$commandName.cmd"
         "@echo off`r`n`"$($python.Source)`" `"$panelistWorker`" %*`r`n" |
             Set-Content -Encoding Ascii -NoNewline -Path $wrapper
     }
 } else {
-    $quotedHost = $script:powerShellHost.Replace('"', '\"')
+    $quotedHost = $python.Source.Replace('"', '\"')
     $quotedWorker = $panelistWorker.Replace('"', '\"')
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath $commandName
-        "#!/bin/sh`nexec `"$quotedHost`" -NoProfile -File `"$quotedWorker`" `"`$@`"`n" |
+        "#!/bin/sh`nexec `"$quotedHost`" `"$quotedWorker`" `"`$@`"`n" |
             Set-Content -Encoding Utf8 -NoNewline -Path $wrapper
         & chmod +x $wrapper
     }
