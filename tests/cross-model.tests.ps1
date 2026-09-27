@@ -170,9 +170,10 @@ function Assert-ProcessObservation {
 }
 
 function Test-BoundaryTiming {
-    param([long]$Deadline, [long]$WaitEnd, [long]$ObservedAt)
+    param([long]$Deadline, [long]$WaitEnd, [long]$OutputEnd)
     return $Deadline -gt 0 -and $WaitEnd -gt 0 -and
-        $WaitEnd -ge ($Deadline - 300) -and $WaitEnd -le $ObservedAt -and $ObservedAt -le $Deadline
+        $OutputEnd -gt 0 -and $WaitEnd -ge ($Deadline - 300) -and
+        $WaitEnd -le $OutputEnd -and $OutputEnd -le $Deadline
 }
 
 Push-Location $workDir
@@ -720,14 +721,15 @@ $panelistRunners = @(
     $nearBoundaryMarginMs = 200
     $nearBoundaryBudgetSec = 2
     foreach ($case in @(
-        @{ Name = "lower edge"; WaitEnd = 1700; ObservedAt = 1800; Expected = $true },
-        @{ Name = "deadline edge"; WaitEnd = 1800; ObservedAt = 2000; Expected = $true },
-        @{ Name = "early completion"; WaitEnd = 1699; ObservedAt = 1800; Expected = $false },
-        @{ Name = "late observation"; WaitEnd = 1800; ObservedAt = 2001; Expected = $false },
-        @{ Name = "reversed observations"; WaitEnd = 1800; ObservedAt = 1799; Expected = $false },
-        @{ Name = "missing receipt"; WaitEnd = 0; ObservedAt = 1800; Expected = $false }
+        @{ Name = "lower edge"; WaitEnd = 1700; OutputEnd = 1800; Expected = $true },
+        @{ Name = "deadline edge"; WaitEnd = 1800; OutputEnd = 2000; Expected = $true },
+        @{ Name = "early completion"; WaitEnd = 1699; OutputEnd = 1800; Expected = $false },
+        @{ Name = "late child output"; WaitEnd = 1800; OutputEnd = 2001; Expected = $false },
+        @{ Name = "reversed child phases"; WaitEnd = 1800; OutputEnd = 1799; Expected = $false },
+        @{ Name = "missing output receipt"; WaitEnd = 1800; OutputEnd = 0; Expected = $false },
+        @{ Name = "missing wait receipt"; WaitEnd = 0; OutputEnd = 1800; Expected = $false }
     )) {
-        if ((Test-BoundaryTiming 2000 $case.WaitEnd $case.ObservedAt) -eq $case.Expected) {
+        if ((Test-BoundaryTiming 2000 $case.WaitEnd $case.OutputEnd) -eq $case.Expected) {
             Ok "TEST-004(c): timing rejects invalid evidence ($($case.Name))"
         } else { Fail "TEST-004(c): timing rejects invalid evidence ($($case.Name))" }
     }
@@ -781,6 +783,7 @@ $panelistRunners = @(
             $startupInsideBudgetMs = "missing"
             $parsedDeadline = [long]0
             $waitEnd = [long]0
+            $outputEnd = [long]0
             $observedAt = [long]0
             if ($stubStartEpoch -gt 0 -and [long]::TryParse($runnerDeadline, [ref]$parsedDeadline)) {
                 $startupInsideBudgetMs = $stubStartEpoch - ($parsedDeadline - $deadlineMs)
@@ -791,6 +794,8 @@ $panelistRunners = @(
             if (Test-Path -LiteralPath $phaseFile) {
                 $waitRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^wait_end=([0-9]+)\r?$')
                 if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
+                $outputRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^output_end=([0-9]+)\r?$')
+                if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
                 foreach ($phase in Get-Content -LiteralPath $phaseFile) {
                     if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
                         Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
@@ -799,9 +804,10 @@ $panelistRunners = @(
             }
             $processRecords = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=[0-9]+ wait_completed=1 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
             if ($processRecords.Count -eq 1) { $observedAt = [long]$processRecords[0].Groups[1].Value }
-            $boundaryTiming = Test-BoundaryTiming $parsedDeadline $waitEnd $observedAt
-            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd observed_at=$observedAt deadline=$parsedDeadline boundary_timing=$([int]$boundaryTiming)"
-            if ($script:panelistExit -eq 0 -and (Test-Path $verdict) -and $boundaryTiming) {
+            $processObservationValid = $processRecords.Count -eq 1 -and $observedAt -gt 0
+            $boundaryTiming = Test-BoundaryTiming $parsedDeadline $waitEnd $outputEnd
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd output_end=$outputEnd observed_at=$observedAt deadline=$parsedDeadline boundary_timing=$([int]$boundaryTiming)"
+            if ($script:panelistExit -eq 0 -and (Test-Path $verdict) -and $processObservationValid -and $boundaryTiming) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
                 Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
