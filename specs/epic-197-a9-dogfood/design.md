@@ -11,9 +11,10 @@ and advisory enforcement, adds the first developer-tooling / cli-library Pack,
 and dogfoods the merged Foundation pipeline across every PR for a full release
 cycle. Phase 2 promotes both workflow axes atomically after human-approved
 evidence thresholds and completes at least one real feature end-to-end. This
-design deliberately leaves component, ownership, promotion, rollback-operation,
-and Pack-internal-contract decisions open (OQ-001–OQ-004 and OQ-006); Issue #197
-resolved OQ-005's Pack selection and priority (`issue-197-full-body.md:17`).
+design follows the dated human decisions for components, ownership, promotion,
+rollback, and the minimal Pack contract in requirements.md (OQ-001–OQ-006).
+Independent specification and design reviews remain pending; policy approval
+is not an implementation or verification result.
 
 ## Architecture
 
@@ -50,7 +51,7 @@ re-verified after A5 merges; this draft does not bind another branch's filenames
 | Promotion/rollback harness | Threshold, atomic transition, post-promotion feature E2E, and approval-branch tests | T-005 |
 | WFI capture | Draft records for friction, or an explicit `none` result | T-006 |
 
-These are implementation-work components, not the unresolved Project Context
+These are implementation-work components, not the approved Project Context
 component inventory itself.
 
 OQ-001/OQ-002 update (2026-09-08): the Project Context inventory is the exact
@@ -153,15 +154,17 @@ path-ownership, staleness, or approval-flow friction, or the literal result
 
 Do not invent a second approval format. Use the A1/ADR-0019 approval sidecar and
 weakening evidence. The procedure selected by OQ-004 supplies approver-registry
-cardinality, distinct identities or cooldown `effective_at`, HMAC verification,
-and application result (`docs/adr/0019-approval-sidecar-protection.md:32-94`).
+cardinality, distinct identities or cooldown `effective_at`, and application
+result. Keep approval-sidecar HMAC verification separate from the signed
+Ed25519 rollback proof required by REQ-009 and TEST-018h/i; neither substitutes
+for the other (`docs/adr/0019-approval-sidecar-protection.md:32-94`).
 
 ## API / Contract Plan
 
 | Contract | Change | Compatibility rule |
 |---|---|---|
-| Project Context schema | no schema change expected | Live YAML validates existing v1. |
-| Capability Registry | extend existing instance with the OQ-005-selected Pack, shaped per OQ-006 | Existing durable-workflow entry remains semantically unchanged. |
+| Project Context schema | additive characteristic_overrides extension in REQ-004 | Contexts without overrides retain existing behavior; exact field and placement negatives remain mandatory. |
+| Capability Registry | add the two exact REQ-005 records and facet/review content | No new execution gate or docs-only classifier; existing durable-workflow semantics and gates remain unchanged; full Context is never automatically lowered. |
 | A3 ownership tools | consume, do not fork | Results must bind current ownership digest. |
 | A4/A5 outputs | consume merged contract | Block if absent/incompatible. |
 | Approval sidecar | consume A1 contract | Protected, HMAC-bound, no agent approval. |
@@ -171,7 +174,8 @@ and application result (`docs/adr/0019-approval-sidecar-protection.md:32-94`).
 1. Schema and exact-tuple fixtures for Phase 1 and Phase 2.
 2. Component oracle derived from the dated OQ-001 ruling.
 3. Ownership positive, omitted-path, overlap, and shared-path fixtures.
-4. Pack trigger/non-trigger fixtures and later-Pack absence check.
+4. Exact Pack records, predicates, review contents, enforcement/track and
+   delivery boundaries (TEST-008a–n), plus later-Pack absence (TEST-009).
 5. Advisory non-blocking versus unchanged existing-gate behavior, plus an
    exhaustive every-PR oracle over one explicitly bounded release cycle.
 6. Promotion evidence completeness, staleness, and each partial-transition case.
@@ -228,7 +232,7 @@ Phase 2 deploys the separately approved atomic promotion.
 
 ## Constraint Compliance
 
-This design creates specs only, carries unresolved decisions as OQs, preserves
+This design creates specs only, follows the dated OQ resolutions, preserves
 other epics' frozen artifacts, and leaves every task Draft/Planned.
 
 ## Assumptions

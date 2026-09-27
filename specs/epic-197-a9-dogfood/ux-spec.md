@@ -25,5 +25,6 @@ N/A — developer-tooling configuration and CLI evidence only.
 
 ## Open Questions
 
-OQ-003 determines the promotion review presentation; OQ-004 determines rollback
-operator steps. Both remain human-pending.
+The dated OQ-003/OQ-004 resolutions in requirements.md determine promotion
+presentation and rollback steps. Those human decisions are resolved;
+independent review and implementation remain pending.

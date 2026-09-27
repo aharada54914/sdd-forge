@@ -10824,6 +10824,56 @@
       "previous_record_sha256": "9c079e0befcaf16c7f5e9e73c293be0ab8e2c965dec69745e09af4329566d7a5",
       "record_sha256": "ae50c7d3d6f663c9149b87eaf22edd091f878a8996649392371435c2b522c986",
       "allowed_inputs_sha256": "55a9d11e626e06ff90c56d9b6ef827c64734e60cea7dbe18b2920170c222c4f6"
+    },
+    {
+      "sequence": 1200,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0db29-022f-77c3-81fc-016bfc57f3dd",
+      "host_session_id": "01a0db29-022f-77c3-81fc-016bfc57f3dd",
+      "previous_record_sha256": "ae50c7d3d6f663c9149b87eaf22edd091f878a8996649392371435c2b522c986",
+      "record_sha256": "6c50cb92dac516fbb3ca7cbcf5148acddc93c1a35fa0c641d1b86216d2dae4af",
+      "allowed_inputs_sha256": "bceb0480a0eee4468e16656a696bea5973646d94d2ac32412b5f40c7cae34e88"
+    },
+    {
+      "sequence": 1201,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0db2a-e3c2-78b0-84e5-5ea434b87b8c",
+      "host_session_id": "01a0db2a-e3c2-78b0-84e5-5ea434b87b8c",
+      "previous_record_sha256": "6c50cb92dac516fbb3ca7cbcf5148acddc93c1a35fa0c641d1b86216d2dae4af",
+      "record_sha256": "a4fff292a9030b17a0d2f19fb744cc366f2456d8ab15bf4e286800c999a7635f",
+      "allowed_inputs_sha256": "ef882e87cbdb9b2d305be94c9a3c96a0e60e36ffa900006a72fbb0966d3f479f"
+    },
+    {
+      "sequence": 1202,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+      "host_session_id": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+      "previous_record_sha256": "a4fff292a9030b17a0d2f19fb744cc366f2456d8ab15bf4e286800c999a7635f",
+      "record_sha256": "af2727e25441487acbea08ae2efb9f7511410145e694a7870422b900800741eb",
+      "allowed_inputs_sha256": "dd1791f994ee82d89f9f10035e7e5feb16782d3220caab1bee2128ede3425b2e"
+    },
+    {
+      "sequence": 1203,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0dbe4-0852-79e1-a646-8f77065b78cc",
+      "host_session_id": "01a0dbe4-0852-79e1-a646-8f77065b78cc",
+      "previous_record_sha256": "af2727e25441487acbea08ae2efb9f7511410145e694a7870422b900800741eb",
+      "record_sha256": "22c0ef8169a1086c47c7eca180bc52223033cf4a00b8dca8a94ac0e1b30cefaa",
+      "allowed_inputs_sha256": "bf9572819884bec63575369c1d07789500e7651f55d438644a451870af0571d8"
+    },
+    {
+      "sequence": 1204,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0dbef-53df-7db3-a629-bb338798354b",
+      "host_session_id": "01a0dbef-53df-7db3-a629-bb338798354b",
+      "previous_record_sha256": "22c0ef8169a1086c47c7eca180bc52223033cf4a00b8dca8a94ac0e1b30cefaa",
+      "record_sha256": "b1a1bfac4fd0e64e2f3bdc9c36229691101076f5598f50a3f3396f5763ccb42a",
+      "allowed_inputs_sha256": "416e5f4dc5f752a88c38c05f9f9d7b874fb1d13e5a6d4ffa4ec1290760c40020"
     }
   ]
 }

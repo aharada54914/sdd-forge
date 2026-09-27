@@ -13,8 +13,9 @@ Release remains the existing GitHub workflow (`.github/workflows/release.yml:26-
 3. Run Bash/PowerShell parity and existing cross-OS matrices.
 4. In Phase 1, report Pack findings advisory-only.
 5. Retain evidence that every PR passed that advisory Gate for one full release cycle.
-6. After separately approved promotion, enforce Pack-required gates and complete
-   at least one real feature end-to-end under `facet-hybrid`.
+6. After separately approved promotion, enforce the Pack facets/review checks
+   through the existing pipeline and complete one real feature end-to-end under
+   `facet-hybrid`. REQ-005 adds no execution gates; existing gates remain intact.
 7. Keep release publication behind its existing loop gate.
 
 ## Environments

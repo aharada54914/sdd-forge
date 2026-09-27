@@ -23,7 +23,7 @@ first draft only. It creates no live Context, Pack, approval sidecar, or WFI.
 
 - The generic Context starter intentionally has no components and is not a live
   sdd-forge instance (`contracts/project-context.template.yaml:1-17`).
-- The Registry lacks the first Pack named by the decision (`contracts/capability-registry.json:1-43`;
+- The Registry lacks the first Pack named by the decision (`contracts/capability-registry.json:1-67`;
   `docs/ai-dlc-foundation-decision-v2.md:488-492`).
 - Component and ownership choices affect enforcement but are not safely derivable
   without human architectural judgment.
@@ -119,8 +119,8 @@ Because the approved OQ-001 decomposition keeps all MCP services in one `mcp`
 component and OQ-002 places release automation under a cross-cutting rule,
 component-level booleans alone cannot express these two distinctions. Per the
 owner ruling of 2026-09-04 (recorded under OQ-001), the Context schema's
-component records shall accept an additive, optional list of scoped
-characteristic-override entries.
+component records and approved shared-path (cross-cutting) rules shall accept
+an additive, optional list of scoped characteristic-override entries.
 
 **Valid override characteristic namespace.** The seven base schema keys are
 `pii`, `ui`, `auto_update`, `local_persistence`, `long_running`, `replayable`,
@@ -171,11 +171,50 @@ behavior.
 A9 shall implement the developer-tooling / cli-library Pack as the first Pack
 implementation and shall not define desktop, cloud-service, or durable-workflow
 Packs. This selection and priority are fixed by Issue #197 and recorded as the
-resolution of OQ-005. The human-approved OQ-006 decision shall fix the Pack's
-Registry capability IDs, predicates, facets, review checks, implementation gates,
-Lite policy, minimum enforcement, and delivery strategy before code is authored
+resolution of OQ-005. The resolved, human-approved OQ-006 decision fixes the
+Pack's Registry capability IDs, predicates, facets, review checks,
+implementation gates, Lite policy, minimum enforcement, and delivery strategy;
+implementation shall follow that decision
 (`issue-197-full-body.md:17`; `docs/ai-dlc-foundation-decision-v2.md:488-492`;
 `contracts/capability-registry.json:1-43`).
+
+The following is the normative minimal contract approved on 2026-09-26.
+These are two new capability records, not a new Pack record or execution gate.
+Predicates use `scope: affected_component`, field `artifact_kinds`, and
+case-sensitive `contains`; the developer-tooling alternatives are joined by
+`any`. Matching is by the approved component classification, not a filename
+heuristic. Results from multiple affected components are a deduplicated union.
+
+| Registry field | `developer-tooling` | `cli-library` |
+|---|---|---|
+| `trigger` | contains `plugin_package`, `mcp_server`, or `installer_script` | contains `plugin_package` |
+| `required_facets` | `[developer-tooling-spec]` | `[cli-library-spec]` |
+| `conditional_facets` | `[]` | `[]` |
+| `review_check_ids` | `[developer-tooling-distribution-compatibility]` | `[cli-library-contract-compatibility]` |
+| `gate_ids` | `[]` | `[]` |
+| `minimum_enforcement` | omitted | omitted |
+| `delivery_strategy.kind` | `human-copy` | `human-copy` |
+| `lite_policy.eligible` | `true` | `true` |
+
+`developer-tooling-spec` records the changed distribution/install surface,
+supported hosts, and compatibility evidence; its review check verifies those
+three items against the change and existing install behavior.
+`cli-library-spec` records affected public commands, skills, and scripts with
+their inputs, outputs, failure behavior, and compatibility evidence; its review
+check verifies those four contract dimensions for the affected interfaces.
+An unaffected surface is explicitly identified with a reason, not silently
+omitted. Existing reviewers perform these checks; neither ID launches a new
+runner. Existing execution gates and their blocking conditions remain intact.
+
+Omitting `minimum_enforcement` preserves Phase-1 advisory mode without lowering
+Phase-2 required mode: the Registry schema permits only `required` when this
+field is present. Lite eligibility merely adds no Pack-specific veto. It does
+not classify changes as docs-only, select Lite, or override the Context's track.
+Docs-only changes follow existing Lite selection and validation; the actual
+A9 Context remains `full`, including for docs-only changes, unless separately
+changed through its approved workflow. Non-docs-only A9 changes remain full.
+Use the existing schema and resolver; do not add a docs-only classifier to the
+Registry (`contracts/capability-registry.schema.json:40-79`).
 
 ### REQ-006 — Advisory dogfood evidence
 
@@ -188,8 +227,9 @@ independent gates remain unchanged (`issue-197-full-body.md:27`).
 
 ### REQ-007 — Promotion readiness decision
 
-Promotion shall occur only after the human approves OQ-003's measurable criteria
-and saved evidence demonstrates them. The promotion decision shall identify the
+Promotion shall occur only after saved evidence demonstrates the resolved,
+human-approved OQ-003 criteria and the human authorizes promotion. The promotion
+decision shall identify the
 Context revision, Registry digest, ownership digest, resolver version, affected
 components, advisory findings/dispositions, and compatibility/cross-runtime
 results used as its basis (`docs/ai-dlc-foundation-decision-v2.md:501-510,547-555`).
@@ -200,7 +240,10 @@ Phase 2 shall change the live Context from `legacy-seven-layer`/`advisory` to
 `facet-hybrid`/`required` through the protected approval workflow. Verification
 shall reject a mixed transition where only one axis changed, or where required
 enforcement is activated before the selected Pack and resolver evidence are
-available (`issue-197-full-body.md:16`). After promotion, at least one real
+available. Even when all promotion evidence is ready, the transition shall
+reject without a valid human approval bound to that Phase-2 publication; an
+agent decision cannot substitute for it (REQ-007; `docs/adr/0019-approval-sidecar-protection.md:32-69`;
+`issue-197-full-body.md:16`). After promotion, at least one real
 feature shall complete the full SDD workflow end-to-end under `facet-hybrid`
 with required capability enforcement (`issue-197-full-body.md:28`).
 
@@ -208,13 +251,14 @@ with required capability enforcement (`issue-197-full-body.md:28`).
 
 A required-to-advisory rollback shall follow the human-approved OQ-004
 procedure: two distinct approvals when at least two real identities are
-registered, otherwise first approval plus a 24-hour cooldown represented by
-the signed `effective_at` boundary; re-evaluate current registry membership
-at application. The persisted rollback record
-uses OQ-004's Ed25519 live-host-proof machinery (JCS, domain-separated
-signatures, trusted-signer registry); the approval sidecar separately remains
-under ADR-0019's external-key HMAC protection. Neither substitutes for the
-other (`docs/adr/0019-approval-sidecar-protection.md:49-94`;
+registered, otherwise first approval plus a 24-hour cooldown. Re-evaluate
+current registry membership at application. ADR-0019's external-key HMAC
+protects the approval sidecar, including the solo branch's `effective_at`
+boundary set to first approval plus 24 hours. Separately, the persisted
+rollback proof shall use OQ-004's Ed25519 live-host-proof machinery (JCS,
+domain-separated signatures, trusted-signer registry). Both records must
+validate; neither signature substitutes for the other
+(`docs/adr/0019-approval-sidecar-protection.md:49-94`;
 `docs/adr/0028-live-host-proof-ed25519-signing.md:56-98`). Early, unsigned,
 self-approved, or identity-duplicated application shall fail.
 The two policy branches are field-test requirements of this epic, not optional
@@ -296,19 +340,19 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-005 | REQ-003 | Ownership validation reports zero unexplained overlaps for the approved map and blocks Phase-1 publication when a tracked path newly matches multiple components without an approved shared rule. |
 | AC-006 | REQ-003 | Ownership validation reports zero unexplained unowned tracked paths, verifies every approved shared-path rule, and blocks Phase-1 publication when a tracked path matches neither a component nor a shared rule. |
 | AC-007 | REQ-004 | Characteristic tests distinguish plugin/MCP/installer/CI/release boundaries, including the CI-MCP credential and release-write cases. |
-| AC-008 | REQ-005 | Registry validation accepts the human-approved first Pack and resolves it for the representative change defined below (full-track plugin code, never docs-only). |
+| AC-008 | REQ-005 | The exact REQ-005 records validate; plugin, MCP, installer, nonmatching, mixed-component, and case-variant inputs produce the specified facets/checks without new gates. TEST-008a–n cover the contract, review content, advisory/required preservation, human-copy delivery, and Lite/full boundaries. The representative run remains full-track plugin code, never a docs-only substitute. |
 | AC-009 | REQ-005 | Registry validation proves desktop, cloud-service, and new durable-workflow Pack entries were not added by A9. |
 | AC-010 | REQ-006 | An advisory run emits Manifest/Summary/Projection/evidence with bound revision and digests for the representative change defined below (full-track plugin code, never docs-only). |
 | AC-011 | REQ-006 | An advisory Pack finding is visible and non-blocking while pre-existing blocking gates retain their behavior. |
 | AC-012 | REQ-007 | The promotion record contains every evidence field named in REQ-007 and links each criterion to saved evidence. |
-| AC-013 | REQ-007 | Promotion is rejected when one human-approved OQ-003 threshold is unmet or evidence is stale. |
+| AC-013 | REQ-007 | Promotion is rejected separately when any one of the four human-approved OQ-003 conditions is unmet—an untriaged guard/gate false positive, an unresolved Critical/Major finding, a non-green Windows/macOS/Linux CI lane, or an unsuccessful/missing end-to-end OQ-004 rollback rehearsal—and when decision evidence is stale (TEST-013a/b, TEST-013c1–c3, TEST-013d1–d2, TEST-013e). |
 | AC-014 | REQ-008 | Schema/resolver tests accept the atomic Phase-2 tuple `full` / `facet-hybrid` / `required`. |
 | AC-015 | REQ-008 | Tests reject each partial promotion: layout-only and enforcement-only. |
 | AC-016 | REQ-009 | A two-or-more-identity fixture requires two distinct valid approvals for required-to-advisory rollback. |
 | AC-017 | REQ-009 | For the solo branch, `effective_at` is the HMAC-authorized first-approval time plus 24 hours: TEST-017a rejects one second before that signed boundary, TEST-017b accepts exactly at it, and TEST-017c accepts one second after it, all with valid signed rollback evidence. |
 | AC-018 | REQ-009 | TEST-018a/b revalidate a changed registry; TEST-018c/c2 reject zero identities at request/application; TEST-018d–g separately reject unsigned, unbound, self-approved, and duplicate-identity approval sidecars; TEST-018h/i reject invalid/untrusted Ed25519-signed rollback records. |
 | AC-019 | REQ-010 | A dogfood friction fixture produces a Draft WFI with all required analysis sections and no Approved status. |
-| AC-020 | REQ-011 | Dependency preflight blocks when any A1–A8 required surface is absent/incompatible and records the failing dependency. |
+| AC-020 | REQ-011 | Dependency preflight independently blocks for absent and incompatible required surfaces in each of A1–A8, records the failing epic and surface, and does not infer readiness from another branch (TEST-020a–p). |
 | AC-021 | REQ-011 | Shared-state preflight records fresh hashes/inventories for Registry, guards, components, Active Specs, WFI namespace, and protected targets. |
 | AC-022 | REQ-012 | Context/Pack/advisory/promotion tests pass through the applicable `.sh` and `.ps1` entry points. |
 | AC-023 | REQ-012 | Existing CI executes the new checks on Windows, macOS, and Linux without adding a workflow or matrix dimension. |
@@ -323,6 +367,7 @@ Issue #187. This is the final epic in #187's stated A0-A9 ordering
 | AC-032 | REQ-003 | Ownership validation verifies that every component include set matches tracked paths and that the recomputed ownership digest matches the recorded digest; an empty include match or mismatched digest each blocks publication. |
 | AC-033 | REQ-008 | Required-enforcement activation rejects when the selected Pack evidence is missing, resolver evidence is missing, or both are missing. |
 | AC-034 | REQ-009 | A registry-cardinality change between rollback request and effective time forces branch re-evaluation with the current registry (a solo cooldown in progress becomes two-party when a second identity is registered). |
+| AC-035 | REQ-007, REQ-008 | A Phase-2 transition with otherwise valid promotion evidence rejects when the protected human approval is absent, bound to a different transition, or agent-authored (TEST-035a–c). |
 
 Reconciliation (2026-09-17): AC-030/031/034 are now included alongside
 AC-032/033 from the previous remediation candidate
@@ -341,7 +386,7 @@ tasks.
 | Pack | Human-approved Registry capability set for developer-tooling / cli-library. |
 | Promotion record | Saved, reviewable decision evidence for moving Phase 1 to Phase 2. |
 | Rollback | Policy-weakening `required` to `advisory` transition. |
-| Representative change | A plugin-code change touching at least one owned plugin component in the approved nine-component inventory, never a docs-only change. Under OQ-006 it takes the full track and exercises the selected Pack's predicate/facet/gate machinery. |
+| Representative change | A plugin-code change touching at least one owned plugin component in the approved nine-component inventory, never a docs-only change. Under OQ-006 it takes the full track and exercises the selected Pack's predicates, facets, and existing review checks; no new execution gate is added. |
 | Characteristic override | An additive, scoped entry permitted only on component records or approved shared-path (cross-cutting) rules, setting one of the two override-only characteristics (`credential_bearing` or `release_write`) to a boolean value for a named sub-scope, with rationale (REQ-004). Any other characteristic name is unknown and rejected. |
 
 ## Roles and Permissions
@@ -354,8 +399,8 @@ tasks.
 
 ## Main Workflows
 
-1. Human resolves OQ-001–OQ-004 and OQ-006 and approves the reviewed spec/tasks;
-   OQ-005 is already resolved by Issue #197.
+1. Use the resolved OQ-001–OQ-004 and OQ-006 decisions, with OQ-005 fixed by
+   Issue #197; independent review and human spec/task approval remain pending.
 2. Preflight A1–A8 and mutable shared state.
 3. Publish and approve Phase-1 Context; add and validate the first Pack.
 4. Run advisory dogfood and capture saved evidence and Draft WFIs.
@@ -388,6 +433,31 @@ tasks.
   2026-09-01; `investigation.md` records the discharged limitation and changes.
 - A1–A8 availability is mutable shared state and must be re-verified at spec
   review and implementation, never assumed from this draft.
+- The statement that the Registry currently contains only `durable-workflow`
+  (`contracts/capability-registry.json:1-67`) is mutable shared state. At each
+  specification/design review that relies on the OQ-006 composition basis,
+  the orchestrator must re-read the Registry at the review HEAD, record its
+  capability IDs, source hash, HEAD and observation time in this allowed
+  requirements input before precheck, and
+  reconcile any added `developer-tooling` or `cli-library` entry before using
+  the dated statement as a current-tree fact; repeat at implementation preflight
+  under REQ-011. The dated OQ-006 approval is historical, not proof of the
+  review-time Registry inventory. Before each reviewer reservation, the
+  orchestrator must compare the source hash again; a mismatch stops launch
+  until the observation and review inputs are refreshed. Reviewers evaluate
+  this bound observation, not the Registry file outside their allowed inputs.
+- Review-time observation, 2026-09-26T04:09:55Z, HEAD
+  `8d4a16a3982576dac9ab3feaffb798dbc554bad1`: Registry SHA-256
+  `737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278`
+  contains only capability `durable-workflow`; neither proposed Pack exists.
+  Its five implementation gates are `check-update-migration`,
+  `check-installed-plugin-drift`, `check-a8-classification-table`,
+  `check-a8-scope-boundary`, and `check-a8-citation-compliance`
+  (`contracts/capability-registry.json:1-67`). This supersedes INV-008's
+  historical one-gate count for this review, not the historical record.
+  GitHub issue observations at that time: #189–194 closed; #195–196 open.
+  Closure alone is not usable-integration evidence; REQ-011 remains an
+  implementation prerequisite, and A7/A8 readiness is not asserted here.
 - The Issue #197 assumption that `specs/`-type growing paths are cross-cutting at
   bootstrap is verified by REQ-013/AC-025, not accepted without evidence.
 - The next WFI number is not reserved here; allocate it at record-creation time.
@@ -549,21 +619,34 @@ reference structurally avoids the Risks-section duplicate-registry-entry
 failure, and keeping the two capabilities separate preserves
 decomposability when later Packs arrive.
 
-**Dated factual clarification and precedence (2026-09-26; no change to human
-approval):** the immediately preceding 2026-09-02 resolution preserves its
-verbatim approval/history. Its phrase “existing Epic A2 capability-registry
-entries” was inaccurate as a current-tree statement: the current Registry
+**Superseding minimal-contract approval (2026-09-26):** the human approved
+limiting developer-tooling to distribution/install compatibility and cli-library
+to public command/skill/script input/output compatibility, using existing
+reviews, adding no execution gate, retaining existing Lite selection for
+docs-only changes, and never automatically lowering the current full setting.
+Approval verbatim: 「この最小案でよい」. REQ-005 now fixes the concrete records,
+facet contents, and checks; these were not defined by the older resolution.
+The older approval and review records remain historical, not rewritten.
+
+The 2026-09-02 phrase “existing Epic A2 capability-registry entries” was
+inaccurate as a current-tree statement: the current Registry
 contains only `durable-workflow`, and A2 assigns fragment selection to A5
 (`contracts/capability-registry.json:1-67`;
 `specs/epic-190-a2-capability-registry/requirements.md:311-318`). A9 shall add
 the two approved IDs using A2's existing Registry schema and A5's existing
 capability-ID fragment-selection mechanism for Resolver composition; the
 schema defines capability and gate records but no Pack record
-(`contracts/capability-registry.schema.json:5-19,40-76`;
+(`contracts/capability-registry.schema.json:5-19,40-79`;
 `specs/epic-190-a2-capability-registry/design.md:121-128,1025-1028`). This
-clarifies the implementation basis only: the human-approved IDs, composition,
-predicates/facets/gates, Lite policy, enforcement minimum, and delivery remain
-unchanged. Historical approval and review records are not rewritten.
+uses the approved IDs and composition, with the minimal semantics above.
+The old literal `advisory` minimum is superseded by omission of
+`minimum_enforcement`; the old docs-only wording does not authorize automatic
+track downgrade. This dated resolution also supersedes the frozen
+`investigation.md` INV-008/INV-025 and open-question statements to the extent
+they claim these entries already exist or leave their internal contract open.
+Before a review relies on the preceding Registry inventory, apply the
+review-time re-verification instruction in Assumptions; the 2026-09-26
+inventory is not an unconditional claim about later review HEADs.
 
 ## Risks
 

@@ -23,8 +23,10 @@
 
 ## Authentication Flow
 
-Approval authenticity follows ADR-0019's external-key HMAC. This feature adds no
-new user authentication.
+Approval authenticity follows ADR-0019's external-key HMAC. REQ-009 separately
+requires Ed25519 verification of the persisted rollback proof, including trusted
+signer membership and current approver cardinality; zero identities rejects.
+Neither proof replaces the other. This adds no new user authentication.
 
 ## Authorization
 
@@ -62,6 +64,7 @@ mismatch-test preflight before production edits.
 
 ## Open Questions
 
-OQ-004 is security-significant and requires an explicit human ruling. OQ-002 and
-OQ-006 also require security review because path scope and required gates can
-weaken policy. OQ-005 selection/order is resolved by Issue #197 line 17.
+OQ-002/OQ-004/OQ-006 have dated human resolutions in requirements.md; independent
+security review remains required. REQ-005 adds review content, not execution
+gates, and cannot lower the current full track or existing blocking conditions.
+OQ-005 selection/order is resolved by Issue #197 line 17.
