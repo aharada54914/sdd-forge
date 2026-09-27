@@ -722,7 +722,6 @@ jobs:
         run: bash ./tests/check-hook-activation-handshake.tests.sh
 
       - name: Test hook-activation handshake suite (pwsh)
-        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/check-hook-activation-handshake.tests.ps1
 

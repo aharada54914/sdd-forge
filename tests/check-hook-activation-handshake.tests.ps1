@@ -525,6 +525,47 @@ if ($RunAllPs1 -match 'check-hook-activation-handshake\.tests\.ps1') {
   Test-Fail 'self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1'
 }
 
+# TEST-078: malformed cleanup and non-boolean executed are separate branches.
+foreach ($case in @('malformed', 'nonboolean')) {
+  $payload = if ($case -ceq 'malformed') { '{' } else { '{"nonce":"n","executed":"true"}' }
+  Set-Content -LiteralPath (Join-Path $THard 'cleanup-invalid.json') -NoNewline -Encoding utf8 -Value $payload
+  $r = Invoke-Hh -WorkDir $THard -ArgList @('--confirm-cleanup', '--nonce', 'n', '--recorded-cleanup-result', 'cleanup-invalid.json')
+  Assert-Eq $r.ExitCode 71 "TEST-078 cleanup $case rejected"
+  $j = Get-OutJson $r
+  Assert-Eq ($j.reason -ceq 'CLEANUP_RESULT_UNREADABLE') $true "TEST-078 cleanup $case reason"
+  Assert-Eq ($j.cleanup_status -ceq 'SENTINEL_CLEANUP_UNCONFIRMED') $true "TEST-078 cleanup $case unconfirmed"
+  Assert-Eq ($j.capability_status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "TEST-078 cleanup $case cannot activate"
+}
+
+# TEST-082 operates exclusively in a disposable fixture.
+$Dangling = New-FixtureDir
+$DanglingSdd = Join-Path $Dangling 'sdd'
+New-Item -ItemType Directory -Path $DanglingSdd | Out-Null
+$DanglingSentinel = Join-Path $DanglingSdd '.hook-canary-sentinel'
+$linkCreated = $false
+try {
+  New-Item -ItemType SymbolicLink -Path $DanglingSentinel -Target 'missing-target' -ErrorAction Stop | Out-Null
+  $linkCreated = $true
+} catch {
+  if ($IsWindows -and (($_.FullyQualifiedErrorId -clike 'NewItemSymbolicLinkElevationRequired*') -or
+      ($_.Exception -is [UnauthorizedAccessException]) -or
+      (($_.Exception.HResult -band 0xffff) -eq 1314))) {
+    Write-Output 'SKIP: TEST-082 Windows symbolic link privilege unavailable; acceptance remains pending'
+  } else {
+    Test-Fail 'TEST-082 symbolic link fixture creation' $_.Exception.GetType().Name
+  }
+}
+if ($linkCreated) {
+  $r = Invoke-Hh -WorkDir $Dangling -ArgList @('--emit-challenge')
+  Assert-Eq $r.ExitCode 0 'TEST-082 dangling sentinel emits challenge'
+  Assert-Eq ((Get-ErrText $r).Contains('STALE_SENTINEL_DETECTED')) $true 'TEST-082 dangling sentinel diagnosed'
+  $j = Get-OutJson $r
+  Assert-Eq ($j.nonce -cmatch '^[0-9a-f]{32}$') $true 'TEST-082 fresh nonce emitted'
+  $link = Get-Item -LiteralPath $DanglingSentinel -Force
+  Assert-Eq (($link.LinkType -ceq 'SymbolicLink') -and ($link.Target -ceq 'missing-target')) $true 'TEST-082 symlink unchanged'
+  Assert-Eq (Test-Path -LiteralPath (Join-Path $DanglingSdd 'missing-target')) $false 'TEST-082 dangling target not followed or created'
+}
+
 # RT-20260909-002: synthetic versioned evidence, not live activation proof.
 $HostNonce = '0123456789abcdef0123456789abcdef'
 $HostPatch = "*** Begin Patch`n*** Add File: sdd/.hook-canary-sentinel`n+sdd-hook-challenge:$HostNonce`n*** End Patch"

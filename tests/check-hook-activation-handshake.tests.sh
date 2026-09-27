@@ -881,6 +881,35 @@ assert_exit "$rc" 61 "RT002 truncated new response JSON rejected"
 assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 truncated JSON reason"
 assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 truncated JSON cannot activate"
 
+# RT002 TEST-078: cleanup malformed JSON and non-boolean executed are independent branches.
+for cleanup_case in malformed nonboolean; do
+  if [ "$cleanup_case" = malformed ]; then
+    printf '{' > "$T027/cleanup-invalid.json"
+  else
+    printf '{"nonce":"%s","executed":"true"}' "$HOST_NONCE" > "$T027/cleanup-invalid.json"
+  fi
+  (cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-invalid.json)
+  rc=$?
+  assert_exit "$rc" 71 "TEST-078 cleanup $cleanup_case rejected"
+  assert_json_field "$WORK/out" "d['reason']" "CLEANUP_RESULT_UNREADABLE" "TEST-078 cleanup $cleanup_case reason"
+  assert_json_field "$WORK/out" "d['cleanup_status']" "SENTINEL_CLEANUP_UNCONFIRMED" "TEST-078 cleanup $cleanup_case unconfirmed"
+  assert_json_field "$WORK/out" "d['capability_status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "TEST-078 cleanup $cleanup_case cannot activate"
+done
+
+# TEST-082 uses only a disposable fixture, never the repository sentinel.
+mkdir -p "$T027/dangling/sdd"
+if ln -s missing-target "$T027/dangling/sdd/.hook-canary-sentinel"; then
+  (cd "$T027/dangling" && run_hh --emit-challenge)
+  rc=$?
+  assert_exit "$rc" 0 "TEST-082 dangling sentinel emits challenge"
+  if grep -q STALE_SENTINEL_DETECTED "$WORK/err"; then pass "TEST-082 dangling sentinel diagnosed"; else fail "TEST-082 dangling sentinel diagnosed"; fi
+  assert_json_field "$WORK/out" "bool(__import__('re').fullmatch('[0-9a-f]{32}', d['nonce']))" "True" "TEST-082 fresh nonce emitted"
+  if [ -L "$T027/dangling/sdd/.hook-canary-sentinel" ] && [ "$(readlink "$T027/dangling/sdd/.hook-canary-sentinel")" = missing-target ]; then pass "TEST-082 symlink unchanged"; else fail "TEST-082 symlink unchanged"; fi
+  if [ ! -e "$T027/dangling/sdd/missing-target" ]; then pass "TEST-082 dangling target not followed or created"; else fail "TEST-082 dangling target not followed or created"; fi
+else
+  printf 'SKIP: TEST-082 symbolic link creation unavailable; acceptance remains pending\n'
+fi
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 if [ "$FAIL" -gt 0 ]; then
