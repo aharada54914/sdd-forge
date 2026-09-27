@@ -670,8 +670,13 @@ function Publish-LoopImplRoundA {
     }
     $checkSeverity = if ($Severity -eq "none") { "Minor" } else { $Severity }
 
-    $summaryJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
-    & jq -n --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
+    $implIds = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"]'
+    if ((Invoke-LoopJq @("-r", 'has("adr_inputs")') (Join-Path $RoundDir "precheck-result.json")) -ceq "true") {
+        $implIds = '["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"]'
+        $aPasses = 11 - $aFails
+    }
+    $summaryJq = '{schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
+    & jq -n --argjson ids $implIds --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "integrated-summary.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -706,8 +711,13 @@ function Publish-LoopImplRoundA {
         $manifestJson = $manifestJson | & jq -c --arg p ($priorSummary -replace '\\', '/') --arg s $priorSha '. + [{path:$p,sha256:$s}]'
     }
 
-    $reviewerAJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
-    & jq -n --arg verdict $aVerdict --argjson manifest $manifestJson --arg result $aResult --arg severity $checkSeverity $reviewerAJq |
+    if ((Invoke-LoopJq @("-r", 'has("adr_inputs")') $precheckPath) -ceq "true") {
+        $fixturePrefix = ($script:LoopFixtureRoot -replace '\\', '/').TrimEnd('/') + '/'
+        $manifestJson = $manifestJson | & jq -c --arg root $fixturePrefix --slurpfile p $precheckPath 'map(.path |= (gsub("\\\\";"/") | if startswith($root) then .[($root|length):] else . end)) + $p[0].adr_inputs'
+        if ($LASTEXITCODE -ne 0) { return $false }
+    }
+    $reviewerAJq = '{schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    & jq -n --argjson ids $implIds --arg verdict $aVerdict --argjson manifest $manifestJson --arg result $aResult --arg severity $checkSeverity $reviewerAJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
     return $true
@@ -758,8 +768,15 @@ function Publish-LoopImplRoundBContract {
         $lsha = Get-LoopSha256 $lpath
         $manifestBJson = $manifestBJson | & jq -c --arg p $lpath --arg s $lsha '. + [{path:$p,sha256:$s}]'
     }
-    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids | {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest,verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
-    & jq -n --argjson manifest $manifestBJson $reviewerBJq |
+    $implBIds = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"]'
+    if ((Invoke-LoopJq @("-r", 'has("adr_inputs")') $precheckPath) -ceq "true") {
+        $implBIds = '["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID","NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED","INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"]'
+        $fixturePrefix = ($script:LoopFixtureRoot -replace '\\', '/').TrimEnd('/') + '/'
+        $manifestBJson = $manifestBJson | & jq -c --arg root $fixturePrefix --slurpfile p $precheckPath 'map(.path |= (gsub("\\\\";"/") | if startswith($root) then .[($root|length):] else . end)) + $p[0].adr_inputs'
+        if ($LASTEXITCODE -ne 0) { return $false }
+    }
+    $reviewerBJq = '{schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest,verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    & jq -n --argjson ids $implBIds --argjson manifest $manifestBJson $reviewerBJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -769,7 +786,8 @@ function Publish-LoopImplRoundBContract {
         --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
         --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha `
         --arg design_sha256 $designSha --argjson layer_sha256 $layerSha `
-        --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson $contractJq |
+        --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson `
+        --slurpfile precheck $precheckPath ($contractJq + ' + (if $precheck[0] | has("adr_inputs") then {adr_inputs:$precheck[0].adr_inputs} else {} end)') |
         Set-Content -LiteralPath (Join-Path $RoundDir "impl-review-contract.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
     return $true
