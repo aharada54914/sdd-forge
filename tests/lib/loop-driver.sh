@@ -893,9 +893,15 @@ _loop_emit_impl_round_a() {
     *) echo "_loop_emit_impl_round_a: unknown severity: ${severity}" >&2; return 1 ;;
   esac
 
-  jq -n --argjson attempt 1 --argjson round "$round" \
+  local impl_ids='["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"]'
+  if jq -e 'has("adr_inputs")' "${round_dir}/precheck-result.json" >/dev/null; then
+    impl_ids='["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"]'
+    a_passes=$((11 - a_fails))
+  fi
+
+  jq -n --argjson ids "$impl_ids" --argjson attempt 1 --argjson round "$round" \
     --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
-    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+
     {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
      reviewer_a_check_ids:$ids,
      reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
@@ -937,9 +943,13 @@ _loop_emit_impl_round_a() {
     manifest_json="$(jq -c --arg p "$prior_summary" --arg s "$(_loop_sha256 "$prior_summary")" '. + [{path:$p,sha256:$s}]' <<<"$manifest_json")"
   fi
 
-  jq -n --arg verdict "$a_verdict" --argjson manifest "$manifest_json" \
+  if jq -e 'has("adr_inputs")' "$precheck_path" >/dev/null; then
+    manifest_json="$(jq -c --arg root "$LOOP_FIXTURE_ROOT/" --slurpfile p "$precheck_path" 'map(.path |= if startswith($root) then .[($root|length):] else . end) + $p[0].adr_inputs' <<<"$manifest_json")" || return 1
+  fi
+
+  jq -n --argjson ids "$impl_ids" --arg verdict "$a_verdict" --argjson manifest "$manifest_json" \
     --arg result "$a_result" --arg severity "$check_severity" '
-    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+
     {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
      allowed_input_manifest:$manifest, verdict:$verdict,
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
@@ -1005,8 +1015,13 @@ _loop_emit_impl_round_b_contract() {
     lsha="$(_loop_sha256 "$lpath")"
     manifest_b_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_b_json")"
   done
-  jq -n --arg result PASS --arg severity Minor '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
+  local impl_b_ids='["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"]'
+  if jq -e 'has("adr_inputs")' "$precheck_path" >/dev/null; then
+    impl_b_ids='["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID","NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED","INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"]'
+    manifest_b_json="$(jq -c --arg root "$LOOP_FIXTURE_ROOT/" --slurpfile p "$precheck_path" 'map(.path |= if startswith($root) then .[($root|length):] else . end) + $p[0].adr_inputs' <<<"$manifest_b_json")" || return 1
+  fi
+  jq -n --argjson ids "$impl_b_ids" --arg result PASS --arg severity Minor '
+
     {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:'"$manifest_b_json"',verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
@@ -1018,7 +1033,8 @@ _loop_emit_impl_round_b_contract() {
     --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
     --arg a_verdict "$a_verdict" --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
     --arg design_sha256 "$design_sha" --argjson layer_sha256 "$layer_sha" \
-    --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" '
+    --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" \
+    --slurpfile precheck "$precheck_path" '
     {schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,
      run_id:"fixture-orchestrator",verdict:$verdict,
      reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
@@ -1028,7 +1044,7 @@ _loop_emit_impl_round_b_contract() {
      reviewers:[
        {role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},
        {role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}
-     ]}' \
+     ]} + (if $precheck[0] | has("adr_inputs") then {adr_inputs:$precheck[0].adr_inputs} else {} end)' \
     > "${round_dir}/impl-review-contract.json" || return 1
 
   return 0
