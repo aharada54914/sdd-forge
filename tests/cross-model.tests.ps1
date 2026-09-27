@@ -225,6 +225,7 @@ if os.environ.get('STUB_WARMUP') != '1':
               if margin else int(os.environ.get('STUB_COMPLETE_AT_EPOCH_MS', '0')))
     remaining = target - now()
     if remaining > 0:
+        receipt('STUB_STAGE_FILE', f'sleep={now()}')
         time.sleep(remaining / 1000)
 
 wait_end = now()
@@ -232,15 +233,19 @@ phase_path = os.environ.get('STUB_PHASE_FILE')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
+receipt('STUB_STAGE_FILE', f'stdout_write={now()}')
 console.write(response + '\n')
 write_end = now()
+receipt('STUB_STAGE_FILE', f'stdout_flush={now()}')
 console.flush()
 flush_end = now()
 output_end = now()
 if phase_path:
+    receipt('STUB_STAGE_FILE', f'phase_persist={now()}')
     with open(phase_path, 'w', encoding='utf-8') as handle:
         handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
                      f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+receipt('STUB_STAGE_FILE', f'returning={now()}')
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 if ($IsWindows) {
     foreach ($commandName in @("codex", "gemini")) {
@@ -665,6 +670,7 @@ $panelistRunners = @(
             $startFile = Join-Path $workDir "$caseName.stub-start"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
             $phaseFile = Join-Path $workDir "$caseName.phases"
+            $stageFile = Join-Path $workDir "$caseName.stage"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
             Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$nearBoundaryBudgetSec" `
@@ -673,6 +679,7 @@ $panelistRunners = @(
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
                     STUB_PHASE_FILE                   = $phaseFile
+                    STUB_STAGE_FILE                   = $stageFile
                 }
             $elapsed = (Get-MonotonicMilliseconds) - $started
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
@@ -697,6 +704,9 @@ $panelistRunners = @(
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration invoked_at_epoch_ms=$invokedAt stub_start_epoch_ms=$stubStartEpoch startup_inside_budget_ms=$startupInsideBudgetMs"
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            # Diagnostic I/O can perturb timing; a stage marker never proves exit.
+            $stage = if (Test-Path -LiteralPath $stageFile) { (Get-Content -Raw -LiteralPath $stageFile).Trim() } else { 'missing' }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration last_stage=$stage"
             if (Test-Path -LiteralPath $phaseFile) {
                 $waitRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^wait_end=([0-9]+)\r?$')
                 if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
