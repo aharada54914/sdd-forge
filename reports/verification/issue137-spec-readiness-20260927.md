@@ -20,3 +20,11 @@ No formal reviewer was launched, no identity reserved, and no review verdict, ta
 The repository's `plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md:71-80` requires host-issued run/session identities from an idle allocation before reservation and before the first reviewer turn. Lines 47-49 also require complete canonical identity history. The branch ledger has 1,189 records; later A9 reservations remain on its separate branch. Neither a caller-created UUID nor copying selected identity rows establishes the required launch/history evidence.
 
 Resume by checking the original identity receipts and full ledger chain, obtaining a conforming idle read-only host context, reserving reviewer A against the preserved inputs, and starting its first turn only after `REVIEW_CONTEXT_OK`. Then launch independent reviewer B with the permitted counts-and-IDs summary. Do not replay the existing precheck, infer PASS from this note, or relax live acceptance requirements.
+
+## Invoking-host clarification
+
+The diagnostic agent registered its own real context at sequence 1190. It initially misidentified that context as the invoking parent; this was corrected before any reviewer reservation or model turn. The actual invoking parent was already registered at sequence 960. The extra record is retained as diagnostic history, not evidence of a reviewer launch.
+
+Independent inspection confirmed that the previous 1,189 records are unchanged and all 1,190 record hashes, previous-hash links and run/session identities validate. Whitespace validation passed. No formal review verdict follows from these checks.
+
+The installed bootstrap caller additionally requires a fresh installed-candidate activation handshake before entering its review stages. The RT002 installed-verifier application and actual native response verification remain pending; an isolated installer self-test does not satisfy that prerequisite.
