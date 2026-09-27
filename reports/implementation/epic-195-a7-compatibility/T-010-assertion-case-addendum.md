@@ -60,3 +60,16 @@ The coordinator read both changed code files and traced the existing evaluator c
 Coordinator verification: the focused negative case passed 1/0; the full PowerShell suite passed 23/0; `git diff --check` returned 0. The unchanged Bash escalation suite passed 37/0.
 
 An additional `bash tests/escalation-skip-activation.tests.sh` check returned 1 in its first Bash clean case. `bash -x` showed that the child suite returned 0, then the wrapper's `grep -F 'audited 1 allowlisted line'` failed. The current child prints that the resolver assertion is deferred without emitting a stale skip, so that expected audit line is absent. Neither this Bash path nor the wrapper was changed by this correction. This separate stale wrapper expectation remains unresolved; the supplemental check is not reported as successful, and no merge/Done claim is made.
+
+## Supplemental wrapper repair
+
+The preceding failure is retained as the pre-repair result. The wrapper's manifest mutations could no longer reach the consumer's caller-presence branch; replacing its expected message alone would erase the negative checks. Two supplemental correction cycles (path separation, then exact invalid-exit assertions) change only `tests/escalation-skip-activation.tests.sh` to exercise two distinct paths:
+
+- Actual escalation consumers: clean caller absence succeeds with the spy self-check and explicit deferral; a caller fixture in the temporary clone fails with the missing real-invocation-driver diagnostic. The fixture is detected, not executed, and is not a live-host activation proof.
+- Existing evaluator, using its own rendered line: clean evidence succeeds; active AC-004 and AC-021 both fail with activation diagnostics; zero-commit evidence is rejected with the exact runtime-specific exit and diagnostic (Bash 1, PowerShell 2).
+
+No production consumer, evaluator, manifest, CI registration, frozen input, task status, approval, or review verdict changes in this supplemental repair. Independent coordinator review traced the consumer and both evaluator flows and read the complete wrapper diff. Measured regression results follow after execution; formal quality-gate, cross-model verification, latest-head CI and merge remain separate conditions.
+
+Implementer and coordinator independently ran `rtk proxy bash tests/escalation-skip-activation.tests.sh` on macOS with Bash and PowerShell available: each run passed all ten cases, exit 0. Coordinator `rtk proxy git diff --check` returned 0. This resolves the preceding supplemental wrapper failure without promoting the deferred production assertion to PASS.
+
+Implementer reran the existing manifest suites after the wrapper repair: Bash 20 passed / 0 failed, PowerShell 23 passed / 0 failed, both exit 0. No Windows execution is claimed by these macOS runs.
