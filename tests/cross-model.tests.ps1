@@ -233,18 +233,19 @@ phase_path = os.environ.get('STUB_PHASE_FILE')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
-receipt('STUB_STAGE_FILE', f'stdout_write={now()}')
+write_start = now()
 console.write(response + '\n')
 write_end = now()
-receipt('STUB_STAGE_FILE', f'stdout_flush={now()}')
+flush_start = now()
 console.flush()
 flush_end = now()
 output_end = now()
 if phase_path:
-    receipt('STUB_STAGE_FILE', f'phase_persist={now()}')
+    phase_persist = now()
     with open(phase_path, 'w', encoding='utf-8') as handle:
         handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
-                     f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+                     f'console_ready={console_ready}\nwrite_start={write_start}\nwrite_end={write_end}\n'
+                     f'flush_start={flush_start}\nflush_end={flush_end}\nphase_persist={phase_persist}\n')
 receipt('STUB_STAGE_FILE', f'returning={now()}')
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 if ($IsWindows) {
@@ -705,7 +706,7 @@ $panelistRunners = @(
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             # Diagnostic I/O can perturb timing; a stage marker never proves exit.
-            $stage = if (Test-Path -LiteralPath $stageFile) { (Get-Content -Raw -LiteralPath $stageFile).Trim() } else { 'missing' }
+            $stage = if (Test-Path -LiteralPath $stageFile) { "$(Get-Content -Raw -LiteralPath $stageFile)".Trim() } else { 'missing' }
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration last_stage=$stage"
             if (Test-Path -LiteralPath $phaseFile) {
                 $waitRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^wait_end=([0-9]+)\r?$')
@@ -713,7 +714,7 @@ $panelistRunners = @(
                 $outputRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^output_end=([0-9]+)\r?$')
                 if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
                 foreach ($phase in Get-Content -LiteralPath $phaseFile) {
-                    if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
+                    if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_start|write_end|flush_start|flush_end|phase_persist)=[0-9]+$') {
                         Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
                     }
                 }
