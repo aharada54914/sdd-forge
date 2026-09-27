@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'clean', 'primitives', 'case-sensitive-terminal', 'manifest-contract')]
+    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'clean', 'primitives', 'case-sensitive-terminal', 'case-sensitive-assertion', 'manifest-contract')]
     [string]$Case = 'all'
 )
 
@@ -173,6 +173,14 @@ function Test-CaseSensitiveTerminal {
         Pass 'mis-cased terminal status keys do not activate merged(A9)'
     } else { Fail 'mis-cased terminal status keys do not activate merged(A9)' }
 }
+function Test-CaseSensitiveAssertion {
+    $captured = @(& pwsh -NoLogo -NoProfile -File $Evaluator line $ShippedManifest 'probe' 'ac-004' 2>&1)
+    $renderExit = $LASTEXITCODE
+    $text = ($captured | ForEach-Object { $_.ToString() }) -join "`n"
+    if ($renderExit -eq 2 -and $text.Contains('manifest assertion is not unique: ac-004') -and -not $text.Contains($SkipPrefix)) {
+        Pass 'mis-cased assertion identity is rejected without rendering'
+    } else { Fail 'mis-cased assertion identity is rejected without rendering' }
+}
 function Test-ManifestContract {
     if (-not (Test-Path -LiteralPath $ShippedManifest)) { Fail 'AC-034 shipped manifest exists'; return }
     $manifest = @(Get-Content -Raw -LiteralPath $ShippedManifest | ConvertFrom-Json)
@@ -216,8 +224,9 @@ try {
         'clean' { Test-Clean }
         'primitives' { Test-Primitives }
         'case-sensitive-terminal' { Test-CaseSensitiveTerminal }
+        'case-sensitive-assertion' { Test-CaseSensitiveAssertion }
         'manifest-contract' { Test-ManifestContract }
-        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-Clean }
+        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-CaseSensitiveAssertion; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-Clean }
     }
     Write-Output "$script:Pass passed, $script:Fail failed"
     if ($script:Fail -ne 0) { exit 1 }

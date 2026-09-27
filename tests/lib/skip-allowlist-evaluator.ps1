@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 function Read-Manifest([string]$Path) { return @(Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json) }
 function Get-Entry([string]$Path, [string]$Assertion) {
-    $entry = @(Read-Manifest $Path | Where-Object assertion_id -eq $Assertion)
+    $entry = @(Read-Manifest $Path | Where-Object assertion_id -ceq $Assertion)
     if ($entry.Count -ne 1) { throw "manifest assertion is not unique: $Assertion" }
     return $entry[0]
 }
