@@ -779,6 +779,22 @@ done
 rc=$?
 assert_exit "$rc" 0 "RT002 nonce-bound challenge emitted"
 assert_json_field "$WORK/out" "d['tool_call_template']['codex-cli']['tool_input']['patch'] == '*** Begin Patch\\n*** Add File: sdd/.hook-canary-sentinel\\n+sdd-hook-challenge:' + d['nonce'] + '\\n*** End Patch'" "True" "RT002 emitted patch binds exact fresh nonce and bytes"
+assert_json_field "$WORK/out" "d['tool_call_template']['claude-code'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': ''}}" "True" "TEST-084 complete Claude template unchanged"
+assert_json_field "$WORK/out" "d['tool_call_template']['copilot-cli'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': ''}}" "True" "TEST-085 complete Copilot template unchanged"
+
+printf '{"schema":"sdd-codex-host-denial/v1","nonce":"%s","executed":true}\n' "$HOST_NONCE" > "$T027/cleanup-schema.json"
+(cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-schema.json)
+rc=$?
+assert_exit "$rc" 0 "TEST-079 response schema does not select cleanup adapter"
+assert_json_field "$WORK/out" "d['cleanup_status']" "SENTINEL_CLEANUP_CONFIRMED" "TEST-079 valid cleanup remains confirmed"
+assert_json_field "$WORK/out" "d['capability_status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "TEST-079 cleanup cannot activate capability"
+printf '{"schema":"unknown","nonce":"%s","executed":false}\n' "$HOST_NONCE" > "$T027/cleanup-schema.json"
+(cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-schema.json)
+rc=$?
+assert_exit "$rc" 72 "TEST-080 unknown schema does not select cleanup adapter"
+assert_json_field "$WORK/out" "d['reason']" "CLEANUP_DENIED" "TEST-080 cleanup refusal reason unchanged"
+assert_json_field "$WORK/out" "d['cleanup_status']" "SENTINEL_CLEANUP_UNCONFIRMED" "TEST-080 refused cleanup remains unconfirmed"
+assert_json_field "$WORK/out" "d['capability_status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "TEST-080 cleanup refusal cannot activate capability"
 
 for member in schema runtime nonce executed raw_result nested executed-true-first executed-false-first; do
   "$PY" - "$T027/host-denial.json" "$T027/response-duplicate.json" "$member" <<'PY'
