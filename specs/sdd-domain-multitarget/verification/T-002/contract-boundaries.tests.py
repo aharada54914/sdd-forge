@@ -286,6 +286,47 @@ class CapabilityRegistryProviderNeutralityTests(unittest.TestCase):
         )
         self.assertTrue(ok, diagnostics)
 
+    def _predicate_registry(self, value, boundary):
+        mutated = copy.deepcopy(self.registry)
+        predicate = {"all": [{"not": {"any": [{
+            "scope": "affected_component", "field": "characteristics.ui",
+            "operator": "equals", "value": value,
+        }]}}]}
+        capability = mutated["capabilities"][0]
+        if boundary == "trigger":
+            capability["trigger"] = predicate
+        else:
+            capability["conditional_facets"][0]["when"] = predicate
+        self.assertEqual(_sidecar_mod()._schema_validate(
+            _load_json(CAPABILITY_REGISTRY_SCHEMA_PATH), mutated), [])
+        return mutated
+
+    def test_nested_predicate_credentials_and_state_keys_are_rejected(self):
+        for boundary in ("trigger", "conditional"):
+            for field in ("credentials", "state_authority"):
+                for value in ({field: {}}, {"metadata": {field: None}},
+                              {"items": [{"metadata": {field: False}}]}):
+                    with self.subTest(boundary=boundary, field=field, value=value):
+                        diagnostics = []
+                        ok = self.registry_mod.check_g_provider_name_contamination(
+                            self._predicate_registry(value, boundary),
+                            self.provider_terms, diagnostics)
+                        self.assertFalse(ok, diagnostics)
+                        self.assertTrue(any("provider-name-detected" in d and
+                                            f".{field}" in d for d in diagnostics), diagnostics)
+
+    def test_provider_neutral_nested_predicate_values_are_accepted(self):
+        value = {"metadata": {"name": "durable_workflow", "items": [
+            {"replayable": True}, {"credentials_hint": False},
+            {"state_authority_hint": None}], "labels": ["credentials", "state_authority"]}}
+        for boundary in ("trigger", "conditional"):
+            with self.subTest(boundary=boundary):
+                diagnostics = []
+                self.assertTrue(self.registry_mod.check_g_provider_name_contamination(
+                    self._predicate_registry(value, boundary), self.provider_terms,
+                    diagnostics), diagnostics)
+                self.assertEqual(diagnostics, [])
+
     def test_mutated_registry_with_provider_name_is_detected(self):
         mutated = copy.deepcopy(self.registry)
         mutated["capabilities"][0]["delivery_strategy"]["kind"] = "azure-durable-workflow"
