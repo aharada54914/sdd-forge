@@ -114,3 +114,18 @@ date column (left `未確認` by this task — that table's model-family
 values are separately locked routing/CLI pins, not this registry's
 current-generation catalog; see
 `specs/epic-159-pillar-d/verification/T-002/acceptance-first-red.md`).
+
+## Exact native-host refresh — 2026-09-28
+
+The preceding July confirmation remains historical. This refresh fetched the
+[official GPT-6-Astra model page](https://developers.openai.com/api/docs/models/gpt-6-astra)
+on September 28 and adds only exact native host ID `gpt-6-astra`. Its documented
+complex reasoning/coding capability supports the maintainer's `strong` tier
+classification; this is not a measured task benchmark. The host advertises high
+effort, and the entry retains only the selector's existing low/medium/high/xhigh
+vocabulary, default high and Codex flag control. No old entry, v1 parity lock,
+risk matrix or selector is changed. Availability and source-qualified attempt
+cost remain invocation-time inputs, not guarantees from registration.
+
+See `reports/verification/issue137-model-registration-candidate-20260928/report.md`
+for the conditional estimate, source date and executable fail-closed check.
