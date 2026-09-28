@@ -624,6 +624,9 @@ $panelistRunners = @(
     # launch and WaitForExit. The stub completes at a fixed margin before that
     # same deadline, preserving the two-second bound on every platform.
     Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
+    & (Join-Path $PSScriptRoot 'cross-model-empty-phase.tests.ps1')
+    if ($LASTEXITCODE -eq 0) { Ok "TEST-004(c): empty phase log regression" }
+    else { Fail "TEST-004(c): empty phase log regression" }
     $nearBoundaryMarginMs = 200
     $nearBoundaryBudgetSec = 2
     foreach ($case in @(
@@ -698,9 +701,10 @@ $panelistRunners = @(
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             if (Test-Path -LiteralPath $phaseFile) {
-                $waitRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^wait_end=([0-9]+)\r?$')
+                $phaseText = [string](Get-Content -Raw -LiteralPath $phaseFile)
+                $waitRecords = [regex]::Matches($phaseText, '(?m)^wait_end=([0-9]+)\r?$')
                 if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
-                $outputRecords = [regex]::Matches((Get-Content -Raw -LiteralPath $phaseFile), '(?m)^output_end=([0-9]+)\r?$')
+                $outputRecords = [regex]::Matches($phaseText, '(?m)^output_end=([0-9]+)\r?$')
                 if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
                 foreach ($phase in Get-Content -LiteralPath $phaseFile) {
                     if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
