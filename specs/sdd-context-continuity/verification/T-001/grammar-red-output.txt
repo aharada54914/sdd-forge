@@ -1,0 +1,371 @@
+TAP version 13
+# grammar subject: test-only unprotected baseline
+# Subtest: TEST-045a / TEST-046b: four PEM labels, multiline and 4096/+1 bytes
+not ok 1 - TEST-045a / TEST-046b: four PEM labels, multiline and 4096/+1 bytes
+  ---
+  duration_ms: 0.64575
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:37:18)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.start (node:internal/test_runner/test:1003:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+  ...
+# Subtest: TEST-045b: all keys, cases, quote styles and delimiters
+not ok 2 - TEST-045b: all keys, cases, quote styles and delimiters
+  ---
+  duration_ms: 0.0935
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:45:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:49:9)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+  ...
+# Subtest: TEST-045b: escaped quotes/backslashes, CRLF, empty values and ASCII key boundaries
+not ok 3 - TEST-045b: escaped quotes/backslashes, CRLF, empty values and ASCII key boundaries
+  ---
+  duration_ms: 0.077959
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:55:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:57:5)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045c: Bearer/Basic headers preserve lines and suppress assignment termination
+not ok 4 - TEST-045c: Bearer/Basic headers preserve lines and suppress assignment termination
+  ---
+  duration_ms: 0.054833
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:68:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:70:18)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045d: both URL schemes, userinfo and all one-pass decoded query keys
+not ok 5 - TEST-045d: both URL schemes, userinfo and all one-pass decoded query keys
+  ---
+  duration_ms: 0.066666
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:74:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:76:5)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045e / TEST-046b: prefix bounds, AWS exact length and boundaries
+not ok 6 - TEST-045e / TEST-046b: prefix bounds, AWS exact length and boundaries
+  ---
+  duration_ms: 0.07425
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:85:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:87:32)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045e / TEST-046b: linear JWT segments and aggregate sensitive-value bound
+not ok 7 - TEST-045e / TEST-046b: linear JWT segments and aggregate sensitive-value bound
+  ---
+  duration_ms: 0.058166
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:98:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:99:67)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045e: overlapping assignment/token spans merge and preserve Unicode
+not ok 8 - TEST-045e: overlapping assignment/token spans merge and preserve Unicode
+  ---
+  duration_ms: 0.042625
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:104:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    omission disclosure missing
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    removed (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:16:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:106:16)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-045f: documented gaps do not become comprehensive detection claims
+ok 9 - TEST-045f: documented gaps do not become comprehensive detection claims
+  ---
+  duration_ms: 0.077625
+  type: 'test'
+  ...
+# Subtest: TEST-046a: malformed identified values, isolated/decoded surrogates, wrong text type
+not ok 10 - TEST-046a: malformed identified values, isolated/decoded surrogates, wrong text type
+  ---
+  duration_ms: 0.111
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:113:1'
+  failureType: 'testCodeFailure'
+  error: 'unsafe input returned a writable payload'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    rejected (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:26:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:114:93)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046b: malformed sensitive URLs and percent escapes
+not ok 11 - TEST-046b: malformed sensitive URLs and percent escapes
+  ---
+  duration_ms: 0.058708
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:118:1'
+  failureType: 'testCodeFailure'
+  error: 'unsafe input returned a writable payload'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    rejected (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:26:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:119:167)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046b: 4096-byte bare/quoted/header/URL values and +1
+not ok 12 - TEST-046b: 4096-byte bare/quoted/header/URL values and +1
+  ---
+  duration_ms: 0.071459
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:122:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:127:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046b: 1 MiB input, oversize and replacement expansion
+not ok 13 - TEST-046b: 1 MiB input, oversize and replacement expansion
+  ---
+  duration_ms: 0.039583
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:137:1'
+  failureType: 'testCodeFailure'
+  error: 'unsafe input returned a writable payload'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    rejected (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:26:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:139:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046c: 512 spans, 513 spans and elapsed process deadline
+not ok 14 - TEST-046c: 512 spans, 513 spans and elapsed process deadline
+  ---
+  duration_ms: 0.044166
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:144:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:145:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046c: scanner decoder exception exposes no raw cause/stack/payload
+not ok 15 - TEST-046c: scanner decoder exception exposes no raw cause/stack/payload
+  ---
+  duration_ms: 0.053209
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/privacy-grammar.test.mjs:150:1'
+  failureType: 'testCodeFailure'
+  error: 'unsafe input returned a writable payload'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    rejected (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:26:10)
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/privacy-grammar.test.mjs:154:5)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 1
+# fail 14
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 35.564334

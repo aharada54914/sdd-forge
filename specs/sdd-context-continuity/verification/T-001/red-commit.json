@@ -1,0 +1,14 @@
+{
+  "schema": "red-commit/v1",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "commit": "a89004fe54c68548259ce5d2dd465f05fec8713a",
+  "commit_sha": "a89004fe54c68548259ce5d2dd465f05fec8713a",
+  "test_path": "tests/sdd-context/privacy.test.mjs",
+  "test_sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+  "evidence_sha256": "9715ff492ebc27838f1472213f6d781d5674c9afa44094a41a062b7b128a60c9",
+  "exit_code": 1,
+  "root_reexecution": {"exit_code": 1, "passed": 1, "failed": 3},
+  "production_implementation_present_at_commit": false,
+  "scope": "Continue only unambiguous approved T-001 privacy behavior; this receipt is not a review verdict or permission to invent missing schemas."
+}

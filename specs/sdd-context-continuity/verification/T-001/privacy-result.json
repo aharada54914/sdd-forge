@@ -1,0 +1,60 @@
+{
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "status": "synthetic privacy slice GREEN; T-001 incomplete",
+  "recorded_at": "2026-09-28T06:02:33.907886+00:00",
+  "manifest_sha256": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd",
+  "snapshot_input_hashes_verified": 24,
+  "red_commit_receipt_sha256": "62524cb72517a0d9d83027ba4cd62e53afaee58eef4ea18ac026b1726800bf4f",
+  "root_attested_red_commit": "a89004fe54c68548259ce5d2dd465f05fec8713a",
+  "git_object_inspection": "not performed; Git prohibited",
+  "grammar_red": {
+    "evidence_path": "specs/sdd-context-continuity/verification/T-001/grammar-red-output.txt",
+    "sha256": "d72637f333df02b739e08a105ea0c7068ddca70349d76fa7b03b75d73d93140a",
+    "passed": 1,
+    "failed": 14,
+    "exit_code": 1
+  },
+  "production_attempt_1": {
+    "evidence_path": "specs/sdd-context-continuity/verification/T-001/grammar-green-attempt-1.txt",
+    "sha256": "59b226eeccf7a93c720d45db586d5d1462d799e4ec4dc8fd79b860dc6a35b6f7",
+    "passed": 18,
+    "failed": 1,
+    "exit_code": 1
+  },
+  "production_attempt_2": {
+    "evidence_path": "specs/sdd-context-continuity/verification/T-001/grammar-green-attempt-2.txt",
+    "sha256": "36b681bc416dbc751d2887aa5b84117c43b6d61bc0decd8813c3dffb931ff781",
+    "passed": 19,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "command": "rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs tests/sdd-context/privacy-grammar.test.mjs",
+  "correction_loops": 1,
+  "correction": "Test oracle separated URL-only angle boundary from the wider overlapping bare-assignment span; no production change after first run.",
+  "syntax_checks": [
+    {
+      "command": "rtk proxy node --check plugins/sdd-context/privacy.mjs",
+      "exit_code": 0
+    },
+    {
+      "command": "rtk proxy node --check tests/sdd-context/privacy-grammar.test.mjs",
+      "exit_code": 0
+    }
+  ],
+  "source_hashes": {
+    "plugins/sdd-context/privacy.mjs": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+  },
+  "log_normalization": "Workspace prefix replaced with <workspace>; trailing whitespace stripped. Synthetic assertion data/results preserved.",
+  "pending": [
+    "unspecified closed schemas and vocabularies",
+    "host JSON and all-copy persistence integration",
+    "native owner/path/Git/ACL evidence",
+    "repository checks, CI and independent review"
+  ],
+  "implementation_complete": false,
+  "native_verification_claimed": false,
+  "ci_claimed": false
+}
