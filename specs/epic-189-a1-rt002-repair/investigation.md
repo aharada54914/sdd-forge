@@ -71,3 +71,22 @@ This authorizes a separate acceptance-first revalidation of existing repair code
 | `reports/task-review/epic-189-a1-project-context/attempt-8/round-1/integrated-verdict.json` | `2fbdb1a7fe75b442acec29100d9f522464a1ab72f9ebe3d94027ffd6bbb88c4f` |
 
 The parent task's Done and historical BLOCKED remain unchanged (the pinned task and integrated verdict above). Fresh verification obligations remain AC-006, not assumed success.
+
+### Adopted two-envelope amendment, 2026-09-28
+
+The current amendment snapshot is commit `9428fbe2f16f2e30420712d87fd0ccfea113b3ce`. It adopts only the exact `B(N) | P+B(N)` raw-response grammar and the paired-envelope negative matrix. The following are the documents at that commit, before this provenance addition; the next review manifest separately binds the complete updated investigation. This snapshot supersedes the older snapshot above only for the two-envelope amendment, not for historical verdicts, execution proof or correction limits.
+
+| Document | SHA-256 at the current amendment snapshot |
+|---|---|
+| `specs/epic-189-a1-rt002-repair/requirements.md` | `b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67` |
+| `specs/epic-189-a1-rt002-repair/acceptance-tests.md` | `a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9` |
+| `specs/epic-189-a1-rt002-repair/investigation.md` | `5cbefe7cfb09ddc4d7ea2a0a1bd21e2f3be88c065d258b08cdba64406b79e5f7` |
+| `specs/epic-189-a1-rt002-repair/verification/T-001/two-envelope-extra1-20260928/candidate-precedence-20260928.md` | `e6aa4354777a9b5b844cd9565d85dcdef275f941e1e1543d3dd777db73f5cd3a` |
+
+Human approval, verbatim, 2026-09-28 12:01:47 UTC (conversation; this committed declaration is its durable record):
+
+> A9復旧計画の3タスクを承認した
+>
+>     追加修正の限定承認する
+
+The immediately preceding request explicitly named “RT002の実拒否出力に対応する契約・検証器修復” among the limited additional repairs. The additional-repair approval above covers that RT002 scope, separately from its first sentence's A9 task approval. The human subsequently generated the bounded candidate and adopted the six documents with the original precheck; those operations do not certify implementation or native activation. The pinned addendum is the dated precedence record for the adopted grammar and identifier sweep; its original candidate-generation statements remain historical. All later-artifact fingerprints in the table above and the preceding historical table remain citations, not reviewer permission to open those artifacts or substitute their old results for fresh proof.
