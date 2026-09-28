@@ -31,10 +31,11 @@ claude-code-action(ピン留めした v1.0.178, action.yml)がセッションに
 
 ## 手順
 
-0. **失敗 Issue の自己修復**: タイトルに「Weekly self-improvement run failed」を含む
-   open Issue を確認する。今この手順が動いていること自体がワークフロー復旧の証拠なので、
-   該当 Issue には(前セクションの `DEFAULT_WORKFLOW_TOKEN` を使い)「この実行(実行ログ URL
-   を添える)で復旧を確認」とコメントしてクローズする。
+0. **失敗 Issue の扱い**: 実行開始時や作業中に失敗 Issue をクローズしない。
+   このプロンプトが動いていることだけでは、ワークフロー全体の成功を証明しない。
+   ワークフロー全体が成功した後に、失敗 reporter が作成した対象 Issue の回復確認と
+   クローズをワークフローが行う。失敗した実行では Issue を未解決のまま残す。
+   この手順から Issue を手動でクローズしてはならない。
 1. **重複確認**: `gh issue list --state open` と `gh pr list --state open` を確認し、
    既に報告済み・作業中のテーマは選ばない。`auto/improve-*` ブランチの残骸があれば考慮する。
    **open な `auto/improve-*` PR が残っている場合、今回は新しい PR を作らない**(既存 Issue への追記のみ)。

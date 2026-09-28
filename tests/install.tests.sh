@@ -1322,6 +1322,7 @@ if [[ -z "$_u_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CU
 if [[ -z "$_u_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_u_orig_vscode_dir"; fi
 _u_ok=1
 [[ $_u_failed -eq 0 ]] || { fail "--skip-mcp (u): installer exited non-zero"; _u_ok=0; }
+[[ -f "${_u_install}/.agents/plugins/marketplace.json" ]] || { fail "--skip-mcp (u): plugin files were rolled back"; _u_ok=0; }
 [[ ! -e "${_u_install}/mcp" ]] || { fail "--skip-mcp (u): mcp/ was placed despite --skip-mcp"; _u_ok=0; }
 if [[ -f "$_u_log" ]] && grep -qF "claude mcp add" "$_u_log"; then
     fail "--skip-mcp (u): claude mcp add was invoked despite --skip-mcp"

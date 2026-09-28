@@ -20,8 +20,10 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 
 TARGET_YML="${TARGET_YML:-.github/workflows/self-improvement.yml}"
+TARGET_PROMPT="${TARGET_PROMPT:-.github/self-improvement-prompt.md}"
 GUARD_SH="${GUARD_SH:-.github/scripts/self-improvement-pr-guard.sh}"
 case "$TARGET_YML" in /*) ;; *) TARGET_YML="$ROOT/$TARGET_YML" ;; esac
+case "$TARGET_PROMPT" in /*) ;; *) TARGET_PROMPT="$ROOT/$TARGET_PROMPT" ;; esac
 case "$GUARD_SH" in /*) ;; *) GUARD_SH="$ROOT/$GUARD_SH" ;; esac
 
 PASS=0
@@ -33,6 +35,7 @@ ok()   { printf 'ok: %s\n' "$*"; PASS=$((PASS + 1)); }
 fail() { printf 'FAIL: %s\n' "$*" >&2; FAIL=$((FAIL + 1)); }
 
 printf 'TARGET_YML=%s\n' "$TARGET_YML"
+printf 'TARGET_PROMPT=%s\n' "$TARGET_PROMPT"
 printf 'GUARD_SH=%s\n\n' "$GUARD_SH"
 
 GUARD_OUT=""
@@ -123,5 +126,100 @@ else
   fail "TEST-014: absent file should exit 0, got $GUARD_CODE (output: $GUARD_OUT) -- AC-014"
 fi
 
-printf '\nTEST-010/011/014 results: %d passed, %d failed\n' "$PASS" "$FAIL"
+# ---- (f) ISSUE-478-RECOVERY: defer closure until full workflow success -----
+if [ -f "$TARGET_PROMPT" ] \
+  && ! grep -Fq '今この手順が動いていること自体がワークフロー復旧の証拠' "$TARGET_PROMPT" \
+  && grep -Fq 'ワークフロー全体が成功した後' "$TARGET_PROMPT"; then
+  ok "ISSUE-478-RECOVERY: prompt defers issue closing until full workflow success"
+else
+  fail "ISSUE-478-RECOVERY: prompt must defer failure-issue closing until full workflow success"
+fi
+
+if [ -f "$TARGET_YML" ] \
+  && awk '
+      /^  finalize-recovery:$/ { job=1 }
+      job && /^    needs: improve$/ { needs=1 }
+      job && /^    if:.*success\(\).*needs\.improve\.result == .success./ { success=1 }
+      job && /^      - name: Close recovered workflow failure issue$/ { step=1; next }
+      step && /^        shell: bash$/ { shell=1 }
+      step && /^        run: \|$/ { run=1 }
+      END { exit !(needs && success && shell && run) }
+    ' "$TARGET_YML"; then
+  ok "ISSUE-478-RECOVERY: finalizer depends on successful improve job and uses bash"
+else
+  fail "ISSUE-478-RECOVERY: finalizer must run only after improve succeeds"
+fi
+
+# Execute the exact close-step body extracted from the workflow against a fake
+# gh CLI. This tests success and unrelated issues without contacting GitHub.
+close_script="$WORK/close-recovered-issue.sh"
+awk '
+  /^  finalize-recovery:$/ { job=1 }
+  job && /^      - name: Close recovered workflow failure issue$/ { step=1; next }
+  step && /^        run: \|$/ { body=1; next }
+  body && /^          / { sub(/^          /, ""); print; next }
+  body && /^[[:space:]]*$/ { print; next }
+  body { exit }
+' "$TARGET_YML" > "$close_script"
+if [ -s "$close_script" ]; then
+  ok "ISSUE-478-RECOVERY: extracted close-step command for isolated execution"
+else
+  fail "ISSUE-478-RECOVERY: could not extract workflow close-step command"
+fi
+
+mock_bin="$WORK/mock-bin"
+mkdir -p "$mock_bin"
+cat > "$mock_bin/gh" <<'MOCK_GH'
+#!/usr/bin/env bash
+set -eu
+case "$1 $2" in
+  "issue list") [ "${MOCK_LIST_FAIL:-0}" = 0 ] || exit 9; printf '%s\n' "${MOCK_ISSUES:-[]}" ;;
+  "issue comment") printf 'comment %s\n' "$*" >> "$MOCK_GH_LOG"; [ "${MOCK_COMMENT_FAIL:-0}" = 0 ] ;;
+  "issue close") printf 'close %s\n' "$*" >> "$MOCK_GH_LOG"; [ "${MOCK_CLOSE_FAIL:-0}" = 0 ] ;;
+  *) printf 'unexpected gh invocation: %s\n' "$*" >&2; exit 2 ;;
+esac
+MOCK_GH
+chmod +x "$mock_bin/gh"
+
+run_close_step() {
+  : > "$WORK/gh.log"
+  PATH="$mock_bin:$PATH" MOCK_GH_LOG="$WORK/gh.log" \
+    GITHUB_SERVER_URL="https://github.example" GITHUB_REPOSITORY="owner/repo" \
+    GITHUB_RUN_ID=987654 MOCK_ISSUES="$1" \
+    MOCK_LIST_FAIL="${2:-0}" MOCK_COMMENT_FAIL="${3:-0}" \
+    bash -e -o pipefail "$close_script" >"$WORK/close.out" 2>&1
+  CLOSE_RC=$?
+}
+
+run_close_step '[{"number":421,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行日時: 2026-09-20T00:00:00Z\n- 推定原因: failure\n- 実行ログ: https://github.example/owner/repo/actions/runs/12345"}]'
+if [ "$CLOSE_RC" -eq 0 ] && grep -Fq 'issue comment 421' "$WORK/gh.log" \
+  && grep -Fq 'https://github.example/owner/repo/actions/runs/987654' "$WORK/gh.log" \
+  && grep -Fq 'issue close 421' "$WORK/gh.log"; then
+  ok "ISSUE-478-RECOVERY: success comments current run URL and closes exact reporter issue"
+else
+  fail "ISSUE-478-RECOVERY: success did not close eligible reporter issue with current run URL"
+fi
+
+run_close_step '[{"number":422,"title":"Unrelated CI failure","body":"- 実行ログ: https://github.example/owner/repo/actions/runs/12345"},{"number":423,"title":"Weekly self-improvement run failed (2026-09-20)","body":"no repository Actions run link"},{"number":424,"title":"Weekly self-improvement run failed (not-a-date)","body":"- 実行ログ: https://github.example/owner/repo/actions/runs/12345"},{"number":425,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行ログ: https://elsewhere.example/owner/repo/actions/runs/12345"},{"number":426,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行ログ: https://github.example/owner/repo/actions/runs/987654"}]'
+if [ "$CLOSE_RC" -eq 0 ] && [ ! -s "$WORK/gh.log" ]; then
+  ok "ISSUE-478-RECOVERY: unrelated or non-reporter issue is left open"
+else
+  fail "ISSUE-478-RECOVERY: unrelated or non-reporter issue was modified"
+fi
+
+run_close_step '[{"number":421,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行日時: date\n- 推定原因: failure\n- 実行ログ: https://github.example/owner/repo/actions/runs/12345"}]' 1 0
+if [ "$CLOSE_RC" -ne 0 ] && ! grep -Fq 'issue close' "$WORK/gh.log"; then
+  ok "ISSUE-478-RECOVERY: issue-list failure is nonzero and cannot close issue"
+else
+  fail "ISSUE-478-RECOVERY: issue-list failure must prevent closure"
+fi
+
+run_close_step '[{"number":421,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行日時: date\n- 推定原因: failure\n- 実行ログ: https://github.example/owner/repo/actions/runs/12345"}]' 0 1
+if [ "$CLOSE_RC" -ne 0 ] && ! grep -Fq 'issue close' "$WORK/gh.log"; then
+  ok "ISSUE-478-RECOVERY: comment failure is nonzero and cannot close issue"
+else
+  fail "ISSUE-478-RECOVERY: comment failure must prevent closure"
+fi
+
+printf '\nTEST-010/011/014 + ISSUE-478-RECOVERY results: %d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

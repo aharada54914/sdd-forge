@@ -1669,7 +1669,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
 Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -1814,35 +1814,35 @@ entries (AC-015).
 
 ### Done When
 
-- [ ] `tests/structural-compatibility-live-refresh.sh`/`.ps1` exist and
+- [x] `tests/structural-compatibility-live-refresh.sh`/`.ps1` exist and
   exercise the structural-compatibility assertions against an actual live
   model call (AC-031).
-- [ ] The test's own result is never required for the gating compatibility
+- [x] The test's own result is never required for the gating compatibility
   suite's own pass/fail verdict (AC-031).
-- [ ] The test is never registered in the gating
+- [x] The test is never registered in the gating
   `tests/run-all.sh`/`.github/workflows/test.yml` entries — registered
   instead as a separate, explicitly non-gating entry, or left
   run-manually-only (AC-015, AC-031, Global Constraints).
-- [ ] Any corpus entry the refresh path writes follows
+- [x] Any corpus entry the refresh path writes follows
   `structural-fixture-corpus/v1`'s own documented schema and the
   `refresh_procedure` field's own contract, never mutating a
   gating-suite-consumed entry outside this sanctioned path
   (security-spec.md B5).
-- [ ] Before writing, the refresh path validates the live-model response
+- [x] Before writing, the refresh path validates the live-model response
   against T-004's own structural assertions (the AC-030 canonicalizer:
   frontmatter parse, required headings, required-file count) and refuses
   — non-zero exit, no corpus file touched — on a structural mismatch, so
   a schema-valid-but-semantically-wrong response can never silently
   become T-004's new gating baseline (security-spec.md B5, STRIDE
   Tampering/Elevation-of-Privilege row).
-- [ ] TDD evidence: RED (a live-model response deliberately engineered to
+- [x] TDD evidence: RED (a live-model response deliberately engineered to
   fail the AC-030 structural assertions, asserting the refresh path
   rejects it — non-zero exit, no corpus write — before the
   validate-then-write logic is implemented) and GREEN (the full suite,
   including a successful refresh against an actual live model call).
   An independent quality-gate verdict records PASS, reviewing the
   refreshed corpus content itself, not only its schema shape.
-- [ ] Implementation report created; quality gate passes; traceability.md
+- [x] Implementation report created; quality gate passes; traceability.md
   updated with T-012 → REQ-002 (AC-031).
 
 ### Out of Scope

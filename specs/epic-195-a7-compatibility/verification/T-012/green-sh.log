@@ -1,0 +1,2 @@
+PASS: fixture validates; dry-run left corpus unchanged
+PASS: malformed fixture rejected without corpus modification
