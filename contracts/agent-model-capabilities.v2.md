@@ -9,8 +9,9 @@ the JSON schema itself (a top-of-file JSON comment is not valid JSON) —
 schema shape remains entirely Pillar C's C1 ownership; this file records
 provenance only.
 
-**No network fetch was performed to produce this record** (T-002's
-implementation constraint). The confirmation below applies the canonical
+**No network fetch was performed for the July 19 confirmation below** (T-002's
+implementation constraint); the September 28 refresh records its live fetch separately.
+The July confirmation applies the canonical
 source list `docs/contributor/workflow-detail.md`'s capability-refresh
 step already documents (epic-159-pillar-d T-001, #156) against the fixed
 family description issue #158's own body states, cross-referenced against

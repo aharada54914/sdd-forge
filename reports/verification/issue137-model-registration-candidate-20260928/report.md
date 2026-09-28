@@ -13,6 +13,7 @@ Assuming that historical workload transfers to this route, treating all input as
 ## Executed verification
 
 - `check.py`: failed before the registration with the exact-host assertion; passed afterward, including empty/unavailable and malformed candidate rejection.
+- PR follow-up: with `PATH=/usr/bin:/bin` (no RTK), `check.py` reproduced `FileNotFoundError` before the helper's direct Bash invocation and passed afterward. The July no-fetch statement is now explicitly historical, separate from the September live fetch. No selector or validation rule changed.
 - `tests/agent-capabilities-v2.tests.sh`: 10 passed, 0 failed; v1 unchanged.
 - `tests/agent-model-routing.tests.sh`: exit 0, routing structure verified.
 - `tests/effort-policy-flip.tests.sh`: 10 passed, 2 failed, 1 skipped, exit 1. Its historical T-007 checks require a branch name containing T-007 and an Unreleased heading in the first five changelog lines; this continuity branch meets neither. The suite, changelog, v1 and selectors have no Git diff. The real-Codex smoke remains skipped, not successful. No checks were weakened to hide these results.

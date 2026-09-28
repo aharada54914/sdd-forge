@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix="issue137-routing-") as directory:
     def select(items):
         path.write_text(json.dumps(items))
         return subprocess.run([
-            "rtk", "proxy", "bash", str(ROOT / "plugins/sdd-implementation/scripts/select-agent-model.sh"),
+            "bash", str(ROOT / "plugins/sdd-implementation/scripts/select-agent-model.sh"),
             "--risk", "high", "--host", "codex-cli",
             "--registry", str(ROOT / "contracts/agent-model-capabilities.v2.json"),
             "--candidates-file", str(path), "--required-tier", "strong",
