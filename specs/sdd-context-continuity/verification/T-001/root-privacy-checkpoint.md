@@ -22,6 +22,10 @@ Privacy source SHA-256: `349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da
 Grammar test SHA-256: `b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5`.
 Initial RED checkpoint: `a89004fe54c68548259ce5d2dd465f05fec8713a`.
 
+## Independent privacy-only follow-up
+
+On September 28, a separate read-only Sol reviewer examined checkpoint `968fbc47909a6762be998d249e9e20fe1afd755b` against rule-v1 and returned PASS with no blocking findings in this slice. The reviewer independently reran both suites: 19 passed, 0 failed, 0 skipped, exit 0; recorded source/test hashes matched. No production edit, Git mutation or network access occurred. This review does not cover the unimplemented owner/path/contracts/storage/host work and is not the formal quality gate. Correction count remains 1/3.
+
 ## Not established
 
-Exact closed contract schemas, owner/path/ignore/ACL checks, native Windows/macOS/Ubuntu activation, every storage/output copy, repository regressions, CI, independent review and quality gate remain pending. The undefined contract shapes/vocabularies and TEST-045g–i mapping remain explicit blockers. No Implementation Complete, Done, release or Issue-close claim.
+Exact closed contract schemas, owner/path/ignore/ACL checks, native Windows/macOS/Ubuntu activation, every storage/output copy, repository regressions, CI, full-task independent review and quality gate remain pending. The undefined contract shapes/vocabularies and TEST-045g–i mapping remain explicit blockers. No Implementation Complete, Done, release or Issue-close claim.
