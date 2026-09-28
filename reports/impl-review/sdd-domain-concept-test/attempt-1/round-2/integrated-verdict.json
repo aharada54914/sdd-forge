@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "sdd-domain-concept-test",
+  "run_id": "E10FFF80-542B-41B8-80BE-B4A6DECF6B17",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

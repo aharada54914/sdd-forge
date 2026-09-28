@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+  "host_session_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/integrated-summary.json",
+      "sha256": "435754693913d055284fd1e68e87aa1fd586a0aa386e9f73358a663c608adbe4"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+      "sha256": "5dec179131f6184a4a531f75078279d061ff313e01a8824f4579ed297eebebf1"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "91fd0fe4989274bffcf5deed36b4ce29b486a17dae17a2307c39aa82b39dcc2b"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:13-18,30-31,46-50で提案分類、人間決定、署名対象、証跡妥当性と続行可否を区別している。acceptance-tests.md:61も旧positive fixtureの署名要件を明示している。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:46-48の優先条項により、defer/rejectedの証跡検査成功は生成許可を意味しない。acceptance-tests.md:21,44-52,61はこの区別と整合する。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:46はfeature、提案分類、根拠、same/different/undecided、decision、入力path+sha256を承認対象とし、md/json不整合をBLOCKすると要求する。しかしacceptance-tests.md:43のTEST-037はdecision不一致だけを検査し、TEST-001（同:7）は正常時の一致だけを検査する。decisionが不要なFITSについて、md/json間のfeature・提案分類・人間確認結果などの不一致を拒否する具体assertionがない。検証者はdecision比較だけの実装と承認対象全体を照合する実装を区別できず、食い違う証跡で続行する欠陥を受入試験が見逃し得る。これは実装方式ではなくREQ-003の明示的な失敗条件に対する予定受入試験の不足であり、Major。decision以外の承認対象の不一致にもBLOCK assertionを追加するか、既存TESTでの具体的な包含範囲を明示する必要がある。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:30-32でOQを解決し、同:46-50で本人証跡と後続処理を具体化している。既存挙動の主張には同:22-26,50のfile:line引用があり、共有登録の再確認時点も明示されている。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:14,46-50は人間決定、署名・登録承認者・content hash検証、Human/CI-only署名生成を要求する。acceptance-tests.md:36-40,44-56は無効承認の拒否、decision別の続行制限、後続レビューの証跡束縛を検査可能にしている。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:9,13-18,46-52はPhase 1の範囲、domain/不変更、入口順序、続行条件、契約登録、旧layer記述への優先関係を明示している。受入試験の不足はEDGE-CASE-COVERAGEに記載したが、設計担当が新たな製品動作を決める必要はない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクトルートにdomain/が存在しないことを確認したため、適用条件を満たさずSKIP。"
+    }
+  ]
+}

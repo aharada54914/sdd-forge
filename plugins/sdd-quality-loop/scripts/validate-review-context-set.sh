@@ -847,7 +847,7 @@ while IFS=$'\t' read -r path expected_hash; do
     content_base64=$(base64 < "$candidate") ||
       fail CONTRACT 'implementation input capture failed'
     if [[ "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ]]; then
-      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
+      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 2>/dev/null | cat >/dev/null ||
         fail CONTRACT 'implementation input cannot be read as strict UTF-8'
     fi
     if [[ "$path" == "$precheck_rel" ]]; then

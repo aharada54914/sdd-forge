@@ -1,0 +1,65 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f",
+  "acceptance_sha256": "91fd0fe4989274bffcf5deed36b4ce29b486a17dae17a2307c39aa82b39dcc2b",
+  "investigation_sha256": null,
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+      "host_session_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+          "sha256": "5dec179131f6184a4a531f75078279d061ff313e01a8824f4579ed297eebebf1"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+          "sha256": "91fd0fe4989274bffcf5deed36b4ce29b486a17dae17a2307c39aa82b39dcc2b"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/requirements.md",
+          "sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+      "host_session_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/integrated-summary.json",
+          "sha256": "435754693913d055284fd1e68e87aa1fd586a0aa386e9f73358a663c608adbe4"
+        },
+        {
+          "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+          "sha256": "5dec179131f6184a4a531f75078279d061ff313e01a8824f4579ed297eebebf1"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+          "sha256": "91fd0fe4989274bffcf5deed36b4ce29b486a17dae17a2307c39aa82b39dcc2b"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/requirements.md",
+          "sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f"
+        }
+      ]
+    }
+  ],
+  "run_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

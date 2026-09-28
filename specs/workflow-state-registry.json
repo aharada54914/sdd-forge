@@ -415,6 +415,10 @@
       "profile": "full"
     },
     {
+      "feature": "sdd-domain-concept-test",
+      "profile": "full"
+    },
+    {
       "feature": "epic-194-a6-lite-integration",
       "profile": "full"
     },

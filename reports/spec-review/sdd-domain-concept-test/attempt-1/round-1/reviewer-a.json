@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+  "host_session_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+      "sha256": "5dec179131f6184a4a531f75078279d061ff313e01a8824f4579ed297eebebf1"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "91fd0fe4989274bffcf5deed36b4ce29b486a17dae17a2307c39aa82b39dcc2b"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜006は提案記録、人間確認、ゲート結果、呼出順序、入力束縛、公開可視性として検証可能。Governing Amendmentsが署名対象、拒否条件、decision別の動作を具体化し、TEST-001〜050に予定assertionがある。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "概念境界の証跡化はAC-001〜009、人間判断と機械ゲートはAC-002〜007/014〜017、bootstrap統合はAC-010/011/017、監査入力束縛はAC-012/018、公開面更新はAC-013へ対応している。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.mdはmd/json内容、BLOCK、domain/のhash不変、manifest欠落拒否、署名検証、呼出順序と呼出0を観測対象としている。UI Integration Checklistは証跡妥当性成功と後続続行を区別し、未実行の予定検証であることも明示する。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OverviewとREQ-002/004がPhase 2〜4、lite統合、domain/変更、自動Concept追加、二重version loader、upgrade modeを除外する。対象はv2/fullのConcept Testとbootstrap入口・後続レビューの証跡束縛に限定されている。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001/002とGoverning Amendmentsは既存署名方式の再利用、Human/CI-only署名生成、登録承認者とcontent/hash照合、provenance-only代用禁止、入力変更時の再承認、defer/rejected時の後続呼出禁止を明記する。REQ-004とAC-010はdomain/不在の互換性を保持し、旧layer記述の優先関係も明示されている。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "承認偽装と証跡改ざんはTEST-030〜037、入力変更後の無承認続行はTEST-035、decision別の実行境界はTEST-038〜046/022、後続レビューでの証跡差替え・欠落はTEST-047〜050で検証予定。高リスク主張に具体的な検証面がある。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可されたproject rootの存在確認でdomain/は不在。適用条件を満たさないためSKIP。"
+    }
+  ]
+}

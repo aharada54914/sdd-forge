@@ -54,6 +54,34 @@ Status: Draft — review not run
 | AC-018 | REQ-005 | TEST-048 | 後続レビュー時のsidecar差替えは予約hash不一致で拒否 |
 | AC-018 | REQ-005 | TEST-049 | 後続レビュー時の読取入力差替えは予約hash不一致で拒否 |
 | AC-018 | REQ-005 | TEST-050 | 必須sidecarがmanifestから欠落すれば拒否 |
+| AC-016 | REQ-003/004 | TEST-075 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonのdecisionだけを不一致にするとBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-076 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonのdecisionだけを不一致にするとBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-077 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonのdecisionだけを不一致にするとBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-078 | FITSのdecision不要fixtureは両記録ともdecisionなしで比較する。片方だけdecisionを追加した不一致はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-051 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonのfeatureだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-052 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonの提案分類だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-053 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonの根拠だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-054 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonのsame/different/undecidedだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-055 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonの入力pathだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-056 | FITS_EXISTING_CONCEPTSの有効fixtureでmd/jsonの入力sha256だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-057 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonのfeatureだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-058 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonの提案分類だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-059 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonの根拠だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-060 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonのsame/different/undecidedだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-061 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonの入力pathだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-062 | NEW_CONCEPT_CANDIDATEの有効fixtureでmd/jsonの入力sha256だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-063 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonのfeatureだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-064 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonの提案分類だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-065 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonの根拠だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-066 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonのsame/different/undecidedだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-067 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonの入力pathだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-068 | RESPONSIBILITY_CONFLICTの有効fixtureでmd/jsonの入力sha256だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-069 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonのfeatureだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-070 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonの提案分類だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-071 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonの根拠だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-072 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonのsame/different/undecidedだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-073 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonの入力pathだけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
+| AC-016 | REQ-003/004 | TEST-074 | REQUIRES_HUMAN_DECISIONの有効fixtureでmd/jsonの入力sha256だけを不一致にする。署名対象全体の整合検査はBLOCK、domain-sync・後続生成呼出数は各0 |
 
 ## UI Integration Checklist
 

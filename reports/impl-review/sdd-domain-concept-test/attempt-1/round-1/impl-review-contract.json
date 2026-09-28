@@ -1,0 +1,123 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-domain-concept-test",
+  "run_id": "6B9BC4C8-C298-42A4-AFCD-492B6B22FC61",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": true,
+  "feature_type": "cli",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053",
+  "acceptance_sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3",
+  "design_sha256": "f6ef6a89fa8a76e58b00ef7310b9188864342f81ea2a92672287b27db7ce511b",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020",
+    "frontend-spec.md": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7",
+    "infra-spec.md": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211",
+    "security-spec.md": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "host_session_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+          "sha256": "34e6299367a05793f8d83bc1aa61dd59c74a2503254c1bbb873958d0a8caa203"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+          "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/design.md",
+          "sha256": "f6ef6a89fa8a76e58b00ef7310b9188864342f81ea2a92672287b27db7ce511b"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+          "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/infra-spec.md",
+          "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/requirements.md",
+          "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/security-spec.md",
+          "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/ux-spec.md",
+          "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e535-db9b-7e31-abd8-447d941b75b2",
+      "host_session_id": "01a0e535-db9b-7e31-abd8-447d941b75b2",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain-concept-test/attempt-1/round-1/integrated-summary.json",
+          "sha256": "f21c2fce73d0f4685983d9f70f0fe7bd65e92c9af21b6fa2e0791c890fc5ce57"
+        },
+        {
+          "path": "reports/impl-review/sdd-domain-concept-test/attempt-1/round-1/precheck-result.json",
+          "sha256": "34e6299367a05793f8d83bc1aa61dd59c74a2503254c1bbb873958d0a8caa203"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+          "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/design.md",
+          "sha256": "f6ef6a89fa8a76e58b00ef7310b9188864342f81ea2a92672287b27db7ce511b"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+          "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/infra-spec.md",
+          "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/requirements.md",
+          "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/security-spec.md",
+          "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+        },
+        {
+          "path": "specs/sdd-domain-concept-test/ux-spec.md",
+          "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-09-27T23:41:00Z"
+}

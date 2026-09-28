@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+  "host_session_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-domain-concept-test/attempt-1/round-1/integrated-summary.json",
+      "sha256": "f21c2fce73d0f4685983d9f70f0fe7bd65e92c9af21b6fa2e0791c890fc5ce57"
+    },
+    {
+      "path": "reports/impl-review/sdd-domain-concept-test/attempt-1/round-2/precheck-result.json",
+      "sha256": "886eb82c8d47c4d794811aa91eab521f18d27ca0621d04d5eb5a6fb6430be748"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/design.md",
+      "sha256": "cf1ff2355702d2011cd189f9e3f7c2f9a1ef4abd4fadea424d72d1641a4787b9"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+      "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/infra-spec.md",
+      "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/security-spec.md",
+      "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/ux-spec.md",
+      "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:6-10,16-24はbootstrap intake→提案・人間確認→feature証跡→決定論ゲート→domain-syncの境界と連携、Phase0 validator再利用、domain読取限定を定義する。frontend-spec.md:5-7とinfra-spec.md:5-15が非Webのskill・local contract・sh/ps1構成と既存CI、保存・rollbackを補完している。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:8-10,18-24の処理は前向きの連携であり、循環依存の記述はない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Data Entities / Existing Data Affected / Migration Strategyのテンプレートフィールドは未記載。design.md:12-14はconcept-test.v1 schema、feature md/json、非FITS用approval sidecar、入力path+sha256、既存approval型登録・path対応の変更を定義する。domain書込禁止はdesign.md:8とsecurity-spec.md:16、保存とrollbackはinfra-spec.md:15に記載されている。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] API / Contract Planセクションは未記載。frontend-spec.md:5-7はHTTP clientやWeb API追加を対象外とし、design.md:12-20がlocal schema、証跡の必須内容、approval契約拡張、拒否条件と続行・保留・停止の契約を定義している。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] design.mdのSecurity Boundariesセクションは未記載。security-spec.md:5-20はrepository入力→agent、人間判断→gateの境界、入力非実行、domain書込禁止、feature内path限定、実PII・秘密値を使わないfixtureを定義する。旧OQ記述はrequirements.md:44-52の明示的優先規則で解決済み。design.md:14-20は標準content/hash/HMAC/registry検証、Human/CI-only署名、provenance-only代替禁止、不正時の下流呼出禁止を具体化している。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: Feature Type is cli. [LEGACY COMPAT] Feature Typeヘッダーは未記載だが、frontend-spec.md:7とux-spec.md:7が非GUIのskill・shell/PowerShell workflowを明示している。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:26-30はJSON構造・列挙値・md/json一致・入力path/hash・実行分岐の単体範囲と下流spyを明示する。署名・content/hash/HMAC/registryはモックせず一時鍵と登録済み承認者で統合検証する。acceptance-tests.mdのTEST-001〜078を具体的な予定証拠として指定し、TEST-030〜034の拒否、入力差替え、manifest欠落、続行順と保留・停止時の各0回呼出、Phase0回帰、sh/ps1独立case-sensitivity sweepを保持している。テスト実行は本レビューの対象外。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "新しいConcept Test workflowと証跡検証はdesign.md:8,12-20,26-30で責務・入力・出力・下流制御が定義されている。bootstrap、domain-sync、Phase0 validatorはrequirements.md:9,22-25の既存構成として識別でき、既存approval検証・署名生成とreview-context検証はdesign.md:14,24で識別されている。未定義の実装依存は認められない。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.mdに具体的ADR宣言はなく、precheck-result.jsonのadr_inputsは[]で一致する。design.md:8-14,24とinfra-spec.md:7-11は既存skill、Phase0 validator、signed approval、gate twins、CI・公開パターンの再利用を指定し、新技術・新暗号方式・新サービスを導入していない。未参照の新しいアーキテクチャ選択は認められない。ADRファイルは読んでいない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Design System Complianceセクションは未記載。ux-spec.md:7,15とfrontend-spec.md:7が新GUI、Web component、route、layout、design tokenの変更なしを明示するため、本featureに照合対象となるUI変更はない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: project rootにdomain/ディレクトリが存在しないことを許可された存在確認で検証した。requirements.md:16とacceptance-tests.md:26はdomain不在時の従来生成・skip維持を定義している。"
+    }
+  ]
+}

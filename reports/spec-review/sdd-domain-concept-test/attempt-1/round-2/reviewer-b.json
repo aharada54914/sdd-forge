@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+  "host_session_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-2/integrated-summary.json",
+      "sha256": "2360bf4e6037f908c02ac5cdd4325bfb415be977efb0c7ff501ee0331dea35ec"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-test/attempt-1/round-2/precheck-result.json",
+      "sha256": "08a3a26f8aea84924c7bc0f9dba677febe6cc4393a24c3a1ae7a99538e4cc003"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "fb96814da783fc3eb04b431cea8443f473a5558e56907b5815f4e5d63cb1fc2f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜004、OQ-001/002、Governing Amendmentsが提案分類、人間による確定、署名対象、証跡妥当性と続行許可を区別する。FITS、proceed、defer、rejectedの後続動作が具体化されている。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-003のゲート通過はGoverning Amendmentsにより証跡妥当性の成功と定義され、生成許可とは区別される。AC-007とAC-017はこの区別に整合し、旧layer記述には明示的な優先規則がある。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-002〜004/014/028〜037が欠落・不正値・署名・本人証跡・入力変更を扱う。TEST-038〜046/022が非FITSの全9結果とFITS続行を網羅し、TEST-051〜078が全4分類の署名対象各フィールドのmd/json不一致と後続呼出0を個別に検証する。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001/002は日付・決定主体・採用動作を記録して解決済み。既存挙動の主張にはfile:line引用があり、共有登録集合にはレビュー時・実装直前の再確認指示がある。Preflightは過去の観測と明記され、今回の実行証明として扱われていない。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-002とGoverning Amendmentsが人間決定、Human/CI-only署名生成、登録承認者・署名・content hash検証を要求する。TEST-030〜036、048〜050が不正証跡と差替えを拒否し、FITSにも確認済み判断と有効証跡を要求する。tasks生成・実装承認は既存レビュー順序に従うと明記されている。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜006が記録、機械ゲート、bootstrap接続、予約入力、公開範囲を定め、AC-001〜018が観測可能な結果を提供する。既存承認方式の再利用とconcept-test契約登録も実装対象として明示され、設計レビューが新たな製品動作を決める必要はない。起動receiptの入力束縛付きrecord hash、sequence、前レコード、identity_uniqueと全許可入力hashを確認し、precheckの入力hashも一致した。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクト直下のdomain/が不存在だったため、適用条件を満たさずSKIP。"
+    }
+  ]
+}

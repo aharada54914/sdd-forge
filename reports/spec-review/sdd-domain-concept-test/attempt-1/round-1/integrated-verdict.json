@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+  "reviewer_b_run_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+  "reviewer_a_host_session_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+  "reviewer_b_host_session_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

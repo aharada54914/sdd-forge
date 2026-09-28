@@ -10724,6 +10724,86 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-attempt12r1-sonnet",
       "previous_record_sha256": "bff29ff1d41040ffc6de642aed6bbb1dcc071a25101bb27a7ef0a1b67522ac2f",
       "record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7"
+    },
+    {
+      "sequence": 1190,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+      "host_session_id": "01a0e3f0-7f9a-7951-bdde-34a7a653f659",
+      "previous_record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7",
+      "record_sha256": "71811e4b5c42a650fcf9c5923720f9cea79a97087e409a2a6d0a75f3ba6fdaf1",
+      "allowed_inputs_sha256": "1b6be2181ec3d055de7464263e255019cbaa4f275ed23ddf88cd750b70dc0d0e"
+    },
+    {
+      "sequence": 1191,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+      "host_session_id": "01a0e3f8-bea6-78d3-9ef6-b4e54d53ef14",
+      "previous_record_sha256": "71811e4b5c42a650fcf9c5923720f9cea79a97087e409a2a6d0a75f3ba6fdaf1",
+      "record_sha256": "31d63ad09046d45f5d8a7835ab054287553efdec091e0ff181979b4442461466",
+      "allowed_inputs_sha256": "6f2d4ea57ea5387244d6d1c2f8d466eb29b081d54b53d32a5592e018f3c08503"
+    },
+    {
+      "sequence": 1192,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "01a0e400-60d5-7e80-b244-777a91cff50d",
+      "host_session_id": "01a0e400-60d5-7e80-b244-777a91cff50d",
+      "previous_record_sha256": "31d63ad09046d45f5d8a7835ab054287553efdec091e0ff181979b4442461466",
+      "record_sha256": "b0c859018d25ad5abedbd27b9f8b960a5bd9f8f0b00bb49a6a6e4e780eb29e52",
+      "allowed_inputs_sha256": "bc2b1043728bd4b47890a29a6b7d747a64fd3896df4053e043b3ebef817c4e33"
+    },
+    {
+      "sequence": 1193,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+      "host_session_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+      "previous_record_sha256": "b0c859018d25ad5abedbd27b9f8b960a5bd9f8f0b00bb49a6a6e4e780eb29e52",
+      "record_sha256": "5414ce5d690a931dab0e2980800747afe9d04e69df3521bd1980ca7bb8df4266",
+      "allowed_inputs_sha256": "9173a56ffbcda15813c547d1814623ee0ff248494de16279ff3c82c3d1d15ca6"
+    },
+    {
+      "sequence": 1194,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "host_session_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "previous_record_sha256": "5414ce5d690a931dab0e2980800747afe9d04e69df3521bd1980ca7bb8df4266",
+      "record_sha256": "83ea62d5d10aa7afc5f6dee2faa1f09644b467304683a2a496e6c0108e44df0d",
+      "allowed_inputs_sha256": "1b9f4068247f23241d7d5290c02f4c22e25426703c32d933d64171eb91f30cb4"
+    },
+    {
+      "sequence": 1195,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e535-db9b-7e31-abd8-447d941b75b2",
+      "host_session_id": "01a0e535-db9b-7e31-abd8-447d941b75b2",
+      "previous_record_sha256": "83ea62d5d10aa7afc5f6dee2faa1f09644b467304683a2a496e6c0108e44df0d",
+      "record_sha256": "04063615a29d1779c352ca921487a9070a4f844ae8649bc6b6dba269816ff0d8",
+      "allowed_inputs_sha256": "7b44da5d8f4827423fbface5532ca9ceb34547267b375bf3754bcbe6e5f0e0d0"
+    },
+    {
+      "sequence": 1196,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+      "host_session_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+      "previous_record_sha256": "04063615a29d1779c352ca921487a9070a4f844ae8649bc6b6dba269816ff0d8",
+      "record_sha256": "9d87921570f5bbda3d51f941df5bb20d0b51cecfc6563c7d0da24a5080f86fc7",
+      "allowed_inputs_sha256": "318f14ebeef9b92c7585563fe182d01584c75dc5a99df23f478b6e89a93363a6"
+    },
+    {
+      "sequence": 1197,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e606-9cd6-7a51-800b-21b8a12621b9",
+      "host_session_id": "01a0e606-9cd6-7a51-800b-21b8a12621b9",
+      "previous_record_sha256": "9d87921570f5bbda3d51f941df5bb20d0b51cecfc6563c7d0da24a5080f86fc7",
+      "record_sha256": "94ffdbbe4b76e46b52aa80344773a5bb9b5f1cc35fbb8a40be9db3b2804d3397",
+      "allowed_inputs_sha256": "093b2031d0dd712ab6a9939dff032954c930273ba527c336f33cc7778e37338d"
     }
   ]
 }
