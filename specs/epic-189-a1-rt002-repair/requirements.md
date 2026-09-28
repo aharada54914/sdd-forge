@@ -3,9 +3,11 @@
 Spec-Review-Status: Pending
 Feature Type: bugfix
 
+Authorized amendment (2026-09-28, limited extra1): exact two-envelope contract adopted for formal re-review. Existing review/status/approval lines remain historical, not a PASS of these changed bytes. No implementation, execution proof, task-attempt reset or correction-budget reset. Governing dated precedence: [amendment addendum](verification/T-001/two-envelope-extra1-20260928/candidate-precedence-20260928.md).
+
 ## Overview
 
-Revalidate and complete only the authorized Codex host-denial evidence repair. Separate its current evidence from the completed A1 task and failed historical reviews. Authority: `docs/review-tickets/RT-20260909-002.yml` and `reports/verification/hook-recovery-entry-contract-20260909.md` (normative byte templates and recovery limits).
+Revalidate and complete only the authorized Codex host-denial evidence repair. Separate its current evidence from the completed A1 task and failed historical reviews. Authority: `docs/review-tickets/RT-20260909-002.yml` and `reports/verification/hook-recovery-entry-contract-20260909.md` (historical normative byte templates and unchanged recovery limits); the proposed 2026-09-28 two-envelope amendment below changes only the wrapper presence. Its limited precedence is recorded in the candidate addendum.
 
 ## Target Users
 
@@ -17,7 +19,7 @@ The observed host denial lacked legacy plugin flags; their absence cannot establ
 
 ## Goals
 
-- REQ-001: Accept the exact versioned operation-bound Codex denial defined in the recovery contract; emit `HOOK_ACTIVE`, exit 0, without claiming plugin provenance.
+- REQ-001: Accept exactly the two versioned operation-bound Codex denial strings `B(N)` and `P+B(N)` defined below; emit `HOOK_ACTIVE`, exit 0, without claiming plugin provenance.
 - REQ-002: Fail closed on invalid selector, structure, type, runtime, nonce or raw envelope. Preserve documented category/exit behavior and never substitute fabricated metadata.
 - REQ-003: Reject duplicate JSON members at every object depth in both response and cleanup modes. Preserve other legacy runtime, cleanup, stale-start and non-mutation behavior.
 - REQ-004: Generate the exact fixed-path Codex patch with its fresh 32-lowercase-hex nonce; preserve complete Claude/Copilot templates.
@@ -33,16 +35,16 @@ A caller can distinguish an operation-bound guard denial from missing metadata, 
 
 ## Acceptance Criteria
 
-- AC-001 (REQ-001): The five-field `sdd-codex-host-denial/v1` record with CLI and recorded runtime `codex-cli`, matching well-formed nonce, boolean false executed and exact normative raw string produces exit 0 / `HOOK_ACTIVE`.
+- AC-001 (REQ-001): The five-field `sdd-codex-host-denial/v1` record with CLI and recorded runtime `codex-cli`, matching well-formed nonce, boolean false executed and either exact normative raw string `B(N)` or `P+B(N)` produces exit 0 / `HOOK_ACTIVE`.
 - AC-002 (REQ-002): Explicit unknown/null/wrong-type selectors never fall through to legacy success. Missing/extra keys, invalid executed/raw types and non-Codex runtime combinations reject. Structural/signature errors are 64, nonce mismatches 62, executed true 63; response malformed/duplicate JSON is 61. All emit `CAPABILITY_RUNTIME_UNAVAILABLE`. Removing schema selects the legacy contract, whose missing plugin flag yields 65, not an inferred claim that host configuration is disabled.
-- AC-003 (REQ-002): Outer and echoed nonce must match the expected 32-lowercase-hex nonce. Reject prefix, quoting, suffix, truncation, changed guard message, case changes, other target, extra operation, old empty patch, leading/trailing newline and CRLF. No normalization or trimming.
+- AC-003 (REQ-002): Outer and echoed nonce must match the expected 32-lowercase-hex nonce. Reject prefix (the sole exception is one exact `P` before `B(N)`), quoting, suffix, truncation, changed guard message, case changes, other target/tool operation, extra operation, old empty patch, leading/trailing newline and CRLF. Reject malformed, repeated or separated wrappers. No normalization or trimming.
 - AC-004 (REQ-003): Valid no-schema Claude, Copilot and Codex responses retain their predicates. Response duplicates reject with 61; cleanup duplicates with 71 / unconfirmed. Cleanup schema fields are not selectors, nonce and boolean-executed predicates remain unchanged, and no cleanup result turns capability active. Existing stale sentinel detection and file non-mutation remain intact.
 - AC-005 (REQ-004): Each challenge emits the normative Codex patch with exactly the generated nonce and no terminal newline. Claude/Copilot emitted objects remain `Write` to `sdd/.hook-canary-sentinel` with empty content. Generating/verifying evidence does not perform the canary write or cleanup itself.
 - AC-006 (REQ-005): New repair-only spec/design/task reviews pass with normal identities, hashes and other preconditions. The new task is human-approved before ordinary execution; actual activation is required for ordinary entry. Both original-path suites and latest-head required CI including native Windows pass. After permitted protected application, an actual fresh challenge, one native dispatch, unchanged response and original installed verifier prove `HOOK_ACTIVE`. Retain actual failures, parent target, prior task state and review history. Fixtures alone do not satisfy live proof.
 
 ## Normative Codex bytes
 
-For REQ-001/REQ-004 and AC-001/AC-003/AC-005, decode each JSON string below as UTF-8 text, then replace its single literal `<nonce>` with the challenge's generated 32-lowercase-hex nonce. No other substitution, trimming, Unicode normalization or line-ending conversion is permitted. Neither decoded string has a terminal newline. These are the complete templates, reproduced from the recovery contract, not evidence of a live result.
+For REQ-001/REQ-004 and AC-001/AC-003/AC-005, decode each JSON string below as UTF-8 text, then replace its single literal `<nonce>` with the challenge's generated 32-lowercase-hex nonce. No other substitution, trimming, Unicode normalization or line-ending conversion is permitted. The emitted patch and both accepted raw strings have no terminal newline. The historical recovery contract supplies the unchanged patch/body bytes; the candidate adds only the bare envelope and retains the exact wrapped one. These templates are not evidence of a live result.
 
 Emitted `tool_call_template.codex-cli.tool_input.patch`:
 
@@ -50,13 +52,21 @@ Emitted `tool_call_template.codex-cli.tool_input.patch`:
 "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
 ```
 
-Accepted `raw_result`:
+Let `N` be the generated 32-lowercase-hex nonce. `P` is exactly the decoded JSON string `"Script error:\n"`. `B(N)` is the complete bare raw string below with its single `<nonce>` replaced by `N`. The complete accepted grammar is `raw_result ::= B(N) | P+B(N)`: wrapper presence is zero or one, never arbitrary/repeated. Whole-string fullmatch is required with exactly one nonce capture; all other characters, punctuation (including `sudo..`), case, LF and fixed patch lines remain literal.
+
+Accepted `raw_result`, bare `B(N)`:
+
+```json
+"Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
+```
+
+Accepted `raw_result`, wrapped `P+B(N)` (historical bytes retained):
 
 ```json
 "Script error:\nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:<nonce>\n*** End Patch"
 ```
 
-The response object has exactly `schema`, `runtime`, `nonce`, `executed`, `raw_result`; values are `sdd-codex-host-denial/v1`, `codex-cli`, that nonce, boolean `false`, and the substituted raw string respectively. No plugin flag is inferred or added. AC-002 specifies rejection categories. This selector applies only to response verification, never cleanup (AC-004).
+The response object has exactly `schema`, `runtime`, `nonce`, `executed`, `raw_result`; values are `sdd-codex-host-denial/v1`, `codex-cli`, that nonce, boolean `false`, and one of the two substituted raw strings respectively. No plugin flag is inferred or added. AC-002 specifies rejection categories. This selector applies only to response verification, never cleanup (AC-004).
 
 ## Roles and Permissions
 
@@ -79,7 +89,7 @@ Prepare repair inputs → repair-only provenance reviews → human task approval
 
 ## Assumptions
 
-The exact documented host envelope is a contract, not a promise that every host emits it. If actual bytes differ, remain unavailable and investigate. Re-check current shared guard membership, installed path/hash and runtime before live verification; never infer them from old reports. Shared main and source hashes must be refreshed at each review/merge. There is no cryptographic collector attestation or persistent replay ledger.
+The exact two documented host envelopes are a contract, not a promise that every host emits either. If actual bytes differ from both `B(N)` and `P+B(N)`, remain unavailable and investigate. Re-check current shared guard membership, installed path/hash and runtime before live verification; never infer them from old reports. Shared main and source hashes must be refreshed at each review/merge. There is no cryptographic collector attestation or persistent replay ledger.
 
 ## Open Questions
 

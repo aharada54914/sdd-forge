@@ -1,10 +1,12 @@
 # Acceptance Tests: A1 RT002 bounded repair
 
+Authorized amendment (2026-09-28, limited extra1): exact two-envelope contract adopted for formal re-review. Existing review/status/approval lines remain historical, not a PASS of these changed bytes. No implementation, execution proof, task-attempt reset or correction-budget reset. Governing dated precedence: [amendment addendum](verification/T-001/two-envelope-extra1-20260928/candidate-precedence-20260928.md).
+
 All rows are Planned for this feature. Existing assertions are reused, not new PASS claims. `H` means both original suites `tests/check-hook-activation-handshake.tests.sh` and `.ps1`, using the repository verifier at its original path. `U64/U62/U63/U61/U65` mean that exit plus `CAPABILITY_RUNTIME_UNAVAILABLE` and its documented reason; `C71` means exit 71 / `SENTINEL_CLEANUP_UNCONFIRMED` / capability unavailable. The precise reusable assertions are indexed in `investigation.md`.
 
 | Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
-| AC-001 | REQ-001 | TEST-001 | integration | H: exact five-field Codex record → 0 / HOOK_ACTIVE | Planned |
+| AC-001 | REQ-001 | TEST-001 | integration | H: exact five-field Codex record with historical P+B(N) → 0 / HOOK_ACTIVE; retained independently of TEST-091 | Planned |
 | AC-002 | REQ-002 | TEST-002 | integration | H: unknown schema with legacy success fields → U64 in each of the three runtime adapters | Planned |
 | AC-002 | REQ-002 | TEST-003 | integration | H: null schema with legacy success fields → U64 in all adapters, same control flow as TEST-002 | Planned |
 | AC-002 | REQ-002 | TEST-004 | integration | H: boolean true schema → U64 in all adapters | Planned |
@@ -47,7 +49,7 @@ All rows are Planned for this feature. Existing assertions are reused, not new P
 | AC-003 | REQ-002 | TEST-041 | integration | H: nonhex nonce, outer-only and self-consistent triple → U64 | Planned |
 | AC-003 | REQ-002 | TEST-042 | integration | H: null outer nonce → U64 | Planned |
 | AC-003 | REQ-002 | TEST-043 | integration | H: numeric outer nonce → U64 | Planned |
-| AC-003 | REQ-002 | TEST-044 | integration | H: prefixed raw response → U64 | Planned |
+| AC-003 | REQ-002 | TEST-044 | integration | H: arbitrary prefixed raw response in both forms → U64; sole exception is exact P+B(N), never P+P+B(N) | Planned |
 | AC-003 | REQ-002 | TEST-045 | integration | H: quoted raw response → U64 | Planned |
 | AC-003 | REQ-002 | TEST-046 | integration | H: suffixed raw response → U64 | Planned |
 | AC-003 | REQ-002 | TEST-047 | integration | H: truncated raw response → U64 | Planned |
@@ -93,5 +95,61 @@ All rows are Planned for this feature. Existing assertions are reused, not new P
 | AC-006 | REQ-005 | TEST-087 | review | New feature's independent spec/design/task PASS; approval and activation prerequisites retained; old feature/task/verdicts unchanged | Planned |
 | AC-006 | REQ-005 | TEST-088 | integration | Both original-path suites locally and native Windows CI pass at recorded source hashes; latest-head mandatory CI all successful | Planned |
 | AC-006 | REQ-005 | TEST-089 | live | Installed candidate hash → fresh challenge → one actual native dispatch → unchanged response → original installed verifier HOOK_ACTIVE; no fixture substitution | Planned |
+| AC-001 | REQ-001 | TEST-090 | integration | H: raw_result = B(N), exact five-key Codex record, CLI/record nonce N and executed false → 0 / HOOK_ACTIVE | Planned |
+| AC-001 | REQ-001 | TEST-091 | integration | H: raw_result = P+B(N), same exact record as TEST-090 → 0 / HOOK_ACTIVE | Planned |
+| AC-003 | REQ-002 | TEST-092 | integration | H: raw_result = "Script error:"+B(N) (missing wrapper LF) → U64 | Planned |
+| AC-003 | REQ-002 | TEST-093 | integration | H: raw_result = "Script error:\r\n"+B(N) → U64 | Planned |
+| AC-003 | REQ-002 | TEST-094 | integration | H: independently "Script error: \n"+B(N) and "Script error:\n "+B(N) → U64 each | Planned |
+| AC-003 | REQ-002 | TEST-095 | integration | H: raw_result = "script error:\n"+B(N) (wrapper case change) → U64 | Planned |
+| AC-003 | REQ-002 | TEST-096 | integration | H: raw_result = P+P+B(N) → U64 | Planned |
+| AC-003 | REQ-002 | TEST-097 | integration | H: raw_result = P+"\n"+B(N) → U64 | Planned |
 
 Existing full suites also retain legacy CLI misuse, cleanup and stale-start negatives beyond the representative compatibility rows above. Their preservation is checked by diff review plus running the full original suites, not selective counts. A new implementation mismatch gets a focused RED before its fix; missing direct assertions for already-correct behavior are acceptance-first additions, not invented historical RED.
+
+## Exact two-envelope fixtures and negative matrix (candidate, 2026-09-28)
+
+Use the complete normative B(N) and P bytes in candidate requirements.md, never a shortened guard marker. Let N = `b36a468b489e145ed538d74f7b993c31`, M = `c36a468b489e145ed538d74f7b993c31`, R0 = B(N), R1 = P+B(N). Each base record is exactly `{"schema":"sdd-codex-host-denial/v1","runtime":"codex-cli","nonce":N,"executed":false,"raw_result":Ri}`; expected nonce and CLI runtime are N and codex-cli unless the subcase says otherwise. TEST-090 uses R0; TEST-091 and retained TEST-001 use R1. Both original suites assert both positives separately. All strings below are JSON-decoded strings; `\n` means LF and `\r\n` means CRLF.
+
+For every matrix row and every named subcase, run one assertion based on R0 and a separate assertion based on R1 in each original shell suite. Apply only the stated mutation; untouched fields remain valid. Assert exact exit, unavailable capability and documented reason, and assert absence of HOOK_ACTIVE. A range never permits sampling: each original TEST-ID and every subcase remains required. Existing all-runtime selector cases also retain their three adapters. This is a fixture specification, not an execution result.
+
+| Existing TEST-ID / subcase | R0-based assertion | R1-based assertion | Expected |
+|---|---|---|---|
+| 002–008, each selector | Replace schema by unknown string, null, true, false, 1, [], {} respectively | Same mutation, R1 otherwise intact | U64 each |
+| 009, legacy shape | Known schema with each otherwise valid legacy adapter's field shape; no fallback | Same shape with R1 where raw_result exists | U64 for each of three adapter shapes |
+| 010 | Remove only schema from the five-key record | Same deletion | U65, missing legacy metadata |
+| 011–014, each absent key | Remove runtime, nonce, executed, raw_result respectively | Same independent deletion | U64 each |
+| 015–019, each executed value | Set executed to null, "false", true, 0, 1 respectively | Same independent value | U64, U64, U63, U64, U64 respectively |
+| 020–025, each runtime pair | Retain recorded Claude/CLI Codex, recorded Copilot/CLI Codex, recorded Codex/CLI Claude, recorded Codex/CLI Copilot, both Claude, both Copilot and existing legacy-success metadata | Same six pair mutations | U64 each |
+| 020, unknown recorded host | Set recorded runtime to "unknown-host", CLI remains codex-cli | Same value | U64 |
+| 026–029, each extra flag | Add plugin_hooks_enabled true/false or denied_by_plugin_hooks true/false independently | Same extra member | U64 each |
+| 030, extra metadata | Add arbitrary key; separately host="unknown-host" and tool="unknown-tool" | Same independent extra keys | U64 each, exact five-key set |
+| 031–035, each raw type | Replace raw_result with null, true, 1, [], {} respectively | Same independent replacement | U64 each |
+| 036, outer mismatch | Set only outer nonce to M, echo/expected remain N | Same outer mutation | U62 |
+| 037, echo mismatch | Replace only echoed patch nonce N by M, outer/expected remain N | Same echoed mutation | U62 |
+| 038–041, syntax variants | X is uppercase N, N without final character, N+"0", or N with final "1" replaced by "g"; for each X: outer-only, expected-only, echo-only, then expected/outer/echo all X independently | Same four locations for each X | U64 each |
+| 042–043 | Outer nonce null or numeric 1 independently | Same replacement | U64 each |
+| 044, prefix | "prefix"+R0 | "prefix"+R1 | U64 each; exact P before bare B is covered only by 091 |
+| 045, quoting | Add one literal double-quote before and after R0 | Same quoting of R1 | U64 each |
+| 046, suffix | R0+"suffix" | R1+"suffix" | U64 each |
+| 047, truncation | Remove final character of R0 | Remove final character of R1 | U64 each |
+| 048, English guard | Replace literal "agents must not" with "agents may" in R0 | Same replacement in R1 | U64 each |
+| 049, Japanese guard | Replace literal "書き換えられません。" with "書き換えられます。" in R0 | Same replacement in R1 | U64 each |
+| 050, guard case | Replace literal "SDD deterministic gate" with "sdd deterministic gate" | Same replacement | U64 each |
+| 051, target | Replace sdd/.hook-canary-sentinel with sdd/.other-sentinel | Same replacement | U64 each |
+| 052, target case | Replace sdd/.hook-canary-sentinel with SDD/.hook-canary-sentinel | Same replacement | U64 each |
+| 053, extra operation | Append "\n*** Begin Patch\n*** Add File: sdd/.other-sentinel\n+x\n*** End Patch" to R0 | Append same operation to R1 | U64 each |
+| 053, unknown tool/operation | Replace the complete emitted patch after "Command: " with `{"tool_name":"unknown-tool","tool_input":{"file_path":"sdd/.hook-canary-sentinel","content":""}}` | Same replacement, preserving P | U64 each |
+| 054, old patch | Replace the whole line "+sdd-hook-challenge:"+N with "+" | Same line replacement | U64 each |
+| 055, trailing LF | R0+"\n" | R1+"\n" | U64 each |
+| 056, leading LF | "\n"+R0 | "\n"+R1 | U64 each |
+| 057, CRLF | Replace every LF in R0 with CRLF | Replace every LF in R1 with CRLF | U64 each |
+| 061, JSON input | Remove final JSON object brace; separately top-level []; separately malformed JSON "{" | Same file mutations on R1 record | U61 each |
+| 062–066, each duplicate | Duplicate schema, runtime, nonce, executed, raw_result respectively in serialized object; retain actual duplicate members | Same independent duplicate on R1 record | U61 each |
+| 067, nested duplicate | Add nested object member with duplicate key (e.g. extra={"x":1,"x":2}) | Same serialized nested duplicate | U61 before extra-key predicate |
+| 068–069, duplicate order | Serialize executed:true then executed:false; separately false then true | Same two orders | U61 each, never last-key-wins |
+
+Unknown CLI runtime is a separate usage subcase retained alongside TEST-020: `--runtime unknown-host` yields argparse exit 2, not schema exit 64 and never HOOK_ACTIVE. Missing recorded evidence retains exit 60 / NO_RECORDED_RESULT in each envelope's fixture setup; no absent file is accepted as a raw result. Legacy no-schema TEST-058–060/073 and cleanup TEST-070–080 do not use this versioned raw grammar; retain their original assertions (including 71/unconfirmed duplicates, unchanged schema independence and capability always unavailable). Stale-start, exact emitted templates and non-mutation TEST-081–086 remain unchanged. TEST-087 binds the amended inputs through formal re-review; TEST-088 requires both full original suites and native Windows/current-head CI; TEST-089 remains one actual fresh installed-host dispatch, never a fixture or saved-capture substitution.
+
+TEST-092–TEST-097 are wrapper-specific malformed strings on B(N), not independent unknown wrappers around a shortened body. For TEST-094 both before-LF and after-LF spaces have separate assertions. The six IDs plus that additional space branch cover each newly specified invalid wrapper construction; TEST-044–057 cover mutations to each accepted complete base.
+
+No fixture, parser check or regex execution was performed for this candidate. The earlier runpy/regex command was actually refused by PreToolUse; it is not rerun or replaced through another tool, path or agent. Formal re-review, source/test implementation, RED/GREEN, native Windows/current-head CI, installed application, native dispatch and activation remain unperformed.
