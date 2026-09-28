@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e398-a107-70d3-9587-14677683bec3",
+  "host_session_id": "01a0e398-a107-70d3-9587-14677683bec3",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+      "sha256": "fa4c27039f09cecc7299d7224f365084b02544b73f064e61526799ea8aaf11a8"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "sha256": "ca580155674d636eb7302185e8ac511ace52f2d3328d6a67ecc8d51a2d106f54"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "5cd6d2354bcf71419d7f76184e8d37f63e8845b2a3deb6cd9534f6f70e23f856"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:28-32,75-115 が対象遷移、閉record schema、参照制約、8 authorization bindings、循環を避けるdigest計算を定義。requirements.md:52,64,109 が人間・orchestrator・validatorの責任と失敗時の結果を区別している。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:38-42,48,52 と acceptance-tests.md:3,95-107 は整合。公開前拒否は出力なし、途中公開失敗は利用不能な部分証拠を保存し別途承認された修復を要求する。通常reset、履歴不変、PASS非付与の境界に直接矛盾はない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:7-113 は入口、状態、先行契約、B存在、認可、identity、path、競合、途中公開、互換性の負例を定義。119-174 はfield/reference/objectと8 authorization bindingsを展開し、115,163 が各変種の独立実行と無標本化を要求。すべて計画であり実行結果ではない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:18-22 は既存動作の具体的なfile:line根拠を提示し、60 は共有状態の再確認対象と時点を明記。64,109 はAUTH-001の所有者、必要な原発言・実適用報告・digest照合を定義し、不明なoriginや不足証拠は実際の復旧起動を阻止する。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:64,98-115 は既存の人間承認と実適用をorchestratorが照合し、validatorは内容・hash・bindingを検査する境界を明示。acceptance-tests.md:41-49,163-174 がorigin不明、agent自己申告、認可欠落・重複・変更を拒否する検証面を用意。復旧は新規承認、予約、verdictを生成しない。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001–005、AC-001–005、requirements.md:75-115 と対応TEST群により、実装方針レビューへ渡す入力、許容状態、観測可能な成功・拒否・途中失敗が定義されている。invocation hash、input-bound receipt、5入力hashとprecheck pinsは一致。summaryはIDs・結果・severity・countsのみ。設計やlive実装の検証は実施していない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可されたプロジェクトrootの存在確認でdomain/ディレクトリは存在しないため、roleの適用条件に従いSKIP。"
+    }
+  ]
+}

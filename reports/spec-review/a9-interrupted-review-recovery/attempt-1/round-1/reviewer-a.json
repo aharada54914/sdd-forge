@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e386-833f-7730-b25d-f9d9dce27e98",
+  "host_session_id": "01a0e386-833f-7730-b25d-f9d9dce27e98",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "sha256": "04c339c4badfa612d2a7f5f24f36a348cf9c005fb6ed0dd943af25e9c1f3e4f6"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "4d64083d8cc6beccc8d70254f1268a693b737c3b3cffbf7a58830f6b318eb249"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "2831367b47f43d33a6dceb582f114ee2cc60e0da2aa20c7870e377289f68029e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜005は入力条件、拒否、生成物、履歴不変性、互換性として検証可能。AC-001〜005とTEST-001〜107に対応する予定検証がある。予約receiptのallowed-inputs-v1付きハッシュ、1205=1204+1、前レコード、識別子、全入力ハッシュとprecheckの対応するpinは一致した。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜005にはそれぞれAC-001〜005が対応し、明示的な復旧入口、限定された中断形状、証跡検証、履歴保全、既存動作維持をカバーしている。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "AC-004は「rejected recovery creates no target files or state changes」、Main Workflowsは「Failure is nonzero with no target evidence」と要求する。一方TEST-095はwriter failure後の「partial target」を認め、再実行がそれを理由に拒否することを要求する。失敗後に対象ファイルが残ることを許すかについて受入条件が矛盾し、実装者と検証者はcleanupと残存診断のどちらを正解にするか決められない。これは実装方式ではなく失敗時の観測可能な製品状態の矛盾なので仕様レビューの対象であり、両方を満たせない受入条件としてCritical。検証前拒否と公開途中の失敗を区別し、それぞれの許容残存状態を明記する必要がある。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goalsは他の中断形状、自動復旧、A単独verdict、既存履歴・ledger・hook・承認の変更を除外する。REQ-001〜002とMain Workflowsは直前attemptの最新中断roundからN+1/1への入口に限定している。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-003はhuman evidenceの検証、AUTH-001は「authentic explicit authorization artifact」、Risksは「Refuse unknown authorization provenance」、TEST-042は「trusted human apply/capture」によるhuman originの確立を要求する。しかし許容するhuman apply/captureの主体・経路と、それを信頼済みと判定する観測可能な根拠が指定されていない。実装者は自己申告のartifactと真正なhuman authorizationを区別する条件を決められず、検証者もTEST-042の成功fixtureを一意に構成できない。承認済み範囲を決める信頼境界はPhase 1の制約であり、単なる後続schema設計ではない。承認必須という境界自体は存在するため、欠落した信頼条件による下流不一致としてMajor。許容する証拠源と拒否する自己申告の境界を明記する必要がある。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "各REQのhigh-risk面に予定検証がある。証跡・identityはTEST-035〜083、path・競合・履歴保全はTEST-084〜096、PASS非付与・互換性・両runtimeはTEST-097〜107で検証する。実行済み証拠とは主張していない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可されたディレクトリ存在確認でプロジェクトルートにdomain/が存在しないため、適用条件を満たさずSKIP。未列挙のdomain内容は読んでいない。"
+    }
+  ]
+}

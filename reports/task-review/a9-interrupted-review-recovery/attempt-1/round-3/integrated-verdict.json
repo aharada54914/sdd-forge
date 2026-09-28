@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "EE54A9CC-E51F-4B6C-92E2-500E7F368CA4",
+  "verdict": "NEEDS_WORK",
+  "round": 3,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS"
+}

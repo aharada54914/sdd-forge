@@ -140,6 +140,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/uninstall-workflow/`
 - `specs/sdd-domain-concept-contract/`
 - `specs/epic-197-a9-dogfood/`
+- `specs/a9-interrupted-review-recovery/`
 
 ## Source Artifact Locations
 

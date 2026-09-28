@@ -1,0 +1,118 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a0e39f-deed-7e01-b9ef-a36239be8fb6",
+  "host_session_id": "01a0e39f-deed-7e01-b9ef-a36239be8fb6",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "sha256": "322f03a7ee8fcac644ecebfe1fd650263efae5bcec99c1d897c4ba62da89dc30"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "sha256": "ef6dd62c15eae3cf67c9923c99c714b3ac02ac38beb9da82cb533659fc2bcec4"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "0f9f1dc78e6112f16e9f903e5206378051647c6a5ffe2f79928bfe1e774dc5fc"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:8,23-26,50,62 は既存resetと分離する理由、既存検証器・ロックの再利用、循環ハッシュ回避を説明している。新規依存や構成再編を導入せず、限定された修復範囲と整合する。"
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:83 が参照するAUTH-001は requirements.md:64,109 と security-spec.md:43 に所有者human/orchestrator、原ユーザーメッセージと実際の適用報告を照合する解決経路、証拠不足時の実回復停止を明示している。未解決の製品判断はない。非阻害助言: 独立した Blocks Implementation: yes/no フィールドを加えると、実回復の前提と実装開始条件の区別がより明確になる。"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:83 と requirements.md:60 は共有状態を恒久的な事実として仮定せず、source/target/Pending/pinsとconsumer契約の再検証を要求する。ローカル実行環境・欠落ツールのfail-closed方針は infra-spec.md:5,13,33 に明記。許可入力にinvestigation.mdはなく、その存在や未掲載のA9現状は確認していない。複数の非自明な無条件仮定は認められない。"
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md:28-32,38-42,48 の制約は design.md:58-71,79 に対応する。独立した回復オプション、Pending/A-before-B/直前NEEDS_WORK、閉じた証拠契約、履歴不変、既存reset/PASS維持を指定。部分公開の非成功・再利用禁止・別途是正も infra-spec.md:21 に整合する。"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md に応答時間・スループット・遅延の性能要件はない。同時実行の正当性は design.md:70、infra-spec.md:17 と acceptance-tests.md:97 のTEST-091で、既存ロックと最大一成功として扱う。"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:73-75 と infra-spec.md:5,9,13,29 が既存ローカルcheckout/CI runners、両runtimeのmatrix・回帰検証、段階的ゲート、修復オプションの撤回方針を指定する。新規サービス・環境・依存はなく、段階的rolloutやDB移行順序は適用外。PowerShell未実行は未検証として報告する。"
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:54 はローカル回復recordと追加precheck provenanceを定義し、No migration と明記する。DB列・テーブル変更はない。旧precheck互換性と新provenance検証は acceptance-tests.md:103-107 のTEST-097-101で計画され、infra-spec.md:21,29 は履歴保持と撤回を規定する。"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:8,23-26,54,58-70 はローカルprecheck、own-stage契約検証、既存persisted identity verifier、destination writerの責任・契約・失敗動作を明示する。外部サービス、第三者API、ネットワーク連携はなく、infra-spec.md:5,13,25 と frontend-spec.md:13 がその範囲を確認する。"
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md:10,14,28-32,48 の限定回復機能と非目標に対し、design.md:8,23-26,58-71 はREQ-001-005を実装可能な検証・公開手順へ展開する。UX/frontendは ux-spec.md:5-23 と frontend-spec.md:5-25 で対象外とされ、新規UI・サービス・グローバルsidecar変更・自動回復は導入していない。"
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:45-46,62,75,79 は認可由来・閉じたJSON・identity/input binding・B不在・path安全性・競合・部分公開を acceptance-tests.md のTEST-016-107および両runtime回帰suiteへ結び付ける。security-spec.md:14-17,39 は脅威別の検証対応を示す。具体的な拒否・非変更oracleは acceptance-tests.md:3,115-174 にある。これは計画の評価であり、実テスト・実回復の実行証明ではない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "許可された存在確認でプロジェクトrootにdomain/ディレクトリがないことを確認したため、適用外。domain内容や未掲載ファイルは読んでいない。"
+    }
+  ]
+}

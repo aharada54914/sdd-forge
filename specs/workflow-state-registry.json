@@ -433,6 +433,10 @@
     {
       "feature": "epic-197-a9-dogfood",
       "profile": "full"
+    },
+    {
+      "feature": "a9-interrupted-review-recovery",
+      "profile": "full"
     }
   ]
 }
