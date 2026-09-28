@@ -1,0 +1,10 @@
+{
+  "command": "rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs",
+  "exit_code": 1,
+  "timestamp": "2026-09-28T05:45:26.992598+00:00",
+  "subject": "test-only unprotected baseline; production absent",
+  "test_sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+  "output_sha256": "9715ff492ebc27838f1472213f6d781d5674c9afa44094a41a062b7b128a60c9",
+  "prior_output_sha256": "3015b3213c4e96ec33c861d40d3d903f4d21effd6af7144e8043db889bef5eae",
+  "path_sanitization": "workspace prefix replaced with <workspace>; six blank lines stripped of trailing spaces; assertion values and results unchanged"
+}
