@@ -156,7 +156,7 @@ VERIFY_RESULT_SCHEMA = "sdd-hook-verify-result/v1"
 CLEANUP_RESULT_SCHEMA = "sdd-hook-cleanup-result/v1"
 HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
 HOST_DENIAL_PREFIX = (
-    "Script error:\nCommand blocked by PreToolUse hook: "
+    "Command blocked by PreToolUse hook: "
     "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
     "これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
     "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, "
@@ -394,7 +394,7 @@ def _verify_codex_host_denial(obj, expected_nonce, runtime):
     # Escape the entire normative envelope; only the one nonce slot varies.
     # fullmatch accepts no prefix, suffix, normalization or terminal newline.
     placeholder = "<nonce>"
-    pattern = re.escape(HOST_DENIAL_PREFIX + _codex_canary_patch(placeholder))
+    pattern = r"(?:Script error:\n)?" + re.escape(HOST_DENIAL_PREFIX + _codex_canary_patch(placeholder))
     pattern = pattern.replace(re.escape(placeholder), r"([0-9a-f]{32})")
     match = re.fullmatch(pattern, raw_result)
     if match is None:
