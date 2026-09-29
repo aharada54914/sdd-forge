@@ -620,8 +620,8 @@ check('HEADER-DECISION-PATH: shared ignore/tracked/Git and escaping path control
     }
   }
 });
-check('LOCK-UNSUPPORTED: absent approved PID type/range cannot authorize lock admission', () => {
-  for (const pid of [null, 0, 1, '1', Number.MAX_SAFE_INTEGER, {}, []]) {
+check('LOCK-V1-PID-INVALID: non-positive unsafe and wrong-type PID values reject', () => {
+  for (const pid of [null, 0, -1, 1.5, '1', true, Number.MAX_SAFE_INTEGER + 1, {}, []]) {
     rejected({ schemaVersion: 1, owner: { ...normal.owner }, nonce: 'nonce',
       pid, processStartIdentity: 'process-start' }, 'LockV1');
   }
@@ -767,5 +767,48 @@ check('NEW-STORE-GUARDS: ignore Git and expired budget failures leave no new sto
     rmSync(store, { recursive: true }); if (broken) rmSync(join(f.root, '.git'), { recursive: true });
     rejectPreparation(f.owner, f, expired ? { deadline: performance.now() - 1 } : {});
     assert.equal(existsSync(store), false);
+  }
+});
+
+const lockValue = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner },
+  nonce: 'nonce', pid: 1, processStartIdentity: 'process-start' });
+for (const [label, pid] of [['1', 1], ['MAX', Number.MAX_SAFE_INTEGER]]) {
+  check(`LOCK-V1-PID-${label}: inclusive endpoint and exact opaque byte bounds admit`, () => {
+    const value = { ...lockValue(), pid, nonce: 'x'.repeat(1024), processStartIdentity: '🙂'.repeat(256) };
+    assert.deepEqual(admit(value, 'LockV1'), value);
+  });
+}
+check('LOCK-V1-CLOSED: all five fields are required and unknown keys or versions reject', () => {
+  for (const field of Object.keys(lockValue())) {
+    const value = lockValue(); delete value[field]; rejected(value, 'LockV1');
+  }
+  for (const value of [null, [], { ...lockValue(), schemaVersion: 2 },
+    { ...lockValue(), schemaVersion: '1' }, { ...lockValue(), extra: true }]) rejected(value, 'LockV1');
+});
+check('LOCK-V1-OWNER: every independently trusted owner field must match', () => {
+  for (const [field, foreign] of [['schemaVersion', 2], ['sddRoot', outside], ['worktreeRoot', outside],
+    ['gitDirectory', outside], ['featureId', 'foreign'], ['host', 'claude'], ['sessionId', 'foreign']]) {
+    const value = lockValue(); value.owner[field] = foreign; rejected(value, 'LockV1');
+  }
+});
+check('LOCK-V1-ID: nonce and start identity independently enforce the opaque contract', () => {
+  for (const field of ['nonce', 'processStartIdentity']) {
+    for (const id of ['', 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800', 1, []]) {
+      const value = lockValue(); value[field] = id; rejected(value, 'LockV1');
+    }
+  }
+});
+check('LOCK-V1-JSON: malformed or decoded duplicate Lock members reject', () => {
+  const source = JSON.stringify(lockValue());
+  for (const raw of [source.slice(0, -1), source.replace('"pid":1', '"pid":1,"p\\u0069d":1')]) {
+    rejected(raw, 'LockV1', normal, {}, true);
+  }
+});
+check('LOCK-V1-GUARDS: shared deadline Git and planned-path failures still reject', () => {
+  rejected(lockValue(), 'LockV1', normal, { deadline: performance.now() - 1 });
+  for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) rejected(lockValue(f.owner), 'LockV1', f);
+  for (const target of [join(outside, 'lock.json'), normal.root + '/.sdd/context/../../foreign.json',
+    join(normal.root, '.sdd', 'context', 'escape', 'lock.json')]) {
+    rejected(lockValue(), 'LockV1', normal, { plannedPaths: [target] });
   }
 });

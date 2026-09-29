@@ -30,3 +30,12 @@ These are targets, not executed test results. Independent review and meaningful 
 No reasonCode/diagnostic vocabulary, complete authority dependency inventory, journal chain-start null convention, or additional entity-kind mapping is approved by this addendum. Details not retained or not defined remain unknown, rather than inferred. No generic framework or internal API is introduced.
 
 T-001 remains the validation/privacy/owner/path and safe-store-preparation task. Durable journal append/sync belongs to T-002, authoritative resolver/recovery to T-003, and native lifecycle adapters to T-004. This addendum does not implement or claim their behavior, nor release native owner/path/ACL evidence requirements or existing post-review freezes.
+
+## Additional human-approved definitions — 2026-09-29
+
+The human explicitly approved the following minimum definitions in response to the orchestrator's question. This section supersedes only the earlier statement that PID and journal entity-kind mapping were unapproved; the other exclusions remain unchanged.
+
+5. **LockV1.pid:** a positive JavaScript safe integer, from 1 through `Number.MAX_SAFE_INTEGER`, inclusive. Zero, negative values, fractions, strings and unsafe integers reject. This only validates the stored value; it does not establish process ownership, liveness or permission to remove a lock. The other closed LockV1 fields remain as defined in `specs/sdd-context-continuity/design.md:95`.
+6. **JournalRecordV1.kind:** exactly one of `prompt`, `final-assistant`, `observable-transcript`, `compact-manual`, `compact-auto`, `resume`, using case-sensitive matching. These are the six normalized event kinds already enumerated in `specs/sdd-context-continuity/design.md:149–151`, whose JournalRecordV1 field is listed at line 89. This does not extend the two-kind ObservationV1 request or the three-kind ReconcileV1 request, grant replay authority, or define a chain-start null convention.
+
+Regression targets: both PID endpoints and all six journal kinds admit; invalid PID types/ranges, unknown or mis-cased kinds and closed-schema violations reject. Meaningful RED, implementation, independent review and executed checks are still required; this approval is not a PASS or task completion.
