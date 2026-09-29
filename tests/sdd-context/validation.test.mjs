@@ -410,3 +410,92 @@ check('RECONCILE-PATH: missing/negated ignore, tracked target and Git error fail
 check('RECONCILE-UNKNOWN-TYPE: request spelling cannot open an unknown trusted contract', () => {
   for (const type of ['ReconcileV2', 'reconcilev1', 'unknown', '', null, 1]) rejected(reconcile(), type);
 });
+
+const resume = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner }, kind: 'resume' });
+const cleanup = (registrationId = 'registration') => ({ schemaVersion: 1, registrationId });
+check('RESUME-VALID: same-owner request without predecessor returns only the input', () => {
+  const value = resume();
+  assert.deepEqual(admit(value, 'ResumeV1'), value);
+  assert.equal(existsSync(normal.target), false, 'admission created a store file');
+});
+for (const [label, id] of [['1-BYTE', 'x'], ['1024-ASCII', 'x'.repeat(1024)], ['1024-UTF8', '🙂'.repeat(256)]]) {
+  check(`CLEANUP-VALID-${label}: bounded opaque ID returns only the input without cleanup`, () => {
+    const value = cleanup(id);
+    assert.deepEqual(admit(value, 'CleanupV1'), value);
+    assert.equal(existsSync(normal.target), false, 'admission created a store file');
+    assert.equal(existsSync(tracked.target), true, 'admission deleted a store file');
+  });
+}
+check('RESUME-CLEANUP-CLOSED: required fields, object types, version and extra keys reject', () => {
+  for (const [type, make] of [['ResumeV1', resume], ['CleanupV1', cleanup]]) {
+    for (const field of Object.keys(make())) {
+      const value = make(); delete value[field]; rejected(value, type);
+    }
+    for (const value of [null, [], 'request', 1]) rejected(value, type);
+    for (const schemaVersion of [0, 2, '1', null]) rejected({ ...make(), schemaVersion }, type);
+    rejected({ ...make(), extra: true }, type);
+  }
+});
+check('RESUME-KIND: only the exact resume discriminant and an object owner are valid', () => {
+  for (const kind of ['Resume', 'prompt', '', null, 1]) rejected({ ...resume(), kind }, 'ResumeV1');
+  for (const owner of [null, [], 'owner', 1]) rejected({ ...resume(), owner }, 'ResumeV1');
+});
+check('RESUME-OWNER: closed owner cannot authorize a foreign path, feature, host or session', () => {
+  for (const field of Object.keys(normal.owner)) {
+    const value = resume(); delete value.owner[field]; rejected(value, 'ResumeV1');
+  }
+  for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory']) {
+    const value = resume(); value.owner[field] = sha1.owner[field]; rejected(value, 'ResumeV1');
+  }
+  for (const field of ['featureId', 'host', 'sessionId']) {
+    const value = resume(); value.owner[field] = field === 'host' ? 'claude' : 'foreign';
+    rejected(value, 'ResumeV1');
+  }
+  for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { extra: true }]) {
+    const value = resume(); Object.assign(value.owner, change); rejected(value, 'ResumeV1');
+  }
+});
+check('RESUME-PREDECESSOR: even a plausible ID cannot supply independent relationship proof', () => {
+  for (const predecessorSessionId of [normal.owner.sessionId, 'foreign-session', 'x'.repeat(1024),
+    '', 'x'.repeat(1025), null, 1, '\ud800']) {
+    rejected({ ...resume(), predecessorSessionId }, 'ResumeV1');
+  }
+});
+check('CLEANUP-ID-INVALID: ID type, Unicode and UTF-8 byte overflow reject', () => {
+  for (const id of ['', null, 1, false, [], {}, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']) {
+    rejected(cleanup(id), 'CleanupV1');
+  }
+});
+check('RESUME-CLEANUP-AUTHORITY: caller receipt/path/time/budget/lifecycle fields reject', () => {
+  for (const [type, make] of [['ResumeV1', resume], ['CleanupV1', cleanup]]) {
+    for (const field of ['receivedAtUtc', 'sequence', 'expiry', 'path', 'cleanupPaths', 'plannedPaths',
+      'deadline', 'budget', 'taskLifecycle', 'storeRoot', 'checkedAtUtc', 'completed']) {
+      rejected({ ...make(), [field]: 'caller' }, type);
+    }
+  }
+  rejected({ ...cleanup(), owner: { ...normal.owner } }, 'CleanupV1');
+  rejected({ ...cleanup(), kind: 'cleanup' }, 'CleanupV1');
+});
+check('RESUME-CLEANUP-JSON: malformed and decoded-duplicate fields reject', () => {
+  for (const [type, make] of [['ResumeV1', resume], ['CleanupV1', cleanup]]) {
+    const source = JSON.stringify(make());
+    for (const raw of [source.slice(0, -1), source.replace('"schemaVersion":1',
+      '"schemaVersion":1,"schema\\u0056ersion":1')]) rejected(raw, type, normal, {}, true);
+  }
+});
+check('RESUME-CLEANUP-DEADLINE: the original exhausted trusted budget returns no result', () => {
+  for (const [type, make] of [['ResumeV1', resume], ['CleanupV1', cleanup]]) {
+    rejected(make(), type, normal, { deadline: performance.now() - 1 });
+  }
+});
+check('RESUME-CLEANUP-PATH: existing ignore/tracked/Git/escape rejections remain required', () => {
+  for (const type of ['ResumeV1', 'CleanupV1']) {
+    for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) {
+      rejected(type === 'ResumeV1' ? resume(f.owner) : cleanup(), type, f);
+    }
+    for (const target of [join(outside, 'payload.json'), `${normal.root}/.sdd/context/../../foreign.json`,
+      join(normal.root, '.sdd', 'context', 'escape', 'payload.json')]) {
+      rejected(type === 'ResumeV1' ? resume() : cleanup(), type, normal, { plannedPaths: [target] });
+    }
+  }
+});
