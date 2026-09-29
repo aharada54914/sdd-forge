@@ -113,6 +113,14 @@ export function validate(source, trusted) {
         closed(item.materialization, ['path', 'sha256']); resolvePath(item.materialization.path); hash(item.materialization.sha256);
       }
     }
+    function observation(item) {
+      closed(item, ['schemaVersion', 'owner', 'kind', 'text', 'coverage'], ['stableEventId']);
+      require(item.schemaVersion === 1); owner(item.owner);
+      enumeration(item.kind, ['prompt', 'final-assistant']);
+      enumeration(item.coverage, ['complete', 'partial', 'unavailable']);
+      string(item.text); texts.push(item);
+      if (Object.hasOwn(item, 'stableEventId')) opaque(item.stableEventId);
+    }
     switch (trusted.type) {
       case 'OwnerV1': owner(value); break;
       case 'CursorV1': cursor(value); break;
@@ -131,13 +139,15 @@ export function validate(source, trusted) {
         array(value.decisions, decision);
         break;
       }
-      case 'ObservationV1':
-        closed(value, ['schemaVersion', 'owner', 'kind', 'text', 'coverage'], ['stableEventId']);
+      case 'ObservationV1': observation(value); break;
+      case 'ReconcileV1':
+        closed(value, ['schemaVersion', 'owner', 'kind', 'coverage'], ['records', 'stableEventId']);
         require(value.schemaVersion === 1); owner(value.owner);
-        enumeration(value.kind, ['prompt', 'final-assistant']);
+        enumeration(value.kind, ['observable-transcript', 'compact-manual', 'compact-auto']);
         enumeration(value.coverage, ['complete', 'partial', 'unavailable']);
-        string(value.text); texts.push(value);
         if (Object.hasOwn(value, 'stableEventId')) opaque(value.stableEventId);
+        require(value.coverage === 'unavailable' || Object.hasOwn(value, 'records'));
+        if (Object.hasOwn(value, 'records')) array(value.records, observation);
         break;
       default: throw new Error(); // Undefined/unimplemented contracts fail closed.
     }
