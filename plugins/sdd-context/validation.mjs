@@ -124,6 +124,11 @@ export function validate(source, trusted) {
     switch (trusted.type) {
       case 'OwnerV1': owner(value); break;
       case 'CursorV1': cursor(value); break;
+      case 'JournalHeaderV1':
+        closed(value, ['schemaVersion', 'owner', 'segmentId', 'firstSequence', 'predecessorHash']);
+        require(value.schemaVersion === 1); owner(value.owner); opaque(value.segmentId); integer(value.firstSequence); hash(value.predecessorHash);
+        break;
+      case 'DecisionV1': decision(value); break;
       case 'ProjectionV1': {
         closed(value, ['schemaVersion', 'owner', 'head', 'authorityHashes', 'taskLifecycle', 'featurePresent', 'journalCursor', 'decisions']);
         require(value.schemaVersion === 1); owner(value.owner); string(value.head); boolean(value.featurePresent);

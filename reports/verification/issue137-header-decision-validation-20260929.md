@@ -21,3 +21,17 @@ LockV1 remains unsupported: the approved design does not define PID type/range
 (`specs/sdd-context-continuity/design.md:95`). Header coverage requires a
 non-null digest; it introduces no chain-start convention. Persistence, native
 activation, full CI and quality-gate completion remain unverified.
+
+## GREEN
+
+Added five dispatch lines: Header reuses closed/owner/opaque/integer/hash;
+standalone Decision reuses the existing decision helper and final redaction.
+Fixed 91-case suite: 91 passed, 0 failed, 0 skipped; exit 0.
+Existing JSON/privacy regressions: 31 passed, 0 failed, 0 skipped; exit 0.
+Each command ran once in the same environment; fixed tests are unchanged.
+
+| Artifact | SHA-256 |
+|---|---|
+| GREEN source | `5e083fe7165247b4716cf06dba2b87ac730e829830aa4b7b97362278bbd151f7` |
+| GREEN stdout | `e7d9603843750b3847373c4c718552ecd31c9d745c9bdbbb73f791a6dd831e8a` |
+| Regression stdout | `80a3e991d2a9dc426d3b9aa7fadc40c84b99b801a2391a2803961b8c320c3705` |
