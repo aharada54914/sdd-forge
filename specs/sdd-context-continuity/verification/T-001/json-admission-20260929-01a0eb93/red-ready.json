@@ -1,0 +1,137 @@
+{
+  "task_id": "T-001",
+  "slice": "TEST-046a JSON admission",
+  "run_id": "issue137-T001-json-admission-20260929-01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "session_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "agent_instance_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "status": "RED_READY",
+  "command": "rtk proxy node --test --test-reporter=tap tests/sdd-context/json-admission.test.mjs",
+  "exit_code": 1,
+  "tests": 12,
+  "passed": 0,
+  "failed": 12,
+  "skipped": 0,
+  "subject": "actual planned shared parseJson API absent; no substitute",
+  "observed_at": "2026-09-29T05:15:04.261Z",
+  "manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/T-001-manifest.json",
+    "sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006"
+  },
+  "test": {
+    "path": "tests/sdd-context/json-admission.test.mjs",
+    "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+  },
+  "evidence": {
+    "path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb93/red-output.txt",
+    "sha256": "24c98c6652f39986a0baea59d19ab96da5efe7dd224d1c17acacba1737cac181"
+  },
+  "preflight": {
+    "path": "reports/implementation/sdd-context-continuity/T-001.md",
+    "sha256": "9a33a20fc44bc27127044d3c3862ec4a13865c0585ec1725743351ed4f260eb2"
+  },
+  "run_metadata": {
+    "path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb93/run-metadata.json",
+    "sha256": "097d17479a9346aabe316750c0313659189b9460de9ef0578a7f29eb2251d959"
+  },
+  "current_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/codemap.md",
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "plugins/sdd-context/privacy.mjs",
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    {
+      "path": "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md",
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json",
+      "sha256": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "sha256": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "sha256": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361"
+    }
+  ],
+  "production_module_exists": false,
+  "normalization": "Workspace prefixes replaced with <workspace>; trailing line whitespace removed; assertions unchanged",
+  "production_edit_allowed": false
+}

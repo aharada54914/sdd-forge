@@ -1,0 +1,16 @@
+{
+  "task_id": "T-001",
+  "slice": "TEST-046a JSON admission",
+  "run_id": "issue137-T001-json-admission-20260929-01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "session_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "agent_instance_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "isolation_mode": "fresh-agent",
+  "task_attempt_count": 1,
+  "manifest_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/T-001-manifest.json",
+  "manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006",
+  "current_inputs_matched": 24,
+  "snapshot_inputs_matched": 24,
+  "tasks_sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c",
+  "environment": { "node": "v24.13.0", "platform": "darwin", "arch": "arm64" },
+  "production_authorization": "pending exact root RED commit receipt"
+}

@@ -1,0 +1,345 @@
+TAP version 13
+# JSON admission subject: shared API absent; no substitute
+# Subtest: TEST-046a JSON-API: planned shared admission API must exist
+not ok 1 - TEST-046a JSON-API: planned shared admission API must exist
+  ---
+  duration_ms: 0.932583
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:11:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.start (node:internal/test_runner/test:1003:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: repeated decoded names reject even with identical values
+not ok 2 - TEST-046a JSON-DUPLICATE: repeated decoded names reject even with identical values
+  ---
+  duration_ms: 0.122541
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: escape-equivalent names reject after decoding
+not ok 3 - TEST-046a JSON-DUPLICATE: escape-equivalent names reject after decoding
+  ---
+  duration_ms: 0.080583
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: nested objects and array elements use their own member sets
+not ok 4 - TEST-046a JSON-DUPLICATE: nested objects and array elements use their own member sets
+  ---
+  duration_ms: 0.048291
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: prototype-like names are ordinary member identities
+not ok 5 - TEST-046a JSON-DUPLICATE: prototype-like names are ordinary member identities
+  ---
+  duration_ms: 0.047959
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-UNICODE: decoded isolated/reversed surrogates in values and names reject
+not ok 6 - TEST-046a JSON-UNICODE: decoded isolated/reversed surrogates in values and names reject
+  ---
+  duration_ms: 0.046083
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-UNICODE: raw isolated surrogates in source names and values reject
+not ok 7 - TEST-046a JSON-UNICODE: raw isolated surrogates in source names and values reject
+  ---
+  duration_ms: 0.0425
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-UNICODE: nested decoded keys and values reject
+not ok 8 - TEST-046a JSON-UNICODE: nested decoded keys and values reject
+  ---
+  duration_ms: 0.041333
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-SYNTAX: malformed JSON/escape errors remain content-free
+not ok 9 - TEST-046a JSON-SYNTAX: malformed JSON/escape errors remain content-free
+  ---
+  duration_ms: 0.049458
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a controls: valid JSON/Unicode preserve standard decoder values and separate scopes
+not ok 10 - TEST-046a controls: valid JSON/Unicode preserve standard decoder values and separate scopes
+  ---
+  duration_ms: 0.085583
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-BOUNDS: exact 1 MiB UTF-8 input fits, +1 rejects without truncation
+not ok 11 - TEST-046a JSON-BOUNDS: exact 1 MiB UTF-8 input fits, +1 rejects without truncation
+  ---
+  duration_ms: 0.056209
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: TEST-046a JSON-BOUNDS: wrong source type and exhausted/nonfinite trusted deadline reject
+not ok 12 - TEST-046a JSON-BOUNDS: wrong source type and exhausted/nonfinite trusted deadline reject
+  ---
+  duration_ms: 0.04075
+  type: 'test'
+  location: '<workspace>/tests/sdd-context/json-admission.test.mjs:14:31'
+  failureType: 'testCodeFailure'
+  error: |-
+    shared parseJson API is not implemented
+    + actual - expected
+
+    + 'undefined'
+    - 'function'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'function'
+  actual: 'undefined'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<workspace>/tests/sdd-context/json-admission.test.mjs:15:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 0
+# fail 12
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 35.402166
