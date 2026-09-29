@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e0e2-c1c9-7b80-a7a3-a7e3d62832d1",
+  "host_session_id": "01a0e0e2-c1c9-7b80-a7a3-a7e3d62832d1",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "381668532ecc95f925053588aee248fd0e0ad66842ec23b5e70b644bf7b0df66"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-2/precheck-result.json",
+      "sha256": "f2de6d331213e95b3e07fc89cc807a5e457d6eda176590aa75d296111dce2257"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-2/integrated-summary.json",
+      "sha256": "f7c4a9c3126341475ec6506608e664747b30765b7bd59fa18961461a1cea6eb3"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001–012、AC-001–018が捕捉成功、権威、所有者、失敗時動作を区別している。Bounded acceptance contractは時間・入力・出力・秘密検出の限界を定義し、未確定の解析方式や耐久性はOQ-006/011の設計責務として明示している。Phase 1を阻害する製品動作の曖昧さは認められない。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-007、AC-009/010/015は入力保存失敗、手動compact、安全に阻止できない場合、自動compactを整合的に区別している。REQ-009、AC-013/014とNon-goalsは削除・秘匿による復元欠落を認め、完全復元を要求していない。後続成果物への依存や実装済みとの主張もない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-005–008、010–011、014–035、041–060、066が欠落入力、古い状態、所有者分離、破損、失敗、期限、競合、再送、予算境界を具体化している。TEST-044a–iと045a–f/046a–cはOS実行・秘密検出の分岐を展開し、TEST-036/037は両ホストで個別結果を要求する。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation INV-001–017は既存動作の根拠と観測限界を記録し、共有状態の再確認時点を指定する。requirements OQ-005–012は担当、解決経路、阻害する契約・検証を明示し、acceptance-testsのRemaining contractsは設計/task承認前に対象契約を解決するよう要求する。未検証のホスト能力を前提として確定していない。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Roles and Permissions、REQ-002/004/011、AC-006/016は会話・派生物による承認変更、Done設定、権威ファイル上書き、Git index変更を禁止する。TEST-013、049、052–056が境界を観測可能にする。起動境界も確認済み：1195=1194+1、previous_record_sha256一致、identity_unique=yes、入力結合レシピの再計算値365d821bc7a6df563a6615a8e5e5b5a41f3510a6b0b38941197fa69afb5f8047一致。全6入力の実体ハッシュ、非symlink、precheckの共通入力ピンも一致する。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "要件、AC、計画テスト、権限、非目標、数値限界、技術的未解決事項が揃っている。OQ-010/011は後続設計を未来の作業として明示し、仕様レビューに既存設計や実行証拠を要求していない。実装方針レビューへ渡せるが、本PASSは実装承認、実測、OS/ホスト受け入れ成功を意味しない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクトルートのdomain/が存在しないため、ロールの明示的SKIP条件に該当する。"
+    }
+  ]
+}

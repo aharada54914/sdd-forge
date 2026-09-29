@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-context-continuity",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "60087163-b2e9-451a-b5cc-48e1f4423655",
+  "host_session_id": "400d1872-daf6-4a48-a9b8-3ba7370f42e3",
+  "manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "620fb3b42fcb9f8e31286d8e41a49634472f32cdccc0de8a6e5a62905157a9cf"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-1/round-2/precheck-result.json",
+      "sha256": "042697099262955fa9ba189913f7b2b338f8701d235300dd96e5ca906b5ae8c8"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-1/round-2/dependency-graph.json",
+      "sha256": "0e3e2b18711fa4e56997749b2a59afe3a45adda5d3efcd83fadb68000ecc0ae0"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md T-001–T-006 Requirements references resolve to acceptance-tests.md AC-001–AC-018. Receipt digest aa781cf57a4abc99436250ce1e93222e62111d383ccce142f919330cf5b52bf1 recomputes from invocation fields; sequence 1204 extends quoted tip 1203, predecessor matches and identity_unique=yes is present. All twelve input hashes and precheck artifact pins match."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. tasks.md declares T-001 Blockers: None; T-002: T-001; T-003: T-002; T-004 and T-005: T-003; T-006: T-004, T-005. Every field uses the required literal or comma-separated canonical task IDs."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md Goals and Requirements REQ-001–REQ-012 all have explicit primary task coverage: T-001 privacy/contracts, T-002 source journal, T-003 authority/recovery, T-004 lifecycle adapters and T-005 expiry/cleanup. T-006 adds complete acceptance/inventory verification."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md AC-001–AC-018 all appear in task Requirements fields. AC-013 separates recovery filtering in T-003 from physical deletion/native scheduling in T-005; AC-015 separates store failures in T-002 from Stop failure in T-004. T-006 explicitly owns complete verification, including suffix branches."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every tasks.md T-001–T-006 Requirements field references real REQ identifiers. No task relies solely on an undeclared pseudo-requirement."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-006 full acceptance verification references AC-001–AC-018; each implementation task also names concrete acceptance criteria and TEST rows. No test concern lacks an AC reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six tasks declare Approval: Draft and Status: Planned. The Draft boundary and Next step reserve approval to subsequent human review; no task claims execution or completion."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001–T-004 and T-006 declare Risk: high with Required Workflow: tdd. T-005 declares Risk: critical with Required Workflow: tdd. These match the risk matrix and precheck workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task titles and Requirements qualifiers distinguish privacy implementation, journal implementation, recovery implementation, native adapter implementation, physical cleanup and full acceptance verification. Shared AC-013 and AC-015 references specify different branches; T-006 explicitly disclaims duplicate primary implementation ownership."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers ID exists among tasks.md T-001–T-006 and dependency-graph.json nodes. Graph edges exactly express T-002→T-001, T-003→T-002, T-004/T-005→T-003 and T-006→T-004/T-005."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT passed. Traversal of dependency-graph.json edges finds no cycle; every dependency path terminates at T-001."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 groups contracts with their pre-write privacy boundary; T-002 owns the serialized journal; T-003 owns fresh bounded recovery using existing authority; T-004 owns separate lifecycle adapters; T-005 groups expiry deletion with its required scheduler; T-006 groups delivery integration with its acceptance verification. Tests and rollback controls support each task's own concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task names inspectable Red→Green evidence, WFI-001 mismatch preflight and recorded independent review/provenance. Global constraints identify implementation reports and specs/sdd-context-continuity/verification/ addenda as evidence destinations. T-001 requires native owner/path cases; T-002 durability/identity results; T-003 MCP and Windows/CRLF compatibility; T-004 actual separate host lifecycle evidence; T-005 actual OS triggers and critical-risk controls; T-006 complete REQ→AC→TEST evidence mapping. precheck frozen_artifact_done_when=[] has no flagged items to adjudicate. Done When items require non-frozen evidence rather than edits to frozen specifications."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md includes every task T-001–T-006 and only existing REQ-001–REQ-012 requirement rows. Every requirement row cites canonical anchors resolving to the hash-bound ux, frontend, infra or security layer documents. Planned code ownership and pending OQ/native evidence are expressly distinguished from implemented or executed results."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "sdd-context-continuity",
+  "run_id": "137-impl-a2r2-01a0e115",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { delimiter, join } from 'node:path';
+import { delimiter, join, relative, sep } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import test, { after } from 'node:test';
 
@@ -97,6 +97,22 @@ function check(name, body) {
 test('fixture control: real Git ignore and tracked states are distinct', () => {
   assert.ok(git(normal.root, 'check-ignore', '--no-index', normal.target).trim());
   assert.equal(git(tracked.root, 'ls-files', '--', tracked.target).trim(), '.sdd/context/prepared.json');
+});
+test('fixture control: production Git path checks accept the ignored target', () => {
+  const env = { ...process.env };
+  for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE', 'GIT_PREFIX']) delete env[key];
+  const run = (...args) => spawnSync('git', ['-C', normal.root, ...args], { encoding: 'utf8', env });
+  const top = run('rev-parse', '--show-toplevel');
+  assert.equal(top.status, 0, 'Git top-level lookup');
+  assert.equal(realpathSync(top.stdout.trim()), normal.root, 'Git top-level identity');
+  const directory = run('rev-parse', '--absolute-git-dir');
+  assert.equal(directory.status, 0, 'Git directory lookup');
+  assert.equal(realpathSync(directory.stdout.trim()), normal.owner.gitDirectory, 'Git directory identity');
+  const target = relative(normal.root, normal.target).split(sep).join('/');
+  assert.equal(run('check-ignore', '--quiet', '--no-index', '--', target).status, 0, 'Git ignored target');
+  const tracked = run('ls-files', '-z', '--', target);
+  assert.equal(tracked.status, 0, 'Git tracked-target lookup');
+  assert.equal(tracked.stdout.length, 0, 'Git target is untracked');
 });
 test('validation does not require a local rtk executable', () => {
   if (process.platform === 'win32') return;

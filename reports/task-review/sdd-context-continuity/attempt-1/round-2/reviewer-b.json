@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-context-continuity",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "8df0095b-af9a-40d9-ad95-4694276338d4",
+  "host_session_id": "2b2be17f-6444-492b-8a11-b86fbf753a3d",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/sdd-context-continuity/requirements.md",
+        "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+      },
+      {
+        "path": "specs/sdd-context-continuity/acceptance-tests.md",
+        "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+      },
+      {
+        "path": "specs/sdd-context-continuity/design.md",
+        "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+      },
+      {
+        "path": "specs/sdd-context-continuity/tasks.md",
+        "sha256": "620fb3b42fcb9f8e31286d8e41a49634472f32cdccc0de8a6e5a62905157a9cf"
+      },
+      {
+        "path": "specs/sdd-context-continuity/traceability.md",
+        "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+      },
+      {
+        "path": "specs/sdd-context-continuity/ux-spec.md",
+        "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+      },
+      {
+        "path": "specs/sdd-context-continuity/frontend-spec.md",
+        "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+      },
+      {
+        "path": "specs/sdd-context-continuity/infra-spec.md",
+        "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+      },
+      {
+        "path": "specs/sdd-context-continuity/security-spec.md",
+        "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/sdd-context-continuity/attempt-1/round-2/precheck-result.json",
+        "sha256": "042697099262955fa9ba189913f7b2b338f8701d235300dd96e5ca906b5ae8c8"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "reports/task-review/sdd-context-continuity/attempt-1/round-2/integrated-summary.json",
+        "sha256": "1c744202155b957cd8c90cd5baffe0ef541ce561a35fc5caa3dd34e65e9f2552"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–004/T-006 の Risk: high は、秘密処理・所有者アクセス制御・私的データ更新・回復注入・ホスト登録の Scope/Risk Rationale に対応する。T-005 の Risk: critical は期限切れ私的データの不可逆削除に対応し、risk-classification-policy.md の最高該当階層と一致する。T-006 は検証専用ではなく、インストーラ・除外設定・登録の実装も含む。"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md Global constraints は実装前の failing TDD regression のコミットと Red 結果、実装者と異なる名前付きレビュー担当者/run ID、および WFI-001 preflight を要求する。T-001–006 の Done When は Red→Green と独立レビュー記録を要求し、T-005 は追加で HMAC-signed evidence bundle、distinct named second approver を含む two-person approval と cross-model verification を明記する。これは将来の完了条件であり、現在の実行済み証拠ではない。"
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–006 は順に privacy/contracts、durable journal、authority/recovery、native adapters、owned cleanup、delivery integration のまとまった実装単位で、各 Done When は3項目。T-006 は既存成果物の配布・登録・受入証拠統合に限定され、他タスクの主実装を再要求しない。Native OS/host の外部前提と待機証拠は Completion Preconditions に分離されている。単一ファイル編集への過剰分割はない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md は T-001 の AC-007/014/016 に foreign owner、redaction failure、unsafe/ignore/Git error を、T-002 の AC-003/008/015/017 に extractor failure、corruption、sync/capacity failure、conflicting retry を、T-003 の AC-005/006/018 に missing/stale authority と byte overflow を割り当てる。T-004 の AC-004/009/010/012/015 は unsupported/partial transcript、manual/automatic/Stop failures を含む。T-005 の AC-013 は TEST-044e–i で disabled scheduler、interrupted deletion、foreign targets、concurrency、clock changes を扱い、T-006 は全分岐と pending native lanes の正確な記録を要求する。"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md の各 Tests は acceptance-tests.md の具体的 AC/TEST-ID を参照する。Unit は extractor・freshness・stable identity・output serializer 等の境界、integration は capture/store/extractor、authority/projection、cleanup/append 等の複数要素を扱う。TEST-035 e2e は登録ホストのプロセス終了から実際の自動 compact 継続までを検証する。T-004/T-005/T-006 と frontend/infra specs は live-host/native-platform/platform 証拠を fixtures や直接 core 呼出しで代替しない。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–006 はそれぞれ Rollback を持ち、infra-spec.md#rollback の owned registrations の解除、通常 SDD と authoritative files の維持、残存私的データの expiry filtering/cleanup 継続を参照する。T-005 は期限切れ内容を復活させず foreign/nonexpired files が不変であることを検証し、T-006 は install/rollback/no-hook/no-SDD の Red→Green を Done When に含める。"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md は plugins/sdd-context 内の privacy/validation、store/lock/capture、authority/recovery、host adapters、cleanup/registry を別々の主担当範囲として割り当てる。共通ファイル面は T-001→T-002→T-003、T-003→T-004/T-005、T-004/T-005→T-006 の依存で調整され、Global constraints は1件ずつの実装と shared installer/build/CI edits の直列化を要求する。T-006 の AC 所有は verification/inventory のみと明記される。"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-002 は T-001 の closed schemas/privacy/owner validation、T-003 は T-002 の durable source journal/cursors/integrity、T-004 は T-003 の bounded authoritative recovery、T-005 は T-003 の expiry-filtered reads と projection/materialization 境界を利用する。T-006 は T-004 の native adapters と T-005 の cleanup/registration の両方を配布・rollback・全受入統合に必要とする。記載 Blockers は具体的な上流成果物に対応する。"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

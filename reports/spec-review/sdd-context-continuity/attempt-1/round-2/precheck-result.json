@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-context-continuity",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "381668532ecc95f925053588aee248fd0e0ad66842ec23b5e70b644bf7b0df66",
+  "acceptance_sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576",
+  "investigation_sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "7b35c90dbde04ca5ce8ce4509f1bc0b6ac1b8a576ba258d30f75dd01ead230a4",
+  "edit_summary": "Remove Phase 1 dependence on downstream audit and clarify OQ-011 parsing as future design work; preserve product policies and acceptance tests.",
+  "reset": false,
+  "generated_at": "2026-09-27T03:18:02Z"
+}

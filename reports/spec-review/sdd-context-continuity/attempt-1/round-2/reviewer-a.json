@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e0de-ccf6-7dd3-8340-2e650437a43c",
+  "host_session_id": "01a0e0de-ccf6-7dd3-8340-2e650437a43c",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "381668532ecc95f925053588aee248fd0e0ad66842ec23b5e70b644bf7b0df66"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-2/precheck-result.json",
+      "sha256": "f2de6d331213e95b3e07fc89cc807a5e457d6eda176590aa75d296111dce2257"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "先の BLOCKED 出力は保持する。本判定は指摘の免除ではなく、既存の review-context-boundary.md:107-113 の入力束縛レシピを独立に適用した結果。順序付き manifest の入力 digest は 83d79b759fa597ca471a577090416f70895cfac868c343b68ac8fcbed9090f8c、拡張 record hash は receipt の 3fdc97fd3dba625d367740d92d302c5d14236860bd3f541e5c2ee14883ea0570 と一致。sequence=1194=1193+1、previous_record_sha256、identity_unique=yes、起動フィールド、全入力ハッシュと precheck の対応ハッシュも整合。ledger 読み取り・validator 再実行・書き込みはなし。REQ-001–REQ-012 は AC-001–AC-018 と具体的な予定テストで観測可能。時間・入力・出力・秘密検出の数値境界も定義され、未検証のホスト能力や耐久性を成功と扱わない。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md の Goals and Requirements と acceptance-tests.md の Requirement 列が対応する。REQ-001/002→AC-001–003/015、REQ-003→AC-004/015、REQ-004→AC-005/006、REQ-005→AC-006/007/016、REQ-006→AC-008/017、REQ-007→AC-009/010/015、REQ-008→AC-011、REQ-009→AC-013/014/016、REQ-010/011→AC-018、REQ-012→AC-012。四つの User Stories も TEST-002、TEST-064、TEST-012、TEST-047–050 に対応する。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001–AC-018 は回復内容と出典、保存順序、権威状態、所有者分離、破損時の保持、SAFE/成功表示の禁止、継続動作、削除対象、秘密除去、重複処理、出力サイズを観測対象としている。TEST-001–066、TEST-044a–i、TEST-045a–f、TEST-046a–c が具体的な正常・失敗条件を示す。実ホストと OS トリガーの証明を fixture や設定確認で代替しない境界も明示されている。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals は native compaction の置換、汎用記憶、隠れた推論、未公開イベントの完全回復、完全な秘密検出、DB/network service、会話からの承認変更を除外する。REQ-012、AC-012 と Roles and Permissions は内部 plugin、既存ワークフロー、非 SDD・未対応ホストの境界を定義する。PostCompact は任意の診断であり権威にはならない。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Roles and Permissions、Security Boundaries、AC-007/013–018 がローカル所有、Git 除外、保存前 redaction、30 日失効、削除、承認不変、MCP read-only、互換性を明示する。OQ-005–OQ-012 は担当と解決経路・後続承認の阻害点を示し、製品方針の再承認と技術検証を区別する。Phase 1 は downstream design や実行済み証拠に依存せず、後続設計・実装承認に必要な検証を明記する。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md の Risks に挙げた保存損失、秘密漏洩、古い権威、ホスト対応の過大主張、無制限遅延には TEST-003/024–035/047–051、TEST-041–046/052–056、TEST-009–018、TEST-036/037、TEST-034/035/060 が対応する。削除のネイティブ実行は TEST-044a–i、秘密検出の境界と fail-before-write は TEST-045/046 の個別枝で検証予定。未実行・未対応は PASS に代替しない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可されたプロジェクトルートの存在確認で domain/ が存在しないため、役割定義の明示的な SKIP 条件に該当する。"
+    }
+  ]
+}

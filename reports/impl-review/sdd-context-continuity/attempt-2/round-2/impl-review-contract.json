@@ -1,0 +1,148 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-context-continuity",
+  "run_id": "137-impl-a2r2-01a0e115",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "prior_round_contract_sha256": "2f24d1958db6abb6c9b4e5e0be23be08de8a3bd8fc6f99b8d6bb79f1400b84bc",
+  "requirements_sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35",
+  "acceptance_sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576",
+  "design_sha256": "308426a06f9e5e814fc8fa70611e72c6c6aac6c717dc99182986ae86ba4382d4",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+    "frontend-spec.md": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb",
+    "infra-spec.md": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+    "security-spec.md": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e10c-7984-7521-b493-b1ae141bad4c",
+      "host_session_id": "01a0e10c-7984-7521-b493-b1ae141bad4c",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "308426a06f9e5e814fc8fa70611e72c6c6aac6c717dc99182986ae86ba4382d4"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/investigation.md",
+          "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+          "sha256": "4cea3d47dab7616838caa1c010c75ecfcc6a826f1e3884111fd74b8fea6edab0"
+        },
+        {
+          "path": "docs/adr/0033-worktree-local-context-continuity.md",
+          "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/integrated-summary.json",
+          "sha256": "8b7f5f0b22a65764d8503ca8301cc43e51e279ac1591f2edc54f8870a6bd420e"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e111-26a3-7833-b1e5-b5c03c678f76",
+      "host_session_id": "01a0e111-26a3-7833-b1e5-b5c03c678f76",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "308426a06f9e5e814fc8fa70611e72c6c6aac6c717dc99182986ae86ba4382d4"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/investigation.md",
+          "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+          "sha256": "4cea3d47dab7616838caa1c010c75ecfcc6a826f1e3884111fd74b8fea6edab0"
+        },
+        {
+          "path": "docs/adr/0033-worktree-local-context-continuity.md",
+          "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-2/integrated-summary.json",
+          "sha256": "9cee091c231109f1fde2dedff30b911400bc378ff64aacfd25811f8bf1e784e6"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Under standing user authorization, separate host-only NativeObservation from the closed canonical core observation; preserve explicit core schemas and the complete cleanup outcome set. Prior NEEDS_WORK evidence remains unchanged.",
+  "timestamp": "2026-09-27T04:22:58.144Z"
+}

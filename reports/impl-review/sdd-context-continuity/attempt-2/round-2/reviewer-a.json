@@ -1,0 +1,128 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e10c-7984-7521-b493-b1ae141bad4c",
+  "host_session_id": "01a0e10c-7984-7521-b493-b1ae141bad4c",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "308426a06f9e5e814fc8fa70611e72c6c6aac6c717dc99182986ae86ba4382d4"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+      "sha256": "4cea3d47dab7616838caa1c010c75ecfcc6a826f1e3884111fd74b8fea6edab0"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/integrated-summary.json",
+      "sha256": "8b7f5f0b22a65764d8503ca8301cc43e51e279ac1591f2edc54f8870a6bd420e"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:15–40 の Architecture/Components がホストアダプター、継続性コア、読み取り専用SDD reader、installer の境界・相互作用と Node/既存TypeScriptビルドを定義。infra-spec.md Deployment Topology がローカル保存とOSジョブを補完する。全12入力のハッシュ、precheckの入力ダイジェスト、ADR集合、および入力集合を含む予約receiptの再計算が一致。sequence=1200、前tip=1199、previous_record_sha256、identity_unique=yesも提示receiptと整合する。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: 明示的なコンポーネント依存一覧はない。design.md Architecture/Components と frontend-spec.md Component Tree のアダプター→コア→reader/storeという記述に循環依存は認められない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:73–144 の Data Plan が所有者、journal、decision、projection、cursor、registry、lockのschema-v1を定義。Existing Data Affected は既存権威ファイルを読み取り専用とし、Migration Strategy は既存データ移行なしと未知schemaの保存・利用拒否を規定。infra-spec.md Data Residency and Retention が全コピーの期限と再書き込みを補完する。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:146–188 の API / Contract Plan が capture/reconcile/recover/cleanup、各要求schema、許可outcome、outcome固有の応答フィールドを定義。公開API/MCP toolの追加なし、既存インターフェース維持を明記。frontend-spec.md State Shape はnative入力から閉じたcore要求への変換と同一schemaの利用を規定する。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:200–204 が security-spec.md を参照し、同文書のTrust Boundaries B1–B4、Authentication Flow、Authorization、Data Classification and Protection、OWASP Mappingが各境界のOSアカウント・所有者検証、アクセス制限、私的データ分類、注入・漏えい対策を定義。Secrets Managementは限定的検出能力と失敗時の書き込み拒否を明示する。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Typeはinternal local plugin。frontend-spec.md Routes and Components/API Client Strategyにブラウザー画面・ネットワークAPIなしと明記され、fullstackのfrontend/backend対象が存在しない。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:190–198 の Test Strategyとacceptance-tests.mdが合成入力によるunit/fault検証、capture→extract/recoveryのintegration、AC-001–018の具体的TEST-IDを定義。design.md:213–230 がtests/run-ci-unwired.sh、既存OS matrix、feature verification directoryという計画証跡を指定。実ホストTEST-036/037と実OS trigger TEST-044a–iはfixtureによる代替不可で、未実施として維持される。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Componentsにアダプター、コア、SDD reader、installerを定義。journal/projection/registry/lockはData Plan、OS oneshotはinfra-spec.mdで具体化されている。既存parser/root/transportの位置付けはinvestigation.md INV-002–007、INV-016–017に記載され、未定義コンポーネント参照は認められない。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:64–71 の単一バッククォート宣言とprecheck.adr_inputs、invocationのADR path/hash集合が一致。docs/adr/0033-worktree-local-context-continuity.mdを読み、raw SHA-256を検証した。Decision/Alternatives/Consequencesがworktree-local journal、独立アダプター、読み取り専用権威境界、OS daily cleanupを扱い、Proposedを実装承認と混同していない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: design.md:51–53 のDesign System Complianceが正確に「N/A — ds_profile: none」を記録。ux-spec.md Design Tokensも同じ適用除外を記載する。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: 許可された存在確認によりproject rootのdomain/ディレクトリは存在しない。適用対象の承認済みdomain modelがない。"
+    }
+  ]
+}
