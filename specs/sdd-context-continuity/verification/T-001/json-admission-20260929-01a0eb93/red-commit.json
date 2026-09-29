@@ -1,0 +1,26 @@
+{
+  "schema": "root-red-checkpoint/v1",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-json-admission-20260929-01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "worker_thread_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+  "commit": "ddd8e9e605942a929ec8d74d18070177bd8ed2a5",
+  "red_ready_sha256": "f38f0daba207ebbc1e5fd145bcc11d2a269b31da02d035f99587b70ca29c57bf",
+  "manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006",
+  "test_path": "tests/sdd-context/json-admission.test.mjs",
+  "test_sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+  "red_evidence_sha256": "24c98c6652f39986a0baea59d19ab96da5efe7dd224d1c17acacba1737cac181",
+  "preflight_sha256": "9a33a20fc44bc27127044d3c3862ec4a13865c0585ec1725743351ed4f260eb2",
+  "root_independent_check": {
+    "verified_bound_inputs": 29,
+    "command": "node --test --test-reporter=tap tests/sdd-context/json-admission.test.mjs",
+    "exit_code": 1,
+    "tests": 12,
+    "passed": 0,
+    "failed": 12,
+    "skipped": 0,
+    "stdout_sha256": "58f04bf6b69553d411a90861fa1e4109525d2d01ba636f3937188ecbda111ea6",
+    "production_module_existed": false
+  },
+  "production_edit_allowed": true,
+  "scope": "T-001 TEST-046a internal JSON admission helper only; no other task, approval, status or verdict changes"
+}
