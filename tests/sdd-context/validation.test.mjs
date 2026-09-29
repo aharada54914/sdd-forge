@@ -626,3 +626,86 @@ check('LOCK-UNSUPPORTED: absent approved PID type/range cannot authorize lock ad
       pid, processStartIdentity: 'process-start' }, 'LockV1');
   }
 });
+
+const registryEntry = (f = normal) => ({ owner: { ...f.owner },
+  storeRoot: realpathSync(join(f.root, '.sdd', 'context')), registrationId: 'registration',
+  schedulerState: 'enabled', checkedAtUtc: '2026-09-29T00:00:00Z' });
+check('REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID', () => {
+  for (const schedulerState of ['enabled', 'disabled', 'failed']) {
+    for (const registrationId of ['r', 'x'.repeat(1024), '🙂'.repeat(256)]) {
+      const value = { ...registryEntry(), schedulerState, registrationId };
+      assert.deepEqual(admit(value, 'RegistryEntryV1'), value);
+    }
+  }
+  assert.equal(existsSync(normal.target), false, 'registry entry admission created a store file');
+});
+check('REGISTRY-ENTRY-CLOSED: five fields are required and object extensions reject', () => {
+  for (const field of Object.keys(registryEntry())) {
+    const value = registryEntry(); delete value[field]; rejected(value, 'RegistryEntryV1');
+  }
+  for (const value of [null, [], 'entry', 1]) rejected(value, 'RegistryEntryV1');
+  for (const field of ['schemaVersion', 'entries', 'maxObservedUtc', 'text', 'deadline', 'plannedPaths']) {
+    rejected({ ...registryEntry(), [field]: true }, 'RegistryEntryV1');
+  }
+});
+check('REGISTRY-ENTRY-FIELDS: locator types, ID bounds, exact states and UTC dates are checked', () => {
+  for (const storeRoot of ['', null, 1, [], {}]) rejected({ ...registryEntry(), storeRoot }, 'RegistryEntryV1');
+  for (const registrationId of ['', null, 1, [], {}, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']) {
+    rejected({ ...registryEntry(), registrationId }, 'RegistryEntryV1');
+  }
+  for (const schedulerState of ['', 'unknown', 'Enabled', 'Disabled', 'Failed', null, 1, [], {}]) {
+    rejected({ ...registryEntry(), schedulerState }, 'RegistryEntryV1');
+  }
+  for (const checkedAtUtc of ['', null, 1, [], {}, '2026-02-30T00:00:00Z',
+    '2026-09-29T24:00:00Z', '2026-09-29T00:00:00', '2026-09-29T00:00:00+00:00']) {
+    rejected({ ...registryEntry(), checkedAtUtc }, 'RegistryEntryV1');
+  }
+});
+check('REGISTRY-ENTRY-OWNER: every foreign tuple component and malformed owner rejects', () => {
+  for (const owner of [null, [], 'owner', 1]) rejected({ ...registryEntry(), owner }, 'RegistryEntryV1');
+  for (const field of Object.keys(normal.owner)) {
+    const value = registryEntry(); delete value.owner[field]; rejected(value, 'RegistryEntryV1');
+  }
+  for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory']) {
+    const value = registryEntry(); value.owner[field] = sha1.owner[field]; rejected(value, 'RegistryEntryV1');
+  }
+  for (const field of ['featureId', 'host', 'sessionId']) {
+    const value = registryEntry(); value.owner[field] = field === 'host' ? 'claude' : 'foreign';
+    rejected(value, 'RegistryEntryV1');
+  }
+  for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { extra: true }]) {
+    const value = registryEntry(); Object.assign(value.owner, change); rejected(value, 'RegistryEntryV1');
+  }
+});
+check('REGISTRY-ENTRY-STORE: only the exact canonical owned context locator is admitted', () => {
+  for (const storeRoot of [normal.root, join(normal.root, '.git'), normal.target,
+    join(normal.root, '.sdd', 'context', 'child'), join(sha1.root, '.sdd', 'context'), outside,
+    normal.root + '/.sdd/context/../../../outside', join(normal.root, '.sdd', 'context', 'escape')]) {
+    rejected({ ...registryEntry(), storeRoot }, 'RegistryEntryV1');
+  }
+});
+check('REGISTRY-ENTRY-REPLACED-STORE: a temporary context replaced by an escaping symlink rejects', () => {
+  const f = fixture('registry-replaced-store');
+  const value = registryEntry(f);
+  const store = join(f.root, '.sdd', 'context');
+  rmSync(store, { recursive: true }); symlinkSync(outside, store);
+  assert.equal(realpathSync(store), outside, 'store replacement fixture did not escape');
+  rejected(value, 'RegistryEntryV1', f);
+});
+check('REGISTRY-ENTRY-JSON: malformed and decoded duplicate entry keys reject', () => {
+  const source = JSON.stringify(registryEntry());
+  for (const raw of [source.slice(0, -1), source.replace('"registrationId":"registration"',
+    '"registrationId":"registration","registration\\u0049d":"registration"')]) {
+    rejected(raw, 'RegistryEntryV1', normal, {}, true);
+  }
+});
+check('REGISTRY-ENTRY-DEADLINE: the existing exhausted trusted budget returns no entry', () => {
+  rejected(registryEntry(), 'RegistryEntryV1', normal, { deadline: performance.now() - 1 });
+});
+check('REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targets still reject', () => {
+  for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) rejected(registryEntry(f), 'RegistryEntryV1', f);
+  for (const target of [join(outside, 'entry.json'), normal.root + '/.sdd/context/../../foreign.json',
+    join(normal.root, '.sdd', 'context', 'escape', 'entry.json')]) {
+    rejected(registryEntry(), 'RegistryEntryV1', normal, { plannedPaths: [target] });
+  }
+});
