@@ -129,6 +129,11 @@ export function validate(source, trusted) {
         require(value.schemaVersion === 1); owner(value.owner); opaque(value.segmentId); integer(value.firstSequence); hash(value.predecessorHash);
         break;
       case 'DecisionV1': decision(value); break;
+      case 'LockV1':
+        closed(value, ['schemaVersion', 'owner', 'nonce', 'pid', 'processStartIdentity']);
+        require(value.schemaVersion === 1); owner(value.owner); opaque(value.nonce); opaque(value.processStartIdentity);
+        integer(value.pid); require(value.pid > 0);
+        break;
       case 'RegistryEntryV1':
         closed(value, ['owner', 'storeRoot', 'registrationId', 'schedulerState', 'checkedAtUtc']);
         owner(value.owner); opaque(value.registrationId);
