@@ -157,3 +157,31 @@ test('TEST-046c: scanner decoder exception exposes no raw cause/stack/payload', 
     rejected(`${keys[0]}="${value}"`);
   } finally { JSON.parse = original; }
 });
+
+test('PRIVACY-IDEMPOTENCE-TEXT: generated output preserves exact text for six families', () => {
+  const cases = [
+    ['pem', pem(labels[0], value)],
+    ...['', "'", '"'].map(quote => ['assignment', `🙂${keys[0]}=${quote}${value}${quote}\r\n終`]),
+    ['header', ` \t${keys[8]}: ${['Bear', 'er'].join('')} ${value}\r\n終`],
+    ['url', `https://user:${value}@example.invalid/`],
+    ['token', ['s', 'k-'].join('') + value],
+    ['jwt', ['a'.repeat(8), value, 'b'.repeat(8)].join('.')],
+  ];
+  const mismatches = [];
+  for (const [index, [family, input]] of cases.entries()) {
+    const first = removed(input, family);
+    const second = run(first);
+    assert.equal(second.text.includes(value), false, 'synthetic value returned');
+    if (second.text !== first) mismatches.push({ index, family, first, second: second.text });
+  }
+  assert.deepEqual(mismatches, [], 'generated text changed on second scan');
+});
+
+test('PRIVACY-IDEMPOTENCE-PREFIX: complete, near and unfinished markers cannot hide a value', () => {
+  for (const candidate of [
+    mark('assignment').slice(0, -1) + value,
+    mark('assignment').replace('assignment', 'Assignment' + value),
+    mark('assignment').replace('assignment', 'assignment-' + value),
+    mark('assignment') + value,
+  ]) removed(`${keys[0]}=${candidate}`, 'assignment');
+});
