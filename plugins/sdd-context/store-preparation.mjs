@@ -2,11 +2,19 @@ import { closeSync, constants, fstatSync, lstatSync, mkdirSync, openSync, realpa
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { validate } from './validation.mjs';
+import { prepareWindowsStore } from './windows-store.mjs';
 
-// Empty new POSIX directory only; no chmod, data, existing-store repair or ACL claim.
+// Empty new directory only; no data or existing-store permission repair.
 // These path/identity checks do not establish concurrent ancestor-race immunity.
 export function prepareStore(source, trusted) {
   try {
+    if (process.platform === 'win32') {
+      if (trusted?.type !== 'OwnerV1') throw new Error();
+      validate(source, trusted);
+      const store = join(realpathSync(trusted.owner.worktreeRoot), '.sdd', 'context');
+      prepareWindowsStore(store, trusted.deadline - performance.now());
+      return validate(source, trusted);
+    }
     if (trusted?.type !== 'OwnerV1' || typeof process.getuid !== 'function' ||
       typeof process.geteuid !== 'function' || !Number.isInteger(constants.O_DIRECTORY) ||
       !Number.isInteger(constants.O_NOFOLLOW)) throw new Error();
