@@ -122,4 +122,10 @@ public static class SddPrivateDirectory {
 '@
   [SddPrivateDirectory]::Create($Store)
   [Console]::Out.Write('created')
-} catch { exit 1 }
+} catch {
+  $cause = $_.Exception
+  while ($cause.InnerException) { $cause = $cause.InnerException }
+  $method = [regex]::Match([string]$cause.StackTrace, 'SddPrivateDirectory\.[A-Za-z]+').Value
+  [Console]::Error.WriteLine("windows-store: $($cause.GetType().Name) $method")
+  exit 1
+}
