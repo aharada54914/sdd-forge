@@ -255,7 +255,7 @@ export function validate(source, trusted) {
     for (const key of Object.keys(env)) if (key.startsWith('GIT_')) delete env[key];
     function git(...args) {
       check();
-      const output = execFileSync('git', ['-C', root, ...args], {
+      const output = execFileSync('git', ['-C', root, '-c', 'core.excludesFile=', ...args], {
         encoding: 'utf8', env, timeout: Math.max(1, Math.floor(deadline - performance.now())),
         maxBuffer: 65536, stdio: ['ignore', 'pipe', 'pipe'],
       });

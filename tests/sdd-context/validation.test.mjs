@@ -242,6 +242,33 @@ check('IGNORE-ENV: inherited Git config cannot invent an ignore rule', () => {
     });
   }
 });
+check('IGNORE-GLOBAL: inherited HOME and XDG config cannot invent an ignore rule', () => {
+  const excludes = join(scratch, 'global-excludes');
+  writeFileSync(excludes, '.sdd/context/**\n');
+  const home = join(scratch, 'injected-home');
+  const xdg = join(scratch, 'injected-xdg');
+  mkdirSync(home);
+  mkdirSync(join(xdg, 'git'), { recursive: true });
+  const config = `[core]\n\texcludesFile = ${excludes.replaceAll('\\', '/')}\n`;
+  writeFileSync(join(home, '.gitconfig'), config);
+  writeFileSync(join(xdg, 'git', 'config'), config);
+  const previous = [process.env.HOME, process.env.XDG_CONFIG_HOME];
+  process.env.HOME = home;
+  process.env.XDG_CONFIG_HOME = xdg;
+  try {
+    const target = relative(missingIgnore.root, missingIgnore.target).split(sep).join('/');
+    const control = spawnSync('git', ['-C', missingIgnore.root, 'check-ignore', '--quiet', '--no-index', '--', target],
+      { env: process.env });
+    assert.equal(control.status, 0, 'fixture global ignore must affect ordinary Git');
+    rejected(observation(missingIgnore.owner), 'ObservationV1', missingIgnore);
+  }
+  finally {
+    for (const [index, key] of ['HOME', 'XDG_CONFIG_HOME'].entries()) {
+      if (previous[index] === undefined) delete process.env[key];
+      else process.env[key] = previous[index];
+    }
+  }
+});
 check('IGNORE-NEGATED: effective negation rejects', () => rejected(observation(negatedIgnore.owner), 'ObservationV1', negatedIgnore));
 check('TRACKED: ignored but tracked content target rejects', () => rejected(observation(tracked.owner), 'ObservationV1', tracked));
 check('GIT-ERROR: unreadable Git ownership cannot be treated as safe', () => rejected(observation(brokenGit.owner), 'ObservationV1', brokenGit));
