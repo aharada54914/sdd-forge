@@ -174,7 +174,7 @@ Rules:
         # may exit between the timed wait and HasExited; retain both observations.
         $waitObservedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
         $observedExited = $proc.HasExited
-        if (-not $waitCompleted) {
+        if (-not $waitCompleted -and -not $observedExited) {
             $proc.Kill($true)
             $proc.WaitForExit()
             # Logging follows cleanup so it cannot delay termination.
@@ -183,7 +183,7 @@ Rules:
             exit 1
         }
         $proc.WaitForExit()
-        [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=1 observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=0")
+        [Console]::Error.WriteLine("panelist-process: pid=$($proc.Id) wait_completed=$([int]$waitCompleted) observed_at=$waitObservedAt observed_exited=$([int]$observedExited) cleanup_kill=0")
         if ($proc.ExitCode -ne 0) {
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exited $($proc.ExitCode)")
             Get-Content (Join-Path $scratch "stderr.txt") | ForEach-Object { [Console]::Error.WriteLine($_) }

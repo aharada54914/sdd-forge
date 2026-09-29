@@ -23,7 +23,7 @@ $statements = @($phaseReads[0].Parent.Statements)
 $first = [array]::IndexOf($statements, $phaseReads[0])
 $last = $first
 while ($last -lt $statements.Count -and
-    -not $statements[$last].Extent.Text.StartsWith('Assert-ProcessObservation -Name "boundary', [StringComparison]::Ordinal)) { $last++ }
+    -not $statements[$last].Extent.Text.StartsWith('Assert-ProcessObservation -Name "normal', [StringComparison]::Ordinal)) { $last++ }
 if ($last -eq $statements.Count) { throw 'Boundary process assertion not found' }
 $body = [scriptblock]::Create(($statements[$first..$last].Extent.Text -join "`n"))
 
@@ -40,6 +40,7 @@ try {
         $runner = @{ Name = 'fixture' }
         $iteration = 1
         $parsedDeadline = [long]2000
+        $outputDelayMs = 500
         $waitEnd = $outputEnd = $observedAt = [long]0
         $verdict = Join-Path $fixture "verdict-$completed.json"
         if ($completed) { New-Item -ItemType File -Path $verdict | Out-Null }
@@ -49,7 +50,7 @@ try {
         $messages = @(. $body 6>&1)
         # Reaching this assertion proves the boundary block did not abort.
         $expectedFailures = if ($completed) { 1 } else { 2 }
-        if ($waitEnd -ne 0 -or $outputEnd -ne 0 -or $boundaryTiming -or
+        if ($waitEnd -ne 0 -or $outputEnd -ne 0 -or $completionTiming -or
             $script:observedFailures.Count -ne $expectedFailures -or
             $script:observedPasses.Count -ne [int]$completed -or
             ($messages | Out-String) -cnotmatch 'runner diagnostic: panelist-process:') {
