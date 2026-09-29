@@ -54,10 +54,10 @@ export function validate(source, trusted) {
     }
     require(inside(root, sddRoot));
     // Resolve an absent leaf through its nearest existing ancestor, without creating it.
-    function resolvePath(item) {
+    function resolvePath(item, base = root) {
       string(item); require(item.length > 0 && !item.includes('\0'));
-      const logical = resolve(root, item);
-      require(inside(root, logical));
+      const logical = resolve(base, item);
+      require(inside(base, logical));
       let parent = logical;
       const missing = [];
       while (true) {
@@ -70,17 +70,22 @@ export function validate(source, trusted) {
         }
       }
       const path = join(canonical(parent), ...missing);
-      require(inside(root, path));
+      require(inside(base, path));
       return path;
     }
-    function owner(item) {
+    function ownerTuple(item) {
       closed(item, ownerFields); require(item.schemaVersion === 1);
-      for (const [key, expected] of [['sddRoot', sddRoot], ['worktreeRoot', root], ['gitDirectory', gitDirectory]]) {
-        require(canonical(item[key]) === expected);
-      }
+      const worktree = canonical(item.worktreeRoot);
+      const sdd = canonical(item.sddRoot);
+      const git = canonical(item.gitDirectory);
+      require(inside(worktree, sdd));
       opaque(item.featureId); opaque(item.sessionId);
       enumeration(item.host, ['claude', 'codex']);
-      for (const key of ['featureId', 'host', 'sessionId']) require(item[key] === trusted.owner[key]);
+      return JSON.stringify([sdd, worktree, git, item.featureId, item.host, item.sessionId]);
+    }
+    function owner(item) {
+      require(ownerTuple(item) === JSON.stringify([sddRoot, root, gitDirectory,
+        trusted.owner.featureId, trusted.owner.host, trusted.owner.sessionId]));
     }
     function cursor(item) {
       closed(item, ['schemaVersion', 'owner', 'segmentId', 'sequence', 'hash'], ['predecessorSessionId']);
@@ -149,6 +154,61 @@ export function validate(source, trusted) {
         owner(value.owner); opaque(value.registrationId);
         enumeration(value.schedulerState, ['enabled', 'disabled', 'failed']); utc(value.checkedAtUtc);
         break;
+      case 'OwnerRegistryV1': {
+        closed(value, ['schemaVersion', 'entries', 'maxObservedUtc']);
+        require(value.schemaVersion === 1); utc(value.maxObservedUtc);
+        // Confirmation is supplied independently by core, never by registry JSON.
+        const confirmed = new Set();
+        array(trusted.confirmedOwners, item => confirmed.add(ownerTuple(item)));
+        const owners = new Set(), ids = new Set();
+        array(value.entries, entry => {
+          closed(entry, ['owner', 'storeRoot', 'registrationId', 'schedulerState', 'checkedAtUtc']);
+          const tuple = ownerTuple(entry.owner);
+          require(confirmed.has(tuple) && !owners.has(tuple)); owners.add(tuple);
+          opaque(entry.registrationId);
+          require(!ids.has(entry.registrationId)); ids.add(entry.registrationId);
+          enumeration(entry.schedulerState, ['enabled', 'disabled', 'failed']); utc(entry.checkedAtUtc);
+          const worktree = canonical(entry.owner.worktreeRoot);
+          string(entry.storeRoot);
+          require(entry.storeRoot === resolvePath(join(worktree, '.sdd', 'context'), worktree));
+        });
+        break;
+      }
+      case 'OutcomeV1': {
+        const fields = {
+          captured: ['sequence', 'synced'], 'uncaptured-warning': [],
+          safe: ['synced', 'reconciled', 'integrity', 'published'], unsafe: [], unavailable: [],
+          recovered: ['coverage', 'entries', 'pointers'], 'no-op': [],
+          cleaned: ['expiredCount', 'removedCount', 'completed'], 'cleanup-warning': [],
+        };
+        enumeration(value?.kind, Object.keys(fields));
+        closed(value, ['schemaVersion', 'kind', 'reasonCode', 'omission', ...fields[value.kind]], ['diagnostic']);
+        require(value.schemaVersion === 1); boolean(value.omission);
+        const codes = ['ok', 'unsupported', 'validation-rejected', 'privacy-rejected', 'storage-failed',
+          'integrity-failed', 'reconcile-failed', 'publication-failed', 'ownership-mismatch', 'expired',
+          'cleanup-failed', 'budget-exhausted'];
+        enumeration(value.reasonCode, ['captured', 'safe', 'recovered', 'cleaned'].includes(value.kind)
+          ? ['ok'] : value.kind === 'no-op' ? codes : codes.slice(1));
+        if (Object.hasOwn(value, 'diagnostic')) enumeration(value.diagnostic, codes);
+        for (const field of ['synced', 'reconciled', 'integrity', 'published', 'completed']) {
+          if (Object.hasOwn(value, field)) require(value[field] === true);
+        }
+        for (const field of ['sequence', 'expiredCount', 'removedCount']) {
+          if (Object.hasOwn(value, field)) integer(value[field]);
+        }
+        if (value.kind === 'recovered') {
+          enumeration(value.coverage, ['complete', 'partial', 'unavailable']);
+          array(value.entries, entry => {
+            closed(entry, ['sourceSequences', 'text', 'omission']);
+            array(entry.sourceSequences, integer); require(entry.sourceSequences.length > 0);
+            string(entry.text); boolean(entry.omission); texts.push(entry);
+          });
+          array(value.pointers, pointer => {
+            closed(pointer, ['opaqueId', 'reasonCode']); opaque(pointer.opaqueId); enumeration(pointer.reasonCode, codes);
+          });
+        }
+        break;
+      }
       case 'ProjectionV1': {
         closed(value, ['schemaVersion', 'owner', 'head', 'authorityHashes', 'taskLifecycle', 'featurePresent', 'journalCursor', 'decisions']);
         require(value.schemaVersion === 1); owner(value.owner); string(value.head); boolean(value.featurePresent);
@@ -232,11 +292,17 @@ export function validate(source, trusted) {
     }
     for (const item of texts) {
       const result = redact(item.text, deadline);
+      if (trusted.type === 'OutcomeV1') {
+        const removed = result.text !== item.text;
+        item.omission ||= removed;
+        value.omission ||= removed;
+      }
       item.text = result.text;
       // Observation preparation carries rule/omission evidence for T-002; it is
       // an in-memory prepared value, not a persisted ObservationV1 extension.
       if (trusted.type === 'ObservationV1') Object.assign(item, result);
     }
+    if (trusted.type === 'OutcomeV1') require(Buffer.byteLength(JSON.stringify(value)) <= 8192);
     paths(); // Recheck immediately before exposing the prepared result.
     check(); return value;
   } catch {
