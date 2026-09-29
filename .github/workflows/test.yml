@@ -1227,6 +1227,17 @@ jobs:
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
+      - name: Test context contracts and privacy (native host)
+        working-directory: .
+        shell: bash
+        run: node --experimental-vm-modules --test tests/sdd-context/*.test.mjs
+
+      - name: Test context store ACL (native Windows)
+        if: runner.os == 'Windows'
+        working-directory: .
+        shell: pwsh
+        run: ./tests/sdd-context/windows-store-native.tests.ps1
+
       - name: Install dependencies
         run: npm ci
 
