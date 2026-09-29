@@ -596,34 +596,41 @@ fi
 
 # RT-20260909-002: versioned host evidence, never fixture-as-live proof.
 HOST_NONCE=0123456789abcdef0123456789abcdef
-"$PY" - "$T027/host-denial.json" "$HOST_NONCE" <<'PY'
+for envelope in bare wrapped; do
+"$PY" - "$T027/host-denial.json" "$HOST_NONCE" "$envelope" <<'PY'
 import json
 import sys
 nonce = sys.argv[2]
 patch = "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+sdd-hook-challenge:" + nonce + "\n*** End Patch"
 raw = (
-    "Script error:\nCommand blocked by PreToolUse hook: "
+    "Command blocked by PreToolUse hook: "
     "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
     "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. "
     "These are part of the enforcement chain and cannot be bypassed by sudo.. Command: " + patch
 )
+if sys.argv[3] == "wrapped":
+    raw = "Script error:\n" + raw
 with open(sys.argv[1], "w", encoding="utf-8") as stream:
     json.dump(dict(schema="sdd-codex-host-denial/v1", runtime="codex-cli",
                    nonce=nonce, executed=False, raw_result=raw), stream)
 PY
 (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-denial.json --runtime codex-cli)
 rc=$?
-assert_exit "$rc" 0 "RT002 exact versioned operation-bound denial accepted"
-assert_json_field "$WORK/out" "d['status']" "HOOK_ACTIVE" "RT002 exact denial status"
+test_id=TEST-090
+[ "$envelope" = wrapped ] && test_id=TEST-091
+assert_exit "$rc" 0 "$test_id RT002 exact $envelope operation-bound denial accepted"
+assert_json_field "$WORK/out" "d['status']" "HOOK_ACTIVE" "$test_id RT002 exact $envelope denial status"
 
 # Mutate one raw-envelope property per case; never dispatch these fixtures.
-for mutation in prefix quote suffix truncate guard guard-ja target guard-case target-case extra-operation old-patch trailing-newline leading-newline crlf null boolean number array object; do
+for mutation in prefix quote suffix truncate guard guard-ja guard-permissive guard-ja-permissive target target-dot guard-case target-case extra-operation appended-operation unknown-tool old-patch trailing-newline leading-newline crlf null boolean true number one array object TEST-092-no-lf TEST-093-crlf TEST-094-space-before-lf TEST-094-space-after-lf TEST-095-case TEST-096-repeated TEST-097-extra-lf; do
   "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$mutation" <<'PY'
 import json
 import sys
 with open(sys.argv[1], encoding="utf-8") as stream:
     evidence = json.load(stream)
 raw = evidence["raw_result"]
+wrapper = "Script error:\n"
+bare = raw[len(wrapper):] if raw.startswith(wrapper) else raw
 variants = {
     "prefix": "untrusted: " + raw,
     "quote": '"' + raw + '"',
@@ -631,15 +638,27 @@ variants = {
     "truncate": raw[:-1],
     "guard": raw.replace("SDD deterministic gate:", "Other deterministic gate:"),
     "guard-ja": raw.replace("SDD決定論ゲート:", "別の決定論ゲート:"),
+    "guard-permissive": raw.replace("agents must not", "agents may"),
+    "guard-ja-permissive": raw.replace("書き換えられません。", "書き換えられます。"),
     "target": raw.replace("sdd/.hook-canary-sentinel", "sdd/other-sentinel"),
+    "target-dot": raw.replace("sdd/.hook-canary-sentinel", "sdd/.other-sentinel"),
     "guard-case": raw.replace("SDD deterministic gate:", "sdd deterministic gate:"),
     "target-case": raw.replace("sdd/.hook-canary-sentinel", "SDD/.hook-canary-sentinel"),
     "extra-operation": raw.replace("*** End Patch", "*** Add File: sdd/extra\n+extra\n*** End Patch"),
+    "appended-operation": raw + "\n*** Add File: sdd/extra\n+extra",
+    "unknown-tool": raw.split("Command: ", 1)[0] + 'Command: {"tool":"unknown-tool"}',
     "old-patch": raw.replace("+sdd-hook-challenge:" + evidence["nonce"], "+"),
     "trailing-newline": raw + "\n",
     "leading-newline": "\n" + raw,
     "crlf": raw.replace("\n", "\r\n"),
-    "null": None, "boolean": False, "number": 0, "array": [], "object": {},
+    "null": None, "boolean": False, "true": True, "number": 0, "one": 1, "array": [], "object": {},
+    "TEST-092-no-lf": "Script error:" + bare,
+    "TEST-093-crlf": "Script error:\r\n" + bare,
+    "TEST-094-space-before-lf": "Script error: \n" + bare,
+    "TEST-094-space-after-lf": "Script error:\n " + bare,
+    "TEST-095-case": "script error:\n" + bare,
+    "TEST-096-repeated": wrapper + wrapper + bare,
+    "TEST-097-extra-lf": wrapper + "\n" + bare,
 }
 evidence["raw_result"] = variants[sys.argv[3]]
 with open(sys.argv[2], "w", encoding="utf-8") as stream:
@@ -653,7 +672,7 @@ PY
 done
 
 # Individually exercise required keys, types, contradictions and nonce binding.
-for mutation in missing:schema missing:runtime missing:nonce missing:executed missing:raw_result executed:null executed:string executed:true executed:zero executed:one nonce:outer nonce:inner nonce:malformed runtime:claude-code runtime:copilot-cli cli:claude-code cli:copilot-cli extra:plugin_hooks_enabled:true extra:plugin_hooks_enabled:false extra:denied_by_plugin_hooks:true extra:denied_by_plugin_hooks:false extra:arbitrary:true; do
+for mutation in missing:schema missing:runtime missing:nonce missing:executed missing:raw_result executed:null executed:string executed:true executed:zero executed:one nonce:outer nonce:inner nonce:malformed runtime:claude-code runtime:copilot-cli runtime:unknown-host cli:claude-code cli:copilot-cli both:claude-code both:copilot-cli extra:plugin_hooks_enabled:true extra:plugin_hooks_enabled:false extra:denied_by_plugin_hooks:true extra:denied_by_plugin_hooks:false extra:arbitrary:true extra:host:unknown-host extra:tool:unknown-tool; do
   "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$mutation" <<'PY'
 import json
 import sys
@@ -670,10 +689,10 @@ elif kind == "nonce":
         evidence["raw_result"] = evidence["raw_result"].replace(evidence["nonce"], "f" * 32)
     else:
         evidence["nonce"] = "f" * 32 if value == "outer" else "INVALID"
-elif kind == "runtime":
-    evidence[kind] = value
+elif kind in ("runtime", "both"):
+    evidence["runtime"] = value
 elif kind == "extra":
-    evidence[value] = json.loads(parts[2])
+    evidence[value] = json.loads(parts[2]) if parts[2] in ("true", "false") else parts[2]
 with open(sys.argv[2], "w", encoding="utf-8") as stream:
     json.dump(evidence, stream)
 PY
@@ -681,7 +700,7 @@ PY
   case "$mutation" in
     executed:true) expected=63 ;;
     nonce:outer|nonce:inner) expected=62 ;;
-    cli:*) runtime=${mutation#cli:} ;;
+    cli:*|both:*) runtime=${mutation#*:} ;;
     missing:schema) expected=65 ;;
   esac
   (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-mutated.json --runtime "$runtime")
@@ -716,23 +735,29 @@ PY
   done
 done
 
-# Matching malformed values must fail syntax validation, not just mismatch checks.
-for invalid_nonce in ABCDEF0123456789ABCDEF0123456789 0123456789abcdef0123456789abcde 0123456789abcdef0123456789abcdef0 z123456789abcdef0123456789abcdef; do
-  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$invalid_nonce" <<'PY'
+# Malformed expected/echo-only and matching values all fail syntax validation.
+for invalid_nonce in ABCDEF0123456789ABCDEF0123456789 0123456789ABCDEF0123456789ABCDEF 0123456789abcdef0123456789abcde 0123456789abcdef0123456789abcdef0 z123456789abcdef0123456789abcdef; do
+  for nonce_location in all expected echo; do
+  "$PY" - "$T027/host-denial.json" "$T027/host-mutated.json" "$invalid_nonce" "$nonce_location" <<'PY'
 import json
 import sys
 with open(sys.argv[1], encoding="utf-8") as stream:
     evidence = json.load(stream)
-evidence["raw_result"] = evidence["raw_result"].replace(evidence["nonce"], sys.argv[3])
-evidence["nonce"] = sys.argv[3]
+if sys.argv[4] in ("all", "echo"):
+    evidence["raw_result"] = evidence["raw_result"].replace(evidence["nonce"], sys.argv[3])
+if sys.argv[4] == "all":
+    evidence["nonce"] = sys.argv[3]
 with open(sys.argv[2], "w", encoding="utf-8") as stream:
     json.dump(evidence, stream)
 PY
-  (cd "$T027" && run_hh --verify-response --nonce "$invalid_nonce" --recorded-result host-mutated.json --runtime codex-cli)
+  expected_nonce=$HOST_NONCE
+  [ "$nonce_location" = echo ] || expected_nonce=$invalid_nonce
+  (cd "$T027" && run_hh --verify-response --nonce "$expected_nonce" --recorded-result host-mutated.json --runtime codex-cli)
   rc=$?
-  assert_exit "$rc" 64 "RT002 self-consistent invalid nonce rejected: $invalid_nonce"
-  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 invalid nonce reason: $invalid_nonce"
-  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 invalid nonce cannot activate: $invalid_nonce"
+  assert_exit "$rc" 64 "RT002 $nonce_location invalid nonce rejected: $invalid_nonce"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 $nonce_location invalid nonce reason: $invalid_nonce"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 $nonce_location invalid nonce cannot activate: $invalid_nonce"
+  done
 done
 
 # An explicit selector must not fall through to an otherwise valid legacy record.
@@ -755,6 +780,23 @@ PY
   assert_exit "$rc" 64 "RT002 outer-only invalid nonce rejected: $mutation"
   assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 outer-only nonce reason: $mutation"
   assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 outer-only nonce cannot activate: $mutation"
+done
+
+for selector in 'null' 'true' 'false' '1' '[]' '{}' '"unknown"'; do
+  "$PY" - "$T027/host-denial.json" "$T027/selector.json" "$selector" <<'PY'
+import json
+import sys
+with open(sys.argv[1], encoding="utf-8") as stream:
+    evidence = json.load(stream)
+evidence["schema"] = json.loads(sys.argv[3])
+with open(sys.argv[2], "w", encoding="utf-8") as stream:
+    json.dump(evidence, stream)
+PY
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result selector.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 64 "RT002 $envelope invalid selector with intact body rejected: $selector"
+  assert_json_field "$WORK/out" "d['reason']" "UNRECOGNIZED_RESULT" "RT002 $envelope intact-body selector reason: $selector"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 $envelope intact-body selector cannot activate: $selector"
 done
 
 for selector in 'null' 'true' 'false' '1' '[]' '{}' '"unknown"' '"sdd-codex-host-denial/v1"'; do
@@ -880,6 +922,31 @@ rc=$?
 assert_exit "$rc" 61 "RT002 truncated new response JSON rejected"
 assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 truncated JSON reason"
 assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 truncated JSON cannot activate"
+
+for invalid_json in '[' '{'; do
+  printf '%s' "$invalid_json" > "$T027/invalid-response.json"
+  (cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result invalid-response.json --runtime codex-cli)
+  rc=$?
+  assert_exit "$rc" 61 "RT002 $envelope malformed JSON rejected: $invalid_json"
+  assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 $envelope malformed JSON reason: $invalid_json"
+  assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 $envelope malformed JSON cannot activate: $invalid_json"
+done
+printf '[]' > "$T027/invalid-response.json"
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result invalid-response.json --runtime codex-cli)
+rc=$?
+assert_exit "$rc" 61 "RT002 $envelope top-level array rejected"
+assert_json_field "$WORK/out" "d['reason']" "RECORDED_RESULT_UNREADABLE" "RT002 $envelope top-level array reason"
+assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 $envelope top-level array cannot activate"
+
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result absent-envelope-evidence.json --runtime codex-cli)
+rc=$?
+assert_exit "$rc" 60 "RT002 $envelope missing evidence rejected"
+assert_json_field "$WORK/out" "d['reason']" "NO_RECORDED_RESULT" "RT002 $envelope missing evidence reason"
+assert_json_field "$WORK/out" "d['status']" "CAPABILITY_RUNTIME_UNAVAILABLE" "RT002 $envelope missing evidence cannot activate"
+(cd "$T027" && run_hh --verify-response --nonce "$HOST_NONCE" --recorded-result host-denial.json --runtime unknown-host)
+rc=$?
+assert_exit "$rc" 2 "RT002 $envelope unknown CLI runtime rejected"
+done
 
 # RT002 TEST-078: cleanup malformed JSON and non-boolean executed are independent branches.
 for cleanup_case in malformed nonboolean; do

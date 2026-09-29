@@ -568,15 +568,19 @@ if ($linkCreated) {
 
 # RT-20260909-002: synthetic versioned evidence, not live activation proof.
 $HostNonce = '0123456789abcdef0123456789abcdef'
+foreach ($envelope in @('bare', 'wrapped')) {
 $HostPatch = "*** Begin Patch`n*** Add File: sdd/.hook-canary-sentinel`n+sdd-hook-challenge:$HostNonce`n*** End Patch"
-$HostRaw = "Script error:`nCommand blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。`n" +
+$HostRaw = "Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。`n" +
   '[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: ' + $HostPatch
+if ($envelope -ceq 'wrapped') { $HostRaw = "Script error:`n" + $HostRaw }
+$BareRaw = if ($envelope -ceq 'wrapped') { $HostRaw.Substring("Script error:`n".Length) } else { $HostRaw }
 $HostEvidence = @{schema='sdd-codex-host-denial/v1'; runtime='codex-cli'; nonce=$HostNonce; executed=$false; raw_result=$HostRaw}
 Set-Content -LiteralPath (Join-Path $T027 'host-denial.json') -NoNewline -Encoding utf8 -Value ($HostEvidence | ConvertTo-Json -Compress)
 $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'host-denial.json', '--runtime', 'codex-cli')
-Assert-Eq $r.ExitCode 0 'RT002 exact versioned operation-bound denial accepted'
+$testId = if ($envelope -ceq 'bare') { 'TEST-090' } else { 'TEST-091' }
+Assert-Eq $r.ExitCode 0 "$testId RT002 exact $envelope operation-bound denial accepted"
 $j = Get-OutJson $r
-Assert-Eq ($j.status -ceq 'HOOK_ACTIVE') $true 'RT002 exact denial status'
+Assert-Eq ($j.status -ceq 'HOOK_ACTIVE') $true "$testId RT002 exact $envelope denial status"
 
 # Each fixture changes exactly one property of the raw envelope, not a live call.
 $RawVariants = [ordered]@{
@@ -586,19 +590,33 @@ $RawVariants = [ordered]@{
   truncate = $HostRaw.Substring(0, $HostRaw.Length - 1)
   guard = $HostRaw.Replace('SDD deterministic gate:', 'Other deterministic gate:')
   'guard-ja' = $HostRaw.Replace('SDD決定論ゲート:', '別の決定論ゲート:')
+  'guard-permissive' = $HostRaw.Replace('agents must not', 'agents may')
+  'guard-ja-permissive' = $HostRaw.Replace('書き換えられません。', '書き換えられます。')
   target = $HostRaw.Replace('sdd/.hook-canary-sentinel', 'sdd/other-sentinel')
+  'target-dot' = $HostRaw.Replace('sdd/.hook-canary-sentinel', 'sdd/.other-sentinel')
   'guard-case' = $HostRaw.Replace('SDD deterministic gate:', 'sdd deterministic gate:')
   'target-case' = $HostRaw.Replace('sdd/.hook-canary-sentinel', 'SDD/.hook-canary-sentinel')
   'extra-operation' = $HostRaw.Replace('*** End Patch', "*** Add File: sdd/extra`n+extra`n*** End Patch")
+  'appended-operation' = $HostRaw + "`n*** Add File: sdd/extra`n+extra"
+  'unknown-tool' = $HostRaw.Substring(0, $HostRaw.IndexOf('Command: ') + 'Command: '.Length) + '{"tool":"unknown-tool"}'
   'old-patch' = $HostRaw.Replace("+sdd-hook-challenge:$HostNonce", '+')
   'trailing-newline' = $HostRaw + "`n"
   'leading-newline' = "`n" + $HostRaw
   crlf = $HostRaw.Replace("`n", "`r`n")
   null = $null
   boolean = $false
+  true = $true
   number = 0
+  one = 1
   array = @()
   object = @{}
+  'TEST-092-no-lf' = 'Script error:' + $BareRaw
+  'TEST-093-crlf' = "Script error:`r`n" + $BareRaw
+  'TEST-094-space-before-lf' = "Script error: `n" + $BareRaw
+  'TEST-094-space-after-lf' = "Script error:`n " + $BareRaw
+  'TEST-095-case' = "script error:`n" + $BareRaw
+  'TEST-096-repeated' = "Script error:`nScript error:`n" + $BareRaw
+  'TEST-097-extra-lf' = "Script error:`n`n" + $BareRaw
 }
 foreach ($mutation in $RawVariants.Keys) {
   $evidence = $HostEvidence.Clone()
@@ -611,7 +629,7 @@ foreach ($mutation in $RawVariants.Keys) {
   Assert-Eq ($j.reason -ceq 'UNRECOGNIZED_RESULT') $true "RT002 raw envelope reason: $mutation"
 }
 
-foreach ($mutation in @('missing:schema', 'missing:runtime', 'missing:nonce', 'missing:executed', 'missing:raw_result', 'executed:null', 'executed:string', 'executed:true', 'executed:zero', 'executed:one', 'nonce:outer', 'nonce:inner', 'nonce:malformed', 'runtime:claude-code', 'runtime:copilot-cli', 'cli:claude-code', 'cli:copilot-cli', 'extra:plugin_hooks_enabled:true', 'extra:plugin_hooks_enabled:false', 'extra:denied_by_plugin_hooks:true', 'extra:denied_by_plugin_hooks:false', 'extra:arbitrary:true')) {
+foreach ($mutation in @('missing:schema', 'missing:runtime', 'missing:nonce', 'missing:executed', 'missing:raw_result', 'executed:null', 'executed:string', 'executed:true', 'executed:zero', 'executed:one', 'nonce:outer', 'nonce:inner', 'nonce:malformed', 'runtime:claude-code', 'runtime:copilot-cli', 'runtime:unknown-host', 'cli:claude-code', 'cli:copilot-cli', 'both:claude-code', 'both:copilot-cli', 'extra:plugin_hooks_enabled:true', 'extra:plugin_hooks_enabled:false', 'extra:denied_by_plugin_hooks:true', 'extra:denied_by_plugin_hooks:false', 'extra:arbitrary:true', 'extra:host:unknown-host', 'extra:tool:unknown-tool')) {
   $evidence = $HostEvidence.Clone()
   $parts = $mutation.Split(':')
   $expected = 64
@@ -633,7 +651,8 @@ foreach ($mutation in @('missing:schema', 'missing:runtime', 'missing:nonce', 'm
     }
     'runtime' { $evidence.runtime = $parts[1] }
     'cli' { $runtime = $parts[1] }
-    'extra' { $evidence[$parts[1]] = $parts[2] -ceq 'true' }
+    'both' { $evidence.runtime = $parts[1]; $runtime = $parts[1] }
+    'extra' { $evidence[$parts[1]] = if ($parts[2] -cin @('true', 'false')) { $parts[2] -ceq 'true' } else { $parts[2] } }
   }
   Set-Content -LiteralPath (Join-Path $T027 'host-mutated.json') -NoNewline -Encoding utf8 -Value ($evidence | ConvertTo-Json -Depth 5 -Compress)
   $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'host-mutated.json', '--runtime', $runtime)
@@ -662,16 +681,19 @@ foreach ($flag in @('plugin_hooks_enabled', 'denied_by_plugin_hooks')) {
   }
 }
 
-foreach ($invalidNonce in @('ABCDEF0123456789ABCDEF0123456789', '0123456789abcdef0123456789abcde', '0123456789abcdef0123456789abcdef0', 'z123456789abcdef0123456789abcdef')) {
+foreach ($invalidNonce in @('ABCDEF0123456789ABCDEF0123456789', '0123456789ABCDEF0123456789ABCDEF', '0123456789abcdef0123456789abcde', '0123456789abcdef0123456789abcdef0', 'z123456789abcdef0123456789abcdef')) {
+  foreach ($nonceLocation in @('all', 'expected', 'echo')) {
   $evidence = $HostEvidence.Clone()
-  $evidence.raw_result = $HostRaw.Replace($HostNonce, $invalidNonce)
-  $evidence.nonce = $invalidNonce
+  if ($nonceLocation -cin @('all', 'echo')) { $evidence.raw_result = $HostRaw.Replace($HostNonce, $invalidNonce) }
+  if ($nonceLocation -ceq 'all') { $evidence.nonce = $invalidNonce }
   Set-Content -LiteralPath (Join-Path $T027 'host-mutated.json') -NoNewline -Encoding utf8 -Value ($evidence | ConvertTo-Json -Depth 5 -Compress)
-  $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $invalidNonce, '--recorded-result', 'host-mutated.json', '--runtime', 'codex-cli')
-  Assert-Eq $r.ExitCode 64 "RT002 self-consistent invalid nonce rejected: $invalidNonce"
+  $expectedNonce = if ($nonceLocation -ceq 'echo') { $HostNonce } else { $invalidNonce }
+  $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $expectedNonce, '--recorded-result', 'host-mutated.json', '--runtime', 'codex-cli')
+  Assert-Eq $r.ExitCode 64 "RT002 $nonceLocation invalid nonce rejected: $invalidNonce"
   $j = Get-OutJson $r
-  Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 invalid nonce cannot activate: $invalidNonce"
-  Assert-Eq ($j.reason -ceq 'UNRECOGNIZED_RESULT') $true "RT002 invalid nonce reason: $invalidNonce"
+  Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 $nonceLocation invalid nonce cannot activate: $invalidNonce"
+  Assert-Eq ($j.reason -ceq 'UNRECOGNIZED_RESULT') $true "RT002 $nonceLocation invalid nonce reason: $invalidNonce"
+  }
 }
 
 $OuterNonceVariants = [ordered]@{
@@ -692,6 +714,16 @@ foreach ($mutation in $OuterNonceVariants.Keys) {
   $j = Get-OutJson $r
   Assert-Eq ($j.reason -ceq 'UNRECOGNIZED_RESULT') $true "RT002 outer-only nonce reason: $mutation"
   Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 outer-only nonce cannot activate: $mutation"
+}
+
+foreach ($selector in @('null', 'true', 'false', '1', '[]', '{}', '"unknown"')) {
+  $payload = ($HostEvidence | ConvertTo-Json -Depth 5 -Compress).Replace('"schema":"sdd-codex-host-denial/v1"', '"schema":' + $selector)
+  Set-Content -LiteralPath (Join-Path $T027 'selector.json') -NoNewline -Encoding utf8 -Value $payload
+  $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'selector.json', '--runtime', 'codex-cli')
+  Assert-Eq $r.ExitCode 64 "RT002 $envelope invalid selector with intact body rejected: $selector"
+  $j = Get-OutJson $r
+  Assert-Eq ($j.reason -ceq 'UNRECOGNIZED_RESULT') $true "RT002 $envelope intact-body selector reason: $selector"
+  Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 $envelope intact-body selector cannot activate: $selector"
 }
 
 foreach ($selector in @('null', 'true', 'false', '1', '[]', '{}', '"unknown"', '"sdd-codex-host-denial/v1"')) {
@@ -813,6 +845,22 @@ Assert-Eq $r.ExitCode 61 'RT002 truncated new response JSON rejected'
 $j = Get-OutJson $r
 Assert-Eq ($j.reason -ceq 'RECORDED_RESULT_UNREADABLE') $true 'RT002 truncated JSON reason'
 Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true 'RT002 truncated JSON cannot activate'
+foreach ($invalidJson in @('[', '{', '[]')) {
+  Set-Content -LiteralPath (Join-Path $T027 'invalid-response.json') -NoNewline -Encoding utf8 -Value $invalidJson
+  $r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'invalid-response.json', '--runtime', 'codex-cli')
+  Assert-Eq $r.ExitCode 61 "RT002 $envelope invalid JSON/top-level array rejected: $invalidJson"
+  $j = Get-OutJson $r
+  Assert-Eq ($j.reason -ceq 'RECORDED_RESULT_UNREADABLE') $true "RT002 $envelope invalid JSON/top-level array reason: $invalidJson"
+  Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 $envelope invalid JSON/top-level array cannot activate: $invalidJson"
+}
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'absent-envelope-evidence.json', '--runtime', 'codex-cli')
+Assert-Eq $r.ExitCode 60 "RT002 $envelope missing evidence rejected"
+$j = Get-OutJson $r
+Assert-Eq ($j.reason -ceq 'NO_RECORDED_RESULT') $true "RT002 $envelope missing evidence reason"
+Assert-Eq ($j.status -ceq 'CAPABILITY_RUNTIME_UNAVAILABLE') $true "RT002 $envelope missing evidence cannot activate"
+$r = Invoke-Hh -WorkDir $T027 -ArgList @('--verify-response', '--nonce', $HostNonce, '--recorded-result', 'host-denial.json', '--runtime', 'unknown-host')
+Assert-Eq $r.ExitCode 2 "RT002 $envelope unknown CLI runtime rejected"
+}
 
 Write-Output "PASS: $script:PassCount"
 Write-Output "FAIL: $script:FailCount"
