@@ -31,3 +31,12 @@ Root's additional diagnostic identified the same terminator defect in overlappin
 - Fixed grammar prefix remains 9,764 bytes / `6d59f363a1f267b24045449c900d1712dc56d908f4dc857af44663444952ab16`; production remains `3f70c35ffb3e3a936ac697a137473749fe04e51b66d8c3a24718b63bf1ba67ff`. Private actual evidence: `specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-run.json`, SHA-256 `bf662b19a26daabb2a6ea62d02bc3e235e8a8604c5062f4f6c429d3794e7709b`.
 
 Stop for root's RED review/checkpoint before further production work. Prior note/report prefixes, source/state/frozen inputs and saved evidence remain preserved; no worker Git mutation occurred. This is additional correction 1 within maximum 3; remaining allowance 2. T-001 remains incomplete.
+
+## Overlap GREEN continuation — 2026-09-29
+
+Root verified RED and committed the fixed test/note at `c075cb1e84f3675644c1a9c3153eed13b45349d0`, authorizing this repair. Bare assignment scanning now consumes exact complete markers for the existing six families and retains their family before the existing suffix scan/span creation (`plugins/sdd-context/privacy.mjs:84,105–117`). Contiguous suffixes remain masked; bounds, quoted/header/overlap rules and current-scan omission are unchanged.
+
+- Actual fixed JSON/privacy **34/34**, validation **112/112**, each once, exit 0, fail/skip 0; Node v24.13.0, Darwin arm64, login=false. Tests unchanged. Source SHA-256 `fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6`; grammar SHA-256 `80f806a43c941f13de1a5c07c4a63df9df039d3e42af4f04a544009ece44c19e`.
+- Private actual command/output/UTC/environment/guards: `specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/green-run.json` and `validation-run.json`, SHA-256 respectively `12996d8465a7b424c21c4ee0e9658e66eb59b26ce03f05c188515a3aff197cc1` and `62b06a3c6f43fde657e21501d907e334c528b1861d6106c8aea85ec744a6c1bb`.
+
+The preceding RED stop is superseded by this authorized continuation. Stop for ordinary independent review; prior evidence/prefixes, fixed tests, other production and frozen/task/status/ledger/registry inputs remain preserved. No worker Git mutation or JournalRecord/persistence/CI/formal-verdict/T-001-completion claim. Correction remains 1/3; remaining allowance 2.

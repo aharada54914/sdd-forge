@@ -81,6 +81,7 @@ function scan(text, deadline) {
     next++;
     while (text[next] === ' ' || text[next] === '\t') next++;
     const valueStart = next;
+    let family = 'assignment';
     const quote = text[next];
     if (quote === '|' || quote === '>') reject();
     if (quote === '"' || quote === "'") {
@@ -101,12 +102,19 @@ function scan(text, deadline) {
       if (quote === '"' && !JSON.parse(literal).isWellFormed()) reject();
       if (next - valueStart === 2) continue;
     } else {
+      for (const candidate of ['pem', 'assignment', 'header', 'url', 'token', 'jwt']) {
+        const marker = `[REDACTED:${candidate}]`;
+        if (!text.startsWith(marker, next)) continue;
+        next += marker.length;
+        family = candidate;
+        break;
+      }
       while (next < text.length && !/[\s,;}\]]/.test(text[next])) {
         if (next - valueStart > VALUE_BYTES) reject();
         next++;
       }
     }
-    add(valueStart, next, 'assignment');
+    add(valueStart, next, family);
   }
 
   for (const match of text.matchAll(/https?:\/\/[^\s"'<>]*/gi)) {
