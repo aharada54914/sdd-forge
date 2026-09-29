@@ -5,10 +5,16 @@ $root = Join-Path ([IO.Path]::GetTempPath()) ('sdd-private-' + [Guid]::NewGuid()
 try {
   $parent = Join-Path $root '.sdd'
   [IO.Directory]::CreateDirectory($parent) | Out-Null
+  $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User
+  $parentAcl = Get-Acl -LiteralPath $parent
+  $parentAcl.SetOwner($sid)
+  Set-Acl -LiteralPath $parent -AclObject $parentAcl
+  if (-not (Get-Acl -LiteralPath $parent).GetOwner([Security.Principal.SecurityIdentifier]).Equals($sid)) {
+    throw 'fixture parent owner mismatch'
+  }
   $store = Join-Path $parent 'context'
   $result = & pwsh -NoLogo -NoProfile -NonInteractive -File $helper -Store $store
   if ($LASTEXITCODE -ne 0 -or $result -cne 'created') { throw 'fresh creation failed' }
-  $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User
   $acl = Get-Acl -LiteralPath $store
   if (-not $acl.AreAccessRulesProtected -or -not $acl.GetOwner([Security.Principal.SecurityIdentifier]).Equals($sid)) {
     throw 'private owner/protection mismatch'
