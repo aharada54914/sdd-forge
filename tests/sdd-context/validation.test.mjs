@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -11,6 +11,9 @@ import test, { after } from 'node:test';
 // trustedContext is core-owned, never copied from request fields.
 const subject = new URL('../../plugins/sdd-context/validation.mjs', import.meta.url);
 const validate = existsSync(subject) ? (await import(subject.href)).validate : undefined;
+const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
+const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
+const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'sdd-context-validation-')));
 after(() => rmSync(scratch, { recursive: true, force: true }));
 function git(root, ...args) {
@@ -710,9 +713,6 @@ check('REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targe
   }
 });
 
-const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
-const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
-const { statSync, readFileSync } = await import('node:fs');
 function rejectPreparation(value, f, extra = {}) {
   assert.equal(typeof prepareStore, 'function', 'new private store preparation is not implemented');
   let caught;
@@ -881,7 +881,6 @@ check('JOURNAL-OWNER: closed canonical owner independently rejects every foreign
   }
 });
 
-const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
 const journalSecret = ['synthetic', 'journal', 'credential'].join('-');
 const journalKey = ['pass', 'word'].join('');
 const journalSensitive = [
@@ -922,5 +921,249 @@ check('JOURNAL-JSON-GUARDS: shared JSON deadline Git and planned-path checks rem
   for (const target of [join(outside, 'record.json'), normal.root + '/.sdd/context/../../foreign.json',
     join(normal.root, '.sdd', 'context', 'escape', 'record.json')]) {
     rejected(journalRecord(), 'JournalRecordV1', normal, { plannedPaths: [target] });
+  }
+});
+
+const outcomeKinds = ['captured', 'uncaptured-warning', 'safe', 'unsafe', 'unavailable', 'recovered', 'no-op', 'cleaned', 'cleanup-warning'];
+const outcomeCodes = ['ok', 'unsupported', 'validation-rejected', 'privacy-rejected', 'storage-failed',
+  'integrity-failed', 'reconcile-failed', 'publication-failed', 'ownership-mismatch', 'expired', 'cleanup-failed', 'budget-exhausted'];
+const outcome = (kind = 'unavailable') => ({ schemaVersion: 1, kind,
+  reasonCode: ['captured', 'safe', 'recovered', 'cleaned'].includes(kind) ? 'ok' : 'unsupported', omission: false,
+  ...structuredClone({ captured: { sequence: 0, synced: true },
+    safe: { synced: true, reconciled: true, integrity: true, published: true },
+    recovered: { coverage: 'complete', entries: [{ sourceSequences: [0], text: 'ordinary text', omission: false }],
+      pointers: [{ opaqueId: 'pointer', reasonCode: 'expired' }] },
+    cleaned: { expiredCount: 0, removedCount: 0, completed: true } }[kind] ?? {}) });
+for (const kind of outcomeKinds) {
+  check(`OR-OUTCOME-VALID-${kind}: closed result encoding admits without claiming operation execution`, () => {
+    for (const omission of [false, true]) {
+      const value = { ...outcome(kind), omission };
+      if (kind === 'captured') value.sequence = omission ? Number.MAX_SAFE_INTEGER : 0;
+      if (kind === 'cleaned') value.expiredCount = value.removedCount = omission ? Number.MAX_SAFE_INTEGER : 0;
+      assert.deepEqual(admit(value, 'OutcomeV1'), value);
+      assert.ok(Buffer.byteLength(JSON.stringify(value)) <= 8192);
+    }
+    assert.equal(existsSync(normal.target), false, 'outcome admission created a store file');
+  });
+}
+check('OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules', () => {
+  for (const kind of ['uncaptured-warning', 'unsafe', 'unavailable', 'cleanup-warning', 'no-op']) {
+    for (const reasonCode of kind === 'no-op' ? outcomeCodes : outcomeCodes.slice(1)) {
+      const value = { ...outcome(kind), reasonCode }; assert.deepEqual(admit(value, 'OutcomeV1'), value);
+    }
+  }
+  for (const diagnostic of outcomeCodes) {
+    const value = { ...outcome(), diagnostic };
+    assert.deepEqual(admit(value, 'OutcomeV1'), value);
+    const recovered = outcome('recovered'); recovered.pointers[0].reasonCode = diagnostic;
+    assert.deepEqual(admit(recovered, 'OutcomeV1'), recovered);
+  }
+});
+check('OR-OUTCOME-CLOSED: every per-kind field is required and foreign result fields reject', () => {
+  for (const kind of outcomeKinds) {
+    for (const field of Object.keys(outcome(kind))) {
+      const value = outcome(kind); delete value[field]; rejected(value, 'OutcomeV1');
+    }
+    for (const field of ['owner', 'text', 'path', 'hash', 'stack', 'cause', 'deadline', 'entries', 'pointers',
+      'coverage', 'sequence', 'synced', 'reconciled', 'integrity', 'published', 'expiredCount', 'removedCount', 'completed']) {
+      if (!Object.hasOwn(outcome(kind), field)) rejected({ ...outcome(kind), [field]: true }, 'OutcomeV1');
+    }
+  }
+  for (const value of [null, [], 'outcome', 1, true]) rejected(value, 'OutcomeV1');
+});
+check('OR-OUTCOME-FIELDS: exact versions discriminants booleans and fixed vocabulary reject malformed values', () => {
+  for (const [field, invalid] of [
+    ['schemaVersion', [0, 2, '1', null, true, [], {}]],
+    ['kind', ['', 'unknown', ...outcomeKinds.map(kind => kind.toUpperCase()), null, 1, false, [], {}]],
+    ['omission', [null, 0, 1, 'false', [], {}]],
+    ['reasonCode', ['', 'unknown', ...outcomeCodes.map(code => code.toUpperCase()), journalSecret, normal.root, hash, null, 1, false, [], {}]],
+    ['diagnostic', ['', 'unknown', ...outcomeCodes.map(code => code.toUpperCase()), journalSecret, normal.root, hash, '\ud800', null, 1, false, [], {}]],
+  ]) for (const item of invalid) rejected({ ...outcome(), [field]: item }, 'OutcomeV1');
+});
+check('OR-OUTCOME-EVIDENCE: required success flags are literal true and counters are safe nonnegative integers', () => {
+  for (const kind of ['captured', 'safe', 'recovered', 'cleaned']) {
+    for (const reasonCode of outcomeCodes.slice(1)) rejected({ ...outcome(kind), reasonCode }, 'OutcomeV1');
+  }
+  for (const kind of ['uncaptured-warning', 'unsafe', 'unavailable', 'cleanup-warning']) {
+    rejected({ ...outcome(kind), reasonCode: 'ok' }, 'OutcomeV1');
+  }
+  for (const [kind, fields] of [['captured', ['synced']], ['safe', ['synced', 'reconciled', 'integrity', 'published']], ['cleaned', ['completed']]]) {
+    for (const field of fields) for (const item of [false, null, 0, 1, 'true', [], {}]) {
+      rejected({ ...outcome(kind), [field]: item }, 'OutcomeV1');
+    }
+  }
+  for (const [kind, fields] of [['captured', ['sequence']], ['cleaned', ['expiredCount', 'removedCount']]]) {
+    for (const field of fields) for (const item of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, '0', null, true, [], {}]) {
+      rejected({ ...outcome(kind), [field]: item }, 'OutcomeV1');
+    }
+  }
+});
+check('OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit', () => {
+  for (const coverage of ['complete', 'partial', 'unavailable']) {
+    const value = outcome('recovered'); value.coverage = coverage;
+    value.entries[0].sourceSequences = [0, Number.MAX_SAFE_INTEGER];
+    value.entries[0].text = ''; value.entries[0].omission = true;
+    for (const opaqueId of ['p', 'x'.repeat(1024), '🙂'.repeat(256)]) {
+      value.pointers[0].opaqueId = opaqueId; assert.deepEqual(admit(value, 'OutcomeV1'), value);
+    }
+    value.entries = []; value.pointers = []; assert.deepEqual(admit(value, 'OutcomeV1'), value);
+  }
+});
+check('OR-OUTCOME-RECOVERY-SHAPE: nested entry and pointer closures scalars and arrays reject malformed values', () => {
+  for (const [field, invalid] of [['coverage', ['', 'unknown', 'Complete', 'Partial', 'Unavailable', null, 1, [], {}]],
+    ['entries', [null, {}, 'entries', 1]], ['pointers', [null, {}, 'pointers', 1]]]) {
+    for (const item of invalid) rejected({ ...outcome('recovered'), [field]: item }, 'OutcomeV1');
+  }
+  for (const [list, invalidFields] of [['entries', {
+    sourceSequences: [[], null, {}, 'source', [null], [-1], [0.5], [Number.MAX_SAFE_INTEGER + 1], ['0'], [true], [[]]],
+    text: [null, 1, false, [], {}, '\ud800'], omission: [null, 0, 'false', [], {}] }], ['pointers', {
+    opaqueId: ['', 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800', null, 1, false, [], {}],
+    reasonCode: ['', 'unknown', 'Expired', journalSecret, normal.root, hash, null, 1, false, [], {}] }]]) {
+    for (const item of [null, [], 'entry', 1]) {
+      const value = outcome('recovered'); value[list] = [item]; rejected(value, 'OutcomeV1');
+    }
+    for (const field of Object.keys(invalidFields)) {
+      const missing = outcome('recovered'); delete missing[list][0][field]; rejected(missing, 'OutcomeV1');
+      for (const item of invalidFields[field]) {
+        const value = outcome('recovered'); value[list][0][field] = item; rejected(value, 'OutcomeV1');
+      }
+    }
+    for (const field of ['extra', 'owner', 'path', 'hash', 'originalReceipts']) {
+      const value = outcome('recovered'); value[list][0][field] = true; rejected(value, 'OutcomeV1');
+    }
+  }
+});
+check('OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families', () => {
+  for (const [, raw] of journalSensitive) {
+    const clean = journalRedact(raw, context('OutcomeV1').deadline).text;
+    for (const omission of [false, true]) {
+      const value = outcome('recovered'); value.entries[0].text = clean; value.entries[0].omission = value.omission = omission;
+      assert.deepEqual(admit(value, 'OutcomeV1'), value);
+      value.entries[0].text = raw;
+      const expected = structuredClone(value); expected.entries[0].text = clean;
+      expected.entries[0].omission = expected.omission = true;
+      assert.deepEqual(admit(value, 'OutcomeV1'), expected);
+      assert.equal(expected.entries[0].text.includes(journalSecret), false);
+    }
+  }
+  const invalid = outcome('recovered'); invalid.entries[0].text = `${journalKey}="unterminated`;
+  rejected(invalid, 'OutcomeV1');
+});
+check('OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193', () => {
+  for (const unit of ['界', '"\n']) {
+    const value = outcome('recovered'); value.diagnostic = 'ok'; value.entries[0].text = '';
+    const available = 8192 - Buffer.byteLength(JSON.stringify(value));
+    const encoded = Buffer.byteLength(JSON.stringify(unit)) - 2;
+    value.entries[0].text = unit.repeat(Math.floor(available / encoded)) + 'x'.repeat(available % encoded);
+    assert.equal(Buffer.byteLength(JSON.stringify(value)), 8192);
+    assert.deepEqual(admit(value, 'OutcomeV1'), value);
+    value.entries[0].text += 'x'; assert.equal(Buffer.byteLength(JSON.stringify(value)), 8193);
+    rejected(value, 'OutcomeV1');
+  }
+});
+
+// Synthetic core-owned confirmation controls, independent of the registry JSON.
+const confirmedOwners = [{ ...normal.owner }, { ...sha1.owner }];
+const ownerRegistry = () => ({ schemaVersion: 1, entries: [registryEntry(),
+  { ...registryEntry(sha1), registrationId: 'foreign-registration' }], maxObservedUtc: '2026-09-29T00:00:00Z' });
+check('OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state', () => {
+  for (const schedulerState of ['enabled', 'disabled', 'failed']) {
+    for (const registrationId of ['r', 'x'.repeat(1024), '🙂'.repeat(256)]) {
+      const value = ownerRegistry(); value.entries.forEach(entry => { entry.schedulerState = schedulerState; });
+      value.entries[1].registrationId = registrationId; value.entries[1].checkedAtUtc = value.maxObservedUtc = '2026-09-29T00:00:00.123Z';
+      const before = JSON.stringify(confirmedOwners);
+      assert.deepEqual(admit(value, 'OwnerRegistryV1', { confirmedOwners }), value);
+      assert.equal(JSON.stringify(confirmedOwners), before, 'registry admission mutated trusted confirmation');
+    }
+  }
+  const value = ownerRegistry(); value.entries = [];
+  assert.deepEqual(admit(value, 'OwnerRegistryV1', { confirmedOwners: [] }), value);
+  assert.equal(existsSync(normal.target), false); assert.equal(existsSync(sha1.target), false);
+});
+check('OR-REGISTRY-CLOSED: registry and each nested locator require closed fields', () => {
+  for (const field of Object.keys(ownerRegistry())) {
+    const value = ownerRegistry(); delete value[field]; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const field of ['confirmedOwners', 'text', 'owner', 'deadline', 'plannedPaths', 'extra']) {
+    rejected({ ...ownerRegistry(), [field]: confirmedOwners }, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const value of [null, [], 'registry', 1, true]) rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  for (const field of Object.keys(registryEntry())) {
+    const value = ownerRegistry(); delete value.entries[1][field]; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const field of ['schemaVersion', 'text', 'confirmed', 'path', 'extra']) {
+    const value = ownerRegistry(); value.entries[1][field] = true; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+});
+check('OR-REGISTRY-FIELDS: root and foreign entry scalar bounds UTC states and array shapes reject', () => {
+  for (const [field, invalid] of [['schemaVersion', [0, 2, '1', null, true, [], {}]], ['entries', [null, {}, 'entries', 1]],
+    ['maxObservedUtc', ['', null, 1, false, [], {}, '2026-02-30T00:00:00Z', '2026-09-29T24:00:00Z', '2026-09-29T00:00:00+00:00']]]) {
+    for (const item of invalid) rejected({ ...ownerRegistry(), [field]: item }, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const item of [null, [], 'entry', 1]) {
+    const value = ownerRegistry(); value.entries = [item]; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const [field, invalid] of [['registrationId', ['', null, 1, false, [], {}, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']],
+    ['schedulerState', ['', 'unknown', 'Enabled', 'Disabled', 'Failed', null, 1, false, [], {}]],
+    ['checkedAtUtc', ['', null, 1, false, [], {}, '2026-02-30T00:00:00Z', '2026-09-29T24:00:00Z', '2026-09-29T00:00:00+00:00']]]) {
+    for (const item of invalid) {
+      const value = ownerRegistry(); value.entries[1][field] = item; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+    }
+  }
+});
+check('OR-REGISTRY-OWNER: foreign nested owner closure and every unconfirmed tuple component reject', () => {
+  for (const owner of [null, [], 'owner', 1]) {
+    const value = ownerRegistry(); value.entries[1].owner = owner; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const field of Object.keys(sha1.owner)) {
+    const value = ownerRegistry(); delete value.entries[1].owner[field]; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  for (const [field, item] of [['schemaVersion', 2], ['sddRoot', normal.root], ['worktreeRoot', normal.root],
+    ['gitDirectory', normal.owner.gitDirectory], ['featureId', 'foreign'], ['host', 'claude'], ['sessionId', 'foreign'], ['confirmed', true]]) {
+    const value = ownerRegistry(); value.entries[1].owner[field] = item; rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+});
+check('OR-REGISTRY-TRUST: missing malformed or self-asserted confirmation cannot authorize a registry', () => {
+  rejected(ownerRegistry(), 'OwnerRegistryV1');
+  for (const list of [null, {}, 'owners', 1, [], [{ ...normal.owner }], [null], [[], {}],
+    [{ ...sha1.owner, extra: true }], [{ ...sha1.owner, schemaVersion: 2 }]]) {
+    rejected(ownerRegistry(), 'OwnerRegistryV1', normal, { confirmedOwners: list });
+  }
+  rejected({ ...ownerRegistry(), confirmedOwners }, 'OwnerRegistryV1');
+  const value = ownerRegistry();
+  value.entries[1].confirmedOwners = [{ ...sha1.owner }]; rejected(value, 'OwnerRegistryV1');
+});
+check('OR-REGISTRY-UNIQUE: identical or conflicting canonical owner tuples and duplicate IDs reject', () => {
+  for (const change of [{}, { registrationId: 'second', schedulerState: 'disabled' },
+    { registrationId: 'second', storeRoot: join(sha1.root, '.sdd', 'context') }]) {
+    const value = ownerRegistry(); value.entries = [registryEntry(), { ...registryEntry(), ...change }];
+    rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+  const aliases = ownerRegistry(); aliases.entries = [registryEntry(), { ...registryEntry(), registrationId: 'alias' }];
+  for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory']) aliases.entries[1].owner[field] += '/';
+  rejected(aliases, 'OwnerRegistryV1', normal, { confirmedOwners });
+  const duplicateId = ownerRegistry(); duplicateId.entries[1].registrationId = duplicateId.entries[0].registrationId;
+  rejected(duplicateId, 'OwnerRegistryV1', normal, { confirmedOwners });
+});
+check('OR-REGISTRY-STORE: each locator binds exactly to its confirmed owner context store', () => {
+  for (const storeRoot of [null, 1, [], {}, sha1.root, sha1.target, join(sha1.root, '.git'),
+    join(sha1.root, '.sdd', 'context', 'child'), registryEntry().storeRoot, outside,
+    join(normal.root, '.sdd', 'context', 'escape'), sha1.root + '/.sdd/context/../../outside']) {
+    const value = ownerRegistry(); value.entries[1].storeRoot = storeRoot;
+    rejected(value, 'OwnerRegistryV1', normal, { confirmedOwners });
+  }
+});
+check('OR-SHARED-GUARDS: both new types retain JSON deadline Git and planned-path rejection', () => {
+  for (const [type, value, extra] of [['OutcomeV1', outcome(), {}], ['OwnerRegistryV1', ownerRegistry(), { confirmedOwners }]]) {
+    const source = JSON.stringify(value);
+    for (const raw of [source.slice(0, -1), source.replace('"schemaVersion":1', '"schemaVersion":1,"schema\\u0056ersion":1')]) {
+      rejected(raw, type, normal, extra, true);
+    }
+    rejected(value, type, normal, { ...extra, deadline: performance.now() - 1 });
+    for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) rejected(value, type, f, extra);
+    for (const target of [join(outside, 'result.json'), normal.root + '/.sdd/context/../../foreign.json',
+      join(normal.root, '.sdd', 'context', 'escape', 'result.json')]) {
+      rejected(value, type, normal, { ...extra, plannedPaths: [target] });
+    }
   }
 });
