@@ -104,10 +104,10 @@ test('fixture control: production Git path checks accept the ignored target', ()
   const run = (...args) => spawnSync('git', ['-C', normal.root, ...args], { encoding: 'utf8', env });
   const top = run('rev-parse', '--show-toplevel');
   assert.equal(top.status, 0, 'Git top-level lookup');
-  assert.equal(realpathSync(top.stdout.trim()), normal.root, 'Git top-level identity');
+  assert.equal(realpathSync.native(top.stdout.trim()), realpathSync.native(normal.root), 'Git top-level identity');
   const directory = run('rev-parse', '--absolute-git-dir');
   assert.equal(directory.status, 0, 'Git directory lookup');
-  assert.equal(realpathSync(directory.stdout.trim()), normal.owner.gitDirectory, 'Git directory identity');
+  assert.equal(realpathSync.native(directory.stdout.trim()), realpathSync.native(normal.owner.gitDirectory), 'Git directory identity');
   const target = relative(normal.root, normal.target).split(sep).join('/');
   assert.equal(run('check-ignore', '--quiet', '--no-index', '--', target).status, 0, 'Git ignored target');
   const tracked = run('ls-files', '-z', '--', target);

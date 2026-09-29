@@ -42,7 +42,7 @@ export function validate(source, trusted) {
     const ownerFields = ['schemaVersion', 'sddRoot', 'worktreeRoot', 'gitDirectory', 'featureId', 'host', 'sessionId'];
     closed(trusted.owner, ownerFields);
     require(trusted.owner.schemaVersion === 1);
-    const canonical = item => { string(item); check(); const path = realpathSync(item); check(); return path; };
+    const canonical = item => { string(item); check(); const path = realpathSync.native(item); check(); return path; };
     const root = canonical(trusted.owner.worktreeRoot);
     const sddRoot = canonical(trusted.owner.sddRoot);
     const gitDirectory = canonical(trusted.owner.gitDirectory);
