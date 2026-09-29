@@ -83,3 +83,15 @@ An added prose line must identify this as synthetic test input. It cannot substi
 - Fixed test SHA256: `bdf05e0143b35c22cc99ead7b0bd4bcf27cf5c5aef63f9bfaab96d8ab6fd93aa`.
 - Actual output SHA256: `03e0eba6cee4fa2c09bc7da73eb654c74a5549b02447e9716f869b0a27c4d0db` (retained locally, not published).
 - Independent ordinary review found 0 findings. No formal verdict, task status, real ledger, reservation or production file changed. The test's no-bytecode guarantee relies on the recorded `-B` invocation. This checkpoint is not native activation, full parity, CI, quality-gate or delivery proof.
+
+## Fixed mutation checkpoint
+
+The two existing test helpers now materialize named mutations without treating a missing admission API as a successful rejection. The historical RED output remains unchanged: the 653-case catalog and corrected 168-case reference subset reached the real prior-contract and persisted-identity controls, but neither recovery API exists; semantic negative execution and PASS are both zero.
+
+The additional 39-case catalog contains one ledger-extension positive and 38 negatives. Fixture-only corrections used their three-attempt budget. The final continuation validated the completed-source NEEDS_WORK control and isolated the incorrect composite hash while coherently rebinding its invocation, ledger, raw output and receipt. These sibling controls do not prove recovery admission. Partial catalog runs are not presented as one aggregate execution, and already checked unchanged cases were not rerun.
+
+- Fixed fixture SHA256: `43429b945f3fd0195bd9cee2811c4635a794274894ebb3977e690a0c462784f4`.
+- Fixed runner SHA256: `3f390e9ab64b0ad27abe7f24600ef6b55b6996b3cbd5be70d9d94ec16bf7d180`.
+- No production, approval/status, frozen input, live identity ledger or reservation changed.
+
+The private implementation preflight maps current admission fields to concrete mismatch inputs. It also records downstream evidence limits rather than claiming absent report/revision/count/traceability reconciliation tests exist. Production must not start until the governing task's preflight requirement is satisfied. Actual admission, full twin regressions, independent quality verification, CI and delivery remain pending.
