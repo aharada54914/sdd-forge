@@ -129,7 +129,11 @@ function Invoke-PanelistRunner {
             $env:SDD_PANELIST_TIMEOUT = $TimeoutValue
         }
 
-        $output = & $script:powerShellHost -NoProfile -ExecutionPolicy Bypass -File $Runner.Path `
+        $invocation = @('-File', $Runner.Path)
+        if ($StubEnvironment.ContainsKey('STUB_RECHECK_RELEASE_FILE')) {
+            $invocation = @('-File', $script:recheckLauncher, '-RunnerPath', $Runner.Path)
+        }
+        $output = & $script:powerShellHost -NoProfile -ExecutionPolicy Bypass @invocation `
             --task T-901 --feature timeout-test --input $script:panelistInput `
             --spec-root $SpecRoot 2>&1
         $script:panelistExit = $LASTEXITCODE
@@ -169,6 +173,13 @@ function Assert-ProcessObservation {
     else { Fail "$Name awaited process observation" }
 }
 
+function Test-BoundaryTiming {
+    param([long]$Deadline, [long]$WaitEnd, [long]$OutputEnd)
+    return $Deadline -gt 0 -and $WaitEnd -gt 0 -and
+        $OutputEnd -gt 0 -and $WaitEnd -ge ($Deadline - 300) -and
+        $WaitEnd -le $OutputEnd -and $OutputEnd -le $Deadline
+}
+
 Push-Location $workDir
 try {
 $script:powerShellHost = (Get-Process -Id $PID).Path
@@ -177,103 +188,12 @@ $script:panelistInput = Join-Path $workDir "panelist-input.txt"
 New-Item -ItemType Directory -Path $script:panelistStubPath -Force | Out-Null
 Set-Content -Encoding Utf8 -Path $script:panelistInput -Value "sanitized test input"
 
-$panelistWorker = Join-Path $script:panelistStubPath "panelist-worker.ps1"
+$pythonName = if ($IsWindows) { 'python' } else { 'python3' }
+$python = Get-Command $pythonName -ErrorAction Stop
+& $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
+if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the panelist fixture' }
+$panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
 @'
-$ErrorActionPreference = "Stop"
-# STUB_START_FILE records the instant this process ran its first statement, so
-# the harness can separate the stub's own launch cost (process creation plus
-# pwsh cold start, which sits INSIDE the runner's WaitForExit window) from the
-# delay the stub was asked to introduce.
-if ($env:STUB_START_FILE) {
-    [IO.File]::WriteAllText($env:STUB_START_FILE, [string][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
-}
-if ($env:STUB_DEADLINE_FILE) {
-    [IO.File]::WriteAllText($env:STUB_DEADLINE_FILE, $env:SDD_PANELIST_DEADLINE_EPOCH_MS)
-}
-# These receipts are inside the deadline. Avoid provider/cmdlet cold-start
-# work here; keep their contents and the timeout assertions unchanged.
-if ($env:STUB_CALLED_FILE) { [IO.File]::WriteAllText($env:STUB_CALLED_FILE, "called") }
-if ($env:STUB_PID_FILE) { [IO.File]::WriteAllText($env:STUB_PID_FILE, [string]$PID) }
-
-if ($env:STUB_MODE -eq "hang") {
-    $childStdout = "$($env:STUB_CHILD_PID_FILE).stdout"
-    $childStderr = "$($env:STUB_CHILD_PID_FILE).stderr"
-    $child = Start-Process -FilePath (Get-Process -Id $PID).Path `
-        -ArgumentList "-NoProfile", "-Command", "Start-Sleep -Seconds 30" `
-        -RedirectStandardOutput $childStdout -RedirectStandardError $childStderr -PassThru
-    if ($env:STUB_CHILD_PID_FILE) { [IO.File]::WriteAllText($env:STUB_CHILD_PID_FILE, [string]$child.Id) }
-    Start-Sleep -Seconds 30
-}
-
-# Prepare the fixed response before the timed wait. Serializing it after the
-# wait adds cold ConvertTo-Json/JIT work to the intended completion instant.
-# Output still happens only after the same deadline-relative wait below.
-$stubResponse = @{
-    schema = "cross-model-verdict/v1"
-    task_id = "T-901"
-    feature = "timeout-test"
-    vendor = "stub"
-    model = "stub-model"
-    verdict = "PASS"
-    findings = @()
-    blind = $true
-    input_digest = ("a" * 64)
-    consent = @{ kind = "human-flag"; ref = "test fixture" }
-} | ConvertTo-Json -Compress -Depth 5
-if ($env:STUB_WARMUP -eq "1") {
-    # Prime the same wrapper/pwsh process path used by the timed boundary
-    # cases, without introducing a second timing contract into the test.
-    [Console]::Out.WriteLine($stubResponse)
-    exit 0
-}
-
-# Boundary cases derive their target from the exact absolute deadline exported
-# by the runner. This deducts child startup jitter without moving completion
-# earlier relative to the timeout clock.
-$completeAtEpochMs = if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
-    [long]$env:SDD_PANELIST_DEADLINE_EPOCH_MS - [long]$env:STUB_COMPLETE_BEFORE_DEADLINE_MS
-} elseif ($env:STUB_COMPLETE_AT_EPOCH_MS) {
-    [long]$env:STUB_COMPLETE_AT_EPOCH_MS
-} else { 0 }
-if ($completeAtEpochMs -gt 0) {
-    if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
-        # Use a kernel wait instead of Start-Sleep (which has shown large
-        # overshoots on windows-latest) or a busy spin (which can starve a
-        # two-core hosted runner across the ten consecutive boundary cases).
-        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        if ($remainingMs -gt 0) {
-            $waitHandle = [Threading.ManualResetEvent]::new($false)
-            try { $null = $waitHandle.WaitOne([int]$remainingMs) }
-            finally { $waitHandle.Dispose() }
-        }
-    } else {
-        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-        if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
-    }
-}
-if ($env:STUB_PHASE_FILE) {
-    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "wait_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`n")
-}
-$receiptEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-$stubConsole = [Console]::Out
-$consoleReady = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-$stubConsole.WriteLine($stubResponse)
-$writeEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-if ($env:STUB_PHASE_FILE) {
-    $stubConsole.Flush()
-    $flushEnd = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-    # Emit after output; these are operation timings, not process-exit proof.
-    [IO.File]::AppendAllText($env:STUB_PHASE_FILE, "output_end=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())`nreceipt_end=$receiptEnd`nconsole_ready=$consoleReady`nwrite_end=$writeEnd`nflush_end=$flushEnd`n")
-}
-'@ | Set-Content -Encoding Utf8 -Path $panelistWorker
-
-if ($IsWindows) {
-    # Keep interpreter startup out of the PowerShell worker's runtime path.
-    $python = Get-Command python -ErrorAction Stop
-    & $python.Source -c "import sys; assert sys.version_info >= (3, 9)"
-    if ($LASTEXITCODE -ne 0) { throw 'Python 3.9+ is required for the Windows panelist fixture' }
-    $panelistWorker = Join-Path $script:panelistStubPath 'panelist-worker.py'
-    @'
 import json
 import os
 import subprocess
@@ -299,6 +219,14 @@ if os.environ.get('STUB_MODE') == 'hang':
     receipt('STUB_CHILD_PID_FILE', child.pid)
     time.sleep(30)
 
+release_path = os.environ.get('STUB_RECHECK_RELEASE_FILE')
+if release_path:
+    release_limit = time.monotonic() + 15
+    while not os.path.exists(release_path):
+        if time.monotonic() >= release_limit:
+            sys.exit(2)
+        time.sleep(0.01)
+
 response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
     feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
     findings=[], blind=True, input_digest='a' * 64,
@@ -311,33 +239,58 @@ if os.environ.get('STUB_WARMUP') != '1':
     if remaining > 0:
         time.sleep(remaining / 1000)
 
+wait_end = now()
 phase_path = os.environ.get('STUB_PHASE_FILE')
-if phase_path:
-    with open(phase_path, 'a', encoding='utf-8') as handle:
-        handle.write(f'wait_end={now()}\n')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
-console.write(response + '\n')
+console.write((response[:10] if os.environ.get('STUB_OUTPUT_MODE') == 'incomplete' else response) + '\n')
 write_end = now()
+time.sleep(int(os.environ.get('STUB_OUTPUT_DELAY_MS', '0')) / 1000)
 console.flush()
 flush_end = now()
+output_end = now()
 if phase_path:
-    with open(phase_path, 'a', encoding='utf-8') as handle:
-        handle.write(f'output_end={now()}\nreceipt_end={receipt_end}\n'
+    with open(phase_path, 'w', encoding='utf-8') as handle:
+        handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
                      f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+sys.exit(int(os.environ.get('STUB_EXIT_CODE', '0')))
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
+
+# Pause the unmodified runner after its real timed wait returns false. Release
+# and await its real child before resuming HasExited; neither result is mocked.
+$script:recheckLauncher = Join-Path $workDir 'recheck-launcher.ps1'
+@'
+param([string]$RunnerPath)
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+$recheckLine = @(Select-String -LiteralPath $RunnerPath -SimpleMatch '$waitObservedAt =')
+if ($recheckLine.Count -ne 1) { throw 'Expected exactly one process recheck location' }
+Set-PSBreakpoint -Script $RunnerPath -Line $recheckLine[0].LineNumber -Action {
+    if ($waitCompleted) { throw 'Expected the actual timed wait to expire before release' }
+    $releaseAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    [IO.File]::WriteAllText($env:STUB_RECHECK_RELEASE_FILE, 'release')
+    if (-not $proc.WaitForExit(10000)) {
+        $proc.Kill($true)
+        throw 'Released real child did not finish'
+    }
+    [Console]::Error.WriteLine("panelist-recheck: pid=$($proc.Id) wait_completed=$([int]$waitCompleted) release_at=$releaseAt child_exit=$($proc.ExitCode) observed_exited=$([int]$proc.HasExited)")
+} | Out-Null
+& $RunnerPath @args
+exit $LASTEXITCODE
+'@ | Set-Content -Encoding Utf8 -Path $script:recheckLauncher
+if ($IsWindows) {
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath "$commandName.cmd"
         "@echo off`r`n`"$($python.Source)`" `"$panelistWorker`" %*`r`n" |
             Set-Content -Encoding Ascii -NoNewline -Path $wrapper
     }
 } else {
-    $quotedHost = $script:powerShellHost.Replace('"', '\"')
+    $quotedHost = $python.Source.Replace('"', '\"')
     $quotedWorker = $panelistWorker.Replace('"', '\"')
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath $commandName
-        "#!/bin/sh`nexec `"$quotedHost`" -NoProfile -File `"$quotedWorker`" `"`$@`"`n" |
+        "#!/bin/sh`nexec `"$quotedHost`" `"$quotedWorker`" `"`$@`"`n" |
             Set-Content -Encoding Utf8 -NoNewline -Path $wrapper
         & chmod +x $wrapper
     }
@@ -702,29 +655,37 @@ $panelistRunners = @(
     Write-Host "note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness"
 
     # ============================================================================
-    # TEST-004(c): near-boundary successful completion, repeated five times
+    # TEST-004(c): normal process completion, repeated five times
     # ============================================================================
     # The runner exports the one absolute deadline it uses for both process
-    # launch and WaitForExit. The stub completes at a fixed margin before that
-    # same deadline. TEST-004(a)/005 already exercise the strict short-timeout
-    # path; this repeated success case must not turn Windows hosted-runner
-    # process-start scheduling noise into a false failure.
-    Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
-    # Windows hosted runners can add more than two seconds of process launch
-    # and console-flush jitter even after the warm-up. Keep the production
-    # timeout unchanged; use a slightly wider fixture-only budget for this
-    # success probe so it measures an in-deadline completion rather than host
-    # scheduling noise. The timeout/fail-closed contract remains covered by
-    # TEST-004(a)/005 with a one-second bound.
-    $nearBoundaryMarginMs = if ($IsWindows) { 1200 } else { 800 }
-    $nearBoundaryBudgetSec = if ($IsWindows) { 3 } else { 2 }
+    # launch and WaitForExit. Leave 2000ms for output and process teardown;
+    # fixed boundary receipts below test timing independently of host speed.
+    Write-Host "=== TEST-004(c): PowerShell normal completion ==="
+    & (Join-Path $PSScriptRoot 'cross-model-empty-phase.tests.ps1')
+    if ($LASTEXITCODE -eq 0) { Ok "TEST-004(c): empty phase log regression" }
+    else { Fail "TEST-004(c): empty phase log regression" }
+    $completionSlackMs = 2000
+    $completionBudgetSec = 4
+    $outputDelayMs = 500
+    foreach ($case in @(
+        @{ Name = "lower edge"; WaitEnd = 1700; OutputEnd = 1800; Expected = $true },
+        @{ Name = "deadline edge"; WaitEnd = 1800; OutputEnd = 2000; Expected = $true },
+        @{ Name = "early completion"; WaitEnd = 1699; OutputEnd = 1800; Expected = $false },
+        @{ Name = "late child output"; WaitEnd = 1800; OutputEnd = 2001; Expected = $false },
+        @{ Name = "reversed child phases"; WaitEnd = 1800; OutputEnd = 1799; Expected = $false },
+        @{ Name = "missing output receipt"; WaitEnd = 1800; OutputEnd = 0; Expected = $false },
+        @{ Name = "missing wait receipt"; WaitEnd = 0; OutputEnd = 1800; Expected = $false }
+    )) {
+        if ((Test-BoundaryTiming 2000 $case.WaitEnd $case.OutputEnd) -eq $case.Expected) {
+            Ok "TEST-004(c): deterministic boundary evidence ($($case.Name))"
+        } else { Fail "TEST-004(c): deterministic boundary evidence ($($case.Name))" }
+    }
     foreach ($runner in $panelistRunners) {
         # Windows-hosted runners can pay a one-time process/runtime startup
         # cost on the first Gemini invocation. Warm the exact runner + stub
-        # path once, outside the measured cases, so TEST-004(c) measures only
-        # the completion path after the runner has been warmed.
-        $warmupRoot = Join-Path $workDir "boundary-$($runner.Name)-warmup/specs"
-        $warmupMarker = Join-Path $workDir "boundary-$($runner.Name)-warmup.called"
+        # path once, outside the measured normal-completion cases.
+        $warmupRoot = Join-Path $workDir "normal-$($runner.Name)-warmup/specs"
+        $warmupMarker = Join-Path $workDir "normal-$($runner.Name)-warmup.called"
         Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "5" `
             -SpecRoot $warmupRoot -StubEnvironment @{
                 STUB_WARMUP = "1"
@@ -738,17 +699,18 @@ $panelistRunners = @(
             Write-Host ("runner diagnostic: " + $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length)))
         }
         for ($iteration = 1; $iteration -le 5; $iteration++) {
-            $deadlineMs = $nearBoundaryBudgetSec * 1000
-            $caseName = "boundary-$($runner.Name)-$iteration"
+            $deadlineMs = $completionBudgetSec * 1000
+            $caseName = "normal-$($runner.Name)-$iteration"
             $caseRoot = Join-Path $workDir "$caseName/specs"
             $startFile = Join-Path $workDir "$caseName.stub-start"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
             $phaseFile = Join-Path $workDir "$caseName.phases"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$nearBoundaryBudgetSec" `
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$completionBudgetSec" `
                 -SpecRoot $caseRoot -StubEnvironment @{
-                    STUB_COMPLETE_BEFORE_DEADLINE_MS = "$nearBoundaryMarginMs"
+                    STUB_COMPLETE_BEFORE_DEADLINE_MS = "$completionSlackMs"
+                    STUB_OUTPUT_DELAY_MS            = "$outputDelayMs"
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
                     STUB_PHASE_FILE                   = $phaseFile
@@ -767,6 +729,9 @@ $panelistRunners = @(
             # add in-deadline observation cost; no timestamp proves process exit.
             $startupInsideBudgetMs = "missing"
             $parsedDeadline = [long]0
+            $waitEnd = [long]0
+            $outputEnd = [long]0
+            $observedAt = [long]0
             if ($stubStartEpoch -gt 0 -and [long]::TryParse($runnerDeadline, [ref]$parsedDeadline)) {
                 $startupInsideBudgetMs = $stubStartEpoch - ($parsedDeadline - $deadlineMs)
             }
@@ -774,22 +739,93 @@ $panelistRunners = @(
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             if (Test-Path -LiteralPath $phaseFile) {
+                $phaseText = [string](Get-Content -Raw -LiteralPath $phaseFile)
+                $waitRecords = [regex]::Matches($phaseText, '(?m)^wait_end=([0-9]+)\r?$')
+                if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
+                $outputRecords = [regex]::Matches($phaseText, '(?m)^output_end=([0-9]+)\r?$')
+                if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
                 foreach ($phase in Get-Content -LiteralPath $phaseFile) {
                     if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
                         Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
                     }
                 }
             }
-            if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
-                Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
+            $processRecords = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=[0-9]+ wait_completed=1 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
+            if ($processRecords.Count -eq 1) { $observedAt = [long]$processRecords[0].Groups[1].Value }
+            $processObservationValid = $processRecords.Count -eq 1 -and $observedAt -gt 0
+            $completionTiming = $parsedDeadline -gt 0 -and $waitEnd -gt 0 -and
+                ($outputEnd - $waitEnd) -ge $outputDelayMs -and $outputEnd -le $parsedDeadline
+            $expectedVerdict = [ordered]@{
+                schema = 'cross-model-verdict/v1'; task_id = 'T-901'; feature = 'timeout-test'
+                vendor = $(if ($runner.Name -ceq 'gpt') { 'openai' } else { 'google' })
+                model = 'stub-model'; verdict = 'PASS'; findings = @(); blind = $true
+                input_digest = ('a' * 64); consent = [ordered]@{ kind = 'human-flag'; ref = 'test fixture' }
+            } | ConvertTo-Json -Depth 5 -Compress
+            $actualVerdict = if (Test-Path $verdict) {
+                Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+            } else { '' }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd output_end=$outputEnd observed_at=$observedAt deadline=$parsedDeadline completion_timing=$([int]$completionTiming)"
+            if ($script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict -and $processObservationValid -and $completionTiming) {
+                Ok "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration"
             } else {
-                Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
+                Fail "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration ($detail)"
                 # This runner uses only the synthetic CLI and fixed test input.
                 # Keep failure diagnostics bounded and strip terminal controls.
                 $safeOutput = [regex]::Replace($script:panelistOutput, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '')
                 Write-Host ("runner diagnostic: " + $safeOutput.Substring(0, [Math]::Min(4096, $safeOutput.Length)))
             }
-            Assert-ProcessObservation -Name "boundary $($runner.Name) $iteration" -Completed $true
+            Assert-ProcessObservation -Name "normal $($runner.Name) $iteration" -Completed $true
+        }
+
+        # TEST-004(c2): the timed wait really expires, then that same handle
+        # really exits before HasExited. Debugger coordination removes timing
+        # luck while retaining the runner's deadline, process and output checks.
+        foreach ($case in @(
+            @{ Name = 'success'; ExitCode = 0; Output = 'complete'; Repeats = 5 },
+            @{ Name = 'nonzero'; ExitCode = 7; Output = 'complete'; Repeats = 1 },
+            @{ Name = 'incomplete'; ExitCode = 0; Output = 'incomplete'; Repeats = 1 }
+        )) {
+            for ($iteration = 1; $iteration -le $case.Repeats; $iteration++) {
+                $caseName = "recheck-$($runner.Name)-$($case.Name)-$iteration"
+                $caseRoot = Join-Path $workDir "$caseName/specs"
+                $pidFile = Join-Path $workDir "$caseName.pid"
+                Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue '2' `
+                    -SpecRoot $caseRoot -StubEnvironment @{
+                        STUB_RECHECK_RELEASE_FILE = Join-Path $workDir "$caseName.release"
+                        STUB_PID_FILE = $pidFile
+                        STUB_EXIT_CODE = "$($case.ExitCode)"
+                        STUB_OUTPUT_MODE = $case.Output
+                    }
+                $verdict = Join-Path $caseRoot (Join-Path 'timeout-test/verification' $runner.VerdictName)
+                $rechecks = [regex]::Matches($script:panelistOutput, '(?m)^panelist-recheck: pid=([0-9]+) wait_completed=0 release_at=([0-9]+) child_exit=([0-9]+) observed_exited=1\r?$')
+                $observations = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=([0-9]+) wait_completed=0 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
+                $realExit = $false
+                if ($rechecks.Count -eq 1 -and $observations.Count -eq 1 -and (Test-Path $pidFile)) {
+                    $recheck = $rechecks[0].Groups
+                    $observation = $observations[0].Groups
+                    $realExit = $recheck[1].Value -ceq $observation[1].Value -and
+                        [long]$recheck[2].Value -le [long]$observation[2].Value -and
+                        [int]$recheck[3].Value -eq $case.ExitCode -and
+                        (Test-ProcessExited ([int]$recheck[1].Value)) -and
+                        (Test-ProcessExited ([int](Get-Content -Raw -LiteralPath $pidFile)))
+                    Write-Host "measurement: TEST-004(c2) runner=$($runner.Name) case=$($case.Name) iteration=$iteration $($rechecks[0].Value)"
+                    Write-Host "measurement: TEST-004(c2) $($observations[0].Value)"
+                }
+                $valid = $realExit -and -not $script:panelistOutput.Contains('exceeded SDD_PANELIST_TIMEOUT', [StringComparison]::Ordinal)
+                if ($case.Name -ceq 'success') {
+                    $actualVerdict = if (Test-Path $verdict) {
+                        Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+                    } else { '' }
+                    $valid = $valid -and $script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict
+                } else {
+                    $valid = $valid -and $script:panelistExit -eq 1 -and -not (Test-Path $verdict)
+                }
+                if ($valid) { Ok "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration" }
+                else {
+                    Fail "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration (exit=$script:panelistExit)"
+                    Write-Host "runner diagnostic: $script:panelistOutput"
+                }
+            }
         }
     }
 
