@@ -9,8 +9,9 @@ the JSON schema itself (a top-of-file JSON comment is not valid JSON) —
 schema shape remains entirely Pillar C's C1 ownership; this file records
 provenance only.
 
-**No network fetch was performed to produce this record** (T-002's
-implementation constraint). The confirmation below applies the canonical
+**No network fetch was performed for the July 19 confirmation below** (T-002's
+implementation constraint); the September 28 refresh records its live fetch separately.
+The July confirmation applies the canonical
 source list `docs/contributor/workflow-detail.md`'s capability-refresh
 step already documents (epic-159-pillar-d T-001, #156) against the fixed
 family description issue #158's own body states, cross-referenced against
@@ -114,3 +115,18 @@ date column (left `未確認` by this task — that table's model-family
 values are separately locked routing/CLI pins, not this registry's
 current-generation catalog; see
 `specs/epic-159-pillar-d/verification/T-002/acceptance-first-red.md`).
+
+## Exact native-host refresh — 2026-09-28
+
+The preceding July confirmation remains historical. This refresh fetched the
+[official GPT-6-Astra model page](https://developers.openai.com/api/docs/models/gpt-6-astra)
+on September 28 and adds only exact native host ID `gpt-6-astra`. Its documented
+complex reasoning/coding capability supports the maintainer's `strong` tier
+classification; this is not a measured task benchmark. The host advertises high
+effort, and the entry retains only the selector's existing low/medium/high/xhigh
+vocabulary, default high and Codex flag control. No old entry, v1 parity lock,
+risk matrix or selector is changed. Availability and source-qualified attempt
+cost remain invocation-time inputs, not guarantees from registration.
+
+See `reports/verification/issue137-model-registration-candidate-20260928/report.md`
+for the conditional estimate, source date and executable fail-closed check.
