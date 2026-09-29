@@ -95,7 +95,7 @@ function Resolve-ContractTrack([string]$Document, [string]$Fixture, [string]$Fla
 try {
     $needsCapture = -not $Cache -or @('F1-invocation-1', 'F1-invocation-2', 'F2-invocation-1', 'F2-invocation-2').Where({ -not (Test-Path -LiteralPath (Join-Path $Cache $_)) }).Count -gt 0
     if ($needsCapture) {
-        & git clone -q --shared $Root $Clone
+        & git -c core.longpaths=true clone -q --shared $Root $Clone
         if ($LASTEXITCODE -ne 0) { throw 'could not create isolated capture repository' }
         Copy-Item -LiteralPath (Join-Path $Root 'tests/capture-golden-baseline.sh') -Destination (Join-Path $Clone 'tests/capture-golden-baseline.sh') -Force
         Copy-Item -LiteralPath (Join-Path $Root 'tests/capture-golden-baseline.ps1') -Destination (Join-Path $Clone 'tests/capture-golden-baseline.ps1') -Force

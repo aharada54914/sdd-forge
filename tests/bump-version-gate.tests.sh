@@ -90,6 +90,7 @@ build_fixture() {
   tar -xf "$archive" -C "$fixture_root"
   fixture_root="$(cd "$fixture_root" && pwd -P)"
   git -C "$fixture_root" init -q
+  git -C "$fixture_root" config core.longpaths true
   printf '%s' "$fixture_root"
 }
 

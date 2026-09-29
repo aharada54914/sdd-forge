@@ -265,8 +265,9 @@ export function validate(source, trusted) {
         const target = resolvePath(item);
         require(target !== store && inside(store, target));
         for (const path of new Set([resolve(root, item), target])) {
-          git('check-ignore', '--quiet', '--no-index', '--', relative(root, path));
-          require(git('ls-files', '-z', '--', relative(root, path)).length === 0);
+          const gitPath = relative(root, path).split(sep).join('/');
+          git('check-ignore', '--quiet', '--no-index', '--', gitPath);
+          require(git('ls-files', '-z', '--', gitPath).length === 0);
         }
         let before;
         try { before = lstatSync(target); }
