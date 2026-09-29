@@ -129,6 +129,11 @@ export function validate(source, trusted) {
         require(value.schemaVersion === 1); owner(value.owner); opaque(value.segmentId); integer(value.firstSequence); hash(value.predecessorHash);
         break;
       case 'DecisionV1': decision(value); break;
+      case 'RegistryEntryV1':
+        closed(value, ['owner', 'storeRoot', 'registrationId', 'schedulerState', 'checkedAtUtc']);
+        owner(value.owner); opaque(value.registrationId);
+        enumeration(value.schedulerState, ['enabled', 'disabled', 'failed']); utc(value.checkedAtUtc);
+        break;
       case 'ProjectionV1': {
         closed(value, ['schemaVersion', 'owner', 'head', 'authorityHashes', 'taskLifecycle', 'featurePresent', 'journalCursor', 'decisions']);
         require(value.schemaVersion === 1); owner(value.owner); string(value.head); boolean(value.featurePresent);
@@ -179,6 +184,7 @@ export function validate(source, trusted) {
       require(canonical(git('rev-parse', '--show-toplevel').trim()) === root);
       require(canonical(git('rev-parse', '--absolute-git-dir').trim()) === gitDirectory);
       const store = resolvePath(join(root, '.sdd', 'context'));
+      if (trusted.type === 'RegistryEntryV1') require(value.storeRoot === store);
       require(Array.isArray(trusted.plannedPaths) && trusted.plannedPaths.length > 0);
       for (const item of trusted.plannedPaths) {
         const target = resolvePath(item);
