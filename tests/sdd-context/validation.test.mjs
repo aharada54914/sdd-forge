@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import test, { after } from 'node:test';
 
@@ -97,6 +97,16 @@ function check(name, body) {
 test('fixture control: real Git ignore and tracked states are distinct', () => {
   assert.ok(git(normal.root, 'check-ignore', '--no-index', normal.target).trim());
   assert.equal(git(tracked.root, 'ls-files', '--', tracked.target).trim(), '.sdd/context/prepared.json');
+});
+test('validation does not require a local rtk executable', () => {
+  if (process.platform === 'win32') return;
+  const bin = join(scratch, 'blocked-rtk');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'rtk'), '#!/bin/sh\nexit 78\n', { mode: 0o755 });
+  const originalPath = process.env.PATH;
+  process.env.PATH = `${bin}${delimiter}${originalPath}`;
+  try { assert.deepEqual(admit(projection()), projection()); }
+  finally { process.env.PATH = originalPath; }
 });
 check('VALIDATION-API: one real shared entrance exists', () => {});
 check('PROJECTION-VALID: approved empty-journal shape returns the validated object', () => {
