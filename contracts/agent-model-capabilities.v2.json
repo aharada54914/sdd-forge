@@ -124,6 +124,21 @@
         "claude-code": "none",
         "codex-cli": "flag"
       }
+    },
+    {
+      "name": "gpt-6-astra",
+      "canonical_tier": "strong",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "high",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
     }
   ],
   "risk_effort_matrix": {
