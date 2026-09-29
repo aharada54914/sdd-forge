@@ -1,0 +1,157 @@
+{
+  "execution_run_id": "issue137-T001-json-admission-green-20260929-01a0eba3-a123-71e3-a7c2-16f9aaa5364f",
+  "execution_thread_id": "01a0eba3-a123-71e3-a7c2-16f9aaa5364f",
+  "execution_task_attempt_count": 1,
+  "execution_identity_source": "CODEX_THREAD_ID",
+  "environment": {
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "node": "v24.13.0"
+  },
+  "red_checkpoint_identity": {
+    "run_id": "issue137-T001-json-admission-20260929-01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+    "worker_thread_id": "01a0eb93-e0ae-7b33-bcac-acf52ad3fe25",
+    "receipt": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb93/red-commit.json",
+    "receipt_sha256": "091c05f8f74c94214ba555a72032d155ac6d3f837fbe650c52e56f2f3a9a40a8",
+    "commit": "ddd8e9e605942a929ec8d74d18070177bd8ed2a5"
+  },
+  "verified_inputs": {
+    "current": 24,
+    "snapshot": 24,
+    "red_ready_bound_fields": 5
+  },
+  "manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006",
+  "runs": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "tests/sdd-context/json-admission.test.mjs"
+      ],
+      "started_at": "2026-09-29T05:33:20.201643+00:00",
+      "ended_at": "2026-09-29T05:33:20.287027+00:00",
+      "exit_code": 0,
+      "counts": {
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "skipped": 0
+      },
+      "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/green-output.txt",
+      "evidence_sha256": "194c2274af5e5760f6406713eb4a96c72842958810bd4976a3ad15e5c47ab1f9",
+      "stdout_sha256": "194c2274af5e5760f6406713eb4a96c72842958810bd4976a3ad15e5c47ab1f9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "input_hashes": [
+        {
+          "path": "tests/sdd-context/json-admission.test.mjs",
+          "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+        }
+      ],
+      "normalization": "Workspace prefix replaced with <workspace>; trailing line whitespace removed; assertions unchanged"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "tests/sdd-context/privacy.test.mjs",
+        "tests/sdd-context/privacy-grammar.test.mjs"
+      ],
+      "started_at": "2026-09-29T05:33:20.287295+00:00",
+      "ended_at": "2026-09-29T05:33:20.381112+00:00",
+      "exit_code": 0,
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "skipped": 0
+      },
+      "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/privacy-regression-output.txt",
+      "evidence_sha256": "b8b2e0f131f8d5f940a814f18bfd7a458ae5c339d05e5e71769a32888afb021a",
+      "stdout_sha256": "b8b2e0f131f8d5f940a814f18bfd7a458ae5c339d05e5e71769a32888afb021a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "input_hashes": [
+        {
+          "path": "tests/sdd-context/privacy.test.mjs",
+          "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+        },
+        {
+          "path": "tests/sdd-context/privacy-grammar.test.mjs",
+          "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+        }
+      ],
+      "normalization": "Workspace prefix replaced with <workspace>; trailing line whitespace removed; assertions unchanged"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--check",
+        "plugins/sdd-context/json-admission.mjs"
+      ],
+      "started_at": "2026-09-29T05:33:20.381426+00:00",
+      "ended_at": "2026-09-29T05:33:20.408424+00:00",
+      "exit_code": 0,
+      "counts": {},
+      "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/module-syntax-output.txt",
+      "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "input_hashes": [
+        {
+          "path": "plugins/sdd-context/json-admission.mjs",
+          "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+        }
+      ],
+      "normalization": "Workspace prefix replaced with <workspace>; trailing line whitespace removed; assertions unchanged"
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--check",
+        "tests/sdd-context/json-admission.test.mjs"
+      ],
+      "started_at": "2026-09-29T05:33:20.408682+00:00",
+      "ended_at": "2026-09-29T05:33:20.434679+00:00",
+      "exit_code": 0,
+      "counts": {},
+      "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/test-syntax-output.txt",
+      "evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "input_hashes": [
+        {
+          "path": "tests/sdd-context/json-admission.test.mjs",
+          "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+        }
+      ],
+      "normalization": "Workspace prefix replaced with <workspace>; trailing line whitespace removed; assertions unchanged"
+    }
+  ],
+  "scope_checks": {
+    "unchanged_current_inputs": 24,
+    "unchanged_snapshot_inputs": 24,
+    "unchanged_fixed_test_sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "production_sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b",
+    "whitespace_checked_paths": [
+      "plugins/sdd-context/json-admission.mjs",
+      "tests/sdd-context/json-admission.test.mjs",
+      "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/test-syntax-output.txt",
+      "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/module-syntax-output.txt",
+      "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/privacy-regression-output.txt",
+      "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eba3/green-output.txt"
+    ],
+    "whitespace_result": "no trailing line whitespace",
+    "self_review": "JSON.parse owns syntax/value decoding; iterative object Sets reject decoded duplicate keys; raw and decoded strings require well-formed Unicode; 1 MiB and trusted monotonic deadline checked before admission; content-free internal Error only",
+    "unexecuted": "caller adapters/store, closed entity/request/outcome schemas, native owner/path/ACL, persistence/all-copy no-write, CI, independent review, quality gate",
+    "task_state": "Approved/In Progress; no approval/status/verdict edits"
+  }
+}

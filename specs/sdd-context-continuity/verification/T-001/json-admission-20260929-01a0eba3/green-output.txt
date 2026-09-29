@@ -1,0 +1,83 @@
+TAP version 13
+# JSON admission subject: production module
+# Subtest: TEST-046a JSON-API: planned shared admission API must exist
+ok 1 - TEST-046a JSON-API: planned shared admission API must exist
+  ---
+  duration_ms: 0.363541
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: repeated decoded names reject even with identical values
+ok 2 - TEST-046a JSON-DUPLICATE: repeated decoded names reject even with identical values
+  ---
+  duration_ms: 0.486667
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: escape-equivalent names reject after decoding
+ok 3 - TEST-046a JSON-DUPLICATE: escape-equivalent names reject after decoding
+  ---
+  duration_ms: 0.278208
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: nested objects and array elements use their own member sets
+ok 4 - TEST-046a JSON-DUPLICATE: nested objects and array elements use their own member sets
+  ---
+  duration_ms: 0.11925
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-DUPLICATE: prototype-like names are ordinary member identities
+ok 5 - TEST-046a JSON-DUPLICATE: prototype-like names are ordinary member identities
+  ---
+  duration_ms: 0.098875
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-UNICODE: decoded isolated/reversed surrogates in values and names reject
+ok 6 - TEST-046a JSON-UNICODE: decoded isolated/reversed surrogates in values and names reject
+  ---
+  duration_ms: 0.138958
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-UNICODE: raw isolated surrogates in source names and values reject
+ok 7 - TEST-046a JSON-UNICODE: raw isolated surrogates in source names and values reject
+  ---
+  duration_ms: 0.081917
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-UNICODE: nested decoded keys and values reject
+ok 8 - TEST-046a JSON-UNICODE: nested decoded keys and values reject
+  ---
+  duration_ms: 0.055125
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-SYNTAX: malformed JSON/escape errors remain content-free
+ok 9 - TEST-046a JSON-SYNTAX: malformed JSON/escape errors remain content-free
+  ---
+  duration_ms: 0.108916
+  type: 'test'
+  ...
+# Subtest: TEST-046a controls: valid JSON/Unicode preserve standard decoder values and separate scopes
+ok 10 - TEST-046a controls: valid JSON/Unicode preserve standard decoder values and separate scopes
+  ---
+  duration_ms: 0.154292
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-BOUNDS: exact 1 MiB UTF-8 input fits, +1 rejects without truncation
+ok 11 - TEST-046a JSON-BOUNDS: exact 1 MiB UTF-8 input fits, +1 rejects without truncation
+  ---
+  duration_ms: 12.906417
+  type: 'test'
+  ...
+# Subtest: TEST-046a JSON-BOUNDS: wrong source type and exhausted/nonfinite trusted deadline reject
+ok 12 - TEST-046a JSON-BOUNDS: wrong source type and exhausted/nonfinite trusted deadline reject
+  ---
+  duration_ms: 0.155584
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 52.778458

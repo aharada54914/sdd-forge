@@ -1,0 +1,126 @@
+TAP version 13
+# grammar subject: production module
+# Subtest: TEST-045a / TEST-046b: four PEM labels, multiline and 4096/+1 bytes
+ok 1 - TEST-045a / TEST-046b: four PEM labels, multiline and 4096/+1 bytes
+  ---
+  duration_ms: 1.496083
+  type: 'test'
+  ...
+# Subtest: TEST-045b: all keys, cases, quote styles and delimiters
+ok 2 - TEST-045b: all keys, cases, quote styles and delimiters
+  ---
+  duration_ms: 4.161709
+  type: 'test'
+  ...
+# Subtest: TEST-045b: escaped quotes/backslashes, CRLF, empty values and ASCII key boundaries
+ok 3 - TEST-045b: escaped quotes/backslashes, CRLF, empty values and ASCII key boundaries
+  ---
+  duration_ms: 0.347375
+  type: 'test'
+  ...
+# Subtest: TEST-045c: Bearer/Basic headers preserve lines and suppress assignment termination
+ok 4 - TEST-045c: Bearer/Basic headers preserve lines and suppress assignment termination
+  ---
+  duration_ms: 0.269709
+  type: 'test'
+  ...
+# Subtest: TEST-045d: both URL schemes, userinfo and all one-pass decoded query keys
+ok 5 - TEST-045d: both URL schemes, userinfo and all one-pass decoded query keys
+  ---
+  duration_ms: 1.239542
+  type: 'test'
+  ...
+# Subtest: TEST-045e / TEST-046b: prefix bounds, AWS exact length and boundaries
+ok 6 - TEST-045e / TEST-046b: prefix bounds, AWS exact length and boundaries
+  ---
+  duration_ms: 0.39
+  type: 'test'
+  ...
+# Subtest: TEST-045e / TEST-046b: linear JWT segments and aggregate sensitive-value bound
+ok 7 - TEST-045e / TEST-046b: linear JWT segments and aggregate sensitive-value bound
+  ---
+  duration_ms: 0.480292
+  type: 'test'
+  ...
+# Subtest: TEST-045e: overlapping assignment/token spans merge and preserve Unicode
+ok 8 - TEST-045e: overlapping assignment/token spans merge and preserve Unicode
+  ---
+  duration_ms: 0.0995
+  type: 'test'
+  ...
+# Subtest: TEST-045f: documented gaps do not become comprehensive detection claims
+ok 9 - TEST-045f: documented gaps do not become comprehensive detection claims
+  ---
+  duration_ms: 0.086042
+  type: 'test'
+  ...
+# Subtest: TEST-046a: malformed identified values, isolated/decoded surrogates, wrong text type
+ok 10 - TEST-046a: malformed identified values, isolated/decoded surrogates, wrong text type
+  ---
+  duration_ms: 0.222792
+  type: 'test'
+  ...
+# Subtest: TEST-046b: malformed sensitive URLs and percent escapes
+ok 11 - TEST-046b: malformed sensitive URLs and percent escapes
+  ---
+  duration_ms: 0.150166
+  type: 'test'
+  ...
+# Subtest: TEST-046b: 4096-byte bare/quoted/header/URL values and +1
+ok 12 - TEST-046b: 4096-byte bare/quoted/header/URL values and +1
+  ---
+  duration_ms: 1.25275
+  type: 'test'
+  ...
+# Subtest: TEST-046b: 1 MiB input, oversize and replacement expansion
+ok 13 - TEST-046b: 1 MiB input, oversize and replacement expansion
+  ---
+  duration_ms: 9.47825
+  type: 'test'
+  ...
+# Subtest: TEST-046c: 512 spans, 513 spans and elapsed process deadline
+ok 14 - TEST-046c: 512 spans, 513 spans and elapsed process deadline
+  ---
+  duration_ms: 0.967583
+  type: 'test'
+  ...
+# Subtest: TEST-046c: scanner decoder exception exposes no raw cause/stack/payload
+ok 15 - TEST-046c: scanner decoder exception exposes no raw cause/stack/payload
+  ---
+  duration_ms: 0.07825
+  type: 'test'
+  ...
+# privacy subject: production module
+# Subtest: TEST-045b: assignment value removed, surrounding text preserved, omission disclosed
+ok 16 - TEST-045b: assignment value removed, surrounding text preserved, omission disclosed
+  ---
+  duration_ms: 1.336959
+  type: 'test'
+  ...
+# Subtest: TEST-045c: authorization header removes the complete spaced value through CRLF
+ok 17 - TEST-045c: authorization header removes the complete spaced value through CRLF
+  ---
+  duration_ms: 0.190708
+  type: 'test'
+  ...
+# Subtest: TEST-046a: unclosed identified quote rejects rather than returning writable text
+ok 18 - TEST-046a: unclosed identified quote rejects rather than returning writable text
+  ---
+  duration_ms: 0.125
+  type: 'test'
+  ...
+# Subtest: TEST-045f control: ordinary Unicode and a non-key substring are unchanged
+ok 19 - TEST-045f control: ordinary Unicode and a non-key substring are unchanged
+  ---
+  duration_ms: 0.158833
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 61.980208
