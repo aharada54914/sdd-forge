@@ -435,6 +435,7 @@ case "\${STUB_MODE:-success}" in
         while [ "\$(date +%s)" -lt "\$_stub_end" ]; do sleep 1; done
         ;;
 esac
+sleep "\${STUB_OUTPUT_DELAY:-0}"
 cat <<JSON
 {"schema":"cross-model-verdict/v1","task_id":"T-901","feature":"timeout-test","vendor":"${vendor}","model":"stub-model","verdict":"PASS","findings":[],"blind":true,"input_digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","consent":{"kind":"human-flag","ref":"test"}}
 JSON
@@ -592,22 +593,32 @@ for runner_kind in gpt gemini; do
     run_timeout_case "$runner_kind" ignore-term b
 done
 
-# TEST-004(c): repeat the polling-boundary success case five times per runner.
+# TEST-004(c): normal completion with 2000ms slack and >200ms output delay,
+# repeated five times per runner. The separate c2 case covers boundary re-check.
 for runner_kind in gpt gemini; do
     runner=$(runner_path "$runner_kind")
     for iteration in 1 2 3 4 5; do
-        case_dir="${WORK}/boundary-${runner_kind}-${iteration}"
+        case_dir="${WORK}/normal-${runner_kind}-${iteration}"
         marker="${case_dir}/called"
         verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
         mkdir -p "$case_dir"
         started=$(monotonic_ms)
-        run_panelist "$runner" set 2 "$case_dir" \
-            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=2.5
+        run_panelist "$runner" set 4 "$case_dir" \
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=2 STUB_OUTPUT_DELAY=0.5
         finished=$(monotonic_ms)
         elapsed=$((finished-started))
-        echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
-        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ]; then
-            ok "TEST-004(c) ${runner_kind}/${iteration}: near-boundary completion stays successful"
+        echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} budget_ms=4000 slack_ms=2000 output_delay_ms=500 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
+        vendor=openai
+        [ "$runner_kind" = gemini ] && vendor=google
+        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ] && python3 -c '
+import json, sys
+expected = dict(schema="cross-model-verdict/v1", task_id="T-901", feature="timeout-test",
+    vendor=sys.argv[2], model="stub-model", verdict="PASS", findings=[], blind=True,
+    input_digest="a" * 64, consent=dict(kind="human-flag", ref="test"))
+with open(sys.argv[1]) as handle:
+    assert json.load(handle) == expected
+' "$verdict" "$vendor"; then
+            ok "TEST-004(c) ${runner_kind}/${iteration}: normal completion with delayed output stays successful"
         else
             fail "TEST-004(c) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
         fi

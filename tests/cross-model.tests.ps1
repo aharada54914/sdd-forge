@@ -234,6 +234,7 @@ console = sys.stdout
 console_ready = now()
 console.write(response + '\n')
 write_end = now()
+time.sleep(int(os.environ.get('STUB_OUTPUT_DELAY_MS', '0')) / 1000)
 console.flush()
 flush_end = now()
 output_end = now()
@@ -618,17 +619,18 @@ $panelistRunners = @(
     Write-Host "note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness"
 
     # ============================================================================
-    # TEST-004(c): near-boundary successful completion, repeated five times
+    # TEST-004(c): normal process completion, repeated five times
     # ============================================================================
     # The runner exports the one absolute deadline it uses for both process
-    # launch and WaitForExit. The stub completes at a fixed margin before that
-    # same deadline, preserving the two-second bound on every platform.
-    Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
+    # launch and WaitForExit. Leave 2000ms for output and process teardown;
+    # fixed boundary receipts below test timing independently of host speed.
+    Write-Host "=== TEST-004(c): PowerShell normal completion ==="
     & (Join-Path $PSScriptRoot 'cross-model-empty-phase.tests.ps1')
     if ($LASTEXITCODE -eq 0) { Ok "TEST-004(c): empty phase log regression" }
     else { Fail "TEST-004(c): empty phase log regression" }
-    $nearBoundaryMarginMs = 200
-    $nearBoundaryBudgetSec = 2
+    $completionSlackMs = 2000
+    $completionBudgetSec = 4
+    $outputDelayMs = 500
     foreach ($case in @(
         @{ Name = "lower edge"; WaitEnd = 1700; OutputEnd = 1800; Expected = $true },
         @{ Name = "deadline edge"; WaitEnd = 1800; OutputEnd = 2000; Expected = $true },
@@ -639,16 +641,15 @@ $panelistRunners = @(
         @{ Name = "missing wait receipt"; WaitEnd = 0; OutputEnd = 1800; Expected = $false }
     )) {
         if ((Test-BoundaryTiming 2000 $case.WaitEnd $case.OutputEnd) -eq $case.Expected) {
-            Ok "TEST-004(c): timing rejects invalid evidence ($($case.Name))"
-        } else { Fail "TEST-004(c): timing rejects invalid evidence ($($case.Name))" }
+            Ok "TEST-004(c): deterministic boundary evidence ($($case.Name))"
+        } else { Fail "TEST-004(c): deterministic boundary evidence ($($case.Name))" }
     }
     foreach ($runner in $panelistRunners) {
         # Windows-hosted runners can pay a one-time process/runtime startup
         # cost on the first Gemini invocation. Warm the exact runner + stub
-        # path once, outside the measured cases, so TEST-004(c) measures only
-        # the completion path after the runner has been warmed.
-        $warmupRoot = Join-Path $workDir "boundary-$($runner.Name)-warmup/specs"
-        $warmupMarker = Join-Path $workDir "boundary-$($runner.Name)-warmup.called"
+        # path once, outside the measured normal-completion cases.
+        $warmupRoot = Join-Path $workDir "normal-$($runner.Name)-warmup/specs"
+        $warmupMarker = Join-Path $workDir "normal-$($runner.Name)-warmup.called"
         Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "5" `
             -SpecRoot $warmupRoot -StubEnvironment @{
                 STUB_WARMUP = "1"
@@ -662,17 +663,18 @@ $panelistRunners = @(
             Write-Host ("runner diagnostic: " + $script:panelistOutput.Substring(0, [Math]::Min(4096, $script:panelistOutput.Length)))
         }
         for ($iteration = 1; $iteration -le 5; $iteration++) {
-            $deadlineMs = $nearBoundaryBudgetSec * 1000
-            $caseName = "boundary-$($runner.Name)-$iteration"
+            $deadlineMs = $completionBudgetSec * 1000
+            $caseName = "normal-$($runner.Name)-$iteration"
             $caseRoot = Join-Path $workDir "$caseName/specs"
             $startFile = Join-Path $workDir "$caseName.stub-start"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
             $phaseFile = Join-Path $workDir "$caseName.phases"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$nearBoundaryBudgetSec" `
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$completionBudgetSec" `
                 -SpecRoot $caseRoot -StubEnvironment @{
-                    STUB_COMPLETE_BEFORE_DEADLINE_MS = "$nearBoundaryMarginMs"
+                    STUB_COMPLETE_BEFORE_DEADLINE_MS = "$completionSlackMs"
+                    STUB_OUTPUT_DELAY_MS            = "$outputDelayMs"
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
                     STUB_PHASE_FILE                   = $phaseFile
@@ -715,18 +717,28 @@ $panelistRunners = @(
             $processRecords = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=[0-9]+ wait_completed=1 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
             if ($processRecords.Count -eq 1) { $observedAt = [long]$processRecords[0].Groups[1].Value }
             $processObservationValid = $processRecords.Count -eq 1 -and $observedAt -gt 0
-            $boundaryTiming = Test-BoundaryTiming $parsedDeadline $waitEnd $outputEnd
-            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd output_end=$outputEnd observed_at=$observedAt deadline=$parsedDeadline boundary_timing=$([int]$boundaryTiming)"
-            if ($script:panelistExit -eq 0 -and (Test-Path $verdict) -and $processObservationValid -and $boundaryTiming) {
-                Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
+            $completionTiming = $parsedDeadline -gt 0 -and $waitEnd -gt 0 -and
+                ($outputEnd - $waitEnd) -ge $outputDelayMs -and $outputEnd -le $parsedDeadline
+            $expectedVerdict = [ordered]@{
+                schema = 'cross-model-verdict/v1'; task_id = 'T-901'; feature = 'timeout-test'
+                vendor = $(if ($runner.Name -ceq 'gpt') { 'openai' } else { 'google' })
+                model = 'stub-model'; verdict = 'PASS'; findings = @(); blind = $true
+                input_digest = ('a' * 64); consent = [ordered]@{ kind = 'human-flag'; ref = 'test fixture' }
+            } | ConvertTo-Json -Depth 5 -Compress
+            $actualVerdict = if (Test-Path $verdict) {
+                Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+            } else { '' }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration wait_end=$waitEnd output_end=$outputEnd observed_at=$observedAt deadline=$parsedDeadline completion_timing=$([int]$completionTiming)"
+            if ($script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict -and $processObservationValid -and $completionTiming) {
+                Ok "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration"
             } else {
-                Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($detail)"
+                Fail "TEST-004(c): $($runner.Name) normal completion with delayed output iteration $iteration ($detail)"
                 # This runner uses only the synthetic CLI and fixed test input.
                 # Keep failure diagnostics bounded and strip terminal controls.
                 $safeOutput = [regex]::Replace($script:panelistOutput, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '')
                 Write-Host ("runner diagnostic: " + $safeOutput.Substring(0, [Math]::Min(4096, $safeOutput.Length)))
             }
-            Assert-ProcessObservation -Name "boundary $($runner.Name) $iteration" -Completed $true
+            Assert-ProcessObservation -Name "normal $($runner.Name) $iteration" -Completed $true
         }
     }
 
