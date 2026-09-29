@@ -812,3 +812,115 @@ check('LOCK-V1-GUARDS: shared deadline Git and planned-path failures still rejec
     rejected(lockValue(), 'LockV1', normal, { plannedPaths: [target] });
   }
 });
+
+const journalRecord = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner },
+  sequence: 0, kind: 'prompt', receivedAtUtc: '2026-09-29T00:00:00Z', text: 'ordinary text',
+  ruleVersion: 1, omission: false, coverage: 'complete', previousHash: hash, hash });
+const journalKinds = ['prompt', 'final-assistant', 'observable-transcript', 'compact-manual', 'compact-auto', 'resume'];
+for (const kind of journalKinds) {
+  check(`JOURNAL-VALID-${kind}: exact kind and both safe sequence endpoints admit`, () => {
+    for (const sequence of [0, Number.MAX_SAFE_INTEGER]) {
+      const value = { ...journalRecord(), kind, sequence };
+      assert.deepEqual(admit(value, 'JournalRecordV1'), value);
+    }
+    assert.equal(existsSync(normal.target), false, 'record admission created a store file');
+  });
+}
+check('JOURNAL-OPTIONAL: coverage variants and absent or bounded opaque ID admit', () => {
+  for (const [coverage, stableEventId] of [['complete', undefined], ['partial', 'event'],
+    ['unavailable', 'x'.repeat(1024)], ['complete', '🙂'.repeat(256)]]) {
+    const value = { ...journalRecord(), coverage, text: '', receivedAtUtc: '2026-09-29T00:00:00.123Z' };
+    if (stableEventId !== undefined) value.stableEventId = stableEventId;
+    assert.deepEqual(admit(value, 'JournalRecordV1'), value);
+  }
+});
+check('JOURNAL-CLOSED: every required field and object extension is checked', () => {
+  for (const field of Object.keys(journalRecord())) {
+    const value = journalRecord(); delete value[field]; rejected(value, 'JournalRecordV1');
+  }
+  for (const value of [null, [], 'record', 1, true]) rejected(value, 'JournalRecordV1');
+  for (const field of ['extra', 'host', 'sessionId', 'deadline', 'plannedPaths', 'synced']) {
+    rejected({ ...journalRecord(), [field]: true }, 'JournalRecordV1');
+  }
+});
+check('JOURNAL-FIELDS: independent scalar types enums ranges Unicode dates and digests reject', () => {
+  for (const [field, invalid] of [
+    ['schemaVersion', [0, 2, '1', null, true, [], {}]],
+    ['sequence', [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, '0', null, true, [], {}]],
+    ['kind', ['', 'unknown', ...journalKinds.map(kind => kind[0].toUpperCase() + kind.slice(1)), null, 1, false, [], {}]],
+    ['receivedAtUtc', ['', null, 1, false, [], {}, '2026-02-30T00:00:00Z', '2026-09-29T24:00:00Z',
+      '2026-09-29T00:00:60Z', '2026-09-29T00:00:00', '2026-09-29T00:00:00+00:00', '2026-09-29T00:00:00z']],
+    ['text', [null, 1, false, [], {}, '\ud800']],
+    ['ruleVersion', [0, 2, '1', null, true, [], {}]],
+    ['omission', [null, 0, 1, 'false', [], {}]],
+    ['coverage', ['', 'unknown', 'Complete', 'Partial', 'Unavailable', null, 1, false, [], {}]],
+    ['stableEventId', ['', null, 1, false, [], {}, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']],
+  ]) {
+    for (const item of invalid) rejected({ ...journalRecord(), [field]: item }, 'JournalRecordV1');
+  }
+  for (const field of ['previousHash', 'hash']) {
+    for (const item of [null, 1, false, [], {}, 'A'.repeat(64), 'a'.repeat(63), 'a'.repeat(65), 'g'.repeat(64)]) {
+      rejected({ ...journalRecord(), [field]: item }, 'JournalRecordV1');
+    }
+  }
+});
+check('JOURNAL-OWNER: closed canonical owner independently rejects every foreign component', () => {
+  for (const owner of [null, [], 'owner', 1]) rejected({ ...journalRecord(), owner }, 'JournalRecordV1');
+  for (const field of Object.keys(normal.owner)) {
+    const value = journalRecord(); delete value.owner[field]; rejected(value, 'JournalRecordV1');
+  }
+  for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory']) {
+    const value = journalRecord(); value.owner[field] = sha1.owner[field]; rejected(value, 'JournalRecordV1');
+  }
+  for (const field of ['featureId', 'host', 'sessionId']) {
+    const value = journalRecord(); value.owner[field] = field === 'host' ? 'claude' : 'foreign';
+    rejected(value, 'JournalRecordV1');
+  }
+  for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { extra: true }]) {
+    const value = journalRecord(); Object.assign(value.owner, change); rejected(value, 'JournalRecordV1');
+  }
+});
+
+const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
+const journalSecret = ['synthetic', 'journal', 'credential'].join('-');
+const journalKey = ['pass', 'word'].join('');
+const journalSensitive = [
+  ['pem', `-----${'BE' + 'GIN'} PRIVATE KEY-----\n${journalSecret}\n-----${'E' + 'ND'} PRIVATE KEY-----`],
+  ['assignment', `${journalKey}=${journalSecret}`],
+  ['header', `${['Author', 'ization'].join('')}: ${['Bear', 'er'].join('')} ${journalSecret}`],
+  ['url', `https://user:${journalSecret}@example.invalid/a]b`],
+  ['token', ['s', 'k-'].join('') + journalSecret],
+  ['jwt', ['a'.repeat(8), journalSecret, 'b'.repeat(8)].join('.')],
+];
+check('JOURNAL-TEXT-REJECT: six raw families and marker suffixes must reject without repair', () => {
+  for (const [family, text] of journalSensitive) {
+    rejected({ ...journalRecord(), text }, 'JournalRecordV1');
+    const marker = `[${['RE', 'DACTED'].join('')}:${family}]`;
+    rejected({ ...journalRecord(), text: `${journalKey}=${marker}${journalSecret}` }, 'JournalRecordV1');
+  }
+});
+check('JOURNAL-PRESERVE: actual six-family output hash and either omission value remain exact', () => {
+  for (const [family, raw] of journalSensitive) {
+    const text = journalRedact(raw, context('JournalRecordV1').deadline).text;
+    assert.equal(text.includes(journalSecret), false);
+    assert.equal(text.includes(`[${['RE', 'DACTED'].join('')}:${family}]`), true);
+    for (const omission of [false, true]) {
+      const value = { ...journalRecord(), text, omission };
+      const before = JSON.stringify(value);
+      assert.deepEqual(admit(value, 'JournalRecordV1'), value);
+      assert.equal(JSON.stringify(value), before, 'record admission mutated caller input');
+    }
+  }
+});
+check('JOURNAL-JSON-GUARDS: shared JSON deadline Git and planned-path checks remain required', () => {
+  const source = JSON.stringify(journalRecord());
+  for (const raw of [source.slice(0, -1), source.replace('"sequence":0', '"sequence":0,"sequ\\u0065nce":0')]) {
+    rejected(raw, 'JournalRecordV1', normal, {}, true);
+  }
+  rejected(journalRecord(), 'JournalRecordV1', normal, { deadline: performance.now() - 1 });
+  for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) rejected(journalRecord(f.owner), 'JournalRecordV1', f);
+  for (const target of [join(outside, 'record.json'), normal.root + '/.sdd/context/../../foreign.json',
+    join(normal.root, '.sdd', 'context', 'escape', 'record.json')]) {
+    rejected(journalRecord(), 'JournalRecordV1', normal, { plannedPaths: [target] });
+  }
+});
