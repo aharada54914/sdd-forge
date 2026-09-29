@@ -129,7 +129,11 @@ function Invoke-PanelistRunner {
             $env:SDD_PANELIST_TIMEOUT = $TimeoutValue
         }
 
-        $output = & $script:powerShellHost -NoProfile -ExecutionPolicy Bypass -File $Runner.Path `
+        $invocation = @('-File', $Runner.Path)
+        if ($StubEnvironment.ContainsKey('STUB_RECHECK_RELEASE_FILE')) {
+            $invocation = @('-File', $script:recheckLauncher, '-RunnerPath', $Runner.Path)
+        }
+        $output = & $script:powerShellHost -NoProfile -ExecutionPolicy Bypass @invocation `
             --task T-901 --feature timeout-test --input $script:panelistInput `
             --spec-root $SpecRoot 2>&1
         $script:panelistExit = $LASTEXITCODE
@@ -215,6 +219,14 @@ if os.environ.get('STUB_MODE') == 'hang':
     receipt('STUB_CHILD_PID_FILE', child.pid)
     time.sleep(30)
 
+release_path = os.environ.get('STUB_RECHECK_RELEASE_FILE')
+if release_path:
+    release_limit = time.monotonic() + 15
+    while not os.path.exists(release_path):
+        if time.monotonic() >= release_limit:
+            sys.exit(2)
+        time.sleep(0.01)
+
 response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
     feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
     findings=[], blind=True, input_digest='a' * 64,
@@ -232,7 +244,7 @@ phase_path = os.environ.get('STUB_PHASE_FILE')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
-console.write(response + '\n')
+console.write((response[:10] if os.environ.get('STUB_OUTPUT_MODE') == 'incomplete' else response) + '\n')
 write_end = now()
 time.sleep(int(os.environ.get('STUB_OUTPUT_DELAY_MS', '0')) / 1000)
 console.flush()
@@ -242,7 +254,31 @@ if phase_path:
     with open(phase_path, 'w', encoding='utf-8') as handle:
         handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
                      f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+sys.exit(int(os.environ.get('STUB_EXIT_CODE', '0')))
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
+
+# Pause the unmodified runner after its real timed wait returns false. Release
+# and await its real child before resuming HasExited; neither result is mocked.
+$script:recheckLauncher = Join-Path $workDir 'recheck-launcher.ps1'
+@'
+param([string]$RunnerPath)
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+$recheckLine = @(Select-String -LiteralPath $RunnerPath -SimpleMatch '$waitObservedAt =')
+if ($recheckLine.Count -ne 1) { throw 'Expected exactly one process recheck location' }
+Set-PSBreakpoint -Script $RunnerPath -Line $recheckLine[0].LineNumber -Action {
+    if ($waitCompleted) { throw 'Expected the actual timed wait to expire before release' }
+    $releaseAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    [IO.File]::WriteAllText($env:STUB_RECHECK_RELEASE_FILE, 'release')
+    if (-not $proc.WaitForExit(10000)) {
+        $proc.Kill($true)
+        throw 'Released real child did not finish'
+    }
+    [Console]::Error.WriteLine("panelist-recheck: pid=$($proc.Id) wait_completed=$([int]$waitCompleted) release_at=$releaseAt child_exit=$($proc.ExitCode) observed_exited=$([int]$proc.HasExited)")
+} | Out-Null
+& $RunnerPath @args
+exit $LASTEXITCODE
+'@ | Set-Content -Encoding Utf8 -Path $script:recheckLauncher
 if ($IsWindows) {
     foreach ($commandName in @("codex", "gemini")) {
         $wrapper = Join-Path $script:panelistStubPath "$commandName.cmd"
@@ -739,6 +775,57 @@ $panelistRunners = @(
                 Write-Host ("runner diagnostic: " + $safeOutput.Substring(0, [Math]::Min(4096, $safeOutput.Length)))
             }
             Assert-ProcessObservation -Name "normal $($runner.Name) $iteration" -Completed $true
+        }
+
+        # TEST-004(c2): the timed wait really expires, then that same handle
+        # really exits before HasExited. Debugger coordination removes timing
+        # luck while retaining the runner's deadline, process and output checks.
+        foreach ($case in @(
+            @{ Name = 'success'; ExitCode = 0; Output = 'complete'; Repeats = 5 },
+            @{ Name = 'nonzero'; ExitCode = 7; Output = 'complete'; Repeats = 1 },
+            @{ Name = 'incomplete'; ExitCode = 0; Output = 'incomplete'; Repeats = 1 }
+        )) {
+            for ($iteration = 1; $iteration -le $case.Repeats; $iteration++) {
+                $caseName = "recheck-$($runner.Name)-$($case.Name)-$iteration"
+                $caseRoot = Join-Path $workDir "$caseName/specs"
+                $pidFile = Join-Path $workDir "$caseName.pid"
+                Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue '2' `
+                    -SpecRoot $caseRoot -StubEnvironment @{
+                        STUB_RECHECK_RELEASE_FILE = Join-Path $workDir "$caseName.release"
+                        STUB_PID_FILE = $pidFile
+                        STUB_EXIT_CODE = "$($case.ExitCode)"
+                        STUB_OUTPUT_MODE = $case.Output
+                    }
+                $verdict = Join-Path $caseRoot (Join-Path 'timeout-test/verification' $runner.VerdictName)
+                $rechecks = [regex]::Matches($script:panelistOutput, '(?m)^panelist-recheck: pid=([0-9]+) wait_completed=0 release_at=([0-9]+) child_exit=([0-9]+) observed_exited=1\r?$')
+                $observations = [regex]::Matches($script:panelistOutput, '(?m)^panelist-process: pid=([0-9]+) wait_completed=0 observed_at=([0-9]+) observed_exited=1 cleanup_kill=0\r?$')
+                $realExit = $false
+                if ($rechecks.Count -eq 1 -and $observations.Count -eq 1 -and (Test-Path $pidFile)) {
+                    $recheck = $rechecks[0].Groups
+                    $observation = $observations[0].Groups
+                    $realExit = $recheck[1].Value -ceq $observation[1].Value -and
+                        [long]$recheck[2].Value -le [long]$observation[2].Value -and
+                        [int]$recheck[3].Value -eq $case.ExitCode -and
+                        (Test-ProcessExited ([int]$recheck[1].Value)) -and
+                        (Test-ProcessExited ([int](Get-Content -Raw -LiteralPath $pidFile)))
+                    Write-Host "measurement: TEST-004(c2) runner=$($runner.Name) case=$($case.Name) iteration=$iteration $($rechecks[0].Value)"
+                    Write-Host "measurement: TEST-004(c2) $($observations[0].Value)"
+                }
+                $valid = $realExit -and -not $script:panelistOutput.Contains('exceeded SDD_PANELIST_TIMEOUT', [StringComparison]::Ordinal)
+                if ($case.Name -ceq 'success') {
+                    $actualVerdict = if (Test-Path $verdict) {
+                        Get-Content -Raw -LiteralPath $verdict | ConvertFrom-Json | ConvertTo-Json -Depth 5 -Compress
+                    } else { '' }
+                    $valid = $valid -and $script:panelistExit -eq 0 -and $actualVerdict -ceq $expectedVerdict
+                } else {
+                    $valid = $valid -and $script:panelistExit -eq 1 -and -not (Test-Path $verdict)
+                }
+                if ($valid) { Ok "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration" }
+                else {
+                    Fail "TEST-004(c2): $($runner.Name) real recheck $($case.Name) iteration $iteration (exit=$script:panelistExit)"
+                    Write-Host "runner diagnostic: $script:panelistOutput"
+                }
+            }
         }
     }
 

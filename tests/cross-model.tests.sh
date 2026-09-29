@@ -407,8 +407,35 @@ echo "=== T-001: POSIX panelist runner timeout contract ==="
 
 PANELIST_STUBS="${WORK}/panelist-stubs"
 PANELIST_INPUT="${WORK}/panelist-input.txt"
+PANELIST_REAL_DATE=$(command -v date)
+PANELIST_REAL_PYTHON=$(command -v python3)
 mkdir -p "$PANELIST_STUBS"
 printf '# sanitized test bundle\n' > "$PANELIST_INPUT"
+
+# Observe the helper's real clock without changing it. Its first date +%s
+# supplies _bw_deadline; later calls record when the expiry check is reached.
+cat > "${PANELIST_STUBS}/date" <<EOF
+#!/bin/sh
+_clock_now=\$("$PANELIST_REAL_DATE" "\$@")
+if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
+    if [ ! -f "\$STUB_DEADLINE_FILE" ]; then
+        printf '%s\n' "\$(( (_clock_now + SDD_PANELIST_TIMEOUT + 1) * 1000 ))" > "\$STUB_DEADLINE_FILE"
+    elif [ "\$_clock_now" -ge "\$(( \$(cat "\$STUB_DEADLINE_FILE") / 1000 ))" ]; then
+        printf '%s\n' "\$(( _clock_now * 1000 ))" > "\$STUB_EXPIRY_FILE"
+    fi
+fi
+printf '%s\n' "\$_clock_now"
+EOF
+# Slow only the bounded supervisor, before Python/vendor startup. Other
+# Python calls and the production timeout remain unchanged.
+cat > "${PANELIST_STUBS}/python3" <<EOF
+#!/bin/sh
+case "\${3:-}" in
+    */bounded-status) sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
+esac
+exec "$PANELIST_REAL_PYTHON" "\$@"
+EOF
+chmod +x "${PANELIST_STUBS}/date" "${PANELIST_STUBS}/python3"
 
 write_panelist_stub() {
     local path="$1"
@@ -416,9 +443,28 @@ write_panelist_stub() {
     cat > "$path" <<EOF
 #!/bin/sh
 printf 'called\n' >> "\${STUB_CALLED_FILE}"
+if [ -n "\${STUB_PID_FILE:-}" ]; then printf '%s\n' "\$\$" > "\$STUB_PID_FILE"; fi
 case "\${STUB_MODE:-success}" in
     success)
-        sleep "\${STUB_DELAY:-0}"
+        if [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
+            python3 - <<'PYEOF'
+import os, pathlib, time
+now = lambda: time.time_ns() // 1_000_000
+started = now()
+path = pathlib.Path(os.environ['STUB_EXPIRY_FILE'] if os.environ.get('STUB_RECHECK')
+                    else os.environ['STUB_DEADLINE_FILE'])
+wait_limit = time.monotonic() + 10
+while not path.is_file():
+    if time.monotonic() >= wait_limit:
+        raise SystemExit('missing runner clock receipt')
+    time.sleep(0.01)
+target = int(path.read_text()) - (0 if os.environ.get('STUB_RECHECK') else 2000)
+time.sleep(max(0, (target - now()) / 1000))
+pathlib.Path(os.environ['STUB_PHASE_FILE']).write_text(f'stub_start={started}\nwait_end={now()}\n')
+PYEOF
+        else
+            sleep "\${STUB_DELAY:-0}"
+        fi
         ;;
     hang | ignore-term)
         printf '%s\n' "\$\$" > "\${STUB_PID_FILE}"
@@ -439,6 +485,9 @@ sleep "\${STUB_OUTPUT_DELAY:-0}"
 cat <<JSON
 {"schema":"cross-model-verdict/v1","task_id":"T-901","feature":"timeout-test","vendor":"${vendor}","model":"stub-model","verdict":"PASS","findings":[],"blind":true,"input_digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","consent":{"kind":"human-flag","ref":"test"}}
 JSON
+if [ -n "\${STUB_PHASE_FILE:-}" ]; then
+    python3 -c 'import os, time; open(os.environ["STUB_PHASE_FILE"], "a").write(f"output_end={time.time_ns() // 1_000_000}\n")'
+fi
 EOF
     chmod +x "$path"
 }
@@ -492,6 +541,40 @@ process_is_dead() {
 
 monotonic_ms() {
     python3 -c 'import time; print(time.monotonic_ns() // 1_000_000)'
+}
+
+assert_panelist_completion() {
+    local case_dir="$1" runner_kind="$2" mode="$3"
+    [ "$PANELIST_EXIT" = 0 ] && [ -s "$case_dir/stub.pid" ] &&
+        process_is_dead "$(cat "$case_dir/stub.pid")" &&
+        python3 - "$case_dir" "$(runner_verdict_name "$runner_kind")" "$runner_kind" "$mode" <<'PYEOF'
+import json, pathlib, sys
+root, name, runner, mode = sys.argv[1:]
+root = pathlib.Path(root)
+deadline = int((root / 'deadline').read_text())
+lines = (root / 'phases').read_text().splitlines()
+phases = {key: int(value) for key, value in (line.split('=') for line in lines)}
+assert len(lines) == len(phases) == 3
+started, wait_end, output_end = (phases[key] for key in ('stub_start', 'wait_end', 'output_end'))
+expiry = root / 'expiry'
+print(f'measurement: completion runner={runner} mode={mode} deadline_epoch_ms={deadline} '
+      f'stub_start={started} wait_end={wait_end} output_end={output_end} '
+      f'observed_slack_ms={deadline - wait_end} expiry_observed={int(expiry.exists())}')
+assert started <= wait_end and output_end - wait_end >= 500
+if mode == 'recheck':
+    assert expiry.is_file() and wait_end >= int(expiry.read_text()) and output_end > deadline
+else:
+    assert not expiry.exists() and output_end <= deadline
+    if mode == 'normal':
+        assert deadline - 2000 <= wait_end <= deadline - 1500
+    else:
+        assert started > deadline - 2000  # slow startup has consumed the target wait
+expected = dict(schema='cross-model-verdict/v1', task_id='T-901', feature='timeout-test',
+    vendor='google' if runner == 'gemini' else 'openai', model='stub-model', verdict='PASS',
+    findings=[], blind=True, input_digest='a' * 64, consent=dict(kind='human-flag', ref='test'))
+assert json.loads((root / 'timeout-test' / 'verification' / name).read_text()) == expected
+assert (root / 'called').read_text() == 'called\n'
+PYEOF
 }
 
 # TEST-003 / AC-003: four valid values invoke the CLI; three invalid values do not.
@@ -593,8 +676,9 @@ for runner_kind in gpt gemini; do
     run_timeout_case "$runner_kind" ignore-term b
 done
 
-# TEST-004(c): normal completion with 2000ms slack and >200ms output delay,
-# repeated five times per runner. The separate c2 case covers boundary re-check.
+# TEST-004(c): target 2000ms of real deadline slack before the 500ms output
+# delay, repeated five times per runner. Receipts prove completion before
+# expiry; the separate c2 case covers the post-deadline re-check.
 for runner_kind in gpt gemini; do
     runner=$(runner_path "$runner_kind")
     for iteration in 1 2 3 4 5; do
@@ -604,20 +688,13 @@ for runner_kind in gpt gemini; do
         mkdir -p "$case_dir"
         started=$(monotonic_ms)
         run_panelist "$runner" set 4 "$case_dir" \
-            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=2 STUB_OUTPUT_DELAY=0.5
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_OUTPUT_DELAY=0.5 \
+            STUB_DEADLINE_FILE="$case_dir/deadline" STUB_EXPIRY_FILE="$case_dir/expiry" \
+            STUB_PHASE_FILE="$case_dir/phases" STUB_PID_FILE="$case_dir/stub.pid"
         finished=$(monotonic_ms)
         elapsed=$((finished-started))
-        echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} budget_ms=4000 slack_ms=2000 output_delay_ms=500 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
-        vendor=openai
-        [ "$runner_kind" = gemini ] && vendor=google
-        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ] && python3 -c '
-import json, sys
-expected = dict(schema="cross-model-verdict/v1", task_id="T-901", feature="timeout-test",
-    vendor=sys.argv[2], model="stub-model", verdict="PASS", findings=[], blind=True,
-    input_digest="a" * 64, consent=dict(kind="human-flag", ref="test"))
-with open(sys.argv[1]) as handle:
-    assert json.load(handle) == expected
-' "$verdict" "$vendor"; then
+        echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} budget_ms=4000 target_slack_ms=2000 output_delay_ms=500 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
+        if assert_panelist_completion "$case_dir" "$runner_kind" normal; then
             ok "TEST-004(c) ${runner_kind}/${iteration}: normal completion with delayed output stays successful"
         else
             fail "TEST-004(c) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
@@ -625,26 +702,42 @@ with open(sys.argv[1]) as handle:
     done
 done
 
-# TEST-004(c2): deterministically exercise the post-deadline re-check branch.
-# With the start phase aligned early in the wall-clock second and a stub that
-# outlives the effective limit+1 deadline, the deadline check fires while the
-# child is still alive, and the one-second settling pause lets the child
-# publish before the expiry is treated as authoritative — so this case
-# succeeds THROUGH the re-check branch and fails if that branch is removed.
+# TEST-004(c-startup): a deliberately slow supervisor consumes the target wait.
+# Absolute scheduling still finishes before expiry; the old relative 2s wait
+# plus 500ms output delay completes after the real 4s..5s helper deadline.
+for runner_kind in gpt gemini; do
+    case_dir="${WORK}/slow-start-${runner_kind}"
+    mkdir -p "$case_dir"
+    run_panelist "$(runner_path "$runner_kind")" set 4 "$case_dir" \
+        STUB_CALLED_FILE="$case_dir/called" STUB_MODE=success STUB_OUTPUT_DELAY=0.5 \
+        STUB_SUPERVISOR_DELAY=3 STUB_DEADLINE_FILE="$case_dir/deadline" \
+        STUB_EXPIRY_FILE="$case_dir/expiry" STUB_PHASE_FILE="$case_dir/phases" \
+        STUB_PID_FILE="$case_dir/stub.pid"
+    if assert_panelist_completion "$case_dir" "$runner_kind" slow-start; then
+        ok "TEST-004(c-startup) ${runner_kind}: slow startup still completes before expiry"
+    else
+        fail "TEST-004(c-startup) ${runner_kind}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+    fi
+done
+
+# TEST-004(c2): wait for the real expiry check, then publish after 500ms.
+# Success therefore needs the helper's one-second settling re-check.
 for runner_kind in gpt gemini; do
     runner=$(runner_path "$runner_kind")
-    for iteration in 1 2 3; do
+    for iteration in 1 2 3 4 5; do
         case_dir="${WORK}/recheck-${runner_kind}-${iteration}"
         marker="${case_dir}/called"
         verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
         mkdir -p "$case_dir"
-        python3 -c 'import time; t = time.time(); time.sleep((1 - t % 1) % 1 + 0.10)'
         started=$(monotonic_ms)
-        run_panelist "$runner" set 2 "$case_dir"             STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=3.5
+        run_panelist "$runner" set 2 "$case_dir" \
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_RECHECK=1 STUB_OUTPUT_DELAY=0.5 \
+            STUB_DEADLINE_FILE="$case_dir/deadline" STUB_EXPIRY_FILE="$case_dir/expiry" \
+            STUB_PHASE_FILE="$case_dir/phases" STUB_PID_FILE="$case_dir/stub.pid"
         finished=$(monotonic_ms)
         elapsed=$((finished-started))
         echo "measurement: TEST-004(c2) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
-        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ]; then
+        if assert_panelist_completion "$case_dir" "$runner_kind" recheck; then
             ok "TEST-004(c2) ${runner_kind}/${iteration}: post-deadline re-check rescues a completing child"
         else
             fail "TEST-004(c2) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
