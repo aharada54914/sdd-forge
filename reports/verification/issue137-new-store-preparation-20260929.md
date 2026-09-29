@@ -18,4 +18,16 @@ All five fail the missing preparation-helper assertion. This is implementation-a
 | Expanded tests | `4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f` |
 | Actual stdout | `02f29e6bbf104bede67af1c9ca3cfbed0f4a1d44c28add343dab01fd495b2178` |
 
-Production, approval/status and Git remain unchanged. T-001 is incomplete. Stop for root's RED checkpoint before production.
+## GREEN continuation
+
+After root's RED checkpoint, added one stdlib module. It accepts OwnerV1 on a POSIX owning-account lane, reuses validate before creation and before return, exclusively creates an empty directory with mode 0700, and checks parent/store realpaths, identity, UID and mode. Existing stores reject without chmod/data changes; unsupported capabilities fail closed.
+
+Fixed suite **105/105** and JSON admission/privacy/privacy grammar **31/31** passed, each once, exit 0, failures/skips 0, corrections 0. Fixed tests and shared validation source were unchanged. The five WFI-001 counterpart/mismatch rows now have passing local controls.
+
+| GREEN input/output | SHA-256 |
+|---|---|
+| Preparation source | `4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb` |
+| 105-case stdout | `ea0a9e1cbf7c411111e2bfd1517d41fdec42206cfa76253e5f17d672b20ab7b1` |
+| 31-case stdout | `c17a7f78c96ee7d6e28cbcd170253339b4b3a45236146f15b0f345c6cef9470b` |
+
+Post-mkdir verification failure returns no success and may leave a private empty new directory. No ancestor-race immunity, Windows ACL, native adapter/CI or formal verdict is established. Approval/status and Git remain unchanged; T-001 is incomplete. Stop for root's independent review and Git processing.
