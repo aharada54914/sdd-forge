@@ -1,6 +1,6 @@
 # Requirements: SDD context continuity
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 Feature: sdd-context-continuity
 Source: https://github.com/aharada54914/sdd-forge/issues/137
 Status: Draft — Phase 1 incomplete; no implementation approval
@@ -153,9 +153,10 @@ results, not private journals.
    if it did not. The approved daily OS scheduling policy is OQ-010 below;
    next-access-only cleanup does not satisfy it.
 
-The native scheduling candidates and account-availability limits are recorded in
-`reports/verification/issue137-host-contract-audit-20260926.md` (OQ-010).
-This is a design input, not a claim that any cleanup job is installed or tested.
+OQ-010 records the approved scheduling policy. Native mechanism selection,
+account availability and verification are future design work after this review
+passes. Phase 1 does not depend on downstream design or verification artifacts
+and does not claim any cleanup job is installed or tested.
 
 ## Edge Cases
 
@@ -197,7 +198,7 @@ implementation is approved, not another request for those same product choices.
 | OQ-008 | Runtime integration implementer | Real candidate registration plus prompt/Stop/manual+auto compact/resume evidence on both hosts | Live acceptance |
 | OQ-009 | Security implementer | Verify effective ignore/tracked/path checks before writes, including failure cases | Storage safety |
 | OQ-010 | Infrastructure designer | Human resolved 2026-09-26: OS-standard daily execution, exclusion at 30 days, physical deletion normally within 24 hours, catch-up after power-off/sleep. Only this feature's logs are targets. Native scheduling, catch-up and failure tests remain required. | Mechanism verification; policy resolved |
-| OQ-011 | Security designer | Bounded acceptance contract above defines the families, limits and failure policy; security-spec elaborates parsing. Independent review and synthetic verification of every persistent/output path remain unperformed | Design review and subsequent redaction verification |
+| OQ-011 | Security designer | Bounded acceptance contract above defines the families, limits and failure policy. A future security specification must elaborate parsing after this specification review passes; no existing approved security design is assumed. Independent review and synthetic verification of every persistent/output path remain unperformed | Design review and subsequent redaction verification |
 | OQ-012 | Runtime designer | Bounded acceptance contract above defines time/UTF-8 limits. Retention uses original UTC receipt and maximum observed UTC watermark, never retry age; rollback cannot revive known-expired data, abnormal clocks may delay expiry or expire data early. Independent review, performance measurement and native host-limit verification remain unperformed; byte budget is not a proven token count | Design review and subsequent timing/native verification |
 
 ## Risks

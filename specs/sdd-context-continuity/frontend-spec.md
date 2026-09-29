@@ -19,11 +19,20 @@ path and optional stable event identity before core use (REQ-008/011).
 
 ## State Shape
 
-`ObservationV1`: schemaVersion, host, eventKind, opaque session/feature, observed
-text, optional transcript locator, optional *proven* stable event identity.
-Observed text exists in process memory until redacted. `OutcomeV1`: discriminant,
-content-free reason/stage, coverage, optional redacted recovery. Capture success
-is a core result after sync, never inferred from process exit alone. Projection
+`NativeObservation` is host-specific adapter input, not a core request: host,
+event kind, session/feature identity, observed text and optional transcript locator
+or proven stable event identity. The adapter validates the native schema, resolves
+the canonical `OwnerV1` from trusted worktree/session context, determines observable
+coverage, and maps capture events to `ObservationV1` with schemaVersion=1, owner,
+kind=prompt/final-assistant, text, coverage and optional stableEventId. Transcript
+locators and native-only fields never cross that closed core boundary. Other
+events map to ReconcileV1 or ResumeV1; unsupported input yields unavailable,
+not invented ownership or complete coverage.
+
+`ObservationV1` and `OutcomeV1` have exactly the fields defined in
+[design.md](design.md#api--contract-plan), including closed-key validation and
+outcome-specific required fields. Observed text stays in memory until redacted.
+Capture success is a core result after sync, never inferred from exit alone. Projection
 includes source cursor/hashes, current HEAD/task state and verified target refs;
 all persisted projections are private, expiring and disposable (REQ-001–006).
 
