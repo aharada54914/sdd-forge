@@ -499,3 +499,130 @@ check('RESUME-CLEANUP-PATH: existing ignore/tracked/Git/escape rejections remain
     }
   }
 });
+
+const header = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner },
+  segmentId: 'segment', firstSequence: 0, predecessorHash: hash });
+const singleDecision = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner },
+  id: 'decision', status: 'accepted', text: 'ordinary text', doNotReopen: false,
+  sourceSequences: [0], originalReceipts: ['2026-09-29T00:00:00Z'] });
+check('HEADER-VALID: bounded segment and safe sequence admit only a non-null hash header', () => {
+  for (const segmentId of ['x', 'x'.repeat(1024), '🙂'.repeat(256)]) {
+    for (const firstSequence of [0, Number.MAX_SAFE_INTEGER]) {
+      const value = { ...header(), segmentId, firstSequence };
+      assert.deepEqual(admit(value, 'JournalHeaderV1'), value);
+    }
+  }
+  assert.equal(existsSync(normal.target), false, 'header admission created a store file');
+});
+check('HEADER-FIELDS: opaque segment, safe sequence and non-null lowercase digest are required', () => {
+  for (const segmentId of ['', null, 1, [], {}, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']) {
+    rejected({ ...header(), segmentId }, 'JournalHeaderV1');
+  }
+  for (const firstSequence of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, '0', null]) {
+    rejected({ ...header(), firstSequence }, 'JournalHeaderV1');
+  }
+  for (const predecessorHash of [null, 1, 'A'.repeat(64), 'a'.repeat(63), 'a'.repeat(65), 'g'.repeat(64)]) {
+    rejected({ ...header(), predecessorHash }, 'JournalHeaderV1');
+  }
+});
+check('DECISION-VALID: standalone status variants retain corresponding source references', () => {
+  for (const status of ['accepted', 'rejected', 'superseded', 'constraint', 'open']) {
+    const value = { ...singleDecision(), status };
+    assert.deepEqual(admit(value, 'DecisionV1'), value);
+  }
+  assert.equal(existsSync(normal.target), false, 'decision admission created a store file');
+});
+check('DECISION-REDACTION: standalone text is redacted with optional owned materialization', () => {
+  const credential = ['synthetic', 'decision', 'credential'].join('-');
+  const value = { ...singleDecision(), id: '🙂'.repeat(256), doNotReopen: true,
+    text: ['pass', 'word'].join('') + '=' + credential,
+    sourceSequences: [0, Number.MAX_SAFE_INTEGER],
+    originalReceipts: ['2026-09-29T00:00:00Z', '2026-09-29T00:00:01Z'],
+    materialization: { path: '.sdd/context/decision.md', sha256: hash } };
+  const result = admit(value, 'DecisionV1');
+  assert.equal(JSON.stringify(result).includes(credential), false);
+  assert.equal(result.text.includes(['RE', 'DACTED'].join('')), true);
+  assert.deepEqual(result, { ...value, text: result.text });
+  assert.equal(existsSync(join(normal.root, value.materialization.path)), false,
+    'decision admission wrote materialization');
+});
+check('DECISION-FIELDS: ID/status/text/boolean and corresponding nonempty references are checked', () => {
+  for (const change of [{ id: '' }, { id: 1 }, { id: 'x'.repeat(1025) }, { id: '\ud800' },
+    { status: 'Accepted' }, { status: 'unknown' }, { text: null }, { text: 1 }, { text: '\ud800' },
+    { doNotReopen: 'true' }, { doNotReopen: 1 }, { sourceSequences: {} }, { sourceSequences: [] },
+    { sourceSequences: [-1] }, { sourceSequences: [0.5] },
+    { sourceSequences: [Number.MAX_SAFE_INTEGER + 1] }, { sourceSequences: ['0'] },
+    { sourceSequences: [0, 1] }, { originalReceipts: {} }, { originalReceipts: [] },
+    { originalReceipts: ['2026-09-29T00:00:00Z', '2026-09-29T00:00:01Z'] },
+    { originalReceipts: [1] }, { originalReceipts: ['2026-02-30T00:00:00Z'] },
+    { originalReceipts: ['2026-09-29T00:00:00+01:00'] }]) {
+    rejected({ ...singleDecision(), ...change }, 'DecisionV1');
+  }
+});
+check('DECISION-MATERIALIZATION: optional reference is closed, owned and uses an integrity digest', () => {
+  for (const materialization of [null, [], {}, { path: 'p' }, { sha256: hash },
+    { path: 'p', sha256: hash, extra: true }, { path: 1, sha256: hash },
+    { path: '', sha256: hash }, { path: join(outside, 'decision.md'), sha256: hash },
+    { path: '../../decision.md', sha256: hash },
+    { path: '.sdd/context/escape/decision.md', sha256: hash },
+    { path: 'p', sha256: 'A'.repeat(64) }, { path: 'p', sha256: 'a'.repeat(63) },
+    { path: 'p', sha256: 'g'.repeat(64) }, { path: 'p', sha256: null }]) {
+    rejected({ ...singleDecision(), materialization }, 'DecisionV1');
+  }
+});
+check('HEADER-DECISION-CLOSED: every required field, type, version and extra key is checked', () => {
+  for (const [type, make] of [['JournalHeaderV1', header], ['DecisionV1', singleDecision]]) {
+    for (const field of Object.keys(make())) {
+      const value = make(); delete value[field]; rejected(value, type);
+    }
+    for (const value of [null, [], 'entity', 1]) rejected(value, type);
+    for (const schemaVersion of [0, 2, '1', null]) rejected({ ...make(), schemaVersion }, type);
+    for (const field of ['extra', 'synced', 'kind', 'deadline', 'plannedPaths']) {
+      rejected({ ...make(), [field]: true }, type);
+    }
+  }
+});
+check('HEADER-DECISION-OWNER: closed owner independently rejects every foreign tuple component', () => {
+  for (const [type, make] of [['JournalHeaderV1', header], ['DecisionV1', singleDecision]]) {
+    for (const owner of [null, [], 'owner', 1]) rejected({ ...make(), owner }, type);
+    for (const field of Object.keys(normal.owner)) {
+      const value = make(); delete value.owner[field]; rejected(value, type);
+    }
+    for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory']) {
+      const value = make(); value.owner[field] = sha1.owner[field]; rejected(value, type);
+    }
+    for (const field of ['featureId', 'host', 'sessionId']) {
+      const value = make(); value.owner[field] = field === 'host' ? 'claude' : 'foreign'; rejected(value, type);
+    }
+    for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { extra: true }]) {
+      const value = make(); Object.assign(value.owner, change); rejected(value, type);
+    }
+  }
+});
+check('HEADER-DECISION-JSON: malformed and decoded-duplicate keys return no result', () => {
+  for (const [type, make] of [['JournalHeaderV1', header], ['DecisionV1', singleDecision]]) {
+    const source = JSON.stringify(make());
+    for (const raw of [source.slice(0, -1), source.replace('"schemaVersion":1',
+      '"schemaVersion":1,"schema\\u0056ersion":1')]) rejected(raw, type, normal, {}, true);
+  }
+});
+check('HEADER-DECISION-DEADLINE: an exhausted original trusted budget rejects', () => {
+  for (const [type, make] of [['JournalHeaderV1', header], ['DecisionV1', singleDecision]]) {
+    rejected(make(), type, normal, { deadline: performance.now() - 1 });
+  }
+});
+check('HEADER-DECISION-PATH: shared ignore/tracked/Git and escaping path controls remain required', () => {
+  for (const [type, make] of [['JournalHeaderV1', header], ['DecisionV1', singleDecision]]) {
+    for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) rejected(make(f.owner), type, f);
+    for (const target of [join(outside, 'payload.json'), normal.root + '/.sdd/context/../../foreign.json',
+      join(normal.root, '.sdd', 'context', 'escape', 'payload.json')]) {
+      rejected(make(), type, normal, { plannedPaths: [target] });
+    }
+  }
+});
+check('LOCK-UNSUPPORTED: absent approved PID type/range cannot authorize lock admission', () => {
+  for (const pid of [null, 0, 1, '1', Number.MAX_SAFE_INTEGER, {}, []]) {
+    rejected({ schemaVersion: 1, owner: { ...normal.owner }, nonce: 'nonce',
+      pid, processStartIdentity: 'process-start' }, 'LockV1');
+  }
+});
