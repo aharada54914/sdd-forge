@@ -149,6 +149,15 @@ export function validate(source, trusted) {
         require(value.coverage === 'unavailable' || Object.hasOwn(value, 'records'));
         if (Object.hasOwn(value, 'records')) array(value.records, observation);
         break;
+      case 'ResumeV1':
+        closed(value, ['schemaVersion', 'owner', 'kind'], ['predecessorSessionId']);
+        require(value.schemaVersion === 1); owner(value.owner); require(value.kind === 'resume');
+        require(!Object.hasOwn(value, 'predecessorSessionId'));
+        break;
+      case 'CleanupV1':
+        closed(value, ['schemaVersion', 'registrationId']);
+        require(value.schemaVersion === 1); opaque(value.registrationId);
+        break;
       default: throw new Error(); // Undefined/unimplemented contracts fail closed.
     }
     const env = { ...process.env };
