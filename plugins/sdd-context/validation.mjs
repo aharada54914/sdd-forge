@@ -118,7 +118,7 @@ export function validate(source, trusted) {
       case 'CursorV1': cursor(value); break;
       case 'ProjectionV1': {
         closed(value, ['schemaVersion', 'owner', 'head', 'authorityHashes', 'taskLifecycle', 'featurePresent', 'journalCursor', 'decisions']);
-        require(value.schemaVersion === 1); owner(value.owner); hash(value.head); boolean(value.featurePresent);
+        require(value.schemaVersion === 1); owner(value.owner); string(value.head); boolean(value.featurePresent);
         const paths = new Set();
         array(value.authorityHashes, entry => {
           closed(entry, ['path', 'sha256']); string(entry.path); hash(entry.sha256);
@@ -180,6 +180,11 @@ export function validate(source, trusted) {
       check();
     }
     paths();
+    if (trusted.type === 'ProjectionV1') {
+      const format = git('rev-parse', '--show-object-format=storage').trim();
+      require(format === 'sha1' || format === 'sha256');
+      require((format === 'sha1' ? /^[a-f0-9]{40}$/ : /^[a-f0-9]{64}$/).test(value.head));
+    }
     for (const item of texts) {
       const result = redact(item.text, deadline);
       item.text = result.text;
