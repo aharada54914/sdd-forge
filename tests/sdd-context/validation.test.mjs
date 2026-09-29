@@ -657,7 +657,7 @@ check('LOCK-V1-PID-INVALID: non-positive unsafe and wrong-type PID values reject
 });
 
 const registryEntry = (f = normal) => ({ owner: { ...f.owner },
-  storeRoot: realpathSync(join(f.root, '.sdd', 'context')), registrationId: 'registration',
+  storeRoot: realpathSync.native(join(f.root, '.sdd', 'context')), registrationId: 'registration',
   schedulerState: 'enabled', checkedAtUtc: '2026-09-29T00:00:00Z' });
 check('REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID', () => {
   for (const schedulerState of ['enabled', 'disabled', 'failed']) {
@@ -749,7 +749,9 @@ function rejectPreparation(value, f, extra = {}) {
   assert.equal(caught.message, caught.code);
   assert.equal(caught.stack, undefined); assert.equal(caught.cause, undefined);
 }
-check('NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask', () => {
+test('NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask',
+  { skip: process.platform === 'win32' }, () => {
+  assert.equal(typeof validate, 'function', 'shared validate API is not implemented');
   assert.equal(typeof prepareStore, 'function', 'new private store preparation is not implemented');
   assert.equal(typeof process.getuid, 'function', 'this fixture requires a POSIX owning-account lane');
   const f = fixture('new-store-valid'); const store = join(f.root, '.sdd', 'context');

@@ -60,7 +60,7 @@ function examples() {
   const owner = { schemaVersion: 1, sddRoot: root, worktreeRoot: root,
     gitDirectory: realpathSync(join(root, '.git')), featureId: 'contract-fixture', host: 'codex', sessionId: 'synthetic-session' };
   const common = { schemaVersion: 1, owner }, hash = 'a'.repeat(64), utc = '2026-09-29T00:00:00Z';
-  const entry = { owner, storeRoot: join(root, '.sdd', 'context'), registrationId: 'registration', schedulerState: 'enabled', checkedAtUtc: utc };
+  const entry = { owner, storeRoot: realpathSync.native(join(root, '.sdd', 'context')), registrationId: 'registration', schedulerState: 'enabled', checkedAtUtc: utc };
   const values = {
     OwnerV1: owner,
     CursorV1: { ...common, segmentId: 'segment', sequence: 0, hash },
