@@ -185,3 +185,17 @@ test('PRIVACY-IDEMPOTENCE-PREFIX: complete, near and unfinished markers cannot h
     mark('assignment') + value,
   ]) removed(`${keys[0]}=${candidate}`, 'assignment');
 });
+
+test('PRIVACY-IDEMPOTENCE-OVERLAP: generated overlapping spans preserve exact text', () => {
+  const cases = [
+    ['pem', `${keys[0]}=${pem(labels[0], value)}`],
+    ['url', `${keys[0]}=https://user:${value}@example.invalid/a]b`],
+  ];
+  const mismatches = [];
+  for (const [family, input] of cases) {
+    const first = removed(input, family);
+    const second = run(first);
+    if (second.text !== first) mismatches.push({ family, first, second: second.text });
+  }
+  assert.deepEqual(mismatches, [], 'generated overlapping text changed on second scan');
+});

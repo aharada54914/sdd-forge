@@ -11,3 +11,23 @@ Date: 2026-09-29. Scope: two appended tests in the existing privacy grammar suit
 - Private provenance, raw output and source/test/state guards: `specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/red-run.json`; SHA-256 `a2d31a51946acb5ebe2097deebdb4d2cf7933feabbd640b528d97051f325c202`.
 
 Stop for root's RED review/commit before GREEN. No production, JournalRecord, status, ledger, registry, frozen artifact or Git mutation occurred.
+
+## GREEN continuation — 2026-09-29
+
+Root reviewed RED and committed the fixed tests/note at `3fba2ee2ff54e0139c63b712558d1a3540819d6f`, then authorized the repair. Added **2 lines** in `privacy.mjs:104–105` to consume only the exact complete assignment marker before the existing terminator loop. Contiguous suffixes still enter the same redaction span; bounds and current-scan omission meaning remain unchanged.
+
+- Actual fixed two plus prior 31 JSON/privacy tests: **33/33**; full validation: **112/112**. Each suite ran once, exit 0, failure/skip/correction 0, Node v24.13.0, Darwin arm64, login=false.
+- Fixed grammar unchanged: `6d59f363a1f267b24045449c900d1712dc56d908f4dc857af44663444952ab16`. Updated privacy source: `3f70c35ffb3e3a936ac697a137473749fe04e51b66d8c3a24718b63bf1ba67ff`.
+- Private actual results: `specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/green-run.json` and `validation-run.json`; SHA-256 respectively `e4da9ed8e5d1688f55795506ed774aea3477db789630f4012f92b0de4e0411ad` and `b5b4690ca238f6963992bd4cde5eef16290a9f514a8fb7d7233acb8465f7dee2`.
+
+The earlier RED stop is superseded by this authorized continuation. Stop for root's ordinary independent review and Git processing. Tests, other production, RED evidence, prior note/report prefixes and frozen/task/status/ledger/registry inputs remain unchanged. No JournalRecord, persistence, native/CI, formal verdict or T-001 completion is claimed; no worker Git mutation occurred.
+
+## Overlap RED continuation — 2026-09-29
+
+Root's additional diagnostic identified the same terminator defect in overlapping spans. The preceding GREEN counts cover their fixed cases; this continuation records one appended `PRIVACY-IDEMPOTENCE-OVERLAP` test against unchanged production.
+
+- Command: `rtk proxy node --test --test-reporter=spec --test-name-pattern=^PRIVACY-IDEMPOTENCE-OVERLAP tests/sdd-context/privacy-grammar.test.mjs`. One run: **1 test, 0 pass, 1 fail, 0 skip; exit 1**, Node v24.13.0, Darwin arm64, login=false. Prior test bodies were excluded.
+- Bare assignment plus multiline PEM and bare assignment plus credentialed URL containing `]` in its path both removed the synthetic credential on the first scan. Their generated family markers both changed to assignment markers with an extra closing bracket on the second scan. One final assertion collected both failures (`tests/sdd-context/privacy-grammar.test.mjs:189–200`; overlapping family selection/replacement at `plugins/sdd-context/privacy.mjs:163–177`).
+- Fixed grammar prefix remains 9,764 bytes / `6d59f363a1f267b24045449c900d1712dc56d908f4dc857af44663444952ab16`; production remains `3f70c35ffb3e3a936ac697a137473749fe04e51b66d8c3a24718b63bf1ba67ff`. Private actual evidence: `specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-run.json`, SHA-256 `bf662b19a26daabb2a6ea62d02bc3e235e8a8604c5062f4f6c429d3794e7709b`.
+
+Stop for root's RED review/checkpoint before further production work. Prior note/report prefixes, source/state/frozen inputs and saved evidence remain preserved; no worker Git mutation occurred. This is additional correction 1 within maximum 3; remaining allowance 2. T-001 remains incomplete.
