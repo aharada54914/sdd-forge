@@ -86,13 +86,13 @@ public static class SddPrivateDirectory {
     path = Path.GetFullPath(path);
     if (!String.Equals(Path.GetFileName(path), "context", StringComparison.Ordinal) ||
         !String.Equals(Path.GetFileName(Path.GetDirectoryName(path)), ".sdd", StringComparison.Ordinal))
-      throw new IOException();
+      throw new IOException("path-shape");
     var sid = WindowsIdentity.GetCurrent().User;
-    if (sid == null) throw new IOException();
+    if (sid == null) throw new IOException("identity");
     string parentPath = Path.GetDirectoryName(path);
     using (var parent = Open(parentPath)) {
       var before = Inspect(parent, parentPath);
-      if (!sid.Equals(Security(parent).Owner)) throw new IOException();
+      if (!sid.Equals(Security(parent).Owner)) throw new IOException("parent-owner");
       var security = new DirectorySecurity();
       security.SetOwner(sid); security.SetAccessRuleProtection(true, false);
       security.AddAccessRule(new FileSystemAccessRule(sid, FileSystemRights.FullControl,
@@ -104,7 +104,8 @@ public static class SddPrivateDirectory {
         var attributes = new SecurityAttributes { Length = Marshal.SizeOf(typeof(SecurityAttributes)),
           Descriptor = pinned.AddrOfPinnedObject(), InheritHandle = 0 };
         // Win32 atomically rejects preexisting leaf; no chmod/Set-Acl repair.
-        if (!CreateDirectoryW(path, ref attributes)) throw new IOException();
+        if (!CreateDirectoryW(path, ref attributes))
+          throw new IOException("create-win32-" + Marshal.GetLastWin32Error());
       } finally { pinned.Free(); }
       using (var created = Open(path)) {
         var first = Inspect(created, path); Private(created, sid);
@@ -114,7 +115,8 @@ public static class SddPrivateDirectory {
         }
       }
       using (var again = Open(parentPath)) {
-        if (!Same(before, Inspect(again, parentPath)) || !sid.Equals(Security(again).Owner)) throw new IOException();
+        if (!Same(before, Inspect(again, parentPath)) || !sid.Equals(Security(again).Owner))
+          throw new IOException("parent-changed");
       }
     }
   }
@@ -126,6 +128,7 @@ public static class SddPrivateDirectory {
   $cause = $_.Exception
   while ($cause.InnerException) { $cause = $cause.InnerException }
   $method = [regex]::Match([string]$cause.StackTrace, 'SddPrivateDirectory\.[A-Za-z]+').Value
-  [Console]::Error.WriteLine("windows-store: $($cause.GetType().Name) $method")
+  $detail = if ($cause -is [System.IO.IOException]) { $cause.Message } else { '' }
+  [Console]::Error.WriteLine("windows-store: $($cause.GetType().Name) $method $detail")
   exit 1
 }
