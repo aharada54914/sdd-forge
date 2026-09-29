@@ -226,6 +226,22 @@ check('REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budg
   }
 });
 check('IGNORE-MISSING: non-ignored content target rejects', () => rejected(observation(missingIgnore.owner), 'ObservationV1', missingIgnore));
+check('IGNORE-ENV: inherited Git config cannot invent an ignore rule', () => {
+  const excludes = join(scratch, 'injected-excludes');
+  writeFileSync(excludes, '.sdd/context/**\n');
+  const keys = ['GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'GIT_CONFIG_VALUE_0'];
+  const previous = keys.map(key => process.env[key]);
+  Object.assign(process.env, {
+    GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: excludes,
+  });
+  try { rejected(observation(missingIgnore.owner), 'ObservationV1', missingIgnore); }
+  finally {
+    keys.forEach((key, index) => {
+      if (previous[index] === undefined) delete process.env[key];
+      else process.env[key] = previous[index];
+    });
+  }
+});
 check('IGNORE-NEGATED: effective negation rejects', () => rejected(observation(negatedIgnore.owner), 'ObservationV1', negatedIgnore));
 check('TRACKED: ignored but tracked content target rejects', () => rejected(observation(tracked.owner), 'ObservationV1', tracked));
 check('GIT-ERROR: unreadable Git ownership cannot be treated as safe', () => rejected(observation(brokenGit.owner), 'ObservationV1', brokenGit));

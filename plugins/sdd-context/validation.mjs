@@ -252,7 +252,7 @@ export function validate(source, trusted) {
       default: throw new Error(); // Undefined/unimplemented contracts fail closed.
     }
     const env = { ...process.env };
-    for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE', 'GIT_PREFIX']) delete env[key];
+    for (const key of Object.keys(env)) if (key.startsWith('GIT_')) delete env[key];
     function git(...args) {
       check();
       const output = execFileSync('git', ['-C', root, ...args], {
