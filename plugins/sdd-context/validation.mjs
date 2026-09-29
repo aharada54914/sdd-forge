@@ -128,6 +128,16 @@ export function validate(source, trusted) {
         closed(value, ['schemaVersion', 'owner', 'segmentId', 'firstSequence', 'predecessorHash']);
         require(value.schemaVersion === 1); owner(value.owner); opaque(value.segmentId); integer(value.firstSequence); hash(value.predecessorHash);
         break;
+      case 'JournalRecordV1':
+        closed(value, ['schemaVersion', 'owner', 'sequence', 'kind', 'receivedAtUtc', 'text', 'ruleVersion', 'omission', 'coverage', 'previousHash', 'hash'], ['stableEventId']);
+        require(value.schemaVersion === 1); owner(value.owner); integer(value.sequence);
+        enumeration(value.kind, ['prompt', 'final-assistant', 'observable-transcript', 'compact-manual', 'compact-auto', 'resume']);
+        utc(value.receivedAtUtc); string(value.text); require(value.ruleVersion === 1); boolean(value.omission);
+        enumeration(value.coverage, ['complete', 'partial', 'unavailable']);
+        hash(value.previousHash); hash(value.hash);
+        if (Object.hasOwn(value, 'stableEventId')) opaque(value.stableEventId);
+        require(redact(value.text, deadline).text === value.text);
+        break;
       case 'DecisionV1': decision(value); break;
       case 'LockV1':
         closed(value, ['schemaVersion', 'owner', 'nonce', 'pid', 'processStartIdentity']);
