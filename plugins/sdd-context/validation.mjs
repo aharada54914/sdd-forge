@@ -249,7 +249,7 @@ export function validate(source, trusted) {
     for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE', 'GIT_PREFIX']) delete env[key];
     function git(...args) {
       check();
-      const output = execFileSync('rtk', ['proxy', 'git', '-C', root, ...args], {
+      const output = execFileSync('git', ['-C', root, ...args], {
         encoding: 'utf8', env, timeout: Math.max(1, Math.floor(deadline - performance.now())),
         maxBuffer: 65536, stdio: ['ignore', 'pipe', 'pipe'],
       });

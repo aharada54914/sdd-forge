@@ -22,7 +22,7 @@ function git(root, ...args) {
   for (const key of Object.keys(env)) if (key.startsWith('GIT_')) delete env[key];
   Object.assign(env, { GIT_AUTHOR_NAME: 'SDD fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
     GIT_COMMITTER_NAME: 'SDD fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid' });
-  const result = spawnSync('rtk', ['proxy', 'git', '-C', root, ...args], { encoding: 'utf8', env });
+  const result = spawnSync('git', ['-C', root, ...args], { encoding: 'utf8', env });
   assert.equal(result.error, undefined, 'fixture Git executor unavailable');
   assert.equal(result.status, 0, `fixture Git setup failed: ${result.stderr}`);
   return result.stdout;

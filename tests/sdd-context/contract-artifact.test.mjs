@@ -56,7 +56,7 @@ function examples() {
   writeFileSync(join(root, '.gitignore'), '.sdd/context/**\n');
   const env = { ...process.env };
   for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE', 'GIT_PREFIX']) delete env[key];
-  execFileSync('rtk', ['proxy', 'git', '-C', root, 'init', '-q', '--object-format=sha1'], { env, stdio: 'pipe' });
+  execFileSync('git', ['-C', root, 'init', '-q', '--object-format=sha1'], { env, stdio: 'pipe' });
   const owner = { schemaVersion: 1, sddRoot: root, worktreeRoot: root,
     gitDirectory: realpathSync(join(root, '.git')), featureId: 'contract-fixture', host: 'codex', sessionId: 'synthetic-session' };
   const common = { schemaVersion: 1, owner }, hash = 'a'.repeat(64), utc = '2026-09-29T00:00:00Z';
