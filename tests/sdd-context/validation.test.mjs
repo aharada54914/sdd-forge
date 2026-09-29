@@ -709,3 +709,63 @@ check('REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targe
     rejected(registryEntry(), 'RegistryEntryV1', normal, { plannedPaths: [target] });
   }
 });
+
+const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
+const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
+const { statSync, readFileSync } = await import('node:fs');
+function rejectPreparation(value, f, extra = {}) {
+  assert.equal(typeof prepareStore, 'function', 'new private store preparation is not implemented');
+  let caught;
+  try { prepareStore(JSON.stringify(value), context('OwnerV1', f, extra)); } catch (error) { caught = error; }
+  assert.ok(caught instanceof Error, 'preparation failure returned success');
+  assert.deepEqual(Object.keys(caught), ['code']);
+  assert.match(caught.code, /^[a-z][a-z-]*$/);
+  assert.equal(caught.message, caught.code);
+  assert.equal(caught.stack, undefined); assert.equal(caught.cause, undefined);
+}
+check('NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask', () => {
+  assert.equal(typeof prepareStore, 'function', 'new private store preparation is not implemented');
+  assert.equal(typeof process.getuid, 'function', 'this fixture requires a POSIX owning-account lane');
+  const f = fixture('new-store-valid'); const store = join(f.root, '.sdd', 'context');
+  rmSync(store, { recursive: true });
+  const priorMask = process.umask(0);
+  try {
+    assert.deepEqual(prepareStore(JSON.stringify(f.owner), context('OwnerV1', f)), f.owner);
+    const created = statSync(store);
+    assert.ok(created.isDirectory()); assert.equal(created.mode & 0o777, 0o700);
+    assert.equal(created.uid, process.getuid()); assert.equal(realpathSync(store), store);
+    assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
+  } finally { process.umask(priorMask); }
+});
+check('NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents', () => {
+  const f = fixture('new-store-existing'); const store = join(f.root, '.sdd', 'context');
+  writeFileSync(f.target, 'ordinary synthetic fixture'); const before = statSync(store);
+  rejectPreparation(f.owner, f);
+  const after = statSync(store);
+  assert.equal(after.mode, before.mode); assert.equal(after.ino, before.ino); assert.equal(after.dev, before.dev);
+  assert.equal(readFileSync(f.target, 'utf8'), 'ordinary synthetic fixture');
+});
+check('NEW-STORE-INVALID: malformed or foreign owner cannot create a directory', () => {
+  const f = fixture('new-store-invalid'); const store = join(f.root, '.sdd', 'context');
+  rmSync(store, { recursive: true });
+  for (const value of [{ ...f.owner, extra: true }, normal.owner]) {
+    rejectPreparation(value, f); assert.equal(existsSync(store), false);
+  }
+});
+check('NEW-STORE-ESCAPE: escaping parent cannot create outside the owned worktree', () => {
+  const f = fixture('new-store-escape'); const parent = join(f.root, '.sdd');
+  const destination = join(scratch, 'new-store-outside'); mkdirSync(destination);
+  rmSync(parent, { recursive: true }); symlinkSync(destination, parent);
+  rejectPreparation(f.owner, f);
+  assert.equal(existsSync(join(destination, 'context')), false);
+});
+check('NEW-STORE-GUARDS: ignore Git and expired budget failures leave no new store', () => {
+  for (const [name, ignored, broken, expired] of [
+    ['new-store-ignore', false, false, false], ['new-store-git', true, true, false],
+    ['new-store-budget', true, false, true]]) {
+    const f = fixture(name, ignored); const store = join(f.root, '.sdd', 'context');
+    rmSync(store, { recursive: true }); if (broken) rmSync(join(f.root, '.git'), { recursive: true });
+    rejectPreparation(f.owner, f, expired ? { deadline: performance.now() - 1 } : {});
+    assert.equal(existsSync(store), false);
+  }
+});
