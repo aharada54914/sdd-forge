@@ -193,7 +193,7 @@ require_cli claude
 codex_bin=${SDD_A8_CODEX_BIN:-codex}
 require_cli "$codex_bin"
 require_cli copilot
-[[ -n "${SDD_A8_COPILOT_MODEL:-}" ]] || fail "live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence"
+[[ -n "${SDD_A8_COPILOT_MODEL:-}" && ! "${SDD_A8_COPILOT_MODEL}" =~ ^[aA][uU][tT][oO]$ ]] || fail "live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence"
 
 prompt="In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. Do not inspect or modify anything else. Do not run shell commands. End with a short confirmation."
 (cd "$tmp" && claude --print --model sonnet --output-format text --permission-mode acceptEdits --allowedTools Read,Edit -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"

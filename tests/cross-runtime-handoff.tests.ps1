@@ -85,6 +85,21 @@ function Invoke-ContractSelfTest {
         }
     }
     [Console]::Out.WriteLine('ok: native live CLI contract and all eight missing-token mutations')
+    $tokens = $null; $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile($PSCommandPath, [ref]$tokens, [ref]$parseErrors)
+    $liveFunction = $ast.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Invoke-LiveE2E' }, $true)[0]
+    $modelVariable = '$env:' + $required[3]
+    $guards = @($liveFunction.FindAll({ param($node) $node -is [Management.Automation.Language.IfStatementAst] -and $node.Clauses[0].Item1.Extent.Text.Contains($modelVariable) }, $true))
+    if ($parseErrors.Count -or $guards.Count -ne 1) { Stop-Test 'missing or ambiguous Copilot model guard' }
+    $originalModel = $env:SDD_A8_COPILOT_MODEL
+    try {
+        foreach ($model in @('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6')) {
+            $env:SDD_A8_COPILOT_MODEL = $model
+            $rejected = & ([scriptblock]::Create($guards[0].Clauses[0].Item1.Extent.Text))
+            if ([bool]$rejected -ne ($model -cne 'claude-sonnet-4.6')) { Stop-Test 'Copilot model guard accepted unpinned selection' }
+        }
+    } finally { $env:SDD_A8_COPILOT_MODEL = $originalModel }
+    [Console]::Out.WriteLine('ok: PowerShell live Copilot model guard rejects empty and case-variant automatic selections')
     $one = Join-Path $Fixture 'handoff-01-claude-to-codex.yaml'
     $two = Join-Path $Fixture 'handoff-02-codex-to-copilot.md'
     $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + $fixtureNewline)
@@ -146,7 +161,7 @@ function Invoke-Cli([string]$Name, [string[]]$Arguments, [string]$WorkingDirecto
 }
 function Invoke-LiveE2E {
     $codexBin = if ($env:SDD_A8_CODEX_BIN) { $env:SDD_A8_CODEX_BIN } else { 'codex' }
-    if (-not $env:SDD_A8_COPILOT_MODEL) { Stop-Test 'live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence' }
+    if (-not $env:SDD_A8_COPILOT_MODEL -or $env:SDD_A8_COPILOT_MODEL -ieq 'auto') { Stop-Test 'live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence' }
     $work = Join-Path $evidenceDir 'work'
     $fixtureWork = Join-Path $work 'tests/fixtures/cross-runtime-handoff'
     [void](New-Item -ItemType Directory -Force -Path $fixtureWork)
