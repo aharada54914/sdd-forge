@@ -260,3 +260,153 @@ check('HEAD-CALLER-FORMAT: request cannot supply object-format authority', () =>
 check('HEAD-UNSUPPORTED-GIT: real unsupported format configuration fails closed', () => {
   rejected(withHead(unsupportedGit, unsupportedHead), 'ProjectionV1', unsupportedGit);
 });
+
+// Reconcile admission uses the same real Git fixtures and shared entrance.
+const reconcile = (owner = normal.owner) => ({ schemaVersion: 1, owner: { ...owner },
+  kind: 'observable-transcript', coverage: 'complete', records: [observation(owner)] });
+test('RECONCILE-FIXTURE: valid owner/observation reaches the shared Git/path boundary', () => {
+  for (const f of [normal, sha1]) {
+    assert.deepEqual(validate(JSON.stringify(f.owner), context('OwnerV1', f)), f.owner);
+    const result = validate(JSON.stringify(observation(f.owner)), context('ObservationV1', f));
+    assert.deepEqual(result.owner, f.owner);
+    assert.equal(result.text, 'ordinary text');
+    assert.equal(existsSync(f.target), false, 'admission created a store file');
+  }
+});
+for (const kind of ['observable-transcript', 'compact-manual', 'compact-auto']) {
+  for (const coverage of ['complete', 'partial', 'unavailable']) {
+    check(`RECONCILE-VALID-${kind}-${coverage}: declared request and nested Observation enums accept`, () => {
+      const value = { ...reconcile(), kind, coverage, stableEventId: 'reconcile-event' };
+      value.records = ['prompt', 'final-assistant'].flatMap(kind =>
+        ['complete', 'partial', 'unavailable'].map(coverage =>
+          ({ ...observation(normal.owner), kind, coverage, stableEventId: 'observation-event' })));
+      assert.deepEqual(admit(value, 'ReconcileV1'), value);
+    });
+  }
+}
+for (const coverage of ['complete', 'partial', 'unavailable']) {
+  check(`RECONCILE-EMPTY-${coverage}: records has no invented nonempty requirement`, () => {
+    const value = { ...reconcile(), coverage, records: [] };
+    assert.deepEqual(admit(value, 'ReconcileV1'), value);
+  });
+}
+check('RECONCILE-UNAVAILABLE: absent optional records accepts', () => {
+  const value = { ...reconcile(), coverage: 'unavailable' }; delete value.records;
+  assert.deepEqual(admit(value, 'ReconcileV1'), value);
+});
+for (const coverage of ['complete', 'partial']) {
+  check(`RECONCILE-REQUIRED-${coverage}: missing records rejects`, () => {
+    const value = { ...reconcile(), coverage }; delete value.records;
+    rejected(value, 'ReconcileV1');
+  });
+}
+check('RECONCILE-CLOSED: required fields, version, types and unknown keys reject', () => {
+  for (const field of ['schemaVersion', 'owner', 'kind', 'coverage']) {
+    const value = reconcile(); delete value[field]; rejected(value, 'ReconcileV1');
+  }
+  for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { owner: null }, { owner: [] },
+    { kind: 1 }, { coverage: false }, { extra: true }]) {
+    rejected({ ...reconcile(), ...change }, 'ReconcileV1');
+  }
+  for (const value of [null, [], 1]) rejected(value, 'ReconcileV1');
+});
+check('RECONCILE-ENUM: unrelated kinds and case variants reject', () => {
+  for (const kind of ['prompt', 'final-assistant', 'resume', 'Compact-auto', '']) {
+    rejected({ ...reconcile(), kind }, 'ReconcileV1');
+  }
+  for (const coverage of ['Complete', 'unknown', '']) rejected({ ...reconcile(), coverage }, 'ReconcileV1');
+});
+check('RECONCILE-RECORDS: present records is always an Observation array', () => {
+  for (const coverage of ['complete', 'partial', 'unavailable']) {
+    for (const records of [null, {}, 'records', [null], [[]], [1]]) {
+      rejected({ ...reconcile(), coverage, records }, 'ReconcileV1');
+    }
+  }
+});
+check('RECONCILE-OBSERVATION-CLOSED: every nested required field, type and enum is checked', () => {
+  for (const field of Object.keys(observation(normal.owner))) {
+    const value = reconcile(); delete value.records[0][field]; rejected(value, 'ReconcileV1');
+  }
+  for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { owner: null }, { owner: [] },
+    { kind: 'observable-transcript' }, { kind: 'Prompt' }, { kind: 1 }, { coverage: 'Complete' },
+    { coverage: null }, { text: 1 }, { text: null }, { text: '\ud800' }, { extra: true }]) {
+    const value = reconcile(); Object.assign(value.records[0], change); rejected(value, 'ReconcileV1');
+  }
+});
+check('RECONCILE-OWNER: outer and nested owners cannot self-authorize', () => {
+  for (const nested of [false, true]) {
+    for (const field of Object.keys(normal.owner)) {
+      const value = reconcile(); const owner = nested ? value.records[0].owner : value.owner;
+      delete owner[field]; rejected(value, 'ReconcileV1');
+    }
+    for (const field of ['sddRoot', 'worktreeRoot', 'gitDirectory', 'featureId', 'host', 'sessionId']) {
+      const value = reconcile(); const owner = nested ? value.records[0].owner : value.owner;
+      owner[field] = field === 'host' ? 'claude' : 'foreign'; rejected(value, 'ReconcileV1');
+    }
+    for (const change of [{ schemaVersion: 2 }, { schemaVersion: '1' }, { extra: true }]) {
+      const value = reconcile(); Object.assign(nested ? value.records[0].owner : value.owner, change);
+      rejected(value, 'ReconcileV1');
+    }
+  }
+});
+check('RECONCILE-ID-1024: outer and nested IDs accept the existing UTF-8 boundary', () => {
+  for (const id of ['x'.repeat(1024), '🙂'.repeat(256)]) {
+    const value = reconcile(); value.stableEventId = id; value.records[0].stableEventId = id;
+    const result = admit(value, 'ReconcileV1');
+    assert.equal(result.stableEventId, id); assert.equal(result.records[0].stableEventId, id);
+  }
+});
+check('RECONCILE-ID-INVALID: outer and nested ID types/Unicode/byte limits reject', () => {
+  for (const nested of [false, true]) {
+    for (const id of ['', null, 1, 'x'.repeat(1025), '🙂'.repeat(256) + 'x', '\ud800']) {
+      const value = reconcile(); (nested ? value.records[0] : value).stableEventId = id;
+      rejected(value, 'ReconcileV1');
+    }
+  }
+});
+check('RECONCILE-REDACTION: every nested text is prepared before returning any output', () => {
+  const credential = ['synthetic', 'credential'].join('-');
+  for (const coverage of ['complete', 'partial', 'unavailable']) {
+    const value = { ...reconcile(), coverage };
+    value.records[0].text = `${['pass', 'word'].join('')}=${credential}`;
+    value.records.push({ ...observation(normal.owner), kind: 'final-assistant',
+      text: `${['Author', 'ization'].join('')}: Bearer ${credential}` }, observation(normal.owner));
+    const result = admit(value, 'ReconcileV1');
+    assert.equal(JSON.stringify(result).includes(credential), false);
+    for (const record of result.records.slice(0, 2)) assert.ok(record.text.includes(['RE', 'DACTED'].join('')));
+    assert.equal(result.records[2].text, 'ordinary text');
+    assert.equal(value.records[0].text.includes(credential), true, 'caller input was mutated');
+    assert.equal(existsSync(normal.target), false, 'admission claimed persistence');
+  }
+});
+check('RECONCILE-AUTHORITY: outer and nested receipt/path/budget/lifecycle fields reject', () => {
+  for (const nested of [false, true]) {
+    for (const field of ['receivedAtUtc', 'sequence', 'expiry', 'plannedPaths', 'deadline', 'budget',
+      'taskLifecycle', 'storeRoot', 'host', 'eventKind', 'transcriptLocator', 'omission', 'ruleVersion']) {
+      const value = reconcile(); (nested ? value.records[0] : value)[field] = 'caller';
+      rejected(value, 'ReconcileV1');
+    }
+  }
+});
+check('RECONCILE-JSON: malformed, decoded-duplicate and surrogate input rejects', () => {
+  const source = JSON.stringify(reconcile());
+  for (const raw of [source.slice(0, -1), source.replace('"schemaVersion":1', '"schemaVersion":1,"schemaVersion":1'),
+    source.replace('"text":"ordinary text"', '"text":"ordinary text","te\\u0078t":"duplicate"'), undefined]) {
+    rejected(raw, 'ReconcileV1', normal, {}, true);
+  }
+});
+check('RECONCILE-DEADLINE: exhausted original trusted budget returns no result', () => {
+  rejected(reconcile(), 'ReconcileV1', normal, { deadline: performance.now() - 1 });
+});
+check('RECONCILE-PATH: missing/negated ignore, tracked target and Git error fail closed', () => {
+  for (const f of [missingIgnore, negatedIgnore, tracked, brokenGit]) {
+    rejected(reconcile(f.owner), 'ReconcileV1', f);
+  }
+  for (const target of [join(outside, 'payload.json'), `${normal.root}/.sdd/context/../../foreign.json`,
+    join(normal.root, '.sdd', 'context', 'escape', 'payload.json')]) {
+    rejected(reconcile(), 'ReconcileV1', normal, { plannedPaths: [target] });
+  }
+});
+check('RECONCILE-UNKNOWN-TYPE: request spelling cannot open an unknown trusted contract', () => {
+  for (const type of ['ReconcileV2', 'reconcilev1', 'unknown', '', null, 1]) rejected(reconcile(), type);
+});
