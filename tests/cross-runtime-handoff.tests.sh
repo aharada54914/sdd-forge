@@ -92,6 +92,7 @@ self_test_activation() {
 }
 
 self_test_contract() {
+  bash "$repo_root/tests/cross-runtime-cli-contract.tests.sh" || fail "native CLI argument contract failed"
   python3 - "$fixture_dir" "$allowlist" <<'PY' || fail "fixture contract self-test failed"
 import hashlib, json, pathlib, secrets, shutil, tempfile
 
@@ -189,28 +190,30 @@ PY
 
 require_cli() { command -v "$1" >/dev/null 2>&1 || fail "required headless CLI unavailable: $1"; }
 require_cli claude
-require_cli codex
+codex_bin=${SDD_A8_CODEX_BIN:-codex}
+require_cli "$codex_bin"
 require_cli copilot
+[[ -n "${SDD_A8_COPILOT_MODEL:-}" ]] || fail "live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence"
 
 prompt="In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. Do not inspect or modify anything else. Do not run shell commands. End with a short confirmation."
-(cd "$tmp" && claude --print --output-format text --permission-mode acceptEdits --permission-prompts none --allowedTools Read,Edit -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
+(cd "$tmp" && claude --print --model sonnet --output-format text --permission-mode acceptEdits --allowedTools Read,Edit -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
 actual01_sha=$(sha256_file "$fixture01")
 [[ "$actual01_sha" == "$expected01_sha" ]] || fail "Claude-produced handoff-01 bytes/hash mismatch"
 
 prompt="Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml in this isolated workspace. Extract its token field and emit exactly the marker HANDOFF-01:<token> in your final response. Do not modify files or run shell commands."
 codex_first_output="$evidence_dir/codex-consumer.log"
-codex --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox read-only --cd "$tmp" "$prompt" > "$codex_first_output" 2>&1 || fail "Codex consumer invocation failed"
+"$codex_bin" --model gpt-6-sol --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox read-only --cd "$tmp" "$prompt" > "$codex_first_output" 2>&1 || fail "Codex consumer invocation failed"
 grep -Fq "HANDOFF-01:$nonce1" "$codex_first_output" || fail "Codex consumer output did not contain the exact handoff marker"
 
 prompt="Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and verify its token is $nonce1. Then edit only tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, replacing the exact PLACEHOLDER in its HTML comment with $nonce2, preserving all other bytes. Do not run shell commands and do not modify any other file. End with the exact marker CODEX-PRODUCED:$nonce2."
-codex --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox workspace-write --cd "$tmp" "$prompt" > "$evidence_dir/codex-producer.log" 2>&1 || fail "Codex producer invocation failed"
+"$codex_bin" --model gpt-6-sol --ask-for-approval never exec --ephemeral --skip-git-repo-check --sandbox workspace-write --cd "$tmp" "$prompt" > "$evidence_dir/codex-producer.log" 2>&1 || fail "Codex producer invocation failed"
 grep -Fq "CODEX-PRODUCED:$nonce2" "$evidence_dir/codex-producer.log" || fail "Codex producer did not attest its nonce"
 actual02_sha=$(sha256_file "$fixture02")
 [[ "$actual02_sha" == "$expected02_sha" ]] || fail "Codex-produced handoff-02 bytes/hash mismatch"
 
 prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network."
 output_file="$tmp/tests/fixtures/cross-runtime-handoff/handoff-02-output.txt"
-copilot -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
+copilot --model "$SDD_A8_COPILOT_MODEL" -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
 [[ -f "$output_file" ]] || fail "Copilot did not produce handoff-02-output.txt"
 expected_output_sha=$(printf 'COPILOT-CONSUMED:%s' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
 actual_output_sha=$(sha256_file "$output_file")
