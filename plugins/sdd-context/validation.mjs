@@ -53,10 +53,16 @@ export function validate(source, trusted) {
       return path === '' || (!isAbsolute(path) && path !== '..' && !path.startsWith('..' + sep));
     }
     require(inside(root, sddRoot));
+    const ownerRoot = resolve(trusted.owner.worktreeRoot);
+    function logicalPath(item, base = root) {
+      const path = resolve(base, item);
+      // Windows may report the same trusted root by its 8.3 alias; physical checks still follow below.
+      return base === root && inside(ownerRoot, path) ? resolve(root, relative(ownerRoot, path)) : path;
+    }
     // Resolve an absent leaf through its nearest existing ancestor, without creating it.
     function resolvePath(item, base = root) {
       string(item); require(item.length > 0 && !item.includes('\0'));
-      const logical = resolve(base, item);
+      const logical = logicalPath(item, base);
       require(inside(base, logical));
       let parent = logical;
       const missing = [];
@@ -264,7 +270,7 @@ export function validate(source, trusted) {
       for (const item of trusted.plannedPaths) {
         const target = resolvePath(item);
         require(target !== store && inside(store, target));
-        for (const path of new Set([resolve(root, item), target])) {
+        for (const path of new Set([logicalPath(item), target])) {
           const gitPath = relative(root, path).split(sep).join('/');
           git('check-ignore', '--quiet', '--no-index', '--', gitPath);
           require(git('ls-files', '-z', '--', gitPath).length === 0);
