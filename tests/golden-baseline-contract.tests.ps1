@@ -97,7 +97,7 @@ for group in (m["capture_scripts"], m["targets"]):
     Invoke-GuardCase 'approved-by-omitted' $Promote @($Candidate) '' $false
 
     $Clone = Join-Path $Work 'repo'
-    & git clone -q --shared $Root $Clone
+    & git -c core.longpaths=true clone -q --shared $Root $Clone
     if ($LASTEXITCODE -eq 0) {
         Copy-Item (Join-Path $Root 'tests/capture-golden-baseline.sh') (Join-Path $Clone 'tests/')
         Copy-Item (Join-Path $Root 'tests/capture-golden-baseline.ps1') (Join-Path $Clone 'tests/')
