@@ -808,6 +808,20 @@ test('NEW-STORE-VALID: fresh empty directory is private even under permissive PO
     assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
   } finally { process.umask(priorMask); }
 });
+test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core budget', () => {
+  const f = fixture('new-store-native-deadline');
+  const store = join(f.root, '.sdd', 'context');
+  rmSync(store, { recursive: true });
+  const trusted = context('OwnerV1', f);
+  const started = performance.now();
+  const result = prepareStore(JSON.stringify(f.owner), trusted);
+  const elapsed = performance.now() - started;
+  assert.deepEqual(result, f.owner);
+  assert.ok(elapsed <= 1000, 'complete preparation exceeded the shared core budget');
+  assert.ok(statSync(store).isDirectory());
+  assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
+  console.log(`native ${process.platform} prepareStore elapsed_ms=${elapsed.toFixed(1)}`);
+});
 check('NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents', () => {
   const f = fixture('new-store-existing'); const store = join(f.root, '.sdd', 'context');
   writeFileSync(f.target, 'ordinary synthetic fixture'); const before = statSync(store);
