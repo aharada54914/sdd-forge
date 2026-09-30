@@ -61,8 +61,8 @@ wired="$(awk '
     sub(/^[[:space:]]+/, "", line)
     sub(/[[:space:]]+$/, "", line)
     expr = line
-    if (expr == "runner.os != '\''Windows'\''") return 0
-    if (expr == "runner.os != \"Windows\"") return 0
+    if (expr == "runner.os != '\''Windows'\''") return job_windows
+    if (expr == "runner.os != \"Windows\"") return job_windows
     return 1
   }
   function command(line, path, tail) {
@@ -104,7 +104,8 @@ wired="$(awk '
     }
     flush()
     if (line ~ /^      - / || line ~ /^  [^ ]/) flush_step()
-    if (line ~ /^  [^ ]/) flush_job()
+    if (line ~ /^  [^ ]/) { flush_job(); job_windows = 0 }
+    if (line ~ /^    runs-on: windows-latest[[:space:]]*$/) job_windows = 1
     if (line ~ /^    if:/ && unknown_condition(line)) job_conditional = 1
     if (line ~ /^(        if:|      - if:)/ && unknown_condition(line)) conditional = 1
     if (line !~ /^(        run:|      - run:)[[:space:]]/) next
