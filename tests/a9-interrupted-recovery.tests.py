@@ -13,7 +13,213 @@ fixture = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fixture)
 
 
+def report_preflight():
+    """Synthetic evidence equality oracle; never attests a T-001 implementation run."""
+    spec_dir = ORIGINAL / "specs/a9-interrupted-review-recovery"
+    revision = fixture.digest(b"".join((spec_dir / name).read_bytes() for name in
+                                     ("requirements.md", "design.md", "acceptance-tests.md")))
+    frozen = set()
+    for line in (spec_dir / "traceability.md").read_text().splitlines():
+        columns = [part.strip() for part in line.split("|")]
+        if len(columns) > 9 and columns[9] == "T-001":
+            frozen.add((columns[1], columns[8], columns[6]))
+    assert ("REQ-002", "AC-002", "TEST-008") in frozen
+    # The record, environment and measurement are intentionally independent
+    # inputs to the oracle. This synthetic measurement is not A9 admission.
+    measured_exit = subprocess.run([sys.executable, "-c", "pass"], capture_output=True).returncode
+    execution = {"run_id": "synthetic-run-001", "attempt": 1,
+                 "environment": "synthetic-local", "results": {"TEST-008":
+                 "PASS" if measured_exit == 0 else "FAIL"}}
+    report = {"Run ID": execution["run_id"], "Task Attempt Count": execution["attempt"],
+              "spec_revision": revision, "environment": execution["environment"]}
+    verification = {"task": "T-001", "req": "REQ-002", "ac": "AC-002",
+                    "test": "TEST-008", "result": execution["results"]["TEST-008"]}
+
+    def mismatch(candidate_report, candidate_verification):
+        expected_report = {"Run ID": execution["run_id"], "Task Attempt Count": execution["attempt"],
+                           "spec_revision": revision, "environment": execution["environment"]}
+        for key, expected in expected_report.items():
+            if candidate_report.get(key) != expected:
+                return key
+        row = candidate_verification
+        if row.get("task") != "T-001":
+            return "verification.task"
+        if (row.get("req"), row.get("ac"), row.get("test")) not in frozen:
+            return "verification.assignment"
+        if row.get("test") not in execution["results"] or row.get("result") != execution["results"][row["test"]]:
+            return "verification.result"
+        return None
+
+    print(f"synthetic counterpart: three-file raw digest={revision}; measured control exit={measured_exit}", flush=True)
+    if mismatch(report, verification) is not None:
+        print("BLOCKED: synthetic positive report/verification control did not admit", flush=True)
+        return 1
+    print("control synthetic report and frozen verification: PASS", flush=True)
+    cases = [
+        ("report-run-id-mismatch", "Run ID", "different-synthetic-run", "Run ID"),
+        ("report-attempt-mismatch", "Task Attempt Count", 2, "Task Attempt Count"),
+        ("report-spec-revision-mismatch", "spec_revision", "0" * 64, "spec_revision"),
+        ("report-environment-mismatch", "environment", "different-synthetic-host", "environment"),
+    ]
+    failures = 0
+    for name, field, wrong, expected in cases:
+        changed = {**report, field: wrong}
+        result = mismatch(changed, verification)
+        print(f"{name}: {'PASS' if result == expected else 'FAIL'}; mismatch={result!r}", flush=True)
+        failures += result != expected
+    for name, field, wrong, expected in (
+            ("verification-req-mismatch", "req", "REQ-001", "verification.assignment"),
+            ("verification-ac-mismatch", "ac", "AC-001", "verification.assignment"),
+            ("verification-test-mismatch", "test", "TEST-084", "verification.assignment"),
+            ("verification-result-mismatch", "result", "FAIL", "verification.result")):
+        changed = {**verification, field: wrong}
+        result = mismatch(report, changed)
+        print(f"{name}: {'PASS' if result == expected else 'FAIL'}; mismatch={result!r}", flush=True)
+        failures += result != expected
+    print(f"report-preflight: synthetic negatives=8 rejected={8 - failures}; admission API not exercised", flush=True)
+    return int(bool(failures))
+
+
+def consumer_preflight():
+    """Expose downstream sibling mismatches without claiming T-001 admission."""
+    with tempfile.TemporaryDirectory(prefix="a9-consumer-preflight-") as directory:
+        root = Path(directory)
+        feature = "a9-preflight-fixture"
+        spec_dir = root / "specs" / feature
+        spec_dir.mkdir(parents=True)
+        pieces = (b"REQ-002\n", b"design\n", b"AC-002 TEST-008\n")
+        for name, contents in zip(("requirements.md", "design.md", "acceptance-tests.md"), pieces):
+            (spec_dir / name).write_bytes(contents)
+        correct_revision = fixture.digest(b"".join(pieces))
+        wrong_revision = "0" * 64 if correct_revision != "0" * 64 else "1" * 64
+        evidence = root / "reports" / "test.log"
+        evidence.parent.mkdir(parents=True)
+        evidence.write_text("synthetic evidence\n")
+        required = ("lint", "typecheck", "build", "placeholder-scan", "task-state-check",
+                    "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+        contract = {
+            "schema": "verification-contract/v2", "task_id": "T-001", "feature": feature,
+            "risk": "high", "required_workflow": "tdd", "created": "2026-10-01T00:00:00Z",
+            "spec_revision": correct_revision,
+            "checks": [{**{"id": name, "required": True, "passes": True,
+                           "evidence": "reports/test.log", "waiver_reason": ""},
+                        **({"red_evidence": "reports/test.log", "green_evidence": "reports/test.log"}
+                           if name in ("unit-tests", "acceptance-tests") else {})}
+                       for name in required],
+        }
+        contract_path = root / "T-001.contract.json"
+        trace_path = root / "traceability.json"
+        trace = {"feature": feature, "links": [{"req": "REQ-002", "acs": ["AC-002"],
+                                                "tests": ["TEST-008"], "evidence": ["reports/test.log"]}]}
+
+        def invoke(label, command):
+            result = subprocess.run(command, capture_output=True, text=True)
+            print(f"{label}: exit={result.returncode}; stdout={result.stdout.strip()!r}; stderr={result.stderr.strip()!r}", flush=True)
+            return result.returncode
+
+        failures = 0
+        contract_commands = [("Bash", ["sh", str(ORIGINAL / "plugins/sdd-quality-loop/scripts/check-contract.sh"),
+                                      str(contract_path), str(root)])]
+        trace_commands = [("Bash", ["sh", str(ORIGINAL / "plugins/sdd-quality-loop/scripts/check-traceability.sh"),
+                                   str(trace_path), str(root), "require-evidence"])]
+        if shutil.which("pwsh"):
+            contract_commands.append(("PowerShell", ["pwsh", "-NoLogo", "-NoProfile", "-File",
+                                                    str(ORIGINAL / "plugins/sdd-quality-loop/scripts/check-contract.ps1"),
+                                                    str(contract_path), str(root)]))
+            trace_commands.append(("PowerShell", ["pwsh", "-NoLogo", "-NoProfile", "-File",
+                                                 str(ORIGINAL / "plugins/sdd-quality-loop/scripts/check-traceability.ps1"),
+                                                 "-TracePath", str(trace_path), "-RepoRoot", str(root), "-RequireEvidence"]))
+        else:
+            print("PowerShell consumer preflight unavailable; twin result pending", flush=True)
+            failures += 1
+
+        contract_path.write_bytes(fixture.canonical(contract) + b"\n")
+        for runtime, command in contract_commands:
+            if invoke(f"control correct spec_revision {runtime}", command) != 0:
+                print("BLOCKED: positive contract control failed; wrong-revision result is not semantic RED", flush=True)
+                return 1
+        contract["spec_revision"] = wrong_revision
+        contract_path.write_bytes(fixture.canonical(contract) + b"\n")
+        print(f"wrong-revision counterpart: actual={correct_revision} persisted={wrong_revision}", flush=True)
+        for runtime, command in contract_commands:
+            if invoke(f"RED well-formed wrong spec_revision {runtime}", command) == 0:
+                print(f"FAIL: {runtime} accepted well-formed revision unequal to current three-file digest", flush=True)
+                failures += 1
+
+        trace_path.write_bytes(fixture.canonical(trace) + b"\n")
+        for runtime, command in trace_commands:
+            if invoke(f"control traceability membership {runtime}", command) != 0:
+                print("BLOCKED: positive traceability control failed; membership result is not semantic RED", flush=True)
+                return 1
+        trace["links"][0].update({"req": "REQ-999", "acs": ["AC-999"], "tests": ["TEST-999"]})
+        trace_path.write_bytes(fixture.canonical(trace) + b"\n")
+        for runtime, command in trace_commands:
+            if invoke(f"RED wrong-but-existing traceability membership {runtime}", command) == 0:
+                print(f"FAIL: {runtime} accepted REQ/AC/TEST identifiers absent from the synthetic source set", flush=True)
+                failures += 1
+
+        # The T-001 prior-round sibling validator already reconciles these
+        # fields. Rebind the summary's manifest hash so a wrong count reaches
+        # count consistency rather than stopping at an incidental stale hash.
+        with tempfile.TemporaryDirectory(prefix="a9-prior-consistency-") as prior_dir:
+            prior_root = Path(prior_dir) / "count"
+            prior_root.mkdir()
+            fixture.build(prior_root, ORIGINAL)
+            source = (ORIGINAL / "plugins/sdd-review-loop/scripts/spec-review-precheck.sh").read_text()
+            definitions = fixture.bash_functions(source)
+            start = source.index("jq_relative_path='")
+            end = source.index(";'", start) + 2
+            setup = ('\nrepo_root=$1; repo_root_alias=$1; feature=$2; '
+                     'spec_dir="$1/specs/$2"; requirements="$spec_dir/requirements.md"; '
+                     'acceptance="$spec_dir/acceptance-tests.md"; investigation="$spec_dir/investigation.md"; '
+                     'calibration="$1/' + fixture.CALIBRATION + '"\n')
+            loader = "set -euo pipefail\n" + definitions + "\n" + source[start:end] + setup
+            prior_command = ["bash", "-c", loader + '\nvalidate_contract "$1/$3/spec-review-contract.json" 3 2 NEEDS_WORK "$1/$3/precheck-result.json"',
+                             "fixture", str(prior_root), fixture.FEATURE, fixture.PREVIOUS]
+            if invoke("control complete prior contract Bash", prior_command) != 0:
+                print("BLOCKED: prior contract control failed; count/identity result is not semantic", flush=True)
+                return 1
+            prior_round = prior_root / fixture.PREVIOUS
+            summary_path = prior_round / "integrated-summary.json"
+            contract_prior_path = prior_round / "spec-review-contract.json"
+            reviewer_b_path = prior_round / "reviewer-b.json"
+            summary = json.loads(summary_path.read_text())
+            summary["reviewer_a_fail_count"] = 0
+            summary_path.write_bytes(fixture.canonical(summary) + b"\n")
+            summary_hash = fixture.digest(summary_path.read_bytes())
+            for manifest_path in (contract_prior_path, reviewer_b_path):
+                document = json.loads(manifest_path.read_text())
+                manifests = ([reviewer["allowed_input_manifest"] for reviewer in document["reviewers"]]
+                             if manifest_path == contract_prior_path else [document["allowed_input_manifest"]])
+                for manifest in manifests:
+                    for ref in manifest:
+                        if Path(ref["path"]).name == "integrated-summary.json":
+                            ref["sha256"] = summary_hash
+                manifest_path.write_bytes(fixture.canonical(document) + b"\n")
+            if invoke("count counterpart mismatch prior Bash", prior_command) == 0:
+                print("FAIL: prior validator accepted count unequal to reviewer-A FAIL checks", flush=True)
+                failures += 1
+            identity_root = Path(prior_dir) / "identity"
+            identity_root.mkdir()
+            fixture.build(identity_root, ORIGINAL)
+            identity_command = prior_command.copy()
+            identity_command[-3] = str(identity_root)
+            raw_a = identity_root / fixture.PREVIOUS / "reviewer-a.json"
+            reviewer_a = json.loads(raw_a.read_text())
+            reviewer_a["run_id"] = "well-formed-wrong-run-id"
+            raw_a.write_bytes(fixture.canonical(reviewer_a) + b"\n")
+            if invoke("identity counterpart mismatch prior Bash", identity_command) == 0:
+                print("FAIL: prior validator accepted reviewer-A run_id unequal to contract", flush=True)
+                failures += 1
+        print(f"consumer-preflight: semantic mismatches accepted={failures}; admission API not exercised", flush=True)
+        return int(bool(failures))
+
+
 def run():
+    if "--report-preflight" in sys.argv[1:]:
+        return report_preflight()
+    if "--consumer-preflight" in sys.argv[1:]:
+        return consumer_preflight()
     failures = 0
     with tempfile.TemporaryDirectory(prefix="a9-recovery-fixture-") as directory:
         root = Path(directory)
