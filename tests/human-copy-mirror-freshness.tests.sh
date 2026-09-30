@@ -112,6 +112,31 @@ else
     FAIL=$((FAIL + 1))
 fi
 
+file_sha() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum -- "$1" | awk '{print $1}'
+    else
+        shasum -a 256 -- "$1" | awk '{print $1}'
+    fi
+}
+
+for bundle in \
+    specs/epic-190-a2-capability-registry/human-copy \
+    specs/epic-194-a6-lite-integration/human-copy; do
+    canonical="$ROOT/.github/workflows/test.yml"
+    mirror="$ROOT/$bundle/.github/workflows/test.yml"
+    manifest="$ROOT/$bundle/MANIFEST.sha256"
+    rel=.github/workflows/test.yml
+    canonical_sha="$(file_sha "$canonical")"
+    mirror_sha="$(file_sha "$mirror")"
+    manifest_sha="$(awk -v path="$rel" '$2 == path { count++; digest = $1 } END { if (count != 1) exit 1; print digest }' "$manifest")"
+    if [ "$canonical_sha" = "$mirror_sha" ] && [ "$mirror_sha" = "$manifest_sha" ]; then
+        ok "$bundle workflow mirror and manifest match the live workflow SHA-256"
+    else
+        bad "$bundle workflow mirror or manifest differs from the live workflow SHA-256"
+    fi
+done
+
 printf '\n%s: %d passed, %d failed, %d pending (informational)\n' \
     "$(basename "$0")" "$PASS" "$FAIL" "$PENDING"
 [ "$FAIL" -eq 0 ] || exit 1
