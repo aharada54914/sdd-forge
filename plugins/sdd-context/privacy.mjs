@@ -16,7 +16,7 @@ function reject() {
  * deadline is trusted core monotonic time, never taken from a host payload.
  * Default includes process startup time; callers propagate the original deadline.
  */
-export function redact(text, deadline = 1000) {
+export function redact(text, deadline = 3000) {
   try {
     return scan(text, deadline);
   } catch {

@@ -5,7 +5,7 @@ const INPUT_BYTES = 1024 * 1024;
 /** Shared JSON syntax/member/Unicode checks only; callers still validate schemas.
  * deadline is the trusted core absolute monotonic deadline, including startup.
  */
-export function parseJson(source, deadline = 1000) {
+export function parseJson(source, deadline = 3000) {
   try {
     const check = () => {
       if (!Number.isFinite(deadline) || performance.now() >= deadline) throw new Error();
