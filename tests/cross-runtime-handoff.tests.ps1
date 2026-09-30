@@ -66,7 +66,7 @@ function Invoke-ActivationSelfTest {
     [Console]::Out.WriteLine('ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present')
 }
 function Invoke-ContractSelfTest {
-    $required = @(('SDD_A8_' + 'CODEX_BIN'), ('gpt-6-' + 'sol'), ('son' + 'net'), ('SDD_A8_' + 'COPILOT_MODEL'))
+    $required = @(('SDD_A8_' + 'CODEX_BIN'), ('gpt-5.6-' + 'sol'), ('son' + 'net'), ('SDD_A8_' + 'COPILOT_MODEL'))
     foreach ($suffix in @('sh', 'ps1')) {
         $source = [IO.File]::ReadAllText((Join-Path $repoRoot ("tests/cross-runtime-handoff.tests.$suffix")))
         $begin = "`n" + $(if ($suffix -ceq 'sh') { 'require_cli() {' } else { 'function Invoke-LiveE2E {' })
@@ -191,10 +191,10 @@ function Invoke-LiveE2E {
     [void](Invoke-Cli 'claude' @('--print', '--model', 'sonnet', '--output-format', 'text', '--permission-mode', 'acceptEdits', '--allowedTools', 'Read,Edit', '--', $prompt) $work (Join-Path $evidenceDir 'claude-producer.log'))
     if ((Get-Sha256 $one) -cne $expected1) { Stop-Test 'Claude-produced handoff-01 bytes/hash mismatch' }
     $prompt = 'Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml in this isolated workspace. Extract its token field and emit exactly the marker HANDOFF-01:<token> in your final response. Do not modify files or run shell commands.'
-    $codexConsumer = Invoke-Cli $codexBin @('--model', 'gpt-6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'read-only', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-consumer.log')
+    $codexConsumer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'read-only', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-consumer.log')
     if (-not $codexConsumer.Contains('HANDOFF-01:' + $nonce1)) { Stop-Test 'Codex consumer output did not contain the exact handoff marker' }
     $prompt = "Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and verify its token is $nonce1. Then edit only tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, replacing the exact PLACEHOLDER in its HTML comment with $nonce2, preserving all other bytes. Do not run shell commands and do not modify any other file. End with the exact marker CODEX-PRODUCED:$nonce2."
-    $codexProducer = Invoke-Cli $codexBin @('--model', 'gpt-6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
+    $codexProducer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
     if (-not $codexProducer.Contains('CODEX-PRODUCED:' + $nonce2)) { Stop-Test 'Codex producer did not attest its nonce' }
     if ((Get-Sha256 $two) -cne $expected2) { Stop-Test 'Codex-produced handoff-02 bytes/hash mismatch' }
     $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'

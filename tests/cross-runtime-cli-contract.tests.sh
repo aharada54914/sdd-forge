@@ -4,7 +4,7 @@ root=$(git rev-parse --show-toplevel)
 python3 - "$root" <<'PY'
 import os, pathlib, subprocess, sys
 root = pathlib.Path(sys.argv[1])
-required = ['SDD_A8_' + 'CODEX_BIN', 'gpt-6-' + 'sol', 'son' + 'net', 'SDD_A8_' + 'COPILOT_MODEL']
+required = ['SDD_A8_' + 'CODEX_BIN', 'gpt-5.6-' + 'sol', 'son' + 'net', 'SDD_A8_' + 'COPILOT_MODEL']
 def valid(source):
     return '--permission-' + 'prompts' not in source and all(token in source for token in required)
 for suffix in ('sh', 'ps1'):
