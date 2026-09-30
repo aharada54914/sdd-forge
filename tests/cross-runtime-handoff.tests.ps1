@@ -76,6 +76,17 @@ function Invoke-ContractSelfTest {
         if ($start -lt 0 -or $finish -le $start) { Stop-Test 'native live boundaries missing' }
         $live = $source.Substring($start, $finish - $start)
         if ($live.Contains('--permission-' + 'prompts')) { Stop-Test 'removed Claude CLI option' }
+        $toolArguments = if ($suffix -ceq 'sh') {
+            @(('--available-' + "tools='view,create'"), ('--allow-' + 'tool=' + '"write($output_file)"'))
+        } else {
+            @(('--available-' + 'tools=view,create'), ('--allow-' + 'tool=write($output)'))
+        }
+        foreach ($argument in $toolArguments) {
+            if ($live.IndexOf($argument, [StringComparison]::Ordinal) -lt 0 -or
+                $live.IndexOf($argument, [StringComparison]::Ordinal) -ne $live.LastIndexOf($argument, [StringComparison]::Ordinal)) {
+                Stop-Test 'missing or ambiguous scoped Copilot tool argument'
+            }
+        }
         foreach ($token in $required) {
             if (-not $live.Contains($token)) { Stop-Test 'native live model or executable contract missing' }
             $mutant = $live.Replace($token, 'REMOVED')

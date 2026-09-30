@@ -14,6 +14,12 @@ for suffix in ('sh', 'ps1'):
     else:
         live = source.split('\nfunction Invoke-LiveE2E {', 1)[1].split('\nif ($SelfTestActivation)', 1)[0]
     assert valid(live), suffix + ': invalid native live CLI contract'
+    tool_arguments = {
+        'sh': [('--available-' + "tools='view,create'"), ('--allow-' + 'tool=' + '"write($output_file)"')],
+        'ps1': [('--available-' + 'tools=view,create'), ('--allow-' + 'tool=write($output)')],
+    }[suffix]
+    for argument in tool_arguments:
+        assert live.count(argument) == 1, suffix + ': missing or ambiguous scoped Copilot tool argument: ' + argument
     if suffix == 'sh':
         guards = [line for line in live.splitlines() if line.startswith('[[ ') and required[3] in line]
         assert len(guards) == 1, 'missing or ambiguous Copilot model guard'
