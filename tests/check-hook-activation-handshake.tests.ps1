@@ -64,15 +64,22 @@ function Invoke-ChildProcess {
     $proc = [System.Diagnostics.Process]::Start($psi)
     $stdoutStream = [System.IO.MemoryStream]::new()
     $stderrStream = [System.IO.MemoryStream]::new()
-    $copyOutTask = $proc.StandardOutput.BaseStream.CopyToAsync($stdoutStream)
-    $copyErrTask = $proc.StandardError.BaseStream.CopyToAsync($stderrStream)
-    $proc.WaitForExit()
-    $copyOutTask.GetAwaiter().GetResult()
-    $copyErrTask.GetAwaiter().GetResult()
-    [System.IO.File]::WriteAllBytes($outPath, $stdoutStream.ToArray())
-    [System.IO.File]::WriteAllBytes($errPath, $stderrStream.ToArray())
+    try {
+        $copyOutTask = $proc.StandardOutput.BaseStream.CopyToAsync($stdoutStream)
+        $copyErrTask = $proc.StandardError.BaseStream.CopyToAsync($stderrStream)
+        $proc.WaitForExit()
+        $copyOutTask.GetAwaiter().GetResult()
+        $copyErrTask.GetAwaiter().GetResult()
+        [System.IO.File]::WriteAllBytes($outPath, $stdoutStream.ToArray())
+        [System.IO.File]::WriteAllBytes($errPath, $stderrStream.ToArray())
 
-    return @{ ExitCode = $proc.ExitCode; StdoutPath = $outPath; StderrPath = $errPath }
+        return @{ ExitCode = $proc.ExitCode; StdoutPath = $outPath; StderrPath = $errPath }
+    }
+    finally {
+        $stderrStream.Dispose()
+        $stdoutStream.Dispose()
+        $proc.Dispose()
+    }
 }
 
 function Invoke-Hh {
