@@ -799,6 +799,16 @@ function rejectPreparation(value, f, extra = {}) {
   assert.equal(caught.message, caught.code);
   assert.equal(caught.stack, undefined); assert.equal(caught.cause, undefined);
 }
+function ownWindowsFixtureParent(f) {
+  if (process.platform !== 'win32') return;
+  const parent = join(f.root, '.sdd');
+  const script = '$p = $env:SDD_CONTEXT_FIXTURE_PARENT; $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User; $acl = Get-Acl -LiteralPath $p; $acl.SetOwner($sid); Set-Acl -LiteralPath $p -AclObject $acl; if (-not (Get-Acl -LiteralPath $p).GetOwner([Security.Principal.SecurityIdentifier]).Equals($sid)) { exit 1 }';
+  const result = spawnSync('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', script], {
+    encoding: 'utf8', env: { ...process.env, SDD_CONTEXT_FIXTURE_PARENT: parent },
+  });
+  assert.equal(result.error, undefined, 'native fixture owner setup unavailable');
+  assert.equal(result.status, 0, 'native fixture parent owner mismatch');
+}
 test('NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask',
   { skip: process.platform === 'win32' }, () => {
   assert.equal(typeof validate, 'function', 'shared validate API is not implemented');
@@ -821,6 +831,7 @@ test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core
   const f = fixture('new-store-native-deadline');
   const store = join(f.root, '.sdd', 'context');
   rmSync(store, { recursive: true });
+  ownWindowsFixtureParent(f);
   const trusted = context('OwnerV1', f);
   const started = performance.now();
   const result = prepareStore(JSON.stringify(f.owner), trusted);
@@ -837,6 +848,7 @@ test('WINDOWS-NATIVE-COST-DIAGNOSTIC: split validation and adapter cost', {
   const f = fixture('windows-native-cost-diagnostic');
   const store = join(f.root, '.sdd', 'context');
   rmSync(store, { recursive: true });
+  ownWindowsFixtureParent(f);
   const source = JSON.stringify(f.owner);
   const started = performance.now();
   validate(source, context('OwnerV1', f));
