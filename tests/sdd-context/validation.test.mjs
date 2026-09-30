@@ -72,7 +72,7 @@ const projection = () => ({ schemaVersion: 1, owner: { ...normal.owner }, head: 
 const observation = owner => ({ schemaVersion: 1, owner: { ...owner }, kind: 'prompt', text: 'ordinary text', coverage: 'complete' });
 function context(type, f = normal, extra = {}) {
   return { type, owner: { ...f.owner }, plannedPaths: [f.target], journalEmpty: true,
-    deadline: performance.now() + 1000, ...extra };
+    deadline: performance.now() + 3000, ...extra };
 }
 const admit = (value, type = 'ProjectionV1', extra = {}) => validate(JSON.stringify(value), context(type, normal, extra));
 function rejected(value, type = 'ProjectionV1', f = normal, extra = {}, raw = false) {
@@ -295,6 +295,12 @@ check('REDACTION: admitted text is redacted before the in-memory result', () => 
 });
 check('DEADLINE: exhausted shared trusted budget rejects without a result', () => {
   rejected(observation(normal.owner), 'ObservationV1', normal, { deadline: performance.now() - 1 });
+});
+check('DEADLINE: three-second bound admits remaining time but rejects a later deadline', () => {
+  assert.equal(admit(observation(normal.owner), 'ObservationV1',
+    { deadline: performance.now() + 2500 }).text, 'ordinary text');
+  rejected(observation(normal.owner), 'ObservationV1', normal,
+    { deadline: performance.now() + 3500 });
 });
 
 // Git OIDs are not the SHA-256 integrity-digest contract. Both fixtures use real
@@ -820,7 +826,7 @@ test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core
   const result = prepareStore(JSON.stringify(f.owner), trusted);
   const elapsed = performance.now() - started;
   assert.deepEqual(result, f.owner);
-  assert.ok(elapsed <= 1000, 'complete preparation exceeded the shared core budget');
+  assert.ok(elapsed <= 3000, 'complete preparation exceeded the shared core budget');
   assert.ok(statSync(store).isDirectory());
   assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
   console.log(`native ${process.platform} prepareStore elapsed_ms=${elapsed.toFixed(1)}`);
@@ -836,7 +842,7 @@ test('WINDOWS-NATIVE-COST-DIAGNOSTIC: split validation and adapter cost', {
   validate(source, context('OwnerV1', f));
   const validated = performance.now();
   let adapterResult = 'ok';
-  try { prepareWindowsStore(store, 1000); }
+  try { prepareWindowsStore(store, 3000); }
   catch { adapterResult = 'rejected'; }
   const finished = performance.now();
   console.log(`native win32 validation_ms=${(validated - started).toFixed(1)} adapter_ms=${(finished - validated).toFixed(1)} adapter=${adapterResult}`);

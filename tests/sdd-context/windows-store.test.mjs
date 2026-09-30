@@ -52,5 +52,9 @@ test('WINDOWS-ADAPTER: bounded fixed script invocation; failures never leak', as
   failure = true; reject(() => module.prepareWindowsStore('/owned/.sdd/context', 90));
   const before = calls.length;
   reject(() => module.prepareWindowsStore('/owned/.sdd/context', 0));
+  reject(() => module.prepareWindowsStore('/owned/.sdd/context', 3001));
   assert.equal(calls.length, before);
+  failure = false;
+  module.prepareWindowsStore('/owned/.sdd/context', 3000);
+  assert.equal(calls.at(-1)[2].timeout, 3000);
 });

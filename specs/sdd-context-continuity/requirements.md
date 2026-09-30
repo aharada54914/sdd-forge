@@ -43,7 +43,7 @@ baseline observations from investigation INV-002 and INV-007, not live-host proo
 | REQ-007 | On input persistence failure warn and continue without claiming capture. Manual compaction requires a separate flush/reconciliation safety result. Automatic compaction must never be prevented or indefinitely delayed by continuity handling. |
 | REQ-008 | Verify Claude and Codex adapters independently through registered lifecycle entry points. No adapter may require another runtime's exclusive fields. Unsupported hosts/events remain explicitly unavailable. |
 | REQ-009 | Store only redacted conversation data locally, outside Git and public evidence. Automatically expire and delete it after 30 days, including derived and recovery copies. Disclose redaction/expiry recovery loss. |
-| REQ-010 | Inject a bounded, fresh recovery view prioritizing unresolved agreements, do-not-reopen decisions, workflow state, blockers and next action. Provide local evidence pointers for overflow; never inject the entire journal by default. |
+| REQ-010 | Inject a bounded, fresh recovery view prioritizing, in this order, unresolved agreements, do-not-reopen decisions, current workflow state, blockers and next action. Within one class, prefer the newest source sequence. A lower-ranked whole entry may fit only after every higher-ranked entry that fits has been considered; omitted entries get local evidence pointers. Never inject the entire journal by default. |
 | REQ-011 | Reuse the existing task-state interpretation through a transport-free read-only boundary. Keep MCP read-only and its existing public behavior compatible. HANDOFF, indexes and snapshots are derived, not authorities. |
 | REQ-012 | Deliver an internal sdd-context plugin integrated with existing installation/dependencies, without a new user workflow command or changes to native compaction. No-SDD and unsupported-host cases preserve ordinary SDD usability. |
 
@@ -76,28 +76,31 @@ decisions and cross-cutting boundaries testable. Planned test rows are in
 | AC-001 | After successful prompt capture and compact, B accepted/A rejected are recoverable with source references; a failed capture follows AC-015 instead of reporting success. |
 | AC-002 | The redacted composite statement retains its authentication exception even when decision extraction omits that exception. Redacted spans are marked unrecoverable. |
 | AC-003 | Extractor failure leaves captured source evidence available and does not mutate it into the failed extraction result. |
-| AC-004 | Automatic compact before Stop reconciles exposed, complete transcript records not yet captured; absent, null, unknown-format and incomplete transcript inputs report their coverage limit. |
+| AC-004 | Manual or automatic compact before Stop reconciles exposed, complete transcript records not yet captured; absent, null, unknown-format and incomplete transcript inputs report their coverage limit. |
 | AC-005 | A decision verified as materialized is represented by its authoritative reference, not redundant full-body injection; a stale/missing materialization target cannot suppress unresolved source evidence. |
 | AC-006 | Current task state wins over stale HANDOFF and contradictory decision index; HEAD, source-hash, cursor, feature-presence and task-lifecycle changes invalidate the derived view. |
 | AC-007 | Foreign repository, worktree, feature or session records cannot contaminate recovery; a canonical alias of the same owner is not mistaken for a foreign owner. |
 | AC-008 | Partial final JSONL is isolated while preserving the valid prefix; interior corruption fails integrity checking. Interrupted recovery does not silently discard retained valid events. |
 | AC-009 | Failed manual flush, reconciliation, integrity validation or projection publication is visible and never labeled SAFE. Block only through a proven safe host control; otherwise report the unavailable barrier explicitly. |
-| AC-010 | Automatic compaction proceeds after write/read/timeout/hook-process failures without a blocking response or indefinite wait. Continuity loss is reported without conversation content. |
-| AC-011 | Claude and Codex each demonstrate AC-001–AC-010 through their own actual supported event interfaces; fixture-only results cannot satisfy live-host acceptance. |
+| AC-010 | Automatic compaction proceeds after write/read/timeout/hook-process failures without a blocking response or indefinite wait. The core reports a content-free loss warning before its 3,000 ms deadline when it can return. If the host forcibly terminates the process first, that same compaction must expose a content-free host failure warning; otherwise the automatic hook remains unavailable on that host. |
+| AC-011 | Claude and Codex each demonstrate AC-001–AC-010 through their installed plugin entrypoint and actual supported event interfaces, including dependency resolution; fixture-only or checkout-only results cannot satisfy live-host acceptance. |
 | AC-012 | No-hook/Copilot operation remains file-based; a non-SDD directory produces a no-op without creating a journal. |
 | AC-013 | At 30 days from original local receipt, a record is ineligible for recovery/reinjection. An OS-standard daily job deletes expired content normally within 24 hours, including inactive worktrees; after power-off/sleep it runs on return. Deletion covers journal, extracted decisions, snapshots, repair/quarantine copies and content-bearing cursors. Retries/rebuilds do not renew age. Failed deletion is reported, never labeled successful. |
 | AC-014 | Approved secret patterns are removed before any persistent copy or diagnostic output. Persisted placeholders and recovery feedback disclose omitted content; no unredacted backup is created. |
 | AC-015 | User-input append, synchronization, permission and capacity failures warn and permit work without a captured-success marker. Stop failure cannot trigger repeated assistant work as a storage retry. |
 | AC-016 | Missing/negated Git ignore rules, tracked journal files, Git-check errors and unsafe path targets prevent persistence without automatic index changes, destructive cleanup or weakening the ordinary workflow. |
 | AC-017 | Host-stable identity permits idempotent retry; reused identity with different content is an error. Without proven event identity, equal text and equal turn ID remain separate deliveries, never an exactly-once claim. |
-| AC-018 | Recovery input remains within its declared budget; overflow has safe local pointers. MCP read-only checks and task parsing compatibility remain unchanged, including Windows paths and CRLF. |
+| AC-018 | Recovery input remains within its declared budget; overflow preserves the REQ-010 selection order and gives safe local pointers for omitted entries. MCP read-only checks and task parsing compatibility remain unchanged, including Windows paths and CRLF. |
 
 ## Bounded acceptance contract (OQ-011/OQ-012)
 
 These are design limits, not measured host capabilities. TEST-034 requires a
-1,000 ms total core deadline measured monotonically from process entry, with no
-work/retry after exhaustion. The native timeout candidate is 2 seconds; its
-support and automatic-compaction process termination require separate live proof.
+3,000 ms total core deadline measured monotonically from process entry, with no
+work/retry after exhaustion. The native timeout candidate is 5 seconds, leaving
+2 seconds after the core deadline for process-exit overhead. Its support and
+automatic-compaction process termination warning require separate live proof;
+the candidate must not be enabled when the host cannot report forced termination
+without conversation content.
 Observation input is limited to 1 MiB UTF-8 and transcript suffix scanning to
 8 MiB per invocation; oversize input is not silently truncated into a successful
 capture. TEST-060 limits the complete serialized recovery response to 8,192 UTF-8

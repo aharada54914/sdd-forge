@@ -42,10 +42,10 @@ as unavailable, never a fixture-derived PASS. Test secrets must be synthetic.
 | AC-009 | REQ-007, REQ-008 | TEST-031 | adapter | Unsupported manual barrier: explicit unavailable result, no fabricated protection | Planned |
 | AC-010 | REQ-007 | TEST-032 | adapter | Auto write failure: allow compact, content-free diagnostic | Planned |
 | AC-010 | REQ-007 | TEST-033 | adapter | Auto read failure: allow compact, no invented capture | Planned |
-| AC-010 | REQ-007 | TEST-034 | adapter | Auto core deadline exhaustion at 1,000 ms monotonically from process entry: stop work/retry; separately verify native 2-second kill proceeds in TEST-035 | Planned |
-| AC-010 | REQ-007 | TEST-035 | e2e | Hook process termination: actual host proceeds, no blocking protocol response | Planned |
-| AC-011 | REQ-008 | TEST-036 | live-host | Claude candidate-loaded lifecycle lane: AC-001–AC-010, record individual case outcomes and host version | Planned |
-| AC-011 | REQ-008 | TEST-037 | live-host | Codex candidate-loaded lifecycle lane: AC-001–AC-010, no Claude-only summary/field dependency | Planned |
+| AC-010 | REQ-007 | TEST-034 | adapter | Auto core deadline exhaustion at 3,000 ms monotonically from process entry: stop work/retry and return a content-free loss warning; separately verify the native 5-second candidate in TEST-035 | Planned |
+| AC-010 | REQ-007 | TEST-035 | live-host | Force-kill the auto hook before core response: actual host proceeds and exposes a content-free failure warning during the same compaction, without a blocking protocol response; if not, auto activation remains unavailable | Planned |
+| AC-011 | REQ-008, REQ-012 | TEST-036 | live-host | Claude installed-plugin lifecycle lane: entrypoint and dependencies resolve; AC-001–AC-010 run through actual events, with individual outcomes and host version | Planned |
+| AC-011 | REQ-008, REQ-012 | TEST-037 | live-host | Codex installed-plugin lifecycle lane: entrypoint and dependencies resolve; AC-001–AC-010 run through actual events without Claude-only summary/field dependency | Planned |
 | AC-012 | REQ-012 | TEST-038 | integration | Hooks unavailable: ordinary file-based SDD behavior unchanged | Planned |
 | AC-012 | REQ-012 | TEST-039 | integration | Copilot fallback: no continuity guarantee and no new required hook dependency | Planned |
 | AC-012 | REQ-012 | TEST-040 | integration | Non-SDD directory: no-op, no journal files created | Planned |
@@ -68,18 +68,19 @@ as unavailable, never a fixture-derived PASS. Test secrets must be synthetic.
 | AC-017 | REQ-006 | TEST-057 | unit | Proven stable event ID duplicate: no second append; same ID/different content rejected | Planned |
 | AC-017 | REQ-006 | TEST-058 | unit | Equal text without stable ID persists as distinct deliveries | Planned |
 | AC-017 | REQ-006 | TEST-059 | unit | Same turn ID with distinct observed events persists both | Planned |
-| AC-018 | REQ-010 | TEST-060 | unit | Small/empty view, exact 8,192-byte serialized UTF-8 output, overflow, Unicode and escaped content include envelope/pointers; whole entries only, minimal unavailable if envelope cannot fit | Planned |
+| AC-018 | REQ-010 | TEST-060 | unit | Small/empty view, exact 8,192-byte serialized UTF-8 output, overflow, Unicode and escaped content include envelope/pointers; whole entries only, minimal unavailable if envelope cannot fit. In an overflow fixture with an older unresolved agreement, newer do-not-reopen decision, current blocker and lower-ranked next action, assert category order, newest-first ties, retained higher-ranked entries that fit, and pointers for omissions | Planned |
 | AC-018 | REQ-011 | TEST-061 | regression | Existing MCP read-only/static and core snapshot suites unchanged | Planned |
 | AC-018 | REQ-011 | TEST-062 | native-platform | Windows path/CRLF task interpretation matches existing canonical parser; Ubuntu/macOS controls | Planned |
 | AC-001, AC-002 | REQ-002 | TEST-063 | integration | A superseded by B: keep both source records, present B as current | Planned |
 | AC-001 | REQ-002 | TEST-064 | integration | Explicit reject/do-not-reopen remains after compact, without reopening the question | Planned |
 | AC-004 | REQ-003 | TEST-065 | adapter | Available final assistant output captured with actual session/turn correlation; absent output not invented | Planned |
 | AC-008, AC-017 | REQ-006 | TEST-066 | concurrency | Concurrent same-worktree deliveries yield serialized valid records and unique local sequences | Planned |
+| AC-004 | REQ-003 | TEST-067 | integration | Manual compact before Stop reconciles exposed complete transcript records not previously captured, preserves source order, and reports complete coverage only for observed records | Planned |
 
 ## Source scenario coverage
 
 Issue #137 scenarios 1–18 map respectively to TEST-001, TEST-002, TEST-063,
-TEST-064, TEST-065, TEST-004, TEST-003, TEST-012, TEST-024, TEST-013, TEST-014,
+TEST-064, TEST-065, TEST-004/067, TEST-003, TEST-012, TEST-024, TEST-013, TEST-014,
 TEST-019–022, TEST-036, TEST-037, TEST-027–035/047–051, TEST-057–059,
 TEST-062 and TEST-040. Live-host rows rerun the concrete logical cases rather
 than adding ambiguous generic success checks. OS rows must name each executed

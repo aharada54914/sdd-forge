@@ -13,7 +13,7 @@ export function validate(source, trusted) {
     const started = performance.now();
     const deadline = trusted?.deadline;
     const check = () => {
-      if (!Number.isFinite(deadline) || deadline > started + 1000 || performance.now() >= deadline) throw new Error();
+      if (!Number.isFinite(deadline) || deadline > started + 3000 || performance.now() >= deadline) throw new Error();
     };
     check();
     const value = parseJson(source, deadline);

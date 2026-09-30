@@ -248,7 +248,7 @@ after host checks, not an implicit feature flag or automatic trust grant.
 | AC-016 Git/path safety | Effective ignore/tracked/error/unsafe target checks refuse persistence; no index mutation or destructive cleanup |
 | AC-018 bounded recovery/MCP compatibility | Whole-entry fitting, safe opaque pointers; existing readonly parser/Windows/CRLF behavior retained |
 | OQ-011 scanner bounds | 512 spans, 4,096-byte values, declared secret families; malformed/oversized/scanner failure refuses all writes |
-| OQ-012 input/time/output bounds | 1MiB observation, 8MiB transcript scan, monotonic 1,000ms core deadline; native 2s remains separately unproven; complete output <=8,192 UTF-8 bytes |
+| OQ-012 input/time/output bounds | 1MiB observation, 8MiB transcript scan, monotonic 3,000ms core deadline; native 5s remains separately unproven; complete output <=8,192 UTF-8 bytes |
 | OQ-012 clock limits | max(nowUtc, observed watermark); retries never renew age; rollback cannot revive known expiry; abnormal clocks disclosed |
 
 ## Assumptions
