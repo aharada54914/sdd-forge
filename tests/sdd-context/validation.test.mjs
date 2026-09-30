@@ -13,6 +13,7 @@ const subject = new URL('../../plugins/sdd-context/validation.mjs', import.meta.
 const validate = existsSync(subject) ? (await import(subject.href)).validate : undefined;
 const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
 const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
+const { prepareWindowsStore } = await import(new URL('../../plugins/sdd-context/windows-store.mjs', import.meta.url).href);
 const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'sdd-context-validation-')));
 after(() => rmSync(scratch, { recursive: true, force: true }));
@@ -821,6 +822,21 @@ test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core
   assert.ok(statSync(store).isDirectory());
   assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
   console.log(`native ${process.platform} prepareStore elapsed_ms=${elapsed.toFixed(1)}`);
+});
+test('WINDOWS-NATIVE-COST-DIAGNOSTIC: split validation and adapter cost', { skip: process.platform !== 'win32' }, () => {
+  const f = fixture('windows-native-cost-diagnostic');
+  const store = join(f.root, '.sdd', 'context');
+  rmSync(store, { recursive: true });
+  const source = JSON.stringify(f.owner);
+  const started = performance.now();
+  validate(source, context('OwnerV1', f));
+  const validated = performance.now();
+  let adapterResult = 'ok';
+  try { prepareWindowsStore(store, 1000); }
+  catch { adapterResult = 'rejected'; }
+  const finished = performance.now();
+  console.log(`native win32 validation_ms=${(validated - started).toFixed(1)} adapter_ms=${(finished - validated).toFixed(1)} adapter=${adapterResult}`);
+  assert.equal(adapterResult, 'ok');
 });
 check('NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents', () => {
   const f = fixture('new-store-existing'); const store = join(f.root, '.sdd', 'context');
