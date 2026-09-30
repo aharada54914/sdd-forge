@@ -31,6 +31,20 @@ try {
   $result = & pwsh -NoLogo -NoProfile -NonInteractive -File $helper -Store $store
   if ($LASTEXITCODE -eq 0 -or $result -or (Get-Acl -LiteralPath $store).Sddl -cne $before -or
       [IO.File]::ReadAllText($content) -cne 'ordinary synthetic fixture') { throw 'existing target changed' }
+  $adapterParent = Join-Path $root 'adapter/.sdd'
+  [IO.Directory]::CreateDirectory($adapterParent) | Out-Null
+  $adapterParentAcl = Get-Acl -LiteralPath $adapterParent
+  $adapterParentAcl.SetOwner($sid)
+  Set-Acl -LiteralPath $adapterParent -AclObject $adapterParentAcl
+  $adapterStore = Join-Path $adapterParent 'context'
+  $adapterProbe = Join-Path $PSScriptRoot 'windows-store-adapter-native.mjs'
+  & node $adapterProbe $adapterStore
+  if ($LASTEXITCODE -ne 0) { throw 'production adapter could not create a fresh store within its deadline' }
+  $adapterAcl = Get-Acl -LiteralPath $adapterStore
+  if (-not $adapterAcl.AreAccessRulesProtected -or
+      -not $adapterAcl.GetOwner([Security.Principal.SecurityIdentifier]).Equals($sid)) {
+    throw 'production adapter private owner/protection mismatch'
+  }
   Write-Output 'Windows native private creation and existing-directory preservation passed'
 } finally {
   if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
