@@ -45,8 +45,19 @@ try {
       -not $adapterAcl.GetOwner([Security.Principal.SecurityIdentifier]).Equals($sid)) {
     throw 'production adapter private owner/protection mismatch'
   }
+  $startup = (Measure-Command { & pwsh -NoLogo -NoProfile -NonInteractive -Command 'exit 0' }).TotalMilliseconds
+  if ($LASTEXITCODE -ne 0) { throw 'PowerShell startup control failed' }
+  $definition = [regex]::Match((Get-Content -LiteralPath $helper -Raw), "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
+  if (-not $definition.Success) { throw 'native source definition unavailable' }
+  $compile = (Measure-Command { Add-Type -TypeDefinition $definition.Groups[1].Value }).TotalMilliseconds
+  Write-Output ('native win32 pwsh_start_ms={0:F1} add_type_ms={1:F1}' -f $startup, $compile)
+  $env:SDD_CONTEXT_NATIVE_ISOLATED = '1'
+  $validationProbe = Join-Path $PSScriptRoot 'validation.test.mjs'
+  & node --test '--test-name-pattern=NEW-STORE-NATIVE-DEADLINE|WINDOWS-NATIVE-COST-DIAGNOSTIC' $validationProbe
+  if ($LASTEXITCODE -ne 0) { throw 'isolated native preparation did not satisfy its deadline' }
   Write-Output 'Windows native private creation and existing-directory preservation passed'
 } finally {
+  Remove-Item Env:SDD_CONTEXT_NATIVE_ISOLATED -ErrorAction SilentlyContinue
   if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
 }
 exit 0

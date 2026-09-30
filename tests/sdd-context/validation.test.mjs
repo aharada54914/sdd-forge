@@ -809,7 +809,9 @@ test('NEW-STORE-VALID: fresh empty directory is private even under permissive PO
     assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
   } finally { process.umask(priorMask); }
 });
-test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core budget', () => {
+test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core budget', {
+  skip: process.platform === 'win32' && process.env.SDD_CONTEXT_NATIVE_ISOLATED !== '1',
+}, () => {
   const f = fixture('new-store-native-deadline');
   const store = join(f.root, '.sdd', 'context');
   rmSync(store, { recursive: true });
@@ -823,7 +825,9 @@ test('NEW-STORE-NATIVE-DEADLINE: complete fresh preparation fits the shared core
   assert.equal(existsSync(f.target), false, 'empty preparation wrote a content file');
   console.log(`native ${process.platform} prepareStore elapsed_ms=${elapsed.toFixed(1)}`);
 });
-test('WINDOWS-NATIVE-COST-DIAGNOSTIC: split validation and adapter cost', { skip: process.platform !== 'win32' }, () => {
+test('WINDOWS-NATIVE-COST-DIAGNOSTIC: split validation and adapter cost', {
+  skip: process.platform !== 'win32' || process.env.SDD_CONTEXT_NATIVE_ISOLATED !== '1',
+}, () => {
   const f = fixture('windows-native-cost-diagnostic');
   const store = join(f.root, '.sdd', 'context');
   rmSync(store, { recursive: true });
