@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0f23a-8ba8-7b82-bc49-bace64aab207",
+  "host_session_id": "01a0f23a-8ba8-7b82-bc49-bace64aab207",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "dcf828b3061eb5940deefcf60a83798162b38054f9c87ddbcf0e7f1164e1f5b7"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-3/precheck-result.json", "sha256": "3bfe2b1fe27663ae5ee38f00e3da311845e3d4492d4114f8c9843a78cbb32327"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-3/integrated-summary.json", "sha256": "a4e81a0d238c522c8800ecdbaad99a07599a1ca11c3b1ecdf0201080b070149c"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": ""},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": ""},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": ""},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": ""},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": ""},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": ""},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": ""}
+  ],
+  "verdict": "PASS"
+}

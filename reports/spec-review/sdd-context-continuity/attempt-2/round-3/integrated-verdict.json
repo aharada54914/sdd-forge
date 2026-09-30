@@ -1,0 +1,14 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 3,
+  "reviewer_a_run_id": "01a0f235-54f0-7272-bc27-bea057627ccd",
+  "reviewer_b_run_id": "01a0f23a-8ba8-7b82-bc49-bace64aab207",
+  "reviewer_a_host_session_id": "01a0f235-54f0-7272-bc27-bea057627ccd",
+  "reviewer_b_host_session_id": "01a0f23a-8ba8-7b82-bc49-bace64aab207",
+  "finding_counts": {"critical": 0, "major": 0, "minor": 0},
+  "verdict": "PASS",
+  "warningCount": 0
+}

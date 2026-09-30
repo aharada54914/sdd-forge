@@ -1,0 +1,144 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-context-continuity",
+  "run_id": "89c377b6-2af0-46e5-a039-8fa98d72504d",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 3,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411",
+  "acceptance_sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a",
+  "design_sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+    "frontend-spec.md": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59",
+    "infra-spec.md": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+    "security-spec.md": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "f0ac3fa8-669f-4415-a028-afff6da3aa5a",
+      "host_session_id": "root.issue137_impl_a3r1_a",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+        },
+        {
+          "path": "specs/sdd-context-continuity/investigation.md",
+          "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-3/round-1/precheck-result.json",
+          "sha256": "e9e12635cc8be72a9e9858fecb41ca103eab1b7d78230a11830e011c509729aa"
+        },
+        {
+          "path": "docs/adr/0033-worktree-local-context-continuity.md",
+          "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "9006af01-d8ce-42bf-8d05-e9fd576d15e5",
+      "host_session_id": "root.issue137_impl_a3r1_b",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+        },
+        {
+          "path": "specs/sdd-context-continuity/investigation.md",
+          "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-3/round-1/precheck-result.json",
+          "sha256": "e9e12635cc8be72a9e9858fecb41ca103eab1b7d78230a11830e011c509729aa"
+        },
+        {
+          "path": "docs/adr/0033-worktree-local-context-continuity.md",
+          "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+        },
+        {
+          "path": "reports/impl-review/sdd-context-continuity/attempt-3/round-1/integrated-summary.json",
+          "sha256": "e2647a86c144f6d0063523b50dc07a66b09170e9aaf67488e91662fe3ef16282"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "User-approved change raises the shared core deadline from 1,000 ms to 3,000 ms and records a separate candidate 5-second native host limit. Prior PASS evidence remains historical; this attempt rebinds current design inputs.",
+  "timestamp": "2026-09-30T12:55:48Z"
+}

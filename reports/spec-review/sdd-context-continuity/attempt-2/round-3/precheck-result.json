@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "dcf828b3061eb5940deefcf60a83798162b38054f9c87ddbcf0e7f1164e1f5b7",
+  "acceptance_sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a",
+  "investigation_sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "1ee54db90f4abc44b870d86e3fb1ff757445853deabb472c48ef19d78b931813",
+  "edit_summary": "Add missing manual pre-Stop backfill and installed-plugin host acceptance assertions (REQ-003, REQ-012)",
+  "reset": false,
+  "generated_at": "2026-09-30T12:05:23Z"
+}

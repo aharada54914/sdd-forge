@@ -73,14 +73,15 @@ or token equivalence. OQ-012 remains native-limit verification pending.
 
 | Boundary | Design value | Measurement / failure | AC |
 |---|---|---|---|
-| Core hook wall time | 1,000 ms total from process entry, using monotonic elapsed time | TEST-034; remaining-time propagation, stop work on exhaustion | AC-010 |
-| Native registered timeout | 2 seconds candidate, must be supported/validated separately | TEST-035/036/037; host process-kill behavior must proceed for auto | AC-010/011 |
+| Core hook wall time | 3,000 ms total from process entry, using monotonic elapsed time | TEST-034; remaining-time propagation, stop work on exhaustion | AC-010 |
+| Native registered timeout | 5 seconds candidate, must be supported/validated separately | TEST-035/036/037; forced kill must proceed with content-free host warning or auto hook stays unavailable | AC-010/011 |
 | Single observation input | 1 MiB UTF-8 | Oversize → no capture, warning; never silently truncate source | AC-015 |
 | Transcript reconciliation scan | 8 MiB suffix per invocation | Complete records only; partial coverage + unchanged uncaptured cursor | AC-004/010 |
 | Final recovery adapter output | 8,192 UTF-8 bytes including JSON escaping, keys, diagnostics and pointers | TEST-060 measures `Buffer.byteLength` of final serialized bytes | AC-018 |
 
 Prioritize unresolved agreements/exceptions, do-not-reopen, current workflow,
-blockers then next action. Fit whole entries by measuring final serialization;
+blockers then next action; within each class select newest source sequence first.
+Fit whole entries by measuring final serialization;
 never split surrogate pairs/UTF-8 or cut JSON. Reserve space for coverage/omission
 and safe opaque pointers; if envelope cannot fit, return minimal unavailable,
 not invalid JSON. This is a byte budget, not a claimed host token count.

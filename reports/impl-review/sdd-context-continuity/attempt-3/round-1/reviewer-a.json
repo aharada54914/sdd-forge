@@ -1,0 +1,36 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "f0ac3fa8-669f-4415-a028-afff6da3aa5a",
+  "host_session_id": "root.issue137_impl_a3r1_a",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"},
+    {"path": "specs/sdd-context-continuity/design.md", "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"},
+    {"path": "specs/sdd-context-continuity/ux-spec.md", "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"},
+    {"path": "specs/sdd-context-continuity/frontend-spec.md", "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"},
+    {"path": "specs/sdd-context-continuity/infra-spec.md", "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"},
+    {"path": "specs/sdd-context-continuity/security-spec.md", "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/sdd-context-continuity/attempt-3/round-1/precheck-result.json", "sha256": "e9e12635cc8be72a9e9858fecb41ca103eab1b7d78230a11830e011c509729aa"},
+    {"path": "docs/adr/0033-worktree-local-context-continuity.md", "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "checks": [
+    {"id": "ARCH-COVERAGE", "result": "PASS", "severity": "Critical", "finding": "design.md:15-40 defines the capture, persistence, reconciliation and recovery flow, component boundaries, existing parser integration and Node/JSONL/OS scheduler choices; design.md:42-49 links the four layer specifications."},
+    {"id": "NO-CIRCULAR-DEPS", "result": "SKIP", "severity": "Major", "finding": "SKIP: no explicit component dependency declarations found; design.md:15-30 describes a one-way processing flow, with no circular import pattern stated."},
+    {"id": "DATA-COVERAGE", "result": "PASS", "severity": "Major", "finding": "design.md:73-145 specifies the new versioned journal, decision, projection, registry and lock entities, existing read-only task/spec data, and the no-migration strategy."},
+    {"id": "API-COVERAGE", "result": "PASS", "severity": "Major", "finding": "design.md:146-188 defines the four internal entrypoints, closed request schemas and outcome fields; design.md:108 and 148-159 state that existing MCP interfaces remain unchanged and no public network API is added."},
+    {"id": "SECURITY-COVERAGE", "result": "PASS", "severity": "Major", "finding": "design.md:200-204 delegates controls to security-spec.md:5-71, which defines four trust boundaries, local account and owner authorization, private-data classification, and relevant OWASP concerns."},
+    {"id": "FRONTEND-BACKEND-CONSISTENCY", "result": "PASS", "severity": "Major", "finding": "frontend-spec.md:20-37 maps native events to the ObservationV1 and OutcomeV1 schemas defined in design.md:162-183; frontend-spec.md:45-61 uses direct core calls and host-specific serializers, consistent with the no-network contract."},
+    {"id": "TEST-STRATEGY-COVERAGE", "result": "PASS", "severity": "Major", "finding": "design.md:190-198 plans unit, fault, integration, regression and native acceptance evidence; design.md:213-225 names CI locations and separate live-host verification, with concrete assertions in acceptance-tests.md:10-146."},
+    {"id": "NO-UNDEFINED-COMPONENT", "result": "PASS", "severity": "Critical", "finding": "design.md:23-40 defines the adapters, continuity core, read-only SDD reader and installer integration; investigation.md:34-50 identifies the established parser and MCP components."},
+    {"id": "ADR-PRESENT", "result": "PASS", "severity": "Major", "finding": "design.md:64-71 declares docs/adr/0033-worktree-local-context-continuity.md; the admitted, hash-matched ADR exists and records the local journal, scheduler and read-only authority decisions at lines 14-43."},
+    {"id": "DESIGN-SYSTEM-CONFORMANCE", "result": "PASS", "severity": "Major", "finding": "SKIP: design.md:51-53 records exactly N/A — ds_profile: none; ux-spec.md:63-65 confirms there are no rendered components or tokens."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "PASS", "severity": "Major", "finding": "SKIP: the permitted project-root existence check found no domain/ directory."}
+  ]
+}

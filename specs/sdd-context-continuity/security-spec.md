@@ -102,7 +102,7 @@ source before review/implementation. No dependency is added; use Node built-ins.
 
 Design limits: 1 MiB UTF-8 observation (frontend input budget), 4,096 UTF-8 bytes
 per identified sensitive value, 512 matched spans per observation, total core
-1,000 ms deadline. These are bounds, not measured throughput. Process complete
+3,000 ms deadline. These are bounds, not measured throughput. Process complete
 host-decoded text once; never decode the whole prose recursively. Validate host
 JSON with JSON.parse; invalid schema/JSON/isolated surrogates reject capture.
 Scan the immutable in-memory text, gather original spans, merge overlaps, then

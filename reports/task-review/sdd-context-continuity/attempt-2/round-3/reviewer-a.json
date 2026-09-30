@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "1851b955-cd15-4151-91be-29b72c920f32",
+  "host_session_id": "root.issue137_task_a2r3_a",
+  "manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "f099617a11742e4b656c60cd4f90a1c7d491d2162523cfe42c9aad5f57804119"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "4e8ab3b992cf27d240f5841ff96b7575634cd67ca9cab72e8a9cf472ac48235d"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/precheck-result.json",
+      "sha256": "c8f6b58edef72fe5039c492e42d814330730c7ec91c0be30c34ebce38b464907"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/dependency-graph.json",
+      "sha256": "25e3bc1e44d797b82ac0e5907232de27f38619a1cddd9f85d8ae68d7979b9c2b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md の各 Requirements が参照する AC-001〜AC-018 はすべて acceptance-tests.md に存在する。T-007 の AC-001–018 は包括的な検証範囲であり、未定義 AC への参照はない。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 の Blockers は None、T-002〜T-008 は T-NNN の単独またはカンマ区切りであり、全8タスクにフィールドがある。範囲表記・説明文は含まれない。blockers_format_valid=true は precheck-result.json と一致する。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md の REQ-001〜REQ-012 は各タスクの Requirements に含まれる。REQ-001/006 は T-002、REQ-002/004/010/011 は T-003、REQ-003/007/008 は T-004 と T-008、REQ-005/009/012 は T-001 等に割り当てられ、T-007 が全要件の検証を集約する。未割当要件はない。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001〜003/008/017 は T-002、AC-005/006/018 は T-003、AC-004/009〜012 は T-004 と T-008、AC-007/014/016 は T-001、AC-013 は T-003 と T-005、AC-015 は T-002 の保存失敗とアダプターの Stop 失敗に割り当てられる。T-006 の統合と T-007 の全件検証が明示され、TEST-067 も両アダプターに割り当てられている。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001〜T-008 の全 Requirements に実在する REQ 識別子がある。T-007 の REQ-001–012 は traceability.md の各要件行にも具体的に対応しており、孤立タスクはない。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "テスト登録・検証を主目的とする T-007 は AC-001–018 を明示する。他タスクの付随テストも各 Requirements の AC と Tests の具体的な TEST 群に結び付いている。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "宣言された実装後の来歴再レビューとして評価した。既存承認タスク T-001〜T-004 と T-006 は Approved、T-001 は In Progress、他は Planned で有効なライフサイクル状態である。T-005、追加された T-007/T-008 は Draft・Planned を維持し、Next step に別途の人間承認が必要と明記されている。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001〜T-004/T-006/T-008 は high→tdd、T-005 は critical→tdd、T-007 は medium→acceptance-first で全フィールドが存在する。precheck-result.json の workflow_match_precheck=PASS と一致し、T-007 の登録・検証範囲と既存高リスクタスクの区別も明示されている。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "共有 AC の責務は区別される。T-004 と T-008 はタイトルから Claude と Codex の独立したネイティブ経路、AC-013 は T-003 の読取除外と T-005 の物理削除、AC-015 は保存失敗と Stop 失敗である。T-006 は配送統合、T-007 は登録・検証集約のみで、同じ一次実装・同じレベルの重複テスト所有を主張しない。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "dependency-graph.json の nodes は T-001〜T-008 と一致する。全 Blockers 参照先が存在し、T-006 の T-004/T-005/T-008、T-007 の T-006、T-008 の T-003/T-004 を含む10辺が tasks.md と一致する。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT が PASS のため全辺を走査した。依存は T-001→T-002→T-003 の後、T-004/T-005、T-004 の後に T-008、これらの後に T-006→T-007 へ進み、循環はない。これは依存関係の成立であり、Draft タスクの実行承認を意味しない。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 は契約と保存前の安全境界、T-002 は耐久ジャーナル、T-003 は権威ある読取と復旧、T-004/T-008 はホスト別アダプター、T-005 は所有データの期限切れ削除とその標準 OS 起動、T-006 は既存配送への統合、T-007 は登録と受入検証に分離されている。各タスクのテスト・ロールバックは同じ関心事に直接付随し、T-006 の配送と T-007 の全受入検証は分離されている。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "全タスクの Done When は Red→Green、具体的な失敗・安全境界、独立レビュアーと run ID、spec_revision/環境を持つ検証記録などの検査可能な結果を要求する。T-005 は実 OS の日次・復帰・失敗起動と署名証拠、T-004/T-008 は実際の登録済みライフサイクル、T-007 は REQ→AC→TEST→証拠の対応と未実行経路の記録を要求する。保存先は Global constraints の specs/sdd-context-continuity/verification/ および各タスクの非凍結 addenda として定まる。precheck-result.json の frozen_artifact_done_when は空配列で、凍結仕様への書込みを要求する Done When はない。これは計画の観測可能性の判定であり、実行済み証明ではない。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md の要件行には全8タスクが対応し、REQ-001〜REQ-012 は requirements.md に存在する。全要件行に canonical layer-spec.md#section があり、frontend の api-client-strategy/component-tree/performance-budget/state-shape/testing、infra の scaling-strategy/data-residency-and-retention/rollback、security の trust-boundaries/authorization/secrets-management、UX の component-states/interaction-sequence/navigation-map は今回 hash-bound の各 layer 文書で解決する。T-008 の分離と T-007 の検証所有、TEST-067、OQ-005〜012 の担当も対応している。"
+    }
+  ],
+  "findings": []
+}

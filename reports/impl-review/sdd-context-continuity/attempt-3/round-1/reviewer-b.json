@@ -1,0 +1,35 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "9006af01-d8ce-42bf-8d05-e9fd576d15e5",
+  "host_session_id": "root.issue137_impl_a3r1_b",
+  "allowed_input_manifest": [
+    {"path":"specs/sdd-context-continuity/requirements.md","sha256":"917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"},
+    {"path":"specs/sdd-context-continuity/acceptance-tests.md","sha256":"2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"},
+    {"path":"specs/sdd-context-continuity/design.md","sha256":"42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"},
+    {"path":"specs/sdd-context-continuity/ux-spec.md","sha256":"df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"},
+    {"path":"specs/sdd-context-continuity/frontend-spec.md","sha256":"ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"},
+    {"path":"specs/sdd-context-continuity/infra-spec.md","sha256":"59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"},
+    {"path":"specs/sdd-context-continuity/security-spec.md","sha256":"a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"},
+    {"path":"specs/sdd-context-continuity/investigation.md","sha256":"59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/sdd-context-continuity/attempt-3/round-1/precheck-result.json","sha256":"e9e12635cc8be72a9e9858fecb41ca103eab1b7d78230a11830e011c509729aa"},
+    {"path":"docs/adr/0033-worktree-local-context-continuity.md","sha256":"81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"},
+    {"path":"reports/impl-review/sdd-context-continuity/attempt-3/round-1/integrated-summary.json","sha256":"e2647a86c144f6d0063523b50dc07a66b09170e9aaf67488e91662fe3ef16282"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"DECISION-JUSTIFIED","result":"PASS","severity":"Major","finding":"design.md:9-40 and ADR-0033:23-31 explain the local journal, short-lived adapters, parser reuse, and exclusion of a database or daemon; design.md:118-144 ties ownership and projection decisions to recovery and authority requirements."},
+    {"id":"OPEN-QUESTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"design.md:276-285 gives OQ-005–OQ-012 an owner, implementation-blocking scope, and concrete resolution path."},
+    {"id":"ASSUMPTIONS-VALID","result":"PASS","severity":"Major","finding":"design.md:254-262 labels host observations as unproven and requires re-verification; investigation.md:32-50 provides INV-001–INV-017 grounding."},
+    {"id":"NO-REQ-CONTRADICTION","result":"PASS","severity":"Critical","finding":"design.md:232-252 addresses the explicit source, privacy, failure, retention, host, and numeric constraints in requirements.md:35-48 and :95-136; the layer specifications preserve those limits."},
+    {"id":"PERF-ADDRESSED","result":"PASS","severity":"Major","finding":"requirements.md:95-108 specifies time and byte limits; frontend-spec.md:69-91 states the implementation budgets, measurement tests, and timeout behavior, with design.md:250-252 recording compliance."},
+    {"id":"DEPLOYMENT-CONCRETE","result":"PASS","severity":"Major","finding":"design.md:206-230 identifies local installed-host rollout, existing CI inventory and OS matrix changes, isolated native-host verification, and explicit installation; design.md:110-116 states that no existing data migration is required."},
+    {"id":"MIGRATION-PLANNED","result":"PASS","severity":"Major","finding":"design.md:103-123 states that only new schema-v1 private stores are created, no existing data is migrated, unknown schemas are preserved as unavailable, and installer rollback retains expiry cleanup."},
+    {"id":"INTEGRATION-IDENTIFIED","result":"PASS","severity":"Major","finding":"design.md:23-30 and :146-188 identify native adapters, the reused read-only parser, internal contracts, and failure outcomes; frontend-spec.md:45-61 separates Claude and Codex response behavior, while OQ-008 blocks unsupported native claims."},
+    {"id":"DESIGN-WITHIN-SCOPE","result":"PASS","severity":"Major","finding":"The components in design.md:23-40 support REQ-001–REQ-012 in requirements.md:35-48; design.md:156-188 adds no public command or API and preserves the authority boundary required by REQ-004/011/012."},
+    {"id":"VERIFICATION-PATH-CONCRETE","result":"PASS","severity":"Major","finding":"design.md:190-197 names synthetic, fault, MCP regression, and actual native-host evidence; security-spec.md:136-149 and infra-spec.md:97-110 specify privacy and scheduler branches for the high-risk surfaces."},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"SKIP: design.md:254-258 records an absent domain model; no approved domain contract is included in the admitted inputs."}
+  ]
+}

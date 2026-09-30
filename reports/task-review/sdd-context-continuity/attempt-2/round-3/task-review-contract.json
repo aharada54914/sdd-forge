@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sdd-context-continuity",
+  "run_id": "64770b25-7eb9-4181-8d27-9b423430da25",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 3,
+  "attempt": 2,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "3eda8bc0b079192e158a0ee9b955e7db6cffcf9b31663169155d380e6db5c1f6",
+  "requirements_sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411",
+  "acceptance_sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a",
+  "design_sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c",
+  "tasks_sha256": "f099617a11742e4b656c60cd4f90a1c7d491d2162523cfe42c9aad5f57804119",
+  "traceability_sha256": "4e8ab3b992cf27d240f5841ff96b7575634cd67ca9cab72e8a9cf472ac48235d",
+  "layer_sha256": {
+    "ux-spec.md": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+    "frontend-spec.md": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59",
+    "infra-spec.md": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+    "security-spec.md": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "1851b955-cd15-4151-91be-29b72c920f32",
+      "host_session_id": "root.issue137_task_a2r3_a",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/tasks.md",
+          "sha256": "f099617a11742e4b656c60cd4f90a1c7d491d2162523cfe42c9aad5f57804119"
+        },
+        {
+          "path": "specs/sdd-context-continuity/traceability.md",
+          "sha256": "4e8ab3b992cf27d240f5841ff96b7575634cd67ca9cab72e8a9cf472ac48235d"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/precheck-result.json",
+          "sha256": "c8f6b58edef72fe5039c492e42d814330730c7ec91c0be30c34ebce38b464907"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/dependency-graph.json",
+          "sha256": "25e3bc1e44d797b82ac0e5907232de27f38619a1cddd9f85d8ae68d7979b9c2b"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "e5d8c00c-f7f1-4e01-851a-fab7cf72b28d",
+      "host_session_id": "root.issue137_task_a2r3_b",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+        },
+        {
+          "path": "specs/sdd-context-continuity/tasks.md",
+          "sha256": "f099617a11742e4b656c60cd4f90a1c7d491d2162523cfe42c9aad5f57804119"
+        },
+        {
+          "path": "specs/sdd-context-continuity/traceability.md",
+          "sha256": "4e8ab3b992cf27d240f5841ff96b7575634cd67ca9cab72e8a9cf472ac48235d"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/precheck-result.json",
+          "sha256": "c8f6b58edef72fe5039c492e42d814330730c7ec91c0be30c34ebce38b464907"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-2/round-3/integrated-summary.json",
+          "sha256": "e525b8fe0937fbc7fdb10a5c184e5169dd24d526484786fbed42980a28a77418"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Added explicit Red commit and named independent reviewer evidence to high/critical tasks; separated Claude and Codex adapters with serialized shared entries; T-007 remains a bounded medium-risk registration and acceptance task. Existing approvals/statuses preserved; T-005, T-007 and T-008 remain Draft.",
+  "timestamp": "2026-09-30T17:42:38Z"
+}
