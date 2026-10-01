@@ -47,6 +47,17 @@ The separate paired-regression report records the earlier, larger regression
 run against the same six applied hashes. Those checks are not rerun or added
 to the owner-run counts here. macOS PowerShell is not native Windows evidence.
 
+## Committed-source migration regression
+
+The migration CLI driver now defaults to the actual Resolver and canonical
+Registry, not untracked candidate copies. It reuses the existing CLI test
+helpers and committed example Registry. Running
+`python3 specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/registry-migration-cli.tests.py`
+returned exit 0: six test methods passed (8.357 seconds). These exercise
+legacy full/Lite rejection before publication, retained custom-Registry
+obligations, unaffected components, malformed input, and Lite output shape.
+This is local CLI evidence, not native Windows, formal review, or CI evidence.
+
 ## Formal-review blocker and resume point
 
 The quality-gate launch contract requires the canonical identity ledger to
