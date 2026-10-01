@@ -58,6 +58,10 @@ legacy full/Lite rejection before publication, retained custom-Registry
 obligations, unaffected components, malformed input, and Lite output shape.
 This is local CLI evidence, not native Windows, formal review, or CI evidence.
 
+The same command also passed all six methods in a fresh local clone of
+commit `a5e46b70` (8.407 seconds), with no untracked candidate files copied
+from the owner checkout. The clone remained clean after execution.
+
 ## Formal-review blocker and resume point
 
 The quality-gate launch contract requires the canonical identity ledger to
