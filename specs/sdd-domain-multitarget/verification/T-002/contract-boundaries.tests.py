@@ -276,13 +276,17 @@ class ProjectContextBoundaryTests(unittest.TestCase):
 class CapabilityRegistryProviderNeutralityTests(unittest.TestCase):
     def setUp(self):
         self.registry_mod = _registry_mod()
-        self.registry = _load_json(CAPABILITY_REGISTRY_PATH)
+        self.registry = _load_json(
+            "specs/sdd-domain-multitarget/verification/T-002/registry-migration-20261001/"
+            "fixture/capability-registry.fixture.json")
+        self.assertEqual(_sidecar_mod()._schema_validate(
+            _load_json(CAPABILITY_REGISTRY_SCHEMA_PATH), self.registry), [])
         self.provider_terms = self.registry_mod._load_provider_terms(REPO_ROOT)
 
     def test_actual_registry_has_no_provider_terms(self):
         diagnostics = []
         ok = self.registry_mod.check_g_provider_name_contamination(
-            self.registry, self.provider_terms, diagnostics
+            _load_json(CAPABILITY_REGISTRY_PATH), self.provider_terms, diagnostics
         )
         self.assertTrue(ok, diagnostics)
 
