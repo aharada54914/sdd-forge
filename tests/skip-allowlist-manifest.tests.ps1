@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'missing-dependency', 'clean', 'primitives', 'case-sensitive-terminal', 'case-sensitive-assertion', 'manifest-contract')]
+    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'zero-skip-fingerprints', 'missing-dependency', 'clean', 'primitives', 'case-sensitive-terminal', 'case-sensitive-assertion', 'manifest-contract')]
     [string]$Case = 'all'
 )
 
@@ -100,6 +100,49 @@ function Test-FingerprintDrift {
     $fixture = New-Fixture 'merged-fingerprint-mismatch'
     [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-900: merged contract drifted`n", [Text.UTF8Encoding]::new($false))
     Assert-HardFail 'AC-035c merged fingerprint drift is a hard failure' $fixture "ERROR: AC-900 emitted after activation condition became true`nERROR: AC-900 dependency A9 fingerprint drift"
+}
+function Test-ZeroSkipFingerprints {
+    $fixture = New-Fixture 'merged-fingerprint-mismatch'
+    [IO.File]::WriteAllText($fixture.Output, '', [Text.UTF8Encoding]::new($false))
+    Assert-HardFail 'AC-035c merged fingerprint drift hard-fails with zero SKIP lines' $fixture 'ERROR: AC-900 dependency A9 fingerprint drift'
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    [IO.File]::WriteAllText($fixture.Output, '', [Text.UTF8Encoding]::new($false))
+    $captured = @(& pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1)
+    $rc = $LASTEXITCODE
+    if ($rc -eq 0 -and ($captured -join "`n") -ceq 'audited 0 allowlisted lines') { Pass 'matching merged fingerprint accepts zero SKIP lines' }
+    else { Fail "matching merged fingerprint accepts zero SKIP lines (exit $rc; $($captured -join '; '))" }
+    $fixture = New-Fixture 'unmerged'
+    [IO.File]::WriteAllText($fixture.Output, '', [Text.UTF8Encoding]::new($false))
+    $captured = @(& pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1)
+    $rc = $LASTEXITCODE
+    if ($rc -eq 0 -and ($captured -join "`n") -ceq 'audited 0 allowlisted lines') { Pass 'unmerged dependency accepts zero SKIP lines' }
+    else { Fail "unmerged dependency accepts zero SKIP lines (exit $rc; $($captured -join '; '))" }
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    [IO.File]::WriteAllText($fixture.Output, '', [Text.UTF8Encoding]::new($false))
+    $document = @(Get-Content -Raw -LiteralPath $fixture.Manifest | ConvertFrom-Json)
+    $document[0].dependencies[0] | Add-Member -NotePropertyName merged_commit -NotePropertyValue 'invalid'
+    [IO.File]::WriteAllText($fixture.Manifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+    $captured = @(& pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1)
+    $rc = $LASTEXITCODE
+    if ($rc -ne 0 -and ($captured -join "`n").Contains('ERROR: invalid merged_commit')) { Pass 'invalid merge evidence hard-fails with zero SKIP lines' }
+    else { Fail "invalid merge evidence hard-fails with zero SKIP lines (exit $rc; $($captured -join '; '))" }
+    [IO.File]::WriteAllText($fixture.Manifest, '', [Text.UTF8Encoding]::new($false))
+    & pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { Pass 'unreadable manifest hard-fails with zero SKIP lines' }
+    else { Fail 'unreadable manifest hard-fails with zero SKIP lines' }
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    [IO.File]::WriteAllText($fixture.Output, '', [Text.UTF8Encoding]::new($false))
+    $document = @(Get-Content -Raw -LiteralPath $fixture.Manifest | ConvertFrom-Json)
+    $document[0].dependencies = @()
+    [IO.File]::WriteAllText($fixture.Manifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+    & pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { Pass 'empty dependencies hard-fail with zero SKIP lines' }
+    else { Fail 'empty dependencies hard-fail with zero SKIP lines' }
+    $document[0].PSObject.Properties.Remove('dependencies')
+    [IO.File]::WriteAllText($fixture.Manifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+    & pwsh -NoLogo -NoProfile -File $Evaluator audit $fixture.Manifest $fixture.Output $fixture.Repo main 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { Pass 'missing dependencies hard-fail with zero SKIP lines' }
+    else { Fail 'missing dependencies hard-fail with zero SKIP lines' }
 }
 function Test-MissingDependency {
     $fixture = New-Fixture 'merged-fingerprint-match'
@@ -239,13 +282,14 @@ try {
         'dependency-present' { Test-DependencyPresent }
         'unknown-skip' { Test-UnknownSkip }
         'fingerprint-drift' { Test-FingerprintDrift }
+        'zero-skip-fingerprints' { Test-ZeroSkipFingerprints }
         'missing-dependency' { Test-MissingDependency }
         'clean' { Test-Clean }
         'primitives' { Test-Primitives }
         'case-sensitive-terminal' { Test-CaseSensitiveTerminal }
         'case-sensitive-assertion' { Test-CaseSensitiveAssertion }
         'manifest-contract' { Test-ManifestContract }
-        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-CaseSensitiveAssertion; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-MissingDependency; Test-Clean }
+        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-CaseSensitiveAssertion; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-ZeroSkipFingerprints; Test-MissingDependency; Test-Clean }
     }
     Write-Output "$script:Pass passed, $script:Fail failed"
     if ($script:Fail -ne 0) { exit 1 }

@@ -106,6 +106,63 @@ case_fingerprint_drift() {
   assert_hard_fail 'AC-035c merged fingerprint drift is a hard failure' $'ERROR: AC-900 emitted after activation condition became true\nERROR: AC-900 dependency A9 fingerprint drift'
 }
 
+case_zero_skip_fingerprints() {
+  local output rc
+  create_fixture merged-fingerprint-mismatch
+  : > "$FIXTURE_OUTPUT"
+  rc=0
+  output="$(run_evaluator audit "$FIXTURE_MANIFEST" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main 2>&1)" || rc=$?
+  if [[ "$rc" -eq 1 && "$output" == 'ERROR: AC-900 dependency A9 fingerprint drift' ]]; then
+    pass 'AC-035c merged fingerprint drift hard-fails with zero SKIP lines'
+  else
+    fail "AC-035c merged fingerprint drift hard-fails with zero SKIP lines (exit $rc; $output)"
+  fi
+  create_fixture merged-fingerprint-match
+  : > "$FIXTURE_OUTPUT"
+  rc=0
+  output="$(run_evaluator audit "$FIXTURE_MANIFEST" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main 2>&1)" || rc=$?
+  if [[ "$rc" -eq 0 && "$output" == 'audited 0 allowlisted lines' ]]; then
+    pass 'matching merged fingerprint accepts zero SKIP lines'
+  else
+    fail "matching merged fingerprint accepts zero SKIP lines (exit $rc; $output)"
+  fi
+  create_fixture unmerged
+  : > "$FIXTURE_OUTPUT"
+  rc=0
+  output="$(run_evaluator audit "$FIXTURE_MANIFEST" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main 2>&1)" || rc=$?
+  if [[ "$rc" -eq 0 && "$output" == 'audited 0 allowlisted lines' ]]; then
+    pass 'unmerged dependency accepts zero SKIP lines'
+  else
+    fail "unmerged dependency accepts zero SKIP lines (exit $rc; $output)"
+  fi
+  create_fixture merged-fingerprint-match
+  : > "$FIXTURE_OUTPUT"
+  jq '.[0].dependencies[0].merged_commit = "invalid"' "$FIXTURE_MANIFEST" > "$WORK/invalid-zero-skip.json"
+  rc=0
+  output="$(run_evaluator audit "$WORK/invalid-zero-skip.json" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main 2>&1)" || rc=$?
+  if [[ "$rc" -ne 0 && "$output" == *'ERROR: AC-900 dependency A9 invalid merge evidence'* ]]; then
+    pass 'invalid merge evidence hard-fails with zero SKIP lines'
+  else
+    fail "invalid merge evidence hard-fails with zero SKIP lines (exit $rc; $output)"
+  fi
+  : > "$WORK/empty-zero-skip.json"
+  rc=0
+  run_evaluator audit "$WORK/empty-zero-skip.json" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main >/dev/null 2>&1 || rc=$?
+  if [[ "$rc" -ne 0 ]]; then
+    pass 'unreadable manifest hard-fails with zero SKIP lines'
+  else
+    fail 'unreadable manifest hard-fails with zero SKIP lines'
+  fi
+  jq '.[0].dependencies = []' "$FIXTURE_MANIFEST" > "$WORK/no-dependencies-zero-skip.json"
+  rc=0
+  run_evaluator audit "$WORK/no-dependencies-zero-skip.json" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main >/dev/null 2>&1 || rc=$?
+  if [[ "$rc" -ne 0 ]]; then pass 'empty dependencies hard-fail with zero SKIP lines'; else fail 'empty dependencies hard-fail with zero SKIP lines'; fi
+  jq 'del(.[0].dependencies)' "$FIXTURE_MANIFEST" > "$WORK/missing-dependencies-zero-skip.json"
+  rc=0
+  run_evaluator audit "$WORK/missing-dependencies-zero-skip.json" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main >/dev/null 2>&1 || rc=$?
+  if [[ "$rc" -ne 0 ]]; then pass 'missing dependencies hard-fail with zero SKIP lines'; else fail 'missing dependencies hard-fail with zero SKIP lines'; fi
+}
+
 case_missing_dependency() {
   create_fixture merged-fingerprint-match
   printf '%s TEST-FIXTURE/AC-900: dependency should activate\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
@@ -279,6 +336,7 @@ case "$CASE" in
   --case=dependency-present) case_dependency_present ;;
   --case=unknown-skip) case_unknown_skip ;;
   --case=fingerprint-drift) case_fingerprint_drift ;;
+  --case=zero-skip-fingerprints) case_zero_skip_fingerprints ;;
   --case=missing-dependency) case_missing_dependency ;;
   --case=clean) case_clean ;;
   --case=primitives) case_primitives ;;
@@ -289,10 +347,11 @@ case "$CASE" in
     case_dependency_present
     case_unknown_skip
     case_fingerprint_drift
+    case_zero_skip_fingerprints
     case_missing_dependency
     case_clean
     ;;
-  *) printf 'usage: %s [--all|--case=dependency-present|--case=unknown-skip|--case=fingerprint-drift|--case=missing-dependency|--case=clean|--case=primitives|--case=manifest-contract]\n' "$0" >&2; exit 2 ;;
+  *) printf 'usage: %s [--all|--case=dependency-present|--case=unknown-skip|--case=fingerprint-drift|--case=zero-skip-fingerprints|--case=missing-dependency|--case=clean|--case=primitives|--case=manifest-contract]\n' "$0" >&2; exit 2 ;;
 esac
 
 printf '%d passed, %d failed\n' "$PASS" "$FAIL"
