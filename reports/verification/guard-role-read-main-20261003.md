@@ -61,3 +61,8 @@ diff review, not a formal SDD quality-gate verdict.
 
 No installed-host activation, native Windows execution, formal gate PASS,
 task Done, CI success, merge, or issue closure is claimed by this record.
+# CI mirror repair
+
+CI run 37127939369, Windows job 111217006055 failed the WFI-016 byte-parity check: the three phase-2 staged guards retained the base bytes. The mirror-freshness suite additionally identified the already-applied A1 JavaScript mirror. Updated those four mirrors and their two manifests only; pending, unapplied candidates were preserved.
+
+Observed after synchronization: Phase 2 Bash 42 passed / 0 failed; Phase 2 PowerShell on macOS 55 passed / 0 failed / 1 existing skipped runner-refresh check; mirror freshness 6 passed / 0 failed / 17 informational pending candidates. Native Windows CI on the updated commit remains required. No test or validation criterion was removed.
