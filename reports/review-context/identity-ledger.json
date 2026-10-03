@@ -10724,6 +10724,24 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-attempt12r1-sonnet",
       "previous_record_sha256": "bff29ff1d41040ffc6de642aed6bbb1dcc071a25101bb27a7ef0a1b67522ac2f",
       "record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7"
+    },
+    {
+      "sequence": 1190,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+      "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+      "previous_record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7",
+      "record_sha256": "7cc39fd3922f3a476407b05ae3deeea3d94fa50a3cb11d3a3fb788167d2b606a"
+    },
+    {
+      "sequence": 1191,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+      "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+      "previous_record_sha256": "7cc39fd3922f3a476407b05ae3deeea3d94fa50a3cb11d3a3fb788167d2b606a",
+      "record_sha256": "d8b1ef162f38018f043b522b9ef13996ffaabaaee96a09abf73a4d567d28b0ce"
     }
   ]
 }

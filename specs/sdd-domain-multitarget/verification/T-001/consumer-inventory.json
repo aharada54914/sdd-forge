@@ -1,0 +1,226 @@
+{
+  "schema": "consumer-inventory/v1",
+  "task_id": "T-001",
+  "feature": "sdd-domain-multitarget",
+  "run_id": "sdd423-t001-20260928-737dfb49",
+  "session_id": "737dfb49-7428-4f44-b231-571cffc25181",
+  "baseline_note": "Source evidence was read from the immutable snapshot bound by handoffs/issue423-t001-20260928/manifest.json allowed_inputs. Re-run each reverify_command against the current repository before consuming a line range (WFI-013).",
+  "entries": [
+    {
+      "id": "bootstrap-question-bank",
+      "test_ids": ["TEST-001a"],
+      "consumer": "sdd-bootstrap-interviewer shared question bank (requirements, UX, contracts, workflow, backend/testing, infrastructure, security)",
+      "disposition": "KEEP",
+      "scope": "Full-Profile Layer Interview section of sdd-bootstrap-interviewer/SKILL.md: the shared interview questions themselves.",
+      "rationale": "requirements.md REQ-001 row 1: shared questions remain in the common interview; target-specific follow-up becomes conditional through resolved Facets rather than replacing the interviewer.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "line_start": 102,
+          "line_end": 117,
+          "keyword": "interview-question-bank.md"
+        }
+      ],
+      "reverify_command": "sed -n '102,117p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+    },
+    {
+      "id": "bootstrap-seven-layer-output",
+      "test_ids": ["TEST-001a"],
+      "consumer": "sdd-bootstrap-interviewer Phase 1 required seven-layer document set (Required Outputs section)",
+      "disposition": "PARAMETERIZE",
+      "scope": "The mandatory seven Markdown layer files generated under specs/<feature>/ for the full profile.",
+      "rationale": "requirements.md REQ-001 row 2: always generate and retain all seven legacy layer documents in legacy and facet-hybrid paths, including non-UI targets; express target applicability separately in the Facet manifest/selection rather than omitting a document.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "line_start": 159,
+          "line_end": 176,
+          "keyword": "seven Markdown files"
+        }
+      ],
+      "reverify_command": "sed -n '159,176p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+    },
+    {
+      "id": "layer-template-fixed-rows",
+      "test_ids": ["TEST-001b"],
+      "consumer": "design.template.md fixed UX/Frontend/Infrastructure/Security layer rows",
+      "disposition": "PARAMETERIZE",
+      "scope": "The Layer Specifications table in the design.md template that always lists the four legacy layer rows.",
+      "rationale": "requirements.md REQ-001 row 2 / design.md consumer row 2: treat these rows as the legacy representation; retain all seven legacy layer documents in facet-hybrid; a facet-native path that omits non-applicable documents requires a separately approved, versioned migration.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md",
+          "line_start": 20,
+          "line_end": 30,
+          "keyword": "{{ux_summary}}"
+        }
+      ],
+      "reverify_command": "sed -n '20,30p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md"
+    },
+    {
+      "id": "risk-tier-verifier-contract",
+      "test_ids": ["TEST-001c"],
+      "consumer": "check-contract.py risk-tier and baseline check id constants (RISK_TIERS / BASELINE_IDS)",
+      "disposition": "PARAMETERIZE",
+      "scope": "The hardcoded RISK_TIERS mapping and BASELINE_IDS set that define required checks per risk tier.",
+      "rationale": "requirements.md REQ-001 row 3: Core owns risk and evidence semantics; target Capability supplies required/conditional verification obligations through the protected Registry/resolver contract; checks must not become a user-editable escape hatch.",
+      "source": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+          "line_start": 37,
+          "line_end": 51,
+          "keyword": "RISK_TIERS = {"
+        }
+      ],
+      "reverify_command": "sed -n '37,51p' plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "ui-design-loop",
+      "test_ids": ["TEST-001d"],
+      "consumer": "design-sync-loop SKILL.md DesignSync/claude.ai/design capability detection and mockup upload steps",
+      "disposition": "EXTRACT",
+      "scope": "The DesignSync tool probe and the concrete external-tool upload mechanics of the design iteration loop.",
+      "rationale": "requirements.md REQ-001 row 5: keep generic user-centered design requirements and local visual-reference support in bootstrap; put concrete external-tool operations behind an optional UI design provider/capability boundary while preserving consent and manual fallback semantics.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+          "line_start": 8,
+          "line_end": 30,
+          "keyword": "DesignSync"
+        }
+      ],
+      "reverify_command": "sed -n '8,30p' plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+    },
+    {
+      "id": "endpoint-contract-checklist",
+      "test_ids": ["TEST-001e"],
+      "consumer": "architecture-review-checklist.md OpenAPI/JSON Schema endpoint contract check",
+      "disposition": "PARAMETERIZE",
+      "scope": "The Contract Alignment checklist item requiring OpenAPI or JSON Schema contracts for every new or changed endpoint.",
+      "rationale": "requirements.md REQ-001 row 6: keep contract correctness, pre/postconditions, errors, and compatibility as shared principles; choose OpenAPI, JSON Schema, or a target-appropriate contract through the Capability, avoiding a mandatory HTTP endpoint schema for non-HTTP designs.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md",
+          "line_start": 30,
+          "line_end": 35,
+          "keyword": "OpenAPI or JSON Schema"
+        }
+      ],
+      "reverify_command": "sed -n '30,35p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md"
+    },
+    {
+      "id": "ci-mcp-package",
+      "test_ids": ["TEST-001f"],
+      "consumer": "mcp/ci-mcp read-only GitHub Actions server and client",
+      "disposition": "KEEP",
+      "scope": "The ci-mcp package boundary: its tool registrations (server.ts) and its GET-only GitHub API client (github-client.ts).",
+      "rationale": "requirements.md REQ-001 row 7: the existing package boundary is adequate; future CI/VCS integrations stay behind provider adapters and must not add GitHub REST assumptions to common policy.",
+      "source": [
+        {
+          "path": "mcp/ci-mcp/src/server.ts",
+          "line_start": 4,
+          "line_end": 18,
+          "keyword": "read-only GitHub Actions tools"
+        },
+        {
+          "path": "mcp/ci-mcp/src/github-client.ts",
+          "line_start": 102,
+          "line_end": 117,
+          "keyword": "GET request against the GitHub Actions REST API"
+        }
+      ],
+      "reverify_command": "sed -n '4,18p' mcp/ci-mcp/src/server.ts; sed -n '102,117p' mcp/ci-mcp/src/github-client.ts"
+    },
+    {
+      "id": "provider-state-boundary",
+      "test_ids": ["TEST-001g"],
+      "consumer": "Provider resource schemas, state authority, credentials, and commands (ADR-0018 Provider Bindings)",
+      "disposition": "DEFER",
+      "scope": "Provider Binding identity, state authority, and credential references defined by ADR-0018.",
+      "rationale": "requirements.md REQ-001 row 8: belongs to Provider Bindings/Provider Adapters and later provider-specific work, not this common Core slice.",
+      "source": [
+        {
+          "path": "docs/adr/0018-provider-binding-separation.md",
+          "line_start": 46,
+          "line_end": 68,
+          "keyword": "Provider Binding"
+        }
+      ],
+      "reverify_command": "sed -n '46,68p' docs/adr/0018-provider-binding-separation.md"
+    },
+    {
+      "id": "gate-stage-boundary",
+      "test_ids": ["TEST-001g"],
+      "consumer": "Artifact and promotion gate stages (ADR-0017 reserved stages)",
+      "disposition": "DEFER",
+      "scope": "The artifact and promotion gate stages reserved by ADR-0017; this slice uses implementation-stage verification only.",
+      "rationale": "requirements.md REQ-001 row 9: reserved by ADR-0017; this scope uses implementation-stage verification only.",
+      "source": [
+        {
+          "path": "docs/adr/0017-gate-stage-model.md",
+          "line_start": 27,
+          "line_end": 44,
+          "keyword": "stage: implementation"
+        }
+      ],
+      "reverify_command": "sed -n '27,44p' docs/adr/0017-gate-stage-model.md"
+    },
+    {
+      "id": "host-adapters",
+      "test_ids": ["TEST-001h"],
+      "consumer": "Host-specific launch syntax and invocation adapters (sdd-bootstrap-interviewer Invocation section)",
+      "disposition": "KEEP",
+      "scope": "The Codex text-invocation block versus the Claude Code slash-command entry point for the same skill.",
+      "rationale": "requirements.md REQ-001 row 10: continue using host-specific packaging/adapters; common workflow meanings and approval rules remain shared.",
+      "source": [
+        {
+          "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "line_start": 13,
+          "line_end": 28,
+          "keyword": "Claude Code — internal skill"
+        }
+      ],
+      "reverify_command": "sed -n '13,28p' plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+    },
+    {
+      "id": "facet-native-migration",
+      "test_ids": ["TEST-001h"],
+      "consumer": "Facet-native output and distribution/package decomposition (ADR-0016 facet-native layout)",
+      "disposition": "DEFER",
+      "scope": "The facet-native artifact_layout value defined by ADR-0016 as the future, not-yet-adopted form.",
+      "rationale": "requirements.md REQ-001 row 11: requires migration evidence and separate approval; not needed to establish logical ownership boundaries in this slice.",
+      "source": [
+        {
+          "path": "docs/adr/0016-workflow-axes-separation.md",
+          "line_start": 51,
+          "line_end": 54,
+          "keyword": "facet-native"
+        }
+      ],
+      "reverify_command": "sed -n '51,54p' docs/adr/0016-workflow-axes-separation.md"
+    },
+    {
+      "id": "compile-checks-noncode",
+      "test_ids": ["TEST-001i"],
+      "consumer": "check-contract.py compile/build/lint waiver logic for non-code stacks (COMPILE_CHECKS / NONCODE_STACKS / compile_waivable)",
+      "disposition": "PARAMETERIZE",
+      "scope": "The stack-descriptor constants and the compile_waivable branch of _pass4_risk_tier that waives compile-oriented checks only for non-code stacks.",
+      "rationale": "requirements.md REQ-001 row 4: resolve appropriate verification kinds per target; distinguish not-applicable from not-run/unknown; existing fixed checks remain in legacy behavior until a versioned migration.",
+      "source": [
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+          "line_start": 46,
+          "line_end": 49,
+          "keyword": "COMPILE_CHECKS"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+          "line_start": 303,
+          "line_end": 320,
+          "keyword": "compile_waivable"
+        }
+      ],
+      "reverify_command": "sed -n '46,49p;303,320p' plugins/sdd-quality-loop/scripts/check-contract.py"
+    }
+  ]
+}
