@@ -652,3 +652,29 @@ head of this subsection requires.
   supersedes no earlier one; the value it replaces is
   `2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975`,
   the hash that same contract's four-entry layer map pinned.
+
+#### T-004 Cross-Model prospective amendment (recorded 2026-10-04)
+
+The human's authorization was relayed and reconfirmed to this task on
+2026-10-04; the original conversation timestamp was not supplied and is not
+asserted here. The verbatim authorization supplied was:
+
+> 全部承認する
+> 追加で何回でもレビュー、限定修正して良い
+
+The current goal also explicitly permits ordinary scoped changes, tests,
+commits, and reviews without asking for the same approval again. This record
+uses that authorization only for the bounded T-004 amendment and a fresh
+provenance re-review; it neither retroactively changes an earlier review
+verdict nor waives the required cross-model or quality gates.
+
+- Amendment commit `a43f853970f7ad67444551ce7c0fbbec50adab37` changes only
+  T-004's `Cross-Model: not enabled` to `Cross-Model: enabled` in
+  `specs/epic-196-a8-integration/tasks.md`. The task plan's raw SHA-256
+  as committed is `84478b685473532b1b2210f4f89e9257626a53e8b93f76bcfee26df4f0030f69`.
+  The existing working-tree-only `Status: Implementation Complete` normalization
+  is not part of this amendment commit and is preserved separately.
+- The later-phase T-004 implementation report at
+  `reports/implementation/epic-196-a8-integration/T-004.md` has live SHA-256
+  `48bf3519745073238f230199b9f5dafdb52fdf1108b5e05071931209fc7c928f`.
+  No implementation output is amended by this specs-only commit.
