@@ -53,7 +53,7 @@ diff review, not a formal SDD quality-gate verdict.
 
 ## Outstanding delivery conditions
 
-- Persist the new behavior's regression cases in the repository test suite.
+- Run current-head CI with the newly persisted regression cases below.
 - Complete the applicable formal review and required current-head CI.
 - Deliver through a versioned installation without reverting other approved
   installed repairs, then verify a fresh native role read and guard denial.
@@ -66,3 +66,21 @@ task Done, CI success, merge, or issue closure is claimed by this record.
 CI run 37127939369, Windows job 111217006055 failed the WFI-016 byte-parity check: the three phase-2 staged guards retained the base bytes. The mirror-freshness suite additionally identified the already-applied A1 JavaScript mirror. Updated those four mirrors and their two manifests only; pending, unapplied candidates were preserved.
 
 Observed after synchronization: Phase 2 Bash 42 passed / 0 failed; Phase 2 PowerShell on macOS 55 passed / 0 failed / 1 existing skipped runner-refresh check; mirror freshness 6 passed / 0 failed / 17 informational pending candidates. Native Windows CI on the updated commit remains required. No test or validation criterion was removed.
+
+## Persistent regression follow-up
+
+The pinned regression patch was human-applied and independently checked with
+reverse-application validation and `git diff --check`, both exit 0. It adds
+four cases to each existing Bash parity and PowerShell hook suite: the literal
+proxy read is allowed; preprocessing options before and after the pattern and
+a compound write are rejected. Command strings remain inert classifier input.
+
+Fresh local executions after application: Bash parity **114 passed, 0 failed**,
+exit 0; PowerShell **Hook guard tests passed**, exit 0. The broader ephemeral
+54-case driver above remains separate and is not claimed as persistent coverage.
+
+CI run 37128446809 completed with all 37 jobs successful for commit
+`d9c166d7a1edaafd7bcb7072bfbece22d93588f3`, including Windows, macOS, Ubuntu,
+and required-checks. That run predates these persistent test additions and does
+not verify the new commit. Formal gate, installed-host activation, latest-head
+CI, merge, and post-merge verification remain outstanding.

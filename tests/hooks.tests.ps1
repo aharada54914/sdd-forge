@@ -94,6 +94,19 @@ sig: $sig
 
 Push-Location $workDir
 try {
+    $roleReadCases = @(
+        @{ Name = 'literal proxy read'; Code = 0; Command = 'rtk proxy rg --no-config -n developer_instructions .codex/agents/custom.toml' },
+        @{ Name = 'preprocessing before pattern'; Code = 2; Command = 'rtk proxy rg --no-config -n --pre=untrusted developer_instructions .codex/agents/custom.toml' },
+        @{ Name = 'preprocessing after pattern'; Code = 2; Command = 'rtk proxy rg --no-config -n developer_instructions --pre=untrusted .codex/agents/custom.toml' },
+        @{ Name = 'compound proxy command'; Code = 2; Command = 'rtk proxy rg --no-config -n developer_instructions .codex/agents/custom.toml && echo changed > .codex/agents/custom.toml' }
+    )
+    foreach ($case in $roleReadCases) {
+        $payload = @{ tool_name = 'bash'; tool_input = @{ command = $case.Command } } | ConvertTo-Json -Compress
+        $r = Invoke-GuardPs $payload
+        Assert "agent-role: $($case.Name) exit=$($r.Code) expected=$($case.Code)" ($r.Code -eq $case.Code)
+    }
+
+
     New-Item -ItemType Directory -Path "specs/x" -Force | Out-Null
 
     # --- Claude Edit payload adding Approval: Approved -> deny ---
