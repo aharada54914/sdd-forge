@@ -1212,11 +1212,33 @@ function patchWritesInvalidAgentRole(patch) {
   return false;
 }
 
+function roleProxyRgReadOnly(cmd) {
+  if (!/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+/.test(cmd)) return false;
+  if (/[$`<>&\\\r\n]/.test(cmd)) return false;
+  const tokens = tokenizeShellCommand(cmd);
+  if (!tokens || tokens.some(([kind]) => kind !== 'word')) return false;
+  const words = tokens.map(([, value]) => value);
+  if (words.length < 7 || words[0] !== 'rtk' || words[1] !== 'proxy' || words[2] !== 'rg') return false;
+  const firstFlags = words[3] === '--no-config' && words[4] === '-n';
+  const secondFlags = words[3] === '-n' && words[4] === '--no-config';
+  if (!firstFlags && !secondFlags) return false;
+  const pattern = words[5];
+  // Special regexp syntax requires one literal single-quoted word: the
+  // shared tokenizer deliberately does not preserve quote provenance.
+  const quoted = cmd.match(/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+/);
+  const plainPattern = /^[A-Za-z0-9_./:|+-]+$/.test(pattern);
+  const quotedPattern = quoted && quoted[1] === pattern && /^[A-Za-z0-9_./:|+^# ()-]+$/.test(pattern);
+  if (pattern.startsWith('-') || !(plainPattern || quotedPattern)) return false;
+  const paths = words.slice(6);
+  if (!paths.every(p => !p.startsWith('-') && /^[A-Za-z0-9_./-]+$/.test(p))) return false;
+  return paths.some(p => /(?:^|\/)\.codex\/agents\/[^/]+\.toml$/i.test(p));
+}
+
 function shellWritesInvalidAgentRole(cmd) {
   if (typeof cmd !== 'string') return false;
   const normalizedCmd = cmd.replace(/\\/g, '/');
   if (!/\.codex\/agents(?:\/|\b)/i.test(normalizedCmd)) return false;
-  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd);
+  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd) && !roleProxyRgReadOnly(cmd);
 }
 
 function targetPathIsSddSudo(filePath) {
