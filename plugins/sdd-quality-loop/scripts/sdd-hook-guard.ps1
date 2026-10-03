@@ -1822,9 +1822,68 @@ if ($null -eq $raw) {
 if ([string]::IsNullOrWhiteSpace($raw)) { Emit-Decision "deny" $MalformedMsg }
 
 try {
+    if ($raw -cnotmatch '\A[ \t\r\n]*\{') { throw "payload must be an object" }
     $payload = $raw | ConvertFrom-Json
 } catch {
     Emit-Decision "deny" $MalformedMsg
+}
+
+# Native lower-case Copilot preToolUse has one camelCase call. The internal
+# toolCalls[] event envelope is not a command-hook input contract.
+$payloadKeys = @()
+if ($null -ne $payload -and $payload -is [pscustomobject]) {
+    $payloadKeys = @($payload.PSObject.Properties | ForEach-Object { $_.Name })
+}
+if ($Emit -eq "copilot" -and ($payloadKeys -ccontains "toolCalls")) {
+    Emit-Decision "deny" $MalformedMsg
+}
+if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payloadKeys -ccontains "toolArgs"))) {
+    try {
+        $requiredKeys = @("sessionId", "timestamp", "cwd", "toolName", "toolArgs")
+        $forbiddenKeys = @("tool_name", "tool_input", "hook_event_name", "session_id")
+        if (@($requiredKeys | Where-Object { $payloadKeys -cnotcontains $_ }).Count -gt 0 -or
+            @($forbiddenKeys | Where-Object { $payloadKeys -ccontains $_ }).Count -gt 0 -or
+            $payload.sessionId -isnot [string] -or $payload.cwd -isnot [string] -or
+            -not (($payload.timestamp -is [int]) -or ($payload.timestamp -is [long]) -or ($payload.timestamp -is [double]))) {
+            throw "invalid Copilot envelope"
+        }
+        if ($payload.timestamp -is [double] -and
+            ([double]::IsNaN($payload.timestamp) -or [double]::IsInfinity($payload.timestamp))) {
+            throw "invalid Copilot timestamp"
+        }
+        $nativeName = $payload.toolName
+        $nativeArgs = $payload.toolArgs
+        if ($nativeArgs -is [string]) {
+            if ($nativeArgs -cnotmatch '\A[ \t\r\n]*\{') { throw "arguments must be an object" }
+            $nativeArgs = $nativeArgs | ConvertFrom-Json -ErrorAction Stop
+        }
+        if ($nativeName -isnot [string] -or $null -eq $nativeArgs -or
+            $nativeArgs -isnot [pscustomobject]) { throw "invalid Copilot call" }
+        $argKeys = @($nativeArgs.PSObject.Properties | ForEach-Object { $_.Name })
+        if (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
+            [string]::IsNullOrWhiteSpace($nativeArgs.path)) { throw "invalid Copilot path" }
+        if ($nativeName -ceq "view") {
+            if (@($argKeys | Where-Object { @("path", "view_range") -cnotcontains $_ }).Count -gt 0) {
+                throw "unsupported view arguments"
+            }
+            if ($argKeys -ccontains "view_range") {
+                $range = $nativeArgs.view_range
+                if ($range -isnot [array] -or $range.Count -ne 2 -or
+                    @($range | Where-Object { $_ -isnot [int] -and $_ -isnot [long] }).Count -gt 0) {
+                    throw "invalid view range"
+                }
+            }
+            $payload = [pscustomobject]@{ tool_name = "read"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path } }
+        } elseif ($nativeName -ceq "create") {
+            if ($argKeys.Count -ne 2 -or ($argKeys -cnotcontains "file_text") -or
+                $nativeArgs.file_text -isnot [string]) { throw "invalid create arguments" }
+            $payload = [pscustomobject]@{ tool_name = "write"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path; content = $nativeArgs.file_text } }
+        } else {
+            throw "unsupported Copilot tool"
+        }
+    } catch {
+        Emit-Decision "deny" $MalformedMsg
+    }
 }
 
 try {

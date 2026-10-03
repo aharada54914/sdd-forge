@@ -41,6 +41,7 @@ import hashlib
 import hmac
 import importlib.util
 import json
+import math
 import os
 import re
 import stat
@@ -1860,6 +1861,50 @@ def main():
     except Exception:
         emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
         return
+
+    # Native lower-case Copilot preToolUse is a single camelCase call.
+    # Never interpret the internal toolCalls event envelope as hook stdin.
+    if mode == "copilot" and "toolCalls" in payload:
+        emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+        return
+    if mode == "copilot" and ("toolName" in payload or "toolArgs" in payload):
+        try:
+            required = {"sessionId", "timestamp", "cwd", "toolName", "toolArgs"}
+            forbidden = {"tool_name", "tool_input", "hook_event_name", "session_id"}
+            if not required <= set(payload) or forbidden & set(payload):
+                raise ValueError("ambiguous Copilot envelope")
+            if not isinstance(payload["sessionId"], str) or not isinstance(payload["cwd"], str):
+                raise ValueError("invalid Copilot metadata")
+            if isinstance(payload["timestamp"], bool) or not isinstance(payload["timestamp"], (int, float)):
+                raise ValueError("invalid Copilot timestamp")
+            if isinstance(payload["timestamp"], float) and not math.isfinite(payload["timestamp"]):
+                raise ValueError("invalid Copilot timestamp")
+            name = payload["toolName"]
+            args = payload["toolArgs"]
+            if isinstance(args, str):
+                args = json.loads(args)
+            if not isinstance(args, dict) or not isinstance(name, str):
+                raise ValueError("invalid Copilot call")
+            path = args.get("path")
+            if not isinstance(path, str) or not path.strip():
+                raise ValueError("invalid Copilot path")
+            if name == "view":
+                if set(args) - {"path", "view_range"}:
+                    raise ValueError("unsupported view arguments")
+                if "view_range" in args and (not isinstance(args["view_range"], list)
+                    or len(args["view_range"]) != 2
+                    or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
+                    raise ValueError("invalid view range")
+                payload = {"tool_name": "read", "tool_input": {"file_path": path}}
+            elif name == "create":
+                if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
+                    raise ValueError("invalid create arguments")
+                payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
+            else:
+                raise ValueError("unsupported Copilot tool")
+        except (ValueError, TypeError, KeyError):
+            emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+            return
 
     try:
         tool_input = payload.get("tool_input")

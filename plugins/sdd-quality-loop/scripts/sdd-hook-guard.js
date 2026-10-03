@@ -1813,6 +1813,51 @@ async function main() {
     return;
   }
 
+  // Native lower-case Copilot preToolUse is one camelCase call, not toolCalls[].
+  if (mode === 'copilot' && Object.prototype.hasOwnProperty.call(payload, 'toolCalls')) {
+    emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
+    return;
+  }
+  if (mode === 'copilot' && (Object.prototype.hasOwnProperty.call(payload, 'toolName') || Object.prototype.hasOwnProperty.call(payload, 'toolArgs'))) {
+    try {
+      const required = ['sessionId', 'timestamp', 'cwd', 'toolName', 'toolArgs'];
+      const forbidden = ['tool_name', 'tool_input', 'hook_event_name', 'session_id'];
+      if (required.some(k => !Object.prototype.hasOwnProperty.call(payload, k)) ||
+          forbidden.some(k => Object.prototype.hasOwnProperty.call(payload, k)) ||
+          typeof payload.sessionId !== 'string' || typeof payload.cwd !== 'string' ||
+          typeof payload.timestamp !== 'number' || !Number.isFinite(payload.timestamp)) {
+        throw new Error('invalid Copilot envelope');
+      }
+      const name = payload.toolName;
+      let args = payload.toolArgs;
+      if (typeof args === 'string') args = JSON.parse(args);
+      if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args) ||
+          typeof args.path !== 'string' || !args.path.trim()) {
+        throw new Error('invalid Copilot call');
+      }
+      if (name === 'view') {
+        if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
+            (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
+             (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
+              args.view_range.some(n => !Number.isInteger(n))))) {
+          throw new Error('invalid view arguments');
+        }
+        payload = { tool_name: 'read', tool_input: { file_path: args.path } };
+      } else if (name === 'create') {
+        if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
+            typeof args.file_text !== 'string') {
+          throw new Error('invalid create arguments');
+        }
+        payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
+      } else {
+        throw new Error('unsupported Copilot tool');
+      }
+    } catch (_) {
+      emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
+  }
+
   try {
     if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
       emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
