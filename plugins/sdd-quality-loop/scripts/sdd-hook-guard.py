@@ -1716,6 +1716,43 @@ def _shell_targets_protected_gate_file(cmd):
     return not _shell_write_targets_are_safe(cmd)
 
 
+def _role_proxy_rg_read_only(cmd):
+    # Require the exact literal wrapper and verb, not only equivalent parsed words.
+    if not re.match(r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+", cmd):
+        return False
+    # No expansion, substitution, redirection, backgrounding or line continuation.
+    if re.search(r"[$`<>&\\\r\n]", cmd):
+        return False
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None or any(kind != "word" for kind, _ in tokens):
+        return False
+    words = [value for _, value in tokens]
+    if len(words) < 7 or words[:3] != ["rtk", "proxy", "rg"]:
+        return False
+    if words[3:5] not in (["--no-config", "-n"], ["-n", "--no-config"]):
+        return False
+    pattern = words[5]
+    # Special regexp syntax is admitted only as one literal single-quoted word.
+    # The shared tokenizer intentionally discards quote provenance.
+    quoted = re.match(
+        r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+"
+        r"(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+",
+        cmd,
+    )
+    plain_pattern = re.fullmatch(r"[A-Za-z0-9_./:|+-]+", pattern)
+    quoted_pattern = (
+        quoted is not None
+        and quoted.group(1) == pattern
+        and re.fullmatch(r"[A-Za-z0-9_./:|+^# ()-]+", pattern)
+    )
+    if pattern.startswith("-") or not (plain_pattern or quoted_pattern):
+        return False
+    paths = words[6:]
+    if not all(not p.startswith("-") and re.fullmatch(r"[A-Za-z0-9_./-]+", p) for p in paths):
+        return False
+    return any(re.search(r"(?i)(?:^|/)\.codex/agents/[^/]+\.toml$", p) for p in paths)
+
+
 def _shell_writes_agent_role(cmd):
     """Deny agent-role shell access unless it is an unambiguously read-only command."""
     if not isinstance(cmd, str):
@@ -1723,7 +1760,7 @@ def _shell_writes_agent_role(cmd):
     normalized_cmd = cmd.replace("\\", "/")
     if not re.search(r"(?i)\.codex/agents(?:/|\b)", normalized_cmd):
         return False
-    return not bool(SHELL_AGENT_ROLE_READ_ONLY_RE.search(normalized_cmd))
+    return not (bool(SHELL_AGENT_ROLE_READ_ONLY_RE.search(normalized_cmd)) or _role_proxy_rg_read_only(cmd))
 
 
 def _target_path_is_sdd_sudo(file_path):
