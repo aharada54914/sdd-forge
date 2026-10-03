@@ -699,7 +699,7 @@ Required Workflow: tdd
 
 Security-Sensitive: true
 
-Cross-Model: not enabled
+Cross-Model: enabled
 
 Requirements: REQ-003 (AC-012, AC-017)
 
