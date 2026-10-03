@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+  "host_session_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-2/round-3/precheck-result.json",
+      "sha256": "05af7756702b04bc19d21707800ea6728a71db1a484b1cfc54faaf210786e444"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "4905f3c5a542fdbd9cc84827236848f6a29cbc06af4f6cce578b46e268cbbf9e"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "49af2cb252bfb92013abf20d1087df72b0019ca1526cbb5898c4754e1f6d8834"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-014 have measurable outcomes or explicit decisions; AC-001–AC-034 provide corresponding planned oracles. The Phase-1/2 tuples, inventory and ownership checks, release-cycle evidence, rollback branches, and zero-friction result are specified concretely."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated goal REQ-001–REQ-014 maps to one or more acceptance criteria AC-001–AC-034, including the separate criteria for advisory operation, promotion, rollback, and dogfood friction."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The acceptance criteria specify observable schema results, publication or activation rejection, emitted evidence, inventory/digest validation, CI execution, and recorded WFI outcomes. The acceptance artifact marks these as planned, not executed."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements explicitly exclude later Pack types, replacement of existing foundation mechanisms, new UI/cloud/CI workflow, and creating or approving live artifacts during specification bootstrap. REQ-005 and AC-009 bound the first Pack."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The requirements state approval and protected-publication boundaries, dependency and shared-state preflight, cross-platform compatibility, ownership limits, and rollback authorization. REQ-009 also specifies zero-identity rejection and current-registry revalidation."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk publication, enforcement, and rollback claims have planned validation surfaces: AC-002, AC-014–AC-018, AC-028, AC-033, and AC-034 cover approval, atomic promotion, evidence availability, signatures, cooldown boundaries, and registry changes."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: the permitted project-root domain/ existence check found no domain/ directory."
+    }
+  ]
+}

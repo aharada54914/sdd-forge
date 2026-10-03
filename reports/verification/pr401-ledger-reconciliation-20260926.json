@@ -1,0 +1,116 @@
+{
+  "format": "review-ledger-archival-reconciliation/v1",
+  "purpose": "Archival merge only. Not new reservations, review approval, or authorization to replay historical invocations.",
+  "source": {
+    "commit": "fa6314f9d0eb3c34a288c3c7fe2bfbadc9c224ee",
+    "path": "reports/review-context/identity-ledger.json",
+    "git_blob": "d7f49009c4ffaefa8bea84bb21f87568a502ab06",
+    "sha256": "ed5149e8852d6e6c64f9ef0f5325a72530557ebcea65f399de1c9dcba18db114",
+    "records": 969,
+    "preservation": "The complete original ledger remains reachable through the first parent of this merge commit. Restore exact bytes with git show <source.commit>:<source.path>; verify SHA-256 before using as historical evidence."
+  },
+  "destination_base": {
+    "commit": "2474977416e865b13042094abadf16f323c27473",
+    "path": "reports/review-context/identity-ledger.json",
+    "sha256": "c0518fcc733f0ad34c8f6574c2612ef4d740796d5d35ad70aa8a67f148f97316",
+    "records": 1189
+  },
+  "merged": {
+    "records": 1193,
+    "sha256": "c6fdb5254750f28969b2661b4e6b4455198fb70e8cdbda8ee8e5662bb6deaa78"
+  },
+  "already_preserved_identities": 965,
+  "original_records": [
+    {
+      "sequence": 966,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-a-seq0966",
+      "host_session_id": "SESS-spec-a1r2-a-epic-197-a9-dogfood-0966",
+      "previous_record_sha256": "d59d541ce563b6f6e1b5df9372b1eed654780bc1def0108c8cd007bb3045e551",
+      "record_sha256": "59dea695750c2aa3ef8762affbc29d679648cf5147852eaf21bf2a72a4d51774",
+      "allowed_inputs_sha256": "8fd50f9d21a70292dfddb14bfc16a4894d08e8b0da384e968629b63a753071b0"
+    },
+    {
+      "sequence": 967,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-b-seq0967",
+      "host_session_id": "SESS-spec-a1r2-b-epic-197-a9-dogfood-0967",
+      "previous_record_sha256": "59dea695750c2aa3ef8762affbc29d679648cf5147852eaf21bf2a72a4d51774",
+      "record_sha256": "7983d29b8813b0de4969c4eede2909148f8d36afee3448169bbb15fce2626dbe",
+      "allowed_inputs_sha256": "4072e9cd0506147a824a627ece144c50afa419cdb5427b6737d99c74c863f84e"
+    },
+    {
+      "sequence": 968,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-a-seq0968",
+      "host_session_id": "SESS-spec-a1r3-a-epic-197-a9-dogfood-0968",
+      "previous_record_sha256": "7983d29b8813b0de4969c4eede2909148f8d36afee3448169bbb15fce2626dbe",
+      "record_sha256": "328d0b77afde0ca523bc8fc69b86611f319f049480f8c509d06efb211dd3dd70",
+      "allowed_inputs_sha256": "113a115ee1f02824ed0c0df34d2d95bc9c2b495a9a0bb2c3c1dbed7b081c083f"
+    },
+    {
+      "sequence": 969,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-b-seq0969",
+      "host_session_id": "SESS-spec-a1r3-b-epic-197-a9-dogfood-0969",
+      "previous_record_sha256": "328d0b77afde0ca523bc8fc69b86611f319f049480f8c509d06efb211dd3dd70",
+      "record_sha256": "daab1c3905c81447fd39cc56e9c034dc89407a4c4d45ff4236d49b9944da468b",
+      "allowed_inputs_sha256": "d0dc57edae57a2422d51bb4f8719eb39aa798fd4b29d210478356ba4d67eb8cb"
+    }
+  ],
+  "mapping": [
+    {
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-a-seq0966",
+      "host_session_id": "SESS-spec-a1r2-a-epic-197-a9-dogfood-0966",
+      "original_sequence": 966,
+      "original_record_sha256": "59dea695750c2aa3ef8762affbc29d679648cf5147852eaf21bf2a72a4d51774",
+      "destination_sequence": 1190,
+      "destination_record_sha256": "c442de533b4036120f9a883927fbc9cc7f7213a08f116b66b11b0c8a8eb5912c"
+    },
+    {
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-b-seq0967",
+      "host_session_id": "SESS-spec-a1r2-b-epic-197-a9-dogfood-0967",
+      "original_sequence": 967,
+      "original_record_sha256": "7983d29b8813b0de4969c4eede2909148f8d36afee3448169bbb15fce2626dbe",
+      "destination_sequence": 1191,
+      "destination_record_sha256": "cbb346ad3fd2fd104755c187e9291a90622e1287907d35f08f65e6e2d8b79677"
+    },
+    {
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-a-seq0968",
+      "host_session_id": "SESS-spec-a1r3-a-epic-197-a9-dogfood-0968",
+      "original_sequence": 968,
+      "original_record_sha256": "328d0b77afde0ca523bc8fc69b86611f319f049480f8c509d06efb211dd3dd70",
+      "destination_sequence": 1192,
+      "destination_record_sha256": "4f2a7f73d930adab25e63d61ca6a803c6037e4940bdcc4c756e3462503d338fc"
+    },
+    {
+      "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-b-seq0969",
+      "host_session_id": "SESS-spec-a1r3-b-epic-197-a9-dogfood-0969",
+      "original_sequence": 969,
+      "original_record_sha256": "daab1c3905c81447fd39cc56e9c034dc89407a4c4d45ff4236d49b9944da468b",
+      "destination_sequence": 1193,
+      "destination_record_sha256": "007ac3bdea68566f49d2b6d83373bedd2ee525062264a84c68287e531863f237"
+    }
+  ],
+  "checks": [
+    "Both complete source chains validate before reconciliation.",
+    "All 965 shared identities retain identical non-chain payload.",
+    "All 1189 main records remain identical and in order.",
+    "Exactly four distinct branch identities appended; only chain position/hash fields changed.",
+    "No run/session collisions; final chain validates.",
+    "Independent Node assertions verified both source Git blob hashes, merged hash, unchanged main prefix and total record count.",
+    "tests/workflow-state-registry.tests.sh exited 0.",
+    "Bash and PowerShell check-workflow-state --feature epic-197-a9-dogfood exited 0 with Pending statuses unchanged.",
+    "Historical A9 invocation validation exited 1 with invocation sequence mismatch, as required: no historical reservation was replayed.",
+    "git diff --check and staged diff --check against destination_base.commit exited 0. The staged diff against the old branch includes pre-existing whitespace in main archival patch files; these were retained unchanged."
+  ],
+  "limitations": [
+    "Original invocation pins and verdicts are unchanged and must not be replayed against the merged chain.",
+    "Spec and design status remain Pending; a fresh gate with fresh identities is required.",
+    "Gemini 3.8 reviewed the algorithm only, not execution or formal gate eligibility."
+  ]
+}

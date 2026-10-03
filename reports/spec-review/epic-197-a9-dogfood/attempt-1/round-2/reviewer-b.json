@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r2-b-seq0967",
+  "host_session_id": "SESS-spec-a1r2-b-epic-197-a9-dogfood-0967",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"reports/spec-review/epic-197-a9-dogfood/attempt-1/round-2/integrated-summary.json","sha256":"6f7e605958a95dcdc6a44286ec3836926517496a52b5bbe649ed317dc7108388"},
+    {"path":"reports/spec-review/epic-197-a9-dogfood/attempt-1/round-2/precheck-result.json","sha256":"009cbaca0b45733b15d7ad6722e9186806bddef6ad19db6ab6126a4fb06892d7"},
+    {"path":"specs/epic-197-a9-dogfood/acceptance-tests.md","sha256":"cf489d484d1757b0f18ab414e1be4115698e11128198c12c1c4e94626e0435ee"},
+    {"path":"specs/epic-197-a9-dogfood/investigation.md","sha256":"741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"},
+    {"path":"specs/epic-197-a9-dogfood/requirements.md","sha256":"2161a0c2ece3ded9e7f430fa05cf546d9939f727c1818a32a10543cdce01c04b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 requires that validation 'reject an override naming an unknown characteristic' (AC-031/TEST-031), and the Characteristic-override Field Definition states each entry 'names ... the single characteristic being overridden'. However, neither requirements.md nor acceptance-tests.md enumerates the valid characteristic names against which 'unknown' is evaluated. The only enumeration reference is the external contract 'contracts/project-context.schema.json:21-65' (INV-005 mentions 'seven boolean characteristics'), which is not part of this spec package. Downstream failure mode: two implementers writing TEST-031's negative oracle would consult the schema independently and might enumerate different names, produce different rejection sets, or disagree on whether a new name added to the schema after spec freeze is 'known' or not. This ambiguity belongs to specification review because the oracle boundary must be defined in the spec before design and task decomposition — a design reviewer cannot resolve it without inventing product behavior not stated here. Severity is Major because it will cause concrete oracle disagreement rather than a non-blocking clarification gap."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct contradiction found. The nine-component decomposition is consistent across OQ-001, requirements.md, and acceptance-tests.md. The characteristic-override mechanism is declared additive, and the AC-030/031 negative test set is consistent with REQ-004. The non-goals (no live sdd/ file during spec bootstrap; no later Packs; no UI/cloud/new-CI-workflow) do not conflict with any stated goal. The rollback two-party / solo-cooldown branches are mutually exclusive by registry-cardinality condition and are treated as distinct field-test requirements (REQ-009), not contradictory alternatives. AC-034 and REQ-009 are consistent on the cardinality-change re-evaluation rule."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five edge cases stated in requirements.md §Edge Cases have observable acceptance tests: unowned path → TEST-006b; multiple owners without shared rule → TEST-005b; stale resolver evidence → TEST-013; approver-registry change between rollback request and effective time → TEST-018a/b and AC-034/TEST-034; zero friction → TEST-029. The override rejection edges (unknown name, out-of-scope, no-op) are covered by AC-031/TEST-031. Bootstrap-rule removal is covered by TEST-025k (seven separate fixture cases). The no-Pack-evidence and no-resolver-evidence activation rejection cases are covered by AC-033/TEST-033a–c. The positive Phase-2 tuple acceptance case (AC-014/TEST-014) is preserved alongside the negative cases. Coverage note on AC-021/TEST-021 explicitly identifies six named shared-state inventories individually. The round-2 remediation candidate adds the missing reverse-coverage, ownership-digest, and premature-enforcement cases without restoring superseded content."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All six open questions (OQ-001 through OQ-006) are marked Resolved with dated, verbatim human-approval quotations. The characteristic-override sub-ruling is recorded as a dated amendment within OQ-001 (2026-09-17, citing the 2026-09-04 owner ruling) and is normative via REQ-004. The issue-body reconciliation limitation is discharged (investigation.md §Issue-Reconciliation Result). The remaining Assumptions (A1–A8 availability as mutable shared state; growing-path cross-cutting as REQ-013/AC-025 verifiable; next WFI number deferred to creation time) are either explicitly marked for re-verification at implementation or have observable acceptance criteria. No assumption blocks design or task decomposition without a stated resolution path."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The following human-approval and irreversible-change boundaries are all testable: (1) Phase-1 Context publication requires the protected approval workflow and rejects unsigned or agent-approved sidecars (AC-002/TEST-002); (2) Phase-2 promotion requires human evaluation of OQ-003 criteria and rejects unmet thresholds and stale evidence (AC-012/TEST-012, AC-013/TEST-013); (3) required-to-advisory rollback requires two-party approval or solo+24h cooldown; unsigned, self-approved, duplicate-identity, and unbound sidecars each reject (AC-016/TEST-016, AC-017/TEST-017, AC-018/TEST-018, AC-034/TEST-034); (4) WFI records must not be agent-approved (AC-019/TEST-019); (5) dependency preflight must block rather than infer from another branch (AC-020/TEST-020, AC-026/TEST-026). All boundaries have dedicated negative oracles and are not merely narrative."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The specification is not ready to hand to implementation-policy review without requiring the design reviewer to invent missing product behavior, for two reasons. (1) The characteristic-override contract (REQ-004, AC-030, AC-031) requires that validation reject 'an unknown characteristic name' and that tests 'read overrides when distinguishing the CI-MCP credential and release-write cases', but the enumeration of valid characteristic names is absent from the spec package. A design reviewer writing the schema extension or the override validator must look outside the spec to 'contracts/project-context.schema.json:21-65' (not part of the allowed input set for this review) to learn whether the seven booleans are named, e.g., 'credential-bearing', 'release-write', 'read-only', etc. — none of those names appear in requirements.md or acceptance-tests.md. Without the enumeration, the design reviewer cannot specify the override schema's enum field, the validator's rejection condition, or the AC-031 oracle. (2) REQ-004 states 'the Context schema's component records shall accept an additive, optional list of scoped characteristic-override entries' implying a schema change, but neither REQ-004 nor any AC distinguishes whether the schema extension is itself an A9 deliverable or already merged as part of A1–A8. A design reviewer must invent this scope boundary. Both items are specification-level gaps whose resolution requires product decisions, not implementation choices."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No top-level domain/ directory exists in this repository (confirmed by filesystem check and investigation.md line 31: 'Domain-Sync: domain-sync skipped: no domain/ directory'). The DOMAIN-CONFORMANCE skip condition applies; this check is not in scope."
+    }
+  ]
+}

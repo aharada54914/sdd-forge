@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 2,
+  "round": 3,
+  "reviewer_a_run_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+  "reviewer_b_run_id": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+  "reviewer_a_host_session_id": "01a0d980-7554-74e1-bc2d-b1351786bc85",
+  "reviewer_b_host_session_id": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+  "finding_counts": {
+    "critical": 1,
+    "major": 2,
+    "minor": 0
+  },
+  "verdict": "BLOCKED",
+  "warningCount": 0
+}

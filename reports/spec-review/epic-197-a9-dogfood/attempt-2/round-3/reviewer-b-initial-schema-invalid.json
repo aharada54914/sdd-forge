@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-report/v1",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 2,
+  "round": 3,
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding_ids": ["B-001"]
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding_ids": ["B-001"]
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding_ids": []
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding_ids": []
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding_ids": []
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding_ids": ["B-001"]
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding_ids": [],
+      "skip_reason": "The project-root domain/ directory is absent, so this check does not apply."
+    }
+  ],
+  "findings": [
+    {
+      "id": "B-001",
+      "check_ids": ["AMBIGUITY", "CONTRADICTION", "DOWNSTREAM-READINESS"],
+      "severity": "Critical",
+      "title": "Workflow asks for resolutions that the specification marks complete",
+      "evidence": "requirements.md:357-358 says the human resolves OQ-001–OQ-004 and OQ-006. The same document marks OQ-001, OQ-002, OQ-003, OQ-004, and OQ-006 Resolved at lines 397, 446, 485, 504, and 531. investigation.md:87-99 also says those normative decisions supersede the historical open-question framing.",
+      "downstream_failure": "Implementers and task authors cannot determine whether the existing recorded decisions authorize proceeding or whether new human resolutions are required. This can reopen settled decisions or block decomposition pending redundant approvals.",
+      "review_phase_rationale": "This conflict is in the specification’s stated workflow and decision status; resolving it requires no design or implementation evidence."
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "01a0e6d0-35b8-7c22-bdbe-7868b2ff3356",
+  "host_session_id": "01a0e6d0-35b8-7c22-bdbe-7868b2ff3356",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a62b3e2122ee8cab991b733b04c7f164af434da999a01c33e4795b5af0af17d0",
+  "previous_record_sha256": "9ee01d422262e46c8111a7095127ec12d213c799682295a7b2e0a30874126314",
+  "sequence": 1221,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/integrated-summary.json",
+      "sha256": "98aa672b2be127978330f81784b0d3a504e0d69f05264e114ea47272db18f0cc"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/precheck-result.json",
+      "sha256": "e2d50daca31018d0b2c487b0ead6819f71839ffd9c7358923f5a17dfc7818f95"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/tasks.md",
+      "sha256": "48c0d4c98860610880c65f873772397407c6d5e6992e4e72ac095cac7ee9c337"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/traceability.md",
+      "sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ]
+}

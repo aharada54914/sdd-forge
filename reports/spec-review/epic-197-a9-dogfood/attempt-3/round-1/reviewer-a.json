@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0db29-022f-77c3-81fc-016bfc57f3dd",
+  "host_session_id": "01a0db29-022f-77c3-81fc-016bfc57f3dd",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-1/precheck-result.json",
+      "sha256": "68bf6e37a718b15555057f3132e4f8591e796bac552a5d350cb0cc762be68b8b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "4905f3c5a542fdbd9cc84827236848f6a29cbc06af4f6cce578b46e268cbbf9e"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "31482121152d215c4a35ddb878753c116b6af15e8be96c7444e3d704bebc78a6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-005 (requirements.md:174-179) delegates the Pack's capability IDs, predicates, facets, review checks, gates, Lite policy, enforcement minimum, and delivery strategy to the resolved OQ-006 decision. OQ-006 (requirements.md:543-569) names two capability IDs and states broad composition/Lite/delivery rules, but does not specify the predicates, facets, review checks, or gates; its dated clarification says those details remain unchanged without enumerating them, while also noting the current Registry has no developer-tooling or cli-library entries. An implementer and verifier therefore cannot determine the expected Pack contract. This is a Phase 1 specification gap because AC-008 relies on that contract as its oracle; the missing details can produce materially different Pack behavior."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated goal has a corresponding requirement and acceptance criterion: Phase 1 Context (REQ-001/AC-001–002), inventory and ownership (REQ-002–003/AC-003–006, AC-032), characteristics (REQ-004/AC-007, AC-030–031), Pack and advisory dogfood (REQ-005–006/AC-008–011, AC-027), promotion and rollback (REQ-007–009/AC-012–018, AC-028, AC-033–034), friction capture (REQ-010/AC-019, AC-029), and dependency/platform/provenance conditions (REQ-011–014/AC-020–026)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-008 (requirements.md:302) accepts a “human-approved first Pack” and resolves it for a representative change, but does not give that Pack's expected predicate, facet, review-check, or gate behavior. OQ-006 (requirements.md:543-569) also does not enumerate those values, and the dated clarification states the current Registry lacks the two capabilities. A test can observe that some Pack resolves, but cannot decide whether it resolves correctly. This is a specification-review issue because the acceptance oracle is incomplete before implementation; the omitted contract can cause downstream implementations and verification to disagree."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements explicitly exclude creating a live Context during bootstrap, later Packs, replacing core Registry/ownership/Manifest/approval machinery, adding UI/cloud/new CI, and approving specs, tasks, sidecars, or WFIs (requirements.md:274-280). AC-009 also bounds the Pack exclusions."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The requirements state approval and protected-copy boundaries, dependency and mutable shared-state re-verification, cross-platform/Bash/PowerShell coverage, data-classification omissions, rollback identity/cooldown/signature rules, and the prohibition on agent approval of protected records and WFIs. These give downstream work concrete constraints."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk approval, rollback, ownership, promotion, stale-evidence, and enforcement claims have planned validation surfaces: AC-002, AC-005–006, AC-013, AC-015–018, AC-020–021, AC-032–034, and the platform/regression criteria AC-022–024. Tests are marked Planned, appropriately distinguishing specification from execution evidence."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped because the permitted root-level existence probe found no domain/ directory."
+    }
+  ]
+}
