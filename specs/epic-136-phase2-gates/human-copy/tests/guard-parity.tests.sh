@@ -278,6 +278,15 @@ parity_check "second-approval-guard: Write adds Second Approval" 2 \
 # ---------------------------------------------------------------------------
 # Scenario 7: Agent-role guard — write .toml without developer_instructions (deny — exit 2)
 # ---------------------------------------------------------------------------
+parity_check "agent-role: literal proxy read allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"rtk proxy rg --no-config -n developer_instructions .codex/agents/custom.toml"}}'
+parity_check "agent-role: preprocessing before pattern denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"rtk proxy rg --no-config -n --pre=untrusted developer_instructions .codex/agents/custom.toml"}}'
+parity_check "agent-role: preprocessing after pattern denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"rtk proxy rg --no-config -n developer_instructions --pre=untrusted .codex/agents/custom.toml"}}'
+parity_check "agent-role: compound proxy command denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"rtk proxy rg --no-config -n developer_instructions .codex/agents/custom.toml && echo changed > .codex/agents/custom.toml"}}'
+
 mkdir -p "${WORK}/.codex/agents"
 parity_check "agent-role-guard: toml without developer_instructions" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/.codex/agents/custom.toml\",\"content\":\"name = \\\"test\\\"\"}}"
