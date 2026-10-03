@@ -76,31 +76,47 @@ create_fixture() {
   fi
 }
 
+audit_matches_hard_fail() {
+  local expected="$1"
+  local output rc=0
+  output="$(run_evaluator audit "$FIXTURE_MANIFEST" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main 2>&1)" || rc=$?
+  [[ "$rc" -eq 1 && "$output" == "$expected" ]]
+}
+
 assert_hard_fail() {
-  local label="$1"
-  if run_evaluator audit "$FIXTURE_MANIFEST" "$FIXTURE_OUTPUT" "$FIXTURE_REPO" main >/dev/null 2>&1; then
-    fail "$label"
-  else
-    pass "$label"
-  fi
+  local label="$1" expected="$2"
+  if audit_matches_hard_fail "$expected"; then pass "$label"; else fail "$label"; fi
 }
 
 case_dependency_present() {
   create_fixture merged-fingerprint-match
   printf '%s TEST-FIXTURE/AC-900: dependency should activate\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
-  assert_hard_fail 'AC-035a dependency-present output is a hard failure'
+  assert_hard_fail 'AC-035a dependency-present output is a hard failure' 'ERROR: AC-900 emitted after activation condition became true'
 }
 
 case_unknown_skip() {
   create_fixture unmerged
   printf '%s TEST-FIXTURE/AC-999: no manifest entry\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
-  assert_hard_fail 'AC-035b unrecognized output is a hard failure'
+  assert_hard_fail 'AC-035b unrecognized output is a hard failure' 'ERROR: unrecognized allowlist assertion AC-999'
 }
 
 case_fingerprint_drift() {
   create_fixture merged-fingerprint-mismatch
   printf '%s TEST-FIXTURE/AC-900: merged contract drifted\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
-  assert_hard_fail 'AC-035c merged fingerprint drift is a hard failure'
+  assert_hard_fail 'AC-035c merged fingerprint drift is a hard failure' $'ERROR: AC-900 emitted after activation condition became true\nERROR: AC-900 dependency A9 fingerprint drift'
+}
+
+case_missing_dependency() {
+  create_fixture merged-fingerprint-match
+  printf '%s TEST-FIXTURE/AC-900: dependency should activate\n' "$SKIP_PREFIX" > "$FIXTURE_OUTPUT"
+  local expected='ERROR: AC-900 emitted after activation condition became true'
+  local saved_evaluator="$EVALUATOR" saved_manifest="$FIXTURE_MANIFEST"
+  EVALUATOR="$WORK/no-evaluator.sh"
+  if audit_matches_hard_fail "$expected"; then fail 'missing evaluator cannot satisfy AC-035'; else pass 'missing evaluator cannot satisfy AC-035'; fi
+  EVALUATOR="$saved_evaluator"
+  FIXTURE_MANIFEST="$WORK/no-manifest.json"
+  if audit_matches_hard_fail "$expected"; then fail 'missing manifest cannot satisfy AC-035'; else pass 'missing manifest cannot satisfy AC-035'; fi
+  FIXTURE_MANIFEST="$saved_manifest"
 }
 
 case_clean() {
@@ -263,6 +279,7 @@ case "$CASE" in
   --case=dependency-present) case_dependency_present ;;
   --case=unknown-skip) case_unknown_skip ;;
   --case=fingerprint-drift) case_fingerprint_drift ;;
+  --case=missing-dependency) case_missing_dependency ;;
   --case=clean) case_clean ;;
   --case=primitives) case_primitives ;;
   --case=manifest-contract) case_manifest_contract ;;
@@ -272,9 +289,10 @@ case "$CASE" in
     case_dependency_present
     case_unknown_skip
     case_fingerprint_drift
+    case_missing_dependency
     case_clean
     ;;
-  *) printf 'usage: %s [--all|--case=dependency-present|--case=unknown-skip|--case=fingerprint-drift|--case=clean|--case=primitives|--case=manifest-contract]\n' "$0" >&2; exit 2 ;;
+  *) printf 'usage: %s [--all|--case=dependency-present|--case=unknown-skip|--case=fingerprint-drift|--case=missing-dependency|--case=clean|--case=primitives|--case=manifest-contract]\n' "$0" >&2; exit 2 ;;
 esac
 
 printf '%d passed, %d failed\n' "$PASS" "$FAIL"

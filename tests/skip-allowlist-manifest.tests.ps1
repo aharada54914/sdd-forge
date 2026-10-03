@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'clean', 'primitives', 'case-sensitive-terminal', 'case-sensitive-assertion', 'manifest-contract')]
+    [ValidateSet('all', 'dependency-present', 'unknown-skip', 'fingerprint-drift', 'missing-dependency', 'clean', 'primitives', 'case-sensitive-terminal', 'case-sensitive-assertion', 'manifest-contract')]
     [string]$Case = 'all'
 )
 
@@ -77,24 +77,42 @@ function New-Fixture([string]$State) {
     return @{ Repo = $repo; Manifest = $manifest; Output = $output }
 }
 
-function Assert-HardFail([string]$Label, [hashtable]$Fixture) {
-    $rc = Invoke-Evaluator @('audit', $Fixture.Manifest, $Fixture.Output, $Fixture.Repo, 'main')
-    if ($rc -eq 0) { Fail $Label } else { Pass $Label }
+function Test-AuditHardFailure([hashtable]$Fixture, [string]$Expected) {
+    $captured = @(& pwsh -NoLogo -NoProfile -File $Evaluator audit $Fixture.Manifest $Fixture.Output $Fixture.Repo main 2>&1)
+    $rc = $LASTEXITCODE
+    $actual = $captured -join "`n"
+    return ($rc -eq 1 -and $actual -ceq $Expected)
+}
+function Assert-HardFail([string]$Label, [hashtable]$Fixture, [string]$Expected) {
+    if (Test-AuditHardFailure $Fixture $Expected) { Pass $Label } else { Fail $Label }
 }
 function Test-DependencyPresent {
     $fixture = New-Fixture 'merged-fingerprint-match'
     [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-900: dependency should activate`n", [Text.UTF8Encoding]::new($false))
-    Assert-HardFail 'AC-035a dependency-present output is a hard failure' $fixture
+    Assert-HardFail 'AC-035a dependency-present output is a hard failure' $fixture 'ERROR: AC-900 emitted after activation condition became true'
 }
 function Test-UnknownSkip {
     $fixture = New-Fixture 'unmerged'
     [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-999: no manifest entry`n", [Text.UTF8Encoding]::new($false))
-    Assert-HardFail 'AC-035b unrecognized output is a hard failure' $fixture
+    Assert-HardFail 'AC-035b unrecognized output is a hard failure' $fixture 'ERROR: unrecognized allowlist assertion AC-999'
 }
 function Test-FingerprintDrift {
     $fixture = New-Fixture 'merged-fingerprint-mismatch'
     [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-900: merged contract drifted`n", [Text.UTF8Encoding]::new($false))
-    Assert-HardFail 'AC-035c merged fingerprint drift is a hard failure' $fixture
+    Assert-HardFail 'AC-035c merged fingerprint drift is a hard failure' $fixture "ERROR: AC-900 emitted after activation condition became true`nERROR: AC-900 dependency A9 fingerprint drift"
+}
+function Test-MissingDependency {
+    $fixture = New-Fixture 'merged-fingerprint-match'
+    [IO.File]::WriteAllText($fixture.Output, "$SkipPrefix TEST-FIXTURE/AC-900: dependency should activate`n", [Text.UTF8Encoding]::new($false))
+    $expected = 'ERROR: AC-900 emitted after activation condition became true'
+    $savedEvaluator = $script:Evaluator
+    $script:Evaluator = Join-Path $Work 'no-evaluator.ps1'
+    if (Test-AuditHardFailure $fixture $expected) { Fail 'missing evaluator cannot satisfy AC-035' }
+    else { Pass 'missing evaluator cannot satisfy AC-035' }
+    $script:Evaluator = $savedEvaluator
+    $fixture.Manifest = Join-Path $Work 'no-manifest.json'
+    if (Test-AuditHardFailure $fixture $expected) { Fail 'missing manifest cannot satisfy AC-035' }
+    else { Pass 'missing manifest cannot satisfy AC-035' }
 }
 function Test-Clean {
     $fixture = New-Fixture 'unmerged'
@@ -221,12 +239,13 @@ try {
         'dependency-present' { Test-DependencyPresent }
         'unknown-skip' { Test-UnknownSkip }
         'fingerprint-drift' { Test-FingerprintDrift }
+        'missing-dependency' { Test-MissingDependency }
         'clean' { Test-Clean }
         'primitives' { Test-Primitives }
         'case-sensitive-terminal' { Test-CaseSensitiveTerminal }
         'case-sensitive-assertion' { Test-CaseSensitiveAssertion }
         'manifest-contract' { Test-ManifestContract }
-        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-CaseSensitiveAssertion; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-Clean }
+        'all' { Test-ManifestContract; Test-Primitives; Test-CaseSensitiveTerminal; Test-CaseSensitiveAssertion; Test-DependencyPresent; Test-UnknownSkip; Test-FingerprintDrift; Test-MissingDependency; Test-Clean }
     }
     Write-Output "$script:Pass passed, $script:Fail failed"
     if ($script:Fail -ne 0) { exit 1 }
