@@ -120,6 +120,9 @@ assert_fallback posix-step-condition '' "      - name: posix
 assert_fallback posix-step-condition-after-run '' "      - name: posix
         run: bash ./$suite
         if: runner.os != \"Windows\""
+assert_fallback windows-job-posix-step "$suite" "      - name: skipped
+        if: runner.os != 'Windows'
+        run: bash ./$suite" "    runs-on: windows-latest"
 assert_fallback disabled-job "$suite" "      - run: bash ./$suite" "    if: false"
 assert_fallback disabled-job-after-steps "$suite" "      - run: bash ./$suite
     if: false"
@@ -144,4 +147,4 @@ assert_fallback syntax-then-execution '' "      - name: execute
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./$suite 2>&1 | tee \"suite.log\""
-printf 'CI suite wiring behavioral controls passed (20 cases)\n'
+printf 'CI suite wiring behavioral controls passed (21 cases)\n'
