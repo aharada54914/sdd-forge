@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "skip-stop-message",
+    "producer": "skip-stop-message:stop",
+    "seq": 1,
+    "value": "PROJECT_CONTEXT_INVALID"
+  }
+]

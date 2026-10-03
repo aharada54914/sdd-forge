@@ -1,0 +1,5 @@
+FAIL: AC-040 accepted forbidden workflow text
+FAIL: AC-041 CI guard was permissive
+FAIL: AC-041 approval guard was permissive
+0 passed, 3 failed
+exit_code=1
