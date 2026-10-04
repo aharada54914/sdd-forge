@@ -55,6 +55,28 @@ spec pass.
 | INV-023 | A `SKIP` governance rule that only degrades an upstream-dependent assertion to `SKIP` while its dependency is unmerged, with no reverse check, is fail-open by construction: nothing forces a suite failure if a `SKIP` line still fires after its cited epic has actually merged (a stale/forgotten SKIP), if an unrecognized `SKIP` message appears anywhere in suite output (a typo or an un-audited later addition), or if the cited upstream contract has drifted from what this package's own citation records (fingerprint drift). Enumerating only Epic A1/A2/A3/A5 as upstream dependencies is also incomplete: Epic A4 (Facet Manifest, issue #192) is the dependency AC-007's Facet-reference assertion names directly, and Epic A6 (Lite integration, issue #194) is the dependency the `lite`/`capability_enforcement`-present fixture-matrix rows (decision doc §6) require before they can be asserted rather than SKIPped. | High | `specs/epic-192-a4-facet-manifest/requirements.md:1-6` — read from sibling worktree `sdd-forge-wt-epic-192`; `specs/epic-194-a6-lite-integration/requirements.md:1-7` — read from sibling worktree `sdd-forge-wt-epic-194`; `docs/ai-dlc-foundation-decision-v2.md:207-219` (§6 combination matrix) |
 | INV-024 | `plugins/sdd-lite/skills/lite-spec/SKILL.md`'s own `## Process` section fixes the LITE track's exact three-file generation set: `requirements.md` (`templates/requirements-lite.md`), `design.md` (`templates/design-lite.md`), `tasks.md` (`templates/tasks-lite.md`) — distinct from `sdd-bootstrap-interviewer`'s own seven-file `full`-track set (INV-018). `PLUGIN-CONTRACTS.md`'s own track-selection contract confirms LITE routes generation to `lite-spec`, not `sdd-bootstrap-interviewer`, once track selection resolves LITE (CLI flag / `AGENTS.md` marker / default priority order, ADR-0023). This is the concrete, citable "lite-three-file" file set an earlier draft's F2 Compatibility Matrix row needed but did not cite, mistakenly reusing AC-005's `full`-track legacy-seven-layer expectation for the `lite` track instead (design.md Compatibility Matrix). It also means F2's own REQ-002 structural assertion is assertable **now** (existing, unmerged-epic-independent legacy behavior), never an Epic-A6-gated `SKIP`. | High | `plugins/sdd-lite/skills/lite-spec/SKILL.md:54-61`; `PLUGIN-CONTRACTS.md:64-65,72` |
 
+### 2026-10-04 citation correction for INV-007 and INV-020
+
+The source snapshot named in this investigation's opening is `b085ec7`.
+For INV-007, the exact source locations are
+`b085ec7:tests/install.tests.sh:1-30` (offline fixture and `git archive`)
+and `b085ec7:tests/uninstall.tests.sh:1-19,62-65` (offline CLI stubs and
+uninstall scenarios). `git show b085ec7:tests/install.tests.sh | wc -l`
+returns 1776, and the corresponding `tests/uninstall.tests.sh` command
+returns 666. The negative claim is grounded in
+`git grep -n -E 'project-context\.yaml|capability_enforcement|disabled-legacy' b085ec7 -- tests/install.tests.sh tests/uninstall.tests.sh`
+returning no matches (exit 1). The `git archive` fixture applies to the
+install suite, not the uninstall suite; this narrows INV-007's shared
+parenthetical. These are claims about the cited snapshot, not the later
+implementation in the current checkout.
+
+For INV-020, the minimal example is
+`b085ec7:specs/workflow-state-registry.json:276-279`, where the
+`local-env-mcp` entry has only `feature` and `profile`. This supplies the
+line-specific source omitted by INV-020's original bare-path reference.
+This correction is new input for independent specification re-review; it
+does not inherit the earlier PASS verdict.
+
 ## Root cause / rationale for an extension-only design
 
 Decision doc §4.3 and §19 both state the orchestration-event test must be

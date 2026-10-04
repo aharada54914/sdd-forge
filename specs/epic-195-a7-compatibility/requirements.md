@@ -1,6 +1,6 @@
 # Requirements: epic-195-a7-compatibility
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195 (Epic A7,
 tracked under #187 / Epic A0 #188)
 
@@ -378,13 +378,14 @@ guessing at an undocumented convention.
   (`disabled-legacy` / `advisory` / `required`, INV-014, scoped to the
   component-coverage Gate shape, AC-039). `assert_artifacts_schema`
   (`tests/lib/loop-driver.sh`, INV-004) remains fully unmodified;
-  `assert_terminal`'s observable behaviour and signature (parameters,
-  `expected`/`observed` comparison semantics, return contract) are
-  locked byte-identical at the re-baselined function-body hashes
-  TEST-009 (acceptance-tests.md) records, whose one sanctioned change
-  is the `_loop_trace_emit done-transition:assert-terminal` call
-  design.md's per-kind producer table — and AC-026 below — places
-  inside `assert_terminal`. The new field itself is read by a new,
+  `assert_terminal`'s signature, parameters, `expected`/`observed`
+  comparison semantics, and return contract remain unchanged. Its
+  function body is locked at the amended TEST-009 hashes, with only two
+  sanctioned changes from the preceding lock: the named
+  `_loop_trace_emit done-transition:assert-terminal` call and its
+  placement after a successful terminal-state comparison. A mismatched
+  state, non-zero exit, or missing expected state emits no transition.
+  The new field itself is read by a new,
   dedicated `assert_capability_applicability` helper (API / Contract
   Plan, design.md), not by either existing function; this corrects a
   prior draft's inaccurate "existing helpers read it with no code
@@ -509,27 +510,18 @@ guessing at an undocumented convention.
   asserted against the golden trace by `TEST-019` in
   `tests/loop-escalation.tests.sh` (AC-010).
 - AC-026: The Done-transition event kind has its own producer
-  (`assert_terminal`'s own comparison call, firing at terminal-state-
-  assertion time — a state-transition record capturing the round's own
-  pre-round non-terminal state to the newly-observed terminal state,
-  never a separately-sampled final value, design.md Data Plan; INV-004),
-  ordering rule (always last in a round's own event sub-sequence), and
-  value-normalization fixed, and is asserted against the golden trace by
-  the same `TEST-018`/`TEST-019` cases AC-022/AC-025 name, split by which
-  suite drives the round in question.
-  **Known-unsatisfied, do not read this criterion in isolation:** the
-  implementation `AC-009` pins does not meet this producer's own firing
-  condition. `assert_terminal` emits `done-transition` *before* it compares
-  the observed terminal state against the expected one, so a failing
-  comparison still records the event, and each of its two early returns
-  records none. This criterion carries no `SKIP` disposition and is not
-  governed by `AC-034`'s allowlist: its gating condition is not an
-  upstream-epic merge, so it is not expressible in that manifest's
-  `merged(...)` / `fingerprint_match(...)` grammar, and `TEST-018`'s half
-  of this assertion is Context-absent and depends on no upstream epic at
-  all. See `OQ-004` (open) in Open Questions and its paired `High` entry in
-  Risks for the full statement, the reason it is deliberately unfixed, and
-  the resolution path.
+  (`assert_terminal`'s successful terminal-state comparison, recording
+  the round's own pre-round non-terminal state to the newly-observed
+  terminal state, never a separately-sampled final value; design.md
+  Data Plan; INV-004), ordering rule (exactly one successful transition,
+  always last in the round's own event sub-sequence), and value
+  normalization fixed. A mismatched observed state, non-zero exit code,
+  or missing expected state emits no `done-transition`. `TEST-026`
+  asserts both the successful and each non-emitting branch in the
+  existing Bash and PowerShell inventory suites; `TEST-018` and
+  `TEST-019` assert the successful transition in their respective
+  round-drive golden traces. No upstream-epic `SKIP` or `AC-034`
+  allowlist disposition applies to this local producer.
 - AC-027: The skip/stop-message event kind has its own **two** named
   producers — a `skip` producer (`loop_validator_skip`'s existing
   named-SKIP pattern, INV-005, `tests/lib/loop-driver.sh:460-519`,
@@ -951,6 +943,16 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   its deliberate non-fix, and the resolution path are unchanged; only the
   clause it violates is stated correctly here.
 
+**2026-10-05 amendment supersession (candidate):** The historical
+  unsatisfied disposition above describes the earlier pinned body. The
+  amended AC-009/TEST-009 lock permits the producer call and its
+  placement after a successful comparison; amended AC-026/TEST-026
+  requires one successful emission and no emission on every failure
+  branch. Local Bash/PowerShell inventory regression evidence is
+  recorded in `reports/verification/a7-ac009-ac026-amendment-candidate-20261005.md`.
+  OQ-004 is not treated as independently reviewed or closed until the
+  amended spec gate completes; the historical analysis remains intact.
+
 ## Risks
 
 - Critical: specifying "Context present" orchestration-event assertions
@@ -998,3 +1000,7 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   once per round at the instant it evaluates" firing condition, not the
   "always last" ordering. The exposure this entry describes, a verifier
   treating the criterion as an uncontested invariant, is unchanged.
+  2026-10-05 supersession: the amended AC-009/AC-026 contract addresses
+  this historical risk with a comparison-before-emit requirement and
+  explicit TEST-026 positive/negative coverage; formal review remains
+  pending.
