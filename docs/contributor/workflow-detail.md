@@ -541,6 +541,15 @@ sdd-forge リポジトリ自体には、WFI ループとは別にローカル Co
 `.github/self-improvement-local-prompt.md` を参照してください。
 旧 `.github/workflows/self-improvement.yml` と `.github/self-improvement-prompt.md` は移行前の参考資料です。
 旧 Actions は移行先リポジトリで無効化済みですが、この設定は clone や fork には伝播しません。
+
+> **2026-10-05 時点の訂正**: 上記「無効化済み」は 2026-09-11 時点の確認記録であり、
+> 現在の状態ではありません。GitHub API 照会 (`gh api repos/aharada54914/sdd-forge/actions/workflows/self-improvement.yml`)
+> では `state: "active"`、`updated_at: 2026-09-23T08:01:45Z` を確認し、同日以降の
+> `event: "schedule"` 実行 (2026-09-28, 2026-10-05) と、旧ワークフロー自体を対象にした
+> 直近のメンテナンス PR (#479, #514, #533, #537) が存在する。旧 Actions は現在も
+> 稼働・保守されている。ローカル Codex 監査 (`weekly-local-codex-audit.md`) が
+> 現在も並行稼働しているかは本訂正の時点では未確認であり、二重実行リスクの解消には
+> 人間による確認が必要。旧 Actions 由来の変更が巻き戻し禁止対象であることに変わりはない。
 2つの改善ループが互いの成果を潰さないよう、以下のプロトコルで分離・調停します。
 
 **スコープ分離 (原則)**
