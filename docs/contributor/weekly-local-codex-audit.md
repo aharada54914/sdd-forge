@@ -6,7 +6,9 @@
 
 [Issue #545](https://github.com/aharada54914/sdd-forge/issues/545) の再確認では、GitHub API が返す [週次 Actions](https://github.com/aharada54914/sdd-forge/actions/workflows/self-improvement.yml) の状態は `active`、`updated_at` は `2026-09-23T08:01:45Z` だった。[2026-09-28](https://github.com/aharada54914/sdd-forge/actions/runs/36371625415) と [2026-10-05](https://github.com/aharada54914/sdd-forge/actions/runs/37259263467) に `schedule` 起動と実行成功を確認した。`updated_at` だけで再有効化の時刻や理由は確定できない。
 
-したがって、[ワークフロー](../../.github/workflows/self-improvement.yml) と [Actions 用指示](../../.github/self-improvement-prompt.md) は現在稼働している経路であり、復旧参考用のみではない。下記の2026-09-05／09-11の無効化・ローカル登録確認は当時の記録で、現在の状態を保証しない。ローカル定期実行の現在の有効状態・並行起動の有無は今回未確認であり、今後どちらを正本にするかは所有者の判断が必要。
+したがって、[ワークフロー](../../.github/workflows/self-improvement.yml) と [Actions 用指示](../../.github/self-improvement-prompt.md) は現在稼働している経路であり、復旧参考用のみではない。下記の2026-09-05／09-11の無効化・ローカル登録確認は当時の記録で、現在の状態を保証しない。
+
+ローカル側は、所有者が定期設定の `ACTIVE`・毎週月曜09:00 JSTを確認し、所有者保管の2026-10-05監査報告と定期実行履歴を照合して、同日09:01 JSTの監査実行を確認した。オンラインCIと差分確認は完了したが、選定したローカル同等性テストは保護フックの実行前拒否により未実施で、監査全体は一部完了である。両経路が同日に実行された併用状態であり、厳密な同時実行やローカル検証の完走を意味しない。今後どちらを正本にするかは所有者の判断が必要。
 
 状態はリポジトリの文書や clone/fork には固定されないため、監査の実行・再有効化・移行前に次を再確認する。
 
