@@ -2,18 +2,33 @@
 
 2026-09-05、所有者の選択により ChatGPT ログインを使うローカル Codex の定期実行へ移行した。APIキーは追加していない。
 
-## 運用
+## 現在の状態と実行前の確認（2026-10-05）
+
+[Issue #545](https://github.com/aharada54914/sdd-forge/issues/545) の再確認では、GitHub API が返す [週次 Actions](https://github.com/aharada54914/sdd-forge/actions/workflows/self-improvement.yml) の状態は `active`、`updated_at` は `2026-09-23T08:01:45Z` だった。[2026-09-28](https://github.com/aharada54914/sdd-forge/actions/runs/36371625415) と [2026-10-05](https://github.com/aharada54914/sdd-forge/actions/runs/37259263467) に `schedule` 起動と実行成功を確認した。`updated_at` だけで再有効化の時刻や理由は確定できない。
+
+したがって、[ワークフロー](../../.github/workflows/self-improvement.yml) と [Actions 用指示](../../.github/self-improvement-prompt.md) は現在稼働している経路であり、復旧参考用のみではない。下記の2026-09-05／09-11の無効化・ローカル登録確認は当時の記録で、現在の状態を保証しない。ローカル定期実行の現在の有効状態・並行起動の有無は今回未確認であり、今後どちらを正本にするかは所有者の判断が必要。
+
+状態はリポジトリの文書や clone/fork には固定されないため、監査の実行・再有効化・移行前に次を再確認する。
+
+```sh
+gh api repos/aharada54914/sdd-forge/actions/workflows/self-improvement.yml --jq '{state, updated_at}'
+gh run list --repo aharada54914/sdd-forge --workflow=self-improvement.yml --limit 10 --json event,status,conclusion,createdAt,url
+```
+
+併せて所有者が Codex アプリの定期設定と直近の実行履歴を照合する。設定が有効であることと完走は区別し、両経路が有効なら重複 Issue/PR を避ける運用を決めてから実行する。この訂正ではスケジュールや有効状態を変更していない。
+
+## ローカル運用の移行時設定（2026-09-05）
 
 - 名称: sdd-forge 週次セルフ改善監査
 - スケジュール: 毎週月曜09:00（Asia/Tokyo）
 - 自動化ID: sdd-forge
-- 実行対象: /Users/jrmag/sdd-forge
+- 実行対象: 所有者のローカル sdd-forge チェックアウト
 - この移行を行ったCodex会話を継続する定期実行。前回の範囲・対象SHA・未完了項目を会話に残す。
 - 指示文のレビュー用コピー: [.github/self-improvement-local-prompt.md](../../.github/self-improvement-local-prompt.md)。実際に再生される指示はCodexアプリの定期タスク設定に保存される。このファイルを編集するだけでは定期タスクは更新されないため、変更時はアプリ側も同じ内容に更新する。
 - 実行時にはPCを起動し、Codexアプリを稼働させ、プロジェクトとChatGPTログインを利用可能にしておく。
 - 結果はこの会話で報告する。GitHubへの自動投稿・commit・push・PR作成・マージは行わない。修正は既に人間承認されたタスクのみ、既存の実装・品質ゲートに従う。新しい指摘は具体的な改善案としてレビューに回す。
 
-旧 `.github/workflows/self-improvement.yml` はGitHub上で `disabled_manually` を確認した。ソースは復旧参考用に保持している。これはサーバー側の設定で、cloneやforkへは伝播しない。再有効化すると二重実行になるため、移行済みのリポジトリでは無効を維持する。
+移行時は `.github/workflows/self-improvement.yml` の `disabled_manually` を確認し、二重実行を避けるため無効を維持する方針だった。この過去の方針から現在も無効とは判断せず、上記の「現在の状態と実行前の確認」に従う。
 
 ## 停止原因と改善
 
