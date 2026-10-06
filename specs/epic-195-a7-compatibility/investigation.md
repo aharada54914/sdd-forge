@@ -823,6 +823,84 @@ design — confirmed by the attempt-6 precheck computing
   attempt-4 re-run reviewer invocation manifests, per this section's
   convention.
 
+### 2026-10-05 AC-009 / AC-026 amendment evidence
+
+Recorded on 2026-10-05 from the current human conversation. The original
+message timestamp is not exposed, so this is the transcription date, not
+a claimed original approval date. Human statement, verbatim:
+
+> 全部承認する
+> 追加で何回でもレビュー、限定修正して良い
+
+This standing authorization covers the limited terminal-event repair and
+its necessary specification re-review. It is not a review PASS or authority
+to remove independent review, required checks, or protected-file controls.
+The change preserves comparison and return behavior while emitting only
+after a successful comparison; mismatch, nonzero exit and missing expected
+state emit nothing. OQ-004 remains open pending independent review and the
+required integration verification. The earlier candidate report remains a
+historical proposal; its pre-apply hashes are not current input hashes.
+
+Amendment checkpoint: `654ce55d2b23b3a0cd0d72c3e45e46144399e90e`.
+At that actual commit, SHA-256 values are:
+
+- `requirements.md`: `b04eff0242f5143c52c8c92a7d05ee90cc2034e9e9635379601946a35c950acc`
+- `acceptance-tests.md`: `4e3f4916c8bb6fd20ceb7bd51b0b18e7d3bf9522e7fabcde44aa80b77e0f3192`
+- `investigation.md`: `d730b8ec35c285baa6f9e2f91533b04a4e5202206aa75839d2921f07d0547908`
+
+The last digest intentionally binds the investigation before this added
+record, avoiding a circular self-hash. The next precheck must bind the
+complete amended investigation independently. These are checkpoint bytes,
+not evidence of CI, integration, or task completion.
+
+Downstream working-artifact pins for this amendment (repository-relative
+paths; rehash before consumption; changed bytes require a new review input):
+
+| Path | SHA-256 |
+|---|---|
+| reports/verification/a7-ac009-ac026-amendment-candidate-20261005.md | 2cd0fa95e2e0f766a069edbe26e35b497430a28349d863bbcdb290dc80a58539 |
+| specs/epic-195-a7-compatibility/tasks.md | 238ff603536347109d5c9983d2dd2ecee45e24d59cf31fb36b2d86fdfde5fd50 |
+| specs/epic-195-a7-compatibility/design.md | afe6da1705284b04e8cd157ac773d2c5b9efd542fc25af5e9be9f1eeddb110ba |
+| specs/epic-195-a7-compatibility/frontend-spec.md | 6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be |
+| specs/epic-195-a7-compatibility/infra-spec.md | 02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b |
+| specs/epic-195-a7-compatibility/security-spec.md | de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3 |
+| tests/lib/loop-driver.sh | ebd3c5d5c65c6a98d58b1f9cabfd54c8c610791733aff8761d7beee6f27bb8ee |
+| tests/lib/loop-driver.ps1 | ca6e84dc6ddc26f182c721af71c2d0e5359bbcca3e196f92ad42efacf830a7b3 |
+| tests/loop-inventory.tests.sh | aaa381210c5fc7a3544cea89a81aa1a5395c90b186d61105daab363c65cc5b23 |
+| tests/loop-inventory.tests.ps1 | 1bed390712e443ab67d78821d727c9fcb2a8787ac11c93fa1ad4080af85755f2 |
+
+For AC-009, AC-026, TEST-009, TEST-026 and OQ-004 only, this entry
+supersedes the earlier amendment section's claims that the old terminal
+body and driver hashes are still current. All earlier approvals, failed
+reviews and observations remain historical records. The task plan and
+design/layer pins require their own downstream provenance review; this
+specification amendment grants none of those later verdicts.
+
+### 2026-10-05 attempt-15 round-2 limited clarification authority
+
+This is an orchestrator transcription of the current user's standing
+instruction, observed on 2026-10-05; it is not a claim that the original
+message was sent on that date or a human-authored signature. The available
+verbatim authorization remains:
+
+> 全部承認する
+> 追加で何回でもレビュー、限定修正して良い
+
+The orchestrator applies that instruction to the limited correction of
+the AC-010/AC-026 and TEST-010/TEST-026 relationship identified in
+`reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/reviewer-a.json`
+(SHA-256 `058163df69d5a553f535fa4b668204509a9a02832ed9e7e1f4ec183dc95fca57`).
+This scope interpretation is not additional quoted human wording: the
+mandatory four local producer branches remain unchanged, while only the
+Context-present `TEST-019` integration follows the AC-010/AC-034 named
+SKIP until activation. It also covers renewed independent review of the
+amended inputs. The earlier broad authorization and the 2026-08-23/27
+approvals retain their actual historical scope; none is backdated or
+represented as a new, specifically worded human response. This record
+does not grant a review verdict, release a reservation, or amend task
+approval. The next precheck must hash the complete current documents;
+the checkpoint hashes above remain historical and are not current pins.
+
 ### Round-12 extension (2026-08-27): design.md's Open Questions carries OQ-004 forward with a concrete resolution vehicle; and a factual correction to Round-11
 
 - **Factual correction, superseding one statement in Round-11 above.**

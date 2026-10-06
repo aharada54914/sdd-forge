@@ -401,7 +401,11 @@ guessing at an undocumented convention.
   condition "Epic A1 merged to `main`" (REQ-007). AC-032 is this
   criterion's `loop-consistency`-owned counterpart for the
   skill-invocation-order, review-loop-presence, and approval-checkpoint
-  event kinds.
+  event kinds. This named `SKIP` covers the Context-present `TEST-019`
+  round-drive golden-trace integration, including its successful
+  `done-transition` assertion (AC-026), until the activation condition
+  holds. It does not gate the local producer or `TEST-026` inventory
+  assertions; a skipped integration is not a passing integration.
 - AC-011: `emit-run-record.sh`'s no-flag output remains byte-identical to
   today's `sdd-run-record/v1` shape after this epic's Phase 2/3
   implementation (the same invariant its own `v1`/`v2` branch already
@@ -518,10 +522,13 @@ guessing at an undocumented convention.
   normalization fixed. A mismatched observed state, non-zero exit code,
   or missing expected state emits no `done-transition`. `TEST-026`
   asserts both the successful and each non-emitting branch in the
-  existing Bash and PowerShell inventory suites; `TEST-018` and
-  `TEST-019` assert the successful transition in their respective
-  round-drive golden traces. No upstream-epic `SKIP` or `AC-034`
-  allowlist disposition applies to this local producer.
+  existing Bash and PowerShell inventory suites, without an upstream-epic
+  `SKIP`. `TEST-018` asserts the successful transition in its round-drive
+  golden trace. `TEST-019` asserts it in the Context-present round-drive
+  golden trace only when that integration is active under AC-010/AC-034;
+  otherwise its named `SKIP` is recorded, not counted as a pass. No
+  upstream-epic `SKIP` or AC-034 allowlist disposition applies to the
+  local producer or these four `TEST-026` inventory assertions.
 - AC-027: The skip/stop-message event kind has its own **two** named
   producers — a `skip` producer (`loop_validator_skip`'s existing
   named-SKIP pattern, INV-005, `tests/lib/loop-driver.sh:460-519`,
