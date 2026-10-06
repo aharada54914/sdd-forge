@@ -901,6 +901,39 @@ does not grant a review verdict, release a reservation, or amend task
 approval. The next precheck must hash the complete current documents;
 the checkpoint hashes above remain historical and are not current pins.
 
+### 2026-10-06 dated authorization and amendment checkpoint
+
+The original human message timestamp has now been verified as
+`2026-10-03T06:10:34.582Z`. Its verbatim text is:
+
+> 全部承認する
+> 追加で何回でもレビュー、限定修正して良い
+
+This corrects the timestamp-unknown transcription above without changing
+the original authorization. The caller interprets its limited-repair scope
+as covering the AC-010/AC-026 and TEST-010/TEST-026 clarification described
+above; the human quote does not separately name these identifiers. Mandatory
+local producer coverage remains required, and only the already-named
+Context-present integration follows its activation condition. Independent
+review, required checks, protected application and task approvals are unchanged.
+
+Actual amendment checkpoint: `c0bea62c68f156ca472bf84982602ccc853f9b48`.
+SHA-256 of the three document blobs at that commit:
+
+- `requirements.md`: `492f54a812be75ca20d0a05ec41dcf225f9b1b17cd512148498e02cf954dd96c`
+- `acceptance-tests.md`: `dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13`
+- `investigation.md`: `7a908bed637e779925d11ef4bd396be0dfd88e20c2e300548302e055acafce57`
+
+These supersede the earlier checkpoint as the current amendment snapshot;
+earlier hashes and verdicts remain historical evidence. This addendum is
+subsequently committed and bound in full by the next precheck, avoiding a
+circular self-hash. The downstream pin table above remains applicable except
+that `specs/epic-195-a7-compatibility/design.md` is now
+`d58d2e91b54260db7d2f02c04a9a9966f4e77e03fcf2585a6eece0c9320adbbf`.
+Rehash all downstream inputs before consumption; a mismatch requires refreshed
+review inputs, not reuse of a historical PASS. This record proves neither
+behavioral verification, CI, integration nor task completion.
+
 ### Round-12 extension (2026-08-27): design.md's Open Questions carries OQ-004 forward with a concrete resolution vehicle; and a factual correction to Round-11
 
 - **Factual correction, superseding one statement in Round-11 above.**
