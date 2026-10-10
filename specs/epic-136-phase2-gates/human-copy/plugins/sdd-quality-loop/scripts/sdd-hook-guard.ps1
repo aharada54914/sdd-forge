@@ -261,13 +261,46 @@ function Test-AgentRolePath {
     return ($Path -replace "\\", "/").ToLower() -match "\.codex/agents/[^/]+\.toml$"
 }
 
+function Test-RoleProxyRgReadOnly {
+    param([string]$Cmd)
+    if (-not [regex]::IsMatch($Cmd, '^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+')) { return $false }
+    foreach ($unsafe in @('$', '`', '<', '>', '&', '\')) {
+        if ($Cmd.Contains($unsafe)) { return $false }
+    }
+    if ($Cmd.Contains("`r") -or $Cmd.Contains("`n")) { return $false }
+    $parsed = Tokenize-ShellCommand $Cmd
+    if ($null -eq $parsed) { return $false }
+    $words = New-Object System.Collections.Generic.List[string]
+    foreach ($token in $parsed.Tokens) {
+        if ($token[0] -cne 'word') { return $false }
+        $words.Add([string]$token[1])
+    }
+    if ($words.Count -lt 7 -or $words[0] -cne 'rtk' -or $words[1] -cne 'proxy' -or $words[2] -cne 'rg') { return $false }
+    $firstFlags = $words[3] -ceq '--no-config' -and $words[4] -ceq '-n'
+    $secondFlags = $words[3] -ceq '-n' -and $words[4] -ceq '--no-config'
+    if (-not $firstFlags -and -not $secondFlags) { return $false }
+    # Special regexp syntax requires literal single quotes; the shared
+    # tokenizer deliberately does not preserve quote provenance.
+    $quoted = [regex]::Match($Cmd, "^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+")
+    $plainPattern = [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+-]+$')
+    $quotedPattern = $quoted.Success -and $quoted.Groups[1].Value -ceq $words[5] -and [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+^# ()-]+$')
+    if ($words[5].StartsWith('-') -or -not ($plainPattern -or $quotedPattern)) { return $false }
+    $hasRolePath = $false
+    for ($i = 6; $i -lt $words.Count; $i++) {
+        $path = $words[$i]
+        if ($path.StartsWith('-') -or -not [regex]::IsMatch($path, '^[A-Za-z0-9_./-]+$')) { return $false }
+        if ([regex]::IsMatch($path, '(?i)(?:^|/)\.codex/agents/[^/]+\.toml$')) { $hasRolePath = $true }
+    }
+    return $hasRolePath
+}
+
 function Test-ShellWritesAgentRole {
     param([string]$Cmd)
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     $normalizedCmd = $Cmd -replace "\\", "/"
     if (-not ($normalizedCmd.ToLower() -match "\.codex/agents(?:/|\b)")) { return $false }
     $readOnlyRe = "(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
-    return -not [regex]::IsMatch($normalizedCmd, $readOnlyRe)
+    return -not ([regex]::IsMatch($normalizedCmd, $readOnlyRe) -or (Test-RoleProxyRgReadOnly $Cmd))
 }
 
 function Test-PayloadMalformed {
