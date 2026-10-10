@@ -66,6 +66,51 @@ function Invoke-ActivationSelfTest {
     [Console]::Out.WriteLine('ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present')
 }
 function Invoke-ContractSelfTest {
+    $required = @(('SDD_A8_' + 'CODEX_BIN'), ('gpt-5.6-' + 'sol'), ('son' + 'net'), ('SDD_A8_' + 'COPILOT_MODEL'))
+    foreach ($suffix in @('sh', 'ps1')) {
+        $source = [IO.File]::ReadAllText((Join-Path $repoRoot ("tests/cross-runtime-handoff.tests.$suffix")))
+        $begin = "`n" + $(if ($suffix -ceq 'sh') { 'require_cli() {' } else { 'function Invoke-LiveE2E {' })
+        $end = "`n" + $(if ($suffix -ceq 'sh') { 'status=$(task_status' } else { 'if ($SelfTestActivation)' })
+        $start = $source.IndexOf($begin, [StringComparison]::Ordinal)
+        $finish = $source.IndexOf($end, $start, [StringComparison]::Ordinal)
+        if ($start -lt 0 -or $finish -le $start) { Stop-Test 'native live boundaries missing' }
+        $live = $source.Substring($start, $finish - $start)
+        if ($live.Contains('--permission-' + 'prompts')) { Stop-Test 'removed Claude CLI option' }
+        $toolArguments = if ($suffix -ceq 'sh') {
+            @(('--available-' + "tools='view,create'"), ('--allow-' + 'tool=' + '"write($output_file)"'))
+        } else {
+            @(('--available-' + 'tools=view,create'), ('--allow-' + 'tool=write($output)'))
+        }
+        foreach ($argument in $toolArguments) {
+            if ($live.IndexOf($argument, [StringComparison]::Ordinal) -lt 0 -or
+                $live.IndexOf($argument, [StringComparison]::Ordinal) -ne $live.LastIndexOf($argument, [StringComparison]::Ordinal)) {
+                Stop-Test 'missing or ambiguous scoped Copilot tool argument'
+            }
+        }
+        foreach ($token in $required) {
+            if (-not $live.Contains($token)) { Stop-Test 'native live model or executable contract missing' }
+            $mutant = $live.Replace($token, 'REMOVED')
+            $accepted = $true
+            foreach ($candidate in $required) { if (-not $mutant.Contains($candidate)) { $accepted = $false } }
+            if ($accepted) { Stop-Test 'insensitive native live-token mutation' }
+        }
+    }
+    [Console]::Out.WriteLine('ok: native live CLI contract and all eight missing-token mutations')
+    $tokens = $null; $parseErrors = $null
+    $ast = [Management.Automation.Language.Parser]::ParseFile($PSCommandPath, [ref]$tokens, [ref]$parseErrors)
+    $liveFunction = $ast.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Invoke-LiveE2E' }, $true)[0]
+    $modelVariable = '$env:' + $required[3]
+    $guards = @($liveFunction.FindAll({ param($node) $node -is [Management.Automation.Language.IfStatementAst] -and $node.Clauses[0].Item1.Extent.Text.Contains($modelVariable) }, $true))
+    if ($parseErrors.Count -or $guards.Count -ne 1) { Stop-Test 'missing or ambiguous Copilot model guard' }
+    $originalModel = $env:SDD_A8_COPILOT_MODEL
+    try {
+        foreach ($model in @('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6')) {
+            $env:SDD_A8_COPILOT_MODEL = $model
+            $rejected = & ([scriptblock]::Create($guards[0].Clauses[0].Item1.Extent.Text))
+            if ([bool]$rejected -ne ($model -cne 'claude-sonnet-4.6')) { Stop-Test 'Copilot model guard accepted unpinned selection' }
+        }
+    } finally { $env:SDD_A8_COPILOT_MODEL = $originalModel }
+    [Console]::Out.WriteLine('ok: PowerShell live Copilot model guard rejects empty and case-variant automatic selections')
     $one = Join-Path $Fixture 'handoff-01-claude-to-codex.yaml'
     $two = Join-Path $Fixture 'handoff-02-codex-to-copilot.md'
     $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + $fixtureNewline)
@@ -126,6 +171,8 @@ function Invoke-Cli([string]$Name, [string[]]$Arguments, [string]$WorkingDirecto
     } finally { Pop-Location }
 }
 function Invoke-LiveE2E {
+    $codexBin = if ($env:SDD_A8_CODEX_BIN) { $env:SDD_A8_CODEX_BIN } else { 'codex' }
+    if (-not $env:SDD_A8_COPILOT_MODEL -or $env:SDD_A8_COPILOT_MODEL -ieq 'auto') { Stop-Test 'live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence' }
     $work = Join-Path $evidenceDir 'work'
     $fixtureWork = Join-Path $work 'tests/fixtures/cross-runtime-handoff'
     [void](New-Item -ItemType Directory -Force -Path $fixtureWork)
@@ -140,19 +187,19 @@ function Invoke-LiveE2E {
     $initial2 = Get-Sha256 $two
     $expected1 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('token: "' + $nonce1 + '"' + $fixtureNewline)))).ToLowerInvariant()
     $expected2 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes(('<!-- nonce: ' + $nonce2 + ' -->' + $fixtureNewline)))).ToLowerInvariant()
-    $prompt = "In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. Do not inspect or modify anything else. Do not run shell commands. End with a short confirmation."
-    [void](Invoke-Cli 'claude' @('--print', '--output-format', 'text', '--permission-mode', 'acceptEdits', '--permission-prompts', 'none', '--allowedTools', 'Read,Edit', '--', $prompt) $work (Join-Path $evidenceDir 'claude-producer.log'))
+    $prompt = "In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. To satisfy any edit gate, you may search for references to that fixture only within this isolated workspace using the read-only command rtk proxy rg; present the requested facts and retry the edit. Do not modify any other file or run any other shell command. End with a short confirmation."
+    [void](Invoke-Cli 'claude' @('--print', '--model', 'sonnet', '--output-format', 'text', '--permission-mode', 'acceptEdits', '--allowedTools', 'Read,Edit,Bash(rtk proxy rg:*)', '--', $prompt) $work (Join-Path $evidenceDir 'claude-producer.log'))
     if ((Get-Sha256 $one) -cne $expected1) { Stop-Test 'Claude-produced handoff-01 bytes/hash mismatch' }
-    $prompt = 'Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml in this isolated workspace. Extract its token field and emit exactly the marker HANDOFF-01:<token> in your final response. Do not modify files or run shell commands.'
-    $codexConsumer = Invoke-Cli 'codex' @('--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'read-only', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-consumer.log')
+    $prompt = 'Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml in this isolated workspace. You may use a read-only shell command to read that file. Extract its token field and emit exactly the marker HANDOFF-01:<token> in your final response. Do not modify files or read anything else.'
+    $codexConsumer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'read-only', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-consumer.log')
     if (-not $codexConsumer.Contains('HANDOFF-01:' + $nonce1)) { Stop-Test 'Codex consumer output did not contain the exact handoff marker' }
-    $prompt = "Read and parse tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and verify its token is $nonce1. Then edit only tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, replacing the exact PLACEHOLDER in its HTML comment with $nonce2, preserving all other bytes. Do not run shell commands and do not modify any other file. End with the exact marker CODEX-PRODUCED:$nonce2."
-    $codexProducer = Invoke-Cli 'codex' @('--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
+    $prompt = "Read tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md using read-only rtk proxy sed commands. Verify the YAML token is $nonce1. Then edit only the second file, replacing its exact PLACEHOLDER with $nonce2 while preserving all other bytes. Do not run any other shell command or modify any other file. End with the exact marker CODEX-PRODUCED:$nonce2."
+    $codexProducer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
     if (-not $codexProducer.Contains('CODEX-PRODUCED:' + $nonce2)) { Stop-Test 'Codex producer did not attest its nonce' }
     if ((Get-Sha256 $two) -cne $expected2) { Stop-Test 'Codex-produced handoff-02 bytes/hash mismatch' }
     $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'
-    [void](Invoke-Cli 'copilot' @('-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=read,write', '--allow-tool=read,write') $work (Join-Path $evidenceDir 'copilot-consumer.log'))
     $output = Join-Path $fixtureWork 'handoff-02-output.txt'
+    [void](Invoke-Cli 'copilot' @('--model', $env:SDD_A8_COPILOT_MODEL, '-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=view,create', ("--allow-tool=write($output)")) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
     if (-not (Test-Path -LiteralPath $output -PathType Leaf)) { Stop-Test 'Copilot did not produce handoff-02-output.txt' }
     $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2)
     $expectedOutput = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($outputBytes)).ToLowerInvariant()
