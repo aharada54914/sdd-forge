@@ -146,6 +146,8 @@ def check_g_provider_name_contamination(registry, provider_terms, diagnostics):
     def walk(obj, path):
         if isinstance(obj, dict):
             for k, v in obj.items():
+                if k in ("credentials", "state_authority"):
+                    findings.append((f"{path}.{k}", k))
                 walk(v, f"{path}.{k}")
         elif isinstance(obj, list):
             for idx, v in enumerate(obj):
