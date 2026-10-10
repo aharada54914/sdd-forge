@@ -1,0 +1,155 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "01a0e3c4-e200-7571-9d2e-eca00c9f20c1",
+  "host_session_id": "01a0e3c4-e200-7571-9d2e-eca00c9f20c1",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/dependency-graph.json",
+      "sha256": "9fc9dd15c464d954cb4fd0320eb70783169f3abd96f84098394a93662380d8ab"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "sha256": "a96a4b753cc76627b071c0bc6e5cf8a96933201cb23fdc948e24f587779e65d2"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/tasks.md",
+      "sha256": "e4b238ccf39fd140be9686be5a9bb2cb0b3589b13358c217941d06925bb0779f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/traceability.md",
+      "sha256": "de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md の Acceptance Criteria にある AC-001〜AC-005 はすべて acceptance-tests.md に存在する。invocation の指定ハッシュ、receipt の連鎖算術、全12許可入力の raw SHA256、および precheck の各入力 pin は一致した。予約後の ledger は読んでいない。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:17,70,123 はそれぞれ None、T-001、T-001, T-002。全タスクに有効な Blockers フィールドがあり、blockers_format_valid=true。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md の REQ-001〜REQ-005 は tasks.md の Requirements にすべて割り当て済み。T-001=REQ-002/003、T-002=REQ-001/004、T-003=REQ-005。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md の Acceptance Criteria、Test IDs、試験を含む Scope と traceability.md の107親ケースにより、AC-001/004 は T-002、AC-002/003 は T-001、AC-005 は T-003 に追跡できる。展開ケースと saved precheck.recovery の担当も明記されている。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:18,71,124 の全 Requirements フィールドに実在する REQ 識別子がある。疑似要件による例外は使用していない。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "独立した試験専用タスクはない。試験を含む T-001〜T-003 は各 Acceptance Criteria と Test IDs を明示し、AC-001〜AC-005 に接続している。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:12-13,65-66,118-119 の全タスクが Approval: Draft、Status: Planned。初回の実装前レビュー条件を満たす。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001〜T-003 はすべて Risk: high、Required Workflow: tdd。precheck-result.json の workflow_match_precheck=PASS と一致する。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "主要 AC 担当は T-001=AC-002/003、T-002=AC-001/004、T-003=AC-005 で重複しない。T-003 による前タスクケースの全体再実行は互換性検証の範囲として明示され、主要担当の二重割当ではない。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "全 Blockers の参照先 T-001/T-002 は tasks.md と dependency-graph.json の nodes に存在する。graph の3 edges はタスクの Blockers と一致する。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT は PASS。dependency-graph.json は T-002→T-001、T-003→T-001、T-003→T-002 のみで、T-001 に依存先はなく循環しない。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md の Goal / Scope は T-001=閉じた admission/evidence validation、T-002=明示的 transition と locked publication、T-003=provenance consumption と互換性検証に分離されている。各試験・報告・rollback は担当する変更に直接結び付いている。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md:156 の T-003 Done When は割当済みの全 TEST-ID/variant に Red then Green を要求する一方、同:133 は既存動作が正しければ passing baseline を記録し別の failing negative mutation を追加すると規定する。acceptance-tests.md TEST-099/100 は既存 legacy/reset 動作を保持するケースであり、既に成功する baseline には元ケースの Red がない。追加 mutation の Red が元ケースの条件を満たすか定義されず、仕様を保った完了判定が曖昧になるため Major。変更対象の失敗再現には Red→Green、既存互換性ケースには baseline→回帰結果を明示する必要がある。他の Done When は報告・判定・ケース結果・rollback の具体的証跡を指定する。precheck の frozen_artifact_done_when は空で、各タスクは凍結文書の編集を禁止し verification/T-NNN.md に実行結果を記録する。実行済み証拠の欠如を理由とする指摘ではない。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md に T-001〜T-003 と REQ-001〜REQ-005 の対応があり、要件の dangling reference はない。全107親ケースの要件行に hash-bound layer 文書の canonical anchor があり、参照先見出しは存在する。Exact expanded-case ownership と Layer Coverage は個別ケース担当と各層の適用範囲を示す。"
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "OBSERVABLE-DONE",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:156 は T-003 の全割当 TEST-ID/variant に Red then Green を要求するが、同:133 は既に正しい既存動作には passing baseline と別の failing negative mutation を要求する。acceptance-tests.md の TEST-099（legacy の既存 acceptance 保持）/TEST-100（既存 normal-reset suite を変更せず成功）では、成功済み baseline 自体の Red は発生しない。別 mutation の Red を元ケースの Red とみなす規定もなく、実装者と quality-gate の完了判定が一致しないため Major。Done When を変更対象の失敗再現の Red→Green と、既存互換性ケースの baseline 成功および変更後の回帰成功に分け、各証拠の対応を明記する。これは計画内の証拠条件の矛盾であり、このゲートで試験実行を要求するものではない。"
+    }
+  ]
+}

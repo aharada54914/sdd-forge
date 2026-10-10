@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e39f-3eab-7ca1-8a99-9275c63949ea",
+  "host_session_id": "01a0e39f-3eab-7ca1-8a99-9275c63949ea",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "sha256": "ef6dd62c15eae3cf67c9923c99c714b3ac02ac38beb9da82cb533659fc2bcec4"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "0f9f1dc78e6112f16e9f903e5206378051647c6a5ffe2f79928bfe1e774dc5fc"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "bugfix",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:6-26 は人間、orchestrator、検証、既存lock、公開、後続reviewの境界と接続を定義し、Bash/PowerShell・既存runtime/stdlibを指定する。frontend-spec.md と infra-spec.md はfrontend・サービス・DBの追加なしを明示する。invocation、receipt chain、ordered allowed-inputs-v1 digest、9入力のraw hash、precheckの入力bindingを検証済み。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:10-16 の依存グラフは H/E -> V -> L -> P -> R。Components:21-26 の既存validator再利用にも逆向き依存はなく、宣言されたグラフに循環はない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:52-62 の Data Plan / API Contract Plan は新規record、既存precheckへのrecovery追加、移行なしを説明するが、必須の Data Entities:、Existing Data Affected:、Migration Strategy: 各フィールドがない。legacy_design=false のため免除対象ではない。既存データの読取・変更・不変対象を独立した必須フィールドとして確定できず、実装のデータ影響範囲を照合する契約が欠ける。3フィールドに新規schema、既存precheck/履歴/入力/ledgerへの影響、移行不要の理由を明記する必要がある。必須データ計画の欠落としてMajor。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:28 と design.md:54-70 はCLIの回復操作、閉じたrequest recordとauthorization schema、成功時のPending precheck/blank report、失敗時のnonzeroを定義する。frontend-spec.md の API Client Strategy はHTTP APIなしを明示し、design.md:8,66 は既存resetの維持と併用拒否を定める。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:62,67-70,77-83 と normative security-spec.md の Trust Boundaries / Authorization / Data Classification / OWASP Mapping が、B1/B2の認可、原本人間メッセージによるorigin確認、hashとの役割分離、内部provenance分類、PII追加なし、injection・path traversal・access control・改ざん対策を定義する。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type は bugfix。frontend-spec.md の Technology Stack / Component Tree / API Client Strategy と ux-spec.md はローカルCLIのみでfrontend、client state、HTTP APIが存在しないと明示するため、fullstackの比較対象がない。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:73-75 は両runtimeのmatrix実行とregression suiteを列挙するが、unit test対象モジュールとmock対象を定義していない。acceptance-tests.md:3 も全行をcontract/integration fixturesと位置付けており、unit scopeを補完しない。design.md:24,58-69 の純粋なschema/path/digest検証と既存verifier・lock・writer連携について、どこを単体検証し何をmockするか未確定のため、integration fixtureだけでunit-level検証を満たしたと扱える。必須test levelの欠落としてMajor。unit対象とmock方針（mockなしならその理由）を明記する必要がある。実テスト実行は要求していない。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:8-26,58-70 はbounded validator、own-stage validate_contract/Test-Contract、persisted identity verifier、destination writer、authorization artifactを定義する。既存orchestratorと後続reviewerは requirements.md:14,50-52 および infra-spec.md の Deployment Topology / CI/CD Sequence に位置付けられている。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:8,48-50 は既存topology/runtime/identity algorithmを維持する限定的bugfixで、新技術・新integration architecture・新ADRなしとする。precheck.adr_inputs=[] とdesignの宣言は一致し、ADR読取は行っていない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: design.md:37-39 は正確に N/A — ds_profile: none を記録する。ux-spec.md の Design Tokens もdesign-system integrationなしを明示する。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: 許可された存在確認でrepository rootにdomain/ディレクトリがないことを確認した。domain文書の読取は行っていない。"
+    }
+  ]
+}

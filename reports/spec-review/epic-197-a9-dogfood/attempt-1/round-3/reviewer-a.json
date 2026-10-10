@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r3-a-seq0968",
+  "host_session_id": "SESS-spec-a1r3-a-epic-197-a9-dogfood-0968",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-1/round-3/precheck-result.json",
+      "sha256": "37c9ebb9e1ef66d2011a837c601635770c21a68fcfec12c9b85a08b595cd8f8d"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "0da392dd5c9176aa0c697e63c8243eaffb333824f23709f5121897e26bd7ae48"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "741431c9f1fdd1bb248afd4a0808e94ca7ee5149178904a8be7f219f3908503f"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "36888696094664085be0d11ec576fb631e3e048ac8f8e9cdf3518fb3499c3801"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All fourteen in-scope requirements (REQ-001–REQ-014) are observable or measurable. Each maps to at least one AC whose assertion names a concrete oracle: schema acceptance of a specific tuple, fixture rejection with named conditions, evidence record field enumeration, digest equality, cardinality counts, named status values. REQ-004 unambiguously defines the characteristic-override namespace ('credential_bearing' and 'release_write') and schema boundary (additive optional list on component and shared-path records with four exact fields). All OQs are resolved and their resolutions are normative. No requirement depends on an unresolved design decision that would block verification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated goal has at least one matching acceptance criterion. REQ-001: AC-001, AC-002. REQ-002: AC-003, AC-004. REQ-003: AC-005, AC-006, AC-032. REQ-004: AC-007, AC-030, AC-031. REQ-005: AC-008, AC-009. REQ-006: AC-010, AC-011, AC-027. REQ-007: AC-012, AC-013. REQ-008: AC-014, AC-015, AC-028, AC-033. REQ-009: AC-016, AC-017, AC-018, AC-034. REQ-010: AC-019, AC-029. REQ-011: AC-020, AC-021. REQ-012: AC-022, AC-023, AC-024. REQ-013: AC-025. REQ-014: AC-026. All 34 acceptance criteria maintain full forward and reverse traceability to requirements and tests."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 34 acceptance criteria describe externally observable behavior, state, or artifact changes. AC-030 specifies exact counts, scopes, machine names, and values for the live overrides. AC-031 defines three distinct negative fixtures (unknown name, out-of-scope, no-op) with concrete rejection conditions. AC-001 to AC-029 and AC-032 to AC-034 provide explicit oracles including schema acceptance, digest matching, field enumeration, and cardinality-triggered branch re-evaluation. None rely on invisible internal process state."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes: (1) creating live sdd/ files during specification bootstrap; (2) implementing later desktop, cloud-service, or durable-workflow Packs; (3) replacing existing Registry/ownership resolver/Facet Manifest/approval machinery; (4) adding UI, cloud deployment, or new CI workflows; (5) approving this spec, tasks, approval sidecars, or WFIs. REQ-004 explicitly bounds the characteristic override namespace and schema extension to two record types and two machine names."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicitly stated across security, data, compatibility, migration, and promotion dimensions: HMAC-bound approval sidecar required (REQ-001); atomic two-axis Phase-2 transition (REQ-008); registry-cardinality-dependent rollback branching (REQ-009); nine-component closed set (OQ-001); closed path ownership (OQ-002); additive characteristic override namespace and four-field schema constraint (REQ-004); A1-A8 merge/usability prerequisite before live changes (REQ-011, REQ-014); and four mechanically checkable promotion preconditions (OQ-003)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each high-risk claim carries a planned validation surface: approval-sidecar bypass (AC-002, AC-016-018); premature required enforcement (AC-012, AC-013, AC-033 with three negative fixtures); Pack duplication (AC-008, AC-009, OQ-006 reference composition); rollback governance unusability (AC-016, AC-017, AC-034); over-broad ownership hiding boundaries (AC-005, AC-006, AC-032); and override mechanism drift (AC-030, AC-031)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No top-level domain/ directory exists in the repository. The required domain/context-map.md and domain/domain-contract.json are absent. Skip condition met per check definition."
+    }
+  ]
+}

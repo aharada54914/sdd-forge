@@ -1,0 +1,7 @@
+{
+  "schema": "orchestrator-launch-failure-note/v1",
+  "role": "spec-reviewer-b",
+  "sequence": 961,
+  "run_id": "RUN-epic-197-a9-dogfood-spec-a1r1-b-seq0961",
+  "reason": "caller omitted the quoted REVIEW_CONTEXT_OK evidence line required by the review-context fail-closed boundary; reviewer correctly refused content evaluation. Not a content verdict; identity seq 961 is reserved-but-unused. Relaunched as seq 962 with the quoted line."
+}

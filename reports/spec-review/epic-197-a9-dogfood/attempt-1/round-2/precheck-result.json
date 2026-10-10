@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2161a0c2ece3ded9e7f430fa05cf546d9939f727c1818a32a10543cdce01c04b",
+  "acceptance_sha256": "cf489d484d1757b0f18ab414e1be4115698e11128198c12c1c4e94626e0435ee",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "a63c547088fc96d3cd6d640902e68ee0b158f843c97641c52ccc9207d3a2a8a0",
+  "edit_summary": "remediate round 1 findings: characteristic override mechanism, nine-component decomposition, edge case coverage",
+  "reset": false,
+  "generated_at": "2026-09-16T21:41:09Z"
+}

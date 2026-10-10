@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "49af2cb252bfb92013abf20d1087df72b0019ca1526cbb5898c4754e1f6d8834",
+  "acceptance_sha256": "4905f3c5a542fdbd9cc84827236848f6a29cbc06af4f6cce578b46e268cbbf9e",
+  "investigation_sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "5d53600e5331975cf96bce69f380085b6da2f3d92c9d742e9b844ef8a53b8f5d",
+  "edit_summary": "Address round-2 findings: exact override fields and placement; fixed release rule; individual cooldown and authorization negatives; zero-identity fail-closed; supersede stale OQs; hash-pin approved amendment history without changing previous verdicts.",
+  "reset": false,
+  "generated_at": "2026-09-25T16:57:38Z"
+}

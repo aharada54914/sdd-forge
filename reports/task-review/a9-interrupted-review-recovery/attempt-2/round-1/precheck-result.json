@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 2,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "48c0d4c98860610880c65f873772397407c6d5e6992e4e72ac095cac7ee9c337",
+  "tasks_sha256_form": "raw",
+  "requirements_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+  "acceptance_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+  "design_sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+  "traceability_sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+  "frozen_artifact_done_when": [],
+  "layer_sha256": {"ux-spec.md":"5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1","frontend-spec.md":"d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52","infra-spec.md":"142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e","security-spec.md":"aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"},
+  "input_sha256": "ce119badeda4e78d08295157d7a7682fae5719a37c6bf50bae7e57f077b274dc",
+  "generated_at": "2026-09-28T06:41:36Z"
+}
