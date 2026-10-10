@@ -40,12 +40,9 @@
 # design.md's per-kind producer table (T-005 cycle-2: the bash twin's
 # own implementation report, "Specification Differences", covers the
 # earlier byte-identity lock that had been the defect). The
-# skip-stop-message:stop (PROJECT_CONTEXT_INVALID)
-# leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
-# AC-027) is a named SKIP: that producer call site does not exist
-# anywhere in the tree yet (design.md's own "future task"). See the bash
-# twin's own TEST-019 header comment and this task's implementation
-# report Specification Differences for the full reasoning.
+# F3/F4-invalid leg now drives A1's real validator through this suite's
+# fixture-only Context guard and compares the stop-only golden trace.
+# It does not prove a production interviewer invocation.
 
 $ErrorActionPreference = 'Stop'
 $startEpoch = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
@@ -614,35 +611,93 @@ mktemp repo-root.
         Test-Fail "TEST-019.7: observed event trace does NOT match the committed golden trace"
     }
 
-    # TEST-019.8..9 (AC-019, AC-020, AC-027; named SKIP until Epic A1
-    # merges): F3-invalid/F4-invalid's own distinct PROJECT_CONTEXT_INVALID
-    # skip-stop-message:stop event, and the assertion that this trace
-    # never reaches the Context-absent compatibility-fallback path.
-    # design.md's own producer table cites the skip-stop-message:stop
-    # call site as "a new, dedicated fail-closed stop-detection call site
-    # in the fixture drive's own Context-validation guard (Test Strategy
-    # item 1, future task)" -- unwired anywhere in the current tree -- and
-    # the Compatibility Matrix's own F3-invalid/F4-invalid row disposition
-    # is unconditionally SKIP-with-activation -> AC-019, AC-020 (until
-    # Epic A1 merges), so this is the documented not-yet-active state, not
-    # a workaround. The fixture variants themselves ARE constructed for
-    # real via T-001's own build_fixture, to prove the SKIP is not merely
-    # a hand-waved placeholder but a genuinely present, currently
-    # unassertable fixture state.
-    try {
-        $evtF3InvalidRoot = build_fixture present absent advisory PROJECT_CONTEXT_INVALID --full
-        $cleanupRoots.Add($evtF3InvalidRoot)
-        Write-Host "SKIP: TEST-019.8: F3-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event (AC-019, AC-027) -- the producer call site does not exist anywhere in the tree yet (design.md's own 'future task'); SKIP-with-activation until Epic A1 merges (design.md Compatibility Matrix, F3-invalid row)"
-    } catch {
-        Test-Fail "TEST-019.8: build_fixture could not construct the F3-invalid fixture needed to even name this SKIP ($($_.Exception.Message))"
+    # TEST-019.8..9: A1-activated fixture Context-validation guard.
+    # This is a test producer, not an executable interviewer caller.
+    $evtGoldenInvalid = Join-Path $repoRoot 'tests/fixtures/compatibility-event-trace/f3-f4-project-context-invalid.json'
+    $evtGenerator = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1'
+    $evtValidator = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1'
+    $evtSavedTrace = $script:_LOOP_EVENT_TRACE
+    $evtSavedKey = $env:SDD_CONTEXT_KEY
+    $env:SDD_CONTEXT_KEY = 't007-event-trace-fixture-only-key'
+
+    function New-EvtFixtureSidecar([string]$Root) {
+        $fixtureDir = Join-Path $Root 'fixtures'
+        New-Item -ItemType Directory -Path $fixtureDir -Force | Out-Null
+        $registry = Join-Path $fixtureDir 'registry.yaml'
+        $stage = Join-Path $fixtureDir 'approval-stage'
+        @('schema: sdd-approver-registry/v1', 'approvers:',
+          '  - id: fixture-approver', '    name: Fixture Approver') |
+            Set-Content -LiteralPath $registry -Encoding utf8
+        & pwsh -NoProfile -File $evtGenerator --schema sdd-project-context-approval/v1 `
+            --content (Join-Path $Root 'sdd/project-context.yaml') `
+            --approver fixture-approver --status Approved `
+            --live-sidecar (Join-Path $fixtureDir 'no-live') --stage-dir $stage *> $null
+        if ($LASTEXITCODE -ne 0) { return $false }
+        return (Test-Path -LiteralPath (Join-Path $stage ('sdd/' + 'project-context' + '.approval.json')) -PathType Leaf)
+    }
+
+    function Invoke-EvtContextGuard([string]$Root) {
+        $script:EvtRoute = ''
+        $script:EvtValidationRc = 0
+        $script:EvtValidationOutput = ''
+        $context = Join-Path $Root 'sdd/project-context.yaml'
+        if (-not (Test-Path -LiteralPath $context -PathType Leaf)) {
+            $script:EvtRoute = 'COMPATIBILITY_FALLBACK'
+            return $true
+        }
+        $sidecar = Join-Path $Root ('fixtures/approval-stage/sdd/' + 'project-context' + '.approval.json')
+        $registry = Join-Path $Root 'fixtures/registry.yaml'
+        $evtOutput = & pwsh -NoProfile -File $evtValidator --content $context --sidecar $sidecar `
+            --approver-registry $registry 2>&1
+        $script:EvtValidationRc = $LASTEXITCODE
+        $script:EvtValidationOutput = [string]::Join("`n", @($evtOutput))
+        if ($script:EvtValidationRc -ne 0) {
+            $script:EvtRoute = 'PROJECT_CONTEXT_INVALID'
+            return (Write-LoopTraceEvent -Kind skip-stop-message -Producer skip-stop-message:stop -ValueJson '"PROJECT_CONTEXT_INVALID"')
+        }
+        $script:EvtRoute = 'VALID_CONTEXT'
+        return $true
     }
 
     try {
-        $evtF4InvalidRoot = build_fixture present absent required PROJECT_CONTEXT_INVALID --full
-        $cleanupRoots.Add($evtF4InvalidRoot)
-        Write-Host "SKIP: TEST-019.9: F4-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event, and 'never reaches the Context-absent compatibility-fallback path' (AC-019, AC-020, AC-027) -- same unwired-producer reasoning as TEST-019.8; SKIP-with-activation until Epic A1 merges"
-    } catch {
-        Test-Fail "TEST-019.9: build_fixture could not construct the F4-invalid fixture needed to even name this SKIP ($($_.Exception.Message))"
+        $evtValidRoot = build_fixture present absent advisory valid --full
+        $cleanupRoots.Add($evtValidRoot)
+        $script:_LOOP_EVENT_TRACE = '[]'
+        if ((New-EvtFixtureSidecar $evtValidRoot) -and (Invoke-EvtContextGuard $evtValidRoot) -and
+            $script:EvtRoute -ceq 'VALID_CONTEXT' -and $script:EvtValidationRc -eq 0 -and
+            $script:EvtValidationOutput -ceq 'VALID' -and
+            $script:_LOOP_EVENT_TRACE -ceq '[]') {
+            Test-Ok 'TEST-019.8/9 control: signed v1 Context passes real A1 validation without a stop event'
+        } else {
+            Test-Fail 'TEST-019.8/9 control: signed v1 Context must pass real A1 validation'
+        }
+
+        $evtAbsentRoot = build_fixture absent absent disabled-legacy valid --full
+        $cleanupRoots.Add($evtAbsentRoot)
+        $script:_LOOP_EVENT_TRACE = '[]'
+        if ((Invoke-EvtContextGuard $evtAbsentRoot) -and $script:EvtRoute -ceq 'COMPATIBILITY_FALLBACK' -and
+            $script:_LOOP_EVENT_TRACE -ceq '[]') {
+            Test-Ok 'TEST-019.8/9 control: physically absent Context alone takes the fallback route'
+        } else {
+            Test-Fail 'TEST-019.8/9 control: physically absent Context did not take the fallback route'
+        }
+
+        foreach ($evtCase in @(@('F3', 'advisory'), @('F4', 'required'))) {
+            $evtInvalidRoot = build_fixture present absent $evtCase[1] PROJECT_CONTEXT_INVALID --full
+            $cleanupRoots.Add($evtInvalidRoot)
+            $script:_LOOP_EVENT_TRACE = '[]'
+            if ((New-EvtFixtureSidecar $evtInvalidRoot) -and (Invoke-EvtContextGuard $evtInvalidRoot) -and
+                $script:EvtValidationRc -eq 32 -and $script:EvtValidationOutput -clike '*CONTENT_SCHEMA_VIOLATION*' -and
+                $script:EvtRoute -ceq 'PROJECT_CONTEXT_INVALID' -and
+                (Test-EventTrace -GoldenTracePath $evtGoldenInvalid)) {
+                Test-Ok "TEST-019.8/9: $($evtCase[0]) invalid Context is validator-rejected, stop-only, and never falls back"
+            } else {
+                Test-Fail "TEST-019.8/9: $($evtCase[0]) invalid Context did not produce the distinct stop-only trace"
+            }
+        }
+    } finally {
+        $script:_LOOP_EVENT_TRACE = $evtSavedTrace
+        $env:SDD_CONTEXT_KEY = $evtSavedKey
     }
 
     # -------------------------------------------------------------------
@@ -783,7 +838,7 @@ try {
     if ($a5CallerForBlock) {
         Test-Fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
     } else {
-        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; SKILL.md documentation and resolver implementation are not activation evidence (same unwired-producer reasoning as TEST-019.8/.9)"
+        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; the TEST-019.8/.9 fixture guard is not that caller"
     }
 
     # -------------------------------------------------------------------

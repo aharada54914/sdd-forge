@@ -180,6 +180,17 @@ function Test-BoundaryTiming {
         $WaitEnd -le $OutputEnd -and $OutputEnd -le $Deadline
 }
 
+function Read-BoundaryPhases {
+    param([string]$Path)
+    $text = [string](Get-Content -Raw -LiteralPath $Path)
+    $phases = @{ wait_end = [long]0; output_end = [long]0; text = $text }
+    foreach ($name in @('wait_end', 'output_end')) {
+        $records = [regex]::Matches($text, '(?m)^' + $name + '=([0-9]+)\r?$')
+        if ($records.Count -eq 1) { $phases[$name] = [long]$records[0].Groups[1].Value }
+    }
+    return $phases
+}
+
 Push-Location $workDir
 try {
 $script:powerShellHost = (Get-Process -Id $PID).Path
@@ -213,6 +224,7 @@ receipt('STUB_START_FILE', now())
 receipt('STUB_DEADLINE_FILE', os.environ.get('SDD_PANELIST_DEADLINE_EPOCH_MS', ''))
 receipt('STUB_CALLED_FILE', 'called')
 receipt('STUB_PID_FILE', os.getpid())
+sys.stdin.read()
 if os.environ.get('STUB_MODE') == 'hang':
     child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -231,29 +243,36 @@ response = json.dumps(dict(schema='cross-model-verdict/v1', task_id='T-901',
     feature='timeout-test', vendor='stub', model='stub-model', verdict='PASS',
     findings=[], blind=True, input_digest='a' * 64,
     consent=dict(kind='human-flag', ref='test fixture')), separators=(',', ':'))
+phase_path = os.environ.get('STUB_PHASE_FILE')
+# Open diagnostic files before the near-deadline wait, not on the exit path.
+phase_handle = open(phase_path, 'w', encoding='utf-8') if phase_path else None
 if os.environ.get('STUB_WARMUP') != '1':
     margin = os.environ.get('STUB_COMPLETE_BEFORE_DEADLINE_MS')
     target = (int(os.environ['SDD_PANELIST_DEADLINE_EPOCH_MS']) - int(margin)
               if margin else int(os.environ.get('STUB_COMPLETE_AT_EPOCH_MS', '0')))
     remaining = target - now()
     if remaining > 0:
+        receipt('STUB_STAGE_FILE', f'sleep={now()}')
         time.sleep(remaining / 1000)
 
 wait_end = now()
-phase_path = os.environ.get('STUB_PHASE_FILE')
 receipt_end = now()
 console = sys.stdout
 console_ready = now()
+write_start = now()
 console.write((response[:10] if os.environ.get('STUB_OUTPUT_MODE') == 'incomplete' else response) + '\n')
 write_end = now()
 time.sleep(int(os.environ.get('STUB_OUTPUT_DELAY_MS', '0')) / 1000)
+flush_start = now()
 console.flush()
 flush_end = now()
 output_end = now()
-if phase_path:
-    with open(phase_path, 'w', encoding='utf-8') as handle:
-        handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
-                     f'console_ready={console_ready}\nwrite_end={write_end}\nflush_end={flush_end}\n')
+if phase_handle:
+    phase_persist = now()
+    phase_handle.write(f'wait_end={wait_end}\noutput_end={output_end}\nreceipt_end={receipt_end}\n'
+                       f'console_ready={console_ready}\nwrite_start={write_start}\nwrite_end={write_end}\n'
+                       f'flush_start={flush_start}\nflush_end={flush_end}\nphase_persist={phase_persist}\n')
+    phase_handle.close()
 sys.exit(int(os.environ.get('STUB_EXIT_CODE', '0')))
 '@ | Set-Content -Encoding Utf8 -Path $panelistWorker
 
@@ -667,6 +686,19 @@ $panelistRunners = @(
     $completionSlackMs = 2000
     $completionBudgetSec = 4
     $outputDelayMs = 500
+    $receiptFixture = Join-Path $workDir 'boundary-receipt-fixture'
+    foreach ($case in @(
+        @{ Name = 'empty'; Text = ''; WaitEnd = 0; OutputEnd = 0 },
+        @{ Name = 'complete'; Text = "wait_end=1800`noutput_end=1801`n"; WaitEnd = 1800; OutputEnd = 1801 },
+        @{ Name = 'duplicate'; Text = "wait_end=1800`nwait_end=1801`noutput_end=1802`n"; WaitEnd = 0; OutputEnd = 1802 },
+        @{ Name = 'partial'; Text = "wait_end=1800`noutput_end="; WaitEnd = 1800; OutputEnd = 0 }
+    )) {
+        Set-Content -LiteralPath $receiptFixture -Value $case.Text -NoNewline
+        $phases = Read-BoundaryPhases $receiptFixture
+        if ($phases.wait_end -eq $case.WaitEnd -and $phases.output_end -eq $case.OutputEnd) {
+            Ok "TEST-004(c): phase receipt parser ($($case.Name))"
+        } else { Fail "TEST-004(c): phase receipt parser ($($case.Name))" }
+    }
     foreach ($case in @(
         @{ Name = "lower edge"; WaitEnd = 1700; OutputEnd = 1800; Expected = $true },
         @{ Name = "deadline edge"; WaitEnd = 1800; OutputEnd = 2000; Expected = $true },
@@ -705,6 +737,7 @@ $panelistRunners = @(
             $startFile = Join-Path $workDir "$caseName.stub-start"
             $deadlineFile = Join-Path $workDir "$caseName.runner-deadline"
             $phaseFile = Join-Path $workDir "$caseName.phases"
+            $stageFile = Join-Path $workDir "$caseName.stage"
             $started = Get-MonotonicMilliseconds
             $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
             Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$completionBudgetSec" `
@@ -714,6 +747,7 @@ $panelistRunners = @(
                     STUB_DEADLINE_FILE                = $deadlineFile
                     STUB_START_FILE                   = $startFile
                     STUB_PHASE_FILE                   = $phaseFile
+                    STUB_STAGE_FILE                   = $stageFile
                 }
             $elapsed = (Get-MonotonicMilliseconds) - $started
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
@@ -738,6 +772,9 @@ $panelistRunners = @(
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration invoked_at_epoch_ms=$invokedAt stub_start_epoch_ms=$stubStartEpoch startup_inside_budget_ms=$startupInsideBudgetMs"
             $detail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=$deadlineMs runner_deadline_epoch_ms=$runnerDeadline stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            # Diagnostic I/O can perturb timing; a stage marker never proves exit.
+            $stage = if (Test-Path -LiteralPath $stageFile) { "$(Get-Content -Raw -LiteralPath $stageFile)".Trim() } else { 'missing' }
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration last_stage=$stage"
             if (Test-Path -LiteralPath $phaseFile) {
                 $phaseText = [string](Get-Content -Raw -LiteralPath $phaseFile)
                 $waitRecords = [regex]::Matches($phaseText, '(?m)^wait_end=([0-9]+)\r?$')
@@ -745,7 +782,7 @@ $panelistRunners = @(
                 $outputRecords = [regex]::Matches($phaseText, '(?m)^output_end=([0-9]+)\r?$')
                 if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
                 foreach ($phase in Get-Content -LiteralPath $phaseFile) {
-                    if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_end|flush_end)=[0-9]+$') {
+                    if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_start|write_end|flush_start|flush_end|phase_persist)=[0-9]+$') {
                         Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
                     }
                 }
