@@ -11,6 +11,14 @@
 
 ## Publication worktree checks
 
+### Approved bounded CI dependency repair
+
+- PR #558 / T-004; owner is the branch above. Before repair, HEAD was `0b30019421188d1b45b92dd6d6ad3ae8a52711a6` and the working tree was clean.
+- CI run `38105613767`, job `114370400176`, failed because Ubuntu could not execute the real `rtk proxy` transport. Three cases failed; no transport assertions are being removed.
+- Scope: install version/hash-pinned RTK in the consuming Ubuntu job and test its unconditional placement before transport execution. Preserve permissions, launch argv, checks, review evidence and task states. This remains within the high-risk integration; dependency repair is not formal acceptance.
+- Required checks: dependency regression before/after repair, distribution digest and archive layout, workflow/mirror validation, independent diff review and new-head CI.
+- Full local Bash and PowerShell regression drivers both exited zero on the pre-repair publication head. These macOS executions do not prove native Windows or CI success.
+
 Executed against the transferred, uncommitted candidate on macOS; these are not final-head CI results.
 
 | Check | Observed result |
@@ -61,3 +69,21 @@ because this integration intentionally modifies the uncommitted workflow:
 Their behavioral and negative cases passed. Preserve these observed failures;
 rerun the unchanged tests after committing the candidate. A checkpoint commit is
 not quality-gate acceptance, publication, or proof of final-head CI success.
+
+## Current-head CI dependency repair
+
+The complete POSIX and PowerShell local runners subsequently exited 0 at
+`0b30019421188d1b45b92dd6d6ad3ae8a52711a6`. These macOS executions do not prove
+native Windows behavior. CI run `38105613767`, job `114370400176`, then exposed
+missing RTK on Ubuntu in the transport suite; the earlier CI failure remains
+recorded. Install only RTK v0.51.0 in that job, checking its pinned archive SHA-256
+before extraction and adding it to PATH before the transport tests.
+
+The dependency regression was RED before the workflow repair and GREEN afterward
+(5 tests). Independent diff review found no Critical or Major findings and reran
+the dependency tests (5) and transport tests (20), all successful. Independent
+archive retrieval confirmed its digest, single executable member and ELF format.
+Mirror validation passed 6 checks with 19 informational pending mirrors; no staged
+mirror was silently promoted. Whitespace validation passed. The independent
+review is not a formal quality-gate verdict. Linux binary execution and the new
+exact-head CI remain pending until GitHub executes this change.
