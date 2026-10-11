@@ -69,6 +69,24 @@ class RequiredChecksTests(unittest.TestCase):
                 shell = 'pwsh' if command.endswith('.ps1') else 'bash'
                 self.assertIn(f'        shell: {shell}', matches[0].splitlines())
 
+    def test_transport_dependency_is_pinned_and_installed_first(self):
+        job = re.findall(r'^  posix-regression:\n((?:^    .*\n|^\s*\n)*)',
+                         self.workflow, re.M)[0]
+        steps = re.split(r'^      - ', job, flags=re.M)[1:]
+        installs = [step for step in steps if step.startswith('name: Install pinned RTK\n')]
+        self.assertEqual(len(installs), 1)
+        install = installs[0]
+        self.assertNotRegex(install, r'(?m)^        (if|continue-on-error):')
+        self.assertIn('shell: bash', install)
+        self.assertIn('set -euo pipefail', install)
+        self.assertIn('/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz', install)
+        self.assertIn('5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5', install)
+        self.assertLess(install.index('sha256sum --check'), install.index('tar -xzf'))
+        self.assertIn('"$GITHUB_PATH"', install)
+        consumers = [step for step in steps if 'tests/quality-nontty-transport.tests.py' in step]
+        self.assertEqual(len(consumers), 1)
+        self.assertLess(steps.index(install), steps.index(consumers[0]))
+
     def execute_body(self, failed_job=None, result='success'):
         def expand(match):
             name = match[1]

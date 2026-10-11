@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "822ac6e5-890d-4d3c-96c5-c55b25cf949a",
+  "host_session_id": "822ac6e5-890d-4d3c-96c5-c55b25cf949a",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+      "sha256": "f12f230cb0263f8e1317cfefc9c399cfc7fec0c7c901f87e73da662ad7ca9e78"
+    },
+    {
+      "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/integrated-summary.json",
+      "sha256": "23b03455ac0aa631d549656cf1625b164def0df3b00d51745cb2bccc738e3b2e"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜006 は対象ファイルと行番号、拒否条件、正規化対象(REQ行の最終status cellのみ)を具体的に示している。AC-001〜006 と TEST-001〜013 が観測可能な結果を定めており、実装者間で挙動が分かれる曖昧さはない。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "要件、AC、非目標に直接の矛盾はない。REQ-005 の「ハッシュは計算のみで状態遷移は許可しない」は非目標の「新しい状態文法を作らない」と整合する。REQ-004 の WFI-030 正規化とも衝突しない。調査記録(investigation.md)が無いため、段階順序(phase-sequencing)の免除は適用せず、既定の Phase-1 基準で判断した。後続段階の成果物を根拠にした指摘は出ていない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "負のケースと境界ケースを網羅している。TEST-002/003a-c(必須フラグ欠落、誤モデル、複合Bash、範囲外Read)と TEST-005a-h(欠落、改変、別名パス、symlink、範囲外、raw invocation、receipt、予約後の不一致)がある。TEST-008a-d(未知status、注釈付きstatus、evidence編集、本文編集)、TEST-010a-b(空、不正、読取失敗、大文字小文字違い)、TEST-012a-d(在庫の片側のみ追加、生成物の古さ)と TEST-013(CI登録の削除)も揃っている。Minor: AGENTS.md は列挙された5種類のstatusを大文字小文字区別ありで扱うが、5種類それぞれの遷移と小文字variantを個別に検証するTEST行はない。TEST-007 と TEST-008a/b が実質的にこれを覆うため、ブロッカーではない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "要件の最終節が、実CLIの有無とネイティブWindowsの挙動は対象環境で確認が必要と明記している。保護対象の一覧とCI登録は共有git追跡状態であるため、レビュー前とマージ前に再検証する指示がある。冒頭にも最終レビューHEADでの再確認が書かれている。事実主張には file:line の根拠が付いている。AGENTS.md の WFI-013/WFI-011 の要求を満たしている。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "保護境界と不可逆変更の境界が範囲内にあり、検証可能である。REQ-006 は、履歴上の判定、ledger項目、凍結済み成果物、task status、インストール、製品T-002入力を書き換えないと定めている。REQ-002 は、予約後に不一致が出た場合に再試行せず、消費済みのledger項目を残すと定めている。AC-006/TEST-011a-f が6経路の書込拒否と読取許可を、TEST-005/TEST-005h が台帳不変と保持を検証する。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "設計レビューが製品の挙動を補う必要はない。範囲、非目標、6つのREQ、AC、TESTの対応が一対一で揃っている。実装方式は設計に委ねられており、仕様は観測可能な結果で縛られている。reviewer A の集約結果も、失敗なしで6件PASS、1件SKIPである。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "起動時の観測で domain/context-map.md と domain/domain-contract.json はどちらも存在せず、domain の状態は skipped と記録されている。承認済みの domain モデルがないため、このチェックは対象外である。"
+    }
+  ]
+}

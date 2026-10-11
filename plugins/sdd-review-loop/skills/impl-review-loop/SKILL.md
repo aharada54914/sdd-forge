@@ -386,6 +386,27 @@ evidence to the current artifact hashes; it does not license content changes
 to frozen artifacts. Sanctioned post-review updates go to non-frozen addenda
 per AGENTS.md (see ADR 0007).
 
+## Local Claude CLI non-TTY route (opt-in)
+
+Before constructing each invocation, run
+`python3 -B plugins/sdd-quality-loop/scripts/review-conditional-inputs.py --root <absolute-repository-root> --feature <feature> --stage impl`.
+Include every returned path/hash pair without duplicates. Missing or unsafe
+selected inputs stop the launch. Persist the complete role-specific invocation
+with a fresh canonical UUIDv4 as both run and host-session ID, then invoke once
+before any manual reservation:
+
+```text
+rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+```
+
+The launcher verifies current inputs and native permissions, pins dependencies,
+performs the ordinary single reservation, then launches and checks delivery.
+Require the exact `REVIEW_CONTEXT_OK` receipt and postflight proof. Do not
+reserve separately, retry with changed IDs or treat delivery as a verdict.
+Its read-only `preflight-host-review.py` step must emit
+`HOST_REVIEW_PREFLIGHT_OK` before reservation.
+Other host routes retain the ordinary sequential launch contract.
+
 ## Boundaries
 
 - Never self-approve any finding. Findings from reviewers are facts; the

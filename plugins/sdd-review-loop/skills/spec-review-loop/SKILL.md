@@ -64,6 +64,28 @@ review, task review, or evaluator context.
 
 ## Independent reviewer sequence
 
+### Local Claude CLI non-TTY route (opt-in)
+
+For this route only, propose a fresh canonical UUIDv4 as both run and
+host-session ID, absent from the ledger and native session location. Before
+constructing the invocation, run
+`python3 -B plugins/sdd-quality-loop/scripts/review-conditional-inputs.py --root <absolute-repository-root> --feature <feature> --stage spec`
+and include every returned path/hash pair without duplicates. Persist the
+complete one-role invocation, then call exactly once before any manual reserve:
+
+```text
+rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+```
+
+The UUID is the proposed run/session ID and the launch directory must be new.
+The launcher verifies inputs and native permissions before its single ledger
+reservation, then pins dependencies, launches and checks delivery. Require its
+exact `REVIEW_CONTEXT_OK` receipt and postflight proof; do not reserve
+separately, retry with altered IDs, or treat delivery as a review verdict.
+Its read-only `preflight-host-review.py` step must emit
+`HOST_REVIEW_PREFLIGHT_OK` before reservation.
+Other host routes retain the sequential launch boundary above.
+
 1. Build a stage `spec` allowed-input manifest from the precheck result. Include
    only canonical requirements, acceptance tests, optional investigation,
    `plugins/sdd-review-loop/references/spec-review-calibration.md`, and

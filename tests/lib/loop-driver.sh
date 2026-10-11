@@ -292,6 +292,10 @@ _loop_fixture_copy_references() {
     plugins/sdd-review-loop/references/spec-review-calibration.md \
     plugins/sdd-review-loop/references/reviewer-calibration.md \
     plugins/sdd-domain/references/domain-review-calibration.md \
+    plugins/sdd-quality-loop/scripts/review-conditional-inputs.py \
+    plugins/sdd-quality-loop/scripts/validate-facet-manifest.py \
+    contracts/domain-contract.v1.schema.json \
+    contracts/domain-contract.v2.schema.json \
     contracts/workflow-state-registry.schema.json
   do
     src="${SDD_LOOP_REPO_ROOT}/${rel}"
@@ -699,13 +703,15 @@ _loop_emit_spec_round_a() {
   fi
   precheck_sha="$(_loop_sha256 "$precheck_path")"
   calibration_sha="$(_loop_sha256 "$calibration_path")"
+  local domain_json
+  domain_json="$(_loop_manifest_array "domain/context-map.md" "domain/domain-contract.json")" || return 1
 
   jq -n --arg result "$a_result" --arg severity "$check_severity" --arg verdict "$a_verdict" \
     --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg calibration "$calibration_path" \
-    --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg investigation_sha "$investigation_sha" --arg precheck_sha "$precheck_sha" --arg calibration_sha "$calibration_sha" '
+    --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg investigation_sha "$investigation_sha" --arg precheck_sha "$precheck_sha" --arg calibration_sha "$calibration_sha" --argjson domain "$domain_json" '
     ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
-     allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),
+     allowed_input_manifest:($domain + [{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]),
      verdict:$verdict,
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${round_dir}/reviewer-a.json" || return 1
@@ -743,6 +749,8 @@ _loop_emit_spec_round_b_contract() {
   fi
   precheck_sha="$(_loop_sha256 "$precheck_path")"
   calibration_sha="$(_loop_sha256 "$calibration_path")"
+  local domain_json
+  domain_json="$(_loop_manifest_array "domain/context-map.md" "domain/domain-contract.json")" || return 1
   summary_sha="$(_loop_sha256 "$summary_path")"
 
   jq -n --arg feature "$LOOP_FIXTURE_FEATURE" --arg verdict "$verdict" --argjson round "$round" --argjson warning "$warning" \
@@ -754,10 +762,10 @@ _loop_emit_spec_round_b_contract() {
 
   jq -n --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg summary "$summary_path" \
     --arg calibration "$calibration_path" --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg investigation_sha "$investigation_sha" \
-    --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" '
+    --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" --argjson domain "$domain_json" '
     ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
-     allowed_input_manifest:([{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),
+     allowed_input_manifest:($domain + [{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha}] + (if $investigation_sha == "" then [] else [{path:$investigation,sha256:$investigation_sha}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]),
      verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
     > "${round_dir}/reviewer-b.json" || return 1
@@ -766,7 +774,7 @@ _loop_emit_spec_round_b_contract() {
     --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg investigation_sha256 "$investigation_sha" \
     --argjson round "$round" --argjson warning "$warning" \
     --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg investigation "$investigation_path" --arg precheck "$precheck_path" --arg summary "$summary_path" --arg calibration "$calibration_path" \
-    --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" '
+    --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" --argjson domain "$domain_json" '
     ({schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
       {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[
         {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256}
@@ -776,7 +784,7 @@ _loop_emit_spec_round_b_contract() {
       ]}
     ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}
     + (if $investigation_sha256 == "" then {} else {investigation_sha256:$investigation_sha256} end)
-    | .reviewers |= map(.allowed_input_manifest += (if $investigation_sha256 == "" then [] else [{path:$investigation,sha256:$investigation_sha256}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}] + (if .role == "spec-reviewer-b" then [{path:$summary,sha256:$summary_sha}] else [] end)))' \
+    | .reviewers |= map(.allowed_input_manifest += $domain + (if $investigation_sha256 == "" then [] else [{path:$investigation,sha256:$investigation_sha256}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}] + (if .role == "spec-reviewer-b" then [{path:$summary,sha256:$summary_sha}] else [] end)))' \
     > "${round_dir}/spec-review-contract.json" || return 1
 
   return 0
@@ -794,6 +802,7 @@ _loop_spec_manifest_a() {
   if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
     entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" )
   fi
+  entries+=("domain/context-map.md" "domain/domain-contract.json")
   _loop_manifest_array "${entries[@]}"
 }
 _loop_spec_manifest_b() {
@@ -809,6 +818,7 @@ _loop_spec_manifest_b() {
   if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
     entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" "${entries[4]}" )
   fi
+  entries+=("domain/context-map.md" "domain/domain-contract.json")
   _loop_manifest_array "${entries[@]}"
 }
 
@@ -894,6 +904,8 @@ _loop_emit_impl_round_a() {
   esac
 
   local impl_ids='["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"]'
+  local domain_json
+  domain_json="$(_loop_manifest_array "domain/context-map.md" "domain/domain-contract.json")" || return 1
   if jq -e 'has("adr_inputs")' "${round_dir}/precheck-result.json" >/dev/null; then
     impl_ids='["ARCH-COVERAGE","NO-CIRCULAR-DEPS","DATA-COVERAGE","API-COVERAGE","SECURITY-COVERAGE","FRONTEND-BACKEND-CONSISTENCY","TEST-STRATEGY-COVERAGE","NO-UNDEFINED-COMPONENT","ADR-PRESENT","DESIGN-SYSTEM-CONFORMANCE","DOMAIN-CONFORMANCE"]'
     a_passes=$((11 - a_fails))
@@ -943,6 +955,7 @@ _loop_emit_impl_round_a() {
     manifest_json="$(jq -c --arg p "$prior_summary" --arg s "$(_loop_sha256 "$prior_summary")" '. + [{path:$p,sha256:$s}]' <<<"$manifest_json")"
   fi
 
+  manifest_json="$(jq -c --argjson domain "$domain_json" '. + $domain' <<<"$manifest_json")" || return 1
   if jq -e 'has("adr_inputs")' "$precheck_path" >/dev/null; then
     manifest_json="$(jq -c --arg root "$LOOP_FIXTURE_ROOT/" --slurpfile p "$precheck_path" 'map(.path |= if startswith($root) then .[($root|length):] else . end) + $p[0].adr_inputs' <<<"$manifest_json")" || return 1
   fi
@@ -1016,6 +1029,9 @@ _loop_emit_impl_round_b_contract() {
     manifest_b_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_b_json")"
   done
   local impl_b_ids='["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"]'
+  local domain_json
+  domain_json="$(_loop_manifest_array "domain/context-map.md" "domain/domain-contract.json")" || return 1
+  manifest_b_json="$(jq -c --argjson domain "$domain_json" '. + $domain' <<<"$manifest_b_json")" || return 1
   if jq -e 'has("adr_inputs")' "$precheck_path" >/dev/null; then
     impl_b_ids='["DECISION-JUSTIFIED","OPEN-QUESTIONS-RESOLVABLE","ASSUMPTIONS-VALID","NO-REQ-CONTRADICTION","PERF-ADDRESSED","DEPLOYMENT-CONCRETE","MIGRATION-PLANNED","INTEGRATION-IDENTIFIED","DESIGN-WITHIN-SCOPE","VERIFICATION-PATH-CONCRETE","DOMAIN-CONFORMANCE"]'
     manifest_b_json="$(jq -c --arg root "$LOOP_FIXTURE_ROOT/" --slurpfile p "$precheck_path" 'map(.path |= if startswith($root) then .[($root|length):] else . end) + $p[0].adr_inputs' <<<"$manifest_b_json")" || return 1
@@ -1064,6 +1080,7 @@ _loop_impl_manifest_a() {
   if [[ "$round" -gt 1 ]]; then
     rels+=("reports/impl-review/${feature}/attempt-1/round-$((round - 1))/integrated-summary.json")
   fi
+  rels+=("domain/context-map.md" "domain/domain-contract.json")
   _loop_manifest_array "${rels[@]}"
 }
 _loop_impl_manifest_b() {
@@ -1078,6 +1095,7 @@ _loop_impl_manifest_b() {
     "${round_rel}/integrated-summary.json"
   )
   for name in $(_loop_impl_layer_names); do rels+=("specs/${feature}/${name}.md"); done
+  rels+=("domain/context-map.md" "domain/domain-contract.json")
   _loop_manifest_array "${rels[@]}"
 }
 

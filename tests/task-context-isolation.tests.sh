@@ -36,6 +36,17 @@ done
 
 WORK="$(mktemp -d)"
 trap 'chmod -R u+w "$WORK" 2>/dev/null || true; rm -rf "$WORK"' EXIT
+python3 - "$ROOT/contracts/task-input-manifest.schema.json" <<'PY'
+import json
+import re
+import sys
+
+pattern = json.load(open(sys.argv[1]))["$defs"]["repositoryPath"]["pattern"]
+for value in (".github/workflows/test.yml", ".reports/result.md", "reports/", "reports//"):
+    assert re.search(pattern, value), value
+for value in (".", "..", "../outside", ".github/../outside", ".github/./test.yml", ".github//test.yml", "a//b", "/absolute", "C:/outside", ".github\\outside"):
+    assert not re.search(pattern, value), value
+PY
 REPO="$WORK/repo"
 mkdir -p "$REPO/specs/demo" "$REPO/contracts" "$WORK/manifests" "$WORK/snapshots"
 printf 'requirement text\n' > "$REPO/specs/demo/requirements.md"
@@ -105,6 +116,16 @@ write_manifest() {
 
 VALID="$WORK/manifests/valid.json"
 write_manifest "$VALID" T-002 run-001 session-001 agent-001
+mkdir -p "$REPO/.github/workflows"
+cp "$REPO/contracts/demo.json" "$REPO/.github/workflows/test.yml"
+jq '.allowed_inputs[1].path = ".github/workflows/test.yml" | .allowed_outputs += [".reports/result.md"]' "$VALID" > "$WORK/manifests/dot.json"
+bash "$SNAPSHOT" --manifest "$WORK/manifests/dot.json" --repo-root "$REPO" --snapshot-root "$WORK/snapshots/dot" >/dev/null
+bash "$VALIDATOR" --manifest "$WORK/manifests/dot.json" --snapshot-root "$WORK/snapshots/dot" >/dev/null
+for invalid in '.' '..' '../outside' '.github/../outside' '.github/./test.yml' '.github//test.yml' '/absolute' 'C:/outside' '.github\outside'; do
+  jq --arg path "$invalid" '.allowed_inputs[1].path = $path' "$VALID" > "$WORK/manifests/bad-dot.json"
+  expect_diag TASK_INPUT_PATH bash "$SNAPSHOT" --manifest "$WORK/manifests/bad-dot.json" --repo-root "$REPO" --snapshot-root "$WORK/snapshots/bad-dot"
+  expect_diag TASK_INPUT_PATH bash "$VALIDATOR" --manifest "$WORK/manifests/bad-dot.json" --snapshot-root "$WORK/snapshots/dot"
+done
 VALID_SNAPSHOT="$WORK/snapshots/run-001"
 bash "$SNAPSHOT" --manifest "$VALID" --repo-root "$REPO" --snapshot-root "$VALID_SNAPSHOT" >/dev/null
 output="$(bash "$VALIDATOR" --manifest "$VALID" --snapshot-root "$VALID_SNAPSHOT")"

@@ -1,0 +1,65 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "investigation_sha256": null,
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "9aee5f69-9648-47cd-8a78-494b27233869",
+      "host_session_id": "9aee5f69-9648-47cd-8a78-494b27233869",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+          "sha256": "f12f230cb0263f8e1317cfefc9c399cfc7fec0c7c901f87e73da662ad7ca9e78"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "822ac6e5-890d-4d3c-96c5-c55b25cf949a",
+      "host_session_id": "822ac6e5-890d-4d3c-96c5-c55b25cf949a",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+          "sha256": "f12f230cb0263f8e1317cfefc9c399cfc7fec0c7c901f87e73da662ad7ca9e78"
+        },
+        {
+          "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/integrated-summary.json",
+          "sha256": "23b03455ac0aa631d549656cf1625b164def0df3b00d51745cb2bccc738e3b2e"
+        }
+      ]
+    }
+  ],
+  "run_id": "0c35e8bf-487d-4ac3-85b0-7369adbf0a6c",
+  "verdict": "PASS",
+  "warningCount": 0
+}

@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "33f6558c-5013-4b4a-bf52-1d1aeb84a200",
+  "host_session_id": "33f6558c-5013-4b4a-bf52-1d1aeb84a200",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+      "sha256": "f46c1e423647c6894a6f6d0132d0fd0f64677fdaf0b7a9251300f84f42b4cb03"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Architecture' absent; legacy design.md predates this template requirement. design.md '## Bounded approach' nonetheless describes the integrated components (launcher, pre-reservation validator, conditional-input resolver, protection inventory, CI registration, PowerShell hash helper), their order (check/admit/probe, then single reservation), and the integration with existing components. Technology layers are covered by infra-spec.md 'Runtime dependencies' (rtk, Claude CLI, Node, Bash, jq, shasum)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found. The narrative has a linear flow (assemble manifest, validate, check permissions, reserve once, launch) with no circular pattern."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Data Plan' (Data Entities / Existing Data Affected / Migration Strategy) absent; legacy design.md predates this template requirement. Design keeps the existing review-context-invocation/v2 contract and ledger schema unchanged. requirements.md 'Non-goals' states no new ledger schema, and REQ-006 states no ledger entry is rewritten. Advisory: an explicit 'No data changes' statement would help."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## API / Contract Plan' absent; legacy design.md predates this template requirement. requirements.md 'Non-goals' states no new externally consumed protocol, and design.md says it does not change the existing review-context-invocation/v2 contract. No endpoints are introduced."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Security Boundaries' absent in design.md; legacy design.md predates this template requirement. The normative security-spec.md covers trust boundaries (untrusted invocation paths and preflight output checked before the ledger changes), authorization (exact permissions, model, protected entrypoints), threats, and the no-secrets rule. No PII is handled."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is cli. The feature is review-launch tooling with no frontend. design.md has no Feature Type field, so cli is inferred from the content."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Test Strategy' absent; legacy design.md predates this template requirement. Verification is concrete: the design's Acceptance mapping table links AC-001..006 to TEST IDs. The persisted-evidence preflight table names failing mismatch tests. 'Validation and deployment' plans focused parity and invariant suites plus exact-HEAD hosted CI including native Windows. Run-all and workflow entries are cited (tests/run-all.sh:70-76, tests/run-all.ps1:135, .github/workflows/test.yml:39-42)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in design.md (launch-impl-review.py, validate-nontty-spec-launch.py, probe-nontty-review.py, validate-review-context-set.sh, guard-invariants.json, generate-guard-invariants.py, review-hash-normalization.ps1) is an existing repository component with a cited file:line anchor. design.md also grounds the candidate scope in reports/verification/shared-review-launch-integration.md:3-8. No undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No ADR section or ADR references. The design is a bounded repair of existing mechanisms with no new technology choice or architectural departure (requirements.md 'Non-goals'). adr_inputs is empty in precheck-result.json."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the launch-control observation reports design-system/ absent (design_system_status not-applicable). The check is recorded as skipped and passes."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the launch-control observation reports domain/context-map.md and domain/domain-contract.json absent (domain_status skipped). The check is recorded as skipped and passes."
+    }
+  ]
+}

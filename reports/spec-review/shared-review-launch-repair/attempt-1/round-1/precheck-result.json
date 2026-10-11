@@ -1,0 +1,16 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "investigation_sha256": null,
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "fc5ed0dab9615459f7976a83971eb7d6e91ce5726be495549e7bffce22f3d988",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-10-07T22:38:40Z"
+}

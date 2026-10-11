@@ -30,7 +30,7 @@ function Test-RepoPath([object]$Path, [switch]$AllowDirectory) {
   foreach ($part in $trimmed.Split('/')) {
     if ($part -eq '' -or $part -eq '.' -or $part -eq '..') { return $false }
   }
-  return $Path -cmatch '\A[A-Za-z0-9][A-Za-z0-9._/-]*\z'
+  return $Path -cmatch '\A[A-Za-z0-9.][A-Za-z0-9._/-]*\z'
 }
 function Get-PropertyNames($Object) {
   @($Object.PSObject.Properties | Select-Object -ExpandProperty Name)

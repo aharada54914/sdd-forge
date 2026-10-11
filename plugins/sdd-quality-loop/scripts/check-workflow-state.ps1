@@ -383,13 +383,15 @@ function Get-CandidateRootsForPath([string]$NormalizedPath) {
     # inner derivation this extracts). Returned with the comma operator so
     # PowerShell hands back the HashSet itself instead of unrolling it.
     $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+    foreach ($marker in @("/specs/", "/reports/", "/plugins/", "/domain/", "/design-system/")) {
         $index = $NormalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
         while ($index -ge 0) {
             $suffix = $NormalizedPath.Substring($index + 1)
             if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
                 $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
-                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$' -or
+                $suffix -cmatch '^domain/(context-map[.]md|domain-contract[.]json|aggregates/[^/]+[.]md)$' -or
+                $suffix -cmatch '^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$') {
                 [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
             }
             $index = $NormalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
@@ -610,17 +612,41 @@ function Test-ManifestSuperset(
     }
     return $true
 }
+function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stage,
+    [string]$RepositoryRoot, [string]$RecordedRoot) {
+    if ($Stage -cnotin @('spec','impl')) { return }
+    $hasConditional = $false
+    foreach ($reviewer in @($Contract.reviewers)) {
+        foreach ($entry in @($reviewer.allowed_input_manifest)) {
+            $relative = Get-RepositoryRelativePath ([string]$entry.path) $RepositoryRoot $RecordedRoot
+            if ($null -ne $relative -and $relative -cmatch '^(domain|design-system)/') {
+                $hasConditional = $true
+            }
+        }
+    }
+    # Keep legacy contracts independent of current conditional files.
+    if (-not $hasConditional) { return }
+    $resolver = Join-Path $RepositoryRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
+    $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage
+    if ($LASTEXITCODE -ne 0) { throw 'conditional input resolution failed' }
+    $resolved = ($output -join "`n") | ConvertFrom-Json
+    foreach ($entry in @($resolved.inputs)) { [string]$entry.path }
+}
+
 function Test-ManifestPaths(
     $Contract, [string]$Feature, [string]$Stage, [int]$Attempt, [int]$Round,
     [string]$RepositoryRoot
 ) {
     $recorded = Get-RecordedRepositoryRoot $Contract $RepositoryRoot
     if (-not $recorded.Valid) { return $false }
+    try { $conditionalPaths = @(Get-WorkflowConditionalPaths $Contract $Feature $Stage $RepositoryRoot $recorded.Root) }
+    catch { return $false }
     $attemptRoot = "reports/$Stage-review/$Feature/attempt-$Attempt"
     $roundRoot = "$attemptRoot/round-$Round"
     foreach ($reviewer in @($Contract.reviewers)) {
         $role = [string]$reviewer.role
         $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($path in $conditionalPaths) { [void]$allowed.Add($path) }
         foreach ($path in @(
             "specs/$Feature/requirements.md",
             "specs/$Feature/acceptance-tests.md",
@@ -1175,7 +1201,7 @@ function Get-AdrHistoryCoreBinding($Contract, $Precheck) {
 function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
     [string]$Feature, [int]$Attempt, [int]$Round, [string]$RepositoryRoot,
     [string]$RecordedRoot, [string]$PrecheckHash, [string]$SummaryHash,
-    [string]$PreviousSummaryHash) {
+    [string]$PreviousSummaryHash, [string[]]$ConditionalPaths) {
     if ($Role -cnotin @('impl-reviewer-a','impl-reviewer-b') -or
         $Manifest -isnot [array]) { throw 'ADR manifest role or array invalid' }
     $roundRoot = "reports/impl-review/$Feature/attempt-$Attempt/round-$Round"
@@ -1185,6 +1211,7 @@ function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
     $previousPath = "reports/impl-review/$Feature/attempt-$Attempt/round-$($Round-1)/integrated-summary.json"
     $calibration = 'plugins/sdd-review-loop/references/reviewer-calibration.md'
     $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($path in $ConditionalPaths) { [void]$allowed.Add($path) }
     foreach ($name in @('requirements.md','acceptance-tests.md','investigation.md',
         'design.md','ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
         [void]$allowed.Add("specs/$Feature/$name")
@@ -1558,15 +1585,16 @@ function Get-AdrHistoryBinding([Collections.IDictionary]$Snapshots,
         }
         $recorded = Get-RecordedRepositoryRoot $contract $RepositoryRoot
         if (-not $recorded.Valid) { throw 'ADR recorded root is ambiguous' }
+        $conditionalPaths = @(Get-WorkflowConditionalPaths $contract $Feature 'impl' $RepositoryRoot $recorded.Root)
         foreach ($role in @('impl-reviewer-a','impl-reviewer-b')) {
             $reservation = @($contract.reviewers | Where-Object { $_.role -ceq $role })[0]
             $output = if ($role -ceq 'impl-reviewer-a') { $reviewerA } else { $reviewerB }
             $bound = Get-AdrHistoryManifest $reservation.allowed_input_manifest $role $precheck `
                 $Feature $Attempt $Round $RepositoryRoot $recorded.Root `
-                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash
+                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash $conditionalPaths
             $actual = Get-AdrHistoryManifest $output.allowed_input_manifest $role $precheck `
                 $Feature $Attempt $Round $RepositoryRoot $recorded.Root `
-                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash
+                $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash $conditionalPaths
             if (-not (Test-AdrHistoryManifestSuperset $actual $bound $Feature)) {
                 throw 'ADR actual reviewer manifest diverges from reservation'
             }

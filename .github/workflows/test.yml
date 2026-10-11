@@ -31,9 +31,51 @@ jobs:
           fetch-depth: 0
       - name: Test required-checks POSIX failure propagation
         run: python3 tests/required-checks-posix.tests.py
+      - name: Install pinned RTK
+        shell: bash
+        run: |
+          set -euo pipefail
+          rtk_dir=$(mktemp -d "$RUNNER_TEMP/rtk.XXXXXX")
+          curl --fail --silent --show-error --location https://github.com/rtk-ai/rtk/releases/download/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz --output "$rtk_dir/rtk.tar.gz"
+          printf '%s  %s\n' 5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5 "$rtk_dir/rtk.tar.gz" | sha256sum --check --strict
+          tar -xzf "$rtk_dir/rtk.tar.gz" -C "$rtk_dir" rtk
+          "$rtk_dir/rtk" --version
+          printf '%s\n' "$rtk_dir" >> "$GITHUB_PATH"
       - name: Test evaluator scratch isolation (Bash and PowerShell)
         shell: bash
         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test shared quality non-TTY transport contracts
+        shell: bash
+        run: python3 -B tests/quality-nontty-transport.tests.py
+      - name: Check shared launch Python and FilesOnly distribution
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/shared-launch-python"
+          "$RUNNER_TEMP/shared-launch-python/bin/pip" install -r tests/shared-launch-python-requirements.txt
+          "$RUNNER_TEMP/shared-launch-python/bin/python" - <<'PY'
+          import pathlib, subprocess, sys, tomllib
+          config = pathlib.Path('tests/shared-launch-python/pyproject.toml')
+          files = tomllib.loads(config.read_text())['tool']['mypy']['files']
+          subprocess.run([sys.executable, '-m', 'ruff', 'check', '--config', str(config), *files], check=True)
+          subprocess.run([sys.executable, '-m', 'mypy', '--config-file', str(config)], check=True)
+          PY
+          python3 -B tests/shared-launch-build.tests.py
+      - name: Test traceability freeze normalization
+        shell: bash
+        run: python3 -B tests/traceability-freeze-contract.tests.py
+      - name: Install contract validator
+        run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Test shared review launch and conditional input contracts
+        shell: bash
+        run: |
+          python3 -B tests/review-conditional-inputs.tests.py
+          python3 -B tests/spec-review-verify-inputs.tests.py
+          python3 -B tests/host-review-preflight.tests.py
+          python3 -B tests/unified-launch-order.tests.py
+          python3 -B tests/unified-task-launch.tests.py
+          python3 -B tests/task-structured-output.tests.py
+          python3 -B tests/supplemental-delivery-declaration.tests.py
+          python3 -B tests/t001-evaluation-preparation.tests.py
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -229,6 +271,9 @@ jobs:
       - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
         shell: pwsh
         run: ./tests/scenario.tests.ps1
+      - name: "[deterministic] Test review hash normalization (pwsh)"
+        shell: pwsh
+        run: ./tests/review-hash-normalization.tests.ps1
 
       # Epic A7's PowerShell compatibility suites are already part of the
       # runner inventory, but must also execute on the native Windows leg.
@@ -1482,6 +1527,7 @@ jobs:
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
+          ./tests/review-hash-normalization.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1

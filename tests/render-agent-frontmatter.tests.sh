@@ -365,7 +365,7 @@ RENDER_LOG="$TMP/render.log"
 # exact current values) + x-sdd-effort inserted/refreshed.
 EXPECTED_EFFORT_KEYS=()
 EXPECTED_EFFORT_VALS=()
-kv_set EXPECTED_EFFORT "plugins/sdd-quality-loop/agents/evaluator.md" "high"
+kv_set EXPECTED_EFFORT "plugins/sdd-quality-loop/agents/evaluator.md" "medium"
 kv_set EXPECTED_EFFORT "plugins/sdd-bootstrap/agents/investigator.md" "low"
 kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-a.md" "medium"
 kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-b.md" "medium"
@@ -596,6 +596,42 @@ else
 fi
 
 # ===========================================================================
+python3 - "$REAL_REGISTRY" "$TMP" <<'PY'
+import json, pathlib, sys
+source = json.loads(pathlib.Path(sys.argv[1]).read_text())
+cases = {
+    'absent': None,
+    'null': None,
+    'array': [],
+    'missing': {'minimum_tier': 'standard'},
+    'extra': {'minimum_tier': 'standard', 'default_effort': 'medium', 'extra': True},
+    'tier-case': {'minimum_tier': 'Standard', 'default_effort': 'medium'},
+    'effort-case': {'minimum_tier': 'standard', 'default_effort': 'Medium'},
+}
+for name, value in cases.items():
+    role = source['role_defaults']['sdd-evaluator']
+    role.pop('claude_frontmatter', None)
+    if name != 'absent':
+        role['claude_frontmatter'] = value
+    pathlib.Path(sys.argv[2], 'override-' + name + '.json').write_text(json.dumps(source))
+PY
+if "$RENDER_SH" --root "$TMP" --targets-file "$MISCASED_TARGETS" --registry "$TMP/override-absent.json" >"$TMP/override.log" 2>&1 &&
+  grep -Fx 'model: opus' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" >/dev/null &&
+  grep -Fx '<!-- x-sdd-effort: high -->' "$TMP/plugins/sdd-quality-loop/agents/evaluator.md" >/dev/null; then
+  ok "Claude override absent preserves base role defaults"
+else
+  bad "Claude override absent did not preserve base role defaults"
+fi
+for case_name in null array missing extra tier-case effort-case; do
+  if "$RENDER_SH" --check --root "$TMP" --targets-file "$MISCASED_TARGETS" --registry "$TMP/override-$case_name.json" >"$TMP/override.log" 2>&1; then
+    bad "Claude override $case_name accepted"
+  elif grep -F 'invalid claude_frontmatter' "$TMP/override.log" >/dev/null; then
+    ok "Claude override $case_name rejected"
+  else
+    bad "Claude override $case_name failed for wrong reason"
+  fi
+done
+
 # Self-registration (design.md Test Strategy #7; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================
