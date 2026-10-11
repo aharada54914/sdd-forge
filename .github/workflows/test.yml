@@ -69,6 +69,7 @@ jobs:
         shell: bash
         run: |
           python3 -B tests/review-conditional-inputs.tests.py
+          python3 -B tests/workflow-conditional-inputs.tests.py
           python3 -B tests/spec-review-verify-inputs.tests.py
           python3 -B tests/host-review-preflight.tests.py
           python3 -B tests/unified-launch-order.tests.py
