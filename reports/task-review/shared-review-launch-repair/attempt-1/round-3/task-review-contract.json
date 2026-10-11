@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "shared-review-launch-repair",
+  "run_id": "6f6167e2-bc36-4e9c-8fb1-f70711bdac74",
+  "verdict": "PASS",
+  "round": 3,
+  "attempt": 1,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "pass_type": "clean",
+  "workflow_match_precheck": "PASS",
+  "prior_round_contract_sha256": "c9fcd187bb33b891191c4f25b555ee74a7102c83e9521453b4895885820ee692",
+  "requirements_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "design_sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+  "tasks_sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7",
+  "traceability_sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+  "layer_sha256": {
+    "ux-spec.md": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+    "frontend-spec.md": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+    "infra-spec.md": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+    "security-spec.md": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "6d537061-e3f4-42b1-b916-1ae13f3e083b",
+      "host_session_id": "6d537061-e3f4-42b1-b916-1ae13f3e083b",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/design.md",
+          "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/tasks.md",
+          "sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/traceability.md",
+          "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/ux-spec.md",
+          "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/frontend-spec.md",
+          "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/infra-spec.md",
+          "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/security-spec.md",
+          "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/precheck-result.json",
+          "sha256": "de2353fd9daae4449a9d0da703be80feccd9a3e1a6c427198e3b37a8d10094ad"
+        },
+        {
+          "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/dependency-graph.json",
+          "sha256": "bbcd6fb6e502046356eeb34d424ad40270a3e0079f5240c19b5dba5b6bf92330"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "5d2e783f-b51f-4ca0-9c52-6b4deaad6293",
+      "host_session_id": "5d2e783f-b51f-4ca0-9c52-6b4deaad6293",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/design.md",
+          "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/tasks.md",
+          "sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/traceability.md",
+          "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/ux-spec.md",
+          "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/frontend-spec.md",
+          "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/infra-spec.md",
+          "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/security-spec.md",
+          "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/precheck-result.json",
+          "sha256": "de2353fd9daae4449a9d0da703be80feccd9a3e1a6c427198e3b37a8d10094ad"
+        },
+        {
+          "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/integrated-summary.json",
+          "sha256": "f684bee549283137fbfcea71a71349d20a40d3ebe621809e1c77c1bf50a312de"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Split T-001 into argument/permission T-001 and input/dependency/reservation T-005; serialize shared files; retain all acceptance coverage.",
+  "timestamp": "2026-10-08T02:24:42.461Z"
+}

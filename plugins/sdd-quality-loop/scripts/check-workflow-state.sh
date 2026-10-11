@@ -217,7 +217,11 @@ workflow_adr_history_bindings() {
   hash=$(sha256_file "$precheck") || diagnostic "$feature" stage-provenance "ADR precheck hash failed"
   recorded_root=$(recorded_repo_root "$contract") || diagnostic "$feature" stage-provenance "ADR recorded root cannot be read"
   [[ "$recorded_root" != __INVALID__ ]] || diagnostic "$feature" stage-provenance "ADR recorded root is ambiguous"
+  local conditional_paths
+  conditional_paths=$(workflow_conditional_paths "$contract" "$feature" impl "$recorded_root") ||
+    diagnostic "$feature" stage-provenance "ADR conditional input resolution failed"
   adrs=$(jq -cse --arg feature "$feature" --arg stage impl \
+    --argjson conditional_paths "$conditional_paths" \
     --argjson attempt "$attempt" --argjson round "$round" \
     --arg pc "$relative/precheck-result.json" --arg pc_hash "$hash" \
     --arg design "specs/$feature/design.md" \
@@ -243,6 +247,7 @@ workflow_adr_history_bindings() {
     def allowed($role; $path):
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
       ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
+      any($conditional_paths[]; . == $path) or
       ($path == ("specs/" + $feature + "/requirements.md")) or
       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
       ($path == ("specs/" + $feature + "/investigation.md")) or
@@ -1070,6 +1075,23 @@ manifest_recorded_hashes_for_path() {
 # must still match the canonical allowlist, its recorded sha256 must match
 # the live file, and every manifest entry must agree on a single recorded
 # root.
+workflow_conditional_paths() {
+  local contract="$1" feature="$2" stage="$3" recorded="$4" selected
+  if [[ "$stage" != spec && "$stage" != impl ]]; then printf '[]\n'; return; fi
+  # Legacy contracts do not acquire a dependency on today's conditional inputs.
+  if ! jq -e --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
+    any(.reviewers[].allowed_input_manifest[].path;
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      else . end | test("^(domain|design-system)/"))
+  ' "$contract" >/dev/null; then printf '[]\n'; return; fi
+  selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+    --root "$REPO_ROOT" --feature "$feature" --stage "$stage") || return 1
+  jq -ce '[.inputs[].path]' <<< "$selected"
+}
+
 recorded_repo_root() {
   local contract="$1"
   jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
@@ -1078,12 +1100,14 @@ recorded_repo_root() {
     def canonical_suffix:
       test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
       test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
-      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$") or
+      test("^domain/(context-map[.]md|domain-contract[.]json|aggregates/[^/]+[.]md)$") or
+      test("^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/domain/")), ($path | indices("/design-system/")))[] |
          . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
         | unique) as $candidates |
       if ($candidates | length) == 1 then $candidates[0]
@@ -1337,7 +1361,11 @@ validate_passed_stage() {
   recorded_root="$(recorded_repo_root "$contract")"
   [[ "$recorded_root" != "__INVALID__" ]] ||
     diagnostic "$feature" stage-provenance "$stage reviewer manifest paths are not canonical"
+  local conditional_paths
+  conditional_paths=$(workflow_conditional_paths "$contract" "$feature" "$stage" "$recorded_root") ||
+    diagnostic "$feature" stage-provenance "$stage conditional input resolution failed"
   jq -e --arg feature "$feature" --arg stage "$stage" \
+    --argjson conditional_paths "$conditional_paths" \
     --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
     --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson verified_adrs "$verified_adr_bindings" \
@@ -1352,6 +1380,7 @@ validate_passed_stage() {
     def allowed($role; $path):
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
       ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
+      any($conditional_paths[]; . == $path) or
       ($path == ("specs/" + $feature + "/requirements.md")) or
       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
       ($path == ("specs/" + $feature + "/investigation.md")) or

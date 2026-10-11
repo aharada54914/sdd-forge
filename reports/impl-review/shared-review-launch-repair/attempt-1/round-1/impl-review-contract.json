@@ -1,0 +1,123 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "shared-review-launch-repair",
+  "run_id": "14430369-bce4-4f68-b622-e9a1d1668801",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "design_sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af",
+    "frontend-spec.md": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19",
+    "infra-spec.md": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429",
+    "security-spec.md": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "33f6558c-5013-4b4a-bf52-1d1aeb84a200",
+      "host_session_id": "33f6558c-5013-4b4a-bf52-1d1aeb84a200",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/design.md",
+          "sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/ux-spec.md",
+          "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/frontend-spec.md",
+          "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/infra-spec.md",
+          "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/security-spec.md",
+          "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+          "sha256": "f46c1e423647c6894a6f6d0132d0fd0f64677fdaf0b7a9251300f84f42b4cb03"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "82e21752-75fe-4166-b3fc-417d36248d95",
+      "host_session_id": "82e21752-75fe-4166-b3fc-417d36248d95",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/shared-review-launch-repair/requirements.md",
+          "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+          "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/design.md",
+          "sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/ux-spec.md",
+          "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/frontend-spec.md",
+          "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/infra-spec.md",
+          "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+        },
+        {
+          "path": "specs/shared-review-launch-repair/security-spec.md",
+          "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+          "sha256": "f46c1e423647c6894a6f6d0132d0fd0f64677fdaf0b7a9251300f84f42b4cb03"
+        },
+        {
+          "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/integrated-summary.json",
+          "sha256": "be9fb96f0734d587f90779c02b94f534fbeaca8b07708807fd4bb9b58912d546"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-10-07T23:37:39Z"
+}

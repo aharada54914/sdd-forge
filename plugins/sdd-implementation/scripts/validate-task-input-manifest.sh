@@ -94,7 +94,7 @@ def path_ok(path, output=False):
     parts = trimmed.split("/")
     if any(part in ("", ".", "..") for part in parts):
         return False
-    return re.match(r"\A[A-Za-z0-9][A-Za-z0-9._/-]*\Z", path) is not None
+    return re.match(r"\A[A-Za-z0-9.][A-Za-z0-9._/-]*\Z", path) is not None
 
 def timestamp_ok(value):
     if not isinstance(value, str) or not TIMESTAMP.match(value):

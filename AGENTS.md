@@ -55,8 +55,16 @@ the task gate re-binds `design.md`. A spec-stage freeze is not released by a
 later gate: `requirements.md` and `acceptance-tests.md` are re-checked at
 every later passed stage. The status/approval carve-out covers only the
 document each gate normalizes (`requirements.md`, `design.md`, the task
-plan); `acceptance-tests.md`, `traceability.md` and the layer specifications
-are bound by raw content hash, so any byte change to them breaks the gate.
+plan). The WFI-030 exception for persisted task-stage evidence also accepts
+`traceability.md` with only a REQ row's final status cell normalized to `Planned`,
+from exactly `Planned`, `In Progress`, `Implementation Complete`, `Done`, or
+`Blocked` (case-sensitive). Every other byte, including Evidence cells, remains
+bound; unknown or annotated statuses are not normalized. This does not validate
+lifecycle transitions or reopen historical verdicts. New review input snapshots
+and their launch verification still bind the current raw bytes; this exception
+does not permit changing an input after precheck or reservation.
+`acceptance-tests.md` and the layer specifications remain bound by raw content
+hash, so any byte change to them breaks the gate.
 Sanctioned later updates — open-question resolutions, verification-status
 finalization — are recorded in non-frozen addenda (implementation reports,
 `specs/<feature>/verification/`, user documentation) instead of the frozen
@@ -139,6 +147,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/second-approval-mask/`
 - `specs/uninstall-workflow/`
 - `specs/sdd-domain-concept-contract/`
+- `specs/shared-review-launch-repair/`
 
 ## Source Artifact Locations
 

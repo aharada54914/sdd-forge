@@ -173,6 +173,18 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    hash still fails. Do not add the rows to an earlier cycle's report -- that
    report recorded a verdict at a point in time and must not later declare
    bytes that did not exist then.
+   If a frozen implementation report omitted required evaluation inputs, preserve
+   it and use the approved supplemental-delivery repair: the quality manifest's
+   `supplemental_delivery_declaration` pins a canonical, symlink-free JSON file
+   under `specs/<feature>/verification/<task_id>/`. Its exact fields are `schema`
+   (`supplemental-delivery-declaration/v1`), `feature`, `task_id`,
+   `implementation_report` (the canonical task-report path and its current SHA-256),
+   and `artifacts` (unique canonical path/SHA-256 pairs). Include the declaration
+   itself in `allowed_input_manifest`. Validate its identity, report binding,
+   artifact paths and hashes before reservation; reject duplicate JSON keys,
+   duplicate paths, symlinks, traversal, missing files and raw review/gate reports.
+   This declaration admits inputs only: it neither replaces historical evidence
+   nor asserts approval, a verdict, task completion or tests not actually run.
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
@@ -182,15 +194,68 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    report path, report heading, and `Task ID` field to match that exact task.
    Bind it to the current SHA-256 and final record hash of the canonical
    `reports/review-context/identity-ledger.json`. The ledger must already carry
-   the invoking implementation identity and every earlier reviewer/evaluator
-   reservation as a valid hash chain; never accept caller-supplied reserved-ID
-   arrays as a substitute. Immediately before launch, atomically reserve the
-   evaluator identity by running
-   `scripts/validate-review-context-set.sh <manifest> <repository-root>
-   --reserve` or
-   `scripts/validate-review-context-set.ps1 -Manifest <manifest>
-   -RepositoryRoot <repository-root> -Reserve`. Require `REVIEW_CONTEXT_OK`,
-   then launch exactly the reserved evaluator run/session. A missing canonical
+   every earlier reviewer/evaluator reservation as a valid hash chain. For a
+   new reservation, include the existing hash-pinned `task-input-manifest/v1`
+   as an evaluator input and name its path and SHA-256 in
+   `implementation_manifest`. Require its task/run/session to agree with the
+   implementation report and reject their reuse in the canonical ledger.
+   Never fabricate an implementation ledger reservation or accept reserved-ID
+   arrays as a substitute.
+   Before reservation, the caller must prepare any dependency fixture needed
+   by read-only checks in a fresh evaluator-only scratch directory, preserving
+   admitted relative paths. Include every test dependency in the manifest;
+   missing dependencies block launch rather than being created by the evaluator.
+   The scratch copy is only a byte-identical projection of admitted files, not
+   an additional source of authority. Record its canonical `scratch_root` in
+   the invocation and independently read back every copied file against its
+   admitted SHA-256. The evaluator remains read-only inside scratch as well.
+   Freeze the manifest and pin its SHA-256 separately in the launch brief.
+   For the explicitly authorized Claude Code non-TTY Sonnet route, use the
+   shared caller (repository-root-relative paths):
+   `rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py
+   <repository-root> <invocation> <reports/quality-gate/launch-SESSION>
+   --manifest-sha256 <caller-pin>`.
+   The canonical Claude evaluator and its generator must both select Sonnet;
+   this does not change the Codex evaluator tier or authorize a host switch to
+   bypass a refusal. This route requires a fresh declared scratch projection.
+   It checks the external raw pin, common required-input/path admission, and
+   this plugin's `preflight-evaluator-delivery.py` scratch readback before
+   creating launch output. It then pins dependencies, checks live CLI argv,
+   and runs the shared native permission probe before reservation. Missing or
+   failed `preflight-host-review.py` `HOST_REVIEW_PREFLIGHT_OK` proof, or
+   failed admitted-read, outside-read denial, compound-Bash denial, session
+   collision, or ordered-hash proof stops without reserving. Input preflight
+   alone explicitly leaves permission proof unestablished. Immediately before
+   reservation it rechecks dependency bytes, admission, argv, and the same
+   delivery helper's pin/scratch readback; only that helper delegates the
+   canonical atomic reservation. Do not separately reserve this route.
+   The complete receipt and invocation pin reach the child through the shared
+   prompt, and native delivery is validated independently of its verdict.
+   Exact Read/hash permissions do not permit writable tests: list tests not
+   rerun, and never treat delivery or a receipt as quality PASS. A candidate
+   launcher or fixture success does not establish an installed verified
+   baseline or authorize formal execution.
+   For other already-supported host routes, retain the delivery sequence below:
+     run `python3 -B scripts/preflight-evaluator-delivery.py --manifest <manifest>
+   --manifest-sha256 <caller-pin> --repository-root <repository-root>` (paths
+   relative to this plugin); append `--scratch-root <scratch>` when a fixture
+   is needed. Require `EVALUATOR_DELIVERY_OK` before calling the reservation
+   validator. Failure leaves the ledger untouched. This delivery check does
+   not replace the existing required-input, path, identity or reservation checks.
+   Do not change these bytes between delivery and launch; the evaluator must
+   independently compare the manifest's raw bytes with the caller's pin before
+   parsing, then verify admitted inputs before use. A scratch fixture does not
+   authorize write-requiring tests; those remain caller-owned evidence.
+   Immediately before launch on those other host routes, run the same delivery command with `--reserve`.
+   It rechecks the pin and fixture before delegating the atomic reservation to
+   `scripts/validate-review-context-set.sh`; do not reserve directly and then
+   prepare a fixture. Require `EVALUATOR_DELIVERY_OK` and `REVIEW_CONTEXT_OK`,
+   then pass the complete validator receipt and the persisted invocation
+   manifest path/hash in the launch brief to the shipped evaluator. Tell the
+   evaluator to verify identity from that receipt and manifest alone; the
+   ledger is caller-only. Do not ask it to read/hash the ledger, rerun the
+   validator, inspect the process environment, or open raw session logs.
+   Launch exactly the reserved evaluator run/session. A missing canonical
    ledger, stale chain tip, deterministic runtime, or any non-zero result
    retains `Implementation Complete` and blocks evaluator launch. This boundary
    validates only the evaluator being launched; it does not require fabricated
@@ -206,10 +271,11 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    artifact is undeclared, declare it and relaunch rather than instructing
    around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
-   Allocate the evaluator a scratch directory of its own and name it in the
+   Use the caller-prepared evaluator scratch directory and name it in the
    launch brief and the invocation record's optional `scratch_root` field: a
    canonical absolute path used by no implementation context for this feature and
-   by no earlier evaluator run. Tell the evaluator to write nothing outside it.
+   by no earlier evaluator run. Tell the evaluator to write nothing, including
+   inside scratch; fixture preparation and writable tests belong to the caller.
    When `scratch_root` is present, the deterministic reservation boundary
    compares it with the current implementation report's `Scratch Root` and
    rejects equal or ancestor/descendant paths before launch.

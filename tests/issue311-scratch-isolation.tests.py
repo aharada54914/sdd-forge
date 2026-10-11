@@ -25,9 +25,18 @@ def exercise(source, runtime, case):
                      run_id="impl", host_session_id="impl-session", previous_record_sha256="")
         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
         records = [first]
+        implementation_path = "handoffs/fixture-task/manifest.json"
+        implementation = root / implementation_path
+        write_json(implementation, dict(schema="task-input-manifest/v1", task_id="T-001",
+                                       run_id="fixture-task-run", session_id="fixture-task-session"))
+        implementation_pin = dict(path=implementation_path, sha256=digest(implementation.read_bytes()))
         report = root / "reports/implementation/f/T-001.md"
         report.parent.mkdir(parents=True)
         report.write_text("# Implementation Report: T-001\n- Task ID: T-001\n"
+                          "Run ID: fixture-task-run\n"
+                          "- **Run ID**: fixture-task-run\n"
+                          "- **Session ID**: fixture-task-session\n"
+                          f"Input manifest: `{implementation_path}`, SHA-256 `{implementation_pin['sha256']}`\n"
                           "- **Scratch Root**: /tmp/impl-one\n")
         scratch = "/tmp/clean-evaluator"
         expected = 0
@@ -64,8 +73,9 @@ def exercise(source, runtime, case):
                           sequence=len(records) + 1, previous_record_sha256=records[-1]["record_sha256"],
                           identity_ledger_path="reports/review-context/identity-ledger.json",
                           identity_ledger_sha256=digest(ledger.read_bytes()), scratch_root=scratch,
+                          implementation_manifest=implementation_pin,
                           allowed_input_manifest=[dict(path="reports/implementation/f/T-001.md",
-                                                       sha256=digest(report.read_bytes()))])
+                                                       sha256=digest(report.read_bytes())), implementation_pin])
         if case == "new-missing":
             invocation.pop("scratch_root")
             expected = 1

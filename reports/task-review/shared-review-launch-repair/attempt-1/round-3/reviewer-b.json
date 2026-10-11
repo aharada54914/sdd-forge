@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "5d2e783f-b51f-4ca0-9c52-6b4deaad6293",
+  "host_session_id": "5d2e783f-b51f-4ca0-9c52-6b4deaad6293",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/shared-review-launch-repair/requirements.md",
+        "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+        "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/design.md",
+        "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/tasks.md",
+        "sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/traceability.md",
+        "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/ux-spec.md",
+        "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/frontend-spec.md",
+        "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/infra-spec.md",
+        "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+      },
+      {
+        "path": "specs/shared-review-launch-repair/security-spec.md",
+        "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/precheck-result.json",
+        "sha256": "de2353fd9daae4449a9d0da703be80feccd9a3e1a6c427198e3b37a8d10094ad"
+      },
+      {
+        "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/integrated-summary.json",
+        "sha256": "f684bee549283137fbfcea71a71349d20a40d3ebe621809e1c77c1bf50a312de"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks are Risk: high with rationales naming sensitive surfaces (CLI/permission enforcement, input admission and reservation ordering, frozen-input hash normalization, protected entrypoint membership). T-004 (CI/regression wiring) is the closest to over-classification, but its Risk Rationale ties it to mandatory regression registration of the protection inventory (TEST-013), so the tier is defensible. Advisory only."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every high task's Done When requires recording RED-to-GREEN regressions with exact hashes (T-001..T-005) and independent diff review plus formal quality evaluation with no blocking findings. No task is Risk: critical, so second-approver and signed-bundle items do not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task is one coherent concern tied to specific REQs/ACs. No Done When list exceeds eight items. The 'Planned Files' lists are broad but the diffs are restricted to named behavior under 'Scope boundaries'. No fragmentation: the smallest task, T-003, covers a multi-file generated-projection registration."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The ACs include extensive negative and error-path tests: TEST-002, TEST-003a-c, TEST-005a-h, TEST-008a-d, TEST-010a-b, TEST-012a-d and TEST-013."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The tasks declare no unit/integration/E2E labels. Every referenced test is an AC-bound check (AC-001..AC-006) whose scope matches its assertion, e.g. TEST-004 is a multi-component launch-admission fixture and TEST-011a-f are per-entrypoint permission checks."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The 'Rollback for every task' section applies to all tasks: base revision and before-hash inventory, restoration in a disposable checkout, and executed results recorded. Each Done When also requires a disposable rollback test. T-004 adds a combined revert test."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared files (launch-impl-review.py, preflight-host-review.py, validate-review-context-set.*, tests/unified-task-launch.tests.py, tests/host-review-preflight.tests.py) appear in several tasks. Every pair is ordered by Blockers (T-001 -> T-005 -> T-002 -> T-003 -> T-004) with explicit release and serialization rules in 'Scope boundaries', so there is no uncoordinated overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-005 on T-001, T-002 on T-005 and T-004 on all others reflect shared-file or output dependencies. T-003 -> T-002 has no shared planned files and looks like pure serialization, but the tasks file declares one-owner serialization of shared edits and reservations in the stated execution order. Advisory only, not blocking."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. The tasks complete approved features and require RED-to-GREEN regression evidence regardless."
+    }
+  ],
+  "findings": []
+}

@@ -132,7 +132,7 @@ def model_for_tier(registry, tier, kind):
     die(f"no {kind} model found for tier {tier!r}")
 
 
-def role_values(registry, role):
+def role_values(registry, role, kind):
     role_defaults = registry.get("role_defaults")
     if not isinstance(role_defaults, dict):
         die("registry role_defaults is missing or not an object")
@@ -147,6 +147,13 @@ def role_values(registry, role):
             break
     if not isinstance(entry, dict) or not entry.get("minimum_tier") or not entry.get("default_effort"):
         die(f"role_defaults missing or incomplete for role {role!r}")
+    if kind == "claude" and "claude_frontmatter" in entry:
+        entry = entry["claude_frontmatter"]
+        if (not isinstance(entry, dict) or
+                set(entry) != {"minimum_tier", "default_effort"} or
+                entry["minimum_tier"] not in ("lightweight", "standard", "strong") or
+                entry["default_effort"] not in ("low", "medium", "high", "xhigh")):
+            die(f"invalid claude_frontmatter for role {role!r}")
     return entry["minimum_tier"], entry["default_effort"]
 
 
@@ -234,7 +241,7 @@ def upsert_manifest(manifest_path, relpath, sha):
 
 def render_target(root, registry, target, manifest_path, check_mode):
     role, kind, relpath, protected = target["role"], target["kind"], target["path"], target["protected"]
-    tier, effort = role_values(registry, role)
+    tier, effort = role_values(registry, role, kind)
     model_name = model_for_tier(registry, tier, kind)
 
     real_path = os.path.join(root, relpath)

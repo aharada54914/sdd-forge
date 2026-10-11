@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "6d537061-e3f4-42b1-b916-1ae13f3e083b",
+  "host_session_id": "6d537061-e3f4-42b1-b916-1ae13f3e083b",
+  "manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/tasks.md",
+      "sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/traceability.md",
+      "sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/precheck-result.json",
+      "sha256": "de2353fd9daae4449a9d0da703be80feccd9a3e1a6c427198e3b37a8d10094ad"
+    },
+    {
+      "path": "reports/task-review/shared-review-launch-repair/attempt-1/round-3/dependency-graph.json",
+      "sha256": "bbcd6fb6e502046356eeb34d424ad40270a3e0079f5240c19b5dba5b6bf92330"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-006 cited in the Done When items of T-001, T-005, T-002, T-003 and T-004 all exist in acceptance-tests.md and requirements.md. No dangling IDs."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task has a Blockers section holding either None (T-001) or comma-separated T-NNN IDs (T-001; T-005; T-002; T-003; 'T-001, T-005, T-002, T-003'). No ranges or prose. blockers_format_valid=true (precheck agrees)."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 (T-001), REQ-002 (T-005), REQ-003 (T-004), REQ-004 and REQ-005 (T-002), REQ-006 (T-003, T-004). All six REQs are covered."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001 (T-001), AC-002 (T-005), AC-003 (T-004), AC-004 and AC-005 (T-002), AC-006 (T-003 and T-004 via TEST-013) are each referenced in a Done When item."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task has a Requirements: line with at least one REQ-NNN."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task is a pure test task, and every task Done When cites AC-NNN together with TEST IDs."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks have Approval: Draft and Status: Planned, as required for a pre-implementation review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All five tasks declare Risk: high with Required Workflow: tdd, which matches the matrix. workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-006/REQ-006 appears in both T-003 and T-004, but the scopes are explicitly split. T-003 supplies the TEST-013 negative check and the inventory/drift checks. T-004 owns the permanent CI wiring and the CI result. Done When of both tasks and traceability.md state this. No other shared AC."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All referenced blockers (T-001, T-005, T-002, T-003) exist in the dependency-graph.json nodes."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "The edges T-005->T-001, T-002->T-005, T-003->T-002, T-004->{T-001,T-005,T-002,T-003} form a DAG with no cycle. The order T-001, T-005, T-002, T-003, T-004 is valid."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-002 combines the REQ-004 traceability freeze and the REQ-005 PowerShell hash normalization. Both are review-hash normalization rules over the same validators and are scoped together in the Goal. T-004 combines regression wiring with delivery evidence for that wiring. Neither pairs unrelated feature concerns. Advisory only."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "precheck frozen_artifact_done_when is empty, so no flagged item needs individual address. Each Done When names TEST IDs, report/verification paths (reports/implementation/.../T-NNN.md, verification/T-NNN/), exact hashes, or CI/PR URLs. T-004 'reports/verification/shared-review-launch-integration.md' is not a frozen artifact. No forbidden vague phrasing found."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "The traceability.md intro names T-001, T-005, T-002, T-003 and T-004 with their owned REQs. Rows REQ-001..006 all exist in requirements.md. The Layer Spec and Design anchors (design.md#bounded-approach, #risk-and-persisted-evidence-preflight, #validation-and-deployment, #acceptance-mapping; the ux, frontend, infra and security section anchors) all resolve to real headings."
+    }
+  ],
+  "findings": []
+}
