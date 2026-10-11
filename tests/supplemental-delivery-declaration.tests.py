@@ -45,6 +45,8 @@ class AdmissionTests(unittest.TestCase):
         self.write(self.declaration, raw if raw is not None else json.dumps(self.body))
         self.manifest['supplemental_delivery_declaration'] = self.entry(self.declaration)
         self.manifest['allowed_input_manifest'] = [self.entry(self.report), self.entry(self.product)]
+        if 'implementation_manifest' in self.manifest:
+            self.manifest['allowed_input_manifest'].append(self.manifest['implementation_manifest'])
         if not omit:
             self.manifest['allowed_input_manifest'].append(self.entry(self.declaration))
         if legacy:
@@ -56,6 +58,7 @@ class AdmissionTests(unittest.TestCase):
             original.symlink_to(original.with_suffix('.original').name)
         self.write('manifest.json', json.dumps(self.manifest))
         before = (self.root / self.ledger).read_bytes()
+        report_before = (self.root / self.report).read_bytes()
         commands = [['bash', str(SCRIPTS / 'validate-review-context-set.sh'), str(self.root / 'manifest.json'), str(self.root)]]
         self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required for parity test')
         commands.append(['pwsh', '-NoLogo', '-NoProfile', '-File', str(SCRIPTS / 'validate-review-context-set.ps1'), '-Manifest', str(self.root / 'manifest.json'), '-RepositoryRoot', str(self.root)])
@@ -63,13 +66,69 @@ class AdmissionTests(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True)
             self.assertEqual(result.returncode == 0, valid, result.stdout + result.stderr)
             self.assertEqual((self.root / self.ledger).read_bytes(), before)
+            self.assertEqual((self.root / self.report).read_bytes(), report_before)
             if not valid:
                 result = subprocess.run(command + (['--reserve'] if command[0] == 'bash' else ['-Reserve']), capture_output=True, text=True)
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual((self.root / self.ledger).read_bytes(), before)
+                self.assertEqual((self.root / self.report).read_bytes(), report_before)
 
     def test_valid(self):
         self.run_pair(True)
+
+    def legacy_binding(self):
+        name = 'handoffs/f-T-001/manifest.json'
+        self.write(name, json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001', run_id='implementation-run', session_id='implementation-session')))
+        pin = self.entry(name)
+        self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\nRun ID: implementation-run\n- **Run ID**: implementation-run\n- **Session ID**: implementation-session\nManifest SHA-256: ' + pin['sha256'] + '\n## Outputs\n')
+        self.body.update(schema='supplemental-delivery-declaration/v2', implementation_report=self.entry(self.report), implementation_manifest=pin)
+        self.manifest['implementation_manifest'] = pin.copy()
+
+    def test_legacy_manifest_binding(self):
+        self.legacy_binding()
+        self.run_pair(True)
+
+    def test_legacy_manifest_requires_v2(self):
+        self.legacy_binding()
+        self.body['schema'] = 'supplemental-delivery-declaration/v1'
+        del self.body['implementation_manifest']
+        self.run_pair(False)
+
+    def test_legacy_manifest_different_path(self):
+        self.legacy_binding()
+        alternate = 'handoffs/f-T-001/other.json'
+        self.write(alternate, (self.root / self.manifest['implementation_manifest']['path']).read_text())
+        self.body['implementation_manifest'] = self.entry(alternate)
+        self.run_pair(False)
+
+    def test_legacy_manifest_duplicate_artifact(self):
+        self.legacy_binding()
+        self.body['artifacts'].append(self.body['implementation_manifest'])
+        self.run_pair(False)
+
+    def test_legacy_manifest_wrong_report_session(self):
+        self.legacy_binding()
+        self.write(self.report, (self.root / self.report).read_text().replace('- **Session ID**: implementation-session', '- **Session ID**: other-session'))
+        self.body['implementation_report'] = self.entry(self.report)
+        self.run_pair(False)
+
+    def test_legacy_manifest_conflicting_modern_citation(self):
+        self.legacy_binding()
+        self.write(self.report, (self.root / self.report).read_text() + 'Input manifest: wrong\n')
+        self.body['implementation_report'] = self.entry(self.report)
+        self.run_pair(False)
+
+    def test_legacy_manifest_duplicate_digest(self):
+        self.legacy_binding()
+        self.write(self.report, (self.root / self.report).read_text() + 'Manifest SHA-256: ' + self.manifest['implementation_manifest']['sha256'] + '\n')
+        self.body['implementation_report'] = self.entry(self.report)
+        self.run_pair(False)
+
+    def test_legacy_manifest_wrong_digest(self):
+        self.legacy_binding()
+        self.write(self.report, (self.root / self.report).read_text().replace(self.manifest['implementation_manifest']['sha256'], '0' * 64))
+        self.body['implementation_report'] = self.entry(self.report)
+        self.run_pair(False)
 
     def test_legacy_outputs(self):
         pin = self.entry(self.product)

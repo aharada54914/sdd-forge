@@ -147,7 +147,13 @@ function Get-ImplementationBinding {
         if ($citationLines.Count -ne 1 -or
             -not ($citationLines[0] -ceq $manifestCitation -or $citationLines[0] -ceq ($manifestCitation + '.') -or
                 $citationLines[0].StartsWith($manifestCitation + '. ', [StringComparison]::Ordinal))) {
-            Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
+            $citationRuntime = Get-Command python3 -ErrorAction SilentlyContinue
+            if (-not $citationRuntime) { $citationRuntime = Get-Command python -ErrorAction SilentlyContinue }
+            if (-not $citationRuntime) { Fail-ReviewContext 'IDENTITY' 'Python required for supplemental manifest citation' }
+            & $citationRuntime.Source -B (Join-Path $PSScriptRoot 'supplemental-delivery-inputs.py') --root $root --manifest $Manifest --verify-manifest-citation | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
+            }
         }
         return $implementation
 }

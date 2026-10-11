@@ -68,6 +68,13 @@ absolute/traversal/symlink paths and raw reviewer/gate reports are rejected.
 This is an additional input-declaration channel, not approval or verdict evidence;
 it does not modify a frozen report or authorize files absent from the manifest.
 
+Declaration v2 adds exactly `implementation_manifest` (path/SHA-256) for a frozen
+report's legacy citation. It must equal the invocation pin and occur exactly once
+in allowed inputs. Its bytes must match the hash, and the pinned report must have
+one exact `Manifest SHA-256: <hash>` line and no `Input manifest:` line. The
+manifest cannot be repeated as an artifact. Task/run/session binding and ledger
+uniqueness are unchanged. Version 1 cannot supply this alternative citation.
+
 ## `identity_ledger_sha256`: do not re-verify
 
 A reviewer that hashes `reports/review-context/identity-ledger.json` and compares

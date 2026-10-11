@@ -279,6 +279,7 @@ verify_implementation_binding() {
   [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
      ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
        "$citation_line" == "$manifest_citation. "* ) ]] ||
+    python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest" --verify-manifest-citation >/dev/null ||
     fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
 }
 

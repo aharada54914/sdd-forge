@@ -185,6 +185,13 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    duplicate paths, symlinks, traversal, missing files and raw review/gate reports.
    This declaration admits inputs only: it neither replaces historical evidence
    nor asserts approval, a verdict, task completion or tests not actually run.
+   For a frozen report containing only a legacy `Manifest SHA-256: <hash>`
+   citation, declaration v2 adds exactly `implementation_manifest` (path/SHA-256).
+   This pin must equal the invocation's implementation manifest and occur once
+   in its allowed inputs. Verify the file hash and the report's single exact
+   legacy digest; reject any `Input manifest:` line rather than override it.
+   Existing task/run/session validation and reservation uniqueness still apply.
+   Version 1 and modern report citations retain their existing behavior.
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
