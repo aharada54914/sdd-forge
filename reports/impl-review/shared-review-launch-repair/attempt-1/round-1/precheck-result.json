@@ -1,0 +1,16 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": true,
+  "design_req_drift": false,
+  "design_sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a",
+  "requirements_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "layer_sha256": {"ux-spec.md":"6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af","frontend-spec.md":"def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19","infra-spec.md":"b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429","security-spec.md":"aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"},
+  "adr_inputs": [],
+  "input_sha256": "72ce2894853473667a07f3256a347a5fcbc5a9a71561bca6696172e1f73b97c9",
+  "generated_at": "2026-10-07T23:08:41Z"
+}

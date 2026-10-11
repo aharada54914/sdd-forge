@@ -1,0 +1,118 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "82e21752-75fe-4166-b3fc-417d36248d95",
+  "host_session_id": "82e21752-75fe-4166-b3fc-417d36248d95",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/design.md",
+      "sha256": "a3ffa1666d4f8e3ab639dcb1c32b22e4c9a1403485b2c53f0d7ebaf2e2737d6a"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/ux-spec.md",
+      "sha256": "6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/frontend-spec.md",
+      "sha256": "def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/infra-spec.md",
+      "sha256": "b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/security-spec.md",
+      "sha256": "aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+      "sha256": "f46c1e423647c6894a6f6d0132d0fd0f64677fdaf0b7a9251300f84f42b4cb03"
+    },
+    {
+      "path": "reports/impl-review/shared-review-launch-repair/attempt-1/round-1/integrated-summary.json",
+      "sha256": "be9fb96f0734d587f90779c02b94f534fbeaca8b07708807fd4bb9b58912d546"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Bounded approach' justifies its decisions inline: reuse the existing launcher and do not create a second reservation path, infer a verdict from transport, or change the review-context-invocation/v2 contract. The six-entrypoint protection is tied to the canonical inventory and generated projections. No unjustified technology choice found. [LEGACY COMPAT] Minor advisory: no separate decision/ADR section; the design predates that template requirement."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Open Questions' is absent in design.md; the legacy design predates this template requirement. infra-spec.md and security-spec.md state 'None' for open questions, and the design records no unresolved question that would block implementation."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Assumptions' is absent in design.md. The assumptions found elsewhere are cited to file:line evidence and carry re-verification instructions, e.g. design.md 'Bounded approach' ('Re-verify these shared-state references at gate time and final-head CI') and requirements.md 'Non-goals and assumptions' (native CLI/Windows availability to be verified in the target environment). investigation.md is not in the admitted set, so no INV grounding was checked; the file:line citations serve as grounding."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "[LEGACY COMPAT] '## Constraint Compliance' is absent. Under the fallback scan, the constraints in requirements.md are all addressed. They are: no change to the review-context-invocation/v2 contract, no new ledger schema, no retry of a consumed identity, and no rewrite of historical evidence. design.md 'Bounded approach' and 'Validation and deployment' cover each of them, and the acceptance mapping covers AC-001 to AC-006. No contradiction found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "[LEGACY COMPAT] There is no dedicated '## Deployment / CI Plan' section. The 'Validation and deployment' section and infra-spec.md 'CI/CD sequence' cover the concrete points: CI entries (tests/run-all.sh:70-76, tests/run-all.ps1:135, .github/workflows/test.yml:39-42), exact-final-HEAD hosted CI including native Windows, no install or baseline promotion, and rollback by reverting the candidate. No feature flag or schema migration applies, so no migration order is needed."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No schema or data changes are declared in the design or requirements. The ledger schema is explicitly unchanged ('No ... ledger schema' under Non-goals)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The external dependencies are identified in infra-spec.md 'Runtime dependencies and environment' (rtk, Claude CLI, Node, Bash, jq, shasum, cited to launch-impl-review.py:321-344). The contract is the installed Claude CLI help aliases (AC-001/TEST-001), and failure behaviour is stated: stop before reservation, retain the consumed record, and use no fallback executor. [LEGACY COMPAT] The design has no dedicated integration table, and the CLI version is not pinned. This does not block a competent implementer."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's acceptance mapping covers AC-001 to AC-006, which correspond one-to-one to REQ-001 to REQ-006. It introduces no new components, endpoints, or data models, and it states that deployment, install, and baseline promotion are out of scope. There is no design-system/ directory, so no UI library scope issue arises."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The high-risk surfaces (permission admission, ledger reservation, and protection of the shared entrypoints) each have a named failing mismatch test in the design.md '## Risk and persisted-evidence preflight' table (TEST-005a-h, TEST-002/003a-c, TEST-008a-d, TEST-009/010, TEST-012a-c/013). acceptance-tests.md gives concrete assertions. The design also names the final-HEAD hosted CI and independent diff review."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the launch-control observation reports domain/context-map.md and domain/domain-contract.json as absent and domain_status as 'skipped'. No Approved domain model exists, so the check does not apply."
+    }
+  ]
+}
