@@ -701,7 +701,8 @@ class QualityTransport(unittest.TestCase):
             root = Path(tmp)
             scripts = root / 'plugins/sdd-review-loop/scripts'
             (scripts / 'lib').mkdir(parents=True)
-            for relative in ('task-review-precheck.sh', 'lib/review-precheck-common.sh'):
+            for relative in ('task-review-precheck.sh', 'lib/review-precheck-common.sh',
+                             'lib/fixed-input-source.sh'):
                 shutil.copyfile(ROOT / 'plugins/sdd-review-loop/scripts' / relative,
                                 scripts / relative)
             registry = root / 'specs/workflow-state-registry.json'

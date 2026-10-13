@@ -5,6 +5,7 @@ This does not reserve an identity or approve a review verdict. The normal
 review-context validator still owns reservation and output schema checks.
 """
 import argparse
+import importlib.util
 import hashlib
 import json
 import pathlib
@@ -29,10 +30,13 @@ STRUCTURED_OUTPUT_ENFORCE_TURN = ('[structured-output-enforce] You MUST call the
                                   'Call this tool now.')
 
 
-def admitted_raw_hashes(root, data):
+def admitted_raw_hashes(root, data, fixed_inputs=None):
     """Keep raw transport observations separate from canonical task normalization."""
     entries = data['allowed_input_manifest']
-    actual = {e['path']: sha(root / e['path']) for e in entries}
+    selected = {e['path'] for e in fixed_inputs['inventory']['inputs']} if fixed_inputs else set()
+    def source(name):
+        return (pathlib.Path(fixed_inputs['snapshot']) if name in selected else root) / name
+    actual = {e['path']: sha(source(e['path'])) for e in entries}
     mismatches = [e for e in entries if actual[e['path']] != e['sha256']]
     if mismatches:
         feature = data.get('feature', '')
@@ -54,12 +58,16 @@ def admitted_raw_hashes(root, data):
                 precheck.get('tasks_sha256_form') == 'normalized' and
                 precheck.get('tasks_sha256') == mismatches[0]['sha256'],
                 'normalized task input is not precheck-bound')
-        result = subprocess.run(['rtk', 'proxy', 'bash', str(root /
+        command = ['rtk', 'proxy', 'bash', str(root /
             'plugins/sdd-review-loop/scripts/task-review-precheck.sh'), feature,
-            match[1], match[2], '--verify-inputs'], cwd=root,
+            match[1], match[2], '--verify-inputs']
+        if fixed_inputs:
+            command.extend(['--fixed-input-record', fixed_inputs['record'],
+                            '--fixed-input-snapshot', fixed_inputs['snapshot']])
+        result = subprocess.run(command, cwd=root,
             text=True, capture_output=True, timeout=600)
         require(result.returncode == 0, 'canonical normalized task verification failed')
-        require(all(sha(root / e['path']) == actual[e['path']] for e in entries),
+        require(all(sha(source(e['path'])) == actual[e['path']] for e in entries),
                 'inputs changed during normalized task verification')
     return actual
 
@@ -94,7 +102,7 @@ def review_output_schema(stage, role):
 
 
 def claude_command(root, session, role_name, role, permissions, settings_path,
-                   invocation, receipt, policy_path):
+                   invocation, receipt, policy_path, *, fixed_inputs=None):
     """One argv builder for the unreserved diagnostic and formal transport."""
     identity(session)
     data, _ = manifest(root, invocation)
@@ -104,13 +112,19 @@ def claude_command(root, session, role_name, role, permissions, settings_path,
             role.get('disallowedTools') == ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit'] and
             isinstance(selected_model, str), 'unsupported role permission profile')
     require(data['host_session_id'] == session, 'session differs from invocation')
-    policy_bytes, expected_settings = launch_policy(root, invocation, receipt, policy_path)
+    policy_bytes, expected_settings = launch_policy(root, invocation, receipt, policy_path,
+                                                     fixed_inputs=fixed_inputs)
     require(policy_path.read_bytes() == policy_bytes and load(settings_path) == expected_settings,
             'session guard settings or policy mismatch')
     relative = invocation.relative_to(root).as_posix()
-    require(permissions == receipt_control(data, receipt.read_text(), relative, root=root)['exact_permission_rules'],
+    require(permissions == (['Read'] if fixed_inputs else
+            receipt_control(data, receipt.read_text(), relative, root=root)['exact_permission_rules']),
             'permission rules mismatch')
-    admitted_raw_hashes(root, data)
+    if fixed_inputs:
+        require(fixed_input_binding(root, data, fixed_inputs['record'], fixed_inputs['snapshot']) == fixed_inputs,
+                'fixed input binding changed')
+    else:
+        admitted_raw_hashes(root, data)
     require((root / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs').is_file(),
             'session guard missing')
     executable = shutil.which('claude')
@@ -120,9 +134,10 @@ def claude_command(root, session, role_name, role, permissions, settings_path,
                '--model', selected_model, '--permission-mode', 'dontAsk',
                '--tools', 'Read,Bash', '--disallowedTools',
                'Grep,Glob,Write,Edit,NotebookEdit',
-               '--settings', str(settings_path), '--plugin-dir',
-               str(root / 'plugins/sdd-review-loop'), '--agents',
+               '--settings', str(settings_path), '--agents',
                json.dumps({role_name: role}), '--agent', role_name, '--output-format', 'json']
+    if not fixed_inputs:
+        command += ['--plugin-dir', str(root / 'plugins/sdd-review-loop')]
     if data['stage'] in JSON_REVIEW_STAGES:
         command += ['--json-schema', json.dumps(review_output_schema(data['stage'], role_name))]
     help_result = subprocess.run(['rtk', 'proxy', executable, '--help'],
@@ -132,7 +147,8 @@ def claude_command(root, session, role_name, role, permissions, settings_path,
                              (line.strip() for line in help_result.stdout.splitlines())
                              if line.startswith('-'))
     for flag in ('-p', '--session-id', '--model', '--permission-mode', '--tools',
-                 '--disallowedTools', '--settings', '--plugin-dir',
+                 '--disallowedTools', '--settings',
+                 *(['--plugin-dir'] if not fixed_inputs else []),
                  '--agents', '--agent', '--output-format',
                  *(['--json-schema'] if data['stage'] in JSON_REVIEW_STAGES else [])):
         require(re.search(r'(?<![\w-])' + re.escape(flag) + r'(?=[\s,=<\[]|$)', declarations) is not None,
@@ -474,20 +490,171 @@ def control_prompt(data, receipt_text, boundary_sha256, *, strict=False,
         'performed, stop without a verdict. Never inspect the ledger or reserve again.\n')
 
 
-def launch_policy(root, invocation, receipt, policy_path):
+def fixed_input_binding(root, data, record_path=None, snapshot_path=None):
+    """Verify selected Git inputs; the record never grants review authority."""
+    require(bool(record_path) == bool(snapshot_path), 'fixed input record and snapshot must be paired')
+    if record_path is None:
+        return None
+    record_path, snapshot_path = pathlib.Path(record_path), pathlib.Path(snapshot_path)
+    require(record_path.is_file() and not record_path.is_symlink(), 'invalid fixed input record')
+    inventory = load(record_path)
+    spec = importlib.util.spec_from_file_location(
+        'fixed_review_inputs', pathlib.Path(__file__).with_name('fixed-review-inputs.py'))
+    if spec is None or spec.loader is None:
+        raise ValueError('fixed input helper is not loadable')
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    helper.validate_inventory(inventory)
+    selected = [entry['path'] for entry in inventory['inputs']]
+    helper.verify_revision(root, inventory['commit'], selected, snapshot_path, inventory)
+    admitted_hashes = {entry['path']: entry['sha256'] for entry in data['allowed_input_manifest']}
+    require(len(admitted_hashes) == len(data['allowed_input_manifest']),
+            'duplicate manifest input path')
+    admitted = set(admitted_hashes)
+    # Generated review evidence stays live and hash-bound by the existing manifest.
+    required = {name for name in admitted if not name.startswith('reports/')
+                and not (name.startswith('specs/') and '/verification/' in name)}
+    require(set(selected) == required, 'fixed input selection differs from required source inputs')
+    helper.verify_head_selection(root, inventory)
+    raw_hashes = admitted_raw_hashes(root, data, {
+        'record': str(record_path), 'snapshot': str(snapshot_path), 'inventory': inventory})
+    for entry in inventory['inputs']:
+        require(raw_hashes[entry['path']] == entry['sha256'],
+                'fixed input differs from manifest hash: ' + entry['path'])
+    approvals = [name for name in admitted_hashes
+                 if name.startswith('reports/review-context/fixed-approvals/')]
+    states = [name for name in admitted_hashes
+              if name.startswith('reports/review-context/fixed-states/')]
+    require(len(approvals) <= 1, 'multiple fixed approvals admitted')
+    require(len(states) <= 1, 'multiple fixed states admitted')
+    require('fixed_approval_path' not in data, 'fixed approval must use the input manifest')
+    references = {}
+    if approvals or states:
+        auth_spec = importlib.util.spec_from_file_location(
+            'fixed_approval_context', root / 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py')
+        if auth_spec is None or auth_spec.loader is None:
+            raise ValueError('fixed approval helper is not loadable')
+        auth = importlib.util.module_from_spec(auth_spec)
+        auth_spec.loader.exec_module(auth)
+        trust = dict(key=auth._resolve_key_or_raise(),
+                     registry_ids=auth._validate_registry(root / 'sdd/approver-registry.yaml'))
+    if approvals:
+        approval_path = approvals[0]
+        approval_file = safe_compact_path(root, approval_path)
+        require(sha(approval_file) == admitted_hashes[approval_path],
+                'fixed approval input changed')
+        helper.verify_approval(load(approval_file), inventory,
+            feature=data['feature'], stage=data['stage'], task_id=data.get('task_id'),
+            **trust)
+        references['approval_reference'] = {'path': approval_path, 'sha256': sha(approval_file)}
+    if states:
+        state_file = safe_compact_path(root, states[0])
+        require(sha(state_file) == admitted_hashes[states[0]], 'fixed state input changed')
+        state_spec = importlib.util.spec_from_file_location(
+            'fixed_review_state', pathlib.Path(__file__).with_name('fixed-review-state.py'))
+        if state_spec is None or state_spec.loader is None:
+            raise ValueError('fixed state helper is not loadable')
+        state_helper = importlib.util.module_from_spec(state_spec)
+        state_spec.loader.exec_module(state_helper)
+        document = load(state_file)
+        state_helper.verify(document, root, inventory, feature=data['feature'],
+                            stage=data['stage'], task_id=data.get('task_id'), **trust)
+        if approvals:
+            require(document['approval'] == load(approval_file), 'fixed state approval differs')
+        references['progress_reference'] = {'path': states[0], 'sha256': sha(state_file)}
+    return {'record': str(record_path.resolve()), 'snapshot': str(snapshot_path.resolve()),
+            'inventory': inventory, 'state_reference': helper.state_reference(root, inventory),
+            **references}
+
+
+def record_fixed_execution(output, invocation, data, fixed_inputs):
+    """Bind detached execution evidence; this record never grants approval."""
+    if fixed_inputs is None:
+        return None
+    snapshot = pathlib.Path(fixed_inputs['snapshot']).resolve()
+    destination = output.resolve()
+    require(destination != snapshot and snapshot not in destination.parents,
+            'execution evidence must be outside fixed inputs')
+    document = {
+        'schema': 'sdd-fixed-review-execution/v1',
+        'invocation_sha256': sha(invocation),
+        'stage': data['stage'], 'role': data['role'], 'feature': data['feature'],
+        'inputs': fixed_inputs['inventory'],
+        'state_reference': fixed_inputs['state_reference'],
+    }
+    for name in ('approval_reference', 'progress_reference'):
+        if name in fixed_inputs:
+            document[name] = fixed_inputs[name]
+    path = output / 'fixed-execution.json'
+    with path.open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(document, sort_keys=True) + '\n')
+    return sha(path)
+
+
+def record_fixed_delivery(output, execution_digest):
+    """Bind delivery bytes to the execution, without interpreting a verdict."""
+    if execution_digest is None:
+        return
+    for name in ('fixed-execution.json', 'delivery.json'):
+        path = output / name
+        require(not path.is_symlink(), 'fixed delivery artifact is symlinked')
+        require(path.stat().st_mode & 0o170000 == 0o100000,
+                'fixed delivery artifact is not a regular file')
+    require(sha(output / 'fixed-execution.json') == execution_digest,
+            'fixed execution binding changed during review')
+    document = {
+        'schema': 'sdd-fixed-review-delivery/v1',
+        'execution_sha256': execution_digest,
+        'delivery_sha256': sha(output / 'delivery.json'),
+    }
+    with (output / 'fixed-delivery.json').open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(document, sort_keys=True) + '\n')
+
+
+def verify_fixed_delivery(output, execution_digest, invocation):
+    """Use the caller's execution binding, not a digest supplied by the record."""
+    if execution_digest is None:
+        return
+    for name in ('fixed-execution.json', 'fixed-delivery.json', 'delivery.json'):
+        path = output / name
+        require(path.is_file() and not path.is_symlink(),
+                'fixed delivery artifact missing or symlinked')
+    execution_path = output / 'fixed-execution.json'
+    require(sha(execution_path) == execution_digest, 'fixed execution binding changed')
+    execution = load(execution_path)
+    require(execution.get('schema') == 'sdd-fixed-review-execution/v1' and
+            execution.get('invocation_sha256') == sha(invocation),
+            'fixed invocation binding changed')
+    require(load(output / 'fixed-delivery.json') == {
+        'schema': 'sdd-fixed-review-delivery/v1',
+        'execution_sha256': execution_digest,
+        'delivery_sha256': sha(output / 'delivery.json'),
+    }, 'fixed delivery binding changed')
+
+
+def review_read_paths(root, invocation, data, fixed_inputs=None):
+    selected = {entry['path'] for entry in fixed_inputs['inventory']['inputs']} if fixed_inputs else set()
+    paths = [invocation, root / BOUNDARY_PATH]
+    paths.extend((pathlib.Path(fixed_inputs['snapshot']) if entry['path'] in selected else root)
+                 / entry['path'] for entry in data['allowed_input_manifest'])
+    return paths
+
+
+def launch_policy(root, invocation, receipt, policy_path, *, fixed_inputs=None):
     data, _ = manifest(root, invocation)
     invocation_relative = invocation.relative_to(root).as_posix()
-    control = receipt_control(data, receipt.read_text(), invocation_relative, root=root)
-    paths = [invocation, root / 'plugins/sdd-review-loop/references/review-context-boundary.md']
-    paths.extend(root / entry['path'] for entry in data['allowed_input_manifest'])
+    control = receipt_control(data, receipt.read_text(), invocation_relative,
+                              root=None if fixed_inputs else root)
+    paths = review_read_paths(root, invocation, data, fixed_inputs)
     for path in paths:
-        relative = path.relative_to(root)
+        path_root = root if path.is_relative_to(root) else pathlib.Path(fixed_inputs['snapshot'])
+        relative = path.relative_to(path_root)
         require(path.is_file() and not any(
-            (root / pathlib.Path(*relative.parts[:index])).is_symlink()
+            (path_root / pathlib.Path(*relative.parts[:index])).is_symlink()
             for index in range(1, len(relative.parts) + 1)),
                 'impl admitted path is missing or symlinked')
-    bash = list(control['hash_commands'])
-    if data['stage'] != 'quality':
+    bash = [] if fixed_inputs else list(control['hash_commands'])
+    if not fixed_inputs and data['stage'] != 'quality':
         bash.append('rtk proxy test -d domain')
     policy = {'schema': 'impl-nontty-pretool/v1',
               'read_paths': [str(path.resolve()) for path in paths],
@@ -499,13 +666,14 @@ def launch_policy(root, invocation, receipt, policy_path):
     policy_sha256 = hashlib.sha256(policy_bytes).hexdigest()
     command = ('rtk proxy node ' + shlex.quote(str(guard)) + ' ' +
                shlex.quote(str(policy_path)) + ' ' + policy_sha256 + ' || exit 2')
-    settings = {'permissions': {'allow': control['exact_permission_rules']},
+    settings = {'permissions': {'allow': ['Read'] if fixed_inputs else control['exact_permission_rules']},
                 'hooks': {'PreToolUse': [
         {'matcher': '*', 'hooks': [{'type': 'command', 'command': command}]}]}}
     return policy_bytes, settings
 
 
-def expected_prompt(root, invocation, receipt, *, strict=False, conditional_state=None):
+def expected_prompt(root, invocation, receipt, *, strict=False, conditional_state=None,
+                    fixed_inputs=None):
     data, _ = manifest(root, invocation)
     enforced = data['stage'] in ('impl', 'task', 'quality') or strict
     receipt_text = receipt.read_bytes().decode('utf-8')
@@ -525,15 +693,37 @@ def expected_prompt(root, invocation, receipt, *, strict=False, conditional_stat
         + '\nCompare file hash commands with these raw observations. The tasks.md manifest digest '
         'may instead be normalized by the canonical task precheck; never replace that manifest '
         'digest in the receipt or review output. Canonical verification remains mandatory.\n'
-        if data['stage'] == 'task' else '')
+        if data['stage'] == 'task' and not fixed_inputs else '')
     conditional_note = (
         'Pre-reservation conditional-input resolution, rechecked immediately before reservation '
         '(launch-control observation, not a review verdict): '
         + json.dumps(conditional_state, ensure_ascii=True, sort_keys=True) + '\n'
         + 'Use the observed presence and domain/design-system eligibility for the role checks and '
         'state the applicable SKIP reason. Do not run directory/presence shell probes; this session '
-        'permits only the exact listed Bash commands. Inspect admitted substantive inputs independently.\n'
+        + ('permits no Bash commands. ' if fixed_inputs else
+           'permits only the exact listed Bash commands. ')
+        + 'Inspect admitted substantive inputs independently.\n'
         if strict and data['stage'] in ('spec', 'impl') and conditional_state is not None else '')
+    if fixed_inputs:
+        return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
+                + binding + '\n'
+                + 'Input identity has been verified by the launcher against the fixed Git revision. '
+                'Do not run hash commands or any Bash command. Do not reserve again.\n'
+                + 'Read the following exact absolute paths; retain original relative path identities '
+                'in your output:\n'
+                + json.dumps([str(p.resolve()) for p in
+                              review_read_paths(root, invocation, data, fixed_inputs)]) + '\n'
+                + 'Fixed input binding: ' + json.dumps(fixed_inputs['inventory'], sort_keys=True) + '\n'
+                + conditional_note
+                + 'Inspect every required input independently. Do not read peer outputs or modify '
+                'files. A prior verdict or identity verification does not prove review coverage. '
+                'Report only checks actually inspected; never claim tests were rerun.\n'
+                + ('Return the evaluator plaintext contract: RUN_ID and HOST_SESSION_ID from the '
+                   'invocation, ALLOWED_INPUT_MANIFEST with invocation path and SHA-256, '
+                   'VERDICT: PASS or NEEDS_WORK, FINDINGS: and CHECKED:. Missing coverage is '
+                   'NEEDS_WORK. List tests not rerun.\n' if data['stage'] == 'quality' else
+                   'Return only the complete canonical role JSON with invocation run/session '
+                   'identities and all required checks.\n')).encode('utf-8')
     return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
             + binding + '\n'
             + ('Read tool file_path values (canonical absolute paths):\n'
@@ -574,12 +764,36 @@ def expected_prompt(root, invocation, receipt, *, strict=False, conditional_stat
                'invocation run/session identities; no markdown or omitted checks.\n')).encode('utf-8')
 
 
+def read_coverage(target, content):
+    if isinstance(content, list):
+        require(all(isinstance(item, dict) and item.get('type') == 'text' and
+                    isinstance(item.get('text'), str) for item in content),
+                'fixed Read result is not text')
+        content = '\n'.join(item['text'] for item in content)
+    require(isinstance(content, str), 'fixed Read result is not text')
+    expected = target.read_text(encoding='utf-8')
+    lines = expected.splitlines()
+    if content == expected:
+        return set(range(len(lines))), len(lines)
+    covered = set()
+    for line in content.splitlines():
+        match = re.fullmatch(r'\s*([1-9][0-9]*)(?:\t|→)(.*)', line)
+        if match:
+            index = int(match[1]) - 1
+            require(index < len(lines) and match[2] == lines[index],
+                    'fixed Read content differs from admitted input')
+            covered.add(index)
+    require(bool(covered), 'fixed Read result contains no admitted content')
+    return covered, len(lines)
+
+
 def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, strict=False,
-                    conditional_state=None):
+                    conditional_state=None, fixed_inputs=None):
     data, ledger = manifest(root, invocation)
     enforced = data['stage'] in ('impl', 'task', 'quality') or strict
     require(prompt.read_bytes() == expected_prompt(root, invocation, receipt, strict=strict,
-                                                   conditional_state=conditional_state),
+                                                   conditional_state=conditional_state,
+                                                   fixed_inputs=fixed_inputs),
             'prompt differs from complete canonical launch template')
     session = data['host_session_id']
     require(sum(record.get('run_id') == session and record.get('host_session_id') == session
@@ -587,7 +801,8 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
             'reserved identity absent or repeated')
     meta_turn_seen = False
     if enforced:
-        control = receipt_control(data, receipt.read_text(), invocation.relative_to(root).as_posix(), root=root)
+        control = receipt_control(data, receipt.read_text(), invocation.relative_to(root).as_posix(),
+                                  root=None if fixed_inputs else root)
         record = next(record for record in ledger['records']
                       if record.get('run_id') == session and
                       record.get('host_session_id') == session)
@@ -613,19 +828,23 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
                 for item in messages),
             'native transcript contains a different session')
     if enforced:
-        allowed_reads = {invocation.resolve(),
-                         (root / 'plugins/sdd-review-loop/references/review-context-boundary.md').resolve()}
-        allowed_reads.update((root / entry['path']).resolve()
-                             for entry in data['allowed_input_manifest'])
-        allowed_bash = set(control['hash_commands'])
-        batch_command = control['compact_command']
-        if data['stage'] != 'quality':
+        allowed_reads = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)}
+        allowed_bash = set() if fixed_inputs else set(control['hash_commands'])
+        batch_command = None if fixed_inputs else control['compact_command']
+        if data['stage'] != 'quality' and not fixed_inputs:
             allowed_bash.add('rtk proxy test -d domain')
-        required_hashes: dict[str, str | None] = {batch_command: None}
+        required_hashes: dict[str, str | None] = {}
+        if not fixed_inputs:
+            if not isinstance(batch_command, str) or not batch_command:
+                raise ValueError('missing compact verification command')
+            required_hashes[batch_command] = None
         required_order = list(required_hashes)
-        file_hash_order = [batch_command]
+        file_hash_order = [] if fixed_inputs else [batch_command]
         proven: set[str] = set()
         pending: dict[str, Any] = {}
+        pending_reads: dict[str, pathlib.Path] = {}
+        completed_reads: set[pathlib.Path] = set()
+        covered_reads: dict[pathlib.Path, set[int]] = {}
         used_tool_ids = set()
         issued_file_hashes = 0
         retries = set()
@@ -694,6 +913,14 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
                     elif command is None:
                         require(block.get('is_error') is not True,
                                 'impl admitted Read failed')
+                        target = pending_reads.pop(tool_id)
+                        if fixed_inputs:
+                            covered, total = read_coverage(target, result_text)
+                            covered_reads.setdefault(target, set()).update(covered)
+                            if len(covered_reads[target]) == total:
+                                completed_reads.add(target)
+                        else:
+                            completed_reads.add(target)
                     continue
                 if block.get('type') != 'tool_use':
                     require('tool_use' not in str(block.get('type')), 'unrecognized impl tool-use type')
@@ -723,6 +950,7 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
                             'impl Read tool-use identity invalid')
                     used_tool_ids.add(block['id'])
                     pending[block['id']] = None
+                    pending_reads[block['id']] = target
                 elif name == 'Bash':
                     command = tool_input.get('command')
                     require(command in allowed_bash,
@@ -761,6 +989,8 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
                         first_bash = command
                     pending[block['id']] = command
                 elif name == 'StructuredOutput' and data['stage'] in JSON_REVIEW_STAGES and strict:
+                    require(not fixed_inputs or allowed_reads <= completed_reads,
+                            'fixed review StructuredOutput preceded required Read results')
                     require(not pending and set(required_hashes) <= proven,
                             'JSON review StructuredOutput preceded hash proof or tool result')
                     require(isinstance(block.get('id'), str) and block['id'] not in used_tool_ids,
@@ -772,6 +1002,8 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
                     raise ValueError('impl used a tool outside Read/Bash')
         require(not pending and set(required_hashes) <= proven,
                 'impl native transcript lacks complete hash proof')
+        require(not fixed_inputs or allowed_reads <= completed_reads,
+                'fixed review transcript lacks required Read results')
         if data['stage'] in JSON_REVIEW_STAGES and strict:
             require(structured_seen and structured_complete,
                     'JSON review StructuredOutput call and result missing')
@@ -793,10 +1025,11 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
 
 
 def postflight(root, invocation, transcript, prompt, wrapper, receipt, *, strict=False,
-               conditional_state=None):
+               conditional_state=None, fixed_inputs=None):
     data, result, messages = native_delivery(root, invocation, transcript, prompt, wrapper,
                                              receipt, strict=strict,
-                                             conditional_state=conditional_state)
+                                             conditional_state=conditional_state,
+                                             fixed_inputs=fixed_inputs)
     session = data['host_session_id']
     raw = result.get('result')
     require(isinstance(raw, str), 'reviewer result is not text')
@@ -819,8 +1052,7 @@ def postflight(root, invocation, transcript, prompt, wrapper, receipt, *, strict
         if verdicts[0] == 'PASS':
             require(not any(re.match(r'- \[(?:Critical|Major)\]', line)
                             for line in lines), 'evaluator PASS has blocking findings')
-            admitted = {(root / entry['path']).resolve()
-                        for entry in data['allowed_input_manifest']}
+            admitted = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)[2:]}
             observed_reads = [block.get('input', {}).get('file_path')
                               for item in messages
                               for block in item.get('message', {}).get('content', [])
@@ -856,16 +1088,29 @@ def verify_session_collision(result, session, before, after):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('phase', choices=('preflight', 'postflight'))
+    parser.add_argument('phase', choices=('preflight', 'postflight', 'fixed-binding'))
     parser.add_argument('root', type=pathlib.Path)
     parser.add_argument('invocation', type=pathlib.Path)
-    parser.add_argument('transcript', type=pathlib.Path)
+    parser.add_argument('transcript', type=pathlib.Path, nargs='?')
+    parser.add_argument('--fixed-input-record', type=pathlib.Path)
+    parser.add_argument('--fixed-input-snapshot', type=pathlib.Path)
     parser.add_argument('--prompt', type=pathlib.Path)
     parser.add_argument('--wrapper', type=pathlib.Path)
     parser.add_argument('--receipt', type=pathlib.Path)
     args = parser.parse_args()
     root = args.root.resolve()
     require(args.invocation.is_file(), 'invocation missing')
+    if args.phase == 'fixed-binding':
+        require(args.fixed_input_record is not None and args.fixed_input_snapshot is not None,
+                'fixed input record and snapshot required')
+        binding = fixed_input_binding(root, load(args.invocation),
+                                      args.fixed_input_record, args.fixed_input_snapshot)
+        print(json.dumps([binding[key] for key in ('approval_reference', 'progress_reference')
+                          if key in binding], sort_keys=True))
+        return
+    require(args.transcript is not None, 'transcript required')
+    require(args.fixed_input_record is None and args.fixed_input_snapshot is None,
+            'fixed binding arguments require fixed-binding phase')
     if args.phase == 'preflight':
         require(args.prompt is None and args.wrapper is None and args.receipt is None,
                 'preflight takes no output files')

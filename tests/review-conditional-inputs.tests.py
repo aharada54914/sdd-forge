@@ -53,6 +53,22 @@ class Inputs(unittest.TestCase):
         self.assertEqual(result['inputs'], [])
         self.assertIsNone(result['observed']['domain/context-map.md'])
 
+    def test_fixed_revision_selects_dependencies_not_working_tree(self):
+        self.domain()
+        self.put('specs/example/investigation.md', 'fixed investigation')
+        for args in (['init', '-q'], ['add', '.'],
+                     ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                      'commit', '-qm', 'fixed inputs']):
+            subprocess.run(['git', '-C', str(self.root), *args], check=True)
+        revision = subprocess.check_output(
+            ['git', '-C', str(self.root), 'rev-parse', 'HEAD'], text=True).strip()
+        before = module.resolve(self.root, 'example', 'impl', revision)
+        (self.root / 'specs/example/investigation.md').unlink()
+        self.put('domain/context-map.md', 'Domain-Model-Status: Draft\n')
+        self.assertEqual(module.resolve(self.root, 'example', 'impl', revision), before)
+        self.assertIn('specs/example/investigation.md', [item['path'] for item in before['inputs']])
+        self.assertNotEqual(self.resolve(), before)
+
     def test_versions(self):
         for version in ('v1', 'v2'):
             self.domain(version)

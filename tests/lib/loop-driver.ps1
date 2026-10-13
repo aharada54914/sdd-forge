@@ -236,6 +236,7 @@ function Copy-LoopFixtureScripts([string]$Root) {
         "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
         "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
+        "plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1",
         "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1",

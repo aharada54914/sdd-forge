@@ -3,7 +3,9 @@ param(
   [Parameter(Mandatory = $true)][string]$Attempt,
   [Parameter(Mandatory = $true)][string]$Round,
   [switch]$VerifyInputs,
-  [switch]$ProvenanceRereview
+  [switch]$ProvenanceRereview,
+  [string]$FixedInputRecord = '',
+  [string]$FixedInputSnapshot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -133,13 +135,13 @@ function Get-AdrPrecheckInputsJson {
         -not (Test-AdrBoundFilePath $Root $DesignRelative)) {
         Fail 'unsafe design ADR authority'
     }
-    $designPath = Join-Path $Root $DesignRelative
+    $designPath = Get-ReviewInputSource $Root $DesignRelative $fixedSources
     $before = (Get-FileHash -LiteralPath $designPath -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
     if ($before -cne $ExpectedDesign) { Fail 'design changed before ADR collection' }
     $entries = [Collections.Generic.List[object]]::new()
     foreach ($path in @(Get-AdrDeclaredPaths $designPath)) {
         if (-not (Test-AdrBoundFilePath $Root $path)) { Fail "unsafe ADR input: $path" }
-        $digest = (Get-FileHash -LiteralPath (Join-Path $Root $path) -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
+        $digest = (Get-FileHash -LiteralPath (Get-ReviewInputSource $Root $path $fixedSources) -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
         if ($digest -cnotmatch '^[0-9a-f]{64}$') { Fail 'invalid ADR digest' }
         $entries.Add([ordered]@{path=$path;sha256=$digest})
     }
@@ -588,7 +590,10 @@ if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
-$spec = Join-Path $root "specs/$Feature"
+. (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
+$fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
+$inputRoot = if ($null -ne $fixedSources) { (Resolve-Path -LiteralPath $FixedInputSnapshot).Path } else { $root }
+$spec = Join-Path $inputRoot "specs/$Feature"
 $report = Join-Path $root "reports/impl-review/$Feature/attempt-$Attempt/round-$Round"
 if (-not (Test-Path -LiteralPath $spec -PathType Container) -or (Get-Item -LiteralPath $spec).LinkType) { Fail 'feature specification directory must be a real directory' }
 $registry = Get-Content -LiteralPath (Join-Path $root 'specs/workflow-state-registry.json') -Raw | ConvertFrom-Json
@@ -596,11 +601,16 @@ $profileEntry = @($registry.entries | Where-Object { Test-OrdinalEqual $_.featur
 $fullProfile = $profileEntry.Count -eq 1 -and (Test-OrdinalEqual $profileEntry[0].profile 'full')
 $layerNames = @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')
 $requirements = Join-Path $spec 'requirements.md'; $design = Join-Path $spec 'design.md'; $acceptance = Join-Path $spec 'acceptance-tests.md'
+if ($null -ne $fixedSources) {
+  $requirements = Get-ReviewInputSource $root "specs/$Feature/requirements.md" $fixedSources
+  $design = Get-ReviewInputSource $root "specs/$Feature/design.md" $fixedSources
+  $acceptance = Get-ReviewInputSource $root "specs/$Feature/acceptance-tests.md" $fixedSources
+}
 
 if ($VerifyInputs) {
   $precheckPath = Join-Path $report 'precheck-result.json'
   if (-not (Test-AdrBoundFilePath $root "reports/impl-review/$Feature/attempt-$Attempt/round-$Round/precheck-result.json") -or
-      -not (Test-AdrBoundFilePath $root "specs/$Feature/design.md")) { Fail 'unsafe precheck or design input path' }
+      -not (Test-AdrBoundFilePath $inputRoot "specs/$Feature/design.md")) { Fail 'unsafe precheck or design input path' }
   if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Get-Item -LiteralPath $precheckPath).LinkType) { Fail 'precheck evidence is missing or substituted' }
   foreach ($path in @($requirements, $design, $acceptance)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "review input is missing or substituted: $path" }
@@ -626,7 +636,7 @@ if ($VerifyInputs) {
       Fail 'precheck layer manifest is incomplete'
     }
     foreach ($name in $layerNames) {
-      $path = Join-Path $spec $name
+      $path = Get-ReviewInputSource $inputRoot "specs/$Feature/$name" $fixedSources
       if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "layer review input is missing or substituted: $path" }
       $actual = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLower()
       if (-not (Test-OrdinalEqual $precheck.layer_sha256.$name $actual)) { Fail "layer review input changed after precheck: $path" }
@@ -650,7 +660,7 @@ if ($VerifyInputs) {
       $normalized.Add([ordered]@{path=$entry.path;sha256=$entry.sha256})
     }
     $recordedAdrJson = ConvertTo-Json -InputObject ($normalized.ToArray()) -Depth 4 -Compress
-    $actualAdrJson = Get-AdrPrecheckInputsJson $root "specs/$Feature/design.md" $precheck.design_sha256
+    $actualAdrJson = Get-AdrPrecheckInputsJson $inputRoot "specs/$Feature/design.md" $precheck.design_sha256
     if ($recordedAdrJson -cne $actualAdrJson) { Fail 'ADR inputs changed after precheck' }
     foreach ($field in @('design_sha256','requirements_sha256','acceptance_sha256')) {
       if ($precheck.$field -isnot [string] -or $precheck.$field.Length -ne 64 -or

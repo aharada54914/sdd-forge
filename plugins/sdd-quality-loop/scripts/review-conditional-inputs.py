@@ -4,9 +4,11 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import re
 import stat
+import subprocess
 import sys
 
 sys.dont_write_bytecode = True
@@ -45,15 +47,43 @@ def unique_object(pairs):
     return result
 
 
-def resolve(root, feature, stage):
+def resolve(root, feature, stage, revision=None):
     root = Path(root).resolve(strict=True)
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl'):
         raise ValueError('unsupported feature or review stage')
     inputs = []
     observed = {}
+    tree = {}
+    if revision is not None:
+        if not re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', revision):
+            raise ValueError('invalid fixed revision')
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        def git(*args):
+            result = subprocess.run(['git', '--no-replace-objects', '-C', str(root), *args],
+                                    env=env, capture_output=True, timeout=30)
+            if result.returncode:
+                raise ValueError('fixed revision could not be read')
+            return result.stdout
+        for entry in git('ls-tree', '-r', '-t', '-z', '--full-tree', revision).split(b'\0'):
+            if entry:
+                metadata, name = entry.split(b'\t', 1)
+                tree[name.decode('utf-8')] = metadata.decode('ascii').split()
+
+    def source(relative, optional=False):
+        if revision is None:
+            return read_safe(root, relative, optional)
+        entry = tree.get(relative)
+        if entry is None:
+            if optional:
+                return None
+            raise ValueError('missing conditional input: ' + relative)
+        mode, kind, oid = entry
+        if mode not in ('100644', '100755') or kind != 'blob':
+            raise ValueError('non-regular conditional input: ' + relative)
+        return git('cat-file', 'blob', oid)
 
     def observe(relative, optional=False):
-        raw = read_safe(root, relative, optional)
+        raw = source(relative, optional)
         observed[relative] = hashlib.sha256(raw).hexdigest() if raw is not None else None
         return raw
 
@@ -63,6 +93,8 @@ def resolve(root, feature, stage):
             inputs.append({'path': relative, 'sha256': hashlib.sha256(raw).hexdigest()})
         return raw
 
+    if stage == 'impl':
+        admit('specs/' + feature + '/investigation.md', True)
     context = admit('domain/context-map.md', True)
     contract = admit('domain/domain-contract.json', True)
     domain_status = 'skipped'
@@ -97,10 +129,13 @@ def resolve(root, feature, stage):
                     admit(card)
     ds_status = 'not-applicable'
     ds_dir = root / 'design-system'
+    ds_present = ('design-system' in tree if revision is not None else
+                  ds_dir.exists() or ds_dir.is_symlink())
     if stage == 'impl':
-        observed['design-system/'] = 'present' if ds_dir.exists() or ds_dir.is_symlink() else None
-    if stage == 'impl' and (ds_dir.exists() or ds_dir.is_symlink()):
-        if ds_dir.is_symlink() or not ds_dir.is_dir():
+        observed['design-system/'] = 'present' if ds_present else None
+    if stage == 'impl' and ds_present:
+        if ((revision is not None and tree['design-system'][:2] != ['040000', 'tree']) or
+                (revision is None and (ds_dir.is_symlink() or not ds_dir.is_dir()))):
             raise ValueError('unsafe design-system directory')
         design = observe('specs/' + feature + '/design.md').decode('utf-8')
         match = re.search(r'^## Design System Compliance[ \t]*\r?\n(.*?)(?=^## |\Z)', design, re.M | re.S)
@@ -119,9 +154,10 @@ def main():
     parser.add_argument('--root', required=True)
     parser.add_argument('--feature', required=True)
     parser.add_argument('--stage', choices=('spec', 'impl'), required=True)
+    parser.add_argument('--revision')
     args = parser.parse_args()
     try:
-        print(json.dumps(resolve(args.root, args.feature, args.stage), sort_keys=True))
+        print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision), sort_keys=True))
     except (OSError, ValueError, UnicodeError) as error:
         print('CONDITIONAL_INPUTS: ' + str(error), file=sys.stderr)
         return 1

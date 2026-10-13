@@ -4,7 +4,9 @@ param(
   [Parameter(Mandatory = $true)][string]$Attempt,
   [Parameter(Mandatory = $true)][string]$Round,
   [switch]$VerifyInputs,
-  [switch]$ProvenanceRereview
+  [switch]$ProvenanceRereview,
+  [string]$FixedInputRecord = '',
+  [string]$FixedInputSnapshot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -611,12 +613,20 @@ if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
+. (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
+$fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
+if ($null -ne $fixedSources) { $spec = Join-Path (Resolve-Path -LiteralPath $FixedInputSnapshot).Path "specs/$Feature" }
 if (-not (Test-Path -LiteralPath $spec -PathType Container) -or (Get-Item -LiteralPath $spec).LinkType) { Fail 'feature specification directory must be a real directory' }
 $registry = Get-Content -LiteralPath (Join-Path $root 'specs/workflow-state-registry.json') -Raw | ConvertFrom-Json
 $profileEntry = @($registry.entries | Where-Object { Test-OrdinalEqual $_.feature $Feature } | Select-Object -Last 1)
 $fullProfile = $profileEntry.Count -eq 1 -and (Test-OrdinalEqual $profileEntry[0].profile 'full')
 $layerNames = @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')
 $requirements = Join-Path $spec 'requirements.md'; $design = Join-Path $spec 'design.md'; $acceptance = Join-Path $spec 'acceptance-tests.md'; $tasks = Join-Path $spec 'tasks.md'; $traceability = Join-Path $spec 'traceability.md'
+if ($null -ne $fixedSources) {
+  $requirements = Get-ReviewInputSource $root "specs/$Feature/requirements.md" $fixedSources
+  $acceptance = Get-ReviewInputSource $root "specs/$Feature/acceptance-tests.md" $fixedSources
+  $tasks = Get-ReviewInputSource $root "specs/$Feature/tasks.md" $fixedSources
+}
 
 if ($VerifyInputs) {
   $precheckPath = Join-Path $report 'precheck-result.json'
@@ -642,6 +652,8 @@ if ($VerifyInputs) {
   }
   $persistedLayerProperties = if ($null -eq $precheck.psobject.Properties['layer_sha256']) { @() } else { @($precheck.layer_sha256.psobject.Properties) }
   if ($fullProfile -or $persistedLayerProperties.Count -gt 0) {
+    $design = Get-ReviewInputSource $root "specs/$Feature/design.md" $fixedSources
+    $traceability = Get-ReviewInputSource $root "specs/$Feature/traceability.md" $fixedSources
     if (-not (Test-Path -LiteralPath $design -PathType Leaf) -or (Get-Item -LiteralPath $design).LinkType) { Fail 'design review input is missing or substituted' }
     if (-not (Test-OrdinalEqual $precheck.design_sha256 ((Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()))) { Fail 'design review input changed after precheck' }
     if (-not (Test-Path -LiteralPath $traceability -PathType Leaf) -or (Get-Item -LiteralPath $traceability).LinkType) { Fail 'traceability review input is missing or substituted' }
@@ -650,7 +662,7 @@ if ($VerifyInputs) {
     $boundNames = @($precheck.layer_sha256.psobject.Properties.Name)
     if ($boundNames.Count -ne $layerNames.Count -or @($layerNames | Where-Object { $_ -notin $boundNames }).Count -gt 0) { Fail 'precheck layer manifest is incomplete' }
     foreach ($name in $layerNames) {
-      $path = Join-Path $spec $name
+      $path = Get-ReviewInputSource $root "specs/$Feature/$name" $fixedSources
       if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "layer review input is missing or substituted: $path" }
       if (-not (Test-OrdinalEqual $precheck.layer_sha256.$name ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLower()))) { Fail "layer review input changed after precheck: $path" }
     }

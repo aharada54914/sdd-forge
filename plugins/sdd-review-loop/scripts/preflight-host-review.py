@@ -33,7 +33,8 @@ def sha(path):
 
 
 def preflight(root, invocation, pin, host_cli=None, required_flags=(),
-              help_subcommands=(), runtime='bash', verify_scratch_projection=False):
+              help_subcommands=(), runtime='bash', verify_scratch_projection=False,
+              *, fixed_input_record=None, fixed_input_snapshot=None):
     root = root.resolve(strict=True)
     require(runtime in ('bash', 'powershell'), 'unsupported review runtime')
     require(invocation.is_file() and not invocation.is_symlink(), 'invocation is not a regular file')
@@ -46,7 +47,9 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
             data.get('stage') in ('spec', 'impl', 'task', 'quality') and
             data.get('read_only') is True, 'unsupported invocation')
     launcher = load_module('review_launcher', Path(__file__).with_name('launch-impl-review.py'))
-    admitted = launcher.checked_input_paths(root, data)
+    fixed_inputs = launcher.transport.fixed_input_binding(
+        root, data, fixed_input_record, fixed_input_snapshot)
+    admitted = launcher.checked_input_paths(root, data, fixed_inputs)
     stage, feature = data['stage'], data['feature']
     require(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*', feature) is not None,
             'unsafe feature')
@@ -87,8 +90,9 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
         precheck = root / rounds[0].group()
         precheck_pin = sha(precheck)
         launcher.verify_inputs_before_output(root, stage, feature, attempt,
-                                             round_number, runtime=runtime)
-        expected = launcher.required_input_paths(root, data, precheck, attempt, round_number)
+                                             round_number, runtime=runtime, fixed_inputs=fixed_inputs)
+        expected = launcher.required_input_paths(root, data, precheck, attempt, round_number,
+                                                fixed_inputs=fixed_inputs)
         require(sha(precheck) == precheck_pin and admitted == expected,
                 'required stage inputs differ or changed')
     if host_cli is not None:
@@ -112,6 +116,11 @@ def preflight(root, invocation, pin, host_cli=None, required_flags=(),
                if runtime == 'bash' else
                ['rtk', 'proxy', 'pwsh', '-NoProfile', '-File', str(validator),
                 '-Manifest', str(invocation), '-RepositoryRoot', str(root)])
+    if fixed_input_record is not None:
+        command.extend((['--fixed-input-record', str(fixed_input_record),
+                         '--fixed-input-snapshot', str(fixed_input_snapshot)] if runtime == 'bash' else
+                        ['-FixedInputRecord', str(fixed_input_record),
+                         '-FixedInputSnapshot', str(fixed_input_snapshot)]))
     result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=600)
     require(result.returncode == 0 and
             re.fullmatch(r'REVIEW_CONTEXT_OK [0-9a-f]{64} sequence=[1-9][0-9]* '
@@ -132,12 +141,16 @@ def main():
     parser.add_argument('--help-subcommand', action='append', default=[])
     parser.add_argument('--runtime', choices=('bash', 'powershell'), default='bash')
     parser.add_argument('--verify-scratch-projection', action='store_true')
+    parser.add_argument('--fixed-input-record', type=Path)
+    parser.add_argument('--fixed-input-snapshot', type=Path)
     args = parser.parse_args()
     try:
         count = preflight(args.repository_root, args.invocation,
                           args.manifest_sha256, args.host_cli, args.required_flag,
                           args.help_subcommand, args.runtime,
-                          args.verify_scratch_projection)
+                          args.verify_scratch_projection,
+                          fixed_input_record=args.fixed_input_record,
+                          fixed_input_snapshot=args.fixed_input_snapshot)
     except (OSError, ValueError, TypeError, KeyError, subprocess.TimeoutExpired) as error:
         print('HOST_REVIEW_PREFLIGHT_REJECTED: ' + str(error), file=sys.stderr)
         return 1

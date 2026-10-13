@@ -423,7 +423,10 @@ class LaunchOrderTests(unittest.TestCase):
                 for suffix in ('a', 'b'):
                     data = {'stage': stage, 'feature': feature,
                             'role': f'{stage}-reviewer-{suffix}',
-                            'allowed_input_manifest': []}
+                            'allowed_input_manifest': ([{
+                                'path': 'specs/demo/investigation.md',
+                                'sha256': hashlib.sha256(investigation.read_bytes()).hexdigest()
+                            }] if stage == 'impl' else [])}
                     expected = launcher.required_input_paths(root, data, precheck, 1, round_number)
                     self.assertIn(f'specs/{feature}/requirements.md', expected)
                     self.assertIn(f'specs/{feature}/investigation.md', expected)

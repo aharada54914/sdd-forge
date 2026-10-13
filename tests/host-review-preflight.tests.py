@@ -71,7 +71,8 @@ class HostReviewPreflightTests(unittest.TestCase):
         return root, invocation, data, ledger
 
     def run_preflight(self, root, invocation, *, cli=None, flags=(), subcommands=(),
-                      runtime='bash', projection=False, response=None):
+                      runtime='bash', projection=False, response=None,
+                      fixed_input_record=None, fixed_input_snapshot=None):
         calls = []
         def run(command, **kwargs):
             calls.append(command)
@@ -82,8 +83,33 @@ class HostReviewPreflightTests(unittest.TestCase):
              patch.object(launcher, 'verify_inputs_before_output'), \
              patch.object(preflight.subprocess, 'run', side_effect=run):
             count = preflight.preflight(root, invocation, preflight.sha(invocation),
-                                        cli, flags, subcommands, runtime, projection)
+                                        cli, flags, subcommands, runtime, projection,
+                                        fixed_input_record=fixed_input_record,
+                                        fixed_input_snapshot=fixed_input_snapshot)
         return count, calls
+
+    def test_fixed_binding_reaches_required_input_selection(self):
+        root, invocation, data, ledger = self.fixture('impl')
+        record, snapshot = root / 'fixed.json', root / 'snapshot'
+        binding = {'approval_reference': 'reports/review-context/fixed-approvals/a.json',
+                   'inventory': {'inputs': []}, 'snapshot': str(snapshot)}
+        admitted = {entry['path'] for entry in data['allowed_input_manifest']}
+        with patch.object(launcher.transport, 'fixed_input_binding', return_value=binding) as verify, \
+             patch.object(launcher, 'required_input_paths', return_value=admitted) as required:
+            self.run_preflight(root, invocation, fixed_input_record=record,
+                               fixed_input_snapshot=snapshot)
+        verify.assert_called_once_with(root.resolve(), data, record, snapshot)
+        self.assertIs(required.call_args.kwargs['fixed_inputs'], binding)
+        self.assertEqual(ledger.read_text(), 'unchanged')
+
+    def test_unpaired_fixed_binding_stops_before_validator(self):
+        root, invocation, _, ledger = self.fixture()
+        with patch.object(preflight.subprocess, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'must be paired'):
+                preflight.preflight(root, invocation, preflight.sha(invocation),
+                                    fixed_input_record=root / 'fixed.json')
+        run.assert_not_called()
+        self.assertEqual(ledger.read_text(), 'unchanged')
 
     def test_spec_and_quality_normal_preview_never_reserve(self):
         for stage in ('spec', 'quality'):

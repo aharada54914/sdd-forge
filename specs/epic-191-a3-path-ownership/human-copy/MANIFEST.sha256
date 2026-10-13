@@ -8,5 +8,5 @@ b532341d95cb7d110a00dd5af920cce3b852bd28b7bf84301807146c3972f3ea  plugins/sdd-qu
 1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a  plugins/sdd-quality-loop/scripts/check-contract.ps1
 f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5  plugins/sdd-quality-loop/scripts/check-component-coverage.ps1
 854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6  tests/gates.tests.sh
-5743d637684e6d16ba452386b19fb944b00557ee3f399e3e101252e7c0d6187d  plugins/sdd-review-loop/scripts/spec-review-precheck.sh
-ed64eb57ca2db43810205a9b214ec2a7246cd5d6ca8d82798609c0afb5a315b3  plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4  plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e  plugins/sdd-review-loop/scripts/spec-review-precheck.ps1

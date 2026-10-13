@@ -25,6 +25,7 @@ class VerifyInputsTest(unittest.TestCase):
         self.root = pathlib.Path(self.temp.name)
         scripts = self.root / "plugins/sdd-review-loop/scripts"
         scripts.mkdir(parents=True)
+        shutil.copytree(SCRIPTS / 'lib', scripts / 'lib')
         for name in ("spec-review-precheck.sh", "spec-review-precheck.ps1",
                      "review-contract-validate.sh", "review-contract-validate.ps1"):
             shutil.copy2(SCRIPTS / name, scripts / name)
