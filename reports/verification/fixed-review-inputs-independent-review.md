@@ -100,3 +100,15 @@ shared-launch files, fixed-review-launch (44), and shared-launch-build (1)
 passed. The independent reviewer inspected the one-line source diff, confirmed
 no remaining reference or dynamic use, and returned PASS; whitespace passed.
 Latest-head hosted static checks and the remaining CI still require confirmation.
+
+## Type-check follow-up (2026-10-14)
+
+Run 38425268819 reported 11 mypy errors: nullable dynamic import specifications
+and loaders, repeated executable lookup, and a nullable legacy command key.
+The two-file repair explicitly rejects missing loaders/legacy commands and
+reuses the executable lookup result. Fixed-input permissions are unchanged.
+Configured mypy (six files) and Ruff passed, as did fixed launch 44 and isolated
+FilesOnly build 1. Independent diff review returned PASS and independently ran
+fixed launch 44, quality transport 20 and build 1 (65 total). Whitespace passed.
+These are local results; latest-head CI and merge remain pending. Additional
+Windows/macOS equivalence remains waived, not passed.

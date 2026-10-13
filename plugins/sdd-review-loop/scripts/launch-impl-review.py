@@ -395,8 +395,9 @@ def launch(root, invocation, output, manifest_sha256=None, *,
             raise ValueError('missing dependency: ' + name)
         files.add(Path(executable).resolve(strict=True))
     files.add(Path(sys.executable).resolve(strict=True))
-    if shutil.which('sha256sum'):
-        files.add(Path(shutil.which('sha256sum')).resolve(strict=True))
+    sha256sum = shutil.which('sha256sum')
+    if sha256sum is not None:
+        files.add(Path(sha256sum).resolve(strict=True))
     pins = {str(p): transport.sha(p) for p in files}
     (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
     if verify is not None:

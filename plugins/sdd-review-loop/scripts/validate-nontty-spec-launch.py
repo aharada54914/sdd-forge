@@ -500,6 +500,8 @@ def fixed_input_binding(root, data, record_path=None, snapshot_path=None):
     inventory = load(record_path)
     spec = importlib.util.spec_from_file_location(
         'fixed_review_inputs', pathlib.Path(__file__).with_name('fixed-review-inputs.py'))
+    if spec is None or spec.loader is None:
+        raise ValueError('fixed input helper is not loadable')
     helper = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helper)
     helper.validate_inventory(inventory)
@@ -530,6 +532,8 @@ def fixed_input_binding(root, data, record_path=None, snapshot_path=None):
     if approvals or states:
         auth_spec = importlib.util.spec_from_file_location(
             'fixed_approval_context', root / 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py')
+        if auth_spec is None or auth_spec.loader is None:
+            raise ValueError('fixed approval helper is not loadable')
         auth = importlib.util.module_from_spec(auth_spec)
         auth_spec.loader.exec_module(auth)
         trust = dict(key=auth._resolve_key_or_raise(),
@@ -548,6 +552,8 @@ def fixed_input_binding(root, data, record_path=None, snapshot_path=None):
         require(sha(state_file) == admitted_hashes[states[0]], 'fixed state input changed')
         state_spec = importlib.util.spec_from_file_location(
             'fixed_review_state', pathlib.Path(__file__).with_name('fixed-review-state.py'))
+        if state_spec is None or state_spec.loader is None:
+            raise ValueError('fixed state helper is not loadable')
         state_helper = importlib.util.module_from_spec(state_spec)
         state_spec.loader.exec_module(state_helper)
         document = load(state_file)
@@ -827,7 +833,11 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
         batch_command = None if fixed_inputs else control['compact_command']
         if data['stage'] != 'quality' and not fixed_inputs:
             allowed_bash.add('rtk proxy test -d domain')
-        required_hashes: dict[str, str | None] = {} if fixed_inputs else {batch_command: None}
+        required_hashes: dict[str, str | None] = {}
+        if not fixed_inputs:
+            if not isinstance(batch_command, str) or not batch_command:
+                raise ValueError('missing compact verification command')
+            required_hashes[batch_command] = None
         required_order = list(required_hashes)
         file_hash_order = [] if fixed_inputs else [batch_command]
         proven: set[str] = set()
