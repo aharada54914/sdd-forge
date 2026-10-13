@@ -133,3 +133,19 @@ RCB001-010 Bash/PowerShell cases. This is the authorized independent review
 exception, not a fabricated formal-ledger verdict or task Done transition.
 Additional native Windows/macOS equivalence is NOT RUN under the user waiver.
 Latest-head hosted CI and merge must still be verified separately.
+
+## Hosted-CI compatibility repair (2026-10-14)
+
+Run 38429776810 failed on macOS because Bash 3.2 with nounset rejects expansion
+of an empty array. Dependency discovery now uses an always-nonempty argument
+array, preserving the same arguments and validation. The original failure was
+reproduced with Bash 3.2; the complete foundation suite passed after repair.
+
+Python 3.9 also rejects slicing Path.parents directly. Both snapshot directory
+collections now convert parents to a list before slicing; their scope and
+permission handling are unchanged. The final Python 3.9 input suite passed all
+33 tests. Fresh independent Codex review returned PASS with no Critical/Major
+findings and independently passed 47 launch tests under Python 3.9 and 47 under
+the default Python, plus directory-scope and whitespace checks. These focused
+compatibility regressions do not claim full native OS equivalence. Updated-head
+hosted CI, merge and post-merge verification remain pending.

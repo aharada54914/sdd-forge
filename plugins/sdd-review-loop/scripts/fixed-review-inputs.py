@@ -133,7 +133,7 @@ def verify(output: Path, inventory: dict) -> None:
                     raise ValueError('snapshot parent must be a directory')
             target = target / parts[-1]
             expected_files.add(target)
-            expected_directories.update(target.parents[:len(parts)])
+            expected_directories.update(list(target.parents)[:len(parts)])
             metadata = target.lstat()
             if not stat.S_ISREG(metadata.st_mode):
                 raise ValueError('snapshot input must be a regular file')
@@ -245,7 +245,7 @@ def materialize(repo: Path, commit: str, paths: list[str], output: Path) -> dict
         for name, mode, data in blobs:
             target = output / name
             target.parent.mkdir(parents=True, exist_ok=True)
-            directories.update(target.parents[:len(Path(name).parts)])
+            directories.update(list(target.parents)[:len(Path(name).parts)])
             with target.open('xb') as handle:
                 handle.write(data)
             target.chmod(0o555 if mode == b'100755' else 0o444)

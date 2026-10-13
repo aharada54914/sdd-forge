@@ -727,14 +727,14 @@ fi
 
 fixed_references='[]'
 fixed_sources='[]'
-fixed_revision_args=()
+conditional_input_args=(--root "$repository_root" --feature "$feature" --stage "$stage")
 if [[ -n "$fixed_record" ]]; then
   fixed_references=$(python3 "$(dirname "$0")/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
     fixed-binding "$repository_root" "$manifest" --fixed-input-record "$fixed_record" \
     --fixed-input-snapshot "$fixed_snapshot") || fail CONTRACT 'fixed input binding rejected'
   fixed_sources=$(jq -ce '.inputs' "$fixed_record") || fail CONTRACT 'fixed input inventory rejected'
   fixed_revision=$(jq -er '.commit' "$fixed_record") || fail CONTRACT 'fixed input revision rejected'
-  fixed_revision_args=(--revision "$fixed_revision")
+  conditional_input_args+=(--revision "$fixed_revision")
 fi
 
 # Issue #288: new reviews must bind existing investigation evidence. A
@@ -742,7 +742,7 @@ fi
 # Check fresh preflight as well as --reserve, without expanding task inputs.
 if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
   conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
-    --root "$repository_root" --feature "$feature" --stage "$stage" "${fixed_revision_args[@]}") ||
+    "${conditional_input_args[@]}") ||
     fail INPUT 'conditional review dependencies could not be resolved'
   jq -e --argjson expected "$conditional_inputs_json" '
     .allowed_input_manifest as $declared |
