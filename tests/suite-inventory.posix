@@ -2,6 +2,7 @@
 # Keep this file as the single source of truth for suites that run in
 # tests/run-all.sh and in the CI fallback runner.
 tests/ci-suite-wiring.tests.sh
+tests/ci-claude-install.tests.sh
 tests/wfi-034-scratch-metric.tests.sh
 tests/adversarial-review-contracts.tests.sh
 tests/install.tests.sh
