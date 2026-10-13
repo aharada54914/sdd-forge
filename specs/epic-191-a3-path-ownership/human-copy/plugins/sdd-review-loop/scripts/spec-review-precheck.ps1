@@ -17,7 +17,9 @@ param(
   [Parameter(Mandatory = $true, Position = 2)][string]$Round,
   [Parameter(Position = 3)][string]$EditSummary = '',
   [switch]$Reset,
-  [switch]$VerifyInputs
+  [switch]$VerifyInputs,
+  [string]$FixedInputRecord = '',
+  [string]$FixedInputSnapshot = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -207,6 +209,8 @@ if ($VerifyInputs) {
 }
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
+. (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
+$fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
 $specsRoot = Join-Path $root 'specs'
 $reportsRoot = Join-Path $root 'reports'
 $reportsBase = Join-Path $reportsRoot 'spec-review'
@@ -215,6 +219,14 @@ $requirements = Join-Path $specDir 'requirements.md'
 $acceptance = Join-Path $specDir 'acceptance-tests.md'
 $calibration = Join-Path $root 'plugins/sdd-review-loop/references/spec-review-calibration.md'
 $investigation = Join-Path $specDir 'investigation.md'
+if ($null -ne $fixedSources) {
+  $requirements = Get-ReviewInputSource $root "specs/$Feature/requirements.md" $fixedSources
+  $acceptance = Get-ReviewInputSource $root "specs/$Feature/acceptance-tests.md" $fixedSources
+  $calibration = Get-ReviewInputSource $root 'plugins/sdd-review-loop/references/spec-review-calibration.md' $fixedSources
+  $specDir = Split-Path -Parent $requirements
+  $specsRoot = Split-Path -Parent $specDir
+  $investigation = Join-Path $specDir 'investigation.md'
+}
 $reportRoot = Join-Path $reportsBase $Feature
 $reportDir = Join-Path $reportRoot (Join-Path "attempt-$attemptInt" "round-$roundInt")
 

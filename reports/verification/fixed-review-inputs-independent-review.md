@@ -66,3 +66,28 @@ Independent execution: Bash prechecks 7, detached state 7, fixed launch 44,
 launch ordering 9 (67 total), plus `git diff --check`, all passed. This includes
 the investigation-input fixture correction. No reservation or historical verdict
 was modified. Task Approved/Done authority remains with its existing lifecycle.
+
+## CI integration repairs (2026-10-14)
+
+Run 38420285663 exposed missing shared helpers in disposable test fixtures,
+stale applied A3 mirrors, and stale boundary source anchors. The version-gates
+failures on all three operating systems share TEST-036.4's mirror mismatch.
+Fixtures now include the existing helper; applied mirrors and anchors match the
+current sources. Pending unrelated mirrors remain untouched.
+
+Owner reruns: quality transport 20, loop-driver 26, mirror freshness 6 (19
+informational pending), component coverage 46, boundary anchors 32, runtime
+boundary 3, regular investigation 116, hardlink 84, and symlink 84 passed.
+The initial boundary run's four symlink failures were diagnostic expectations:
+each operation already rejected with exit 1 and unchanged ledger. Expectations
+now name the earlier conditional-input rejection; exit and ledger assertions
+remain required. The final symlink rerun returned 84 PASS, 0 FAIL.
+
+Independent reviewer returned PASS for this integration diff and independently
+reran the four final Bash/impl/symlink/omitted cases: exit 1, unchanged ledger,
+and the required diagnostic in each. Earlier independent checks also covered
+quality transport 20, loop-driver 26, mirror freshness 6, and all 32 anchors.
+`git diff --check` passed. No product rejection rule was relaxed.
+
+Latest-head CI and merge are still pending. Additional Windows/macOS equivalence
+runs are waived, not PASS; required hosted CI remains enabled.
