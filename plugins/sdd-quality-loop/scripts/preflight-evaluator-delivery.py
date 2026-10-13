@@ -28,7 +28,10 @@ def regular(root, relative):
     return path
 
 
-def check(manifest, expected, repository, scratch=None, reserve=False):
+def check(manifest, expected, repository, scratch=None, reserve=False,
+          fixed_input_record=None, fixed_input_snapshot=None):
+    if (fixed_input_record is None) != (fixed_input_snapshot is None):
+        raise DeliveryError("fixed-input-pair-required")
     if not re.fullmatch(r"[0-9a-f]{64}", expected):
         raise DeliveryError("caller-pin-invalid")
     if manifest.is_symlink() or not manifest.is_file():
@@ -47,7 +50,11 @@ def check(manifest, expected, repository, scratch=None, reserve=False):
         raise DeliveryError("admitted-inputs-missing")
     repository = repository.resolve(strict=True)
     validator = Path(__file__).with_name("validate-review-context-set.sh")
-    result = subprocess.run(["bash", str(validator), str(manifest.resolve()), str(repository)],
+    command = ["bash", str(validator), str(manifest.resolve()), str(repository)]
+    if fixed_input_record is not None:
+        command.extend(["--fixed-input-record", str(fixed_input_record),
+                        "--fixed-input-snapshot", str(fixed_input_snapshot)])
+    result = subprocess.run(command,
                             capture_output=True, text=True, timeout=120)
     if result.returncode != 0:
         # Only the validator's bounded category is exposed, never its raw log.
@@ -70,7 +77,7 @@ def check(manifest, expected, repository, scratch=None, reserve=False):
     if reserve:
         if manifest.read_bytes() != raw:
             raise DeliveryError("manifest-changed")
-        result = subprocess.run(["bash", str(validator), str(manifest.resolve()), str(repository), "--reserve"],
+        result = subprocess.run(command + ["--reserve"],
                                 capture_output=True, text=True, timeout=120)
         if result.returncode != 0:
             raise DeliveryError("reservation-rejected")
@@ -85,9 +92,12 @@ def main():
     parser.add_argument("--repository-root", type=Path, required=True)
     parser.add_argument("--scratch-root", type=Path)
     parser.add_argument("--reserve", action="store_true")
+    parser.add_argument("--fixed-input-record", type=Path)
+    parser.add_argument("--fixed-input-snapshot", type=Path)
     args = parser.parse_args()
     try:
-        count = check(args.manifest, args.manifest_sha256, args.repository_root, args.scratch_root, args.reserve)
+        count = check(args.manifest, args.manifest_sha256, args.repository_root, args.scratch_root,
+                      args.reserve, args.fixed_input_record, args.fixed_input_snapshot)
     except DeliveryError as error:
         print(f"EVALUATOR_DELIVERY_REJECTED: {error}", file=sys.stderr)
         return 1

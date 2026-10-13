@@ -28,11 +28,14 @@ is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
 edit_summary=""; reset=false; verify_inputs=false
+fixed_input_record=""; fixed_input_snapshot=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --edit-summary=*) edit_summary="${1#*=}" ;;
     --reset) reset=true ;;
     --verify-inputs) verify_inputs=true ;;
+    --fixed-input-record) fixed_input_record="${2:?missing fixed record}"; shift ;;
+    --fixed-input-snapshot) fixed_input_snapshot="${2:?missing fixed snapshot}"; shift ;;
     *) usage ;;
   esac
   shift
@@ -68,6 +71,21 @@ calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibra
 investigation="${spec_dir}/investigation.md"
 report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
+. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+fixed_input_init "$verify_inputs"
+if [[ -n "$fixed_source_map" ]]; then
+  requirements=$(fixed_input_path "$requirements")
+  acceptance=$(fixed_input_path "$acceptance")
+  calibration=$(fixed_input_path "$calibration")
+  fixed_revision=$(jq -er '.commit' <<< "$fixed_source_map")
+  if git -C "$repo_root" cat-file -e "$fixed_revision:specs/$feature/investigation.md" 2>/dev/null; then
+    investigation=$(fixed_input_path "$investigation")
+  else
+    investigation="$fixed_input_snapshot/specs/$feature/investigation.md"
+  fi
+  spec_dir=$(dirname "$requirements")
+  specs_root=$(dirname "$spec_dir")
+fi
 
 # Manifests record absolute paths from whatever checkout produced the evidence.
 # A later run -- a git worktree, CI, a different machine -- has a different

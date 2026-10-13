@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import argparse
 import importlib.util
 import json
 from pathlib import Path
@@ -33,9 +34,12 @@ if spec is None or spec.loader is None:
     raise SystemExit('non-TTY transport module loader missing')
 transport = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transport)
-if len(sys.argv) != 2:
-    raise SystemExit('expected one source invocation path')
-source_invocation = Path(sys.argv[1]).resolve(strict=True)
+parser = argparse.ArgumentParser()
+parser.add_argument('invocation')
+parser.add_argument('--fixed-input-record', type=Path)
+parser.add_argument('--fixed-input-snapshot', type=Path)
+args = parser.parse_args()
+source_invocation = Path(args.invocation).resolve(strict=True)
 if not source_invocation.is_file():
     raise SystemExit('source invocation must be a regular file')
 try:
@@ -43,6 +47,8 @@ try:
 except ValueError as error:
     raise SystemExit('source invocation must be inside the repository') from error
 source_data, _ = transport.manifest(ROOT, source_invocation)
+fixed_inputs = transport.fixed_input_binding(ROOT, source_data, args.fixed_input_record,
+                                            args.fixed_input_snapshot)
 session = str(uuid.uuid4())
 transport.identity(session)
 print(json.dumps({'diagnostic_session': session, 'reservation': 'not performed'}), flush=True)
@@ -93,15 +99,23 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     read_paths = transport.diagnostic_read_paths(entries, invocation_relative)
     all_read_paths = [e['path'] for e in entries] + [invocation_relative,
                                                       transport.BOUNDARY_PATH]
+    if fixed_inputs:
+        selected = {entry['path'] for entry in fixed_inputs['inventory']['inputs']}
+        def mapped(name):
+            base = Path(fixed_inputs['snapshot']) if name in selected else ROOT
+            return str((base / name).resolve())
+        read_paths = [mapped(name) for name in read_paths]
+        all_read_paths = [mapped(name) for name in all_read_paths]
+        outside = str(outside_path.resolve())
     receipt_path.write_text(receipt)
     transport.preflight(ROOT, invocation, tmp / (session + '.jsonl'))
-    policy_bytes, settings = transport.launch_policy(ROOT, invocation, receipt_path, policy_path)
+    policy_bytes, settings = transport.launch_policy(ROOT, invocation, receipt_path, policy_path,
+                                                     fixed_inputs=fixed_inputs)
     policy_path.write_bytes(policy_bytes)
     settings_path.write_text(json.dumps(settings))
     policy = json.loads(policy_bytes)
-    expected_policy_paths = [str(invocation.resolve()),
-                             str((ROOT / transport.BOUNDARY_PATH).resolve())] + [
-        str((ROOT / e['path']).resolve()) for e in entries]
+    expected_policy_paths = [str(p.resolve()) for p in
+                             transport.review_read_paths(ROOT, invocation, data, fixed_inputs)]
     if policy.get('read_paths') != expected_policy_paths:
         raise SystemExit('pinned policy does not admit every exact input path')
     guard = ROOT / 'plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs'
@@ -117,13 +131,16 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
                 (denied and 'permissionDecision":"deny' not in guarded.stdout) or
                 (not denied and guarded.stdout)):
             raise SystemExit('pinned guard read permission differs from exact input scope')
-    control = transport.receipt_control(data, receipt, invocation_relative, root=ROOT)
-    batch_command = control['compact_command']
-    hash_commands = control['hash_commands']
-    expected_hashes = [None]
+    control = transport.receipt_control(data, receipt, invocation_relative,
+                                        root=None if fixed_inputs else ROOT)
+    batch_command = 'rtk proxy pwd' if fixed_inputs else control['compact_command']
+    hash_commands = [] if fixed_inputs else control['hash_commands']
+    expected_hashes = [] if fixed_inputs else [None]
     chained_bash = batch_command + '; rtk proxy pwd'
+    retry_instruction = ('' if fixed_inputs else
+        ' If the first Bash receives the routine Fact-Forcing Gate refusal, give the requested truthful facts and immediately retry that same command byte-for-byte before call 2.')
     role = {'description': 'Unreserved session-local tool boundary diagnostic only.',
-        'prompt': 'Perform only the requested tool calls serially: wait for each tool result before issuing the next call, then report whether each ran or was denied. If the first Bash receives the routine Fact-Forcing Gate refusal, give the requested truthful facts and immediately retry that same command byte-for-byte before call 2. Do not retry a pinned-guard denial or use another tool.',
+        'prompt': 'Perform only the requested tool calls serially: wait for each tool result before issuing the next call, then report whether each ran or was denied.' + retry_instruction + ' Do not retry a pinned-guard denial or use another tool.',
             'tools': transport.agent_tools(stage),
             'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit'],
             'model': 'sonnet'}
@@ -131,19 +148,18 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
               'waiting for each result before the next call; do not parallelize. '
               'then stop. The out-of-scope file is benign. Continue to the next listed check '
               'after a pinned-guard denial, but do not retry or find another path for that denied call. '
-              'If call 1 is refused by the Fact-Forcing Gate, give its requested truthful facts and '
-              'retry call 1 immediately with identical command bytes before call 2.\n'
+              + retry_instruction + '\n'
               + '\n'.join(str(index) + '. Bash ' + command
                           for index, command in enumerate(hash_commands, 1)) +
               '\nThen Read each of these files with limit=1, in this order:\n' +
-              '\n'.join(transport.canonical_read_paths(ROOT, read_paths)) +
+              '\n'.join(read_paths if fixed_inputs else transport.canonical_read_paths(ROOT, read_paths)) +
               '\nThen Bash ' + chained_bash + '\nFinally Read ' +
-              transport.canonical_read_paths(ROOT, [outside])[0] +
+              (outside if fixed_inputs else transport.canonical_read_paths(ROOT, [outside])[0]) +
               ('\nAfter that final Read, submit one StructuredOutput JSON object and make '
                'no further tool calls.' if stage in transport.JSON_REVIEW_STAGES else ''))
     command = transport.claude_command(ROOT, session, role_name, role,
-                                      control['exact_permission_rules'], settings_path,
-                                      invocation, receipt_path, policy_path)
+                                      ['Read'] if fixed_inputs else control['exact_permission_rules'], settings_path,
+                                      invocation, receipt_path, policy_path, fixed_inputs=fixed_inputs)
     launch_result = subprocess.run(command, input=prompt, text=True, capture_output=True,
                             cwd=ROOT, timeout=300)
     print(json.dumps({'session': session, 'exit': launch_result.returncode,
@@ -241,7 +257,8 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
         if name == 'Bash':
             value = use.get('input', {}).get('command')
         elif name == 'Read':
-            value = str(Path(use.get('input', {}).get('file_path', '')).resolve().relative_to(ROOT))
+            resolved = Path(use.get('input', {}).get('file_path', '')).resolve()
+            value = str(resolved if fixed_inputs else resolved.relative_to(ROOT))
         elif name == 'StructuredOutput':
             value = None
         else:
@@ -259,6 +276,9 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     transport.verify_session_collision(collision, session, transcript_before, matches[0].read_bytes())
     if transport.sha(source_invocation) != source_digest or ledger.read_bytes() != ledger_before:
         raise SystemExit('source invocation or canonical ledger changed during diagnostic')
+    if transport.fixed_input_binding(ROOT, source_data, args.fixed_input_record,
+                                     args.fixed_input_snapshot) != fixed_inputs:
+        raise SystemExit('fixed input changed during diagnostic')
     print(json.dumps({'admitted_read_executed': True, 'outside_read_pretool_denied': True,
                       'control_reads_executed': True,
                       'existing_session_collision_rejected': True,
@@ -267,7 +287,8 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
                       'admitted_paths': [e['path'] for e in source_entries],
                       'native_read_paths': read_paths,
                       'guard_read_paths_verified': len(all_read_paths),
-                      'ordered_hashes_verified': len(entries) + 4,
+                      'ordered_hashes_verified': 0 if fixed_inputs else len(entries) + 4,
+                      'fixed_input_record_sha256': transport.sha(Path(fixed_inputs['record'])) if fixed_inputs else None,
                       'first_bash_retry_observed': first_bash_retry_seen,
                       'chained_bash_pretool_denied': True,
                       'policy_sha256': hashlib.sha256(policy_bytes).hexdigest(),

@@ -17,6 +17,44 @@ transport = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transport)
 
 
+def runtime_files(root, stage, fixed_inputs=False):
+    if not fixed_inputs:
+        return {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop')
+                for p in (root / folder).rglob('*') if p.is_file()}
+    review = 'plugins/sdd-review-loop/'
+    quality = 'plugins/sdd-quality-loop/scripts/'
+    names = {review + 'scripts/' + name for name in (
+        'launch-impl-review.py', 'validate-nontty-spec-launch.py',
+        'preflight-host-review.py', 'probe-nontty-review.py',
+        'fixed-review-inputs.py', 'fixed-review-state.py', 'nontty-impl-pretool-guard.mjs')}
+    names.update((review + 'references/review-context-boundary.md',
+                  quality + 'validate-review-context-set.sh',
+                  quality + 'validate-approval-sidecar.py',
+                  quality + 'supplemental-delivery-inputs.py'))
+    if stage != 'task':
+        names.update(quality + name for name in (
+            'review-conditional-inputs.py', 'validate-facet-manifest.py'))
+        names.update('contracts/domain-contract.' + version + '.schema.json'
+                     for version in ('v1', 'v2'))
+    if stage == 'quality':
+        names.add(quality + 'preflight-evaluator-delivery.py')
+    else:
+        transport.require(stage in ('spec', 'impl', 'task'), 'unsupported review stage')
+        names.add(review + 'scripts/' + stage + '-review-precheck.sh')
+        names.add(review + 'scripts/lib/fixed-input-source.sh')
+    if stage in ('impl', 'task'):
+        names.update((review + 'scripts/lib/review-precheck-common.sh',
+                      'specs/workflow-state-registry.json'))
+    if stage == 'task':
+        names.add(review + 'scripts/validate-layer-traceability.py')
+    files = {root / name for name in names}
+    for path in files:
+        transport.require(path.is_file() and not path.is_symlink() and
+                          path.resolve().is_relative_to(root.resolve()),
+                          'missing or unsafe runtime dependency: ' + str(path))
+    return files
+
+
 def run(root, command, destination, prompt=None):
     result = subprocess.run(command, cwd=root, input=prompt, text=True,
                             capture_output=True, timeout=600)
@@ -26,7 +64,7 @@ def run(root, command, destination, prompt=None):
     return result.stdout
 
 
-def required_dependencies(root, data):
+def required_dependencies(root, data, fixed_inputs=None):
     """Require canonical conditional inputs before any reservation."""
     if data['stage'] == 'task':
         return {'inputs': []}
@@ -37,7 +75,8 @@ def required_dependencies(root, data):
         raise ValueError('conditional input loader unavailable')
     helper = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(helper)
-    result = helper.resolve(root, data['feature'], data['stage'])
+    result = helper.resolve(root, data['feature'], data['stage'],
+                            revision=fixed_inputs['inventory']['commit'] if fixed_inputs else None)
     admitted = {entry['path']: entry.get('sha256')
                 for entry in data['allowed_input_manifest']}
     for entry in result['inputs']:
@@ -46,11 +85,12 @@ def required_dependencies(root, data):
     return result
 
 
-def checked_input_paths(root, data):
+def checked_input_paths(root, data, fixed_inputs=None):
     """Reject unsafe manifest paths before opening any caller-named input."""
     entries = data['allowed_input_manifest']
     transport.require(isinstance(entries, list) and entries, 'input manifest is empty')
     seen = set()
+    selected = {item['path'] for item in fixed_inputs['inventory']['inputs']} if fixed_inputs else set()
     for entry in entries:
         transport.require(isinstance(entry, dict) and set(entry) == {'path', 'sha256'},
                           'invalid input manifest entry')
@@ -62,7 +102,7 @@ def checked_input_paths(root, data):
                           isinstance(digest, str) and re.fullmatch(r'[0-9a-f]{64}', digest) and
                           path not in seen, 'unsafe or duplicate input manifest path')
         seen.add(path)
-        current = root
+        current = Path(fixed_inputs['snapshot']) if path in selected else root
         for part in path.split('/'):
             transport.require(current.is_dir(), 'input path parent is not a directory: ' + path)
             transport.require(part in {item.name for item in current.iterdir()},
@@ -73,7 +113,7 @@ def checked_input_paths(root, data):
     return seen
 
 
-def verify_inputs_before_output(root, stage, feature, attempt, round_number, runtime='bash'):
+def verify_inputs_before_output(root, stage, feature, attempt, round_number, runtime='bash', fixed_inputs=None):
     """Use the existing precheck's ADR/design binding before trusting its paths."""
     transport.require(runtime in ('bash', 'powershell'), 'unsupported precheck runtime')
     script = root / 'plugins/sdd-review-loop/scripts' / (stage + '-review-precheck.' +
@@ -83,12 +123,17 @@ def verify_inputs_before_output(root, stage, feature, attempt, round_number, run
                ['rtk', 'proxy', 'pwsh', '-NoProfile', '-File', str(script),
                 '-Feature', feature, '-Attempt', str(attempt), '-Round',
                 str(round_number), '-VerifyInputs'])
+    if fixed_inputs:
+        command.extend(['--fixed-input-record' if runtime == 'bash' else '-FixedInputRecord',
+                        fixed_inputs['record'],
+                        '--fixed-input-snapshot' if runtime == 'bash' else '-FixedInputSnapshot',
+                        fixed_inputs['snapshot']])
     result = subprocess.run(command,
                             cwd=root, capture_output=True, text=True, timeout=600)
     transport.require(result.returncode == 0, 'read-only precheck failed before output')
 
 
-def required_input_paths(root, data, precheck_path, attempt, round_number):
+def required_input_paths(root, data, precheck_path, attempt, round_number, fixed_inputs=None):
     """Rebuild the stage/role set already required by the review prechecks."""
     precheck = transport.load(precheck_path)
     stage, role, feature = data['stage'], data['role'], data['feature']
@@ -117,8 +162,6 @@ def required_input_paths(root, data, precheck_path, attempt, round_number):
                 'risk-gate-matrix.md', 'risk-classification-policy.md'))
     else:
         expected.add(spec_dir + 'design.md')
-        if (root / (spec_dir + 'investigation.md')).exists():
-            expected.add(spec_dir + 'investigation.md')
         layers = precheck.get('layer_sha256') or {}
         transport.require(isinstance(layers, dict) and
                           set(layers) <= {'ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md'},
@@ -139,11 +182,14 @@ def required_input_paths(root, data, precheck_path, attempt, round_number):
                          '/round-' + str(round_number - 1) + '/integrated-summary.json')
     if role.endswith('-b'):
         expected.add(round_dir + 'integrated-summary.json')
-    expected.update(e['path'] for e in required_dependencies(root, data)['inputs'])
+    expected.update(e['path'] for e in required_dependencies(root, data, fixed_inputs)['inputs'])
+    if fixed_inputs is not None:
+        expected.update(fixed_inputs[key]['path'] for key in
+                        ('approval_reference', 'progress_reference') if key in fixed_inputs)
     return expected
 
 
-def quality_input_precheck(root, invocation, output, data):
+def quality_input_precheck(root, invocation, output, data, fixed_args=(), fixed_inputs=None):
     """Run canonical quality admission and native preflight before any output."""
     session = data['host_session_id']
     transport.require(output.resolve().parent ==
@@ -161,9 +207,10 @@ def quality_input_precheck(root, invocation, output, data):
     admitted = {entry['path'] for entry in data['allowed_input_manifest']}
     transport.require(required <= admitted,
                       'quality invocation omits required specification, calibration, or task report')
-    checked_input_paths(root, data)
+    checked_input_paths(root, data, fixed_inputs)
     validator = root / 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh'
     check = ['rtk', 'proxy', 'bash', str(validator), str(invocation), str(root)]
+    check.extend(fixed_args)
     result = subprocess.run(check, cwd=root, text=True, capture_output=True,
                             timeout=600)
     transport.require(result.returncode == 0 and
@@ -180,11 +227,11 @@ def quality_input_precheck(root, invocation, output, data):
     return result.stdout
 
 
-def quality_delivery_command(root, invocation, pin, data):
+def quality_delivery_command(root, invocation, pin, data, fixed_args=()):
     return ['rtk', 'proxy', sys.executable, '-B',
             str(root / 'plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py'),
             '--manifest', str(invocation), '--manifest-sha256', pin,
-            '--repository-root', str(root), '--scratch-root', data['scratch_root']]
+            '--repository-root', str(root), '--scratch-root', data['scratch_root'], *fixed_args]
 
 
 def quality_delivery_result(text, count, *, reserved=False):
@@ -203,7 +250,8 @@ def quality_delivery_result(text, count, *, reserved=False):
     return receipt
 
 
-def launch(root, invocation, output, manifest_sha256=None):
+def launch(root, invocation, output, manifest_sha256=None, *,
+           fixed_input_record=None, fixed_input_snapshot=None):
     root = root.resolve()
     transport.require(invocation.is_file() and not invocation.is_symlink(),
                       'invocation is not a regular file')
@@ -213,6 +261,8 @@ def launch(root, invocation, output, manifest_sha256=None):
                           transport.sha(invocation) == manifest_sha256,
                           'caller invocation pin mismatch')
     data, _ = transport.manifest(root, invocation)
+    fixed_inputs = transport.fixed_input_binding(
+        root, data, fixed_input_record, fixed_input_snapshot)
     stage = data['stage']
     transport.require(stage in ('spec', 'impl', 'task', 'quality'), 'unsupported review stage')
     transport.require(stage != 'quality' or manifest_sha256 is not None,
@@ -223,10 +273,18 @@ def launch(root, invocation, output, manifest_sha256=None):
     scripts = root / 'plugins/sdd-review-loop/scripts'
     validator = root / 'plugins/sdd-quality-loop/scripts/validate-review-context-set.sh'
     probe = scripts / 'probe-nontty-review.py'
+    fixed_args = (['--fixed-input-record', str(fixed_input_record),
+                   '--fixed-input-snapshot', str(fixed_input_snapshot)]
+                  if fixed_inputs is not None else [])
     check = ['rtk', 'proxy', 'bash', str(validator), str(invocation), str(root)]
+    check.extend(fixed_args)
+    input_command = ['rtk', 'proxy', sys.executable, str(scripts / 'preflight-host-review.py'),
+                     str(root), str(invocation), '--manifest-sha256', transport.sha(invocation)]
+    if fixed_inputs is not None:
+        input_command.extend(['--fixed-input-record', str(fixed_input_record),
+                              '--fixed-input-snapshot', str(fixed_input_snapshot)])
     input_preflight = subprocess.run(
-        ['rtk', 'proxy', sys.executable, str(scripts / 'preflight-host-review.py'),
-         str(root), str(invocation), '--manifest-sha256', transport.sha(invocation)],
+        input_command,
         cwd=root, capture_output=True, text=True, timeout=600)
     transport.require(input_preflight.returncode == 0,
                       'common input preflight rejected: ' + input_preflight.stderr.strip())
@@ -235,12 +293,12 @@ def launch(root, invocation, output, manifest_sha256=None):
         r'permission-proof=not-established reservation=not-performed\n?',
         input_preflight.stdout) is not None, 'invalid common input preflight result')
     if stage == 'quality':
-        delivery = quality_delivery_command(root, invocation, manifest_sha256, data)
+        delivery = quality_delivery_command(root, invocation, manifest_sha256, data, fixed_args)
         prepared = subprocess.run(delivery, cwd=root, capture_output=True, text=True, timeout=600)
         transport.require(prepared.returncode == 0,
                           'evaluator delivery preflight rejected: ' + prepared.stderr.strip())
         quality_delivery_result(prepared.stdout, len(data['allowed_input_manifest']))
-        initial_preview = quality_input_precheck(root, invocation, output, data)
+        initial_preview = quality_input_precheck(root, invocation, output, data, fixed_args, fixed_inputs)
         round_dir = root / 'reports/quality-gate'
         role_path = root / 'plugins/sdd-quality-loop/agents/evaluator.md'
         verify = None
@@ -252,12 +310,12 @@ def launch(root, invocation, output, manifest_sha256=None):
         rounds = [m for m in matches if m is not None]
         transport.require(len(rounds) == 1, 'one admitted precheck is required')
         attempt, round_number = rounds[0].groups()
-        admitted = checked_input_paths(root, data)
+        admitted = checked_input_paths(root, data, fixed_inputs)
         precheck_path = root / rounds[0].group()
         precheck_digest = transport.sha(precheck_path)
-        verify_inputs_before_output(root, stage, feature, int(attempt), int(round_number))
+        verify_inputs_before_output(root, stage, feature, int(attempt), int(round_number), fixed_inputs=fixed_inputs)
         expected = required_input_paths(root, data, precheck_path,
-                                        int(attempt), int(round_number))
+                                        int(attempt), int(round_number), fixed_inputs)
         transport.require(transport.sha(precheck_path) == precheck_digest,
                           'precheck changed during early input validation')
         transport.require(admitted == expected,
@@ -270,7 +328,10 @@ def launch(root, invocation, output, manifest_sha256=None):
         role_path = root / ('plugins/sdd-review-loop/agents/' + data['role'] + '.md')
         verify = ['rtk', 'proxy', 'bash', str(scripts / (stage + '-review-precheck.sh')),
                   feature, attempt, round_number, '--verify-inputs']
-        dependency_presence = required_dependencies(root, data)
+        if fixed_inputs:
+            verify.extend(['--fixed-input-record', fixed_inputs['record'],
+                           '--fixed-input-snapshot', fixed_inputs['snapshot']])
+        dependency_presence = required_dependencies(root, data, fixed_inputs)
     role_parts = role_path.read_text().split('---', 2)
     transport.require(len(role_parts) == 3 and not role_parts[0].strip(),
                       'role frontmatter missing')
@@ -283,6 +344,7 @@ def launch(root, invocation, output, manifest_sha256=None):
                       'role model conflicts with Sonnet-only launch authorization')
     # Exclusive creation prevents an interrupted launch from replaying reservation.
     output.mkdir()
+    execution_digest = transport.record_fixed_execution(output, invocation, data, fixed_inputs)
     transcript = output / (session + '.jsonl')
     preflight_result = transport.preflight(root, invocation, transcript)
     transport.require(preflight_result.get('status') == 'PREFLIGHT_OK' and
@@ -317,16 +379,24 @@ def launch(root, invocation, output, manifest_sha256=None):
             'prompt': role_parts[2].strip(), 'model': selected_model,
             'tools': transport.agent_tools(stage),
             'disallowedTools': ['Grep', 'Glob', 'Write', 'Edit', 'NotebookEdit']}
+    if fixed_inputs:
+        role['prompt'] += ('\nFixed-input route: the launcher verifies input identity. '
+                           'Do not run hash-only commands or Bash. Read the exact supplied '
+                           'snapshot paths; retain all substantive review checks.')
     # Pin current dependencies, not just the caller's manifest. No baseline promotion.
     files = {invocation, role_path, probe}
-    for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop'):
-        files.update(p for p in (root / folder).rglob('*') if p.is_file())
-    files.update(root / e['path'] for e in data['allowed_input_manifest'])
-    for name in ('rtk', 'claude', 'node', 'bash', 'jq', 'shasum'):
+    files.update(runtime_files(root, stage, bool(fixed_inputs)))
+    selected = {entry['path'] for entry in fixed_inputs['inventory']['inputs']} if fixed_inputs else set()
+    files.update((Path(fixed_inputs['snapshot']) if e['path'] in selected else root) / e['path']
+                 for e in data['allowed_input_manifest'])
+    for name in ('rtk', 'claude', 'node', 'bash', 'jq', 'shasum', 'git', 'python3'):
         executable = shutil.which(name)
         if executable is None:
             raise ValueError('missing dependency: ' + name)
         files.add(Path(executable).resolve(strict=True))
+    files.add(Path(sys.executable).resolve(strict=True))
+    if shutil.which('sha256sum'):
+        files.add(Path(shutil.which('sha256sum')).resolve(strict=True))
     pins = {str(p): transport.sha(p) for p in files}
     (output / 'dependencies.json').write_text(json.dumps(pins, sort_keys=True))
     if verify is not None:
@@ -339,14 +409,23 @@ def launch(root, invocation, output, manifest_sha256=None):
     receipt.write_text(preview)
     policy = output / 'policy.json'
     settings = output / 'settings.json'
-    policy_bytes, settings_value = transport.launch_policy(root, invocation, receipt, policy)
+    route_options = {'fixed_inputs': fixed_inputs} if fixed_inputs else {}
+    policy_bytes, settings_value = transport.launch_policy(
+        root, invocation, receipt, policy, **route_options)
     policy.write_bytes(policy_bytes)
     settings.write_text(json.dumps(settings_value))
     permissions = transport.receipt_control(
-        data, preview, invocation.relative_to(root).as_posix(), root=root)['exact_permission_rules']
+        data, preview, invocation.relative_to(root).as_posix(),
+            root=None if fixed_inputs else root)['exact_permission_rules']
+    if fixed_inputs:
+        permissions = ['Read']
     command = transport.claude_command(root, session, data['role'], role, permissions,
-                                       settings, invocation, receipt, policy)
-    native = run(root, ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)], output / 'native.jsonl')
+                                       settings, invocation, receipt, policy, **route_options)
+    probe_command = ['rtk', 'proxy', sys.executable, '-B', str(probe), str(invocation)]
+    if fixed_inputs:
+        probe_command += ['--fixed-input-record', fixed_inputs['record'],
+                          '--fixed-input-snapshot', fixed_inputs['snapshot']]
+    native = run(root, probe_command, output / 'native.jsonl')
     proof = json.loads(native.strip().splitlines()[-1])
     transport.require(proof.get('admitted_read_executed') is True and
                       proof.get('outside_read_pretool_denied') is True and
@@ -354,12 +433,13 @@ def launch(root, invocation, output, manifest_sha256=None):
                       proof.get('existing_session_collision_rejected') is True and
                       proof.get('control_reads_executed') is True and
                       proof.get('source_invocation_read_executed') is True and
-                      proof.get('ordered_hashes_verified') == len(data['allowed_input_manifest']) + 5 and
+                      proof.get('ordered_hashes_verified') == (0 if fixed_inputs else len(data['allowed_input_manifest']) + 5) and
+                      proof.get('fixed_input_record_sha256') == (transport.sha(Path(fixed_inputs['record'])) if fixed_inputs else None) and
                       proof.get('source_invocation_sha256') == pins[str(invocation)] and
                       proof.get('admitted_paths') == [e['path'] for e in data['allowed_input_manifest']],
                       'native permission proof incomplete or for different inputs')
     if stage != 'quality':
-        transport.require(required_dependencies(root, data) == dependency_presence,
+        transport.require(required_dependencies(root, data, fixed_inputs) == dependency_presence,
                           'conditional dependency presence changed')
     transport.require(all(transport.sha(Path(p)) == digest for p, digest in pins.items()),
                       'dependency changed during native preflight')
@@ -369,7 +449,9 @@ def launch(root, invocation, output, manifest_sha256=None):
     transport.require(run(root, check, output / 'preview-after.txt') == preview,
                       'admission changed during native preflight')
     transport.require(transport.claude_command(root, session, data['role'], role, permissions,
-                      settings, invocation, receipt, policy) == command, 'launch argv changed')
+                      settings, invocation, receipt, policy, **route_options) == command, 'launch argv changed')
+    transport.require(transport.fixed_input_binding(root, data, fixed_input_record,
+                      fixed_input_snapshot) == fixed_inputs, 'fixed inputs changed before reservation')
     if stage == 'quality':
         reserved = quality_delivery_result(
             run(root, delivery + ['--reserve'], output / 'reserved.txt'),
@@ -380,15 +462,23 @@ def launch(root, invocation, output, manifest_sha256=None):
     receipt.write_text(reserved)
     prompt = output / 'prompt.txt'
     prompt.write_bytes(transport.expected_prompt(root, invocation, receipt, strict=True,
-                                                 conditional_state=dependency_presence))
+                                                 conditional_state=dependency_presence, **route_options))
     wrapper = output / 'wrapper.json'
     run(root, command, wrapper, prompt.read_text())
     transcripts = list((Path.home() / '.claude/projects').rglob(session + '.jsonl'))
     transport.require(len(transcripts) == 1, 'native transcript missing or ambiguous')
     transcript.write_bytes(transcripts[0].read_bytes())
     result = transport.postflight(root, invocation, transcript, prompt, wrapper, receipt,
-                                  strict=True, conditional_state=dependency_presence)
-    (output / 'delivery.json').write_text(json.dumps(result, sort_keys=True))
+                                  strict=True, conditional_state=dependency_presence, **route_options)
+    transport.require(transport.fixed_input_binding(root, data, fixed_input_record,
+                      fixed_input_snapshot) == fixed_inputs, 'fixed inputs changed during review')
+    if execution_digest is not None:
+        transport.require(transport.sha(output / 'fixed-execution.json') == execution_digest,
+                          'fixed execution binding changed during review')
+    with (output / 'delivery.json').open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(result, sort_keys=True))
+    transport.record_fixed_delivery(output, execution_digest)
+    transport.verify_fixed_delivery(output, execution_digest, invocation)
     # Delivery is not a verdict. Existing canonical output validation/adoption follows.
     return result
 
@@ -399,10 +489,13 @@ if __name__ == '__main__':
     parser.add_argument('invocation', type=Path)
     parser.add_argument('output', type=Path)
     parser.add_argument('--manifest-sha256', help='external caller pin; required for quality')
+    parser.add_argument('--fixed-input-record', type=Path)
+    parser.add_argument('--fixed-input-snapshot', type=Path)
     args = parser.parse_args()
     try:
         print(json.dumps(launch(args.root, args.invocation, args.output,
-                                args.manifest_sha256), sort_keys=True))
+                                args.manifest_sha256, fixed_input_record=args.fixed_input_record,
+                                fixed_input_snapshot=args.fixed_input_snapshot), sort_keys=True))
     except (ValueError, OSError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         print('LAUNCH_STOPPED: ' + str(error), file=sys.stderr)
         sys.exit(1)

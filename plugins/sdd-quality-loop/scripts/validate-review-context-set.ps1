@@ -6,7 +6,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$RepositoryRoot,
 
-    [switch]$Reserve
+    [switch]$Reserve,
+    [string]$FixedInputRecord,
+    [string]$FixedInputSnapshot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -930,6 +932,20 @@ try {
             }
         }
     }
+    $fixedReferences = @()
+    $fixedSources = @()
+    if ([bool]$FixedInputRecord -ne [bool]$FixedInputSnapshot) {
+        Fail-ReviewContext 'CONTRACT' 'fixed input record and snapshot must be supplied together'
+    }
+    if ($FixedInputRecord) {
+        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $binding = & $runtime.Source -B (Join-Path $PSScriptRoot '../../sdd-review-loop/scripts/validate-nontty-spec-launch.py') fixed-binding $root $Manifest --fixed-input-record $FixedInputRecord --fixed-input-snapshot $FixedInputSnapshot
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'CONTRACT' 'fixed input binding rejected' }
+        $fixedReferences = @(($binding -join "`n") | ConvertFrom-Json -AsHashtable)
+        $fixedSources = @((Get-Content -LiteralPath $FixedInputRecord -Raw | ConvertFrom-Json -AsHashtable).inputs)
+    }
     $orderedInputs = $inputs
     if ($document.stage -ceq 'impl') {
         $orderedInputs = @($inputs | Sort-Object -Stable -Property {
@@ -952,7 +968,9 @@ try {
         if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
             $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
         }
-        $authorized = if ($isAdrInput) {
+        $authorized = if (@($fixedReferences | Where-Object { $_.path -ceq $input.path -and $_.sha256 -ceq $input.sha256 }).Count -eq 1) {
+            $true
+        } elseif ($isAdrInput) {
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
             $verifiedAdrInputs.ContainsKey($input.path) -and
             $verifiedAdrInputs[$input.path] -ceq $input.sha256
@@ -984,11 +1002,16 @@ try {
             -not $authorized) {
             Fail-ReviewContext 'PATH' "$($document.role) contains a real but role-unlisted path: $($input.path)"
         }
-        $candidate = [IO.Path]::GetFullPath((Join-Path $root $input.path))
-        if (-not $candidate.StartsWith($rootPrefix, [StringComparison]::Ordinal)) {
+        $inputRoot = $root
+        if (@($fixedSources | Where-Object { $_.path -ceq $input.path }).Count -eq 1) {
+            $inputRoot = [IO.Path]::GetFullPath($FixedInputSnapshot)
+        }
+        $inputRootPrefix = $inputRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        $candidate = [IO.Path]::GetFullPath((Join-Path $inputRoot $input.path))
+        if (-not $candidate.StartsWith($inputRootPrefix, [StringComparison]::Ordinal)) {
             Fail-ReviewContext 'PATH' "$($document.role) input escapes the repository root: $($input.path)"
         }
-        $current = $root
+        $current = $inputRoot
         foreach ($component in $input.path.Split('/')) {
             if ($document.stage -ceq 'impl') {
                 # Reject stationary case aliases; this is not atomic acquisition.

@@ -68,6 +68,11 @@ jobs:
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
+          python3 -B tests/fixed-review-inputs.tests.py
+          python3 -B tests/fixed-review-state.tests.py
+          python3 -B tests/fixed-review-launch.tests.py
+          python3 -B tests/fixed-review-precheck-ps.tests.py
+          python3 -B tests/fixed-review-precheck-bash.tests.py
           python3 -B tests/review-conditional-inputs.tests.py
           python3 -B tests/workflow-conditional-inputs.tests.py
           python3 -B tests/spec-review-verify-inputs.tests.py

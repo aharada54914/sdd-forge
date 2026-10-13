@@ -1,0 +1,68 @@
+# Fixed-input launcher independent diff review
+
+Date: 2026-10-13
+Baseline: `9b16ffba39a090cd3cf2305e986341e24096b835`
+Owner: `codex/fixed-review-inputs`
+Reviewer: fresh-context Codex agent `fixed_launcher_final_review`
+
+This is the user-authorized independent development review outside the legacy
+formal ledger. It is not a quality-gate verdict, reservation or Done transition.
+
+## Earlier reported result (2026-10-13)
+
+No must-fix findings in the implemented fixed-input/launcher slice. The reviewer
+independently inspected fixed Git input binding, exact selected paths, session
+guard behavior, stage-specific dependency pins and legacy compatibility.
+
+Executed by the reviewer:
+
+- `tests/fixed-review-inputs.tests.py`: 27 passed.
+- `tests/fixed-review-launch.tests.py`: 36 passed.
+- `tests/unified-launch-order.tests.py`: 9 passed.
+- `tests/unified-task-launch.tests.py`: 9 passed.
+- `git diff --check`: passed.
+
+Real Node guard process cases permitted selected snapshot/invocation reads and
+rejected live/outside reads, Bash commands, writes and policy/digest tampering.
+These tests are not proof of real model delivery. The normalized-task fixture
+mocks canonical precheck success and is not an end-to-end canonical precheck.
+
+## Earlier boundaries (superseded by the follow-up below)
+
+Authenticated detached approval and progress consumers are not implemented and
+were not approved by this review. Real CLI/model delivery, formal reservation,
+latest-head CI and whole-feature completion were not established. Windows/macOS
+equivalence checks were omitted under the explicit user waiver, not marked PASS.
+
+Owner subsequently reran the first two suites: 27 and 36 passed, respectively.
+Historical failed observations and existing approval evidence remain unchanged.
+
+## Follow-up independent review (2026-10-14)
+
+Fresh-context reviewer `fixed_inputs_final_review` initially returned NEEDS_WORK:
+fixed delivery still consulted the legacy compact hash command, and its probe
+re-read live documents instead of consuming only fixed inputs. Both findings
+were repaired without granting additional Bash access or weakening receipt and
+out-of-scope rejection checks. The reviewer then returned PASS, independently
+executing `tests/fixed-review-launch.tests.py` (44 passed) and `git diff --check`.
+The initial NEEDS_WORK is retained here; PASS is not a task Done or quality-gate
+transition. Detached approval/state consumers are now connected to the launcher.
+
+Owner integration runs: 147 tests passed across fixed inputs (33), state (7),
+launch (44), unified task launch (9), Bash prechecks (7), host preflight (21),
+conditional inputs (17), and launch ordering (9). The launch-order fixture now
+includes the investigation input it creates; that fixture correction was owner
+verified, not part of the reviewer's 44-test run.
+
+Not established: real model delivery, full task lifecycle migration, latest-head
+CI or merge. Windows/macOS equivalence was explicitly waived, not passed.
+
+## Final connected-path review (2026-10-14)
+
+The same independent reviewer inspected the final Bash/PowerShell consumers,
+authenticated detached observations, required inputs and launcher/validator
+connections, and returned PASS with no remaining Critical or Major findings.
+Independent execution: Bash prechecks 7, detached state 7, fixed launch 44,
+launch ordering 9 (67 total), plus `git diff --check`, all passed. This includes
+the investigation-input fixture correction. No reservation or historical verdict
+was modified. Task Approved/Done authority remains with its existing lifecycle.
