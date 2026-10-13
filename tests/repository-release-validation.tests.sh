@@ -18,7 +18,8 @@ fi
 
 temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/sdd-release-validation.XXXXXX")"
 fixture_root="$temporary_root/repository"
-trap 'rm -rf "$temporary_root"' EXIT
+# Copied frozen snapshots need writable directories for removal; never follow links.
+trap 'find -P "$temporary_root" -type d -exec chmod u+rwx {} + && rm -rf "$temporary_root"' EXIT
 
 mkdir -p "$fixture_root"
 (
