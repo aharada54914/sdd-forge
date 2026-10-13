@@ -7,13 +7,33 @@ fail() {
   exit 1
 }
 
-[[ $# -eq 2 || ( $# -eq 3 && $3 == --reserve ) ]] ||
+[[ $# -ge 2 ]] ||
   fail USAGE 'usage: validate-review-context-set.sh <manifest> <repository-root> [--reserve]'
 
 manifest=$1
 repository_root=$2
 reserve=false
-[[ ${3:-} == --reserve ]] && reserve=true
+shift 2
+fixed_record=''
+fixed_snapshot=''
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --reserve) $reserve && fail USAGE 'duplicate reserve'; reserve=true; shift ;;
+    --fixed-input-record|--fixed-input-snapshot)
+      [[ $# -ge 2 && -n "$2" ]] || fail USAGE 'missing fixed input argument'
+      if [[ "$1" == --fixed-input-record ]]; then
+        [[ -z "$fixed_record" ]] || fail USAGE 'duplicate fixed record'
+        fixed_record=$2
+      else
+        [[ -z "$fixed_snapshot" ]] || fail USAGE 'duplicate fixed snapshot'
+        fixed_snapshot=$2
+      fi
+      shift 2 ;;
+    *) fail USAGE 'unknown argument' ;;
+  esac
+done
+[[ -z "$fixed_record" && -z "$fixed_snapshot" || -n "$fixed_record" && -n "$fixed_snapshot" ]] ||
+  fail USAGE 'fixed input record and snapshot must be paired'
 
 command -v jq >/dev/null 2>&1 ||
   fail RUNTIME 'deterministic-runtime-unavailable: jq'
@@ -247,8 +267,93 @@ gate_report_output_is_declared() {
     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
 }
 
+# Bind the pinned implementation task manifest to its same-task report.
+verify_implementation_binding() {
+  [[ -n "$implementation_manifest_path" ]] ||
+    fail IDENTITY 'new evaluator requires a pinned implementation manifest'
+  implementation_manifest_hash=$(jq -r '.implementation_manifest.sha256' "$manifest")
+  jq -e --arg p "$implementation_manifest_path" --arg h "$implementation_manifest_hash" \
+    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null ||
+    fail IDENTITY 'implementation manifest is not a hash-pinned evaluator input'
+  implementation_manifest="$repository_root/$implementation_manifest_path"
+  admission_json_members "$implementation_manifest" >/dev/null 2>&1 ||
+    fail IDENTITY 'implementation manifest contains ambiguous JSON members'
+  jq -e --arg task "$task_id" '
+    .schema == "task-input-manifest/v1" and .task_id == $task and
+    (.run_id | type == "string" and length > 0) and
+    (.session_id | type == "string" and length > 0)
+  ' "$implementation_manifest" >/dev/null 2>&1 ||
+    fail IDENTITY 'implementation manifest task/run/session is invalid'
+  implementation_run=$(jq -r '.run_id' "$implementation_manifest")
+  implementation_session=$(jq -r '.session_id' "$implementation_manifest")
+  implementation_report="$repository_root/$implementation_report_path"
+  [[ "$(grep -c '^Run ID: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Run ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Session ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "Run ID: $implementation_run" "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Run ID**: $implementation_run" "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Session ID**: $implementation_session" "$implementation_report" || true)" -eq 1 ]] ||
+    fail IDENTITY 'implementation report run/session does not match its manifest'
+  manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
+  citation_line=$(grep '^Input manifest:' "$implementation_report" || true)
+  [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
+     ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
+       "$citation_line" == "$manifest_citation. "* ) ]] ||
+    python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest" --verify-manifest-citation >/dev/null ||
+    fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
+}
+
+implementation_input_is_declared() {
+  local path=$1 expected_hash=$2 declaration absolute component current pinned
+  [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
+  declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
+  jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
+    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null || return 1
+  is_canonical_path "$implementation_manifest_path" || return 1
+  absolute="$repository_root/$implementation_manifest_path"
+  current="$repository_root"
+  local -a components
+  IFS='/' read -r -a components <<< "$implementation_manifest_path"
+  for component in "${components[@]}"; do
+    current="$current/$component"
+    [[ ! -L "$current" ]] || return 1
+  done
+  [[ -f "$absolute" && ! -L "$absolute" ]] || return 1
+  [[ "$(sha256_file "$absolute")" == "$declaration" ]] || return 1
+  verify_implementation_binding
+  jq -e --arg task "$task_id" --arg p "$path" --arg h "$expected_hash" '
+    (.allowed_inputs | type == "array" and length > 0) and
+    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
+      (.path | type == "string" and (test("[\\r\\n]") | not)) and
+      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
+    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
+    any(.allowed_inputs[]; .path == $p and .sha256 == $h)
+  ' "$absolute" >/dev/null 2>&1 || return 1
+  while IFS= read -r pinned; do
+    is_canonical_path "$pinned" || return 1
+  done < <(jq -r '.allowed_inputs[].path' "$absolute")
+}
+
+conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
+  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
+      [[ "$path" == domain/* || "$path" == design-system/* ]]; then
+    case "$stage:$path" in
+      spec:domain/context-map.md|spec:domain/domain-contract.json|\
+      impl:domain/context-map.md|impl:domain/domain-contract.json|\
+      impl:design-system/design-tokens.json|impl:design-system/design-system.md|\
+      impl:design-system/ui-patterns.md) ;;
+      *) [[ "$stage" == impl && "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] || return 1 ;;
+    esac
+    if [[ -n "$persisted_match" ]]; then
+      [[ -n "$persisted_input_binding" ]]
+      return
+    fi
+    jq -e --arg path "$path" --arg sha "$expected_hash" \
+      'any(.inputs[]; .path == $path and .sha256 == $sha)' <<<"$conditional_inputs_json" >/dev/null
+    return
+  fi
   case "$stage:$role" in
     spec:spec-reviewer-a|spec:spec-reviewer-b)
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|investigation)\.md$ ]] ||
@@ -285,13 +390,15 @@ path_is_authorized() {
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|tasks|traceability|baseline-behavior|ux-spec|frontend-spec|infra-spec|security-spec)\.(md|json)$ ]] ||
         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
         [[ "$path" == "$implementation_report_path" ]] ||
+        [[ -n "$implementation_manifest_path" && "$path" == "$implementation_manifest_path" ]] ||
         evaluator_output_is_declared \
           "$path" "$expected_hash" \
           "$repository_root/$implementation_report_path" '## Outputs' ||
         implementation_report_legacy_declares \
           "$path" "$expected_hash" \
           "$repository_root/$implementation_report_path" ||
-        gate_report_output_is_declared "$path" "$expected_hash"
+        gate_report_output_is_declared "$path" "$expected_hash" ||
+        jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
       [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
@@ -345,9 +452,17 @@ jq -e '
     (.stage == "quality" and
       ((keys | sort) ==
         ((base_keys + ["task_id"] +
+          (if has("implementation_manifest") then ["implementation_manifest"] else [] end) +
           (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
+          (if has("supplemental_delivery_declaration") then ["supplemental_delivery_declaration"] else [] end) +
           (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
+      (if has("implementation_manifest") then
+        (.implementation_manifest |
+          type == "object" and ((keys | sort) == ["path", "sha256"]) and
+          (.path | type == "string" and test("^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$")) and
+          (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+      else true end) and
       (if has("gate_report_declaration") then
         (.gate_report_declaration |
           type == "object" and
@@ -396,6 +511,10 @@ bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
 scratch_binding=''
+implementation_manifest_path=''
+if [[ "$stage" == quality ]] && jq -e 'has("implementation_manifest")' "$manifest" >/dev/null 2>&1; then
+  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest" | tr -d '\r')
+fi
 scratch_root=''
 if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
   scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
@@ -606,12 +725,45 @@ else
   pre_append_tip_sequence=$((expected_sequence - 1))
 fi
 
+fixed_references='[]'
+fixed_sources='[]'
+conditional_input_args=(--root "$repository_root" --feature "$feature" --stage "$stage")
+if [[ -n "$fixed_record" ]]; then
+  fixed_references=$(python3 "$(dirname "$0")/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
+    fixed-binding "$repository_root" "$manifest" --fixed-input-record "$fixed_record" \
+    --fixed-input-snapshot "$fixed_snapshot") || fail CONTRACT 'fixed input binding rejected'
+  fixed_sources=$(jq -ce '.inputs' "$fixed_record") || fail CONTRACT 'fixed input inventory rejected'
+  fixed_revision=$(jq -er '.commit' "$fixed_record") || fail CONTRACT 'fixed input revision rejected'
+  conditional_input_args+=(--revision "$fixed_revision")
+fi
+
 # Issue #288: new reviews must bind existing investigation evidence. A
 # persisted identity is historical; a file created later was not its input.
 # Check fresh preflight as well as --reserve, without expanding task inputs.
 if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
+  conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
+    "${conditional_input_args[@]}") ||
+    fail INPUT 'conditional review dependencies could not be resolved'
+  jq -e --argjson expected "$conditional_inputs_json" '
+    .allowed_input_manifest as $declared |
+    all($expected.inputs[]; . as $required |
+      any($declared[]; .path == $required.path and .sha256 == $required.sha256))
+  ' "$manifest" >/dev/null ||
+    fail PATH "$role omits selected conditional review dependencies"
   investigation_path="specs/$feature/investigation.md"
-  if [[ -f "$repository_root/$investigation_path" ]]; then
+  investigation_exists=false
+  if [[ -n "$fixed_record" ]]; then
+    investigation_exists=$(python3 -c '
+import os, subprocess, sys
+env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+result = subprocess.run(["git", "--no-replace-objects", "-C", sys.argv[1], "ls-tree", "-z", "--full-tree", sys.argv[2], "--", sys.argv[3]], env=env, capture_output=True, check=True, timeout=30)
+print("true" if result.stdout else "false")
+' "$repository_root" "$fixed_revision" "$investigation_path") ||
+      fail INPUT 'fixed investigation presence could not be resolved'
+  elif [[ -f "$repository_root/$investigation_path" ]]; then
+    investigation_exists=true
+  fi
+  if $investigation_exists; then
     jq -e --arg path "$investigation_path" '
       any(.allowed_input_manifest[]; .path == $path)
     ' "$manifest" >/dev/null 2>&1 ||
@@ -669,6 +821,12 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
     [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]] ||
       fail HASH "sdd-evaluator gate-report declaration hash mismatch: $gate_report_declaration_path"
   fi
+fi
+
+supplemental_delivery_inputs='[]'
+if jq -e 'has("supplemental_delivery_declaration")' "$manifest" >/dev/null; then
+  supplemental_delivery_inputs=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest") ||
+    fail INPUT 'supplemental delivery declaration is invalid'
 fi
 
 # Located before the manifest-entry loop: the WFI-025 task-plan exception
@@ -798,7 +956,10 @@ while IFS=$'\t' read -r path expected_hash; do
     fail PATH "$role contains a non-canonical repository-relative path: $path"
   is_forbidden_review_output "$path" &&
     fail PATH "$role contains a forbidden raw reviewer report: $path"
-  if [[ "$stage" == impl && "$path" == docs/adr/* ]]; then
+  if jq -e --arg p "$path" --arg h "$expected_hash" \
+    'any(.[]; .path == $p and .sha256 == $h)' <<< "$fixed_references" >/dev/null; then
+    : # Only references authenticated against this fixed inventory are admitted.
+  elif [[ "$stage" == impl && "$path" == docs/adr/* ]]; then
     if [[ "$adr_binding_verified" != true ]]; then
       verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
     fi
@@ -811,8 +972,12 @@ while IFS=$'\t' read -r path expected_hash; do
       fail PATH "$role contains a real but role-unlisted path: $path"
   fi
 
-  candidate="$repository_root/$path"
-  current="$repository_root"
+  input_root="$repository_root"
+  if jq -e --arg p "$path" 'any(.[]; .path == $p)' <<< "$fixed_sources" >/dev/null; then
+    input_root="$fixed_snapshot"
+  fi
+  candidate="$input_root/$path"
+  current="$input_root"
   IFS='/' read -r -a components <<< "$path"
   for component in "${components[@]}"; do
     if [[ "$stage" == impl ]]; then
@@ -900,6 +1065,24 @@ done < <(jq -r --arg stage "$stage" '.allowed_input_manifest |
 if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
   # An omitted ADR list must not bypass validation of an explicit extension.
   verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+fi
+
+# New evaluator reservations use the implementation task manifest, not a
+# fabricated implementation record in the reviewer/evaluator ledger. All
+# referenced files have passed the ordinary path and hash loop above.
+if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+  if [[ -n "$implementation_manifest_path" ]] || $reserve; then
+    verify_implementation_binding
+  fi
+  if $reserve; then
+    if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
+    any(.records[]; .run_id == $run or .host_session_id == $session)
+    ' "$ledger" >/dev/null; then
+      fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
+    fi
+    [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
+      fail IDENTITY 'evaluator reuses implementation run/session'
+  fi
 fi
 
 # Round consistency. A manifest freezes hashes at reservation time; the round's

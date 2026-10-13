@@ -309,6 +309,24 @@ evidence to the current artifact hashes; it does not license content changes
 to frozen artifacts. Sanctioned post-review updates go to non-frozen addenda
 per AGENTS.md (see ADR 0007).
 
+## Claude non-TTY shared launch
+
+For local Claude non-TTY task review, persist the ordinary complete one-role
+invocation with a fresh canonical UUIDv4 as both run and host-session ID, then
+call once before any manual reservation:
+
+```text
+rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+```
+
+The launcher runs task precheck, exact input and native-permission validation,
+dependency pinning and its single reservation before launch. Require exact
+`REVIEW_CONTEXT_OK` and verified delivery, then the ordinary canonical task
+output validation; delivery alone is not a verdict. No separate reserve or
+changed-ID retry. Its read-only `preflight-host-review.py` step must emit
+`HOST_REVIEW_PREFLIGHT_OK` before reservation. Other hosts retain their
+existing contract.
+
 ## Boundaries
 
 - Never self-approve any finding. Findings from reviewers are facts; the

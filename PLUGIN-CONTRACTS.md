@@ -356,6 +356,12 @@ policy.
   a `minimum_tier` and a `default_effort`. Consumed both by
   `select-agent-model --role` and by `render-agent-frontmatter` as the
   single source of truth for generated agent-definition files.
+  An optional `claude_frontmatter` object overrides only Claude frontmatter
+  rendering; it contains exactly `minimum_tier` (lightweight/standard/strong)
+  and `default_effort` (low/medium/high/xhigh), with case-sensitive values.
+  Absence preserves the base defaults; malformed overrides are rejected.
+  Selectors and Codex rendering continue to use the base fields. The evaluator
+  uses Sonnet/medium for Claude and retains strong/high for Codex.
 
 ### Parity lock
 
@@ -394,9 +400,10 @@ script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
 `task-reviewer` each with two PROTECTED Claude `.md` targets):
 
 - **Claude `.md` targets**: rewrites ONLY the `model:` frontmatter line
-  (sourced from `role_defaults[role].minimum_tier`'s paired `anthropic/*`
+  (using `claude_frontmatter` tier/effort when present, otherwise the base fields)
+  (sourced from the resolved `minimum_tier`'s paired `anthropic/*`
   registry model name) and inserts/refreshes a trailing
-  `<!-- x-sdd-effort: <role_defaults[role].default_effort> -->` comment
+  `<!-- x-sdd-effort: <resolved default_effort> -->` comment
   line immediately after the frontmatter's closing `---` — a Markdown
   comment outside the YAML frontmatter block, so it never participates in
   the agent-loader's frontmatter parsing. A `model: inherit` target is left

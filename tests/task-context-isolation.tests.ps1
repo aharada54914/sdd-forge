@@ -7,6 +7,14 @@ $snapshot = Join-Path $scriptDir 'prepare-task-snapshot.ps1'
 $selector = Join-Path $scriptDir 'select-agent-model.ps1'
 
 function Fail([string]$Message) { throw "not ok: $Message" }
+$pathSchema = Get-Content -Raw -LiteralPath (Join-Path $root 'contracts/task-input-manifest.schema.json') | ConvertFrom-Json -AsHashtable
+$pathPattern = $pathSchema['$defs'].repositoryPath.pattern
+foreach ($value in @('.github/workflows/test.yml', '.reports/result.md', 'reports/', 'reports//')) {
+  if ($value -cnotmatch $pathPattern) { Fail "schema rejected valid path: $value" }
+}
+foreach ($value in @('.', '..', '../outside', '.github/../outside', '.github/./test.yml', '.github//test.yml', 'a//b', '/absolute', 'C:/outside', '.github\outside')) {
+  if ($value -cmatch $pathPattern) { Fail "schema accepted invalid path: $value" }
+}
 function Get-Sha256([string]$Path) {
   (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
@@ -86,6 +94,23 @@ try {
   $valid = Join-Path $work 'manifests/valid.json'
   $validSnapshot = Join-Path $work 'snapshots/run-001'
   Write-Manifest $valid T-002 run-001 session-001 agent-001
+  New-Item -ItemType Directory -Path (Join-Path $repo '.github/workflows') -Force | Out-Null
+  Copy-Item -LiteralPath (Join-Path $repo 'contracts/demo.json') -Destination (Join-Path $repo '.github/workflows/test.yml')
+  $dot = Join-Path $work 'manifests/dot.json'
+  $dotSnapshot = Join-Path $work 'snapshots/dot'
+  $document = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json -AsHashtable
+  $document.allowed_inputs[1].path = '.github/workflows/test.yml'
+  $document.allowed_outputs += '.reports/result.md'
+  $document | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $dot -Encoding utf8
+  & $snapshot -Manifest $dot -RepoRoot $repo -SnapshotRoot $dotSnapshot | Out-Null
+  & $validator -Manifest $dot -SnapshotRoot $dotSnapshot | Out-Null
+  foreach ($invalid in @('.', '..', '../outside', '.github/../outside', '.github/./test.yml', '.github//test.yml', '/absolute', 'C:/outside', '.github\outside')) {
+    $document.allowed_inputs[1].path = $invalid
+    $badDot = Join-Path $work 'manifests/bad-dot.json'
+    $document | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $badDot -Encoding utf8
+    Expect-Diagnostic 'TASK_INPUT_PATH' { & $snapshot -Manifest $badDot -RepoRoot $repo -SnapshotRoot (Join-Path $work 'snapshots/bad-dot') }
+    Expect-Diagnostic 'TASK_INPUT_PATH' { & $validator -Manifest $badDot -SnapshotRoot $dotSnapshot }
+  }
   & $snapshot -Manifest $valid -RepoRoot $repo -SnapshotRoot $validSnapshot | Out-Null
   $output = @(& $validator -Manifest $valid -SnapshotRoot $validSnapshot) -join ''
   if (-not $output.StartsWith('TASK_INPUT_OK', [StringComparison]::Ordinal)) { Fail "valid manifest was not accepted: $output" }
