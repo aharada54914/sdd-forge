@@ -132,12 +132,12 @@ Assert-Literal $Matrix '| impl-reviewer-a/b | standard minimum | Anthropic Sonne
     'implementation reviewers must be at least standard/Sonnet'
 Assert-Literal $Matrix '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
     'task reviewers must be at least standard/Sonnet'
-Assert-Literal $Matrix '| sdd-evaluator | strong | Anthropic Opus | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' `
-    'evaluator must be strong/Opus with Codex high/xhigh equivalent'
+Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' `
+    'evaluator must use Claude Sonnet and retain Codex strong high/xhigh'
 
 Assert-Contains $Investigator '^model: haiku$' 'Claude investigator must be downgraded to Haiku'
 Assert-Literal $CopilotInvestigator 'Model tier: lightweight' 'Copilot investigator must document lightweight tier'
-Assert-Contains $Evaluator '^model: opus$' 'Claude evaluator must remain Opus'
+Assert-Contains $Evaluator '^model: sonnet$' 'Claude evaluator must use approved Sonnet'
 
 Assert-Literal $Adr 'Turn-first routing optimizes expected iteration count before token price.' `
     'ADR must record turn-first routing decision'

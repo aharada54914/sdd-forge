@@ -4,10 +4,13 @@ param(
   [Parameter(Mandatory = $true)][string]$Attempt,
   [Parameter(Mandatory = $true)][string]$Round,
   [switch]$VerifyInputs,
-  [switch]$ProvenanceRereview
+  [switch]$ProvenanceRereview,
+  [string]$FixedInputRecord = '',
+  [string]$FixedInputSnapshot = ''
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Fail([string]$Message) { throw "task-review-precheck: $Message" }
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
@@ -306,17 +309,6 @@ function Get-PersistedAdrPassPaths {
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
   return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
 }
-function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$ReviewedStatus) {
-  $content = [IO.File]::ReadAllText($Path)
-  $normalized = [Text.RegularExpressions.Regex]::Replace(
-    $content,
-    "(?m)^$([Text.RegularExpressions.Regex]::Escape($StatusField)):[^\r\n]*(\r?)$",
-    "${StatusField}: $ReviewedStatus`$1"
-  )
-  return [Convert]::ToHexString(
-    [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
-  ).ToLower()
-}
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- the same recipe as
 # check-workflow-state.ps1 Get-NormalizedHash for the task stage (canonical
 # form 1), which the accepting side already admits. Recorded instead of the
@@ -355,7 +347,7 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     $anchorMatch = [Text.RegularExpressions.Regex]::Match(
-      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+)$')
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\.md|domain-contract\.json|aggregates/[^/]+\.md)|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
     if (-not $anchorMatch.Success) { return $null }
     $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
@@ -392,6 +384,23 @@ function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [st
     }
   }
 }
+function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$FeatureName, [string]$RepoRoot) {
+  if ($Stage -cnotin @('spec', 'impl')) { return @() }
+  $entries = @($Contract.reviewers | ForEach-Object { $_.allowed_input_manifest })
+  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch '^(domain|design-system)/' }).Count) { return @() }
+  $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage
+  if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
+  $selected = @(($raw | ConvertFrom-Json).inputs)
+  foreach ($entry in $entries) {
+    $relative = Get-ManifestRelativePath $entry.path $RepoRoot
+    if ($relative -cmatch '^(domain|design-system)/') {
+      if (-not @($selected | Where-Object { $_.path -ceq $relative -and $_.sha256 -ceq $entry.sha256 }).Count) {
+        Fail 'persisted conditional input is outside selection or its hash changed'
+      }
+    }
+  }
+  return $selected
+}
 function Test-AllowedManifestPath(
   [string]$Role,
   [string]$Path,
@@ -399,7 +408,8 @@ function Test-AllowedManifestPath(
   [string]$FeatureName,
   [int]$Attempt,
   [int]$Round,
-  [string]$CalibrationPath
+  [string]$CalibrationPath,
+  [string[]]$ConditionalPaths = @()
 ) {
   $roleA = "$Stage-reviewer-a"
   $roleB = "$Stage-reviewer-b"
@@ -411,6 +421,7 @@ function Test-AllowedManifestPath(
     $CalibrationPath,
     "$roundRoot/precheck-result.json"
   )
+  if ($Stage -cin @('spec', 'impl')) { $allowed += $ConditionalPaths }
   if (Test-OrdinalEqual $Stage 'spec') {
     $allowed += "specs/$FeatureName/investigation.md"
     if (Test-OrdinalEqual $Role $roleB) { $allowed += "$roundRoot/integrated-summary.json" }
@@ -479,6 +490,7 @@ function Require-Pass(
   }
   $manifest = @($reviewers | ForEach-Object { @($_.allowed_input_manifest) })
   $calibrationPath = if ($Stage -eq 'spec') { 'plugins/sdd-review-loop/references/spec-review-calibration.md' } else { 'plugins/sdd-review-loop/references/reviewer-calibration.md' }
+  $conditionalPaths = @(Get-PersistedConditionalInputs $contract $Stage $FeatureName $repoRoot | ForEach-Object { $_.path })
   $calibrationHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $calibrationPath) -Algorithm SHA256).Hash.ToLower()
   $invalidManifest = @($reviewers | ForEach-Object {
     $role = $_.role
@@ -486,7 +498,7 @@ function Require-Pass(
       $relativePath = Get-ManifestRelativePath $_.path $repoRoot
       [string]::IsNullOrWhiteSpace($relativePath) -or
         $_.sha256 -cnotmatch '^[0-9a-f]{64}$' -or
-        (-not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath) -and
+        (-not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath $conditionalPaths) -and
          -not ((Test-OrdinalEqual $Stage 'impl') -and $verifiedAdrPaths -ccontains $_.path))
     }
   }).Count -gt 0
@@ -601,12 +613,20 @@ if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
+. (Join-Path $PSScriptRoot 'lib/fixed-input-source.ps1')
+$fixedSources = Get-FixedInputSources $root $FixedInputRecord $FixedInputSnapshot ([bool]$VerifyInputs)
+if ($null -ne $fixedSources) { $spec = Join-Path (Resolve-Path -LiteralPath $FixedInputSnapshot).Path "specs/$Feature" }
 if (-not (Test-Path -LiteralPath $spec -PathType Container) -or (Get-Item -LiteralPath $spec).LinkType) { Fail 'feature specification directory must be a real directory' }
 $registry = Get-Content -LiteralPath (Join-Path $root 'specs/workflow-state-registry.json') -Raw | ConvertFrom-Json
 $profileEntry = @($registry.entries | Where-Object { Test-OrdinalEqual $_.feature $Feature } | Select-Object -Last 1)
 $fullProfile = $profileEntry.Count -eq 1 -and (Test-OrdinalEqual $profileEntry[0].profile 'full')
 $layerNames = @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')
 $requirements = Join-Path $spec 'requirements.md'; $design = Join-Path $spec 'design.md'; $acceptance = Join-Path $spec 'acceptance-tests.md'; $tasks = Join-Path $spec 'tasks.md'; $traceability = Join-Path $spec 'traceability.md'
+if ($null -ne $fixedSources) {
+  $requirements = Get-ReviewInputSource $root "specs/$Feature/requirements.md" $fixedSources
+  $acceptance = Get-ReviewInputSource $root "specs/$Feature/acceptance-tests.md" $fixedSources
+  $tasks = Get-ReviewInputSource $root "specs/$Feature/tasks.md" $fixedSources
+}
 
 if ($VerifyInputs) {
   $precheckPath = Join-Path $report 'precheck-result.json'
@@ -632,6 +652,8 @@ if ($VerifyInputs) {
   }
   $persistedLayerProperties = if ($null -eq $precheck.psobject.Properties['layer_sha256']) { @() } else { @($precheck.layer_sha256.psobject.Properties) }
   if ($fullProfile -or $persistedLayerProperties.Count -gt 0) {
+    $design = Get-ReviewInputSource $root "specs/$Feature/design.md" $fixedSources
+    $traceability = Get-ReviewInputSource $root "specs/$Feature/traceability.md" $fixedSources
     if (-not (Test-Path -LiteralPath $design -PathType Leaf) -or (Get-Item -LiteralPath $design).LinkType) { Fail 'design review input is missing or substituted' }
     if (-not (Test-OrdinalEqual $precheck.design_sha256 ((Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()))) { Fail 'design review input changed after precheck' }
     if (-not (Test-Path -LiteralPath $traceability -PathType Leaf) -or (Get-Item -LiteralPath $traceability).LinkType) { Fail 'traceability review input is missing or substituted' }
@@ -640,7 +662,7 @@ if ($VerifyInputs) {
     $boundNames = @($precheck.layer_sha256.psobject.Properties.Name)
     if ($boundNames.Count -ne $layerNames.Count -or @($layerNames | Where-Object { $_ -notin $boundNames }).Count -gt 0) { Fail 'precheck layer manifest is incomplete' }
     foreach ($name in $layerNames) {
-      $path = Join-Path $spec $name
+      $path = Get-ReviewInputSource $root "specs/$Feature/$name" $fixedSources
       if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "layer review input is missing or substituted: $path" }
       if (-not (Test-OrdinalEqual $precheck.layer_sha256.$name ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLower()))) { Fail "layer review input changed after precheck: $path" }
     }

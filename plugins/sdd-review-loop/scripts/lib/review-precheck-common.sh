@@ -309,6 +309,18 @@ require_persisted_pass() {
       .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
      else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
     fail "persisted ${stage} verdict is not a complete PASS contract"
+  local conditional_inputs='[]'
+  if [[ "$stage" == spec || "$stage" == impl ]] && jq -e --arg repo "${repo_root}/" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\\.md|domain-contract\\.json|aggregates/[^/]+\\.md)|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
+      else . end;
+    any(.reviewers[]?.allowed_input_manifest[]?;
+      .path | relative_path | test("^(domain|design-system)/"))' "$contract" >/dev/null; then
+    conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+      --root "$repo_root" --feature "$FEATURE" --stage "$stage") || fail "persisted conditional inputs cannot be resolved"
+    conditional_inputs=$(jq -ce '.inputs' <<<"$conditional_inputs") || fail "invalid conditional input selection"
+  fi
   local verified_adr_paths='[]'
   if [[ "$stage" == "impl" ]]; then
     verified_adr_paths=$(persisted_adr_pass_paths "$contract" "$stored_attempt" "$stored_round" \
@@ -317,13 +329,13 @@ require_persisted_pass() {
   jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
     --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
     --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" \
-    --argjson verified_adrs "$verified_adr_paths" '
+    --argjson verified_adrs "$verified_adr_paths" --argjson conditional_inputs "$conditional_inputs" '
     # Contracts persisted by predecessor gates record absolute paths of the
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\\.md|domain-contract\\.json|aggregates/[^/]+\\.md)|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
       else . end;
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
@@ -348,6 +360,7 @@ require_persisted_pass() {
          $path == ("specs/" + $feature + "/frontend-spec.md") or
          $path == ("specs/" + $feature + "/infra-spec.md") or
          $path == ("specs/" + $feature + "/security-spec.md"))) or
+       (any($conditional_inputs[]; .path == $path)) or
        ($stage == "impl" and any($verified_adrs[]; . == $path)) or
        ($path == $calibration) or
        ($path == ($round_root + "/precheck-result.json")) or
@@ -381,6 +394,9 @@ require_persisted_pass() {
              (($path | startswith("/")) | not) and
              ($path | test("(^|/)\\.\\.?(/|$)") | not) and
              allowed_input($role; $path; $attempt; $round) and
+             (if ($path | test("^(domain|design-system)/")) then
+                .sha256 as $hash | any($conditional_inputs[]; .path == $path and .sha256 == $hash)
+              else true end) and
              (.sha256 | type == "string") and
              (.sha256 | test("^[0-9a-f]{64}$"))))
         )
