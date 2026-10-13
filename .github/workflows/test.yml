@@ -420,7 +420,9 @@ jobs:
       - name: Install recorded Claude Code CLI
         if: matrix.lane == 'all' || matrix.lane == 'clients'
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Validate Claude plugin manifests (real CLI)
         if: matrix.lane == 'all' || matrix.lane == 'clients'
@@ -1427,7 +1429,9 @@ jobs:
 
       - name: Install Claude Code CLI
         shell: bash
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code
+          claude --version
 
       - name: Install Codex CLI (best-effort)
         shell: bash
