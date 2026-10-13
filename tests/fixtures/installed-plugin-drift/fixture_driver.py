@@ -44,8 +44,13 @@ def tree_digest(paths: list[Path]) -> str:
                 kind, payload = "link", os.readlink(node).encode()
             elif node.is_dir():
                 kind, payload = "dir", b""
-            else:
+            elif node.is_file():
                 kind, payload = "file", node.read_bytes()
+            else:
+                # Pipes/devices have no finite file contents; retain identity and mode.
+                info = node.lstat()
+                kind = "special"
+                payload = repr((info.st_mode, info.st_dev, info.st_ino, info.st_rdev)).encode()
             hasher.update(f"{rel}\0{kind}\0".encode())
             hasher.update(payload)
             hasher.update(b"\0")
@@ -248,6 +253,8 @@ def main() -> int:
     parser.add_argument("--runtime", choices=("sh", "ps1"), required=True)
     parser.add_argument("--checker", type=Path, required=True)
     args = parser.parse_args()
+    subprocess.run([sys.executable, "-B", str(Path(__file__).with_name("tree_digest_tests.py"))],
+                   check=True)
     checker = args.checker.resolve()
     failures: list[str] = []
 
