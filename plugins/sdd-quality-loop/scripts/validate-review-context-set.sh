@@ -725,12 +725,24 @@ else
   pre_append_tip_sequence=$((expected_sequence - 1))
 fi
 
+fixed_references='[]'
+fixed_sources='[]'
+fixed_revision_args=()
+if [[ -n "$fixed_record" ]]; then
+  fixed_references=$(python3 "$(dirname "$0")/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
+    fixed-binding "$repository_root" "$manifest" --fixed-input-record "$fixed_record" \
+    --fixed-input-snapshot "$fixed_snapshot") || fail CONTRACT 'fixed input binding rejected'
+  fixed_sources=$(jq -ce '.inputs' "$fixed_record") || fail CONTRACT 'fixed input inventory rejected'
+  fixed_revision=$(jq -er '.commit' "$fixed_record") || fail CONTRACT 'fixed input revision rejected'
+  fixed_revision_args=(--revision "$fixed_revision")
+fi
+
 # Issue #288: new reviews must bind existing investigation evidence. A
 # persisted identity is historical; a file created later was not its input.
 # Check fresh preflight as well as --reserve, without expanding task inputs.
 if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
   conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
-    --root "$repository_root" --feature "$feature" --stage "$stage") ||
+    --root "$repository_root" --feature "$feature" --stage "$stage" "${fixed_revision_args[@]}") ||
     fail INPUT 'conditional review dependencies could not be resolved'
   jq -e --argjson expected "$conditional_inputs_json" '
     .allowed_input_manifest as $declared |
@@ -739,7 +751,19 @@ if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
   ' "$manifest" >/dev/null ||
     fail PATH "$role omits selected conditional review dependencies"
   investigation_path="specs/$feature/investigation.md"
-  if [[ -f "$repository_root/$investigation_path" ]]; then
+  investigation_exists=false
+  if [[ -n "$fixed_record" ]]; then
+    investigation_exists=$(python3 -c '
+import os, subprocess, sys
+env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+result = subprocess.run(["git", "--no-replace-objects", "-C", sys.argv[1], "ls-tree", "-z", "--full-tree", sys.argv[2], "--", sys.argv[3]], env=env, capture_output=True, check=True, timeout=30)
+print("true" if result.stdout else "false")
+' "$repository_root" "$fixed_revision" "$investigation_path") ||
+      fail INPUT 'fixed investigation presence could not be resolved'
+  elif [[ -f "$repository_root/$investigation_path" ]]; then
+    investigation_exists=true
+  fi
+  if $investigation_exists; then
     jq -e --arg path "$investigation_path" '
       any(.allowed_input_manifest[]; .path == $path)
     ' "$manifest" >/dev/null 2>&1 ||
@@ -926,15 +950,6 @@ read_precheck_content() {
     cat -- "$precheck_abs"
   fi
 }
-
-fixed_references='[]'
-fixed_sources='[]'
-if [[ -n "$fixed_record" ]]; then
-  fixed_references=$(python3 "$(dirname "$0")/../../sdd-review-loop/scripts/validate-nontty-spec-launch.py" \
-    fixed-binding "$repository_root" "$manifest" --fixed-input-record "$fixed_record" \
-    --fixed-input-snapshot "$fixed_snapshot") || fail CONTRACT 'fixed input binding rejected'
-  fixed_sources=$(jq -ce '.inputs' "$fixed_record") || fail CONTRACT 'fixed input inventory rejected'
-fi
 
 while IFS=$'\t' read -r path expected_hash; do
   is_canonical_path "$path" ||

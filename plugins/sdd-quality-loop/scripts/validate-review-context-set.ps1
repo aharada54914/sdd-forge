@@ -745,6 +745,23 @@ try {
         $preAppendTipSequence = [string]($expectedSequence - 1)
     }
 
+    $fixedReferences = @()
+    $fixedSources = @()
+    $fixedRevisionArgs = @()
+    if ([bool]$FixedInputRecord -ne [bool]$FixedInputSnapshot) {
+        Fail-ReviewContext 'CONTRACT' 'fixed input record and snapshot must be supplied together'
+    }
+    if ($FixedInputRecord) {
+        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $binding = & $runtime.Source -B (Join-Path $PSScriptRoot '../../sdd-review-loop/scripts/validate-nontty-spec-launch.py') fixed-binding $root $Manifest --fixed-input-record $FixedInputRecord --fixed-input-snapshot $FixedInputSnapshot
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'CONTRACT' 'fixed input binding rejected' }
+        $fixedReferences = @(($binding -join "`n") | ConvertFrom-Json -AsHashtable)
+        $fixedInventory = Get-Content -LiteralPath $FixedInputRecord -Raw | ConvertFrom-Json -AsHashtable
+        $fixedSources = @($fixedInventory.inputs)
+        $fixedRevisionArgs = @('--revision', $fixedInventory.commit)
+    }
     $inputs = @($document.allowed_input_manifest)
     # Issue #288: require current investigation only for a fresh identity,
     # including preflight without -Reserve. Historical inputs stay historical.
@@ -752,7 +769,20 @@ try {
         ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl')) {
         $investigationPath = "specs/$($document.feature)/investigation.md"
         $investigationFile = Join-Path $RepositoryRoot $investigationPath
-        if (Test-Path -LiteralPath $investigationFile -PathType Leaf) {
+        if ($FixedInputRecord) {
+            $presenceScript = @'
+import os, subprocess, sys
+env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+result = subprocess.run(["git", "--no-replace-objects", "-C", sys.argv[1], "ls-tree", "-z", "--full-tree", sys.argv[2], "--", sys.argv[3]], env=env, capture_output=True, check=True, timeout=30)
+print("true" if result.stdout else "false")
+'@
+            $presence = & $runtime.Source -c $presenceScript $root $fixedInventory.commit $investigationPath
+            if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'fixed investigation presence could not be resolved' }
+            $investigationExists = $presence -ceq 'true'
+        } else {
+            $investigationExists = Test-Path -LiteralPath $investigationFile -PathType Leaf
+        }
+        if ($investigationExists) {
             if (@($inputs | Where-Object { $_.path -ceq $investigationPath }).Count -ne 1) {
                 Fail-ReviewContext 'PATH' "$($document.role) omits existing investigation evidence: $investigationPath"
             }
@@ -921,7 +951,7 @@ try {
         $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
         if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
-        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage
+        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage @fixedRevisionArgs
         if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'conditional review dependencies could not be resolved' }
         $conditionalInputs = @((($resolved -join "`n") | ConvertFrom-Json -AsHashtable).inputs)
         foreach ($required in $conditionalInputs) {
@@ -931,20 +961,6 @@ try {
                 Fail-ReviewContext 'PATH' "$($document.role) omits selected conditional review dependencies"
             }
         }
-    }
-    $fixedReferences = @()
-    $fixedSources = @()
-    if ([bool]$FixedInputRecord -ne [bool]$FixedInputSnapshot) {
-        Fail-ReviewContext 'CONTRACT' 'fixed input record and snapshot must be supplied together'
-    }
-    if ($FixedInputRecord) {
-        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
-        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
-        $binding = & $runtime.Source -B (Join-Path $PSScriptRoot '../../sdd-review-loop/scripts/validate-nontty-spec-launch.py') fixed-binding $root $Manifest --fixed-input-record $FixedInputRecord --fixed-input-snapshot $FixedInputSnapshot
-        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'CONTRACT' 'fixed input binding rejected' }
-        $fixedReferences = @(($binding -join "`n") | ConvertFrom-Json -AsHashtable)
-        $fixedSources = @((Get-Content -LiteralPath $FixedInputRecord -Raw | ConvertFrom-Json -AsHashtable).inputs)
     }
     $orderedInputs = $inputs
     if ($document.stage -ceq 'impl') {

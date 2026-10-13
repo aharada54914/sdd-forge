@@ -731,5 +731,93 @@ class RuntimeFilesTests(unittest.TestCase):
                 launcher.runtime_files(root, 'impl', True)
 
 
+class FixedBoundaryDependencyTests(unittest.TestCase):
+    def probe(self, stage='impl', dependencies=None, omitted=None, live=None, reserve=False):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+            root = base / 'repo'
+            root.mkdir()
+            files = {'specs/demo/requirements.md': 'requirements\n',
+                     'specs/demo/design.md': '# Design\n'}
+            files.update(dependencies or {})
+            for name, content in files.items():
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content)
+            for args in [('init', '-q'), ('config', 'user.name', 'Fixture'),
+                         ('config', 'user.email', 'fixture@example.invalid'),
+                         ('add', '.'), ('commit', '-qm', 'fixture')]:
+                subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True)
+            commit = subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+            selected = sorted(set(files) - set(omitted or []))
+            snapshot = base / 'snapshot'
+            inventory = load('fixed-review-inputs').materialize(root, commit, selected, snapshot)
+            record = base / 'record.json'
+            record.write_text(json.dumps(inventory))
+            ledger = root / 'reports/review-context/identity-ledger.json'
+            ledger.parent.mkdir(parents=True)
+            prior = hashlib.sha256(b'1|spec|spec-reviewer-a|fixture-1|session-1|').hexdigest()
+            ledger.write_text(json.dumps({'schema': 'review-identity-ledger/v1', 'records': [{
+                'sequence': 1, 'stage': 'spec', 'role': 'spec-reviewer-a', 'run_id': 'fixture-1',
+                'host_session_id': 'session-1', 'previous_record_sha256': '', 'record_sha256': prior}]}))
+            before = ledger.read_bytes()
+            manifest = root / 'invocation.json'
+            manifest.write_text(json.dumps({
+                'schema': 'review-context-invocation/v2', 'input_mode': 'file-manifest',
+                'fallback_mode': 'none', 'read_only': True, 'stage': stage,
+                'role': stage + '-reviewer-a', 'feature': 'demo', 'run_id': 'fixture-2',
+                'host_session_id': 'session-2', 'sequence': 2,
+                'identity_ledger_path': 'reports/review-context/identity-ledger.json',
+                'identity_ledger_sha256': hashlib.sha256(before).hexdigest(),
+                'previous_record_sha256': prior,
+                'allowed_input_manifest': [{'path': p, 'sha256': hashlib.sha256((snapshot / p).read_bytes()).hexdigest()}
+                                           for p in selected]}))
+            for name, content in (live or {}).items():
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if content is None:
+                    target.unlink()
+                else:
+                    target.write_text(content)
+            command = ['bash', str(SCRIPTS.parent.parent / 'sdd-quality-loop/scripts/validate-review-context-set.sh'),
+                       str(manifest), str(root), '--fixed-input-record', str(record),
+                       '--fixed-input-snapshot', str(snapshot)]
+            if reserve:
+                command.append('--reserve')
+            result = subprocess.run(command, text=True, capture_output=True)
+            if result.returncode or not reserve:
+                self.assertEqual(before, ledger.read_bytes(), 'preflight must not mutate the ledger')
+            return result
+
+    def test_untracked_conditional_inputs_do_not_change_fixed_selection(self):
+        result = self.probe(live={'specs/demo/investigation.md': 'untracked\n',
+                                  'domain/context-map.md': 'untracked\n',
+                                  'design-system/design-system.md': 'untracked\n'})
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_dirty_and_deleted_conditional_inputs_use_fixed_bytes(self):
+        dependencies = {'specs/demo/investigation.md': 'investigation\n',
+                        'domain/context-map.md': 'Domain-Model-Status: Draft\n',
+                        'design-system/design-tokens.json': '{}\n',
+                        'design-system/design-system.md': 'system\n',
+                        'design-system/ui-patterns.md': 'patterns\n'}
+        result = self.probe(dependencies=dependencies,
+                            live={p: None if 'investigation' in p else 'dirty\n' for p in dependencies})
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_missing_fixed_dependencies_refuse_before_reservation(self):
+        for stage, path, content in [('spec', 'specs/demo/investigation.md', 'investigation\n'),
+                                     ('impl', 'domain/context-map.md', 'Domain-Model-Status: Draft\n'),
+                                     ('impl', 'design-system/design-system.md', 'system\n')]:
+            with self.subTest(stage=stage, path=path):
+                dependencies = {path: content}
+                if path.startswith('design-system/'):
+                    dependencies.update({'design-system/design-tokens.json': '{}\n',
+                                         'design-system/ui-patterns.md': 'patterns\n'})
+                result = self.probe(stage, dependencies, [path], {path: None}, reserve=True)
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn('REVIEW_CONTEXT_PATH', result.stderr)
+
+
 if __name__ == '__main__':
     unittest.main()

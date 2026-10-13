@@ -112,3 +112,24 @@ FilesOnly build 1. Independent diff review returned PASS and independently ran
 fixed launch 44, quality transport 20 and build 1 (65 total). Whitespace passed.
 These are local results; latest-head CI and merge remain pending. Additional
 Windows/macOS equivalence remains waived, not passed.
+
+## Fixed-revision dependency correction (2026-10-14)
+
+PR review identified that dependency discovery still consulted live files before
+validating the fixed binding. Both boundary validators now validate that binding
+first and discover investigation/domain/design-system inputs from its Git tree.
+Git reads exclude inherited GIT_* settings and replacement objects; read failures
+reject admission. Legacy discovery and ledger/identity checks are retained.
+
+The added regression tests fail on the prior HEAD (four failing assertions in
+three tests) and pass after repair. Final fixed-launch suite: 47 passed;
+conditional-input suite: 17 passed. The complete original-path boundary driver
+completed with exit 0, including Bash/PowerShell cases, 32 source anchors, and
+regular/hardlink/symlink investigation checks. Syntax and whitespace checks pass.
+
+Fresh independent Codex diff review returned PASS with zero Critical/Major
+findings; it independently ran the 47 fixed-launch tests, 32 anchors and initial
+RCB001-010 Bash/PowerShell cases. This is the authorized independent review
+exception, not a fabricated formal-ledger verdict or task Done transition.
+Additional native Windows/macOS equivalence is NOT RUN under the user waiver.
+Latest-head hosted CI and merge must still be verified separately.
