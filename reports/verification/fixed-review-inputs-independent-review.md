@@ -91,3 +91,12 @@ quality transport 20, loop-driver 26, mirror freshness 6, and all 32 anchors.
 
 Latest-head CI and merge are still pending. Additional Windows/macOS equivalence
 runs are waived, not PASS; required hosted CI remains enabled.
+
+## Static-check follow-up (2026-10-14)
+
+Run 38424375969 reported Ruff F401 for an unused `sys` import in
+`probe-nontty-review.py`. Removed only that import. Ruff on the six configured
+shared-launch files, fixed-review-launch (44), and shared-launch-build (1)
+passed. The independent reviewer inspected the one-line source diff, confirmed
+no remaining reference or dynamic use, and returned PASS; whitespace passed.
+Latest-head hosted static checks and the remaining CI still require confirmation.
