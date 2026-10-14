@@ -1,5 +1,27 @@
 # Issue 566: isolated CI restoration candidate
 
+## Windows receipt fixture repair (2026-10-15)
+
+Owner: `issue559-bounded-audit/sdd-forge`; clean pre-edit HEAD
+`dabb7c10ed420d3218b5fbfc866459767b7a34e7`. Routine correction within the
+approved restoration: serialize the fixture's repository-relative evidence path
+with POSIX separators, as required by the existing receipt validator. Production
+validation, required assertions and suite registrations remain unchanged.
+Callers checked: the Python launch test and its Bash/PowerShell wrappers.
+
+RED: Windows job 116051649498 in run 38622008925 reached the receipt suite,
+but rejected its backslash path as `unsafe evidence path` before the expected
+`missing prior-PASS receipt` assertion. The existing test must reach that rejection
+and then accept the non-provenance case on Windows. Required verification:
+both local wrappers, independent diff review, and current-head Windows CI.
+Local success alone does not establish Windows execution or weekly recovery.
+
+Executed: Bash wrapper 9/9 and PowerShell wrapper 9/9 passed; whitespace check
+passed. Fresh independent Codex diff review found no blocking findings and
+independently repeated both wrappers. Its `PureWindowsPath` check reproduced
+the old separator mismatch and verified the new serialization; native Windows
+execution remains pending in the new-head CI, not implied by that simulation.
+
 ## Bounded scope extension: Issue 563 (2026-10-15)
 
 Before editing: parent owns `issue559-bounded-audit/sdd-forge`, branch

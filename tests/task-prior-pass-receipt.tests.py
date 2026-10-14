@@ -27,7 +27,7 @@ class ReceiptLaunchTests(unittest.TestCase):
             report.write_text(json.dumps({"provenance_rereview": True}))
             command = ["python3", str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
                        "--root", str(root), "--feature", feature, "--attempt", "2",
-                       "--verify", str(report.relative_to(root))]
+                       "--verify", report.relative_to(root).as_posix()]
             result = subprocess.run(command, cwd=REPO, text=True, capture_output=True)
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("missing prior-PASS receipt", result.stdout + result.stderr)
