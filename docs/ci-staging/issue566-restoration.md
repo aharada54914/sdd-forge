@@ -1,5 +1,26 @@
 # Issue 566: isolated CI restoration candidate
 
+## Bounded scope extension: Issue 563 (2026-10-15)
+
+Before editing: parent owns `issue559-bounded-audit/sdd-forge`, branch
+`codex/issue559-completion-diagnostics`, clean HEAD
+`0b3ced25968af92eb9cc3719e377215ca4aeec7a`. The user's existing repair and
+merge authority also covers the known receipt-suite registration gap in #563.
+This supersedes only the earlier two-step scope; historical results remain.
+Risk remains high (required CI wiring). No product validator, approval,
+ledger, frozen evidence, skip policy or required-job identity is changed.
+
+Reach: register the existing Bash receipt wrapper in `suite-inventory.posix`,
+the PowerShell wrapper in `run-all.ps1`, and standalone blocking PowerShell
+steps in the existing non-Windows test and Windows-heavy jobs. The POSIX
+inventory already feeds required Ubuntu shards. Standalone steps preserve
+the wrapper's nonzero exit instead of masking it behind a later command.
+Evidence field: each suite registration; counterpart: existing wrapper and
+required lane; mismatch test: missing-registration assertion before editing
+(exit 1, RED), followed by inventory/wiring checks and both native wrappers.
+Independent diff review, final-head CI, postmerge and real weekly recovery
+remain required; no previous failure is relabeled.
+
 ## Authorized application (2026-10-15)
 
 Parent owner now applies the independently reviewed two-step candidate under
@@ -104,3 +125,24 @@ The final workflow diff and structural regression are the maintained artifacts.
 - Run `38575173364` remains failed at `Validate audit completion` on
   `d5766615bbdf6b5ec9e24269eb46eb770358840b`; finalization was skipped.
   No unchanged rerun was requested and no recovery or issue closure is claimed.
+
+## Applied registration repair and independent verification (2026-10-15)
+
+The #563 extension above adds the existing receipt suite to the POSIX inventory,
+PowerShell full runner, and blocking PowerShell CI steps on all three operating
+systems. No suite assertions, authorization rules, or required dependencies were
+removed. Before application, the registration check failed; afterwards the
+receipt suites passed nine checks each in Bash and PowerShell.
+
+Fresh-context read-only reviewer `weekly_wiring_final_review` inspected the final
+four-file extension at `0b3ced25968af92eb9cc3719e377215ca4aeec7a` plus its working
+diff and found no blocking findings. It independently ran receipt checks (9+9),
+CI wiring controls (21), restoration negative controls (14), boundary parity
+(19), required-check controls (5), and whitespace validation successfully.
+The review confirms the four blocking workflow registrations and unchanged
+required-job failure propagation. This is independent diff verification, not
+a fabricated product quality-gate verdict.
+
+Native Windows/Ubuntu execution, exact-head CI, merge, post-merge CI, and a fresh
+weekly audit remain pending. Installer case 6 must be inspected separately for
+an actual execution versus its existing privilege-dependent SKIP.

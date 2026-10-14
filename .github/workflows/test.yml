@@ -254,6 +254,11 @@ jobs:
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
 
+      - name: "[deterministic] Test task prior-pass receipt (pwsh)"
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
+
       - name: "[deterministic] Test cross-model gate (pwsh)"
         if: runner.os != 'Windows'
         shell: pwsh
@@ -1550,6 +1555,9 @@ jobs:
           ./tests/downstream-review-precheck.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
+      - name: "[deterministic] Test task prior-pass receipt"
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
       - name: "[deterministic] Test cross-model gate"
         shell: pwsh
         run: ./tests/cross-model.tests.ps1
