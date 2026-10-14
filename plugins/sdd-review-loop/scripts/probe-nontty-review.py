@@ -136,8 +136,8 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     hash_commands = [] if fixed_inputs else control['hash_commands']
     expected_hashes = [] if fixed_inputs else [None]
     chained_bash = batch_command + '; rtk proxy pwd'
-    retry_instruction = ('' if fixed_inputs else
-        ' If the first Bash receives the routine Fact-Forcing Gate refusal, give the requested truthful facts and immediately retry that same command byte-for-byte before call 2.')
+    retry_instruction = (
+        ' If the first Bash receives the routine Fact-Forcing Gate refusal, give the requested truthful facts and immediately retry that same command byte-for-byte once before the next listed call.')
     role = {'description': 'Unreserved session-local tool boundary diagnostic only.',
         'prompt': 'Perform only the requested tool calls serially: wait for each tool result before issuing the next call, then report whether each ran or was denied.' + retry_instruction + ' Do not retry a pinned-guard denial or use another tool.',
             'tools': transport.agent_tools(stage),
@@ -210,6 +210,33 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     hash_success: list[tuple[str, str | None]] = []
     first_bash_retry_due = False
     first_bash_retry_seen = False
+    if fixed_inputs:
+        # With no hash Bash, the intentional chained denial is the first Bash.
+        # Only the existing fact-forcing handshake may precede its pinned denial.
+        first_index = next((i for i, (kind, block) in enumerate(events)
+                            if kind == 'use' and block.get('name') == 'Bash'), None)
+        if first_index is not None:
+            first = events[first_index][1]
+            refusal = results.get(first['id'], {})
+            if (refusal.get('is_error') is True and
+                    '[Fact-Forcing Gate]' in str(refusal.get('content', ''))):
+                following = events[first_index + 1:first_index + 4]
+                if (first.get('input', {}).get('command') != chained_bash or
+                        'Impl non-TTY tool call differs from caller-pinned inputs' in
+                        str(refusal.get('content', '')) or
+                        len(following) != 3 or following[0] != ('result', refusal)):
+                    raise SystemExit('fixed first-Bash fact refusal was not serial')
+                (retry_kind, retry), (result_kind, retry_result) = following[1:]
+                if (retry_kind != 'use' or retry.get('name') != 'Bash' or
+                        retry.get('id') == first['id'] or
+                        retry.get('input', {}).get('command') != chained_bash or
+                        result_kind != 'result' or
+                        retry_result.get('tool_use_id') != retry.get('id') or
+                        retry_result.get('is_error') is not True or
+                        'Impl non-TTY tool call differs from caller-pinned inputs' not in
+                        str(retry_result.get('content', ''))):
+                    raise SystemExit('fixed first-Bash retry was not immediate, identical and pinned-denied')
+                first_bash_retry_seen = True
     for kind, block in events:
         if kind == 'use':
             if first_bash_retry_due and (block.get('name') != 'Bash' or
@@ -266,7 +293,10 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     expected_calls = ([('Bash', command) for command in hash_commands] +
                       [('Read', p) for p in read_paths] + [('Bash', chained_bash), ('Read', outside)])
     if first_bash_retry_seen:
-        expected_calls.insert(1, ('Bash', hash_commands[0]))
+        if fixed_inputs:
+            expected_calls.insert(len(read_paths), ('Bash', chained_bash))
+        else:
+            expected_calls.insert(1, ('Bash', hash_commands[0]))
     transport.require_probe_tool_sequence(actual_calls, expected_calls, stage)
     require_json_output_completion(events, stage)
     transcript_before = matches[0].read_bytes()
