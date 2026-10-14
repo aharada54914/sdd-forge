@@ -254,6 +254,11 @@ jobs:
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
 
+      - name: "[deterministic] Test task prior-pass receipt (pwsh)"
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
+
       - name: "[deterministic] Test cross-model gate (pwsh)"
         if: runner.os != 'Windows'
         shell: pwsh
@@ -433,6 +438,11 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1 -Lane ${{ matrix.lane }}
 
+      - name: Test installer idempotency (pwsh; WFI-041)
+        if: matrix.lane == 'all' || matrix.lane == 'core'
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
+
       - name: Test uninstaller (pwsh)
         if: matrix.lane == 'all' || matrix.lane == 'context'
         shell: pwsh
@@ -506,6 +516,10 @@ jobs:
       - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
+
+      - name: Test boundary-reference authorization parity (pwsh, WFI-037)
+        shell: pwsh
+        run: ./tests/boundary-reference-authorization-parity.tests.ps1
 
       - name: Test loop inventory registration forcing (bash)
         shell: bash
@@ -1541,6 +1555,9 @@ jobs:
           ./tests/downstream-review-precheck.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
+      - name: "[deterministic] Test task prior-pass receipt"
+        shell: pwsh
+        run: ./tests/task-prior-pass-receipt.tests.ps1
       - name: "[deterministic] Test cross-model gate"
         shell: pwsh
         run: ./tests/cross-model.tests.ps1

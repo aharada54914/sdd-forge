@@ -25,6 +25,7 @@ tests/task-layer-review-inputs.tests.sh
 tests/task-layer-full-profile.tests.sh
 tests/downstream-review-precheck-parity.tests.sh
 tests/task-review-precheck.tests.sh
+tests/task-prior-pass-receipt.tests.sh
 tests/impl-review-round2-contract.tests.sh
 tests/impl-review-adr-inputs.tests.sh
 tests/review-agent-isolation.tests.sh
