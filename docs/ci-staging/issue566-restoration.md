@@ -168,3 +168,30 @@ a fabricated product quality-gate verdict.
 Native Windows/Ubuntu execution, exact-head CI, merge, post-merge CI, and a fresh
 weekly audit remain pending. Installer case 6 must be inspected separately for
 an actual execution versus its existing privilege-dependent SKIP.
+
+## Receipt interpreter correction scope (2026-10-15)
+
+PR #567's remaining review finding is a routine test-driver correction, owned by
+the `issue559-bounded-audit/sdd-forge` checkout at
+`713b3bf5497ecbf26ef3b67f63e13f9a66075e10` (clean before this correction).
+Both shell wrappers select an available Python interpreter, but three subprocess
+calls in `tests/task-prior-pass-receipt.tests.py` discard that selection and
+require a `python3` PATH alias. Running the original suite with the selected
+absolute interpreter and an empty PATH reproduced three FileNotFoundError errors
+among nine tests. Use `sys.executable` for all three child calls. No product
+contract, assertion, authorization, or CI dependency changes are intended.
+Required validation: the same empty-PATH regression, both wrapper suites,
+independent diff review, and exact-final-head CI before merge.
+
+The corrected empty-PATH suite passed all nine checks; the Bash and PowerShell
+wrappers each passed nine checks. Fresh-context reviewer
+`weekly_windows_fixture_review` independently repeated the empty-PATH run with
+an absolute Python 3.14 executable: nine passed, no blocking findings. Whitespace
+validation passed. The three subprocess arguments and assertions are otherwise
+unchanged. Exact-final-head CI and the actual weekly recovery remain pending.
+
+For the preceding head `713b3bf5497ecbf26ef3b67f63e13f9a66075e10`, run
+`38624841541` passed all 37 workflow jobs. Windows core job `116063663798`
+explicitly logged `ok: a placement-phase failure still reverts the install root`
+at `2026-10-14T19:46:08.4860122Z`, proving installer case 6 ran rather than
+SKIPped on that Windows run. This historical result is not final-head proof.
