@@ -221,5 +221,45 @@ else
   fail "ISSUE-478-RECOVERY: comment failure must prevent closure"
 fi
 
-printf '\nTEST-010/011/014 + ISSUE-478-RECOVERY results: %d passed, %d failed\n' "$PASS" "$FAIL"
+# Prompt contract only: these assertions do not execute the model or establish
+# Actions success. Keep discovery bounded without dropping mandatory checks.
+prompt_contract() {
+  local prompt="$1" phrase
+  for phrase in \
+    '直近7日・最大20コミット' '重点1領域' '最大3件' \
+    '開始から8分、または40ターン' '新規調査・候補追加を止め' \
+    '60ターンまでの最終報告' '75ターン上限' \
+    '候補に関係する文書のみ本文を読む' \
+    'bash tests/guards.tests.sh' 'bash tests/install.tests.sh' \
+    'python3 -m py_compile' 'node --check' '全 JSON / YAML のパース検証' \
+    '必須検証に未実施・失敗があれば PR は作成せず' \
+    '一部完了' '監査完了やワークフロー復旧と主張しない' \
+    '次回の再開点' '発見ゼロや PR なしの場合も報告を残す'; do
+    grep -Fq "$phrase" "$prompt" || return 1
+  done
+  ! grep -Fq '存在する場合は全件読み' "$prompt"
+}
+
+if prompt_contract "$TARGET_PROMPT"; then
+  ok "ISSUE-559: discovery budget, mandatory checks, incomplete status and resume contract"
+else
+  fail "ISSUE-559: missing bounded-audit contract or weakened mandatory checks"
+fi
+
+# Negative fixtures exercise each distinct contract loss. This tests the
+# assertion's sensitivity, not whether a model follows the prompt at runtime.
+for phrase in '開始から8分、または40ターン' '候補に関係する文書のみ本文を読む' \
+  'bash tests/guards.tests.sh' 'python3 -m py_compile' \
+  '必須検証に未実施・失敗があれば PR は作成せず' \
+  '監査完了やワークフロー復旧と主張しない' \
+  '発見ゼロや PR なしの場合も報告を残す'; do
+  grep -Fv "$phrase" "$TARGET_PROMPT" > "$WORK/incomplete-prompt.md"
+  if prompt_contract "$WORK/incomplete-prompt.md"; then
+    fail "ISSUE-559: contract check accepted a missing requirement: $phrase"
+  else
+    ok "ISSUE-559: contract check rejects a missing requirement: $phrase"
+  fi
+done
+
+printf '\nTEST-010/011/014 + ISSUE-478-RECOVERY + ISSUE-559 results: %d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
