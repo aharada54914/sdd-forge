@@ -185,7 +185,7 @@ run_close_step() {
   : > "$WORK/gh.log"
   PATH="$mock_bin:$PATH" MOCK_GH_LOG="$WORK/gh.log" \
     GITHUB_SERVER_URL="https://github.example" GITHUB_REPOSITORY="owner/repo" \
-    GITHUB_RUN_ID=987654 MOCK_ISSUES="$1" \
+    GITHUB_RUN_ID=987654 AUDIT_COMPLETE="${4:-true}" MOCK_ISSUES="$1" \
     MOCK_LIST_FAIL="${2:-0}" MOCK_COMMENT_FAIL="${3:-0}" \
     bash -e -o pipefail "$close_script" >"$WORK/close.out" 2>&1
   CLOSE_RC=$?
@@ -219,6 +219,75 @@ if [ "$CLOSE_RC" -ne 0 ] && ! grep -Fq 'issue close' "$WORK/gh.log"; then
   ok "ISSUE-478-RECOVERY: comment failure is nonzero and cannot close issue"
 else
   fail "ISSUE-478-RECOVERY: comment failure must prevent closure"
+fi
+
+for completion in missing partial false; do
+  run_close_step '[{"number":421,"title":"Weekly self-improvement run failed (2026-09-20)","body":"- 実行ログ: https://github.example/owner/repo/actions/runs/12345"}]' 0 0 "$completion"
+  if [ "$CLOSE_RC" -ne 0 ] && [ ! -s "$WORK/gh.log" ]; then
+    ok "ISSUE-559-RECOVERY: $completion completion cannot close an issue"
+  else
+    fail "ISSUE-559-RECOVERY: $completion completion must prevent all issue writes"
+  fi
+done
+
+# Execute the actual completion validator. Fixtures establish its behavior only;
+# they do not establish that a model ran the reported repository checks.
+completion_script="$WORK/validate-completion.sh"
+awk '
+  /^      - name: Validate audit completion$/ { step=1; next }
+  step && /^        run: \|$/ { body=1; next }
+  body && /^          / { sub(/^          /, ""); print; next }
+  body && /^[[:space:]]*$/ { print; next }
+  body { exit }
+' "$TARGET_YML" > "$completion_script"
+if [ ! -s "$completion_script" ]; then
+  fail "ISSUE-559-RECOVERY: workflow completion validator is missing"
+else
+  completion_file="$WORK/self-improvement-987654-2.json"
+  expected_head="$(git -C "$ROOT" rev-parse HEAD)"
+  jq -n --arg head "$expected_head" '{run_id:"987654",run_attempt:"2",head:$head,status:"complete",checks:{guards:0,install:0,python:0,node:0,json_yaml:0}}' > "$WORK/complete.json"
+  for mode in missing malformed duplicate partial missing_status unknown_status stale_run stale_attempt stale_head missing_check failed_check unrun_check boolean_check complete; do
+    rm -f "$completion_file"
+    case "$mode" in
+      missing) ;;
+      malformed) printf '{' > "$completion_file" ;;
+      duplicate) sed 's/"status": "complete"/"status": "partial", "status": "complete"/' "$WORK/complete.json" > "$completion_file" ;;
+      partial) jq '.status="partial"' "$WORK/complete.json" > "$completion_file" ;;
+      missing_status) jq 'del(.status)' "$WORK/complete.json" > "$completion_file" ;;
+      unknown_status) jq '.status="passed"' "$WORK/complete.json" > "$completion_file" ;;
+      stale_run) jq '.run_id="123"' "$WORK/complete.json" > "$completion_file" ;;
+      stale_attempt) jq '.run_attempt="1"' "$WORK/complete.json" > "$completion_file" ;;
+      stale_head) jq '.head="old"' "$WORK/complete.json" > "$completion_file" ;;
+      missing_check) jq 'del(.checks.python)' "$WORK/complete.json" > "$completion_file" ;;
+      failed_check) jq '.checks.install=1' "$WORK/complete.json" > "$completion_file" ;;
+      unrun_check) jq '.checks.install=null' "$WORK/complete.json" > "$completion_file" ;;
+      boolean_check) jq '.checks.install=false' "$WORK/complete.json" > "$completion_file" ;;
+      complete) cp "$WORK/complete.json" "$completion_file" ;;
+    esac
+    : > "$WORK/completion-output"
+    (cd "$ROOT" && RUNNER_TEMP="$WORK" GITHUB_RUN_ID=987654 GITHUB_RUN_ATTEMPT=2 \
+      GITHUB_OUTPUT="$WORK/completion-output" bash -e -o pipefail "$completion_script") > "$WORK/completion.log" 2>&1
+    rc=$?
+    if [ "$mode" = complete ]; then
+      if [ "$rc" -eq 0 ] && grep -Fxq 'complete=true' "$WORK/completion-output"; then
+        ok "ISSUE-559-RECOVERY: complete current record emits completion output"
+      else
+        fail "ISSUE-559-RECOVERY: valid complete record rejected"
+      fi
+    elif [ "$rc" -ne 0 ] && ! grep -Fxq 'complete=true' "$WORK/completion-output"; then
+      ok "ISSUE-559-RECOVERY: $mode record cannot emit completion output"
+    else
+      fail "ISSUE-559-RECOVERY: $mode record accepted"
+    fi
+  done
+fi
+
+if grep -Fq "needs.improve.outputs.audit_complete == 'true'" "$TARGET_YML" \
+  && grep -Fq 'audit_complete: ${{ steps.audit_completion.outputs.complete }}' "$TARGET_YML" \
+  && grep -Fq 'AUDIT_COMPLETE: ${{ needs.improve.outputs.audit_complete }}' "$TARGET_YML"; then
+  ok "ISSUE-559-RECOVERY: recovery consumes validated completion job output"
+else
+  fail "ISSUE-559-RECOVERY: missing completion output wiring"
 fi
 
 # Prompt contract only: these assertions do not execute the model or establish
