@@ -246,12 +246,14 @@ else
   completion_file="$WORK/self-improvement-987654-2.json"
   expected_head="$(git -C "$ROOT" rev-parse HEAD)"
   jq -n --arg head "$expected_head" '{run_id:"987654",run_attempt:"2",head:$head,status:"complete",checks:{guards:0,install:0,python:0,node:0,json_yaml:0}}' > "$WORK/complete.json"
-  for mode in missing malformed duplicate partial missing_status unknown_status stale_run stale_attempt stale_head missing_check failed_check unrun_check boolean_check complete; do
+  for mode in missing malformed duplicate hostile_duplicate invalid_utf8 partial missing_status unknown_status stale_run stale_attempt stale_head missing_check failed_check unrun_check boolean_check hostile_value non_object non_object_checks complete; do
     rm -f "$completion_file"
     case "$mode" in
       missing) ;;
       malformed) printf '{' > "$completion_file" ;;
       duplicate) sed 's/"status": "complete"/"status": "partial", "status": "complete"/' "$WORK/complete.json" > "$completion_file" ;;
+      hostile_duplicate) printf '{"PRIVATE-COMPLETION-CANARY":1,"PRIVATE-COMPLETION-CANARY":2}' > "$completion_file" ;;
+      invalid_utf8) printf '\377' > "$completion_file" ;;
       partial) jq '.status="partial"' "$WORK/complete.json" > "$completion_file" ;;
       missing_status) jq 'del(.status)' "$WORK/complete.json" > "$completion_file" ;;
       unknown_status) jq '.status="passed"' "$WORK/complete.json" > "$completion_file" ;;
@@ -262,6 +264,9 @@ else
       failed_check) jq '.checks.install=1' "$WORK/complete.json" > "$completion_file" ;;
       unrun_check) jq '.checks.install=null' "$WORK/complete.json" > "$completion_file" ;;
       boolean_check) jq '.checks.install=false' "$WORK/complete.json" > "$completion_file" ;;
+      hostile_value) jq '.run_id="PRIVATE-COMPLETION-CANARY" | .status="PRIVATE-COMPLETION-CANARY" | .checks.install="PRIVATE-COMPLETION-CANARY" | .checks["PRIVATE-COMPLETION-CANARY"]=0' "$WORK/complete.json" > "$completion_file" ;;
+      non_object) printf '[]' > "$completion_file" ;;
+      non_object_checks) jq '.checks=[]' "$WORK/complete.json" > "$completion_file" ;;
       complete) cp "$WORK/complete.json" "$completion_file" ;;
     esac
     : > "$WORK/completion-output"
@@ -278,6 +283,32 @@ else
       ok "ISSUE-559-RECOVERY: $mode record cannot emit completion output"
     else
       fail "ISSUE-559-RECOVERY: $mode record accepted"
+    fi
+    if [ "$mode" != complete ]; then
+      case "$mode" in
+        missing) diagnostic='{"record": "unreadable"}' ;;
+        malformed|duplicate|hostile_duplicate|invalid_utf8) diagnostic='{"record": "invalid_json"}' ;;
+        *)
+          diagnostic="$(jq -nc --arg mode "$mode" '{record_object:true,run_id_match:true,run_attempt_match:true,head_match:true,status:"complete",check_names_match:true,checks:{guards:true,install:true,python:true,node:true,json_yaml:true}}
+            | if $mode == "partial" then .status="partial"
+              elif ($mode == "missing_status" or $mode == "unknown_status") then .status="invalid"
+              elif $mode == "stale_run" then .run_id_match=false
+              elif $mode == "stale_attempt" then .run_attempt_match=false
+              elif $mode == "stale_head" then .head_match=false
+              elif $mode == "missing_check" then .check_names_match=false | .checks.python=false
+              elif ($mode == "failed_check" or $mode == "unrun_check" or $mode == "boolean_check") then .checks.install=false
+              elif $mode == "hostile_value" then .run_id_match=false | .status="invalid" | .check_names_match=false | .checks.install=false
+              elif $mode == "non_object_checks" then .check_names_match=false | .checks |= with_entries(.value=false)
+              elif $mode == "non_object" then .record_object=false | .run_id_match=false | .run_attempt_match=false | .head_match=false | .status="invalid" | .check_names_match=false | .checks |= with_entries(.value=false)
+              else . end')" ;;
+      esac
+      actual="$(sed -n 's/^Audit completion diagnostic: //p' "$WORK/completion.log")"
+      if printf '%s' "$actual" | jq -e --argjson expected "$diagnostic" '. == $expected' >/dev/null 2>&1 \
+        && ! grep -Fq 'PRIVATE-COMPLETION-CANARY' "$WORK/completion.log"; then
+        ok "ISSUE-559-DIAGNOSTIC: $mode reports only exact allowlisted results"
+      else
+        fail "ISSUE-559-DIAGNOSTIC: $mode missing, incorrect or unsafe diagnostic"
+      fi
     fi
   done
 fi
