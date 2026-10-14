@@ -93,7 +93,14 @@ function Invoke-Cell([string]$CellTarget) {
 
         & $installer -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target $CellTarget -Plugins @("sdd-bootstrap", "sdd-ship")
         if ($LASTEXITCODE -ne 0) { throw "install_2 exited with code $LASTEXITCODE" }
-        if ((Get-Manifest $installRoot) -eq $manifest1) { Write-Ok "$CellTarget install_2 idempotent" } else { Write-Fail "$CellTarget install_2 diff_from_install_1" }
+        $manifest2 = Get-Manifest $installRoot
+        if ($manifest2 -eq $manifest1) { Write-Ok "$CellTarget install_2 idempotent" }
+        else {
+            Write-Fail "$CellTarget install_2 diff_from_install_1"
+            Write-Host "manifest_diff[$CellTarget]: <= install_1; => install_2"
+            Compare-Object -ReferenceObject @($manifest1 | ConvertFrom-Json) -DifferenceObject @($manifest2 | ConvertFrom-Json) -Property path, sha256 -CaseSensitive |
+                ForEach-Object { Write-Host ($_ | ConvertTo-Json -Compress) }
+        }
 
         $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-domain")
         & $uninstaller -InstallRoot $installRoot -Target $CellTarget -Plugins $allPlugins -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
