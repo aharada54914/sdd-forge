@@ -24,6 +24,71 @@ def load(name):
     return module
 
 
+class FixedProbeRetryTests(unittest.TestCase):
+    """Exercise the shipped probe's transcript validation without launching a model."""
+
+    def check_transcript(self, variant='none'):
+        transport = load('validate-nontty-spec-launch')
+        tree = ast.parse((SCRIPTS / 'probe-nontty-review.py').read_text())
+        body = next(node.body for node in tree.body if isinstance(node, ast.With))
+        start = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign)
+                     and any(isinstance(t, ast.Name) and t.id == 'read_calls' for t in node.targets))
+        end = next(i for i, node in enumerate(body) if isinstance(node, ast.Expr)
+                   and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute)
+                   and node.value.func.attr == 'require_probe_tool_sequence')
+        events = []
+        command = 'rtk proxy pwd; rtk proxy pwd'
+        deny = 'Impl non-TTY tool call differs from caller-pinned inputs'
+        fact = '[Fact-' + 'Forcing Gate]'
+
+        def call(name, value, error=False, content='ok'):
+            ident = 'call-' + str(len(events))
+            key = 'command' if name == 'Bash' else 'file_path'
+            events.extend([('use', {'id': ident, 'name': name, 'input': {key: value}}),
+                           ('result', {'tool_use_id': ident, 'is_error': error, 'content': content})])
+
+        call('Read', '/probe/admitted')
+        if variant != 'none':
+            refusal = (deny if variant == 'pinned' else 'other refusal' if variant == 'other'
+                       else fact + deny if variant == 'mixed' else fact)
+            call('Bash', command, True, refusal)
+            if variant == 'delayed':
+                call('Read', '/probe/admitted')
+            if variant == 'overlapped':
+                events[-1], events[-2] = events[-2], events[-1]
+            if variant == 'repeated':
+                call('Bash', command, True, fact)
+        call('Bash', command + ' ' if variant == 'changed' else command,
+             variant != 'success', deny if variant != 'success' else 'ok')
+        if variant == 'extra':
+            call('Bash', command, True, deny)
+        call('Read', '/probe/outside', True, deny)
+        call('StructuredOutput', None)
+        uses = {block['id']: block for kind, block in events if kind == 'use'}
+        results = {block['tool_use_id']: block for kind, block in events if kind == 'result'}
+        scope = {'transport': transport, 'Path': Path, 'ROOT': Path('/probe'),
+                 'events': events, 'uses': uses, 'results': results, 'use_order': list(uses),
+                 'read_paths': ['/probe/admitted'], 'outside': '/probe/outside',
+                 'hash_commands': [], 'expected_hashes': [], 'chained_bash': command,
+                 'fixed_inputs': {'snapshot': '/probe'}, 'stage': 'spec'}
+        exec(compile(ast.Module(body=body[start:end + 1], type_ignores=[]),
+                     'probe-validation', 'exec'), scope)
+        return scope['first_bash_retry_seen']
+
+    def test_fixed_probe_accepts_one_immediate_identical_first_bash_fact_retry(self):
+        self.assertTrue(self.check_transcript('valid'))
+
+    def test_fixed_probe_without_fact_retry_stays_exact(self):
+        self.assertFalse(self.check_transcript())
+
+    def test_fixed_probe_rejects_noncontract_retries(self):
+        for variant in ('changed', 'repeated', 'delayed', 'overlapped', 'pinned',
+                        'extra', 'other', 'mixed', 'success'):
+            with self.subTest(variant=variant):
+                with self.assertRaises((ValueError, SystemExit)):
+                    self.check_transcript(variant)
+
+
 class FixedLaunchTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
