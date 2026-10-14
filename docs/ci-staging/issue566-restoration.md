@@ -17,6 +17,9 @@ Application completed on 2026-10-15: the live workflow now contains exactly
 the two proposed steps. The structural check and all fourteen negative controls
 passed against that file; `git diff --check` passed. Earlier no-application
 statements below describe candidate preparation, not the current state.
+The preparation patch is retained in commit `f56cac0a`, not duplicated in the
+final tree: its context-only blank lines triggered the whitespace checker.
+The final workflow diff and structural regression are the maintained artifacts.
 
 ## Pre-edit scope (2026-10-14)
 
