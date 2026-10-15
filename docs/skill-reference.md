@@ -320,11 +320,27 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 | スクリプト名 | 提供ランタイム | 目的 |
 |---|---|---|
-| `generate-approval-sidecar` | sh / ps1 / py | Project Context / Provider Binding の `context_sha256` を計算し、HMAC-SHA256 署名した承認サイドカーを `sdd/.staging/` へ**候補として**書き出す（人間 / CI 専用） |
+| `generate-approval-sidecar` | sh / ps1 / py | Project Context / Provider Binding または固定 Git 入力一覧に結び付く承認を HMAC-SHA256 署名し、`sdd/.staging/` へ**候補として**書き出す（人間 / CI 専用） |
 | `generate-evidence-bundle` | sh / ps1 | 検証契約と品質レポートから、参照成果物すべての SHA-256 を含むハッシュ検証済み evidence bundle を生成 |
 | `generate-gate-capabilities` | sh / ps1 / py | 正準 Registry (`contracts/capability-registry.json`) から `generated/gate-capabilities.json` を射影生成 |
 | `generate-guard-invariants` | py | `references/guard-invariants.json` から、各ランタイム native なガード不変条件モジュール (`generated/guard-invariants.generated.{sh,ps1,js}` / `guard_invariants.py`) をレンダリング |
 | `generate-registry-digest` | sh / ps1 / py / js | Capability Registry の選択フラグメントの正準ダイジェストを生成（NFC 正規化・RFC 8785・ハッシュ化は canonicalize-sdd-yaml へ委譲） |
+
+固定レビュー承認の発行例（従来形式の引数・動作は維持）:
+
+```sh
+python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
+  --schema sdd-fixed-review-approval/v1 --repo . --inventory input-inventory.json \
+  --feature example --stage impl --task-id T-001 \
+  --approver registered-human --status Approved
+```
+
+`--task-id` はタスク単位の承認時だけ指定します。既存の鍵解決と
+`sdd/approver-registry.yaml` を使い、登録承認者・入力の Git blob・署名・対象範囲を
+検証してから `fixed-review.approval.json`、`MANIFEST.sha256`、`NONCE` を生成します。
+`--effective-at` 未指定時は現時刻（UTC）です。既存出力は上書きせず、途中失敗では
+部分出力を公開しません。固定形式には `--content` や `--second-approver` などの
+従来形式専用引数を渡せません。発行だけでは承認の適用・タスク状態変更は行いません。
 
 **検証系（`validate-*`、5本）** — 契約・マニフェスト・入力の妥当性を独立に再検証します。
 
