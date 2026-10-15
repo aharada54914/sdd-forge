@@ -710,7 +710,7 @@ def _issue_fixed_approval(args):
             "NONCE": (nonce + "\n").encode(),
         }
         for name, data in outputs.items():
-            (temporary / name).write_text(data.decode("utf-8"), encoding="utf-8", newline="")
+            (temporary / name).write_bytes(data)
         if any((temporary / name).read_bytes() != data for name, data in outputs.items()):
             raise OSError("staged output readback mismatch")
         if os.path.lexists(stage_dir):

@@ -249,7 +249,7 @@ class StateTests(unittest.TestCase):
             '--inventory', str(self.inventory_path), '--feature', 'demo', '--stage', 'impl',
             '--task-id', 'T-001', '--approver', 'fixture-human', '--status', 'Approved',
             '--stage-dir', str(self.output)])
-        original = Path.write_text
+        original = Path.write_bytes
         for failure in (KeyboardInterrupt, OSError):
             def interrupted(path, *args, **kwargs):
                 if path.name == 'MANIFEST.sha256':
@@ -257,13 +257,17 @@ class StateTests(unittest.TestCase):
                 return original(path, *args, **kwargs)
             with self.subTest(failure=failure), mock.patch.dict(os.environ, {
                     'SDD_CONTEXT_KEY': self.key.decode()}), mock.patch.object(
-                        Path, 'write_text', interrupted):
+                        Path, 'write_bytes', interrupted):
                 with self.assertRaises((KeyboardInterrupt, issuer.GenerateApprovalSidecarError)):
                     issuer._issue_fixed_approval(args)
                 self.assertFalse(self.output.exists())
                 self.assertEqual(list(self.repo.glob('.staged.tmp-*')), [])
-        result = self.issue()
-        self.assertEqual(result.returncode, 0, result.stderr)
+        original_write_text = Path.write_text
+        def python39_write_text(path, data, encoding=None, errors=None):
+            return original_write_text(path, data, encoding=encoding, errors=errors)
+        with mock.patch.dict(os.environ, {'SDD_CONTEXT_KEY': self.key.decode()}), \
+                mock.patch.object(Path, 'write_text', python39_write_text):
+            self.assertEqual(issuer._issue_fixed_approval(args), 0)
 
     def test_issuer_preserves_empty_and_symlink_destinations(self):
         self.issuer_fixture()
