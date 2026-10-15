@@ -77,6 +77,7 @@ CATEGORY_EXIT_CODES = {
     "HUMAN_COPY_PUBLISH_IN_PROGRESS": 21,
     "APPROVED_CONTEXT_ANCHOR_UNREADABLE": 22,
     "APPROVER_REGISTRY_UNREADABLE": 23,
+    "FIXED_APPROVAL_INVALID": 24,
     # Test-only hook (AC-034/TEST-034); never produced by a real signing run.
     "SIMULATED_MID_WRITE_FAILURE": 90,
 }
@@ -88,6 +89,7 @@ SCHEMA_BASENAMES = {
     "sdd-project-context-approval/v1": "project-context",
     "sdd-provider-bindings-approval/v1": "provider-bindings",
 }
+FIXED_SCHEMA = "sdd-fixed-review-approval/v1"
 
 
 class GenerateApprovalSidecarError(Exception):
@@ -580,7 +582,8 @@ def build_arg_parser():
             "canonicalizer, HMAC-SHA256-sign an approval sidecar, and write "
             "ONLY a staged candidate + approved-context snapshot + manifest "
             "under sdd/.staging/<schema-id>/<nonce>/ -- never the live "
-            "sidecar or anchor path."
+            "sidecar or anchor path. Fixed-review approvals bind a Git input "
+            "inventory instead of a context snapshot."
         ),
         epilog="Exit codes (stable, one per rejection category):\n"
         f"    0  success\n"
@@ -588,12 +591,17 @@ def build_arg_parser():
         f"{_EXIT_CODE_HELP}\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--schema", choices=sorted(SCHEMA_BASENAMES), help="approval schema id")
+    parser.add_argument("--schema", choices=sorted([*SCHEMA_BASENAMES, FIXED_SCHEMA]), help="approval schema id")
+    parser.add_argument("--repo", help="fixed-review repository containing sdd/approver-registry.yaml")
+    parser.add_argument("--inventory", help="fixed-review input inventory JSON")
+    parser.add_argument("--feature", help="fixed-review feature scope")
+    parser.add_argument("--stage", help="fixed-review stage scope")
+    parser.add_argument("--task-id", help="optional fixed-review task scope")
     parser.add_argument("--content", help="path to the live project-context.yaml/provider-bindings.yaml content file")
     parser.add_argument("--approver", help="primary approver's approver-registry id")
     parser.add_argument("--status", help='primary/second approval status; must be exactly "Approved"')
     parser.add_argument("--second-approver", default=None, help="second approver's approver-registry id (two-person review)")
-    parser.add_argument("--effective-at", default=None, help="ISO 8601 effective_at value (passthrough; null if omitted)")
+    parser.add_argument("--effective-at", default=None, help="ISO 8601 effective_at (fixed review: current UTC if omitted; legacy: null)")
     parser.add_argument("--live-sidecar", help="path to the currently-live sidecar for this schema (absent => bootstrap)")
     parser.add_argument(
         "--stage-dir", default=None,
@@ -653,6 +661,71 @@ def _require(args, names):
         )
 
 
+def _issue_fixed_approval(args):
+    _require(args, ["repo", "inventory", "feature", "stage", "approver", "status"])
+    if args.status != "Approved" or any(getattr(args, name) is not None for name in (
+        "content", "live_sidecar", "second_approver", "simulate_mid_write_failure",
+    )):
+        raise GenerateApprovalSidecarError("USAGE_ERROR", "fixed review requires Approved and no legacy sidecar arguments")
+    key = resolve_context_key()
+    if not key:
+        raise GenerateApprovalSidecarError("NO_CONTEXT_KEY", "no context key; refusing to sign")
+    repo = Path(args.repo).resolve()
+    try:
+        source = Path(__file__).resolve().parents[2] / "sdd-review-loop/scripts/fixed-review-inputs.py"
+        spec = importlib.util.spec_from_file_location("fixed_issuer_inputs", source)
+        fixed = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixed)
+        source = Path(__file__).with_name("validate-approval-sidecar.py")
+        spec = importlib.util.spec_from_file_location("fixed_issuer_auth", source)
+        auth = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(auth)
+        inventory = json.loads(Path(args.inventory).read_text(encoding="utf-8"), object_pairs_hook=fixed.unique_fields)
+        fixed.validate_inventory(inventory)
+        fixed.verify_current_selection(repo, inventory["commit"], inventory)
+        registry = auth._validate_registry(repo / "sdd/approver-registry.yaml")
+        approval = {
+            "schema": FIXED_SCHEMA, "commit": inventory["commit"], "inputs": inventory["inputs"],
+            "feature": args.feature, "stage": args.stage, "task_id": args.task_id,
+            "primary_approval": {"approver": args.approver},
+            "effective_at": args.effective_at if args.effective_at is not None else _now_iso8601(),
+        }
+        approval["hmac"] = hmac.new(key, _canonicalize_json_preimage(approval), hashlib.sha256).hexdigest()
+        fixed.verify_approval(approval, inventory, feature=args.feature, stage=args.stage,
+                              task_id=args.task_id, key=key, registry_ids=registry)
+    except Exception as exc:
+        raise GenerateApprovalSidecarError("FIXED_APPROVAL_INVALID", str(exc)) from exc
+    nonce = secrets.token_hex(32)
+    stage_dir = Path(args.stage_dir) if args.stage_dir else repo / _default_stage_dir(FIXED_SCHEMA, nonce)
+    temporary = None
+    try:
+        if os.path.lexists(stage_dir):
+            raise FileExistsError(f"staging destination already exists: {stage_dir}")
+        stage_dir.parent.mkdir(parents=True, exist_ok=True)
+        temporary = Path(tempfile.mkdtemp(prefix=f".{stage_dir.name}.tmp-", dir=stage_dir.parent))
+        content = (json.dumps(approval, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        outputs = {
+            "fixed-review.approval.json": content,
+            "MANIFEST.sha256": (hashlib.sha256(content).hexdigest() + "  fixed-review.approval.json\n").encode(),
+            "NONCE": (nonce + "\n").encode(),
+        }
+        for name, data in outputs.items():
+            (temporary / name).write_text(data.decode("utf-8"), encoding="utf-8", newline="")
+        if any((temporary / name).read_bytes() != data for name, data in outputs.items()):
+            raise OSError("staged output readback mismatch")
+        if os.path.lexists(stage_dir):
+            raise FileExistsError(f"staging destination already exists: {stage_dir}")
+        temporary.rename(stage_dir)
+    except OSError as exc:
+        raise GenerateApprovalSidecarError("STAGING_IO_ERROR", str(exc)) from exc
+    finally:
+        if temporary is not None and temporary.exists():
+            shutil.rmtree(temporary)
+    print(f"generate-approval-sidecar: staged {stage_dir}")
+    print(f"nonce: {nonce}")
+    return 0
+
+
 def main(argv=None):
     parser = build_arg_parser()
     args = parser.parse_args(argv)
@@ -661,6 +734,10 @@ def main(argv=None):
         return _run_dump_preimage(args.dump_preimage)
 
     try:
+        if args.schema == FIXED_SCHEMA:
+            return _issue_fixed_approval(args)
+        if any(getattr(args, name) is not None for name in ("repo", "inventory", "feature", "stage", "task_id")):
+            raise GenerateApprovalSidecarError("USAGE_ERROR", "fixed-review arguments require the fixed-review schema")
         _require(args, ["schema", "content", "approver", "status", "live_sidecar"])
 
         if args.status != "Approved":

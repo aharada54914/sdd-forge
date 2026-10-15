@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'plugins/sdd-review-loop/scripts/fixed-review-state.py'
 
@@ -161,6 +162,119 @@ class StateTests(unittest.TestCase):
         self.assertEqual(run('verify').returncode, 0)
         self.assertIsNone(json.loads((self.repo / 'record.json').read_text())['task_id'])
         self.assertNotEqual(run('verify', '--task-id', 'T-001').returncode, 0)
+
+
+    def issuer_fixture(self):
+        (self.repo / 'sdd').mkdir(exist_ok=True)
+        (self.repo / 'sdd/approver-registry.yaml').write_text(
+            'schema: sdd-approver-registry/v1\napprovers:\n'
+            '  - id: fixture-human\n    name: Fixture Human\n')
+        self.inventory_path = self.repo / 'inventory.json'
+        self.inventory_path.write_text(json.dumps(self.inventory))
+        self.output = self.repo / 'staged'
+
+    def issue(self, *extra, key=None):
+        issuer = SCRIPT.parents[2] / 'sdd-quality-loop/scripts/generate-approval-sidecar.py'
+        return subprocess.run([
+            sys.executable, str(issuer), '--schema', 'sdd-fixed-review-approval/v1',
+            '--repo', str(self.repo), '--inventory', str(self.inventory_path),
+            '--feature', 'demo', '--stage', 'impl', '--task-id', 'T-001',
+            '--approver', 'fixture-human', '--status', 'Approved',
+            '--stage-dir', str(self.output), *extra,
+        ], env={**os.environ, 'SDD_CONTEXT_KEY': self.key.decode() if key is None else key,
+                'SDD_CONTEXT_KEY_FILE': str(self.repo / 'missing-key'),
+                'HOME': str(self.repo), 'USERPROFILE': str(self.repo)},
+            capture_output=True, text=True)
+
+    def test_issuer_roundtrip_and_exclusive_staging(self):
+        self.issuer_fixture()
+        result = self.issue()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        approval_path = self.output / 'fixed-review.approval.json'
+        self.approval = json.loads(approval_path.read_text())
+        self.verify(self.create())
+        self.assertEqual(self.approval['inputs'], self.inventory['inputs'])
+        self.assertEqual((self.output / 'MANIFEST.sha256').read_text(),
+                         hashlib.sha256(approval_path.read_bytes()).hexdigest() +
+                         '  fixed-review.approval.json\n')
+        before = approval_path.read_bytes()
+        self.assertNotEqual(self.issue().returncode, 0)
+        self.assertEqual(approval_path.read_bytes(), before)
+        self.assertEqual((self.repo / 'tasks.md').read_text(),
+                         '## T-001 Example\nApproval: Draft\nStatus: Planned\n')
+        with self.assertRaises(Exception):
+            self.module.fixed.verify_approval(self.approval, self.inventory,
+                **{**self.scope, 'feature': 'other'}, **self.trust)
+
+    def test_issuer_rejects_invalid_trust_time_and_mixed_modes(self):
+        self.issuer_fixture()
+        for extra, key in [(['--approver', 'unknown'], None), ([], ''),
+                           (['--effective-at', '2999-01-01T00:00:00Z'], None),
+                           (['--effective-at', 'not-a-time'], None),
+                           (['--content', 'tasks.md'], None),
+                           (['--second-approver', 'another'], None),
+                           (['--status', 'Draft'], None)]:
+            with self.subTest(extra=extra, key=key):
+                result = self.issue(*extra, key=key)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn('Traceback', result.stderr)
+                self.assertFalse(self.output.exists())
+        (self.repo / 'sdd/approver-registry.yaml').unlink()
+        self.assertNotEqual(self.issue().returncode, 0)
+        self.assertFalse(self.output.exists())
+
+    def test_issuer_rejects_unbound_inventory(self):
+        self.issuer_fixture()
+        for field, value in [('sha256', '0' * 64), ('mode', '100755'),
+                             ('path', 'missing.md')]:
+            inventory = copy.deepcopy(self.inventory)
+            inventory['inputs'][0][field] = value
+            self.inventory_path.write_text(json.dumps(inventory))
+            result = self.issue()
+            self.assertNotEqual(result.returncode, 0, field)
+            self.assertNotIn('Traceback', result.stderr)
+            self.assertFalse(self.output.exists())
+        self.inventory_path.write_text('{"commit":"a","commit":"b","inputs":[]}')
+        self.assertNotEqual(self.issue().returncode, 0)
+        self.assertFalse(self.output.exists())
+
+    def test_issuer_interrupted_staging_is_absent_and_retryable(self):
+        self.issuer_fixture()
+        source = SCRIPT.parents[2] / 'sdd-quality-loop/scripts/generate-approval-sidecar.py'
+        spec = importlib.util.spec_from_file_location('issuer', source)
+        issuer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(issuer)
+        args = issuer.build_arg_parser().parse_args([
+            '--schema', 'sdd-fixed-review-approval/v1', '--repo', str(self.repo),
+            '--inventory', str(self.inventory_path), '--feature', 'demo', '--stage', 'impl',
+            '--task-id', 'T-001', '--approver', 'fixture-human', '--status', 'Approved',
+            '--stage-dir', str(self.output)])
+        original = Path.write_text
+        for failure in (KeyboardInterrupt, OSError):
+            def interrupted(path, *args, **kwargs):
+                if path.name == 'MANIFEST.sha256':
+                    raise failure('injected staging interruption')
+                return original(path, *args, **kwargs)
+            with self.subTest(failure=failure), mock.patch.dict(os.environ, {
+                    'SDD_CONTEXT_KEY': self.key.decode()}), mock.patch.object(
+                        Path, 'write_text', interrupted):
+                with self.assertRaises((KeyboardInterrupt, issuer.GenerateApprovalSidecarError)):
+                    issuer._issue_fixed_approval(args)
+                self.assertFalse(self.output.exists())
+                self.assertEqual(list(self.repo.glob('.staged.tmp-*')), [])
+        result = self.issue()
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_issuer_preserves_empty_and_symlink_destinations(self):
+        self.issuer_fixture()
+        self.output.mkdir()
+        self.assertNotEqual(self.issue().returncode, 0)
+        self.assertEqual(list(self.output.iterdir()), [])
+        self.output.rmdir()
+        self.output.symlink_to(self.repo / 'absent', target_is_directory=True)
+        self.assertNotEqual(self.issue().returncode, 0)
+        self.assertTrue(self.output.is_symlink())
+        self.assertFalse((self.repo / 'absent').exists())
 
 
 if __name__ == '__main__':
