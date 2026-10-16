@@ -104,7 +104,7 @@ by this checkpoint.
 
 | Canonical plan | Local state | Publication boundary |
 | --- | --- | --- |
-| `specs/epic-195-a7-compatibility/tasks.md` | 3 Done, 6 Implementation Complete, 2 In Progress, 2 Planned | T-004 YAML acceptance remains unresolved; mixed normative/review evidence needs its own bounded checkpoint. |
+| `specs/epic-195-a7-compatibility/tasks.md` | 3 Done, 6 Implementation Complete, 2 In Progress, 2 Planned | A separate bounded structural-test checkpoint is published below; T-004 YAML acceptance and normative/review evidence closure remain unresolved. |
 | `specs/epic-196-a8-integration/tasks.md` | 1 Implementation Complete, 7 Planned | T-005 candidate and live-host proof are separate; several candidate paths differ on the existing remote branch, so whole-file replacement would overwrite remote work. |
 | `specs/a9-interrupted-review-recovery/tasks.md` | 3 Approved / Planned | Protected baseline/read admission refusals remain unresolved. Its local branch is absent remotely; the existing A9 feature branch has later commits. Do not transplant approvals or replay refused repair commands. |
 | `specs/sdd-domain-multitarget/tasks.md` | T-001/T-002 Done, T-003 In Progress, T-004..006 Planned; all Approved | This branch carries selected code candidates, not the local completion-evidence closure. |
@@ -136,3 +136,34 @@ No cloud implementation session is launched by this publication. No merge,
 production change, installation, signer operation or trust switch is authorized
 or performed. This branch's test workflow runs on main pushes/PRs, so pushing
 this feature checkpoint alone does not establish CI success.
+
+## Final publication reconciliation
+
+Remote heads were read back after the successful normal fast-forward pushes:
+
+- #423 T-002 repair: `d6c098bf235975a2363d7a704615f7f965f79ba4`.
+- #423 T-003 candidate: `0e8cb3babcffce3d4dc4751b455e5cbd1df79b80`.
+- A7 candidate on `codex/a7-issue195-closeout`:
+  `62e200dab02f680e23a3aaf05ee4fd7a6ba357b9`.
+  [Exact bounded scope and evidence](https://github.com/aharada54914/sdd-forge/blob/62e200dab02f680e23a3aaf05ee4fd7a6ba357b9/reports/verification/a7-cloud-checkpoint-20261016.md).
+  Its public-base suites passed 61 Bash and 68 PowerShell checks; F3/F5/F6
+  remain SKIPs in that base. No owner 77/84 result is substituted.
+
+An ordinary `git apply --check` of the A8 owner's selected eight-file delta
+against remote `f525825e7a1ffb5021b80e3a0fbae20e36955d38` failed at four paths:
+`plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.ps1`,
+`tests/fixtures/live-host-proof/run_cases.py`, and both
+`tests/install-uninstall-matrix.tests.sh` / `.ps1`. These are concrete overlapping
+remote changes, not a protection refusal. No three-way apply, merge, overwrite
+or A8 push was attempted; the combined delta needs reconciliation and review.
+
+All five original owners' HEADs and porcelain status digests matched the
+pre-publication audit at final preservation check, and all selected source
+hashes were stable. No index or task-state changes were made there. A private
+local audit retains owner paths, status inventories, selected hashes and holds;
+it is not a public evidence bundle or proof that old sessions were stopped.
+
+At CI inspection, #423 candidate `0e8cb3ba` had no workflow runs; A7's exact
+`62e200da` had a queued [pull-request test run](https://github.com/aharada54914/sdd-forge/actions/runs/38828095477).
+Neither is recorded as CI PASS. This final reconciliation is documentation
+only; executable and test bytes remain those validated above.
