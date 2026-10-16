@@ -1,5 +1,20 @@
 # Issue 423 T-003 cloud continuation
 
+## Current continuation (2026-10-17)
+
+The sections below retain the original checkpoint history. The current published
+baseline is `e6673e683ed45aa49b6a9b2efad9ce4dd76e2589`; its GitHub Actions run
+`38964412245` completed successfully (37 jobs). That result does not cover later
+commits or establish formal task completion. T-003 regression coverage now has
+28 passing tests; see `issue423-t003-cloud-20261017/README.md` and
+`issue423-portable-prerequisites-20261017.md` in this directory for evidence and
+the remaining T-001/T-002 formal admission limitations.
+
+For subsequent tasks, read
+[T-004/T-005 research handoff](issue423-t004-t005-research-handoff-20261017.md).
+Preserve historical verdicts. Do not start dependent implementation merely
+because regression or CI is green; reconcile the canonical prerequisite gates.
+
 ## Checkpoint scope
 
 Continue on `codex/issue423-boundary-checkpoint`. This checkpoint reconciles local
