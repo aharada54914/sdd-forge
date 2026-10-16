@@ -1,0 +1,15 @@
+diff --git a/reports/verification/issue423-cloud-inputs-20261016/originals/install.sh b/install.sh
+old mode 100644
+new mode 100755
+index 819dc762..de98b494
+--- a/reports/verification/issue423-cloud-inputs-20261016/originals/install.sh
++++ b/install.sh
+@@ -707,7 +707,7 @@ rollback() {
+     fi
+ }
+ 
+-trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
++trap 'rc=$?; rollback; cleanup; exit $rc' EXIT
+ 
+ # ---------------------------------------------------------------------------
+ # Resolve source

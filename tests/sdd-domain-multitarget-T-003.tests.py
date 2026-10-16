@@ -66,6 +66,51 @@ def passing_fixture(target):
     return registry, manifest, contract
 
 
+# Synthetic Registry-owned selections model design.md's Target Selection Examples.
+# These IDs are fixture data, not additions to the shipped Registry or predicates.
+# The original fixture above remains a small evaluator/schema boundary control.
+TARGET_PROFILES = {
+    'cli-library': (['interface-contract', 'behavior', 'packaging', 'security'],
+                    ['contract-compatibility', 'package-validation', 'security-validation']),
+    'ui': (['user-flows', 'ui-states', 'ux-ui', 'api-contract', 'data-contract', 'security'],
+           ['component-interaction', 'accessibility', 'api-data-validation', 'security-validation']),
+    'design-only': (['requirements', 'architecture-views', 'decisions', 'contracts', 'traceability'],
+                    ['design-consistency', 'scenario-coverage']),
+    'iac-cloud': (['resource-intent', 'ownership', 'policy', 'deployment-topology', 'interface-contract'],
+                  ['iac-validate', 'iac-plan', 'policy-validation']),
+    'low-code': (['data-model', 'permissions', 'business-process', 'solution-package'],
+                 ['schema-validation', 'permission-validation', 'process-validation', 'solution-validation']),
+}
+
+
+def target_fixture(target):
+    registry, _, contract = passing_fixture(target)
+    registry['gates'] = []
+    registry['capabilities'] = []
+    for name, (facets, gate_ids) in TARGET_PROFILES.items():
+        for gid in gate_ids:
+            if not any(g['id'] == gid for g in registry['gates']):
+                registry['gates'].append({'id': gid, 'stage': 'implementation',
+                    'blocking': True, 'implementation_ref': 'verifier.py'})
+        registry['capabilities'].append({'id': name,
+            'trigger': {'scope': 'affected_component', 'field': 'artifact_kinds',
+                        'operator': 'contains', 'value': name},
+            'required_facets': facets, 'conditional_facets': [], 'review_check_ids': [],
+            'gate_ids': gate_ids + ['publish'], 'delivery_strategy': {'kind': 'manual'}})
+    registry['gates'].append({'id': 'publish', 'stage': 'promotion', 'blocking': True})
+    evaluations, warnings = [], []
+    resolver._evaluate_capabilities(SCRIPTS, registry, ['component'],
+        {'component': {'artifact_kinds': [target]}}, evaluations, warnings)
+    binding = resolver._assemble_context_binding('sha256:' + '1' * 64, ['component'],
+        'sha256:' + '2' * 64, 'sha256:' + digest.canonical_digest(registry), 'sha256:' + '3' * 64)
+    manifest = resolver._assemble_facet_manifest('example', ['component'], registry,
+        evaluations, binding, {'version': '1.0.0', 'rule_set_revision': 'sha256:' + '4' * 64})
+    observation = contract['checks'].pop()
+    contract['checks'].extend(dict(observation, id=gid) for gid in TARGET_PROFILES[target][1])
+    contract['stack'] = 'code' if target in ('cli-library', 'ui') else 'spec'
+    return registry, manifest, contract
+
+
 class SelectedPlanTests(unittest.TestCase):
     def evaluate(self, registry, manifest, contract, verifier=True, evaluator=EVALUATOR):
         self.assertTrue(evaluator.is_file(), 'T-003 selected-plan evaluator is not implemented')
@@ -91,7 +136,133 @@ class SelectedPlanTests(unittest.TestCase):
         if plan is not None:
             self.assertEqual(plan['verdict'], 'BLOCKED')
 
-    def test_five_target_candidate_selection(self):
+    def assert_target_obligations(self, target, facets, gates, excluded):
+        registry, manifest, contract = target_fixture(target)
+        self.assertEqual(manifest['capabilities'], [target])
+        self.assertEqual(set(manifest['required_facets']), set(facets))
+        self.assertEqual({g['id'] for g in manifest['resolved_gates']}, set(gates) | {'publish'})
+        result, plan, _ = self.evaluate(registry, manifest, contract)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checks = {c['id']: c for c in plan['checks']}
+        self.assertEqual(set(checks), set(gates) | legacy.RISK_TIERS['medium'])
+        self.assertTrue(set(checks).isdisjoint(excluded))
+        self.assertEqual(plan['verdict'], 'PASS')
+        for gid in gates:
+            self.assertEqual((checks[gid]['obligation'], checks[gid]['result'],
+                              checks[gid]['applicability'], checks[gid]['blocking']),
+                             ('required', 'passed', 'applicable', True))
+            self.assertIn('registry', checks[gid]['sources'])
+            # Selection alone must not provide observation evidence. Remove each
+            # distinct obligation in turn, retaining all other successful checks.
+            missing = copy.deepcopy(contract)
+            missing['checks'] = [c for c in missing['checks'] if c['id'] != gid]
+            result, blocked, _ = self.evaluate(registry, manifest, missing)
+            self.assert_blocked(result, blocked)
+            row = next(c for c in blocked['checks'] if c['id'] == gid)
+            self.assertEqual((row['result'], row['obligation']), ('not-run', 'required'))
+            result, blocked, _ = self.evaluate(registry, manifest, contract, verifier=False)
+            self.assert_blocked(result, blocked)
+            row = next(c for c in blocked['checks'] if c['id'] == gid)
+            self.assertEqual(row['result'], 'unavailable')
+        return registry, manifest, contract
+
+    def test_003a_cli_contract_package_security_without_ui_or_deployment(self):
+        self.assert_target_obligations('cli-library',
+            {'interface-contract', 'behavior', 'packaging', 'security'},
+            {'contract-compatibility', 'package-validation', 'security-validation'},
+            {'component-interaction', 'accessibility', 'iac-plan', 'publish'})
+
+    def test_003b_ui_flows_states_api_data_security_without_remote_service(self):
+        self.assert_target_obligations('ui',
+            {'user-flows', 'ui-states', 'ux-ui', 'api-contract', 'data-contract', 'security'},
+            {'component-interaction', 'accessibility', 'api-data-validation', 'security-validation'},
+            {'remote-design-service', 'package-validation', 'iac-plan', 'publish'})
+
+    def test_003c_design_selection_retains_medium_spec_required_checks(self):
+        args = self.assert_target_obligations('design-only',
+            {'requirements', 'architecture-views', 'decisions', 'contracts', 'traceability'},
+            {'design-consistency', 'scenario-coverage'},
+            {'component-interaction', 'iac-plan', 'publish'})
+        self.assertEqual((args[2]['risk'], args[2]['stack']), ('medium', 'spec'))
+        for cid in ('unit-tests', 'acceptance-tests', 'build'):
+            mutations = ('unrun', 'unavailable') if cid == 'build' else ('unrun', 'unavailable', 'downgrade')
+            for mutation in mutations:
+                with self.subTest(check=cid, mutation=mutation):
+                    registry, manifest, contract = copy.deepcopy(args)
+                    check = next(c for c in contract['checks'] if c['id'] == cid)
+                    if mutation == 'unrun':
+                        check.pop('command')
+                    elif mutation == 'unavailable':
+                        check['evidence'] = 'missing-design-evidence.log'
+                    else:
+                        check.update(required=False, passes=False, waiver_reason='design-only')
+                    result, plan, _ = self.evaluate(registry, manifest, contract)
+                    self.assert_blocked(result, plan)
+                    row = next(c for c in plan['checks'] if c['id'] == cid)
+                    self.assertEqual((row['obligation'], row['applicability'], row['reason']),
+                        ('required', 'applicable', 'migration-pending-required'))
+
+    def test_003c_only_explicit_compile_waiver_with_reason_is_allowed(self):
+        registry, manifest, contract = target_fixture('design-only')
+        for check in contract['checks']:
+            if check['id'] in ('lint', 'typecheck', 'build'):
+                check.update(required=False, passes=False,
+                    waiver_reason='Spec stack has no compiler; existing non-code compile waiver.')
+        result, plan, _ = self.evaluate(registry, manifest, contract)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checks = {c['id']: c for c in plan['checks']}
+        for cid in ('lint', 'typecheck', 'build'):
+            self.assertEqual((checks[cid]['obligation'], checks[cid]['result'], checks[cid]['reason']),
+                ('optional', 'not-applicable', 'legacy-optional-not-selected'))
+        for cid in ('unit-tests', 'acceptance-tests'):
+            self.assertEqual((checks[cid]['obligation'], checks[cid]['result']), ('required', 'passed'))
+        for cid in ('lint', 'typecheck', 'build'):
+            for mutation in ('empty-reason', 'code-stack', 'omitted'):
+                with self.subTest(check=cid, mutation=mutation):
+                    bad = copy.deepcopy(contract)
+                    check = next(c for c in bad['checks'] if c['id'] == cid)
+                    if mutation == 'empty-reason':
+                        check['waiver_reason'] = ''
+                    elif mutation == 'code-stack':
+                        bad['stack'] = 'code'
+                    else:
+                        bad['checks'].remove(check)
+                    result, blocked, _ = self.evaluate(registry, manifest, bad)
+                    self.assert_blocked(result, blocked)
+
+    def test_003d_iac_validate_plan_policy_never_claim_apply(self):
+        args = self.assert_target_obligations('iac-cloud',
+            {'resource-intent', 'ownership', 'policy', 'deployment-topology', 'interface-contract'},
+            {'iac-validate', 'iac-plan', 'policy-validation'},
+            {'apply', 'deploy', 'component-interaction', 'publish'})
+        _, plan, _ = self.evaluate(*args)
+        self.assertEqual(set(plan), {'schema', 'feature', 'task_id', 'bindings', 'checks', 'verdict'})
+        self.assertEqual({c['stage'] for c in plan['checks']}, {'implementation'})
+        for cid in ('apply', 'deploy'):
+            mutated = copy.deepcopy(plan)
+            mutated[cid + '_success'] = True
+            evaluator = load('t003_iac_evaluator', EVALUATOR)
+            self.assertTrue(evaluator.validate_plan(mutated, mutated))
+
+    def test_003e_low_code_data_permissions_process_package_without_universal_build(self):
+        registry, manifest, contract = self.assert_target_obligations('low-code',
+            {'data-model', 'permissions', 'business-process', 'solution-package'},
+            {'schema-validation', 'permission-validation', 'process-validation', 'solution-validation'},
+            {'source-code-build', 'component-interaction', 'iac-plan', 'publish'})
+        # Registry does not impose a source-code build. The legacy medium build
+        # still needs an explicit permitted waiver; target selection cannot erase it.
+        check = next(c for c in contract['checks'] if c['id'] == 'build')
+        check.update(required=False, passes=False,
+            waiver_reason='Solution package validation replaces compilation for this spec fixture.')
+        result, plan, _ = self.evaluate(registry, manifest, contract)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checks = {c['id']: c for c in plan['checks']}
+        self.assertEqual((checks['build']['obligation'], checks['build']['result']),
+                         ('optional', 'not-applicable'))
+        self.assertEqual((checks['solution-validation']['obligation'],
+                          checks['solution-validation']['result']), ('required', 'passed'))
+
+    def test_single_gate_candidate_boundary_controls(self):
         for target in TARGETS:
             with self.subTest(target=target):
                 _, manifest, _ = fixture(target)
