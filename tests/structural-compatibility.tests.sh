@@ -129,7 +129,7 @@ canonicalize_content() {
 }
 
 status_fields() {
-  sed -n -E 's/^([[:alpha:]][[:alnum:] -]*(Status|Approval)):[[:space:]].*$/\1/p' "$1" | LC_ALL=C sort -u
+  sed -n -E 's/^(([[:alpha:]][[:alnum:] -]*)?(Status|Approval)):[[:space:]].*$/\1/p' "$1" | LC_ALL=C sort -u
 }
 
 validate_track() {
@@ -146,7 +146,13 @@ validate_track() {
     if [[ ! -f "$template" ]]; then fail "$track shipped template exists for $path"; continue; fi
     expected_ast="$tmp/${track}-${path//\//_}.template.ast"
     actual_ast="$tmp/${track}-${path//\//_}.corpus.ast"
-    if bash "$CANON" "$template" > "$expected_ast" && canonicalize_content "$json" "$path" "$actual_ast"; then
+    # Trusted F2 inputs are fixed before collection; never infer from actual.
+    local expected_template="$template"
+    if [[ "$track" == lite ]]; then
+      expected_template="$tmp/f2-expected.md"
+      sed -e 's/<feature>/team-coffee-orders/g' -e 's/<タスク名>/注文登録を実装する/g' "$template" > "$expected_template"
+    fi
+    if bash "$CANON" "$expected_template" > "$expected_ast" && canonicalize_content "$json" "$path" "$actual_ast"; then
       assert_true "$track $path frontmatter and ordered headings match its shipped template" cmp -s "$expected_ast" "$actual_ast"
     else
       fail "$track $path canonicalizes without parse fallback"
@@ -265,7 +271,14 @@ elif (( $? == 1 )); then
 else
   fail 'F4 activation evidence is unavailable or invalid'
 fi
-emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-042 "$EVIDENCE_REPO" origin/main; then
+  printf '%s\n' 'AC-042 active: checking recorded F3 full-track artifacts'
+  validate_track full "$CORPUS/f3-advisory.json"
+elif (( $? == 1 )); then
+  emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
+else
+  fail 'F3 activation evidence is unavailable or invalid'
+fi
 emit_compound_skip F5
 emit_compound_skip F6
 
