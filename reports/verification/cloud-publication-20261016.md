@@ -167,3 +167,18 @@ At CI inspection, #423 candidate `0e8cb3ba` had no workflow runs; A7's exact
 `62e200da` had a queued [pull-request test run](https://github.com/aharada54914/sdd-forge/actions/runs/38828095477).
 Neither is recorded as CI PASS. This final reconciliation is documentation
 only; executable and test bytes remain those validated above.
+
+## Follow-up: original evidence delivery
+
+The [input reconciliation](issue423-cloud-inputs-20261016/README.md) and its
+machine-readable inventory add 49 unchanged non-sensitive originals. They
+supersede the earlier statement that all completion/preflight records remain
+local: the private contract/bundle and private provenance still remain local,
+but the available quality decision, completion note, review records and
+non-sensitive raw outputs are now delivered. This is evidence publication only.
+
+The public active plan remains T-001 Implementation Complete, T-002 Blocked,
+T-003..T-006 Planned, all Approved. A stored task-state failure identifies the
+missing canonical T-002 bundle; the dated standalone bundle is not that path.
+Historical T-003 strict-type and invalid-CLI failures are also retained.
+No state-only reconciliation, new implementation or fresh admission is implied.
