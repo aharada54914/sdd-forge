@@ -50,3 +50,89 @@ These results cover this repair on the publication base. The complete local
 T-002 completion record, evidence bundle and later task transitions are not
 published by this unit. No current-head CI, installer, full-task acceptance or
 merge result is inferred from these local checks.
+
+## T-003 implementation candidate
+
+The second unit preserves the owner's existing selected-plan implementation as
+a development candidate. It adds the canonical and packaged
+`selected-verification-plan/v1` schema, evaluator, packaging registration and
+focused tests, plus only the T-003 additions to the quality-gate caller and both
+test runners. Unrelated launcher, ledger, identity and recovery changes in those
+owner files are excluded. This checkpoint does not adopt an installed baseline.
+
+| Exact source artifact | SHA-256 |
+| --- | --- |
+| `contracts/selected-verification-plan.schema.json` and matching packaged copy | `0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe` |
+| `plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py` | `3b882a53c72b8395992727ceab06b486e6a0f12284c7cbfa36820b3f3187a844` |
+| `plugins/sdd-quality-loop/scripts/vendor-capability-registry.py` | `d5ee1d34c9fcd6cfd6deec47a80bfb01ea55263f34ef60fa1124f52df880b49b` |
+| `tests/sdd-domain-multitarget-T-003.tests.py` | `69187b77ad54b2fed21099bf8dba38d5d1570f49814d5aef5767d33826074cd6` |
+| `tests/registry-discovery.tests.sh` | `9597c9edda9bcb6e265816190009c3982f10e8ae6f9b03f682b92db3660a9478` |
+| `tests/registry-discovery.tests.ps1` | `e144fccac70bc06dd96d071b0d48f3e8355d00f2cf53d568024377b1b3e317d3` |
+
+Executed against these publication bytes, all exit 0:
+
+- `python3 -B tests/sdd-domain-multitarget-T-003.tests.py`: 21 tests passed,
+  including a standalone packaged layout. All verifier observations are synthetic.
+- `python3 -B plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check`:
+  canonical/package bytes match.
+- `tests/registry-discovery.tests.sh` and `.ps1`: 21 passed each.
+- `tests/generate-registry-digest.tests.sh` and `.ps1`: 17 passed each.
+- `tests/facet-manifest-semantics.tests.sh` and `.ps1`: 15 passed each.
+- Bash syntax for the changed Bash runners and PowerShell parser checks for
+  the changed PowerShell runners passed; `git diff --check` passed.
+
+PowerShell checks used `pwsh -NoProfile -File` on macOS. Full legacy/scenario
+regressions, independent final-byte review, formal quality-gate, native Windows
+and exact-head CI remain pending. In particular, the broad `gates.tests.sh`
+suite was not invoked: its missing-runtime fixture temporarily removes its
+live `check-contract.py`; later execution must remain isolated and serialized.
+The focused suite's legacy controls are not a replacement for that full suite.
+
+The owner's existing attempt10 report records historical preflight, RED/GREEN,
+two corrective cycles and packaging evidence. It contains private local paths
+and is retained locally rather than rewritten to look public or current. This
+checkpoint neither recreates its manifest nor admits historical evidence into
+a new gate. Required checks remain mandatory, unavailable/unexecuted required
+checks block, and only originally optional unselected checks may be reasoned
+N/A. Registry v1 supplies no conditional-gate definition to invent.
+
+## Canonical owner observations and withheld units
+
+Observed on 2026-10-16; counts describe local canonical plans, not public task
+transitions. No task plan, approval, frozen specification or ledger was copied
+by this checkpoint.
+
+| Canonical plan | Local state | Publication boundary |
+| --- | --- | --- |
+| `specs/epic-195-a7-compatibility/tasks.md` | 3 Done, 6 Implementation Complete, 2 In Progress, 2 Planned | T-004 YAML acceptance remains unresolved; mixed normative/review evidence needs its own bounded checkpoint. |
+| `specs/epic-196-a8-integration/tasks.md` | 1 Implementation Complete, 7 Planned | T-005 candidate and live-host proof are separate; several candidate paths differ on the existing remote branch, so whole-file replacement would overwrite remote work. |
+| `specs/a9-interrupted-review-recovery/tasks.md` | 3 Approved / Planned | Protected baseline/read admission refusals remain unresolved. Its local branch is absent remotely; the existing A9 feature branch has later commits. Do not transplant approvals or replay refused repair commands. |
+| `specs/sdd-domain-multitarget/tasks.md` | T-001/T-002 Done, T-003 In Progress, T-004..006 Planned; all Approved | This branch carries selected code candidates, not the local completion-evidence closure. |
+| `specs/shared-review-launch-repair/tasks.md` | 5 Done | Production repair was already published separately; local snapshots, raw receipts, ledger and completion closure are not blanket-staged. |
+
+A9 Dogfood as a whole is separate from its three recovery tasks; no whole-A9
+task denominator is inferred. Local development-policy and AGENTS changes are
+also withheld where mixed with shared freeze/guard contract changes. They must
+not be silently replaced by another checkout's instructions.
+
+## Cloud starting point
+
+Start from `codex/issue423-boundary-checkpoint` and this checkpoint's final
+commit. First inspect its exact diff, the approved six-task plan, governing
+contracts and current local/public evidence boundary. The public plan retains
+older Planned fields; do not infer that owner approval was missing or silently
+mark the public copy Done from the local counts above.
+
+The first cloud task is independent final-byte review and remaining isolated
+regression preparation for T-003. Before formal lifecycle continuation, recover
+the T-002 completion closure and attempt10 approved-policy/preflight provenance
+through an authorized private handoff, or establish a new valid evidence path
+without rewriting historical records. Fresh input admission must bind the
+publication commit and exact changed bytes; old owner manifests are not current
+merely because selected file hashes match. Keep the existing required-check
+policy, reviewer independence and protected-application boundaries.
+
+No cloud implementation session is launched by this publication. No merge,
+production change, installation, signer operation or trust switch is authorized
+or performed. This branch's test workflow runs on main pushes/PRs, so pushing
+this feature checkpoint alone does not establish CI success.
