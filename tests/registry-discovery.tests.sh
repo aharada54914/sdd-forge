@@ -157,7 +157,7 @@ cp "$FIXTURES/registry-discovery-catalog-valid.json" "$DRIFT_ROOT/contracts/lite
 # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
 # the missing-source error path instead of the drift path they test.
 for _extra in facet-manifest.schema.json capability-summary.schema.json \
-              context-projection.schema.json; do
+              context-projection.schema.json selected-verification-plan.schema.json; do
   cp "$ROOT/contracts/$_extra" "$DRIFT_ROOT/contracts/$_extra"
 done
 cp "$REAL_DISCOVERY" "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/registry_discovery.py"

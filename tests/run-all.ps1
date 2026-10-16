@@ -131,6 +131,12 @@ try {
             $failed += $testFile
         }
     }
+    $testFile = 'tests/sdd-domain-multitarget-T-003.tests.py'
+    Write-Host "==> $testFile"
+    & python -B (Join-Path $root $testFile)
+    if ($LASTEXITCODE -ne 0) {
+        $failed += $testFile
+    }
 } finally {
     Pop-Location
 }

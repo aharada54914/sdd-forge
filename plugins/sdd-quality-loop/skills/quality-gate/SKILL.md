@@ -67,6 +67,20 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
      `red_evidence` + `green_evidence` for every test-type check.
+   - For an active Project Context, additionally run
+     `python3 scripts/evaluate-selected-plan.py --repo-root <project-root>
+     --registry <protected-registry> --facet-manifest <current-resolver-manifest>
+     --contract <task-contract> --output <task-verification>/selected-plan.json`
+     (script path relative to this plugin; on Windows use `python`). First
+     complete the existing context approval, Resolver and staleness checks;
+     supply their current manifest, never a hand-authored selection. Record
+     the command, exit code and versioned plan as gate evidence. Nonzero or
+     missing execution blocks acceptance; only a freshly emitted `PASS` may
+     satisfy this additional check. Registry selection never waives the
+     preceding legacy contract. Missing/unrun required observations are
+     `BLOCKED`; only originally optional, target-unselected checks may be
+     reasoned N/A. An absent Project Context retains the legacy path and
+     does not activate this evaluator from manifest file presence alone.
    - `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
      the Reverse Coverage Gate. Always runs to completion and always emits
      a `check-component-coverage-verdict/v1` evidence record. Derives one
