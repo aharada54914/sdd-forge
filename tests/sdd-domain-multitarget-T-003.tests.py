@@ -146,6 +146,25 @@ class SelectedPlanTests(unittest.TestCase):
                 self.assertEqual(selected['result'], 'not-run')
                 self.assertEqual(selected['obligation'], 'required')
 
+    def test_packaged_schema_identity_is_required(self):
+        for name in ('selected-verification-plan.schema.json', 'capability-registry.schema.json'):
+            for field in ('$id', '$schema'):
+                with self.subTest(schema=name, field=field), tempfile.TemporaryDirectory(prefix='t003-schema-') as folder:
+                    package = Path(folder)
+                    shutil.copytree(SCRIPTS, package / 'scripts', ignore=shutil.ignore_patterns('__pycache__'))
+                    shutil.copytree(SCRIPTS.parent / 'contracts', package / 'contracts')
+                    target = package / 'contracts' / name
+                    document = json.loads(target.read_text())
+                    if field == '$id':
+                        document[field] = 'https://invalid.example/wrong-schema'
+                    else:
+                        del document[field]
+                    target.write_text(json.dumps(document))
+                    result, plan, _ = self.evaluate(*passing_fixture('ui'),
+                        evaluator=package / 'scripts' / EVALUATOR.name)
+                    self.assert_blocked(result, plan)
+                    self.assertIn('schema-identity-invalid', result.stderr)
+
     def test_output_identity_and_bindings(self):
         _, plan, hashes = self.evaluate(*fixture('cli-library'))
         self.assertEqual(plan['schema'], 'selected-verification-plan/v1')

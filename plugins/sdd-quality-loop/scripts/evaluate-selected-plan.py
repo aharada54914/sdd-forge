@@ -10,14 +10,18 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+from types import ModuleType
+from typing import Any
 
 sys.dont_write_bytecode = True
 SCRIPTS = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS))
 
 
-def load(name, filename):
+def load(name: str, filename: str) -> ModuleType:
     spec = importlib.util.spec_from_file_location(name, SCRIPTS / filename)
+    if spec is None or spec.loader is None:
+        raise ImportError('module-discovery-failed: ' + filename)
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     spec.loader.exec_module(module)
@@ -30,17 +34,23 @@ registry_checks = load('selected_plan_registry', 'validate-capability-registry.p
 digest = load('selected_plan_digest', 'generate-registry-digest.py')
 
 
-def schema(name):
+def schema(name: str) -> dict[str, Any]:
     packaged = SCRIPTS.parent / 'contracts' / name
     if packaged.is_file():
-        return json.loads(packaged.read_text(encoding='utf-8'))
-    git_root = facets._find_git_root(str(SCRIPTS))
-    if git_root:
-        return json.loads((Path(git_root) / 'contracts' / name).read_text(encoding='utf-8'))
-    raise FileNotFoundError('schema-discovery-failed: ' + name)
+        source = packaged
+    else:
+        git_root = facets._find_git_root(str(SCRIPTS))
+        if not git_root:
+            raise FileNotFoundError('schema-discovery-failed: ' + name)
+        source = Path(git_root) / 'contracts' / name
+    document = json.loads(source.read_text(encoding='utf-8'))
+    if (not isinstance(document, dict) or '$schema' not in document or
+            document.get('$id') != 'https://github.com/aharada54914/sdd-forge/contracts/' + name):
+        raise ValueError('schema-identity-invalid: ' + name)
+    return document
 
 
-def validate_plan(plan, expected):
+def validate_plan(plan: Any, expected: Any) -> list[str]:
     """Validate persisted bytes against the schema and recomputed input result."""
     contract = schema('selected-verification-plan.schema.json')
     errors = list(facets.validate_against_schema(plan, contract))
@@ -54,7 +64,8 @@ def validate_plan(plan, expected):
     return errors
 
 
-def evaluate(registry_path, manifest_path, contract_path, root):
+def evaluate(registry_path: Path, manifest_path: Path, contract_path: Path,
+             root: Path) -> tuple[dict[str, Any], list[str]]:
     paths = {'registry_sha256': registry_path, 'facet_manifest_sha256': manifest_path,
              'verification_contract_sha256': contract_path}
     raw = {key: path.read_bytes() for key, path in paths.items()}
@@ -156,7 +167,7 @@ def evaluate(registry_path, manifest_path, contract_path, root):
     return plan, legacy_errors
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('repo-root', 'registry', 'facet-manifest', 'contract', 'output'):
         parser.add_argument('--' + name, required=True, type=Path)
