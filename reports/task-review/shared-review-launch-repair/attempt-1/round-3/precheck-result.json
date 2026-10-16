@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "shared-review-launch-repair",
+  "attempt": 1,
+  "round": 3,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "9871db58c22415fd3bcd9405e85a05e4b1e1ae4406bfef780a5e64d1424c19d7",
+  "tasks_sha256_form": "raw",
+  "requirements_sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+  "acceptance_sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352",
+  "design_sha256": "68d36114a8ee291ec01b4d057d410af900e7c63e9a98c7663053980426238619",
+  "traceability_sha256": "0132638778cab36c82b4b4882892146a3d0d0b0215c11b2226de065c5deff4bc",
+  "frozen_artifact_done_when": [],
+  "layer_sha256": {"ux-spec.md":"6ac079cf69bd018e27301e1a12e788f20631e08faadef66e1fb3597778bbf8af","frontend-spec.md":"def6445268e743efa627d1b629c76dfaad73cf3c1fd87387f76c2b4de648fa19","infra-spec.md":"b535f3b61523383cbd422aff0cef739981c8d78a452b7a2f937c5e546407c429","security-spec.md":"aec066be5f10218a0a29c38ca1162c3dfabdffe68c1ecd4711e70c5ee957ce8c"},
+  "input_sha256": "8f549cba13a0b85fae9582c17fb81a3220c6d0531f6d3b126081d12a95cf9e66",
+  "generated_at": "2026-10-08T02:08:31Z"
+}

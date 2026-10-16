@@ -85,6 +85,14 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
 [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] || fail "unknown mode: $MODE"
+. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+fixed_input_options "${@:5}"
+if [[ -n "$fixed_source_map" ]]; then
+  TASKS_MD=$(fixed_input_path "$TASKS_MD")
+  REQS_MD=$(fixed_input_path "$REQS_MD")
+  ACCEPT_MD=$(fixed_input_path "$ACCEPT_MD")
+  DESIGN_MD=$(fixed_input_path "$DESIGN_MD")
+fi
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -114,6 +122,7 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
     ' "$precheck" >/dev/null || fail "core review inputs changed after precheck"
   bound_layer_count="$(jq -r '(.layer_sha256 // {}) | length' "$precheck")"
   if $full_profile || [[ "$bound_layer_count" -gt 0 ]]; then
+    TRACEABILITY_MD=$(fixed_input_path "$TRACEABILITY_MD")
     [[ -f "$TRACEABILITY_MD" && ! -L "$TRACEABILITY_MD" ]] ||
       fail "traceability review input is missing or substituted"
     jq -e --arg hash "$(sha256 "$TRACEABILITY_MD")" '.traceability_sha256 == $hash' \
@@ -124,6 +133,7 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
       "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
     for name in "${LAYER_FILES[@]}"; do
       path="${SPECS_DIR}/${name}"
+      path=$(fixed_input_path "$path")
       [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
       jq -e --arg name "$name" --arg hash "$(sha256 "$path")" \
         '.layer_sha256[$name] == $hash' "$precheck" >/dev/null ||
