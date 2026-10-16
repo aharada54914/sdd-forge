@@ -34,3 +34,22 @@ Add only that path to the canonical inventory and generator baseline, then regen
 Independent diff review: PASS, with no required findings. The reviewer independently reran guard parity (114 passed), generator consistency, whitespace validation, and the six runtime authorization probes. The reviewer did not independently rerun the T-003 suite or native Windows execution.
 
 Latest-head CI is pending. These local results do not replace the prerequisite evidence migration or the formal T-003 quality-gate decision.
+
+## Applied-mirror repair scope
+
+Baseline HEAD `211645a156043a2ca0537a7d88b19052f88f8cee` was clean before this repair. Its CI run `38954829996` rejected stale applied copies of the invariant inventory and generator in the A1/A2/A3 distribution bundles. The existing mirror synchronizer identifies 24 stale files and leaves 19 unrelated pending candidate entries unchanged.
+
+This repair synchronizes those 24 applied copies and their four hash manifests only. It retains the protected-inventory risk classification, changes no runtime decisions, and preserves pending workflow and guard candidates. Required verification: mirror freshness, A1 registration, A2 capability generation, A3 component coverage, guard parity, T-003 regression, independent diff review, and exact-head CI. No historical verdict or task state is changed.
+
+### Mirror repair results
+
+| Regression | Bash | PowerShell |
+| --- | ---: | ---: |
+| A1 guard invariant registration | 82 passed | 86 passed |
+| A2 capability generation | 30 passed | 30 passed |
+| A3 component coverage | 46 passed | 47 passed |
+| Human-copy freshness | 6 passed | 6 passed |
+
+Guard parity passed 114 checks; the T-003 Python driver passed 28 tests. These runs total 575 passes and zero failures. Both freshness runs retain 19 informational pending candidates. The mirror-classification Python driver additionally passed two tests. Generator consistency and whitespace checks exited 0.
+
+Independent read-only diff review: PASS with no required findings. The reviewer verified all 24 copies and four manifests, confirmed the 19 pending entries were unchanged, and independently reran freshness (6 passes), A1 (82 passes), synchronizer check, generator check and whitespace validation. The reviewer did not rerun A2/A3, PowerShell or T-003. Exact-head CI and formal task acceptance remain pending.
