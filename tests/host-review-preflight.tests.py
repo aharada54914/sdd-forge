@@ -232,7 +232,7 @@ GUARDS = tuple(QUALITY_SCRIPTS + 'sdd-hook-guard.' + ext
                for ext in ('py', 'js', 'ps1', 'sh'))
 FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WORKFLOW)
 # Pin all unrelated keys and memberships to the admitted T-003 baseline.
-UNRELATED_SHA256 = '8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883'
+UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
     re.MULTILINE)
@@ -353,8 +353,13 @@ class ProtectedEntrypointTests(unittest.TestCase):
         self.assert_unrelated_unchanged(data)
         for path in ENTRYPOINTS + (
                 'plugins/sdd-review-loop/scripts/review-hash-normalization.ps1',
+                QUALITY_SCRIPTS + 'evaluate-selected-plan.py',
                 QUALITY_SCRIPTS + 'review-conditional-inputs.py'):
             self.assertEqual(data['protected_gate_suffixes'].count(path), 1, path)
+        mutated = json.loads(json.dumps(data))
+        mutated['protected_gate_suffixes'].remove(QUALITY_SCRIPTS + 'evaluate-selected-plan.py')
+        with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
+            self.assert_unrelated_unchanged(mutated)
         mutated = json.loads(json.dumps(data))
         mutated['protected_gate_suffixes'].pop(0)
         with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):

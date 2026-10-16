@@ -53,3 +53,13 @@ This repair synchronizes those 24 applied copies and their four hash manifests o
 Guard parity passed 114 checks; the T-003 Python driver passed 28 tests. These runs total 575 passes and zero failures. Both freshness runs retain 19 informational pending candidates. The mirror-classification Python driver additionally passed two tests. Generator consistency and whitespace checks exited 0.
 
 Independent read-only diff review: PASS with no required findings. The reviewer verified all 24 copies and four manifests, confirmed the 19 pending entries were unchanged, and independently reran freshness (6 passes), A1 (82 passes), synchronizer check, generator check and whitespace validation. The reviewer did not rerun A2/A3, PowerShell or T-003. Exact-head CI and formal task acceptance remain pending.
+
+## Protected inventory regression baseline repair
+
+Owner: the isolated PR #535 publishing checkout, branch `codex/issue423-cloud-publish`, clean HEAD `d11b1fec9c0ebe600b8e52b40e4dabe322e8ea1c`. Scope: the host-review regression's fixed inventory digest and explicit membership assertion. This test-only correction follows the approved protected registration above; it does not change authorization, task state, or historical evidence.
+
+CI run `38959804089`, job `117171696132`, and a focused local reproduction both reject the old inventory digest in `ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged`. Comparing the canonical inventory before commit `211645a` with the current inventory proves that the only change outside this suite's six entrypoints is the addition of `plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py`; no key or membership was removed. The old normalized digest is `8a4f78310312882d4780d30d4f3a491b63507036647f2c28695ad2555c12c883`; the new digest is `ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9`.
+
+Keep the evaluator inside the pinned inventory, update the expected digest, and assert its unique membership and rejection on removal. Required checks: the complete host-review preflight suite, generator consistency, T-003 regressions, independent diff review, and exact-head CI.
+
+Validation: the complete host-review preflight suite passed 21 tests; T-003 passed 28 tests; generator `--check` and `git diff --check` exited 0. Independent diff review returned PASS, independently recomputed both inventory digests and the one-member difference, and reran all 21 host-review tests without skips plus generator and whitespace checks. This is regression and diff-review evidence, not a formal T-003 quality-gate verdict. Exact-head CI and the formal Done decision remain pending.
