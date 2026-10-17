@@ -1,0 +1,86 @@
+# Main-based role-read repair: verification checkpoint
+
+Base commit: `49e1602459108fd8ef318b644b51301a3b61d0b1`.
+
+This checkpoint adds a narrowly parsed `rtk proxy rg --no-config -n`
+read exception to the three agent-role guards. Existing approval, protected
+write, SDD_SUDO, and legacy-reader behavior is unchanged. The legacy-reader
+hardening proposal and arbitrary Node launcher changes are excluded.
+
+## Applied source identity
+
+| File under plugins/sdd-quality-loop/scripts/ | SHA-256 |
+|---|---|
+| sdd-hook-guard.py | 6f3419047febeadc8d657b125df8af4fb1237a86fa20b723eae9215e39d385e3 |
+| sdd-hook-guard.js | 28f36062c9de25e9f5fc1c46e2ff87e042f9a222e468aba832feed37ab2e1328 |
+| sdd-hook-guard.ps1 | 4590ccc6301b9fbcc70de611049a447ee0380be1d7e40c43cc610b2ab28c5d22 |
+
+The human applied the pinned patch with backups. The implementer separately
+recomputed these three hashes and checked whitespace after application.
+
+## Observed local verification
+
+Run on macOS, with the installed PowerShell runtime. All commands below
+were run through `rtk proxy` in the isolated main-based checkout.
+
+| Command | Observed result |
+|---|---|
+| bash tests/guards.tests.sh | 135 passed, 0 failed; exit 0 |
+| bash tests/guard-parity.tests.sh | 110 passed, 0 failed; exit 0 |
+| bash tests/guard-negative-corpus.tests.sh | 47 passed, 0 failed, 0 skipped; exit 0 |
+| pwsh -NoProfile -File tests/hooks.tests.ps1 | Hook guard tests passed; exit 0 |
+| git diff --check | exit 0 |
+
+An additional ephemeral driver pinned the hashes above and exercised the
+actual guard entry points: nine cases in both exit and Copilot output modes
+for each of Python, Node, and PowerShell. All 54 checks passed. Cases covered
+the intended proxy read, retained bare cat read, dangerous preprocessing
+options before and after the pattern, compound commands, invalid role writes,
+approval increases, the kill switch, and malformed input. Synthetic shell
+strings were classification data, not executed shell commands.
+
+The ephemeral driver reused the previously prepared top-level case helper;
+it is not yet a repository/CI regression driver. Its success must not be
+represented as persistent CI coverage.
+
+## Independent review
+
+A separate read-only reviewer inspected the three helpers, callers, option
+boundaries, quoting restrictions, and cross-runtime consistency. It reported
+zero Critical, Major, or Minor findings. Its attempted additional dynamic
+check was blocked by the active hook and did not execute. This is a static
+diff review, not a formal SDD quality-gate verdict.
+
+## Outstanding delivery conditions
+
+- Run current-head CI with the newly persisted regression cases below.
+- Complete the applicable formal review and required current-head CI.
+- Deliver through a versioned installation without reverting other approved
+  installed repairs, then verify a fresh native role read and guard denial.
+- Safely merge and verify post-merge CI before treating an issue as resolved.
+
+No installed-host activation, native Windows execution, formal gate PASS,
+task Done, CI success, merge, or issue closure is claimed by this record.
+# CI mirror repair
+
+CI run 37127939369, Windows job 111217006055 failed the WFI-016 byte-parity check: the three phase-2 staged guards retained the base bytes. The mirror-freshness suite additionally identified the already-applied A1 JavaScript mirror. Updated those four mirrors and their two manifests only; pending, unapplied candidates were preserved.
+
+Observed after synchronization: Phase 2 Bash 42 passed / 0 failed; Phase 2 PowerShell on macOS 55 passed / 0 failed / 1 existing skipped runner-refresh check; mirror freshness 6 passed / 0 failed / 17 informational pending candidates. Native Windows CI on the updated commit remains required. No test or validation criterion was removed.
+
+## Persistent regression follow-up
+
+The pinned regression patch was human-applied and independently checked with
+reverse-application validation and `git diff --check`, both exit 0. It adds
+four cases to each existing Bash parity and PowerShell hook suite: the literal
+proxy read is allowed; preprocessing options before and after the pattern and
+a compound write are rejected. Command strings remain inert classifier input.
+
+Fresh local executions after application: Bash parity **114 passed, 0 failed**,
+exit 0; PowerShell **Hook guard tests passed**, exit 0. The broader ephemeral
+54-case driver above remains separate and is not claimed as persistent coverage.
+
+CI run 37128446809 completed with all 37 jobs successful for commit
+`d9c166d7a1edaafd7bcb7072bfbece22d93588f3`, including Windows, macOS, Ubuntu,
+and required-checks. That run predates these persistent test additions and does
+not verify the new commit. Formal gate, installed-host activation, latest-head
+CI, merge, and post-merge verification remain outstanding.

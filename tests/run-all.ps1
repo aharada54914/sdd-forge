@@ -11,9 +11,12 @@ $tests = @(
     'tests/wfi-058-outputs-anchor.tests.ps1',
     'tests/wfi-059-evidence-path-base.tests.ps1',
     'tests/review-contract-foundation.tests.ps1',
+    'tests/review-hash-normalization.tests.ps1',
+    'tests/run-all-python.tests.ps1',
     'tests/task-context-isolation.tests.ps1',
     'tests/rollback-1.5.0.tests.ps1',
     'tests/downstream-review-precheck.tests.ps1',
+    'tests/task-prior-pass-receipt.tests.ps1',
     'tests/impl-layer-review-inputs.tests.ps1',
     'tests/task-layer-review-inputs.tests.ps1',
     'tests/cross-model.tests.ps1',
@@ -128,6 +131,20 @@ try {
         & $powerShell -NoProfile -File (Join-Path $root $testFile)
         if ($LASTEXITCODE -ne 0) {
             Write-Host "FAILED: $testFile (exit code $LASTEXITCODE)"
+            $failed += $testFile
+        }
+    }
+    foreach ($testFile in @('tests/workflow-conditional-inputs.tests.py', 'tests/quality-nontty-transport.tests.py', 'tests/supplemental-delivery-declaration.tests.py', 'tests/t001-evaluation-preparation.tests.py')) {
+        Write-Host "==> $testFile"
+        $python = Get-Command python3 -ErrorAction SilentlyContinue
+        if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
+        if (-not $python) {
+            Write-Host "FAILED: $testFile (no python3/python interpreter available)"
+            $failed += $testFile
+            continue
+        }
+        & $python.Source -B (Join-Path $root $testFile)
+        if ($LASTEXITCODE -ne 0) {
             $failed += $testFile
         }
     }

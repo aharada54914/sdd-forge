@@ -83,8 +83,8 @@ Survey and exploration tasks use the `lightweight` tier: Anthropic Haiku on
 Claude hosts, or OpenAI/Codex `gpt-5.1-codex-mini` with low reasoning effort.
 Specification, implementation-policy, and task reviewers use at least the
 `standard` tier: Anthropic Sonnet or OpenAI/Codex `gpt-5.1-codex` with medium
-or stronger effort. The Done evaluator uses the `strong` tier: Anthropic Opus
-or OpenAI/Codex `gpt-5.2-codex` with high or xhigh effort, falling back to
+or stronger effort. The Done evaluator uses Anthropic Sonnet (`standard`) on Claude
+hosts, or the `strong` tier on Codex: `gpt-5.2-codex` with high or xhigh effort, falling back to
 `gpt-5.1-codex-max` when the primary strong model is unavailable.
 
 Before selection, filter candidates through the host capability registry.
