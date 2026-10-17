@@ -52,7 +52,7 @@ Done When:
 ## T-003 Target capability resolution and verification obligations
 
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: Resolver output controls required checks and fail-closed behavior at a trust boundary; an incorrect obligation can permit an unverified target.
 Required Workflow: tdd
