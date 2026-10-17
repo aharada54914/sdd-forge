@@ -83,11 +83,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests/fixtures/capability-resolver/parity"
-STAGED_SCRIPTS = (
-    ROOT
-    / "specs/epic-193-a5-capability-resolver/human-copy"
-    / "plugins/sdd-quality-loop/scripts"
-)
+# Exercise the shipped implementation; historical human-copy bytes are not runtime coverage.
+STAGED_SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
 LIVE_SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
 PROVIDER_TERMS_PATH = ROOT / "plugins/sdd-quality-loop/references/provider-terms.json"
 

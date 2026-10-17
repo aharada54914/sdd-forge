@@ -36579,6 +36579,15 @@ var CONCURRENCY_LIMIT = 4;
 var CACHE_TTL_MS = 6e4;
 var MAX_VERSION_CHARS = 200;
 var cache = /* @__PURE__ */ new Map();
+var activeProbes = 0;
+var waitingProbes = [];
+async function acquireProbeSlot() {
+  if (activeProbes < CONCURRENCY_LIMIT) {
+    activeProbes += 1;
+  } else {
+    await new Promise((resolve) => waitingProbes.push(resolve));
+  }
+}
 function normalizeVersion(raw) {
   const firstLine = raw.split(/\r?\n/, 1)[0] ?? "";
   return firstLine.trim().slice(0, MAX_VERSION_CHARS);
@@ -36658,32 +36667,24 @@ function probeOne(entry, options) {
   });
 }
 async function probeEngine(entries, options = {}) {
-  const now = Date.now();
-  const results = new Array(entries.length);
-  const pending = [];
-  for (let i = 0; i < entries.length; i += 1) {
-    const entry = entries[i];
-    const cached2 = cache.get(entry.name);
-    if (cached2 !== void 0 && now - cached2.at < CACHE_TTL_MS) {
-      results[i] = cached2.result;
-    } else {
-      pending.push(i);
-    }
-  }
-  let cursor = 0;
-  async function worker() {
-    while (cursor < pending.length) {
-      const idx = pending[cursor];
-      cursor += 1;
-      const entry = entries[idx];
+  return Promise.all(entries.map(async (entry) => {
+    let cached2 = cache.get(entry.name);
+    if (cached2 !== void 0 && Date.now() - cached2.at < CACHE_TTL_MS) return cached2.result;
+    await acquireProbeSlot();
+    try {
+      cached2 = cache.get(entry.name);
+      if (cached2 !== void 0 && Date.now() - cached2.at < CACHE_TTL_MS) {
+        return cached2.result;
+      }
       const result = await probeOne(entry, options);
-      results[idx] = result;
       cache.set(entry.name, { at: Date.now(), result });
+      return result;
+    } finally {
+      const next = waitingProbes.shift();
+      if (next !== void 0) next();
+      else activeProbes -= 1;
     }
-  }
-  const workerCount = Math.min(CONCURRENCY_LIMIT, pending.length);
-  await Promise.all(Array.from({ length: workerCount }, () => worker()));
-  return results;
+  }));
 }
 
 // src/tools/env.ts

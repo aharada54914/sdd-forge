@@ -138,6 +138,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
     "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
     "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
     "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
     "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
     "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",

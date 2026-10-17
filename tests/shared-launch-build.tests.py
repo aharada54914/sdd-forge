@@ -1,5 +1,6 @@
 """Assemble FilesOnly distribution without changing the checkout's index or host."""
 import hashlib
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
@@ -15,7 +16,8 @@ SCRIPTS = [
         'nontty-impl-pretool-guard.mjs')
 ] + [
     'plugins/sdd-quality-loop/scripts/' + name for name in (
-        'preflight-evaluator-delivery.py', 'review-conditional-inputs.py')
+        'preflight-evaluator-delivery.py', 'review-conditional-inputs.py',
+        'validate-feature-scratch-history.py')
 ]
 
 
@@ -49,6 +51,14 @@ class DistributionTests(unittest.TestCase):
                     if name.endswith('.py') and not name.endswith('probe-nontty-review.py'):
                         run([sys.executable, '-B', str(installed / name), '--help'])
                 run(['node', '--check', str(installed / SCRIPTS[4])])
+                spec = importlib.util.spec_from_file_location(
+                    'scratch_history_distribution', ROOT / 'tests/review-scratch-history.tests.py')
+                history = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(history)
+                for runtime in ('bash', 'pwsh'):
+                    for case in ('clean', 'snapshot-tampered'):
+                        with self.subTest(runtime=runtime, case=case):
+                            self.assertTrue(history.exercise(installed, runtime, case))
             finally:
                 self.assertEqual(index.read_bytes(), before, 'owner index changed')
 

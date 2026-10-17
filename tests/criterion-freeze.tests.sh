@@ -191,5 +191,32 @@ fi
 expect_case "CF.8: an unknown ref is a runtime error, not a silent pass" \
   "not-a-real-ref" 2 "not a commit"
 
+# --- CF.9 review-state transitions cannot unfreeze criterion edits ---------
+transition_case() {
+  # Each case starts from its own committed before-image.
+  label="$1"; before_status="$2"; after_status="$3"; change="$4"; mixed="$5"; want="$6"
+  write_tasks "$REPO/specs/demo/tasks.md" "$before_status" "Original criterion" " " "Planned"
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: $label before" --allow-empty
+  if [ "$change" = "delete" ]; then
+    rm "$REPO/specs/demo/tasks.md"
+  else
+    criterion="Original criterion"
+    if [ "$change" = "rewrite" ]; then criterion="Changed criterion"; fi
+    write_tasks "$REPO/specs/demo/tasks.md" "$after_status" "$criterion" "x" "Implementation Complete"
+  fi
+  if [ "$mixed" = "yes" ]; then echo "$label" >> "$REPO/src/app.txt"; fi
+  git -C "$REPO" add -A
+  git -C "$REPO" commit -qm "fixture: $label after"
+  expect_case "$label" HEAD "$want"
+}
+transition_case "CF.9a: Passed to Pending cannot hide a criterion rewrite" Passed Pending rewrite yes 1
+transition_case "CF.9b: Passed to Pending lifecycle-only change passes" Passed Pending unchanged yes 0
+transition_case "CF.9c: Pending to Passed still checks the frozen after-image" Pending Passed rewrite yes 1
+transition_case "CF.9d: Pending to Pending criterion rewrite passes" Pending Pending rewrite yes 0
+transition_case "CF.9e: reset plus criterion rewrite remains valid in a specs-only commit" Passed Pending rewrite no 0
+transition_case "CF.9f: deleting a reviewed file alongside code is refused" Passed Pending delete yes 1
+transition_case "CF.9g: deleting an unreviewed file alongside code passes" Pending Pending delete yes 0
+
 printf '\nResults: %s passed, %s failed.\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

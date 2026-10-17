@@ -146,11 +146,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests/fixtures/capability-resolver/resolve-project-context-block"
 PROJECTION_FIXTURES = ROOT / "tests/fixtures/capability-resolver/resolve-project-context-projection"
-STAGED = (
-    ROOT
-    / "specs/epic-193-a5-capability-resolver/human-copy"
-    / "plugins/sdd-quality-loop/scripts"
-)
+# Exercise the shipped implementation; historical human-copy bytes are not runtime coverage.
+STAGED = ROOT / "plugins/sdd-quality-loop/scripts"
 REAL_CANONICALIZER = ROOT / "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"
 SCHEMA = ROOT / "contracts/resolver-evidence.schema.json"
 SCHEMA_CHECK = ROOT / "tests/resolver-evidence-schema-check.py"
@@ -4590,15 +4587,10 @@ def _scan_approval_surface(text):
 
 
 def run_test_059(counts):
-    staged_targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
-    # The live paths AC-059's prose names are scanned TOO, whenever they exist
-    # (anthropic panel slot, round 9: "the fix -- scan both -- costs nothing").
-    # Today they do not: this whole package is staged for a human to apply, so
-    # `plugins/sdd-quality-loop/scripts/resolve-project-context.*` is absent and
-    # the live half of this scan is empty. That is asserted explicitly below
-    # rather than skipped in silence, so the day a human applies the package
-    # the live files come under the same scan with no edit here, and until then
-    # the log says plainly which half did the work.
+    # Keep the archive's approval-surface audit as well as the current product scan.
+    archived = ROOT / "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts"
+    staged_targets = [archived / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    # AC-059 covers both the archived distribution and the live Resolver family.
     live_dir = ROOT / "plugins/sdd-quality-loop/scripts"
     live_targets = [live_dir / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
     present_live = [t for t in live_targets if t.is_file()]

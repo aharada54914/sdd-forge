@@ -29,6 +29,7 @@
  * is an explicit Non-goal and a follow-on-issue candidate.
  */
 
+import { isJsonObject, jsonValueText } from "../parsers/json-object.js";
 import { createHash } from "node:crypto";
 import { ok, type Result } from "../envelope.js";
 import { validateFeature, validateTaskId } from "./core.js";
@@ -37,7 +38,7 @@ import {
   parseVerificationContract,
   type ContractChecksSummaryEntry,
 } from "../parsers/evidence.js";
-import type { EvidenceArtifact, EvidenceBundle } from "../parsers/evidence-bundle.js";
+import type { EvidenceBundle } from "../parsers/evidence-bundle.js";
 import { anyFileContainingWithDiagnostics, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
 import { parseTaskState } from "../parsers/tasks.js";
 import { parseTraceability, type TraceabilityData } from "../parsers/traceability.js";
@@ -107,7 +108,7 @@ export interface EvidencePathsData {
  */
 function classifyArtifactPath(root: SddRoot, rawPath: string): EvidencePathResult {
   if (typeof rawPath !== "string" || rawPath.length === 0) {
-    return { path: String(rawPath), safe: false, exists: false, reason: "path is missing or empty" };
+    return { path: jsonValueText(rawPath), safe: false, exists: false, reason: "path is missing or empty" };
   }
 
   const guardResult = resolveGuarded(root, rawPath);
@@ -153,10 +154,10 @@ export function evidenceValidatePaths(
     return bundleResult;
   }
 
-  const artifacts: EvidenceArtifact[] = Array.isArray(bundleResult.data.artifacts)
+  const artifacts: unknown[] = Array.isArray(bundleResult.data.artifacts)
     ? bundleResult.data.artifacts
     : [];
-  const results = artifacts.map((artifact) => classifyArtifactPath(root, String(artifact.path ?? "")));
+  const results = artifacts.map((artifact) => classifyArtifactPath(root, isJsonObject(artifact) && typeof artifact.path === "string" ? artifact.path : ""));
 
   return ok({ kind: "evidence-paths", feature, taskId, results });
 }
@@ -585,10 +586,13 @@ export function canonicalArtifactsDigest(
  */
 export function classifyArtifact(
   root: SddRoot,
-  artifact: EvidenceArtifact,
+  artifact: unknown,
 ): ArtifactVerifyResult {
-  const path = String(artifact.path ?? "").trim();
-  const recordedSha256 = String(artifact.sha256 ?? "").trim().toLowerCase();
+  if (!isJsonObject(artifact)) {
+    return { path: "", recordedSha256: "", status: "invalid-recorded-sha", reason: "artifact must be an object" };
+  }
+  const path = jsonValueText(artifact.path ?? "").trim();
+  const recordedSha256 = jsonValueText(artifact.sha256 ?? "").trim().toLowerCase();
 
   if (!RECORDED_SHA256_PATTERN.test(recordedSha256)) {
     return {
@@ -652,7 +656,7 @@ function recomputeSpecRevision(
     }
   }
   const computed = foundAny ? hasher.digest("hex") : "";
-  const recorded = String(bundle.spec_revision ?? "");
+  const recorded = jsonValueText(bundle.spec_revision ?? "");
   return {
     recorded,
     computed,
@@ -668,7 +672,7 @@ function recomputeSpecRevision(
  * only the shape contributes to the verdict.
  */
 function verifyGitCommit(bundle: EvidenceBundle): GitCommitInvariant {
-  const value = String(bundle.git_commit ?? "");
+  const value = jsonValueText(bundle.git_commit ?? "");
   const shapeValid = GIT_COMMIT_PATTERN.test(value);
   return {
     value,
@@ -689,7 +693,7 @@ function verifyContractBinding(
   bundle: EvidenceBundle,
 ): CrossBindingInvariant {
   const subject = "verification_contract";
-  const contractPath = String(bundle.verification_contract ?? "").trim();
+  const contractPath = jsonValueText(bundle.verification_contract ?? "").trim();
   if (contractPath.length === 0) {
     return { subject, status: "mismatch", detail: "verification_contract path is missing" };
   }
@@ -697,16 +701,19 @@ function verifyContractBinding(
   if (!read.ok) {
     return { subject, status: "mismatch", detail: `verification_contract unreadable: ${read.error.message}` };
   }
-  let contract: { task_id?: unknown; feature?: unknown };
+  let contract: unknown;
   try {
-    contract = JSON.parse(read.data.contents) as { task_id?: unknown; feature?: unknown };
+    contract = JSON.parse(read.data.contents);
   } catch {
     return { subject, status: "mismatch", detail: "verification_contract is not valid JSON" };
   }
-  const contractTaskId = String(contract.task_id ?? "").trim();
-  const contractFeature = String(contract.feature ?? "").trim();
-  const bundleTaskId = String(bundle.task_id ?? "").trim();
-  const bundleFeature = String(bundle.feature ?? "").trim();
+  if (!isJsonObject(contract)) {
+    return { subject, status: "mismatch", detail: "verification_contract is not a JSON object" };
+  }
+  const contractTaskId = jsonValueText(contract.task_id ?? "").trim();
+  const contractFeature = jsonValueText(contract.feature ?? "").trim();
+  const bundleTaskId = jsonValueText(bundle.task_id ?? "").trim();
+  const bundleFeature = jsonValueText(bundle.feature ?? "").trim();
   if (contractTaskId !== bundleTaskId) {
     return {
       subject,
@@ -733,9 +740,9 @@ function verifyReportBinding(
   bundle: EvidenceBundle,
 ): CrossBindingInvariant {
   const subject = "quality_report";
-  const reportPath = String(bundle.quality_report ?? "").trim();
-  const bundleTaskId = String(bundle.task_id ?? "").trim();
-  const bundleFeature = String(bundle.feature ?? "").trim();
+  const reportPath = jsonValueText(bundle.quality_report ?? "").trim();
+  const bundleTaskId = jsonValueText(bundle.task_id ?? "").trim();
+  const bundleFeature = jsonValueText(bundle.feature ?? "").trim();
   if (reportPath.length === 0) {
     return { subject, status: "mismatch", detail: "quality_report path is missing" };
   }
@@ -763,7 +770,7 @@ function echoSignature(bundle: EvidenceBundle): DeepVerifySignature {
   const present = signature !== undefined && signature !== null;
   const note =
     "signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008)";
-  if (present && typeof signature.alg === "string") {
+  if (isJsonObject(signature) && typeof signature.alg === "string") {
     return { present, alg: signature.alg, verified: false, note };
   }
   return { present, verified: false, note };
@@ -807,13 +814,13 @@ export function evidenceDeepVerify(
   }
   const bundle = bundleResult.data;
 
-  const recordedArtifacts: EvidenceArtifact[] = Array.isArray(bundle.artifacts) ? bundle.artifacts : [];
+  const recordedArtifacts: unknown[] = Array.isArray(bundle.artifacts) ? bundle.artifacts : [];
   const artifacts = recordedArtifacts.map((artifact) => classifyArtifact(root, artifact));
 
   const recordedDigest = canonicalArtifactsDigest(
     recordedArtifacts.map((artifact) => ({
-      path: String(artifact.path ?? "").trim(),
-      sha256: String(artifact.sha256 ?? "").trim().toLowerCase(),
+      path: isJsonObject(artifact) ? jsonValueText(artifact.path ?? "").trim() : "",
+      sha256: isJsonObject(artifact) ? jsonValueText(artifact.sha256 ?? "").trim().toLowerCase() : "",
     })),
   );
   const onDiskDigest = canonicalArtifactsDigest(

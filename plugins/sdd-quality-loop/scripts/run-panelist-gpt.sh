@@ -271,37 +271,22 @@ _combined="${_scratch}/combined.txt"
     cat "$input_path"
 } > "$_combined"
 
-_model_args=""
+# Keep the argv vector separate from its human-readable diagnostic.
+set -- exec
 if [ -n "$model" ]; then
-    _model_args="--model $model"
-fi
-_codex_argv_log="exec"
-if [ -n "$_model_args" ]; then
-    _codex_argv_log="$_codex_argv_log $_model_args"
+    set -- "$@" --model "$model"
 fi
 if [ -n "$effort" ]; then
-    _codex_argv_log="$_codex_argv_log -c model_reasoning_effort=$effort"
+    set -- "$@" -c "model_reasoning_effort=$effort"
 fi
-_codex_argv_log="$_codex_argv_log --sandbox read-only --skip-git-repo-check -C $_scratch -"
+set -- "$@" --sandbox read-only --skip-git-repo-check -C "$_scratch" -
 printf 'run-panelist-gpt: invoking %s %s (task=%s feature=%s)\n' \
-    "$_codex_cmd" "$_codex_argv_log" "$task_id" "$feature" >&2
+    "$_codex_cmd" "$*" "$task_id" "$feature" >&2
 
 _raw_output="${_scratch}/raw-output.txt"
-if [ -n "$effort" ]; then
-    # --effort supplied: forwarded as a codex config override (AC-035).
-    _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" exec $_model_args -c "model_reasoning_effort=$effort" \
-        --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
-        < "$_combined" > "$_raw_output" 2>&1
-    _rc=$?
-else
-    # --effort omitted: no reasoning-effort override is applied.
-    _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" exec $_model_args \
-        --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
-        < "$_combined" > "$_raw_output" 2>&1
-    _rc=$?
-fi
+_sdd_run_bounded "$_panelist_timeout" "$_codex_cmd" "$@" \
+    < "$_combined" > "$_raw_output" 2>&1
+_rc=$?
 if [ "$_rc" -ne 0 ]; then
     if [ "$_rc" -eq 124 ]; then
         printf 'run-panelist-gpt: codex CLI exceeded SDD_PANELIST_TIMEOUT=%ss; terminated\n' \

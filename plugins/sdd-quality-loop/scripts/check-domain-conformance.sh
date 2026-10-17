@@ -19,7 +19,7 @@
 #
 # Warn-phase: findings print as WARN and exit 0. Set
 # SDD_DOMAIN_ENFORCE=error to fail (exit 1) on findings instead.
-# Bad invocation always exits 1.
+# Bad invocation always exits 1. A present contract requires jq.
 root="${1:-}"
 if [ -z "$root" ] || [ ! -d "$root" ]; then
   echo "check-domain-conformance: project root not found: $root" >&2
@@ -41,12 +41,18 @@ fi
 _f="$(mktemp)"
 trap 'rm -f "$_f"' EXIT
 
-# --- Extract known context names, canonical terms, and aggregate names from
-#     domain-contract.json using a lightweight line-based scan (no jq
-#     dependency, matching check-design-system.sh's grep-only approach). ---
-context_names=$(grep -oE '"name": *"[a-z][a-z0-9-]*"' "$contract" | sed -E 's/"name": *"([^"]+)"/\1/')
-canonical_terms=$(grep -oE '"canonical": *"[^"]+"' "$contract" | sed -E 's/"canonical": *"([^"]+)"/\1/')
-aggregate_names=$(grep -oE '"name": *"[A-Z][A-Za-z0-9]*"' "$contract" | sed -E 's/"name": *"([^"]+)"/\1/')
+# Parse JSON structurally: whitespace and member order do not change its meaning.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "check-domain-conformance: jq is required" >&2
+  exit 1
+fi
+if ! jq empty "$contract" >/dev/null 2>&1; then
+  echo "check-domain-conformance skipped: domain-contract.json is not valid JSON."
+  exit 0
+fi
+context_names=$(jq -r '.contexts[]?.name // empty' "$contract") || exit 1
+canonical_terms=$(jq -r '.contexts[]?.terms[]?.canonical // empty' "$contract") || exit 1
+aggregate_names=$(jq -r '.contexts[]?.aggregates[]?.name // empty' "$contract") || exit 1
 
 context_exists() {
   ctx="$1"
@@ -54,9 +60,9 @@ context_exists() {
 }
 
 relation_declared() {
-  a="$1"
-  b="$2"
-  grep -A2 '"from"' "$contract" | tr -d '\n' | grep -Eq "\"from\": *\"$a\"[^}]*\"to\": *\"$b\"|\"from\": *\"$b\"[^}]*\"to\": *\"$a\""
+  jq -e --arg a "$1" --arg b "$2" '
+    any(.relations[]?; (.from == $a and .to == $b) or (.from == $b and .to == $a))
+  ' "$contract" >/dev/null
 }
 
 # --- Check 1 + 4: Bounded-Context: field in requirements.md -------------

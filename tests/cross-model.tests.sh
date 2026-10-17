@@ -1127,6 +1127,48 @@ else
     fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
 fi
 
+# Model values remain one argument even when caller cwd contains glob matches.
+if python3 - "$SCRIPTS_DIR/run-panelist-gpt.sh" "$WORK" <<'PYEOF'
+import json, os, pathlib, subprocess, sys
+runner, work = sys.argv[1:]
+root = pathlib.Path(work) / 'model-argv'
+root.mkdir()
+input_file = root / 'input.md'
+input_file.write_text('synthetic panelist bundle')
+argv_file = root / 'argv.json'
+stub = root / 'codex-stub'
+stub.write_text('#!/usr/bin/env python3\nimport json,pathlib,sys\n'
+    + 'pathlib.Path(' + repr(str(argv_file)) + ').write_text(json.dumps(sys.argv[1:]))\n'
+    + 'raise SystemExit(7)\n')
+stub.chmod(0o700)
+for name in ('-a', 'gpt-fixture'):
+    (root / name).touch()
+for effort in (None, 'high'):
+    for model in ('*', 'gpt-fixture', None):
+        args = ['sh', runner, '--task', 'T-901', '--feature', 'argv-test',
+            '--input', str(input_file), '--spec-root', str(root / 'specs')]
+        expected = ['exec']
+        if model is not None:
+            args += ['--model', model]
+            expected += ['--model', model]
+        if effort is not None:
+            args += ['--effort', effort]
+            expected += ['-c', 'model_reasoning_effort=' + effort]
+        result = subprocess.run(args, cwd=root, env=dict(os.environ,
+            SDD_PANELIST_CODEX_CMD=str(stub)), capture_output=True, text=True, timeout=15)
+        assert result.returncode == 1, 'runner must propagate stub failure'
+        actual = json.loads(argv_file.read_text())
+        assert actual[:len(expected)] == expected, 'model value changed while constructing argv'
+        assert actual[len(expected):-2] == ['--sandbox', 'read-only', '--skip-git-repo-check', '-C']
+        assert actual[-1] == '-'
+        assert not list((root / 'specs').rglob('*.verdict.json'))
+PYEOF
+then
+    ok 'model argv is literal with and without effort; native failure is preserved'
+else
+    fail 'model argv must not be split or glob-expanded'
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================

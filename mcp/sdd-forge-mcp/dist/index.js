@@ -39813,6 +39813,14 @@ function extractHeaderValue(contents, key) {
   return void 0;
 }
 
+// src/parsers/json-object.ts
+function isJsonObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function jsonValueText(value) {
+  return value !== null && typeof value === "object" ? JSON.stringify(value) : String(value ?? "");
+}
+
 // src/parsers/evidence-bundle.ts
 import { createHash } from "node:crypto";
 var SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
@@ -39848,13 +39856,17 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   if (!bundleRead.ok) {
     return [`evidence bundle is unreadable: ${bundleRelPath}`];
   }
-  let bundle;
+  let parsed;
   try {
-    bundle = JSON.parse(bundleRead.data.contents);
+    parsed = JSON.parse(bundleRead.data.contents);
   } catch {
     return [`evidence bundle is not valid JSON: ${bundleRelPath}`];
   }
-  const bundleTaskId = String(bundle.task_id ?? "").trim();
+  if (!isJsonObject(parsed)) {
+    return [`evidence bundle is not a JSON object: ${bundleRelPath}`];
+  }
+  const bundle = parsed;
+  const bundleTaskId = jsonValueText(bundle.task_id ?? "").trim();
   if (!/^T-\d+$/.test(bundleTaskId)) {
     failures.push(`task_id is invalid: ${bundleTaskId}`);
   }
@@ -39907,14 +39919,19 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       failures.push(`verification_contract could not be read: ${bundle.verification_contract}`);
     } else {
       try {
-        contract = JSON.parse(contractRead.data.contents);
+        const parsedContract = JSON.parse(contractRead.data.contents);
+        if (isJsonObject(parsedContract)) {
+          contract = parsedContract;
+        } else {
+          failures.push("verification_contract is not a JSON object");
+        }
       } catch {
         failures.push(
           `verification_contract could not be parsed as JSON: ${bundle.verification_contract}`
         );
       }
       if (contract !== void 0) {
-        const contractTaskId = String(contract.task_id ?? "").trim();
+        const contractTaskId = jsonValueText(contract.task_id ?? "").trim();
         if (contractTaskId !== taskId) {
           failures.push(
             `verification_contract task_id mismatch: ${contractTaskId} != ${taskId}`
@@ -39930,14 +39947,21 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   if (contractRel !== void 0) {
     requiredArtifacts.set(contractRel, "verification_contract");
   }
-  if (contract?.checks !== void 0) {
+  if (contract?.checks !== void 0 && !Array.isArray(contract.checks)) {
+    failures.push("verification_contract checks must be an array");
+  }
+  if (Array.isArray(contract?.checks)) {
     for (const check2 of contract.checks) {
+      if (!isJsonObject(check2)) {
+        failures.push("verification_contract check must be an object");
+        continue;
+      }
       if (check2.passes === true) {
         const evidenceRel = normalizeRelPath(check2.evidence);
         if (evidenceRel !== void 0) {
           requiredArtifacts.set(
             evidenceRel,
-            `passing evidence for check '${check2.id ?? "?"}'`
+            `passing evidence for check '${jsonValueText(check2.id ?? "?")}'`
           );
         }
       }
@@ -39945,18 +39969,22 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   }
   const artifactIndex = /* @__PURE__ */ new Map();
   for (const artifact of artifacts) {
+    if (!isJsonObject(artifact)) {
+      failures.push("artifact must be an object");
+      continue;
+    }
     const artifactRel = normalizeRelPath(artifact.path);
-    const sha = String(artifact.sha256 ?? "").trim().toLowerCase();
+    const sha = jsonValueText(artifact.sha256 ?? "").trim().toLowerCase();
     if (artifactRel === void 0) {
-      failures.push(`artifact path is missing or invalid: ${String(artifact.path)}`);
+      failures.push(`artifact path is missing or invalid: ${jsonValueText(artifact.path)}`);
       continue;
     }
     if (!guardedExists(root, artifactRel)) {
-      failures.push(`artifact path missing: ${artifact.path}`);
+      failures.push(`artifact path missing: ${jsonValueText(artifact.path)}`);
       continue;
     }
     if (!SHA256_HEX_PATTERN.test(sha)) {
-      failures.push(`artifact sha256 is invalid for ${artifact.path}: ${artifact.sha256}`);
+      failures.push(`artifact sha256 is invalid for ${jsonValueText(artifact.path)}: ${jsonValueText(artifact.sha256)}`);
       continue;
     }
     if (artifactIndex.has(artifactRel)) {
@@ -39977,11 +40005,11 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   const gitCommit = bundle.git_commit;
   if (gitCommit === void 0 || gitCommit === null) {
     failures.push("git_commit is required but missing");
-  } else if (!/^[0-9a-f]{40}$/.test(String(gitCommit))) {
-    failures.push(`git_commit is invalid (must be 40 lowercase hex): ${gitCommit}`);
+  } else if (!/^[0-9a-f]{40}$/.test(jsonValueText(gitCommit))) {
+    failures.push(`git_commit is invalid (must be 40 lowercase hex): ${jsonValueText(gitCommit)}`);
   }
-  const bundleRisk = String(bundle.risk ?? "").trim();
-  const contractRisk = contract?.risk !== void 0 ? String(contract.risk).trim() : "";
+  const bundleRisk = jsonValueText(bundle.risk ?? "").trim();
+  const contractRisk = contract?.risk !== void 0 ? jsonValueText(contract.risk).trim() : "";
   if (contractRisk.length > 0 && contractRisk !== bundleRisk) {
     failures.push(
       `bundle risk '${bundleRisk || "(empty)"}' != contract risk '${contractRisk}'`
@@ -39989,22 +40017,22 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   }
   const effectiveRisk = contractRisk.length > 0 ? contractRisk : bundleRisk;
   if (effectiveRisk === "high" || effectiveRisk === "critical") {
-    const specRevision = String(bundle.spec_revision ?? "").trim();
+    const specRevision = jsonValueText(bundle.spec_revision ?? "").trim();
     if (!SHA256_HEX_PATTERN.test(specRevision)) {
       failures.push(
         `high/critical bundle requires spec_revision (64-hex), got: ${specRevision || "(empty)"}`
       );
     }
-    const buildEnvOs = bundle.build_env?.os;
+    const buildEnvOs = isJsonObject(bundle.build_env) ? bundle.build_env.os : void 0;
     if (typeof buildEnvOs !== "string" || buildEnvOs.trim().length === 0) {
       failures.push("high/critical bundle requires build_env.os");
     }
     const reviewVerdict = bundle.review_verdict;
-    if (reviewVerdict === void 0 || reviewVerdict === null) {
+    if (!isJsonObject(reviewVerdict)) {
       failures.push("high/critical bundle requires review_verdict object");
-    } else if (String(reviewVerdict.verdict ?? "").trim() !== "PASS") {
+    } else if (jsonValueText(reviewVerdict.verdict ?? "").trim() !== "PASS") {
       failures.push(
-        `high/critical bundle requires review_verdict.verdict == PASS, got: ${reviewVerdict.verdict ?? "(empty)"}`
+        `high/critical bundle requires review_verdict.verdict == PASS, got: ${jsonValueText(reviewVerdict.verdict ?? "(empty)")}`
       );
     }
   }
@@ -40015,11 +40043,11 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
       );
     }
     const signature = bundle.signature;
-    if (signature === void 0 || signature === null) {
+    if (!isJsonObject(signature)) {
       failures.push("critical bundle requires a signature object");
     } else {
-      const alg = String(signature.alg ?? "").trim();
-      const value = String(signature.value ?? "").trim();
+      const alg = jsonValueText(signature.alg ?? "").trim();
+      const value = jsonValueText(signature.value ?? "").trim();
       if (alg.length === 0 || value.length === 0) {
         failures.push("critical bundle signature requires non-empty alg and value");
       } else if (alg === "hmac-sha256") {
@@ -40187,8 +40215,10 @@ function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail
     if (contractRead.ok) {
       try {
         const parsed = JSON.parse(contractRead.data.contents);
-        contractTaskIdMatches = String(parsed.task_id ?? "") === taskId;
-        contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+        if (isJsonObject(parsed)) {
+          contractTaskIdMatches = parsed.task_id === taskId;
+          contractRisk = typeof parsed.risk === "string" ? parsed.risk.trim().toLowerCase() : "";
+        }
       } catch {
         contractTaskIdMatches = false;
       }
@@ -40801,7 +40831,7 @@ function parseEvidenceBundle(root, feature, taskId) {
       rule: "json-syntax"
     });
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+  if (!isJsonObject(parsed)) {
     return err("cannot-parse", `Evidence bundle is not a JSON object: ${relPath}`, {
       file: relPath,
       rule: "not-an-object"
@@ -40811,7 +40841,7 @@ function parseEvidenceBundle(root, feature, taskId) {
   if (bundle.task_id !== taskId) {
     return err(
       "cannot-parse",
-      `Evidence bundle task_id does not match requested task: ${String(bundle.task_id)} != ${taskId}`,
+      `Evidence bundle task_id does not match requested task: ${jsonValueText(bundle.task_id)} != ${taskId}`,
       { file: relPath, rule: "task-id-mismatch" }
     );
   }
@@ -40877,7 +40907,7 @@ function parseVerificationContract(root, feature, taskId) {
       rule: "json-syntax"
     });
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+  if (!isJsonObject(parsed)) {
     return err("cannot-parse", `Verification contract is not a JSON object: ${relPath}`, {
       file: relPath,
       rule: "not-an-object"
@@ -40887,7 +40917,7 @@ function parseVerificationContract(root, feature, taskId) {
   if (contract.task_id !== taskId) {
     return err(
       "cannot-parse",
-      `Verification contract task_id does not match requested task: ${String(contract.task_id)} != ${taskId}`,
+      `Verification contract task_id does not match requested task: ${jsonValueText(contract.task_id)} != ${taskId}`,
       { file: relPath, rule: "task-id-mismatch" }
     );
   }
@@ -40900,10 +40930,9 @@ function parseVerificationContract(root, feature, taskId) {
   const checks = [];
   for (let i = 0; i < contract.checks.length; i += 1) {
     const rawCheck = contract.checks[i];
-    if (typeof rawCheck !== "object" || rawCheck === null) {
+    if (!isJsonObject(rawCheck)) {
       return err("cannot-parse", `Verification contract check at index ${i} is not an object: ${relPath}`, {
         file: relPath,
-        line: i,
         rule: "check-not-an-object"
       });
     }
@@ -41190,7 +41219,7 @@ function evidenceGetBundle(root, feature, taskId) {
 }
 function classifyArtifactPath(root, rawPath) {
   if (typeof rawPath !== "string" || rawPath.length === 0) {
-    return { path: String(rawPath), safe: false, exists: false, reason: "path is missing or empty" };
+    return { path: jsonValueText(rawPath), safe: false, exists: false, reason: "path is missing or empty" };
   }
   const guardResult = resolveGuarded(root, rawPath);
   if (guardResult.ok) {
@@ -41218,7 +41247,7 @@ function evidenceValidatePaths(root, feature, taskId) {
     return bundleResult;
   }
   const artifacts = Array.isArray(bundleResult.data.artifacts) ? bundleResult.data.artifacts : [];
-  const results = artifacts.map((artifact) => classifyArtifactPath(root, String(artifact.path ?? "")));
+  const results = artifacts.map((artifact) => classifyArtifactPath(root, isJsonObject(artifact) && typeof artifact.path === "string" ? artifact.path : ""));
   return ok({ kind: "evidence-paths", feature, taskId, results });
 }
 var EVIDENCE_BUNDLE_REQUIREMENT = "evidence-bundle";
@@ -41360,8 +41389,11 @@ function canonicalArtifactsDigest(pairs) {
   return sha256OfContents(lines.join("\n"));
 }
 function classifyArtifact(root, artifact) {
-  const path = String(artifact.path ?? "").trim();
-  const recordedSha256 = String(artifact.sha256 ?? "").trim().toLowerCase();
+  if (!isJsonObject(artifact)) {
+    return { path: "", recordedSha256: "", status: "invalid-recorded-sha", reason: "artifact must be an object" };
+  }
+  const path = jsonValueText(artifact.path ?? "").trim();
+  const recordedSha256 = jsonValueText(artifact.sha256 ?? "").trim().toLowerCase();
   if (!RECORDED_SHA256_PATTERN.test(recordedSha256)) {
     return {
       path,
@@ -41405,7 +41437,7 @@ function recomputeSpecRevision(root, feature, bundle) {
     }
   }
   const computed = foundAny ? hasher.digest("hex") : "";
-  const recorded = String(bundle.spec_revision ?? "");
+  const recorded = jsonValueText(bundle.spec_revision ?? "");
   return {
     recorded,
     computed,
@@ -41414,7 +41446,7 @@ function recomputeSpecRevision(root, feature, bundle) {
   };
 }
 function verifyGitCommit(bundle) {
-  const value = String(bundle.git_commit ?? "");
+  const value = jsonValueText(bundle.git_commit ?? "");
   const shapeValid = GIT_COMMIT_PATTERN.test(value);
   return {
     value,
@@ -41425,7 +41457,7 @@ function verifyGitCommit(bundle) {
 }
 function verifyContractBinding(root, bundle) {
   const subject = "verification_contract";
-  const contractPath = String(bundle.verification_contract ?? "").trim();
+  const contractPath = jsonValueText(bundle.verification_contract ?? "").trim();
   if (contractPath.length === 0) {
     return { subject, status: "mismatch", detail: "verification_contract path is missing" };
   }
@@ -41439,10 +41471,13 @@ function verifyContractBinding(root, bundle) {
   } catch {
     return { subject, status: "mismatch", detail: "verification_contract is not valid JSON" };
   }
-  const contractTaskId = String(contract.task_id ?? "").trim();
-  const contractFeature = String(contract.feature ?? "").trim();
-  const bundleTaskId = String(bundle.task_id ?? "").trim();
-  const bundleFeature = String(bundle.feature ?? "").trim();
+  if (!isJsonObject(contract)) {
+    return { subject, status: "mismatch", detail: "verification_contract is not a JSON object" };
+  }
+  const contractTaskId = jsonValueText(contract.task_id ?? "").trim();
+  const contractFeature = jsonValueText(contract.feature ?? "").trim();
+  const bundleTaskId = jsonValueText(bundle.task_id ?? "").trim();
+  const bundleFeature = jsonValueText(bundle.feature ?? "").trim();
   if (contractTaskId !== bundleTaskId) {
     return {
       subject,
@@ -41461,9 +41496,9 @@ function verifyContractBinding(root, bundle) {
 }
 function verifyReportBinding(root, bundle) {
   const subject = "quality_report";
-  const reportPath = String(bundle.quality_report ?? "").trim();
-  const bundleTaskId = String(bundle.task_id ?? "").trim();
-  const bundleFeature = String(bundle.feature ?? "").trim();
+  const reportPath = jsonValueText(bundle.quality_report ?? "").trim();
+  const bundleTaskId = jsonValueText(bundle.task_id ?? "").trim();
+  const bundleFeature = jsonValueText(bundle.feature ?? "").trim();
   if (reportPath.length === 0) {
     return { subject, status: "mismatch", detail: "quality_report path is missing" };
   }
@@ -41488,7 +41523,7 @@ function echoSignature(bundle) {
   const signature = bundle.signature;
   const present = signature !== void 0 && signature !== null;
   const note = "signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008)";
-  if (present && typeof signature.alg === "string") {
+  if (isJsonObject(signature) && typeof signature.alg === "string") {
     return { present, alg: signature.alg, verified: false, note };
   }
   return { present, verified: false, note };
@@ -41511,8 +41546,8 @@ function evidenceDeepVerify(root, feature, taskId) {
   const artifacts = recordedArtifacts.map((artifact) => classifyArtifact(root, artifact));
   const recordedDigest = canonicalArtifactsDigest(
     recordedArtifacts.map((artifact) => ({
-      path: String(artifact.path ?? "").trim(),
-      sha256: String(artifact.sha256 ?? "").trim().toLowerCase()
+      path: isJsonObject(artifact) ? jsonValueText(artifact.path ?? "").trim() : "",
+      sha256: isJsonObject(artifact) ? jsonValueText(artifact.sha256 ?? "").trim().toLowerCase() : ""
     }))
   );
   const onDiskDigest = canonicalArtifactsDigest(

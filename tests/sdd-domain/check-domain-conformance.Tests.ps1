@@ -411,3 +411,69 @@ Test feature.
         $output | Should Match "check-domain-conformance passed\."
     }
 }
+
+
+Describe "domain conformance JSON semantics and exact identifiers" {
+    $cases = foreach ($runtime in @('ps1', 'sh')) {
+        foreach ($scenario in @('canonical', 'json-whitespace', 'relation-key-order', 'term-case', 'context-case', 'aggregate-case', 'relation-case', 'warn-term-case', 'invalid-json')) {
+            @{ Runtime = $runtime; Scenario = $scenario }
+        }
+    }
+    It '<Runtime> preserves JSON meaning and exact names: <Scenario>' -TestCases $cases {
+        param($Runtime, $Scenario)
+        $root = Join-Path ([IO.Path]::GetTempPath()) ('domain-semantics-' + [guid]::NewGuid().ToString('N'))
+        $oldEnforce = $env:SDD_DOMAIN_ENFORCE
+        try {
+            $fixture = New-DomainFixture -FixtureRoot $root -ContextNames @('orders', 'shipping') -WithAggregateCard
+            $contractPath = Join-Path $root 'domain/domain-contract.json'
+            $contract = Get-Content -Raw -LiteralPath $contractPath | ConvertFrom-Json
+            $contract.relations = @([ordered]@{ from = 'orders'; to = 'shipping'; pattern = 'customer-supplier' })
+            if ($Scenario -eq 'relation-key-order') {
+                $contract.relations = @([ordered]@{ to = 'shipping'; pattern = 'customer-supplier'; from = 'orders' })
+            }
+            if ($Scenario -eq 'relation-case') { $contract.relations[0].from = 'ORDERS' }
+            $json = $contract | ConvertTo-Json -Depth 10
+            if ($Scenario -eq 'json-whitespace') { $json = $json.Replace(': ', ":`n") }
+            if ($Scenario -eq 'invalid-json') { $json = '{' }
+            [IO.File]::WriteAllText($contractPath, $json, [Text.UTF8Encoding]::new($false))
+            $context = if ($Scenario -eq 'context-case') { 'ORDERS' } else { 'orders' }
+            $term = if ($Scenario -in @('term-case', 'warn-term-case')) { 'order' } else { 'Order' }
+            $req = Join-Path $fixture.SpecsDir 'requirements.md'
+            [IO.File]::WriteAllText($req, "Bounded-Context: $context, shipping`n## [[term:$term]]`n")
+            $design = Join-Path $fixture.SpecsDir 'design.md'
+            $aggregate = if ($Scenario -eq 'aggregate-case') { 'ORDER' } else { 'Order' }
+            [IO.File]::WriteAllText($design, "[$aggregate](domain/aggregates/$aggregate.md)`n")
+            # Isolate identifier comparison from filesystem case sensitivity.
+            [IO.File]::WriteAllText((Join-Path $root "domain/aggregates/$aggregate.md"), '# Card')
+            $env:SDD_DOMAIN_ENFORCE = if ($Scenario -eq 'warn-term-case') { 'warn' } else { 'error' }
+            if ($Runtime -eq 'ps1') {
+                $output = & (Get-Process -Id $PID).Path -NoProfile -File $checkPs1 -ProjectRoot $root -RequirementsMd $req -DesignMd $design 2>&1 | Out-String
+            } else {
+                $bash = Get-Command bash -ErrorAction Stop
+                $shArgs = @((Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/check-domain-conformance.sh'), $root, $req, $design) | ForEach-Object {
+                    $path = $_.Replace('\', '/')
+                    if ($path -match '^([A-Za-z]):/') { $path = '/' + $Matches[1].ToLowerInvariant() + $path.Substring(2) }
+                    $path
+                }
+                $output = & $bash.Source @shArgs 2>&1 | Out-String
+            }
+            $exit = $LASTEXITCODE
+            if ($Scenario -eq 'invalid-json') {
+                $exit | Should Be 0
+                $output | Should Match 'skipped: domain-contract.json is not valid JSON'
+            } elseif ($Scenario -eq 'warn-term-case') {
+                $exit | Should Be 0
+                $output | Should Match 'check-domain-conformance WARN'
+            } elseif ($Scenario -in @('term-case', 'context-case', 'aggregate-case', 'relation-case')) {
+                $exit | Should Be 1
+                $output | Should Match 'check-domain-conformance FAILED'
+            } else {
+                $exit | Should Be 0
+                $output | Should Match 'check-domain-conformance passed\.'
+            }
+        } finally {
+            if ($null -eq $oldEnforce) { Remove-Item Env:SDD_DOMAIN_ENFORCE -ErrorAction SilentlyContinue } else { $env:SDD_DOMAIN_ENFORCE = $oldEnforce }
+            if (Test-Path -LiteralPath $root) { Remove-Item -Recurse -Force -LiteralPath $root }
+        }
+    }
+}
