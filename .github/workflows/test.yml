@@ -1563,7 +1563,8 @@ jobs:
   test-windows-heavy:
     name: test-windows-heavy
     runs-on: windows-latest
-    timeout-minutes: 20
+    # Native current-product captures add about 10 minutes to the existing lane.
+    timeout-minutes: 35
     steps:
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
