@@ -5,7 +5,7 @@
  * fires, so the predicate is the only thing standing between "ignore one cause
  * the parser structurally cannot observe" and "ignore evidence-bundle failures
  * in general". These tests pin that boundary: one positive case built from the
- * verbatim shell output measured on 2026-08-31, and four negative controls that
+ * verbatim shell output measured on 2026-08-31, and negative controls that
  * must keep the strict comparison in force.
  */
 
@@ -71,6 +71,33 @@ test("negative control: a clean shell run never suppresses anything", () => {
   const output = ["Task state check passed for 12 task(s).", ""].join("\n");
   assert.deepEqual(environmentDependentBundleFailures(output, []), []);
 });
+
+for (const separateBundles of [false, true]) {
+  for (const contentFirst of [false, true]) {
+    test(`mixed bundle failures remain strict: ${separateBundles ? "separate bundles" : "same bundle"}, ${contentFirst ? "content first" : "environment first"}`, () => {
+      const environmentDetail = " - git_commit does not exist in repository: a3a5c66c905211a3ad2dfe21814c6f6a9d8ba38d";
+      const contentDetail = " - artifact sha256 mismatch: specs/f/verification/T-011.green.log";
+      const details = contentFirst
+        ? [contentDetail, environmentDetail]
+        : [environmentDetail, contentDetail];
+      const output = [
+        "Task state check FAILED:",
+        "Evidence bundle FAILED for task T-010:",
+        details[0],
+        ...(separateBundles ? [
+          " - T-010 evidence bundle failed validation: specs/f/verification/T-010.evidence.json",
+          "Evidence bundle FAILED for task T-011:",
+        ] : []),
+        details[1],
+        ` - ${separateBundles ? "T-011" : "T-010"} evidence bundle failed validation: specs/f/verification/${separateBundles ? "T-011" : "T-010"}.evidence.json`,
+        "",
+      ].join("\n");
+      const own = extractOwnFailureMessages(output);
+      assert.equal(own.length, separateBundles ? 2 : 1);
+      assert.deepEqual(environmentDependentBundleFailures(output, own), []);
+    });
+  }
+}
 
 test("negative control: the cause must appear as a detail line, not as prose", () => {
   // Guards against a message that merely quotes the phrase (a report body, a
