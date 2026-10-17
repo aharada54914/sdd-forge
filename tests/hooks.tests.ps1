@@ -94,6 +94,15 @@ sig: $sig
 
 Push-Location $workDir
 try {
+    $readOnlyCases = Get-Content -Raw (Join-Path $repositoryRoot 'tests/fixtures/guard/read-only.json') | ConvertFrom-Json
+    $savedRgConfig = $env:RIPGREP_CONFIG_PATH
+    foreach ($case in $readOnlyCases) {
+        $env:RIPGREP_CONFIG_PATH = if ($case.PSObject.Properties['rg_config']) { $case.rg_config } else { $null }
+        $payload = @{ tool_name = 'bash'; tool_input = @{ command = $case.command } } | ConvertTo-Json -Compress
+        $r = Invoke-GuardPs $payload
+        Assert "read-only: $($case.name) exit=$($r.Code) expected=$($case.exit)" ($r.Code -eq $case.exit)
+    }
+    $env:RIPGREP_CONFIG_PATH = $savedRgConfig
     $roleReadCases = @(
         @{ Name = 'literal proxy read'; Code = 0; Command = 'rtk proxy rg --no-config -n developer_instructions .codex/agents/custom.toml' },
         @{ Name = 'preprocessing before pattern'; Code = 2; Command = 'rtk proxy rg --no-config -n --pre=untrusted developer_instructions .codex/agents/custom.toml' },

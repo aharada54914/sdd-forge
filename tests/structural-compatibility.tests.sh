@@ -16,11 +16,17 @@ source "$REPO_ROOT/tests/lib/skip-allowlist-evaluator.sh"
 PASS=0
 FAIL=0
 pass() { printf 'PASS: %s\n' "$1"; PASS=$((PASS + 1)); }
-fail() { printf 'FAIL: %s\n' "$1" >&2; FAIL=$((FAIL + 1)); }
+fail() {
+  printf 'FAIL: %s\n' "$1" >&2
+  FAIL=$((FAIL + 1))
+  # A mutation is killed only after its target assertion actually fails.
+  if [[ -n "${STRUCTURAL_MUTATION_TARGET:-}" && "FAIL: $1" == "${STRUCTURAL_MUTATION_TARGET:-}"* ]]; then exit 1; fi
+}
 assert_true() { local label="$1"; shift; if "$@"; then pass "$label"; else fail "$label"; fi; }
 
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/structural-compat.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
+: > "$tmp/emitted-skips.log"
 
 required=("$CANON" "$BOOTSTRAP_SKILL" "$LITE_SKILL" "$DESIGN" "$ACCEPTANCE" "$CORPUS/f1-full.json" "$CORPUS/f2-lite.json" "$CORPUS/f3-advisory.json" "$CORPUS/f4-required.json")
 missing=0
@@ -129,7 +135,7 @@ canonicalize_content() {
 }
 
 status_fields() {
-  sed -n -E 's/^([[:alpha:]][[:alnum:] -]*(Status|Approval)):[[:space:]].*$/\1/p' "$1" | LC_ALL=C sort -u
+  sed -n -E 's/^(([[:alpha:]][[:alnum:] -]*)?(Status|Approval)):[[:space:]].*$/\1/p' "$1" | LC_ALL=C sort -u
 }
 
 validate_track() {
@@ -146,7 +152,13 @@ validate_track() {
     if [[ ! -f "$template" ]]; then fail "$track shipped template exists for $path"; continue; fi
     expected_ast="$tmp/${track}-${path//\//_}.template.ast"
     actual_ast="$tmp/${track}-${path//\//_}.corpus.ast"
-    if bash "$CANON" "$template" > "$expected_ast" && canonicalize_content "$json" "$path" "$actual_ast"; then
+    # Trusted F2 inputs are fixed before collection; never infer from actual.
+    local expected_template="$template"
+    if [[ "$track" == lite ]]; then
+      expected_template="$tmp/f2-expected.md"
+      sed -e 's/<feature>/team-coffee-orders/g' -e 's/<タスク名>/注文登録を実装する/g' "$template" > "$expected_template"
+    fi
+    if bash "$CANON" "$expected_template" > "$expected_ast" && canonicalize_content "$json" "$path" "$actual_ast"; then
       assert_true "$track $path frontmatter and ordered headings match its shipped template" cmp -s "$expected_ast" "$actual_ast"
     else
       fail "$track $path canonicalizes without parse fallback"
@@ -185,6 +197,20 @@ assert_true "corpus artifact array order is comparison-irrelevant" cmp -s "$tmp/
 
 printf '%s\n' '---' 'title: broken' > "$tmp/bad-frontmatter.md"
 if bash "$CANON" "$tmp/bad-frontmatter.md" >/dev/null 2>&1; then fail "malformed frontmatter is a hard failure"; else pass "malformed frontmatter is a hard failure"; fi
+# Exercise the parser through this existing suite in both runtimes.
+while IFS= read -r parser_case; do
+  label="$(jq -r '.name' <<<"$parser_case")"
+  jq -r '.content' <<<"$parser_case" > "$tmp/parser-case.md"
+  status=0
+  bash "$CANON" "$tmp/parser-case.md" > "$tmp/parser-case.ast" 2> "$tmp/parser-case.err" || status=$?
+  if [[ "$(jq -r '.valid' <<<"$parser_case")" == true ]]; then
+    assert_true "frontmatter accepts $label" test "$status" -eq 0
+    assert_true "frontmatter parses $label into semantic values" jq -e --argjson expected "$(jq '.frontmatter' <<<"$parser_case")" '.frontmatter == $expected' "$tmp/parser-case.ast"
+  else
+    assert_true "frontmatter rejects $label without partial output" bash -c '[[ "$1" -eq 2 && ! -s "$2" ]]' _ "$status" "$tmp/parser-case.ast"
+  fi
+done < <(jq -c '.[]' "$REPO_ROOT/tests/fixtures/structural-frontmatter-cases.json")
+
 printf '%s\n' '####### Broken heading grammar' > "$tmp/bad-heading.md"
 if bash "$CANON" "$tmp/bad-heading.md" >/dev/null 2>&1; then fail "unrecognized heading grammar is a hard failure"; else pass "unrecognized heading grammar is a hard failure"; fi
 
@@ -265,9 +291,30 @@ elif (( $? == 1 )); then
 else
   fail 'F4 activation evidence is unavailable or invalid'
 fi
-emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
-emit_compound_skip F5
-emit_compound_skip F6
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-042 "$EVIDENCE_REPO" origin/main; then
+  printf '%s\n' 'AC-042 active: checking recorded F3 full-track artifacts'
+  validate_track full "$CORPUS/f3-advisory.json"
+elif (( $? == 1 )); then
+  emit_recorded_skip F3 "$CORPUS/f3-advisory.json"
+else
+  fail 'F3 activation evidence is unavailable or invalid'
+fi
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-043 "$EVIDENCE_REPO" origin/main; then
+  for fixture in F5 F6; do
+    printf '%s\n' "AC-043 active: checking $fixture Context-present Lite artifacts"
+    if python3 "$REPO_ROOT/tests/lib/structural-context-lite.py" --state "$fixture" --runtime sh --output "$tmp/$fixture.json"; then
+      pass "$fixture real Resolver preserves its Context state and human Markdown"
+      validate_track lite "$tmp/$fixture.json"
+    else
+      fail "$fixture real Context-present Lite invocation succeeds"
+    fi
+  done
+elif (( $? == 1 )); then
+  emit_compound_skip F5
+  emit_compound_skip F6
+else
+  fail 'F5/F6 activation evidence is unavailable or invalid'
+fi
 
 # Formatting assertions alone cannot prove that a dependency is still absent.
 # Audit the lines actually emitted; never turn an obsolete skip into success.

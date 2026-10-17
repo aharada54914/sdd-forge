@@ -162,3 +162,17 @@ and receipt and use a new context for a later permitted attempt. Both reviewers
 remain read-only and separately isolated. This ordering does not authorize a
 blocked shell launcher, a same-session fallback, or any guard bypass. Fixture
 tests do not establish that a particular live host implements this lifecycle.
+
+## Upstream concept issues
+
+When DOMAIN-CONFORMANCE identifies `UPSTREAM_CONCEPT_ISSUE`, retain its concept
+ID and exact record/spec evidence. Before invoking `domain-model update`, run
+`python3 plugins/sdd-domain/scripts/record-upstream-concept-issue.py --root <project-root> --stage spec
+--feature <feature> --attempt <current-attempt> --concept <CONCEPT-ID> --evidence "<record/spec evidence>"`
+as one command. Pass evidence as a literal argument through the host argument-array
+API or proper shell quoting; never evaluate artifact text as shell code. The first occurrence permits one update handoff, subject to the
+existing approval requirements; a repeated occurrence returns
+`requires_human_decision` and stops automatic reopening. Nonzero results also
+stop the handoff. Keep the attempt's record across rounds and sessions, then
+regenerate the feature Concept Test and rebind review inputs after an upstream
+change. Never reset a review attempt solely to evade the limit.

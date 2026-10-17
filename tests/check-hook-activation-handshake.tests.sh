@@ -824,7 +824,7 @@ rc=$?
 assert_exit "$rc" 0 "RT002 nonce-bound challenge emitted"
 assert_json_field "$WORK/out" "d['tool_call_template']['codex-cli']['tool_input']['patch'] == '*** Begin Patch\\n*** Add File: sdd/.hook-canary-sentinel\\n+sdd-hook-challenge:' + d['nonce'] + '\\n*** End Patch'" "True" "RT002 emitted patch binds exact fresh nonce and bytes"
 assert_json_field "$WORK/out" "d['tool_call_template']['claude-code'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': ''}}" "True" "TEST-084 complete Claude template unchanged"
-assert_json_field "$WORK/out" "d['tool_call_template']['copilot-cli'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': ''}}" "True" "TEST-085 complete Copilot template unchanged"
+assert_json_field "$WORK/out" "d['tool_call_template']['copilot-cli'] == {'tool_name': 'create', 'tool_input': {'path': 'sdd/.hook-canary-sentinel', 'file_text': 'sdd-hook-challenge:' + d['nonce']}}" "True" "TEST-085 native Copilot create template binds nonce"
 
 printf '{"schema":"sdd-codex-host-denial/v1","nonce":"%s","executed":true}\n' "$HOST_NONCE" > "$T027/cleanup-schema.json"
 (cd "$T027" && run_hh --confirm-cleanup --nonce "$HOST_NONCE" --recorded-cleanup-result cleanup-schema.json)
@@ -975,6 +975,12 @@ if ln -s missing-target "$T027/dangling/sdd/.hook-canary-sentinel"; then
   if [ ! -e "$T027/dangling/sdd/missing-target" ]; then pass "TEST-082 dangling target not followed or created"; else fail "TEST-082 dangling target not followed or created"; fi
 else
   printf 'SKIP: TEST-082 symbolic link creation unavailable; acceptance remains pending\n'
+fi
+
+if "$PY" "$ROOT/tests/copilot-hook-handshake.tests.py"; then
+  pass "Copilot native event-pair contract"
+else
+  fail "Copilot native event-pair contract"
 fi
 
 printf 'PASS: %s\n' "$PASS"

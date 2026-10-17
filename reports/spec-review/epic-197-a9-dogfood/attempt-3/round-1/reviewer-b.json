@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0db2a-e3c2-78b0-84e5-5ea434b87b8c",
+  "host_session_id": "01a0db2a-e3c2-78b0-84e5-5ea434b87b8c",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-1/integrated-summary.json",
+      "sha256": "c8f48bbbc4850635296267b67395ea9dc5fd8e373e996a59d94a13fc75a4c79a"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-1/precheck-result.json",
+      "sha256": "68bf6e37a718b15555057f3132e4f8591e796bac552a5d350cb0cc762be68b8b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "4905f3c5a542fdbd9cc84827236848f6a29cbc06af4f6cce578b46e268cbbf9e"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "31482121152d215c4a35ddb878753c116b6af15e8be96c7444e3d704bebc78a6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-005 (requirements.md:169-179) says OQ-006 fixes the Pack's predicates, facets, review checks, and implementation gates. OQ-006 (requirements.md:534-569) gives the two capability IDs and broad composition/policy, but does not state those concrete rules; its clarification says A9 will add the IDs to a Registry currently containing only durable-workflow. AC-008 (acceptance-tests.md:14) only requires that an approved Pack validate and resolve. An implementer cannot determine the intended Pack behavior, so different implementations and tests could result. This is a Phase-1 specification gap; those product rules should be made explicit before design review."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between the reviewed requirements, acceptance criteria, constraints, or non-goals. The Phase-1 and Phase-2 tuples are distinct and defined; the Phase-2 missing-evidence rejection is covered by AC-033."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The resolved OQ-003 lists four independent promotion prerequisites (requirements.md:496-505): zero untriaged false positives, zero unresolved Critical/Major findings, all three OS lanes green, and a successful rollback rehearsal. AC-013/TEST-013 (acceptance-tests.md:19) says only that an unmet threshold rejects, without a concrete assertion for each prerequisite. AC-020/TEST-020 similarly claims to cover any absent or incompatible A1-A8 surface in requirements.md:314, while acceptance-tests.md:26 specifies only one generic surface case. A verifier cannot establish that each enumerated branch blocks promotion or preflight. This is an acceptance-test coverage defect and should be expanded into separately asserted cases before review proceeds."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The dated OQ-006 clarification asserts that the current Registry contains only durable-workflow (requirements.md:555-563), and that claim affects the Pack composition decision. REQ-011 requires re-scanning the Registry before implementation (requirements.md:244-251), but the specification does not require re-verifying this shared current-tree fact at spec-review time, when it informs the review conclusion. If the Registry changes before review, the stated basis may be stale. Add an explicit review-time re-verification instruction or frame the claim so its review-time condition is clear."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "REQ-007 requires human authorization for promotion (requirements.md:190-197), and REQ-008 requires the protected approval workflow for the Phase-2 transition (requirements.md:199-207). AC-002 tests the Phase-1 human-copy boundary, but the Phase-2 criteria cover tuple acceptance, partial-transition rejection, and missing evidence without testing that promotion is rejected absent valid human approval (acceptance-tests.md:18-21, 39). A direct transition after satisfying the evidence criteria could therefore pass the specified tests. Add an observable Phase-2 approval-boundary criterion; this is a governance boundary within the specification's stated scope."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The specification is not ready for implementation-policy review because the concrete Pack predicates, facets, review checks, and gates that REQ-005 calls fixed are not stated in the reviewed Phase-1 artifacts (requirements.md:169-179, 534-569; acceptance-tests.md:14). The design reviewer would have to invent those product behaviors or consult an unspecified decision source. Specify them and give AC-008 an oracle tied to that contract."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: the permitted root existence probe found no domain/ directory, so the role's domain-conformance applicability condition is not met."
+    }
+  ]
+}

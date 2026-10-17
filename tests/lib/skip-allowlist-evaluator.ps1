@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 function Read-Manifest([string]$Path) { return @(Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json) }
 function Get-Entry([string]$Path, [string]$Assertion) {
-    $entry = @(Read-Manifest $Path | Where-Object assertion_id -eq $Assertion)
+    $entry = @(Read-Manifest $Path | Where-Object assertion_id -ceq $Assertion)
     if ($entry.Count -ne 1) { throw "manifest assertion is not unique: $Assertion" }
     return $entry[0]
 }
@@ -118,6 +118,8 @@ function Test-Condition([string]$Manifest, [string]$Assertion, [string]$Repo, [s
 }
 function Invoke-Audit([string]$Manifest, [string]$Output, [string]$Repo, [string]$MainRef) {
     $marker = 'SK' + 'IP:'; $failures = 0; $count = 0
+    $entries = @(Read-Manifest $Manifest)
+    if ($entries.Count -eq 0 -or @($entries | Where-Object { $null -eq $_ }).Count -ne 0) { throw 'invalid manifest: no assertions' }
     foreach ($line in Get-Content -LiteralPath $Output) {
         if (-not ([string]$line -clike "*$marker*")) { continue }
         $count++
@@ -126,11 +128,17 @@ function Invoke-Audit([string]$Manifest, [string]$Output, [string]$Repo, [string
         foreach ($assertion in $ids) {
             try { $entry = Get-Entry $Manifest $assertion } catch { [Console]::Error.WriteLine("ERROR: unrecognized allowlist assertion $assertion"); $failures++; continue }
             if (Test-Condition $Manifest $assertion $Repo $MainRef) { [Console]::Error.WriteLine("ERROR: $assertion emitted after activation condition became true"); $failures++ }
-            for ($i = 0; $i -lt $entry.dependencies.Count; $i++) {
-                $epic = [string]$entry.dependencies[$i].epic
-                if ((Test-Merged $Manifest $assertion $epic $Repo $MainRef) -and -not (Test-Fingerprint $Manifest $assertion $i $Repo $MainRef)) {
-                    [Console]::Error.WriteLine("ERROR: $assertion dependency $epic fingerprint drift"); $failures++
-                }
+        }
+    }
+    # Check every merged dependency regardless of whether a consumer emitted a
+    # SKIP line. A zero-line output must not hide fingerprint drift.
+    foreach ($entry in $entries) {
+        $assertion = [string]$entry.assertion_id
+        if ($entry.dependencies -isnot [array] -or $entry.dependencies.Count -eq 0) { throw "invalid dependencies: $assertion" }
+        for ($i = 0; $i -lt $entry.dependencies.Count; $i++) {
+            $epic = [string]$entry.dependencies[$i].epic
+            if ((Test-Merged $Manifest $assertion $epic $Repo $MainRef) -and -not (Test-Fingerprint $Manifest $assertion $i $Repo $MainRef)) {
+                [Console]::Error.WriteLine("ERROR: $assertion dependency $epic fingerprint drift"); $failures++
             }
         }
     }

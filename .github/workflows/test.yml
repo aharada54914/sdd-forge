@@ -68,6 +68,10 @@ jobs:
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
+          python3 -B tests/current-byte-capture.tests.py
+          python3 -B tests/concept-test.tests.py
+          python3 -B tests/concept-review-continuity.tests.py
+          python3 -B tests/domain-review-finalize.tests.py
           python3 -B tests/fixed-review-inputs.tests.py
           python3 -B tests/fixed-review-state.tests.py
           python3 -B tests/fixed-review-launch.tests.py
@@ -82,6 +86,12 @@ jobs:
           python3 -B tests/task-structured-output.tests.py
           python3 -B tests/supplemental-delivery-declaration.tests.py
           python3 -B tests/t001-evaluation-preparation.tests.py
+      - name: Install pinned domain regression test runner
+        shell: pwsh
+        run: Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
+      - name: Test domain concept modeling and review contracts
+        shell: pwsh
+        run: ./tests/sdd-domain.tests.ps1
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -122,6 +132,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Run POSIX inventory shard
@@ -143,6 +156,21 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+      - name: "[deterministic] Install structural YAML parser"
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
+      - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
+        shell: pwsh
+        run: python -B tests/sdd-domain-multitarget-T-003.tests.py
+
+      - name: "[deterministic] Test Concept Test gate on native Windows"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -B tests/concept-test.tests.py
+
+      - name: "[deterministic] Test domain review finalization on native platforms"
+        shell: pwsh
+        run: python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'
@@ -689,6 +717,11 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
+
+      - name: Test A9 unpublished candidate and Pack (pwsh)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
 
       - name: Test approver-registry-schema suite (bash)
         if: runner.os != 'Windows'
@@ -1530,19 +1563,24 @@ jobs:
   test-windows-heavy:
     name: test-windows-heavy
     runs-on: windows-latest
-    timeout-minutes: 20
+    # Native current-product captures add about 10 minutes to the existing lane.
+    timeout-minutes: 35
     steps:
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      # A7's byte-identical suite performs independent full baseline captures.
+      # A7 executes current working-tree payload in independent F1/F2 fixtures.
       # It remains a required native-Windows assertion, but runs in parallel
       # with the golden-baseline suite in the main Windows test job.
       - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
         shell: pwsh
         run: ./tests/compatibility-byte-identical.tests.ps1
+
+      - name: "[deterministic] Test A7 current-product reachability"
+        shell: pwsh
+        run: python -B tests/current-byte-capture.tests.py
 
       - name: "[deterministic] Test deterministic gate scripts"
         shell: pwsh
@@ -1558,6 +1596,9 @@ jobs:
       - name: "[deterministic] Test task prior-pass receipt"
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
+      - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
       - name: "[deterministic] Test cross-model gate"
         shell: pwsh
         run: ./tests/cross-model.tests.ps1

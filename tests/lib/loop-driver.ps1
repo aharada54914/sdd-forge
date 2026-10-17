@@ -300,7 +300,7 @@ Domain-Model-Status: Pending
 
 - loop-driver-fixture-context: synthetic bounded context for the loop-driver domain fixture.
 "@ | Set-Content -LiteralPath (Join-Path $domainDir "context-map.md") -NoNewline -Encoding utf8
-    foreach ($name in @("domain-story", "event-storming", "ubiquitous-language", "message-flow", "c4-container")) {
+    foreach ($name in @("domain-story", "event-storming", "concept-model", "ubiquitous-language", "message-flow")) {
         @"
 # $name
 

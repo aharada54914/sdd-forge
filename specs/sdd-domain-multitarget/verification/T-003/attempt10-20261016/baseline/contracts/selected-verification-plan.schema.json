@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/selected-verification-plan.schema.json",
+  "title": "SDD Forge selected implementation verification plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "feature", "task_id", "bindings", "checks", "verdict"],
+  "properties": {
+    "schema": { "const": "selected-verification-plan/v1" },
+    "feature": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "pattern": "^T-[0-9]+$" },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["facet_manifest_sha256", "registry_sha256", "verification_contract_sha256"],
+      "properties": {
+        "facet_manifest_sha256": { "$ref": "#/definitions/digest" },
+        "registry_sha256": { "$ref": "#/definitions/digest" },
+        "verification_contract_sha256": { "$ref": "#/definitions/digest" }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/check" }
+    },
+    "verdict": { "enum": ["PASS", "NEEDS_WORK", "BLOCKED"] }
+  },
+  "definitions": {
+    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sources", "stage", "obligation", "blocking", "applicability", "result"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["registry", "legacy-contract"] }
+        },
+        "stage": { "const": "implementation" },
+        "obligation": { "enum": ["required", "conditional", "optional"] },
+        "blocking": { "type": "boolean" },
+        "applicability": { "enum": ["applicable", "not-applicable"] },
+        "result": { "enum": ["passed", "failed", "unavailable", "not-run", "unknown", "not-applicable"] },
+        "reason": { "enum": ["legacy-optional-not-selected", "migration-pending-required", "verifier-missing", "not-executed", "execution-status-unknown", "observed-failure"] },
+        "evidence_path": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "applicability": { "const": "not-applicable" } }, "required": ["applicability"] },
+          "then": { "required": ["reason"], "properties": { "result": { "const": "not-applicable" } } }
+        },
+        {
+          "if": { "properties": { "result": { "const": "unavailable" } }, "required": ["result"] },
+          "then": { "required": ["reason"] }
+        },
+        {
+          "if": { "properties": { "result": { "enum": ["passed", "failed"] } }, "required": ["result"] },
+          "then": { "required": ["evidence_path"] }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,66 @@
+diff --git a/reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/plugins/sdd-quality-loop/scripts/registry_discovery.py b/plugins/sdd-quality-loop/scripts/registry_discovery.py
+old mode 100644
+new mode 100755
+index d14cda76..4d9fce5a
+--- a/reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/plugins/sdd-quality-loop/scripts/registry_discovery.py
++++ b/plugins/sdd-quality-loop/scripts/registry_discovery.py
+@@ -25,11 +25,11 @@ stale/absent fallback):
+      merely because the first one it found had a bad version, since doing
+      so would itself be a silent, undocumented second resolution path.
+ """
++import hashlib
+ import json
+ import subprocess
+ import sys
+ from pathlib import Path
+-from typing import Any, List, Optional, Tuple
+ 
+ # The exact $id this Epic's own capability-registry.schema.json declares
+ # (T-001). The per-artifact version check for the schema file confirms the
+@@ -89,16 +89,16 @@ def _git_root_path(filename: str) -> "Path | None":
+     return root / "contracts" / filename
+ 
+ 
+-def _load_json(path: Path) -> Any:
++def _load_json(path: Path):
+     with open(path, "r", encoding="utf-8") as fh:
+         return json.load(fh)
+ 
+ 
+-def check_capability_registry(doc: Any) -> bool:
++def check_capability_registry(doc) -> bool:
+     return isinstance(doc, dict) and doc.get("schema") == "capability-registry/v1"
+ 
+ 
+-def check_capability_registry_schema(doc: Any) -> bool:
++def check_capability_registry_schema(doc) -> bool:
+     return (
+         isinstance(doc, dict)
+         and "$schema" in doc
+@@ -106,7 +106,7 @@ def check_capability_registry_schema(doc: Any) -> bool:
+     )
+ 
+ 
+-def check_lite_upgrade_reason_catalog(doc: Any) -> bool:
++def check_lite_upgrade_reason_catalog(doc) -> bool:
+     return isinstance(doc, dict) and doc.get("schema") == "lite-upgrade-reason-catalog/v1"
+ 
+ 
+@@ -117,7 +117,7 @@ VERSION_CHECKS = {
+ }
+ 
+ 
+-def _verify(path: Path, filename: str) -> Tuple[bool, str]:
++def _verify(path: Path, filename: str):
+     """Returns (ok: bool, detail: str)."""
+     check = VERSION_CHECKS.get(filename)
+     if check is None:
+@@ -171,7 +171,7 @@ def discover_artifact(filename: str) -> Path:
+     )
+ 
+ 
+-def main(argv: Optional[List[str]] = None) -> int:
++def main(argv=None) -> int:
+     """CLI mode for this task's own test suite: `registry_discovery.py
+     <filename>` resolves and prints the resolved path on success (exit 0),
+     or prints the fail-closed diagnostic on stderr (exit 1)."""

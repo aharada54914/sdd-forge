@@ -7,10 +7,9 @@ $script:_SddFixtureMatrixBuilderSourced = $false
 
 $Canonical = if ($env:T003_CANONICAL_UNDER_TEST) { $env:T003_CANONICAL_UNDER_TEST } else { Join-Path $Root 'specs/epic-195-a7-compatibility/verification/golden-baseline/canonical' }
 $ProductRoot = if ($env:T003_PRODUCT_ROOT_UNDER_TEST) { $env:T003_PRODUCT_ROOT_UNDER_TEST } else { $Root }
-$Cache = $env:T003_CAPTURE_CACHE
+# Ignore historical caches: each invocation must execute current product bytes.
 $Mutation = $env:T003_MUTATE_ASSERTION
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-compatibility-byte.' + [Guid]::NewGuid().ToString('N'))
-$Clone = Join-Path $Work 'repository'
 # Canonical inventory asserted from manifest rows: deterministic-script-output,
 # exit-code, stdout-stderr, template-copy-result, schema-validator-result,
 # install-result, uninstall-result, generated-directory-listing, plugin-manifest.
@@ -49,22 +48,8 @@ function Write-ManifestDiff([string]$Left, [string]$Right, [string]$Label) {
 }
 
 function Invoke-FixedCapture([string]$Fixture, [string]$Destination) {
-    $captureHome = Join-Path $Fixture '.compat-home'
-    New-Item -ItemType Directory -Path $captureHome -Force | Out-Null
-    $saved = @{}
-    Get-ChildItem Env: | Where-Object Name -Like 'SDD_*' | ForEach-Object { $saved[$_.Name] = $_.Value; Remove-Item "Env:$($_.Name)" }
-    $oldTz = $env:TZ; $oldLc = $env:LC_ALL; $oldHome = $env:HOME
-    try {
-        $env:TZ = 'UTC'; $env:LC_ALL = 'C'; $env:HOME = $captureHome
-        Push-Location $Fixture
-        try { & pwsh -NoProfile -File (Join-Path $Clone 'tests/capture-golden-baseline.ps1') --write-candidate *>$null }
-        finally { Pop-Location }
-        if ($LASTEXITCODE -ne 0) { throw 'capture failed' }
-        Copy-Item -Recurse -LiteralPath (Join-Path $Clone 'specs/epic-195-a7-compatibility/verification/golden-baseline/candidate/current') -Destination $Destination
-    } finally {
-        $env:TZ = $oldTz; $env:LC_ALL = $oldLc; $env:HOME = $oldHome
-        foreach ($entry in $saved.GetEnumerator()) { Set-Item "Env:$($entry.Key)" $entry.Value }
-    }
+    & python3 (Join-Path $Root 'tests/lib/current-byte-capture.py') --product $ProductRoot --fixture $Fixture --destination $Destination --canonical $Canonical --runtime powershell
+    if ($LASTEXITCODE -ne 0) { throw 'current capture failed' }
 }
 
 function Resolve-ContractTrack([string]$Document, [string]$Fixture, [string]$Flag) {
@@ -93,30 +78,20 @@ function Resolve-ContractTrack([string]$Document, [string]$Fixture, [string]$Fla
 }
 
 try {
-    $needsCapture = -not $Cache -or @('F1-invocation-1', 'F1-invocation-2', 'F2-invocation-1', 'F2-invocation-2').Where({ -not (Test-Path -LiteralPath (Join-Path $Cache $_)) }).Count -gt 0
-    if ($needsCapture) {
-        & git clone -q --shared $Root $Clone
-        if ($LASTEXITCODE -ne 0) { throw 'could not create isolated capture repository' }
-        Copy-Item -LiteralPath (Join-Path $Root 'tests/capture-golden-baseline.sh') -Destination (Join-Path $Clone 'tests/capture-golden-baseline.sh') -Force
-        Copy-Item -LiteralPath (Join-Path $Root 'tests/capture-golden-baseline.ps1') -Destination (Join-Path $Clone 'tests/capture-golden-baseline.ps1') -Force
-        $cloneCanonical = Join-Path $Clone 'specs/epic-195-a7-compatibility/verification/golden-baseline/canonical'
-        Remove-Item -LiteralPath $cloneCanonical -Recurse -Force
-        Copy-Item -LiteralPath $Canonical -Destination $cloneCanonical -Recurse
-    }
-
     $targets = (Get-Content -Raw (Join-Path $Canonical 'manifest.json') | ConvertFrom-Json).targets
     foreach ($row in @('F1', 'F2')) {
         $fixture = if ($row -ceq 'F1') { build_fixture absent absent disabled-legacy valid none } else { build_fixture absent present disabled-legacy valid none }
         $Fixtures.Add($fixture)
-        $captureRoot = if ($Cache) { New-Item -ItemType Directory -Path $Cache -Force | Out-Null; $Cache } else { $Work }
+        $captureRoot = $Work
         $first = Join-Path $captureRoot "$row-invocation-1"
         $second = Join-Path $captureRoot "$row-invocation-2"
-        if (-not (Test-Path -LiteralPath $first)) { Invoke-FixedCapture $fixture $first }
-        if (-not (Test-Path -LiteralPath $second)) { Invoke-FixedCapture $fixture $second }
+        Invoke-FixedCapture $fixture $first
+        Invoke-FixedCapture $fixture $second
         foreach ($target in $targets) {
             $left = Join-Path $first $target.path
             $right = Join-Path $second $target.path
-            $golden = Join-Path $Canonical $target.path
+            $golden = Join-Path (Join-Path $second 'expected') $target.path
+            $firstExpected = Join-Path (Join-Path $first 'expected') $target.path
             if ($Mutation -ceq "$row`:$($target.name)") {
                 $mutatedRoot = Join-Path $Work "mutated-$row-$($target.name)"
                 Copy-Item -LiteralPath $first -Destination $mutatedRoot -Recurse
@@ -126,10 +101,10 @@ try {
                 [IO.File]::WriteAllBytes($mutatedPath, $mutatedBytes)
                 $left = $mutatedPath
             }
-            if ((Test-BytesEqual $left $right) -and (Test-BytesEqual $left $golden)) {
-                Add-Pass "$row $($target.name) is byte-identical across two fixed-environment invocations and canonical"
+            if ((Test-BytesEqual $left $right) -and (Test-BytesEqual $left $golden) -and (Test-BytesEqual $firstExpected $golden)) {
+                Add-Pass "$row $($target.name) is byte-identical across two fixed-environment invocations and independent expected bytes"
             } else {
-                Add-Fail "$row $($target.name) differs across invocation or canonical"
+                Add-Fail "$row $($target.name) differs across invocation or independent expected bytes"
                 if ($target.name -ceq 'install-result') {
                     Write-ManifestDiff $left $right "$row invocation"
                     Write-ManifestDiff $left $golden "$row canonical"
@@ -150,7 +125,8 @@ try {
             $first = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
             $second = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
             $expected = Resolve-ContractTrack (Join-Path $ProductRoot 'PLUGIN-CONTRACTS.md') $fixture $flag
-            if (($first -ceq $second) -and ($first -ceq $expected)) {
+            $oracle = if ($flag -ceq '--lite' -or ($flag -ceq 'none' -and $marker -ceq 'present')) { 'LITE' } else { 'FULL' }
+            if (($first -ceq $second) -and ($first -ceq $expected) -and ($first -ceq $oracle)) {
                 Add-Pass "CLI cell $cell resolves identically from both live product contracts"
             } else { Add-Fail "CLI cell $cell is inconsistent across live product contracts" }
         } catch {

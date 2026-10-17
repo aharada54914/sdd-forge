@@ -1,0 +1,165 @@
+[
+  {
+    "name": "unterminated flow sequence",
+    "content": "---\ntitle: [one, two\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "unterminated flow mapping",
+    "content": "---\ntitle: {one: two\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "unterminated quoted scalar",
+    "content": "---\ntitle: \"broken\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "duplicate mapping key",
+    "content": "---\ntitle: one\ntitle: two\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "invalid nested mapping",
+    "content": "---\ntitle:\n  first: one\n second: two\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "unknown executable tag",
+    "content": "---\ntitle: !!js/function function() {}\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "frontmatter sequence root",
+    "content": "---\n- one\n- two\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "flow sequence",
+    "content": "---\ntitle: [one, two]\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "title",
+        "value": [
+          "one",
+          "two"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "nested mapping",
+    "content": "---\ntitle:\n  first: one\n  second: two\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "title",
+        "value": {
+          "first": "one",
+          "second": "two"
+        }
+      }
+    ]
+  },
+  {
+    "name": "quoted scalar",
+    "content": "---\ntitle: \"one\"\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "title",
+        "value": "one"
+      }
+    ]
+  },
+  {
+    "name": "cyclic alias",
+    "content": "---\ntitle: &loop [*loop]\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "non-finite number",
+    "content": "---\ntitle: .inf\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "unsafe integer boundary",
+    "content": "---\nvalue: 9007199254740992\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "rounded unsafe integer",
+    "content": "---\nvalue: 9007199254740993\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "negative unsafe integer",
+    "content": "---\nvalue: -9007199254740993\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "hexadecimal unsafe integer",
+    "content": "---\nvalue: 0x20000000000001\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "exponent unsafe integer",
+    "content": "---\nvalue: 9.007199254740993e15\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "nested unsafe integer",
+    "content": "---\nvalue: [one, {count: 9007199254740993}]\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "unsafe integer mapping key",
+    "content": "---\n9007199254740993: value\n---\n# Heading\n",
+    "valid": false
+  },
+  {
+    "name": "safe integer limit",
+    "content": "---\nvalue: 9007199254740991\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "value",
+        "value": 9007199254740991
+      }
+    ]
+  },
+  {
+    "name": "negative safe integer limit",
+    "content": "---\nvalue: -9007199254740991\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "value",
+        "value": -9007199254740991
+      }
+    ]
+  },
+  {
+    "name": "quoted large integer",
+    "content": "---\nvalue: \"9007199254740993\"\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "value",
+        "value": "9007199254740993"
+      }
+    ]
+  },
+  {
+    "name": "finite fractional number",
+    "content": "---\nvalue: 1.25\n---\n# Heading\n",
+    "valid": true,
+    "frontmatter": [
+      {
+        "key": "value",
+        "value": 1.25
+      }
+    ]
+  }
+]

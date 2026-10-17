@@ -390,7 +390,7 @@ function Get-CandidateRootsForPath([string]$NormalizedPath) {
             if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
                 $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
                 $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$' -or
-                $suffix -cmatch '^domain/(context-map[.]md|domain-contract[.]json|aggregates/[^/]+[.]md)$' -or
+                $suffix -cmatch '^domain/[^/]+(/[^/]+)*$' -or
                 $suffix -cmatch '^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$') {
                 [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
             }
@@ -614,12 +614,12 @@ function Test-ManifestSuperset(
 }
 function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stage,
     [string]$RepositoryRoot, [string]$RecordedRoot) {
-    if ($Stage -cnotin @('spec','impl')) { return }
+    if ($Stage -cnotin @('spec','impl','task')) { return }
     $hasConditional = $false
     foreach ($reviewer in @($Contract.reviewers)) {
         foreach ($entry in @($reviewer.allowed_input_manifest)) {
             $relative = Get-RepositoryRelativePath ([string]$entry.path) $RepositoryRoot $RecordedRoot
-            if ($null -ne $relative -and $relative -cmatch '^(domain|design-system)/') {
+            if ($null -ne $relative -and $relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($Feature) + '/concept-test')) {
                 $hasConditional = $true
             }
         }

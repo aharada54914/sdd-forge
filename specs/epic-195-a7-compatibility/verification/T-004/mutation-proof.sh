@@ -8,6 +8,16 @@ work="$(mktemp -d "${TMPDIR:-/tmp}/t004-mutations.XXXXXX")"
 trap 'rm -rf "$work"' EXIT
 passed=0
 failed=0
+# Optional exhaustive sharding keeps the default full run unchanged. Each shard
+# still proves its isolated control is green before applying any mutations.
+shard_count="${MUTATION_SHARD_COUNT:-1}"
+shard_index="${MUTATION_SHARD_INDEX:-0}"
+[[ "$shard_count" =~ ^[1-9][0-9]*$ && "$shard_index" =~ ^(0|[1-9][0-9]*)$ ]] || {
+  printf '%s\n' 'MUTATION DRIVER ERROR: invalid shard integers' >&2; exit 2;
+}
+(( shard_index < shard_count )) || { printf '%s\n' 'MUTATION DRIVER ERROR: shard index out of range' >&2; exit 2; }
+pair_index=0
+selected_pairs=0
 
 normalize_diagnostic() {
   perl -0777 -pe 's/\e\[[0-?]*[ -\/]*[@-~]//g; s/^[ \t]*\|[ \t]?//mg; s/[[:space:]]+//g'
@@ -45,6 +55,9 @@ copy_surface() {
     tests/run-all.sh tests/run-all.ps1 tests/suite-inventory.posix \
     tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 \
     tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 \
+    tests/lib/markdown-ast-canonicalizer.mjs tests/fixtures/structural-frontmatter-cases.json \
+    tests/lib/structural-context-lite.py tests/resolve-project-context-block-check.py \
+    mcp/sdd-forge-mcp/package.json mcp/sdd-forge-mcp/package-lock.json \
     tests/lib/skip-allowlist-evaluator.sh tests/lib/skip-allowlist-evaluator.ps1 \
     tests/fixtures/skip-allowlist-manifest.json \
     plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md \
@@ -55,6 +68,14 @@ copy_surface() {
     mkdir -p "$destination/$(dirname "$relative")"
     cp "$ROOT/$relative" "$destination/$relative"
   done
+  # F5/F6 drive current Context/Resolver publication after A1+A6 activation.
+  # Preserve the complete live dependency surface in every isolated control.
+  mkdir -p "$destination/contracts" "$destination/plugins/sdd-quality-loop/scripts" "$destination/plugins/sdd-quality-loop/references"
+  cp -R "$ROOT/contracts/." "$destination/contracts"
+  cp -R "$ROOT/plugins/sdd-quality-loop/scripts/." "$destination/plugins/sdd-quality-loop/scripts"
+  cp -R "$ROOT/plugins/sdd-quality-loop/references/." "$destination/plugins/sdd-quality-loop/references"
+  # Parser code is isolated and mutable; its locked dependencies are read-only.
+  ln -s "$ROOT/mcp/sdd-forge-mcp/node_modules" "$destination/mcp/sdd-forge-mcp/node_modules"
   cp -R "$ROOT/tests/fixtures/structural-fixture-corpus" "$destination/tests/fixtures/"
   cp -R "$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates" \
     "$destination/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/"
@@ -67,10 +88,55 @@ update_json() {
   mv "$target.next" "$target"
 }
 
+# Exercise inactive skip branches independently of genuine merged dependencies.
+# The synthetic child of main is deliberately not an ancestor of main.
+deactivate_dependency_for_mutation() {
+  local target_root="$1" assertion="$2" inactive_tree inactive_commit
+  inactive_tree="$(git -C "$ROOT" rev-parse origin/main^{tree})"
+  inactive_commit="$(printf 'T-004 inactive activation fixture\n' | git -C "$ROOT" -c user.name=mutation -c user.email=mutation@example.invalid commit-tree "$inactive_tree" -p origin/main)"
+  update_json "$target_root/tests/fixtures/skip-allowlist-manifest.json" --arg commit "$inactive_commit" --arg assertion "$assertion" '(.[] | select(.assertion_id == $assertion) | .dependencies[0].merged_commit) = $commit'
+}
+
 require_source_change() {
   local before="$1" target="$2" after
   after="$(shasum -a 256 "$target" | awk '{print $1}')"
   [[ "$before" != "$after" ]] || { printf 'MUTATION DRIVER ERROR: source did not change: %s\n' "$target" >&2; exit 2; }
+}
+
+# All wrappers now dispatch to this one parser. Mutations must alter its
+# executable implementation, not obsolete snippets in the thin wrappers.
+mutate_canonicalizer() {
+  python3 - "$1" "$2" <<'PY_MUTATE'
+from pathlib import Path
+import sys
+case, filename = sys.argv[1:]
+path = Path(filename)
+source = path.read_text()
+replacements = {
+    'parser-frontmatter-lenient': (
+        "if (end === -1) throw new Error('unterminated frontmatter');",
+        "if (end === -1) { process.stdout.write('{}\\n'); process.exit(0); }"),
+    'parser-heading-lenient': ('(#{1,6})', '(#{1,})'),
+    'normalize-key-order': ('.sort(byteOrder)', ''),
+    'normalize-horizontal-space': (
+        "const horizontal = value => value.replace(/[ \\t]+/g, ' ').trim();",
+        'const horizontal = value => value;'),
+    'normalize-line-endings': (r".replace(/\r\n?/g, '\n')", ''),
+    'frontmatter-value-significance': (
+        'const mapping = normalize(parsed ?? {});',
+        "const mapping = Object.fromEntries(Object.keys(normalize(parsed ?? {})).map(key => [key, '']));"),
+    'heading-order-significance': (
+        'headings.push({ level: match[1].length, text: horizontal(match[2]) });',
+        "headings.push({ level: 1, text: 'constant' });"),
+    'parser-unsafe-integer': (
+        "if (Number.isInteger(value) && !Number.isSafeInteger(value)) throw new Error('unsafe YAML integer');",
+        "if (false) throw new Error('unsafe YAML integer');"),
+}
+old, new = replacements[case]
+if old not in source:
+    raise SystemExit('MUTATION DRIVER ERROR: canonicalizer source did not change: ' + case)
+path.write_text(source.replace(old, new))
+PY_MUTATE
 }
 
 mutate_case() {
@@ -133,47 +199,8 @@ mutate_case() {
       update_json "$corpus/f1-full.json" '(.artifacts[] | select(.path == "requirements.md").content) = "####### Broken\n"'
       printf '%s\n' '####### Broken' > "$target_root/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md"
       ;;
-    parser-frontmatter-lenient)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/if \(!failed && saw_frontmatter/if (0 && !failed && saw_frontmatter/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/if \(\$SawFrontmatter -and/if (\$false -and/' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    parser-heading-lenient)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/level > 6/0/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/ -or \$Heading\.Groups\[1\]\.Value\.Length -gt 6//' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    normalize-key-order)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/LC_ALL=C sort -o "\$work\/frontmatter\.tsv" "\$work\/frontmatter\.tsv"/: # key-sort mutation/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/    \[Array\]::Sort\(\$Keys, \[StringComparer\]::Ordinal\)/    \$Keys = @(\$Keys)/' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    normalize-horizontal-space)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/gsub\(\/\[ \\t\]\+\/, " ", value\)/gsub(\/__never__\/, " ", value)/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e "s/'\[ \\\\t\]\+'/'__never__'/" "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    normalize-line-endings)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/sub\(\/\\r\$\/, "", line\)/sub(\/__never__\$\/, "", line)/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/-creplace "\\r\\n\?", "`n"/-creplace "__never__", "`n"/' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    frontmatter-value-significance)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/value=normalized\(value\)/value=""/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/\$Frontmatter\.Add\(\$Key, \(Normalize-HorizontalWhitespace \$Entry\.Groups\[2\]\.Value\)\)/\$Frontmatter.Add(\$Key, "")/' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      ;;
-    heading-order-significance)
-      before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
-      perl -0pi -e 's/print level "\\t" text >> headings/print 1 "\\t" "constant" >> headings/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
-      perl -0pi -e 's/level = \$Heading\.Groups\[1\]\.Value\.Length; text = \$HeadingText/level = 1; text = "constant"/' "$target_root/tests/lib/markdown-ast-canonicalizer.ps1"
-      require_source_change "$before" "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
+    parser-frontmatter-lenient|parser-heading-lenient|normalize-key-order|normalize-horizontal-space|normalize-line-endings|frontmatter-value-significance|heading-order-significance|parser-unsafe-integer)
+      mutate_canonicalizer "$id" "$target_root/tests/lib/markdown-ast-canonicalizer.mjs"
       ;;
     artifact-order-normalization)
       before="$(shasum -a 256 "$target_root/tests/structural-compatibility.tests.sh" | awk '{print $1}')"
@@ -181,15 +208,22 @@ mutate_case() {
       perl -0pi -e 's/    \[Array\]::Sort\(\$ReorderedPaths, \[StringComparer\]::Ordinal\)\n//' "$target_root/tests/structural-compatibility.tests.ps1"
       require_source_change "$before" "$target_root/tests/structural-compatibility.tests.sh"
       ;;
-    f3-skip) update_json "$corpus/f3-advisory.json" '.skip.dependencies = []' ;;
+    f3-skip)
+      deactivate_dependency_for_mutation "$target_root" AC-042
+      update_json "$corpus/f3-advisory.json" '.skip.dependencies = []'
+      ;;
     f4-skip)
-      inactive_tree="$(git -C "$ROOT" rev-parse origin/main^{tree})"
-      inactive_commit="$(printf 'T-004 inactive activation fixture\n' | git -C "$ROOT" -c user.name=mutation -c user.email=mutation@example.invalid commit-tree "$inactive_tree" -p origin/main)"
-      update_json "$target_root/tests/fixtures/skip-allowlist-manifest.json" --arg commit "$inactive_commit" '(.[] | select(.assertion_id == "AC-007") | .dependencies[0].merged_commit) = $commit'
+      deactivate_dependency_for_mutation "$target_root" AC-007
       update_json "$corpus/f4-required.json" '.skip.dependencies = []'
       ;;
-    compound-without-a1) perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
-    compound-without-a6) perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
+    compound-without-a1)
+      deactivate_dependency_for_mutation "$target_root" AC-043
+      perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md"
+      ;;
+    compound-without-a6)
+      deactivate_dependency_for_mutation "$target_root" AC-043
+      perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md"
+      ;;
     runner-sh) perl -0pi -e 's/^tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/suite-inventory.posix" ;;
     runner-ps1) perl -0pi -e "s/^\\s*['\"]tests\\/structural-compatibility\\.tests\\.ps1['\"],?\\r?\\n//m" "$target_root/tests/run-all.ps1" ;;
     *) printf 'unknown mutation: %s\n' "$id" >&2; exit 2 ;;
@@ -201,11 +235,11 @@ run_one() {
   set +e
   if [[ "$runtime" == sh ]]; then
     suite="$target_root/tests/structural-compatibility.tests.sh"
-    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" bash "$suite" 2>&1)"
+    output="$(STRUCTURAL_MUTATION_TARGET="$expected" STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" bash "$suite" 2>&1)"
     rc=$?
   else
     suite="$target_root/tests/structural-compatibility.tests.ps1"
-    output="$(STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" pwsh -NoProfile -File "$suite" 2>&1)"
+    output="$(STRUCTURAL_MUTATION_TARGET="$expected" STRUCTURAL_COMPAT_REPO_ROOT="$target_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" pwsh -NoProfile -File "$suite" 2>&1)"
     rc=$?
   fi
   set -e
@@ -220,12 +254,36 @@ run_one() {
 
 run_pair() {
   local id="$1" expected="$2"
+  local ordinal="$pair_index"
+  pair_index=$((pair_index + 1))
+  (( ordinal % shard_count == shard_index )) || return 0
+  selected_pairs=$((selected_pairs + 1))
   local target_root="$work/$id"
   copy_surface "$target_root"
   mutate_case "$id" "$target_root"
   run_one "$id" sh "$expected" "$target_root"
   run_one "$id" ps1 "$expected" "$target_root"
 }
+
+# A mutation cannot prove coverage if the unmodified isolated surface is broken.
+for dependency in node python3 jq pwsh; do
+  command -v "$dependency" >/dev/null || { printf 'MUTATION DRIVER ERROR: %s is required\n' "$dependency" >&2; exit 2; }
+done
+[[ -d "$ROOT/mcp/sdd-forge-mcp/node_modules/js-yaml" ]] || {
+  printf '%s\n' 'MUTATION DRIVER ERROR: install the locked MCP package dependencies with npm ci first' >&2; exit 2;
+}
+control_root="$work/unmodified-control"
+copy_surface "$control_root"
+for runtime in sh ps1; do
+  control_suite="$control_root/tests/structural-compatibility.tests.$runtime"
+  if [[ "$runtime" == sh ]]; then command=(bash "$control_suite"); else command=(pwsh -NoProfile -File "$control_suite"); fi
+  if ! STRUCTURAL_MUTATION_TARGET="" STRUCTURAL_COMPAT_REPO_ROOT="$control_root" STRUCTURAL_COMPAT_EVIDENCE_REPO="$ROOT" "${command[@]}" > "$work/control-$runtime.log" 2>&1; then
+    cat "$work/control-$runtime.log" >&2
+    printf 'MUTATION DRIVER ERROR: unmodified isolated control failed [%s]\n' "$runtime" >&2
+    exit 2
+  fi
+  printf 'CONTROL-GREEN: isolated %s suite\n' "$runtime"
+done
 
 run_pair envelope-schema 'FAIL: F1 corpus envelope matches the shipped schema'
 run_pair envelope-state 'FAIL: F1 corpus envelope matches the shipped schema'
@@ -263,6 +321,7 @@ run_pair corpus-bad-heading 'FAIL: full requirements.md canonicalizes without pa
 run_pair corpus-and-template-bad-heading 'FAIL: full requirements.md canonicalizes without parse fallback'
 run_pair parser-frontmatter-lenient 'FAIL: malformed frontmatter is a hard failure'
 run_pair parser-heading-lenient 'FAIL: unrecognized heading grammar is a hard failure'
+run_pair parser-unsafe-integer 'FAIL: frontmatter rejects rounded unsafe integer without partial output'
 run_pair normalize-key-order 'FAIL: frontmatter order and permitted whitespace/line endings normalize'
 run_pair normalize-horizontal-space 'FAIL: frontmatter order and permitted whitespace/line endings normalize'
 run_pair normalize-line-endings 'FAIL: frontmatter order and permitted whitespace/line endings normalize'
@@ -274,6 +333,8 @@ run_pair f4-skip 'FAIL: F4 named skip metadata matches its acceptance dependency
 run_pair compound-without-a1 'FAIL: F5 compound named skip matches task and acceptance dependencies'
 run_pair compound-without-a6 'FAIL: F6 compound named skip matches task and acceptance dependencies'
 
+# These four runtime-specific checks belong to shard zero only.
+if (( shard_index == 0 )); then
 runner_root="$work/runner-sh"
 copy_surface "$runner_root"; mutate_case runner-sh "$runner_root"
 run_one runner-sh sh 'FAIL: Bash aggregate runner registers this shipped suite' "$runner_root"
@@ -291,8 +352,10 @@ run_one empty-product-root sh 'FAIL: required shipped product surface exists:' "
 run_one empty-product-root ps1 'FAIL: required shipped product surface exists:' "$empty_root"
 
 printf '%s\n' 'RESTORE-GREEN: Bash'
-bash "$SH_SUITE"
+STRUCTURAL_MUTATION_TARGET="" bash "$SH_SUITE"
 printf '%s\n' 'RESTORE-GREEN: PowerShell'
-pwsh -NoProfile -File "$PS_SUITE"
+STRUCTURAL_MUTATION_TARGET="" pwsh -NoProfile -File "$PS_SUITE"
+fi
+printf 'SHARD COVERAGE: %d/%d selected %d of %d pairs\n' "$shard_index" "$shard_count" "$selected_pairs" "$pair_index"
 printf 'MUTATION SUMMARY: %d killed, %d survived\n' "$passed" "$failed"
 [[ "$failed" -eq 0 ]]

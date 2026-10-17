@@ -11,6 +11,15 @@ import { parseActiveSpecDirectories, parseRequiredWorkflow } from "../../src/par
 import type { RequiredWorkflowStep } from "../../src/parsers/agents-md.js";
 import { makeTempSddRoot, writeFile } from "../test-helpers.js";
 import { makeRealRepoRoot } from "./test-helpers.js";
+import { listActiveSpecs } from "../../src/tools/core.js";
+
+test("real repo: Concept Test is discoverable through the active-spec tool", () => {
+  const result = listActiveSpecs(makeRealRepoRoot());
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.ok(result.data.specs.some((spec) =>
+    spec.feature === "sdd-domain-concept-test" && spec.path === "specs/sdd-domain-concept-test/"));
+});
 
 test("real repo: Active Spec Directories has at least 3 entries with feature/path", () => {
   const root = makeRealRepoRoot();

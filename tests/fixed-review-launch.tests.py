@@ -769,8 +769,15 @@ class RuntimeFilesTests(unittest.TestCase):
                 self.assertIn(SCRIPTS / 'fixed-review-inputs.py', files)
                 self.assertIn(root / 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py', files)
                 self.assertNotIn(root / 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', files)
-                self.assertEqual(root / 'contracts/domain-contract.v1.schema.json' in files,
-                                 stage != 'task')
+                for dependency in ('contracts/domain-contract.v1.schema.json',
+                                   'contracts/concept-test.v1.schema.json',
+                                   'contracts/approval-sidecar.schema.json',
+                                   'contracts/approver-registry.schema.json',
+                                   'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py',
+                                   'plugins/sdd-domain/scripts/validate-concept-test.py',
+                                   'plugins/sdd-domain/scripts/validate-domain-contract.sh',
+                                   'plugins/sdd-domain/scripts/validate-domain-contract.ps1'):
+                    self.assertIn(root / dependency, files)
                 self.assertEqual(SCRIPTS / 'validate-layer-traceability.py' in files, stage == 'task')
 
     def test_missing_and_symlink_dependencies_fail_closed(self):

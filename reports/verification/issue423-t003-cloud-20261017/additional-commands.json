@@ -1,0 +1,18 @@
+[
+  {
+    "command": [
+      "python3",
+      "reports/verification/issue423-t003-cloud-20261017/mutation-probe.py"
+    ],
+    "exit_code": 1,
+    "log": "mutation-probe.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tests/sdd-domain-multitarget-T-003.tests.py"
+    ],
+    "exit_code": 0,
+    "log": "t003-final.log"
+  }
+]

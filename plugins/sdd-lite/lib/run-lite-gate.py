@@ -194,7 +194,7 @@ def execute(args: argparse.Namespace) -> tuple[int, dict]:
         if not summary_path.is_file():
             raise RunnerError("capability-summary.yaml missing under active capability_enforcement")
         summary = _load_summary(summary_path)
-        if summary["full_upgrade_required"]:
+        if summary["full_upgrade_required"] and not args.full_gate_promotion:
             return 1, {"verdict": "FAIL", "reason": "full_upgrade_required: true", "checks": []}
     required = [] if summary is None else summary["required_lite_checks"]
     checks = []
@@ -213,12 +213,16 @@ def execute(args: argparse.Namespace) -> tuple[int, dict]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--summary")
+    parser.add_argument("--full-gate-promotion", action="store_true",
+                        help="Execute Summary checks inside an already-selected full quality gate, not the Lite gate")
     parser.add_argument("--enforcement", choices=("none", "advisory", "required"), required=True)
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--runtime", choices=("posix", "powershell"), required=True)
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT)
     parser.add_argument("--max-output-bytes", type=int, default=DEFAULT_MAX_OUTPUT)
     args = parser.parse_args()
+    if args.full_gate_promotion and args.enforcement == "none":
+        parser.error("full-gate promotion requires active capability enforcement")
     if args.timeout <= 0 or args.max_output_bytes <= 0:
         parser.error("--timeout and --max-output-bytes must be positive")
     try:

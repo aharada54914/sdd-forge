@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import sys
 import hashlib
 import shutil
@@ -70,16 +71,27 @@ class Inputs(unittest.TestCase):
         self.assertNotEqual(self.resolve(), before)
 
     def test_versions(self):
-        for version in ('v1', 'v2'):
-            self.domain(version)
-            self.assertEqual(self.resolve()['domain_status'], 'active')
-            self.assertEqual(len(self.resolve('spec')['inputs']), 2)
+        self.domain('v1')
+        self.assertEqual(self.resolve()['domain_status'], 'active')
+        self.assertEqual(len(self.resolve('spec')['inputs']), 2)
+        self.domain('v2')
+        with self.assertRaisesRegex(ValueError, 'concept-test.json'):
+            self.resolve()
 
     def test_invalid_schema_preserves_skip(self):
         self.domain()
         for raw in ('{}', '{', '{"schema":"domain-contract/v1","schema":"domain-contract/v1"}'):
             self.put('domain/domain-contract.json', raw)
             self.assertEqual(self.resolve()['domain_status'], 'skipped')
+
+    def test_concept_validator_loader_missing_blocks(self):
+        self.put('specs/example/concept-test.json', '{}')
+        unavailable = (None, importlib.util.spec_from_loader('conditional_concept', None))
+        for spec in unavailable:
+            with self.subTest(spec=spec), patch.object(
+                    module.importlib.util, 'spec_from_file_location', return_value=spec):
+                with self.assertRaisesRegex(ValueError, 'Concept Test validator loader unavailable'):
+                    self.resolve('quality')
 
     def test_schema_dependency_missing_blocks(self):
         self.domain()

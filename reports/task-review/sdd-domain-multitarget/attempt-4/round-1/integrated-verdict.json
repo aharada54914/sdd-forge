@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-domain-multitarget",
+  "run_id": "issue423-t004-amendment-provenance-20261017",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 4,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

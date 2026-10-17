@@ -81,25 +81,25 @@ grep -Fq 'persisted impl reviewer-a manifest is missing previous-round summary' 
 anchors() {
   cat <<'ANCHORS'
 # The flat contract predicates in the manifest jq filter.
-:482 validator .schema == "review-context-invocation/v2"
-:483 validator .input_mode == "file-manifest"
-:484 validator .fallback_mode == "none"
-:485 validator .read_only == true
-:486 validator .feature | type == "string" and test(
-:487 validator .sequence | type == "number" and floor == . and . >= 2
-:488 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
-:489 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
-:459 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+:488 validator .schema == "review-context-invocation/v2"
+:489 validator .input_mode == "file-manifest"
+:490 validator .fallback_mode == "none"
+:491 validator .read_only == true
+:492 validator .feature | type == "string" and test(
+:493 validator .sequence | type == "number" and floor == . and . >= 2
+:494 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+:495 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+:465 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
 
 # The optional quality-stage gate-report declaration: presence gate and shape.
-:466-471 validator if has("gate_report_declaration") then
-:466-471 validator (keys | sort) == ["path", "sha256"]
+:472-477 validator if has("gate_report_declaration") then
+:472-477 validator (keys | sort) == ["path", "sha256"]
 
 # The declared gate report must be canonical, symlink-free, a regular file
 # under reports/quality-gate/, and hash to the pinned value before any row is
 # read from it.
-:806-822 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
-:806-822 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+:816-832 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:816-832 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
 
 # Its `## Post-Fix Artifacts` rows are the second authorization source.
 :262-267 validator gate_report_output_is_declared() {
@@ -107,8 +107,8 @@ anchors() {
 
 # stage/role must be an authorized pair. The identically-shaped `case` inside
 # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
-:533-535 validator case "$stage:$role" in
-:533-535 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+:539-541 validator case "$stage:$role" in
+:539-541 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
 
 # No rows for the ledger's global-uniqueness check or for the line that prints
 # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
@@ -120,34 +120,34 @@ anchors() {
 
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
-:720 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:1312 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:728 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:1323 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
-:722 validator [[ "$sequence" -eq "$expected_sequence"
+:730 validator [[ "$sequence" -eq "$expected_sequence"
 
 # The record-hash construction a reviewer is told to recompute: the chain-walk
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
-:614 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:1300 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:620 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+:1310 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
-:775-788 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
-:775-788 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+:785-798 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:785-798 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
 # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
 # no symlink component. One row per clause the field table claims.
-:955-971 validator is_canonical_path "$path"
-:955-971 validator is_forbidden_review_output "$path"
-:955-971 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+:965-981 validator is_canonical_path "$path"
+:965-981 validator is_forbidden_review_output "$path"
+:965-981 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
 
 # Manifest hash equality against the file on disk.
-:1038-1041 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
-:1038-1041 validator actual_hash=$(sha256_file "$candidate")
+:1048-1051 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
+:1048-1051 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:1322-1334 validator '.records += [{
+:1333-1345 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
@@ -332,6 +332,49 @@ RCB_RUNTIMES=(bash:rcb_run_bash)
 if command -v pwsh >/dev/null 2>&1; then
   RCB_RUNTIMES+=(pwsh:rcb_run_pwsh)
 fi
+
+# Domain reviewer identities must pin their exact input set, including the
+# attempt/round precheck path. Reusing an old reservation for another round
+# must fail even when every rewritten current input hash is correct.
+for pair in "${RCB_RUNTIMES[@]}"; do
+  runtime="${pair%%:*}"; run_fn="${pair##*:}"
+  for role in a b; do
+    d="$RCB_TMP/domain-binding-$runtime-$role"
+    rcb_new_fixture "$d"
+    mkdir -p "$d/domain" "$d/reports/domain-review/attempt-1/round-1" "$d/reports/domain-review/attempt-2/round-1"
+    printf 'Domain-Model-Status: Pending\n' > "$d/domain/context-map.md"
+    printf '{}\n' > "$d/reports/domain-review/attempt-1/round-1/precheck-result.json"
+    cp "$d/reports/domain-review/attempt-1/round-1/precheck-result.json" "$d/reports/domain-review/attempt-2/round-1/precheck-result.json"
+    jq --arg role "domain-reviewer-$role" \
+      --arg model "$(rcb_sha256_of "$d/domain/context-map.md")" \
+      --arg precheck "$(rcb_sha256_of "$d/reports/domain-review/attempt-1/round-1/precheck-result.json")" \
+      '.stage="domain" | .role=$role | .feature="sdd-domain-model" |
+       .allowed_input_manifest=[{path:"domain/context-map.md",sha256:$model},
+       {path:"reports/domain-review/attempt-1/round-1/precheck-result.json",sha256:$precheck}]' \
+      "$d/manifest.json" > "$d/domain.json"
+    "$run_fn" "$d/domain.json" "$d" --reserve >/dev/null || fail "domain binding ($runtime/$role): reserve failed"
+    expected=$(jq -jr '[.allowed_input_manifest[] | .path + "\t" + .sha256] | join("\n")' "$d/domain.json" | rcb_sha256_text)
+    ledger="$d/reports/review-context/identity-ledger.json"
+    [[ "$(jq -r '.records[-1].allowed_inputs_sha256 // empty' "$ledger")" == "$expected" ]] ||
+      fail "domain binding ($runtime/$role): reservation did not bind its exact ordered inputs"
+    "$run_fn" "$d/domain.json" "$d" >/dev/null || fail "domain binding ($runtime/$role): unchanged verification failed"
+    rcb_append_record "$ledger" 3 host orchestrator RCB-later-run RCB-later-session
+    "$run_fn" "$d/domain.json" "$d" >/dev/null || fail "domain binding ($runtime/$role): later identity broke verification"
+    before=$(rcb_sha256_of "$ledger")
+    jq '.allowed_input_manifest[1].path="reports/domain-review/attempt-2/round-1/precheck-result.json"' "$d/domain.json" > "$d/replay.json"
+    jq '.allowed_input_manifest |= .[:1]' "$d/domain.json" > "$d/omitted.json"
+    printf 'Changed current content\n' > "$d/domain/context-map.md"
+    jq --arg hash "$(rcb_sha256_of "$d/domain/context-map.md")" '.allowed_input_manifest[0].sha256=$hash' "$d/domain.json" > "$d/rebound.json"
+    for mutation in replay omitted rebound; do
+      if out=$("$run_fn" "$d/$mutation.json" "$d" 2>&1); then
+        fail "domain binding ($runtime/$role): accepted $mutation"
+      fi
+      [[ "$out" == *"reserved input manifest changed"* ]] || fail "domain binding ($runtime/$role): wrong $mutation diagnostic: $out"
+      [[ "$(rcb_sha256_of "$ledger")" == "$before" ]] || fail "domain binding ($runtime/$role): verification changed ledger"
+    done
+    echo "ok: domain binding ($runtime/$role) rejects replay, omitted inputs and rebound content without changing reservations"
+  done
+done
 
 # --- TEST-RCB-001: reserve, then verify the SAME manifest without --reserve.
 for pair in "${RCB_RUNTIMES[@]}"; do

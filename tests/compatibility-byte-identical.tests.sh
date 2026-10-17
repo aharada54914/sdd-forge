@@ -7,10 +7,9 @@ source "$ROOT/tests/lib/fixture-matrix-builder.sh"
 
 CANONICAL="${T003_CANONICAL_UNDER_TEST:-$ROOT/specs/epic-195-a7-compatibility/verification/golden-baseline/canonical}"
 PRODUCT_ROOT="${T003_PRODUCT_ROOT_UNDER_TEST:-$ROOT}"
-CACHE="${T003_CAPTURE_CACHE:-}"
+# Historical cache directories must never suppress current-product execution.
 MUTATION="${T003_MUTATE_ASSERTION:-}"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/sdd-compatibility-byte.XXXXXX")"
-CLONE="$WORK/repository"
 # Canonical inventory asserted from manifest rows: deterministic-script-output,
 # exit-code, stdout-stderr, template-copy-result, schema-validator-result,
 # install-result, uninstall-result, generated-directory-listing, plugin-manifest.
@@ -30,26 +29,9 @@ trap cleanup EXIT
 ok() { printf 'ok: %s\n' "$1"; PASS=$((PASS + 1)); }
 fail() { printf 'FAIL: %s\n' "$1"; FAIL=$((FAIL + 1)); }
 
-copy_current_contract_to_clone() {
-  git clone -q --shared "$ROOT" "$CLONE" || return 1
-  cp -p "$ROOT/tests/capture-golden-baseline.sh" "$CLONE/tests/capture-golden-baseline.sh"
-  cp -p "$ROOT/tests/capture-golden-baseline.ps1" "$CLONE/tests/capture-golden-baseline.ps1"
-  rm -rf -- "$CLONE/specs/epic-195-a7-compatibility/verification/golden-baseline/canonical"
-  mkdir -p "$CLONE/specs/epic-195-a7-compatibility/verification/golden-baseline"
-  cp -R "$CANONICAL" "$CLONE/specs/epic-195-a7-compatibility/verification/golden-baseline/canonical"
-}
-
 fixed_capture() {
-  local fixture=$1 destination=$2 home="$fixture/.compat-home"
-  mkdir -p "$home"
-  if ! (
-    cd "$fixture" || exit 1
-    env -i PATH="$PATH" TZ=UTC LC_ALL=C HOME="$home" \
-      bash "$CLONE/tests/capture-golden-baseline.sh" --write-candidate >/dev/null
-  ); then
-    return 1
-  fi
-  cp -R "$CLONE/specs/epic-195-a7-compatibility/verification/golden-baseline/candidate/current" "$destination"
+  python3 "$ROOT/tests/lib/current-byte-capture.py" --product "$PRODUCT_ROOT" \
+    --fixture "$1" --destination "$2" --canonical "$CANONICAL" --runtime bash
 }
 
 compare_target() {
@@ -70,10 +52,10 @@ p.write_bytes(data)
 PY
     first="$mutated"
   fi
-  if cmp -s "$first/$relative" "$second/$relative" && cmp -s "$first/$relative" "$CANONICAL/$relative"; then
-    ok "$row $target is byte-identical across two fixed-environment invocations and canonical"
+  if cmp -s "$first/$relative" "$second/$relative" && cmp -s "$first/$relative" "$second/expected/$relative" && cmp -s "$first/expected/$relative" "$second/expected/$relative"; then
+    ok "$row $target is byte-identical across two fixed-environment invocations and independent expected bytes"
   else
-    fail "$row $target differs across invocation or canonical"
+    fail "$row $target differs across invocation or independent expected bytes"
   fi
 }
 
@@ -119,7 +101,7 @@ PY
 }
 
 compare_cli_cell() {
-  local cell=$1 flag marker fixture first second expected
+  local cell=$1 flag marker fixture first second expected oracle
   IFS='|' read -r flag marker <<<"$cell"
   if [[ "$marker" == present ]]; then
     fixture="$(build_fixture absent present disabled-legacy valid "$flag")"
@@ -127,10 +109,12 @@ compare_cli_cell() {
     fixture="$(build_fixture absent absent disabled-legacy valid "$flag")"
   fi
   FIXTURES+=("$fixture")
+  oracle=FULL
+  if [[ "$flag" == --lite || ( "$flag" == none && "$marker" == present ) ]]; then oracle=LITE; fi
   if first="$(resolve_contract_track "$PRODUCT_ROOT/plugins/sdd-ship/skills/ship/SKILL.md" "$fixture" "$flag")" &&
      second="$(resolve_contract_track "$PRODUCT_ROOT/plugins/sdd-ship/skills/ship/SKILL.md" "$fixture" "$flag")" &&
      expected="$(resolve_contract_track "$PRODUCT_ROOT/PLUGIN-CONTRACTS.md" "$fixture" "$flag")" &&
-     [[ "$first" == "$second" && "$first" == "$expected" ]]; then
+     [[ "$first" == "$second" && "$first" == "$expected" && "$first" == "$oracle" ]]; then
     ok "CLI cell $cell resolves identically from both live product contracts"
   else
     fail "CLI cell $cell is missing or inconsistent across live product contracts"
@@ -185,15 +169,6 @@ for target in json.load(open(sys.argv[1], encoding="utf-8"))["targets"]:
 PY
 )"
 
-needs_capture=1
-if [[ -n "$CACHE" && -d "$CACHE/F1-invocation-1" && -d "$CACHE/F1-invocation-2" && -d "$CACHE/F2-invocation-1" && -d "$CACHE/F2-invocation-2" ]]; then
-  needs_capture=0
-fi
-if [[ $needs_capture -eq 1 ]] && ! copy_current_contract_to_clone; then
-  printf 'FAIL: could not create isolated capture repository\n'
-  exit 1
-fi
-
 for row in F1 F2; do
   if [[ "$row" == F1 ]]; then
     fixture="$(build_fixture absent absent disabled-legacy valid none)"
@@ -201,16 +176,9 @@ for row in F1 F2; do
     fixture="$(build_fixture absent present disabled-legacy valid none)"
   fi
   FIXTURES+=("$fixture")
-  if [[ -n "$CACHE" ]]; then
-    mkdir -p "$CACHE"
-    first="$CACHE/$row-invocation-1"
-    second="$CACHE/$row-invocation-2"
-  else
-    first="$WORK/$row-invocation-1"
-    second="$WORK/$row-invocation-2"
-  fi
-  if { [[ -d "$first" ]] || fixed_capture "$fixture" "$first"; } && \
-     { [[ -d "$second" ]] || fixed_capture "$fixture" "$second"; }; then
+  first="$WORK/$row-invocation-1"
+  second="$WORK/$row-invocation-2"
+  if fixed_capture "$fixture" "$first" && fixed_capture "$fixture" "$second"; then
     while IFS=$'\t' read -r target relative; do
       compare_target "$row" "$target" "$relative" "$first" "$second"
     done <<<"$TARGET_ROWS"

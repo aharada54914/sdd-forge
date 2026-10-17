@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e396-85fc-7de1-b418-dec311425db9",
+  "host_session_id": "01a0e396-85fc-7de1-b418-dec311425db9",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "sha256": "ca580155674d636eb7302185e8ac511ace52f2d3328d6a67ecc8d51a2d106f54"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "5cd6d2354bcf71419d7f76184e8d37f63e8845b2a3deb6cd9534f6f70e23f856"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:26-42 のREQ-001～005は、受付条件、証拠検証、出力、履歴不変性、互換性を判定可能に定義している。同:75-115に閉record schema、認可8項目、循環しないdigest計算があり、acceptance-tests.md:7-113,123-174に具体的な正負の検証対象がある。Phase 1で必要な検証可能性を満たす。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:28-32 の各REQは同:38-42のAC-001～005へ対応し、acceptance-tests.md:7-113の各行がACとREQを明記する。明示的な復旧入口、限定された中断形状、認可・来歴、履歴保護、既存挙動の維持という目標に対応する受入条件がある。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:38-42は受付・拒否、生成ファイル、状態・履歴・ledgerの不変性、provenance消費、既存PASS挙動を観測対象とする。acceptance-tests.md:3,95-108は公開前拒否と途中公開失敗を分離し、終了コード、targetの有無、部分targetの再利用拒否、保存hashを具体的な判定基準にする。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:10,46-52はA-before-B中断のspec-stage復旧に限定し、他の中断形状、自動復旧、A単独verdict、通常reset変更、旧証拠・ledger・承認変更、UI・依存追加を除外する。A9の復旧先4/1と最大3roundも明記し、この準備段階では実装・レビュー起動を行わない境界が明確である。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:52-60,64,77-115にlock内再検証、contained nonsymlink paths、既存runtime要件、case-sensitiveな閉schema、認可のorigin確認とvalidatorの責務分離、hash bindingを定義している。AUTH-001は実行時の証拠必須条件であり、欠落時は実復旧を止める。acceptance-tests.md:48,89-101,109-111,163-174に対応する拒否・互換性検証計画がある。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:28-32,66-68の高risk項目はAC-001～005に対応する。acceptance-tests.md:14-40は中断形状、同:41-89,123-174は認可・schema・identity・hash、同:90-102はpath・競合・途中公開・履歴保護、同:103-113はprovenanceと両runtimeの回帰を検証する計画である。全行はPlannedで、実装済み・実行済みの証明として扱っていない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "launch boundaryが明示的に許可するproject rootの存在確認でdomain/が存在しないことを確認した。役割定義のskip条件に該当する。"
+    }
+  ]
+}

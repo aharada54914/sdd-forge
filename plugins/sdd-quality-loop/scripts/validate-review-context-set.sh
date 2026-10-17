@@ -337,14 +337,20 @@ implementation_input_is_declared() {
 conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
-  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
-      [[ "$path" == domain/* || "$path" == design-system/* ]]; then
+  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
+      [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
     case "$stage:$path" in
-      spec:domain/context-map.md|spec:domain/domain-contract.json|\
-      impl:domain/context-map.md|impl:domain/domain-contract.json|\
+      *:specs/"$feature"/concept-test*) ;;
+      *:domain/context-map.md|*:domain/domain-contract.json|\
       impl:design-system/design-tokens.json|impl:design-system/design-system.md|\
       impl:design-system/ui-patterns.md) ;;
-      *) [[ "$stage" == impl && "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] || return 1 ;;
+      *)
+        if [[ "$stage" != impl || ! "$path" =~ ^domain/aggregates/[^/]+\.md$ ]]; then
+          local concept_record="specs/$feature/concept-test.json"
+          jq -e --arg p "$concept_record" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null || return 1
+          jq -e --arg p "$path" --arg h "$expected_hash" 'any(.inputs[]; .path == $p and .sha256 == $h)' "$repository_root/$concept_record" >/dev/null 2>&1 || return 1
+        fi
+        ;;
     esac
     if [[ -n "$persisted_match" ]]; then
       [[ -n "$persisted_input_binding" ]]
@@ -401,7 +407,7 @@ path_is_authorized() {
         jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
-      [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
+      [[ "$path" =~ ^domain/(domain-story|event-storming|concept-model|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
         [[ "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] ||
         [[ "$path" == domain/domain-contract.json ]] ||
         [[ "$path" == plugins/sdd-domain/references/domain-review-calibration.md ]] ||
@@ -585,7 +591,7 @@ jq -e '
     ] + (if has("scratch_declaration_sha256") then ["scratch_declaration_sha256"] else [] end)
       + (if has("allowed_inputs_sha256") then ["allowed_inputs_sha256"] else [] end) | sort)) and
     (if has("allowed_inputs_sha256") then
-      (.stage == "spec" or .stage == "impl") and
+      (.stage == "spec" or .stage == "impl" or .stage == "task" or .stage == "quality" or .stage == "domain") and
       (.allowed_inputs_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
      else true end) and
     (if has("scratch_declaration_sha256") then
@@ -611,13 +617,14 @@ while IFS=$'\t' read -r record_sequence record_stage record_role record_run reco
   [[ "$record_previous" == - ]] && record_previous=''
   [[ "$record_sequence" -eq "$expected_sequence" && "$record_previous" == "$expected_previous" ]] ||
     fail IDENTITY 'canonical identity ledger chain is discontinuous'
-  computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous" | sha256_text)
+  canonical_record="$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
   if [[ "$record_binding" != - ]]; then
-    computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous|scratch-declaration-v1|$record_binding" | sha256_text)
+    canonical_record+="|scratch-declaration-v1|$record_binding"
   fi
   if [[ "$record_inputs" != - ]]; then
-    computed_hash=$(printf '%s' "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous|allowed-inputs-v1|$record_inputs" | sha256_text)
+    canonical_record+="|allowed-inputs-v1|$record_inputs"
   fi
+  computed_hash=$(printf '%s' "$canonical_record" | sha256_text)
   [[ "$computed_hash" == "$record_hash" ]] ||
     fail IDENTITY 'canonical identity ledger record hash is invalid'
   expected_previous=$record_hash
@@ -648,7 +655,8 @@ persisted_match=$(jq -c --arg run "$run_id" --arg session "$host_session_id" '
 # Canonical paths/hashes cannot contain tab/newline separators. Preserve order.
 input_binding=''
 persisted_input_binding=''
-if [[ "$stage" == spec || "$stage" == impl ]]; then
+if [[ "$stage" == spec || "$stage" == impl || "$stage" == domain ]] ||
+    jq -e --arg p "specs/$feature/concept-test.json" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null; then
   input_text=$(jq -jr '[.allowed_input_manifest[] | .path + "\t" + .sha256] | join("\n")' "$manifest") ||
     fail CONTRACT 'cannot compute reserved input binding'
   input_binding=$(printf '%s' "$input_text" | sha256_text)
@@ -740,7 +748,7 @@ fi
 # Issue #288: new reviews must bind existing investigation evidence. A
 # persisted identity is historical; a file created later was not its input.
 # Check fresh preflight as well as --reserve, without expanding task inputs.
-if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
+if [[ -z "$persisted_match" && "$stage" =~ ^(spec|impl|task|quality)$ ]]; then
   conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
     "${conditional_input_args[@]}") ||
     fail INPUT 'conditional review dependencies could not be resolved'
@@ -750,6 +758,8 @@ if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
       any($declared[]; .path == $required.path and .sha256 == $required.sha256))
   ' "$manifest" >/dev/null ||
     fail PATH "$role omits selected conditional review dependencies"
+fi
+if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
   investigation_path="specs/$feature/investigation.md"
   investigation_exists=false
   if [[ -n "$fixed_record" ]]; then
@@ -1012,7 +1022,7 @@ while IFS=$'\t' read -r path expected_hash; do
     content_base64=$(base64 < "$candidate") ||
       fail CONTRACT 'implementation input capture failed'
     if [[ "$path" == "$precheck_rel" || "$path" == "specs/$feature/design.md" ]]; then
-      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 >/dev/null 2>&1 ||
+      printf '%s' "$content_base64" | base64 -d | iconv -f UTF-8 -t UTF-8 2>/dev/null | cat >/dev/null ||
         fail CONTRACT 'implementation input cannot be read as strict UTF-8'
     fi
     if [[ "$path" == "$precheck_rel" ]]; then
@@ -1297,13 +1307,14 @@ SDD_SCRATCH_HISTORY_PY
 
 check_feature_scratch_history || fail PATH 'feature scratch-history check failed'
 
-record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256" | sha256_text)
-if [[ -n "$input_binding" && ( -z "$persisted_match" || -n "$persisted_input_binding" ) ]]; then
-  record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256|allowed-inputs-v1|$input_binding" | sha256_text)
-fi
+record_text="$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 if [[ -n "$scratch_binding" && ( -z "$persisted_match" || -n "$persisted_scratch_binding" ) ]]; then
-  record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256|scratch-declaration-v1|$scratch_binding" | sha256_text)
+  record_text+="|scratch-declaration-v1|$scratch_binding"
 fi
+if [[ -n "$input_binding" && ( -z "$persisted_match" || -n "$persisted_input_binding" ) ]]; then
+  record_text+="|allowed-inputs-v1|$input_binding"
+fi
+record_hash=$(printf '%s' "$record_text" | sha256_text)
 if $reserve; then
   lock_dir="$ledger.lock"
   mkdir "$lock_dir" 2>/dev/null ||

@@ -59,7 +59,7 @@ continue past a failed check.
    - The field is `Approved`: continue to step 3.
 3. **Read and validate `domain/domain-contract.json`.**
    Read the file and validate it against
-   `contracts/domain-contract.v1.schema.json`. Two failure sub-cases, both
+   `contracts/domain-contract.v2.schema.json`. Two failure sub-cases, both
    matching the Edge Case "`domain-contract.json` corrupt or schema-invalid:
    warn, skip sync, list the validation error in the bootstrap report":
    - The file does not exist, is not valid JSON, or fails to parse: record

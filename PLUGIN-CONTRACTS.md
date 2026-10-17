@@ -3,6 +3,39 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Read-only inspection through protection hooks
+
+The protection hooks allow file inspection independently of write protection.
+They classify every command in a pipeline or command list, treating quoted
+search patterns as data. Supported readers include `cat`, `ls`, `stat`,
+`head`, `tail`, `grep`, `rg`, `wc`, PowerShell `Get-Content` and related read
+cmdlets, and `sed -n '1,200p'` style print ranges. `cd` followed by inspection
+and the `rtk proxy` wrapper use the same classification.
+Single- and double-quoted parentheses, braces, angle brackets and glob patterns
+remain literal data; expansion through `$` or backticks inside double quotes
+does not qualify as a read.
+
+Unquoted `rg` and `sed` globs can expand repository filenames into executable
+or writing options, so they are denied unless options are explicitly terminated:
+use `rg -- pattern *`, `rg --no-config -- pattern *`, or `sed -n '1,200p' -- *`.
+A `--` consumed as another option's value is not an option terminator. Other
+read-only commands in the same pipeline or command list retain their own glob behavior.
+Unquoted globs combined with shell syntax the tokenizer cannot model are also denied.
+The `sed` script must be a literal print range; variable or command expansions
+cannot qualify for the glob exemption. Disagreement about quoted command boundaries
+is denied outright instead of falling through to the write guards.
+
+A read followed by a write, output redirection, executable substitution,
+`rg --pre` / `--hostname-bin`, and writing/executing `sed` programs do not qualify as read-only.
+Those commands still pass through the write guards, including agent-role,
+approval, and enforcement-file protection. Unrecognized shell programs retain
+the existing guard behavior. The emergency kill switch and malformed-payload
+checks still apply to reads. When `RIPGREP_CONFIG_PATH` is set in the hook
+process, `rg` must start with the `--no-config` argument because its configuration can launch
+external programs. This classification assumes the normal command binaries and
+the hook's environment; it does not replace the host sandbox or analyze a
+separately modified executable search path or shell environment.
+
 ## implement-tasks → quality-gate (v0.12.0+)
 
 **Source**: `plugins/sdd-implementation/skills/implement-tasks/SKILL.md`
@@ -207,8 +240,8 @@ Templates for all three artifacts live in
 ### What sdd-domain reads
 
 - `domain/` artifacts it owns and regenerates itself: `domain-story.md`,
-  `event-storming.md`, `ubiquitous-language.md`, `context-map.md`,
-  `aggregates/*.md`, `message-flow.md`, `c4-container.md`,
+  `event-storming.md`, `concept-model.md`, `ubiquitous-language.md`, `context-map.md`,
+  `aggregates/*.md`, `message-flow.md`,
   `domain-contract.json`.
 - `investigate-codebase`'s `specs/<feature>/investigation.md` output, read
   only by `domain-reverse` to build a candidate seed — never written to.
@@ -224,13 +257,12 @@ repository root (one per project, not per feature, distinct from
 per-feature `specs/<feature>/`):
 
 - `domain/domain-contract.json` — machine-readable contract. MUST validate
-  against `contracts/domain-contract.v1.schema.json` (`schema` const
-  `domain-contract/v1`). Regenerated from the approved Markdown artifacts
+  against `contracts/domain-contract.v2.schema.json` (`schema` const
+  `domain-contract/v2`). Regenerated from the approved Markdown artifacts
   after every stage change.
-- `domain/domain-story.md`, `domain/event-storming.md`,
+- `domain/domain-story.md`, `domain/event-storming.md`, `domain/concept-model.md`,
   `domain/ubiquitous-language.md`, `domain/context-map.md`,
-  `domain/aggregates/*.md`, `domain/message-flow.md`,
-  `domain/c4-container.md` — the seven-stage Markdown artifact set, each
+  `domain/aggregates/*.md`, `domain/message-flow.md` — the seven-stage Markdown artifact set, each
   checkpointed to disk before the next stage begins (resumable on
   interruption).
 - A `Domain-Model-Status` field (Pending / Approved) inside `domain/`,
@@ -269,10 +301,10 @@ per-feature `specs/<feature>/`):
   blocks a workflow, and existing workflows produce byte-identical
   artifacts (AC-010).
 - Cross-plugin file ownership: sdd-domain never reads another plugin's
-  files by relative filesystem path at runtime. Where a technical-default
-  basis cites an existing file (e.g. `c4-container.template.md`),
-  sdd-domain ships its own adapted copy under its own skill's
-  `templates/` rather than reading across the plugin boundary.
+  files by relative filesystem path at runtime. Its seven stage templates
+  are local to domain-interviewer. C4 architecture diagrams use bootstrap
+  templates and feature design/infra artifacts; `domain/c4-container.md`
+  is deprecated and not a required domain checkpoint or review input.
 
 ---
 

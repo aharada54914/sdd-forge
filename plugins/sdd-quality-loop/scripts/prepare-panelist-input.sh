@@ -578,8 +578,39 @@ $(cat "$1")
 }
 
 raw_content=""
+_ppi_domain_input=0
 
-if [ -d "$input_path" ]; then
+if [ -d "$input_path" ] && [ "$feature" = "sdd-domain-model" ] && [ "$task_id" = "DM-001" ]; then
+    _ppi_domain_input=1
+    # Domain review has no feature tasks tree: collect its canonical model,
+    # then use the same sanitization, digest and size guard as every bundle.
+    if [ ! -d "${project_root}/domain" ] || [ -L "${project_root}/domain" ] ||
+       [ "$(cd "$input_path" && pwd -P)" != "$(cd "${project_root}/domain" && pwd -P)" ]; then
+        printf 'prepare-panelist-input: domain review requires the canonical domain input directory\n' >&2
+        exit 1
+    fi
+    for _ppi_doc in domain-story.md event-storming.md concept-model.md         ubiquitous-language.md context-map.md message-flow.md domain-contract.json; do
+        _ppi_resolve_row_under_root "domain/${_ppi_doc}" "$project_root"
+        if [ "$_ppi_row_state" != "matched" ]; then
+            printf 'prepare-panelist-input: missing or unsafe canonical domain artifact: %s\n' "$_ppi_doc" >&2
+            exit 1
+        fi
+        _ppi_append_content "$_ppi_row_candidate" "domain/${_ppi_doc}"
+    done
+    for _ppi_aggregate in "${project_root}/domain/aggregates/"*.md; do
+        _ppi_aggregate_rel="domain/aggregates/${_ppi_aggregate##*/}"
+        _ppi_resolve_row_under_root "$_ppi_aggregate_rel" "$project_root"
+        if [ "$_ppi_row_state" != "matched" ]; then
+            printf 'prepare-panelist-input: missing or unsafe domain aggregate artifact\n' >&2
+            exit 1
+        fi
+        _ppi_append_content "$_ppi_row_candidate" "$_ppi_aggregate_rel"
+    done
+    _ppi_content_prefix="$raw_content"
+    _ppi_content_suffix=""
+    _ppi_elidable_index=""
+    raw_content=""
+elif [ -d "$input_path" ]; then
     _ppi_spec_dir="${project_root}/${spec_root}/${feature}"
 
     # 1. Spec documents (fixed order; only those that exist).
@@ -1252,7 +1283,9 @@ check_declared_outputs_completeness() {
     fi
 }
 
-check_declared_outputs_completeness
+if [ "$_ppi_domain_input" = "0" ]; then
+    check_declared_outputs_completeness
+fi
 
 # ── Sanitize via python3 ─────────────────────────────────────────────────────
 # Uses python3 for reliable regex; required for sha256 as well. Wrapped as

@@ -275,6 +275,17 @@ parity_check "wfi-022: backgrounded second command not exempt" 2 \
 parity_check "second-approval-guard: Write adds Second Approval" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"content\":\"## T-001\\nApproval: Draft\\nSecond Approval: Approved\"}}"
 
+# Shared read/write classification regressions also run through PowerShell.
+while IFS=$'\t' read -r scenario expected payload rg_config; do
+    RIPGREP_CONFIG_PATH="$rg_config" parity_check "read-only: $scenario" "$expected" "$payload"
+done < <(python3 - "$REPO_ROOT/tests/fixtures/guard/read-only.json" <<'PYCASES'
+import json, sys
+for case in json.load(open(sys.argv[1], encoding="utf-8")):
+    payload = {"tool_name": "bash", "tool_input": {"command": case["command"]}}
+    print(case["name"], case["exit"], json.dumps(payload), case.get("rg_config", ""), sep="\t")
+PYCASES
+)
+
 # ---------------------------------------------------------------------------
 # Scenario 7: Agent-role guard — write .toml without developer_instructions (deny — exit 2)
 # ---------------------------------------------------------------------------
@@ -620,6 +631,24 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
 # suite runner or a SKILL invokes matched no protected suffix. Enumeration
 # drifts silently, because a missing entry presents as "allowed" rather than as
 # an error. This is the check that makes the next omission fail loudly.
+# Concept review's executable enforcement chain must resist direct replacement,
+# including wrappers mentioned through brace syntax in skill documentation.
+for domain_gate in \
+    plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
+    plugins/sdd-domain/scripts/record-upstream-concept-issue.py \
+    plugins/sdd-domain/scripts/validate-domain-contract.sh \
+    plugins/sdd-domain/scripts/validate-domain-contract.ps1 \
+    plugins/sdd-domain/scripts/validate-concept-test.sh \
+    plugins/sdd-domain/scripts/validate-concept-test.ps1 \
+    plugins/sdd-domain/scripts/validate-concept-test.py \
+    plugins/sdd-domain/scripts/domain-review-precheck.ps1 \
+    plugins/sdd-domain/scripts/finalize-domain-review.py \
+    plugins/sdd-domain/scripts/finalize-domain-review.sh \
+    plugins/sdd-domain/scripts/finalize-domain-review.ps1; do
+    parity_check "concept enforcement: $domain_gate" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$domain_gate\",\"content\":\"replacement\"}}"
+done
+
 wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
 import glob, importlib.util, os
 spec = importlib.util.spec_from_file_location(

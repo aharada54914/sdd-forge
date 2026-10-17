@@ -1077,15 +1077,15 @@ manifest_recorded_hashes_for_path() {
 # root.
 workflow_conditional_paths() {
   local contract="$1" feature="$2" stage="$3" recorded="$4" selected
-  if [[ "$stage" != spec && "$stage" != impl ]]; then printf '[]\n'; return; fi
+  if [[ "$stage" != spec && "$stage" != impl && "$stage" != task ]]; then printf '[]\n'; return; fi
   # Legacy contracts do not acquire a dependency on today's conditional inputs.
-  if ! jq -e --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
+  if ! jq -e --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" --arg feature "$feature" '
     any(.reviewers[].allowed_input_manifest[].path;
       gsub("\\\\"; "/") |
       if startswith($repo) then .[($repo|length):]
       elif startswith($alias) then .[($alias|length):]
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
-      else . end | test("^(domain|design-system)/"))
+      else . end | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test"))
   ' "$contract" >/dev/null; then printf '[]\n'; return; fi
   selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
     --root "$REPO_ROOT" --feature "$feature" --stage "$stage") || return 1
@@ -1101,7 +1101,7 @@ recorded_repo_root() {
       test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
       test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
       test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$") or
-      test("^domain/(context-map[.]md|domain-contract[.]json|aggregates/[^/]+[.]md)$") or
+      test("^domain/[^/]+(/[^/]+)*$") or
       test("^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |

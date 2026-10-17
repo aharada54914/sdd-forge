@@ -66,10 +66,10 @@ fingerprint_path="${reports_base}/last-approved-fingerprint.json"
 declare -a canonical_paths=(
   "${domain_dir}/domain-story.md"
   "${domain_dir}/event-storming.md"
+  "${domain_dir}/concept-model.md"
   "${domain_dir}/ubiquitous-language.md"
   "${domain_dir}/context-map.md"
   "${domain_dir}/message-flow.md"
-  "${domain_dir}/c4-container.md"
   "${domain_contract}"
 )
 
@@ -81,9 +81,14 @@ for p in "${canonical_paths[@]}"; do
 done
 aggregates_dir="${domain_dir}/aggregates"
 [[ -d "$aggregates_dir" && ! -L "$aggregates_dir" ]] || fail "domain/aggregates/ must exist and not be a symlink"
-shopt -s nullglob
-aggregate_files=("$aggregates_dir"/*.md)
-shopt -u nullglob
+# Match the finalizer's UTF-8 byte ordinal order, regardless of caller locale.
+collect_aggregate_files() {
+  local LC_ALL=C
+  shopt -s nullglob
+  aggregate_files=("$aggregates_dir"/*.md)
+  shopt -u nullglob
+}
+collect_aggregate_files
 [[ ${#aggregate_files[@]} -ge 1 ]] || fail "domain/aggregates/ must contain at least one aggregate card"
 for p in "${aggregate_files[@]}"; do
   [[ -f "$p" && ! -L "$p" ]] || fail "aggregate card is not a regular non-symlink file: ${p#$repo_root/}"
@@ -110,7 +115,8 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 normalized_hash_of() {
   local path="$1"
   if [[ "$path" == "$context_map" ]]; then
-    sed 's/^Domain-Model-Status:[[:space:]]*.*/Domain-Model-Status: NORMALIZED/' "$path" | sha256_text
+    local carriage_return=$'\r'
+    sed "s/^Domain-Model-Status:[^${carriage_return}]*\\(${carriage_return}\\{0,1\\}\\)$/Domain-Model-Status: NORMALIZED\\1/" "$path" | sha256_text
   else
     sha256 "$path"
   fi

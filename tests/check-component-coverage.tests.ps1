@@ -375,7 +375,22 @@ $liveAddOk = $true
 foreach ($n in $newSuffixes) {
     if (($liveGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($liveGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $liveAddOk = $false }
 }
-$manifestOk = $true
+# Reuse the archived validator/renderer for precisely the six shared invariant
+# files; its self-test rejects removed protections, policy changes and stale output.
+$evolutionOut = & python3 (Join-Path $repoRoot 'tests/lib/guard-invariants-evolution.py') `
+    (Join-Path (Split-Path -Parent $hcManifest191) 'plugins/sdd-quality-loop') `
+    (Join-Path $repoRoot 'plugins/sdd-quality-loop') --self-test 2>&1
+$invariantEvolutionOk = $LASTEXITCODE -eq 0
+if (-not $invariantEvolutionOk) { Write-Output $evolutionOut }
+$evolvedPaths = @(
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
+)
+$manifestOk = $invariantEvolutionOk
 $manifestChecked = 0
 $liveChecked = 0
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
@@ -407,13 +422,13 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
     $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
     if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath)) { $manifestOk = $false }
         $liveChecked++
     }
     $manifestChecked++
 }
 if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
-    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked T-004-owned protected rows remain byte-identical live"
+    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked live protected rows are byte-identical or verified additive invariant evolution"
 } else {
     Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
 }

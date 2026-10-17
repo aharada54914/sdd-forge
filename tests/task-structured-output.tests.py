@@ -32,7 +32,8 @@ class TaskStructuredOutputTests(unittest.TestCase):
             [transport.BOUNDARY_PATH])] + commands
         with mock.patch.object(transport, 'receipt_control', return_value=control):
             for stage in ('spec', 'impl', 'task', 'quality'):
-                data = {'stage': stage, 'allowed_input_manifest': entries}
+                data = {'stage': stage, 'feature': 'example',
+                        'allowed_input_manifest': entries}
                 prompt = transport.control_prompt(data, 'receipt', 'c' * 64, strict=True,
                                                   invocation_path=invocation_path,
                                                   invocation_sha256='d' * 64)
@@ -43,7 +44,7 @@ class TaskStructuredOutputTests(unittest.TestCase):
                         self.assertIn(marker, prompt)
                     positions.append(prompt.index(marker))
                 self.assertEqual(positions, sorted(positions))
-            legacy = transport.control_prompt({'stage': 'spec',
+            legacy = transport.control_prompt({'stage': 'spec', 'feature': 'example',
                                                'allowed_input_manifest': entries},
                                               'receipt', 'c' * 64, strict=False)
             self.assertNotIn('1.\n```sh', legacy)

@@ -760,13 +760,13 @@ Assert-Eq $r.ExitCode 0 'RT002 nonce-bound challenge emitted'
 $j = Get-OutJson $r
 $expectedPatch = "*** Begin Patch`n*** Add File: sdd/.hook-canary-sentinel`n+sdd-hook-challenge:$($j.nonce)`n*** End Patch"
 Assert-Eq ($j.tool_call_template.'codex-cli'.tool_input.patch -ceq $expectedPatch) $true 'RT002 emitted patch binds exact fresh nonce and bytes'
-foreach ($case in @(@('claude-code', 'TEST-084'), @('copilot-cli', 'TEST-085'))) {
-  $template = $j.tool_call_template.($case[0])
-  $shapeMatches = (@($template.PSObject.Properties).Count -eq 2) -and
-    ($template.tool_name -ceq 'Write') -and (@($template.tool_input.PSObject.Properties).Count -eq 2) -and
-    ($template.tool_input.file_path -ceq 'sdd/.hook-canary-sentinel') -and ($template.tool_input.content -ceq '')
-  Assert-Eq $shapeMatches $true "$($case[1]) complete $($case[0]) template unchanged"
-}
+$template = $j.tool_call_template.'claude-code'
+$shapeMatches = (@($template.PSObject.Properties).Count -eq 2) -and
+  ($template.tool_name -ceq 'Write') -and (@($template.tool_input.PSObject.Properties).Count -eq 2) -and
+  ($template.tool_input.file_path -ceq 'sdd/.hook-canary-sentinel') -and ($template.tool_input.content -ceq '')
+Assert-Eq $shapeMatches $true 'TEST-084 complete Claude template unchanged'
+$template = $j.tool_call_template.'copilot-cli'
+Assert-Eq ($template.tool_name -ceq 'create' -and $template.tool_input.path -ceq 'sdd/.hook-canary-sentinel' -and $template.tool_input.file_text -ceq "sdd-hook-challenge:$($j.nonce)") $true 'TEST-085 native Copilot create template binds nonce'
 
 $payload = '{"schema":"sdd-codex-host-denial/v1","nonce":"' + $HostNonce + '","executed":true}'
 Set-Content -LiteralPath (Join-Path $T027 'cleanup-schema.json') -NoNewline -Encoding utf8 -Value $payload

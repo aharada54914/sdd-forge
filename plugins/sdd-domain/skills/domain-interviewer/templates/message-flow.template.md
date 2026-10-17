@@ -1,11 +1,11 @@
 # Domain Message Flow: {{domain_name}}
 
-Stage: 6 of 7 (Domain Message Flow)
+Stage: 7 of 7 (Domain Message Flow)
 Seed-Source: {{seed_source}}
 
 Traces how commands, events, and policies from the Event Storming stage
 (stage 2) flow across the bounded contexts and aggregates defined in the
-Context Map (stage 4) and Domain Model (stage 5) stages.
+Context Map (stage 5) and Domain Model (stage 6) stages.
 
 ## Message Catalog
 

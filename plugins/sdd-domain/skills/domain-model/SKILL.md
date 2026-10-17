@@ -132,11 +132,11 @@ once per stage that must be re-run; it never writes a `domain/` file itself.
 |---|---|---|
 | 1 | Domain Story | `domain/domain-story.md` |
 | 2 | Event Storming | `domain/event-storming.md` |
-| 3 | Ubiquitous Language | `domain/ubiquitous-language.md` |
-| 4 | Context Map | `domain/context-map.md` |
-| 5 | Domain Model (aggregates) | `domain/aggregates/<name>.md` |
-| 6 | Domain Message Flow | `domain/message-flow.md` |
-| 7 | C4 Container | `domain/c4-container.md` |
+| 3 | Concept Model | `domain/concept-model.md` |
+| 4 | Ubiquitous Language | `domain/ubiquitous-language.md` |
+| 5 | Context Map | `domain/context-map.md` |
+| 6 | Domain Model (aggregates) | `domain/aggregates/<name>.md` |
+| 7 | Domain Message Flow | `domain/message-flow.md` |
 
 (Restated from `domain-interviewer/SKILL.md`'s Seven-Stage Sequence table so
 this skill has no cross-skill runtime read; the two tables must be kept in
@@ -146,73 +146,39 @@ sync if either changes.)
 
 Let `N` be the edited stage identified in the precondition step above.
 
-1. **Snapshot upstream stages 1..N-1 before touching anything.** Record each
-   upstream stage artifact's content (or a hash of it) so the byte-identical
-   guarantee below is verifiable, not merely assumed.
-2. **Re-run stage N in confirmation mode.** Confirmation mode means: read
-   the existing artifact at stage N's canonical path, present its current
-   content to the human field by field (or section by section) exactly as
-   it stands, and ask the human to confirm or revise each field -- this is
-   never a blind regeneration from scratch and never a silent no-op; the
-   human's edit (or explicit re-confirmation with no change) is what
-   produces the new stage N content. Invoke `domain-interviewer` for this
-   step, instructing it explicitly to operate in confirmation mode against
-   the existing artifact rather than a fresh `new`-mode stage:
+1. **Snapshot upstream stages 1..N-1 before touching anything.** Record their
+   bytes or hashes. For Context Map, also record a comparison with only the
+   `Domain-Model-Status:` value normalized; this is the sole permitted upstream
+   change in this mode.
+2. **Reset `Domain-Model-Status` to `Pending` before any stage regeneration.**
+   Reset the field in `domain/context-map.md`, regardless of its previous value.
+   Never set Approved. This prevents a refreshed contract from retaining a
+   previous model's approval while its content is changing.
+3. **Re-run stage N and every downstream stage N+1..7 in confirmation mode.**
+   Visit them in order. Read the existing artifact, present its fields and ask
+   the human to confirm or revise them; never blindly regenerate. Invoke
+   `domain-interviewer` with `Mode: update (confirmation)`, the stage number,
+   and the existing artifact path. Only after confirmation replace that stage's
+   artifact and run the interviewer's valid-v2 projection procedure. An unchanged
+   human-confirmed stage still receives the same validation. In particular, an
+   edit to Concept Model (stage 3) revisits vocabulary, Context Map and aggregate
+   boundaries so no stale concept references survive downstream.
+4. **Verify upstream stages 1..N-1 remain byte-identical** against step 1,
+   excluding only Context Map's explicit Pending status reset. Any other drift
+   halts the update and is reported; do not silently accept it or restore over
+   unrelated work.
+5. **Regenerate `domain/domain-contract.json`** from the confirmed artifacts,
+   including `concepts[]`, term `concept_id` links and human-confirmed
+   `distinguished_from` reasons. Bump the patch version, mirror Pending, validate
+   against `contracts/domain-contract.v2.schema.json` with the shipped validator,
+   and atomically replace the previous valid contract only on success. On a
+   validation failure retain the previous valid projection, report it as stale,
+   and keep Context Map Pending until the inconsistency is repaired.
 
-   ```txt
-   Use the domain-interviewer skill.
-   Mode: update (confirmation)
-   Stage: <N>
-   Existing artifact: <path to stage N's canonical file>
-   ```
-
-3. **Write stage N's artifact**, replacing the prior content at its
-   canonical path once the human confirms (this is the one deliberate,
-   explicit overwrite `domain-interviewer`'s own create-only rule for `new`
-   runs defers to `update` mode).
-4. **Re-run every downstream stage N+1..7 in the same confirmation mode**,
-   in ascending stage order, one at a time -- each downstream stage's
-   existing content is re-presented for human approval because a change to
-   an upstream stage can invalidate assumptions a downstream stage made
-   (e.g., a renamed bounded context in stage 4 affects stage 5's aggregate
-   cards and stage 7's C4 containers). A downstream stage confirmed with no
-   change still counts as re-run: its artifact is re-written (even if
-   byte-identical to its prior content) so the interview's own regeneration
-   step (below) has a consistent, freshly-confirmed set to derive from.
-5. **Verify upstream stages 1..N-1 remain byte-identical** against the
-   snapshot from step 1. This skill never re-reads, re-presents, or rewrites
-   an upstream stage during `update` mode -- the verification step is a
-   safety check on this skill's own behavior, not a corrective pass; if a
-   discrepancy is ever found, halt and report it rather than silently
-   accepting drift in a stage that should have been untouched.
-6. **Regenerate `domain/domain-contract.json`** from the full, now-updated
-   set of stage artifacts (stage N and every downstream stage's new content,
-   upstream stages' unchanged content), following `domain-interviewer`'s own
-   regeneration procedure (read all stages, derive `contexts[]` /
-   `terms[]` / `aggregates[]` / `relations[]`, bump the patch version,
-   validate against `contracts/domain-contract.v1.schema.json`).
-7. **Reset `Domain-Model-Status` to `Pending`** in `domain/context-map.md`.
-   This is a state-machine transition this skill performs directly (it is
-   not delegated to `domain-interviewer`, which only ever defaults new
-   context-map artifacts to `Pending` on first creation): find the current
-   `Domain-Model-Status:` line and rewrite its value to `Pending`,
-   regardless of its prior value (`Pending`, `Reviewed`, or `Approved`).
-   This is the only field this skill writes directly; it never writes
-   `Approved` (only a human may -- AC-007) and it never writes any other
-   status value.
-
-If stage 4 (Context Map) is itself the edited stage N, step 7's status
-reset happens as part of stage 4's own re-confirmation write in step 2/3,
-not as a separate file operation -- there is exactly one
-`Domain-Model-Status:` line in the one `context-map.md` file, so "re-run
-stage 4 in confirmation mode" and "reset the status field" converge on the
-same write when N = 4. When N != 4, `context-map.md` is either upstream
-(N > 4, untouched, status reset applies to its otherwise-unchanged content)
-or downstream (N < 4, re-run in confirmation mode as part of step 4, and the
-status reset is folded into that same re-confirmation write). In every case
-there is exactly one write to `context-map.md` in a given `update` run, and
-it both carries the human-confirmed Context Map content and the `Pending`
-status reset together.
+The Context Map status reset is the only direct write this orchestration skill
+performs; all content confirmation and checkpoint writes belong to
+`domain-interviewer`. The status exception does not authorize any upstream
+content change or a human approval on behalf of the user.
 
 #### What "confirmation mode" is not
 
@@ -244,9 +210,7 @@ After an `update` run, report:
 ## Hard Rules
 
 - This skill never writes any `domain/` artifact directly except the single
-  `Domain-Model-Status:` line reset in `update` mode's step 7 (folded into
-  the one `context-map.md` write already happening as part of that mode's
-  confirmation pass). Every other `domain/` write is `domain-interviewer`'s
+  `Domain-Model-Status:` line reset in `update` mode's step 2. Every other `domain/` write is `domain-interviewer`'s
   responsibility.
 - This skill never sets `Domain-Model-Status: Approved`. That is exclusively
   a human action (AC-007); the hook guard (T-006) rejects an agent-authored

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+  "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/sdd-domain-multitarget/requirements.md",
+        "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+        "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/design.md",
+        "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/tasks.md",
+        "sha256": "d7330c004133ca96e02d0c8faabe878f61aa4d5bacbdce6a8e6cba1696d8dd89"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/traceability.md",
+        "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/ux-spec.md",
+        "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+        "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/infra-spec.md",
+        "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/security-spec.md",
+        "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/sdd-domain-multitarget/attempt-3/round-1/precheck-result.json",
+        "sha256": "4a574936afa051a81eb87ad52e073b8ba7a15f6348431e78b628ad04b3d1f399"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "reports/task-review/sdd-domain-multitarget/attempt-3/round-1/integrated-summary.json",
+        "sha256": "0b36e5f29dcbca1d53e27c40c76673ef9e5be3d77c8427f384aaccac9bc9c3fc"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:19-21,37-39のT-001/T-002は消費者インベントリと既存契約の境界fixtureでmediumが妥当。T-003は必須検証の選択とfail-closed境界（56-58,67-71）、T-004は承認・証跡に関わる互換性（78-80,89-92）、T-005はegress/consent境界（99-101,110-113）を扱うためhighが妥当。T-006は既存証跡契約への正規化、ホスト適合fixture、証跡集約（120-122,130-133）でありmediumが妥当。requirements.md:84-106と全層仕様の範囲では新たなprovider write、deployment、不可逆操作は含まれない。"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "highのT-003/T-004/T-005はRequired Workflow: tddを宣言し、Done Whenで変更前Red、変更後Green、両実行と独立reviewer verdictのimplementation report記録を要求する（tasks.md:58,72,80,93,101,114）。T-003は各永続resolver field・対応契約・mismatch testの事前証跡も要求する（71）。critical taskは存在しない。本判断は計画された証跡要件の確認であり、実行済みRed→Greenや独立レビューの成立を証明しない。"
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001は消費者インベントリ（tasks.md:15-31）、T-002は所有権境界fixture（33-50）、T-003は既存resolverと検証義務（52-72）、T-004は互換性（74-93）、T-005はUI provider選択とconsent/fallback（95-114）にまとまっている。T-006もprovider evidence、host conformance、release evidenceの3領域以内である（116-133）。各Done Whenは3～6項目で、単一関数の編集だけに分割されたタスク群や複数実装段階を一括するタスクはない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001は分類欠落・重複を失敗させるfixture（tasks.md:30、acceptance-tests.md:41-42）、T-002はprovider field越境のmismatch fixture（tasks.md:50、AC-002/AC-012）、T-003はunavailable/not-run/unknownとlegacy-requiredをBLOCKEDにするAC-003/AC-004（acceptance-tests.md:17,20）、T-004はabsent/invalid/stale/malformed contextとhybrid互換性（tasks.md:89-92、AC-005～AC-007）、T-005はdecline/off/provider unavailableでno-uploadとmanual fallbackを検証するAC-008/AC-009（acceptance-tests.md:26-32）を持つ。T-006のAC-010はmock/planから実provider状態やdeployment成功を主張できない負の条件を含む（33）。"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001のTEST-001a～001iは消費者別static inventory/review、T-002のTEST-002/012は所有権契約・schemaとread-only境界の静的検査で範囲と一致する（acceptance-tests.md:5-14,35）。T-003のintegrationはresolver selectionと別のgate評価を連携し、TEST-004は単体評価と連携評価を区別する（15-20）。T-004はbootstrapとdownstream consumersのcompatibility/regression（21-23）、T-005はprovider選択・consent記録・upload spyのintegration（24-32）、T-006はresult envelope/Coreとhost adaptersのcontract/integrationおよび独立したrelease checklist（33-37）である。対象ACとTEST-IDは各tasks.mdのAcceptance/Tests欄で明示されている。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "high taskすべてにRollback欄がある。T-003はcontext-presenceによるlegacy経路保持と追加resolver/fixture commitのrevert（tasks.md:60）、T-004はcompatibility commitのrevert、旧reader/writer契約復元、baseline fixture保持（82）、T-005は追加provider選択の無効化とlocal manual fallback復元（103）を指定する。infra-spec.md:20-21の追加契約変更のrevertという運用範囲と整合する。"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:29-31,47-50,67-72,89-93,110-114,130-133はインベントリ、境界fixture、resolver、互換性、UI provider、証跡/host適合に責務を分ける。既存bootstrapや契約consumerを共有し得る後続作業もT-001→T-002→T-003→T-004→T-005→T-006のBlockers（22,40,59,81,102,123）で順序付けされ、同時変更を要求していない。tasks.md:13も一度に1タスクの実装を要求する。"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002はT-001のcurrent consumer/source mappingを使って契約所有権の境界を固定し、T-003はそのprovider-neutral境界fixtureを基にresolverを接続する（tasks.md:29-30,40,47-50,59,67）。T-004はT-003の選択結果に対するlegacy/hybrid互換性を検証し、T-005はそのbootstrap互換性とtarget applicabilityを維持してUI provider境界を接続する（81,89-92,102,110-112）。T-006のrelease bundleはprovider consent/fallbackを含む全先行成果を集約するためT-005依存が必要（123,130-133、AC-014）。論理的成果のないblockerや統合に必要な順序の欠落は認められない。"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

@@ -50,6 +50,7 @@ ARTIFACTS = (
     "facet-manifest.schema.json",
     "capability-summary.schema.json",
     "context-projection.schema.json",
+    "selected-verification-plan.schema.json",
 )
 
 

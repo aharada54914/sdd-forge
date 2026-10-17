@@ -14,7 +14,7 @@
 # investigation.md produces a non-empty candidate seed with at least one
 # candidate context and one candidate term"):
 #
-#   1. The SKILL.md documents the exact candidate-seed contract (the five
+#   1. The SKILL.md documents the exact candidate-seed contract (the seven
 #      required section headings and the load-bearing field names) that
 #      T-002's domain-interviewer will need to consume later. This is a
 #      structural contract test against the SKILL.md text itself.
@@ -23,7 +23,7 @@
 #      matching investigate-codebase's real output template) is manually
 #      converted into a seed by hand-applying the SKILL.md's own documented
 #      mapping rules. That worked seed is asserted to be well-formed (has
-#      all five sections, at least one candidate_contexts entry, at least
+#      all seven sections, at least one candidate_contexts entry, at least
 #      one candidate_terms entry, and every candidate traces back to a real
 #      INV-NNN row that exists in the fixture).
 #
@@ -52,12 +52,23 @@ Describe "domain-reverse SKILL.md contract" {
         $script:skillText | Should Match "/sdd-bootstrap:investigate-codebase"
     }
 
-    It "declares all five required candidate-seed sections" {
+    It "declares all seven required candidate-seed sections" {
         $script:skillText | Should Match "## candidate_contexts"
         $script:skillText | Should Match "## candidate_terms"
+        $script:skillText | Should Match "## candidate_concepts"
+        $script:skillText | Should Match "## concept_smells"
         $script:skillText | Should Match "## candidate_event_hints"
         $script:skillText | Should Match "## candidate_aggregate_hints"
         $script:skillText | Should Match "## candidate_open_questions"
+    }
+
+    It "keeps concept identity human-confirmed and code as data" {
+        $script:skillText | Should Match 'human `same`, `different`, or `undecided`'
+        $script:skillText | Should Match "Never automatically split/merge/rename"
+        $script:skillText | Should Match "Hypothetical future-only scenarios do not justify"
+        $script:skillText | Should Match "untrusted data"
+        $script:skillText | Should Match "multi-role-model"
+        $script:skillText | Should Match "responsibility-conflict"
     }
 
     It "documents the load-bearing field names for each section" {
@@ -123,6 +134,9 @@ reservation business rule. No prior domain-model artifacts exist.
 | INV-006 | test-coverage | ordersController has 40% branch coverage | `src/api/ordersController.test.ts:1` | medium |
 | INV-007 | pattern | Repository pattern used consistently for data access | `src/repositories/OrderRepository.ts:1` | medium |
 | INV-008 | constraint | Unclear whether Catalog and Ordering are meant to be one context or two | `src/screens/CatalogScreen.tsx:1` | low |
+| INV-009 | business-rule | Order represents the buyer commitment and price agreed at checkout | `src/services/checkout.ts:12` | high |
+| INV-010 | business-rule | The same Order model is also used for independent parcel dispatch retries | `src/services/dispatch.ts:30` | high |
+| INV-011 | business-rule | Only Checkout may revise agreed prices but dispatch rewrites them on retry | `src/services/dispatch.ts:44` | high |
 
 ## Open Questions
 
@@ -171,6 +185,36 @@ reservation business rule. No prior domain-model artifacts exist.
                     term            = "Reserved Stock"
                     definition_hint = "Quantity of a widget held against an order line before it ships"
                     evidence        = @("INV-003")
+                }
+            )
+            candidate_concepts = @(
+                [PSCustomObject]@{
+                    name = "Purchase"
+                    context_hint = "ordering"
+                    definition_hint = "Buyer commitment with the agreed price"
+                    responsibilities = @("Keep the checkout price agreement")
+                    must_not_own = @("Parcel dispatch retry lifecycle")
+                    status = "Candidate"
+                    confidence = "high"
+                    evidence = @("INV-009", "INV-010")
+                }
+            )
+            concept_smells = @(
+                [PSCustomObject]@{
+                    kind = "multi-role-model"
+                    observation = "Order is used for buyer commitment and independent dispatch retries"
+                    question = "Are Purchase and Fulfillment the same, different, or undecided?"
+                    status = "Candidate"
+                    confidence = "high"
+                    evidence = @("INV-009", "INV-010")
+                },
+                [PSCustomObject]@{
+                    kind = "responsibility-conflict"
+                    observation = "Dispatch changes prices owned by Checkout"
+                    question = "Which confirmed concept owns price revisions?"
+                    status = "Candidate"
+                    confidence = "high"
+                    evidence = @("INV-009", "INV-011")
                 }
             )
             candidate_event_hints = @(
@@ -225,10 +269,12 @@ reservation business rule. No prior domain-model artifacts exist.
         $text | Should Match "\| INV-003 \| business-rule \|"
     }
 
-    It "worked seed has all five required sections present" {
+    It "worked seed has all seven required sections present" {
         $sectionNames = @($script:workedSeed.PSObject.Properties.Name)
         ($sectionNames -contains "candidate_contexts") | Should Be $true
         ($sectionNames -contains "candidate_terms") | Should Be $true
+        ($sectionNames -contains "candidate_concepts") | Should Be $true
+        ($sectionNames -contains "concept_smells") | Should Be $true
         ($sectionNames -contains "candidate_event_hints") | Should Be $true
         ($sectionNames -contains "candidate_aggregate_hints") | Should Be $true
         ($sectionNames -contains "candidate_open_questions") | Should Be $true
@@ -242,13 +288,24 @@ reservation business rule. No prior domain-model artifacts exist.
         $script:workedSeed.candidate_terms.Count | Should BeGreaterThan 0
     }
 
-    It "every candidate context name is kebab-case per domain-contract.v1 pattern" {
+    It "worked concepts and smells remain evidence-backed proposals" {
+        $script:workedSeed.candidate_concepts.Count | Should BeGreaterThan 0
+        $script:workedSeed.concept_smells.Count | Should Be 2
+        foreach ($candidate in @($script:workedSeed.candidate_concepts) + @($script:workedSeed.concept_smells)) {
+            $candidate.status | Should Be "Candidate"
+            $candidate.evidence.Count | Should BeGreaterThan 1
+        }
+        $script:workedSeed.concept_smells[0].kind | Should Be "multi-role-model"
+        $script:workedSeed.concept_smells[1].kind | Should Be "responsibility-conflict"
+    }
+
+    It "every candidate context name is kebab-case per domain-contract.v2 pattern" {
         foreach ($context in $script:workedSeed.candidate_contexts) {
             $context.name | Should Match "^[a-z][a-z0-9-]*$"
         }
     }
 
-    It "every candidate aggregate hint name is PascalCase per domain-contract.v1 pattern" {
+    It "every candidate aggregate hint name is PascalCase per domain-contract.v2 pattern" {
         foreach ($aggregate in $script:workedSeed.candidate_aggregate_hints) {
             $aggregate.name | Should Match "^[A-Z][A-Za-z0-9]*$"
         }
@@ -258,6 +315,8 @@ reservation business rule. No prior domain-model artifacts exist.
         $allCandidates = @()
         $allCandidates += $script:workedSeed.candidate_contexts
         $allCandidates += $script:workedSeed.candidate_terms
+        $allCandidates += $script:workedSeed.candidate_concepts
+        $allCandidates += $script:workedSeed.concept_smells
         $allCandidates += $script:workedSeed.candidate_event_hints
         $allCandidates += $script:workedSeed.candidate_aggregate_hints
         $allCandidates += $script:workedSeed.candidate_open_questions
@@ -276,6 +335,8 @@ reservation business rule. No prior domain-model artifacts exist.
         $allCandidates = @()
         $allCandidates += $script:workedSeed.candidate_contexts
         $allCandidates += $script:workedSeed.candidate_terms
+        $allCandidates += $script:workedSeed.candidate_concepts
+        $allCandidates += $script:workedSeed.concept_smells
         $allCandidates += $script:workedSeed.candidate_event_hints
         $allCandidates += $script:workedSeed.candidate_aggregate_hints
         $allCandidates += $script:workedSeed.candidate_open_questions
@@ -294,6 +355,8 @@ reservation business rule. No prior domain-model artifacts exist.
         $allCandidates = @()
         $allCandidates += $script:workedSeed.candidate_contexts
         $allCandidates += $script:workedSeed.candidate_terms
+        $allCandidates += $script:workedSeed.candidate_concepts
+        $allCandidates += $script:workedSeed.concept_smells
         $allCandidates += $script:workedSeed.candidate_event_hints
         $allCandidates += $script:workedSeed.candidate_aggregate_hints
         $allCandidates += $script:workedSeed.candidate_open_questions

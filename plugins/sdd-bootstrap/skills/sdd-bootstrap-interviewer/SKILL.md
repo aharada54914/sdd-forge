@@ -30,7 +30,11 @@ this file from its entry command:
 ## Intake And Investigation
 
 1. Accept a GitHub/GitLab issue URL or supplied requirement text.
-1a. Run `domain-sync`'s detection logic (project root, feature slug) before
+1a. For the full profile with `domain/`, gather the feature request and run the
+    `concept-test` skill first. Its deterministic validator must return
+    CONTINUE before domain-sync or any generation. BLOCK, DEFER, and REJECT
+    stop this flow. Do not substitute an LLM verdict for evidence validation.
+1b. Run `domain-sync`'s detection logic (project root, feature slug) before
     generating any Phase 1 artifact. If it reports a skip or warning line,
     proceed exactly as if `domain/` were absent — record the line and
     continue to step 2 with no other change to this flow. If it reports an
@@ -120,7 +124,8 @@ design catch-all.
   contract plus the design iteration loop) or `none` (no design-system
   integration). Record the choice as `ds_profile: <value>` in the
   `Design Tokens` section of `ux-spec.md`. On `custom`, run the
-  `design-sync-loop` skill: it ensures `design-system/` exists (seeding it
+  `design-sync-loop` skill and its `resolve-design-sync.py` decision boundary
+  before provider operations: it ensures `design-system/` exists (seeding it
   when absent), pulls design-system context from claude.ai/design, generates
   token-driven disposable HTML mockups under `specs/<feature>/mockups/`,
   resolves egress consent scoped to this feature and session before any
@@ -133,6 +138,28 @@ design catch-all.
   and continue. If supplied, follow `references/claude-design-workflow.md`;
   Mermaid remains canonical and the step remains manual and optional.
 - LITE excludes this section and produces no layer documents.
+
+## Architecture diagrams
+
+C4 belongs to the architecture decisions of Phase 1, not to the domain-model
+interview. When the approved requirements need a context, container or component
+view, use this skill's `templates/c4-context.template.md`,
+`templates/c4-container.template.md` or `templates/c4-component.template.md` and
+place the relevant diagram in the feature's `design.md` or `infra-spec.md`.
+Choose only the levels that explain an actual system boundary or deployment
+responsibility; C4 is not a mandatory extra domain artifact or review gate.
+
+Use confirmed domain contexts/concepts as logical inputs when available. A
+bounded context or concept is not automatically a deployable container; record
+the reason for any mapping in the architecture view. Keep technology, runtime,
+external-system and deployment choices here. Domain Story, Concept Model and
+Context Map remain the domain lane's sources of meaning and ownership.
+
+The old `domain/c4-container.md` output is deprecated as a domain checkpoint.
+It is not required for domain authoring, resume, update or review. An existing
+file may be read as historical architecture input; do not delete it or copy it
+into new canonical outputs automatically. The active C4 templates and future
+architecture authoring are owned by bootstrap.
 
 ## Preflight
 

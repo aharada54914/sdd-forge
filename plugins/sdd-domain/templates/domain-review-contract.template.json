@@ -1,0 +1,38 @@
+{
+  "schema": "domain-review-contract/v1",
+  "stage": "domain",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "<run_id>",
+  "host_session_id": "<host_session_id>",
+  "input_sha256": "<input_sha256>",
+  "calibration_sha256": "<calibration_sha256>",
+  "precheck_sha256": "<precheck_sha256>",
+  "verdict": "<verdict>",
+  "warningCount": 0,
+  "findings": {
+    "Critical": 0,
+    "Major": 0,
+    "Minor": 0
+  },
+  "reviewers": [
+    {
+      "role": "domain-reviewer-a",
+      "run_id": "<actual-native-run>",
+      "host_session_id": "<actual-native-session>",
+      "sequence": 2,
+      "invocation_sha256": "<sha256>",
+      "output_sha256": "<sha256>"
+    },
+    {
+      "role": "domain-reviewer-b",
+      "run_id": "<actual-native-run>",
+      "host_session_id": "<actual-native-session>",
+      "sequence": 3,
+      "invocation_sha256": "<sha256>",
+      "output_sha256": "<sha256>"
+    }
+  ],
+  "cross_model_required": true,
+  "human_approval": "Pending"
+}

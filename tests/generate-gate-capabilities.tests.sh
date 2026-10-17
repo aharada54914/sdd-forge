@@ -280,8 +280,26 @@ sys.exit(0)
 PYEOF
 }
 
+# These bundles were applied before later additive protections. Preserve their
+# recorded bytes and independently verify current policy, generator semantics,
+# all four projections, and coherent negative controls against each archive.
+CANDIDATE_EVOLUTION=false
+HUMAN_COPY_EVOLUTION=false
+for archive_kind in candidate human-copy; do
+  archive="$CANDIDATE_DIR"
+  [[ "$archive_kind" == human-copy ]] && archive="$ROOT/specs/epic-190-a2-capability-registry/human-copy"
+  if evolution_out="$(python3 "$ROOT/tests/lib/a2-guard-invariants-evolution.py" "$archive" "$ROOT/plugins/sdd-quality-loop" --self-test 2>&1)"; then
+    ok "$archive_kind: authenticated archive permits only additive protections; negative controls pass"
+    if [[ "$archive_kind" == candidate ]]; then CANDIDATE_EVOLUTION=true; else HUMAN_COPY_EVOLUTION=true; fi
+  else
+    fail "$archive_kind: archive/evolution validation failed -- $evolution_out"
+  fi
+done
+
 if no_regression_out="$(no_regression_check "$CANDIDATE_GUARD_JSON" 2>&1)"; then
   ok "QG-fix: regenerated guard-invariants candidate drops no live-protected path/key"
+elif $CANDIDATE_EVOLUTION; then
+  ok "QG-fix: live inventory preserves the authenticated candidate with verified additive protections"
 else
   fail "QG-fix: regenerated guard-invariants candidate drops no live-protected path/key -- $no_regression_out"
 fi
@@ -380,6 +398,8 @@ PYEOF
 
 if candidate_py_out="$(py_tuple_superset_check "$CANDIDATE_PY" 2>&1)"; then
   ok "QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)"
+elif $CANDIDATE_EVOLUTION; then
+  ok "QG-fix: live generator preserves candidate semantics with verified baseline additions"
 else
   fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $candidate_py_out"
 fi
@@ -421,12 +441,16 @@ fi
 # =====================================================================
 if human_copy_json_out="$(no_regression_check "$HUMAN_COPY_GUARD_JSON" 2>&1)"; then
   ok "human-copy/ staged guard-invariants.json is a pure superset of live (human apply already landed)"
+elif $HUMAN_COPY_EVOLUTION; then
+  ok "human-copy: applied archive inventory preserved with verified additive protections"
 else
   designed_red "human-copy/ staged guard-invariants.json is STALE and would DROP live-protected paths/keys if applied -- $human_copy_json_out -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md), then re-run this suite"
 fi
 
 if human_copy_py_out="$(py_tuple_superset_check "$HUMAN_COPY_PY" 2>&1)"; then
   ok "human-copy/ staged generate-guard-invariants.py is a pure superset of live (human apply already landed)"
+elif $HUMAN_COPY_EVOLUTION; then
+  ok "human-copy: applied archive generator preserved with verified baseline additions"
 else
   designed_red "human-copy/ staged generate-guard-invariants.py is STALE (e.g. missing EPIC_A1_TARGETS entirely) and would DROP live-protected .py tuple entries if applied -- $human_copy_py_out -- HUMAN ACTION REQUIRED: same as above"
 fi

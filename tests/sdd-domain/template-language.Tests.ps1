@@ -34,11 +34,11 @@ $templatesDir = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-inte
 $templateNames = @(
     "domain-story.template.md",
     "event-storming.template.md",
+    "concept-model.template.md",
     "ubiquitous-language.template.md",
     "context-map.template.md",
     "aggregate.template.md",
-    "message-flow.template.md",
-    "c4-container.template.md"
+    "message-flow.template.md"
 )
 
 # A character is "ASCII" for this check when its code point is <= 0x7E
@@ -124,7 +124,7 @@ Describe "ubiquitous-language.template.md structural requirements (AC-013)" {
     }
 
     It "the Terms table header declares canonical, JA, and forbidden-synonyms columns together in one row" {
-        $script:ulText | Should Match "\| Canonical Term \(EN\) \| JA \| Definition \| Forbidden Synonyms \| Context \|"
+        $script:ulText | Should Match "\| Canonical Term \(EN\) \| JA \| Definition \| Forbidden Synonyms \| Context \| Concept ID \|"
     }
 
     It "documents that the canonical column, not the JA column, is what domain-contract.json stores" {
@@ -185,15 +185,15 @@ Describe "aggregate.template.md covers the Data Plan axes (design.md)" {
     }
 }
 
-Describe "c4-container.template.md is domain-interviewer's own adapted copy" {
+Describe "C4 template belongs to bootstrap architecture" {
 
     BeforeAll {
-        $script:c4Path = Join-Path $templatesDir "c4-container.template.md"
+        $script:c4Path = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md"
         $script:c4Text = Get-Content -Raw -Encoding UTF8 -LiteralPath $script:c4Path
     }
 
-    It "exists under domain-interviewer's own templates directory, not sdd-bootstrap's" {
-        $script:c4Path | Should Match ([regex]::Escape("plugins/sdd-domain/skills/domain-interviewer/templates/c4-container.template.md").Replace('/', '[/\\]'))
+    It "exists only in bootstrap architecture" {
+        $script:c4Path | Should Match ([regex]::Escape("plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md").Replace('/', '[/\\]'))
     }
 
     It "retains the generic C4Container mermaid structure it was adapted from" {
@@ -201,7 +201,7 @@ Describe "c4-container.template.md is domain-interviewer's own adapted copy" {
         $script:c4Text | Should Match "\{\{system_name\}\}|\{\{domain_name\}\}"
     }
 
-    It "adds domain-interviewer-specific traceability back to the Context Map stage" {
-        $script:c4Text | Should Match "Context-to-Container Mapping"
+    It "retains logical-domain to deployment traceability" {
+        $script:c4Text | Should Match "Logical-to-Deployment Mapping"
     }
 }

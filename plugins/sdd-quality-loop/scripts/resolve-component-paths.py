@@ -154,6 +154,8 @@ def _parse_scalar(raw: str):
     # into a general flow-style YAML implementation.
     if s == "[]":
         return []
+    if s in ("true", "false"):
+        return s == "true"
     if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
         return s[1:-1]
     if len(s) >= 2 and s[0] == "'" and s[-1] == "'":
@@ -459,6 +461,65 @@ def _as_str_list(value, field: str) -> List[str]:
     return out
 
 
+def validate_characteristic_overrides(data: dict) -> None:
+    """Validate scoped classifications without broadening path ownership."""
+    owners = [(entry, False) for entry in data.get("components", [])]
+    owners += [(entry, True) for entry in data.get("shared_paths", [])]
+    allowed = {id(entry) for entry, shared in owners
+               if isinstance(entry, dict) and (not shared or entry.get("classification") == "cross-cutting")}
+
+    def check_placement(node):
+        if isinstance(node, dict):
+            if "characteristic_overrides" in node and id(node) not in allowed:
+                raise ConfigError("characteristic_overrides must belong to a component or cross-cutting rule")
+            for child in node.values():
+                check_placement(child)
+        elif isinstance(node, list):
+            for child in node:
+                check_placement(child)
+
+    check_placement(data)
+    for owner, shared in owners:
+        overrides = owner.get("characteristic_overrides", [])
+        if not isinstance(overrides, list):
+            raise ConfigError("characteristic_overrides must be a list")
+        seen = set()
+        for entry in overrides:
+            if not isinstance(entry, dict) or set(entry) != {"scope", "characteristic", "value", "rationale"}:
+                raise ConfigError("override requires exactly scope, characteristic, value, rationale")
+            scope = entry["scope"]
+            if not isinstance(scope, str) or not scope or entry["characteristic"] not in ("credential_bearing", "release_write"):
+                raise ConfigError("invalid override scope or characteristic")
+            # Both override-only baselines are false; false is a forbidden no-op.
+            if entry["value"] is not True:
+                raise ConfigError("override must change the false baseline to boolean true")
+            rationale = entry["rationale"]
+            if not isinstance(rationale, str) or not rationale.strip() or rationale.splitlines() != [rationale]:
+                raise ConfigError("override rationale must be a nonempty single line")
+            identity = (scope, entry["characteristic"])
+            if identity in seen:
+                raise ConfigError("duplicate characteristic override")
+            seen.add(identity)
+            if shared:
+                if owner.get("classification") != "cross-cutting" or scope != owner.get("pattern"):
+                    raise ConfigError("shared override scope must equal its cross-cutting pattern")
+            else:
+                if "\\" in scope or any(ord(ch) < 32 for ch in scope) or any(part in ("", ".", "..") for part in scope.split("/")) or "*" in scope:
+                    raise ConfigError("component override scope must be a relative literal path prefix")
+                validate_and_normalize_pattern(scope)
+                paths = owner.get("paths", {})
+                includes = paths.get("include", [])
+                excludes = paths.get("exclude", [])
+                if not any(pattern.endswith("/**") and pattern_matches(validate_and_normalize_pattern(pattern), scope)
+                           for pattern in includes):
+                    raise ConfigError("override scope is outside the component include set")
+                for pattern in excludes:
+                    normalized = validate_and_normalize_pattern(pattern)
+                    prefix = normalized.split("*", 1)[0].rstrip("/")
+                    if pattern_matches(normalized, scope) or prefix == scope or prefix.startswith(scope + "/") or scope.startswith(prefix + "/"):
+                        raise ConfigError("override scope intersects an excluded path")
+
+
 def load_config_dict(data: dict) -> Config:
     if not isinstance(data, dict):
         raise ConfigError("config must be a mapping")
@@ -530,6 +591,7 @@ def load_config_dict(data: dict) -> Config:
                     )
                 shared_paths.append(SharedPathEntry(pattern, comp_list, None))
 
+    validate_characteristic_overrides(data)
     return Config(components, shared_paths, data)
 
 

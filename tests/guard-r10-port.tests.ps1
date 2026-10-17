@@ -181,6 +181,13 @@ Assert-Parity "r10 file-write: claude-hooks.json"          2 '{"tool_name":"writ
 Assert-Parity "r10 apply_patch: sdd-hook-guard.py"         2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+x\n*** End Patch"}}'
 Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"write","tool_input":{"file_path":"foo/../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
 
+# The domain finalizer's Python master and both packaged wrappers are gates.
+foreach ($suffix in @('py', 'sh', 'ps1')) {
+    $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"
+    $payload = @{ tool_name = 'write'; tool_input = @{ file_path = $finalizerPath; content = 'replacement' } } | ConvertTo-Json -Compress
+    Assert-Parity "r10 domain finalizer: $suffix" 2 $payload
+}
+
 # R-10 exhaustive protected-table coverage (RT-20260712-002): one write-denial
 # fixture for every ProtectedGateSuffixes entry not already covered above, so
 # the corpus exercises every protected suffix class rather than a sample
@@ -254,6 +261,144 @@ Assert-Parity "impl-review edit: PASS verdict -> allow"             0 '{"tool_na
 Assert-CopilotParity "copilot-emit: r10 write to guard -> deny" "deny"  '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
 Assert-CopilotParity "copilot-emit: cd+rm guard -> deny"        "deny"  '{"tool_name":"bash","tool_input":{"command":"cd plugins/sdd-quality-loop/scripts && rm sdd-hook-guard.py"}}'
 Assert-CopilotParity "copilot-emit: write src/main.py -> allow" "allow" '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
+
+# Native lower-case Copilot input: exact names, typed args, one final decision.
+$native = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "view"; toolArgs = @{ path = "src/main.py" } }
+Assert-CopilotParity "native view object -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = '{"path":"src/main.py"}'
+Assert-CopilotParity "native view JSON string -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "create"
+$native.toolArgs = @{ path = "src/main.py"; file_text = "safe" }
+Assert-CopilotParity "native create safe write -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"; file_text = "x" }
+Assert-CopilotParity "native create protected -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "specs/feat-noverdict/tasks.md"; file_text = "Approval: Approved" }
+Assert-CopilotParity "native create approval increase -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py"; content = "x" }
+Assert-CopilotParity "native create wrong content key -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py"; file_text = 1 }
+Assert-CopilotParity "native create wrong file_text type -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ file_text = "x" }
+Assert-CopilotParity "native create missing path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = 1; file_text = "x" }
+Assert-CopilotParity "native create nonstring path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "View"
+$native.toolArgs = @{ path = "src/main.py" }
+Assert-CopilotParity "native miscased name -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "edit"
+Assert-CopilotParity "native unknown tool -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "view"
+$native.toolArgs = '[{"path":"src/main.py"}]'
+Assert-CopilotParity "native array args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = '{bad-json'
+Assert-CopilotParity "native malformed JSON args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py" }
+$nativeJson = $native | ConvertTo-Json -Compress -Depth 6
+Assert-CopilotParity "native singleton envelope array -> deny" "deny" ("[" + $nativeJson + "]")
+foreach ($number in @("NaN", "Infinity", "-Infinity", "1e400")) {
+    $invalidTimestamp = '{"sessionId":"synthetic","timestamp":' + $number + ',"cwd":".","toolName":"view","toolArgs":{"path":"src/main.py"}}'
+    Assert-CopilotParity "native nonfinite timestamp $number -> deny" "deny" $invalidTimestamp
+}
+$native["correlationId"] = "metadata-only"
+Assert-CopilotParity "native extra metadata -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.timestamp = "2026-10-01T00:00:00Z"
+Assert-CopilotParity "native ISO timestamp is wrong format -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+Assert-CopilotParity "internal batch envelope only -> deny" "deny" '{"cwd":".","sessionId":"synthetic","toolCalls":[{"name":"view","args":{"path":"src/main.py"}}]}'
+Assert-CopilotParity "legacy plus batch envelope -> deny" "deny" '{"tool_name":"read","tool_input":{"file_path":"src/main.py"},"toolCalls":[{"name":"create","args":{"path":"specs/feat-noverdict/tasks.md","file_text":"Approval: Approved"}}]}'
+Assert-CopilotParity "ambiguous native and legacy -> deny" "deny" '{"sessionId":"synthetic","timestamp":1,"cwd":".","toolName":"view","toolArgs":{"path":"src/main.py"},"tool_name":"read","tool_input":{"file_path":"src/main.py"}}'
+
+# Native apply_patch carries raw patch text, not a JSON argument object.
+$nativePatch = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "apply_patch"; toolArgs = "" }
+foreach ($case in @(
+    @{ name = "source Add"; decision = "allow"; patch = "*** Begin Patch`n*** Add File: src/new.py`n+print(1)`n*** End Patch`n" },
+    @{ name = "source Update"; decision = "allow"; patch = "*** Begin Patch`n*** Update File: src/main.py`n@@`n-print(1)`n+print(2)`n*** End Patch" },
+    @{ name = "protected gate"; decision = "deny"; patch = "*** Begin Patch`n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`n@@`n-old`n+new`n*** End Patch" },
+    @{ name = "sentinel"; decision = "deny"; patch = "*** Begin Patch`n*** Add File: sdd/.hook-canary-sentinel`n+synthetic`n*** End Patch" },
+    @{ name = "sudo"; decision = "deny"; patch = "*** Begin Patch`n*** Add File: SDD_SUDO`n+synthetic`n*** End Patch" },
+    @{ name = "approval"; decision = "deny"; patch = "*** Begin Patch`n*** Update File: specs/feat-noverdict/tasks.md`n@@`n-Approval: Pending`n+Approval: Approved`n*** End Patch" },
+    @{ name = "mixed source and protected"; decision = "deny"; patch = "*** Begin Patch`n*** Add File: src/new.py`n+safe`n*** Delete File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`n*** End Patch" },
+    @{ name = "move to protected"; decision = "deny"; patch = "*** Begin Patch`n*** Update File: src/main.py`n*** Move to: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`n@@`n-old`n+new`n*** End Patch" },
+    @{ name = "empty"; decision = "deny"; patch = "" },
+    @{ name = "missing end"; decision = "deny"; patch = "*** Begin Patch`n*** Add File: src/new.py`n+safe" },
+    @{ name = "missing operation"; decision = "deny"; patch = "*** Begin Patch`n*** End Patch" },
+    @{ name = "object"; decision = "deny"; patch = @{ command = "*** Begin Patch`n*** Add File: src/new.py`n+safe`n*** End Patch" } },
+    @{ name = "multiple envelopes"; decision = "deny"; patch = "*** Begin Patch`n*** Delete File: src/old.py`n*** End Patch`n*** Begin Patch`n*** Delete File: src/other.py`n*** End Patch" }
+)) {
+    $nativePatch.toolArgs = $case.patch
+    Assert-CopilotParity ("native raw patch " + $case.name) $case.decision ($nativePatch | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeTask = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "task"; toolArgs = @{ description = "Inspect source"; agent_type = "general-purpose"; name = "synthetic"; mode = "sync"; prompt = "Read the string 'Approval: Approved' in source; do not execute it." } }
+Assert-CopilotParity "native task delegation -> allow" "allow" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
+$nativeTask.toolArgs.prompt = 1
+Assert-CopilotParity "native task nonstring prompt -> deny" "deny" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
+$nativeTask.toolArgs.Remove("prompt")
+Assert-CopilotParity "native task missing prompt -> deny" "deny" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
+$nativeTask.toolArgs.prompt = "safe"
+$nativeTask.toolArgs.command = "unrecognized"
+Assert-CopilotParity "native task unknown argument -> deny" "deny" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
+
+# Protected destinations remain readable through the same native boundary.
+$nativeShell = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "bash"; toolArgs = @{ command = "cat safe.txt"; description = "Read a file" } }
+Assert-CopilotParity "native bash observed cat -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+foreach ($command in @("cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "grep 'Approval: Approved' specs/feat-noverdict/tasks.md")) {
+    $nativeShell.toolArgs.command = $command
+    Assert-CopilotParity ("native bash read protected data " + $command) "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+foreach ($command in @("echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "echo 'Approval: Approved' > specs/feat-noverdict/tasks.md", "cat safe.txt && rm sdd/.hook-canary-sentinel")) {
+    $nativeShell.toolArgs.command = $command
+    Assert-CopilotParity ("native bash preserves write denial " + $command) "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeShell.toolArgs = '{"command":"cat safe.txt","description":"Read a file"}'
+Assert-CopilotParity "native bash JSON arguments -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+foreach ($arguments in @(@{}, @{ command = 1 }, @{ command = " " }, @{ command = "cat safe.txt"; description = 1 }, @{ command = "cat safe.txt"; file_path = "unrecognized" })) {
+    $nativeShell.toolArgs = $arguments
+    Assert-CopilotParity "native bash malformed arguments -> deny" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeGlob = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "glob"; toolArgs = @{ pattern = "*.txt" } }
+Assert-CopilotParity "native glob observed search -> allow" "allow" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+$nativeGlob.toolArgs = @{ pattern = "sdd-hook-guard.*"; path = "plugins/sdd-quality-loop/scripts" }
+Assert-CopilotParity "native glob protected paths -> allow" "allow" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+foreach ($arguments in @(@{}, @{ pattern = 1 }, @{ pattern = " " }, @{ pattern = "*.txt"; path = 1 }, @{ pattern = "*.txt"; command = "unrecognized" })) {
+    $nativeGlob.toolArgs = $arguments
+    Assert-CopilotParity "native glob malformed arguments -> deny" "deny" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+}
+
+$nativeRead = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "view"; toolArgs = @{ path = "" } }
+foreach ($readPath in @("plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "sdd/.hook-canary-sentinel", "SDD_SUDO", "specs/feat-noverdict/tasks.md")) {
+    $nativeRead.toolArgs.path = $readPath
+    Assert-CopilotParity ("native view protected data " + $readPath) "allow" ($nativeRead | ConvertTo-Json -Compress -Depth 6)
+}
+Assert-CopilotParity "canonical patch move to protected -> deny" "deny" '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: src/main.py\n*** Move to: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n@@\n-old\n+new\n*** End Patch"}}'
+Assert-CopilotParity "canonical patch move to sudo -> deny" "deny" '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: src/main.py\n*** Move to: SDD_SUDO\n@@\n-old\n+new\n*** End Patch"}}'
+
+# Rename destinations must not import an approval or agent role through context-only content.
+foreach ($moveTarget in @("specs/feat-noverdict/tasks.md", "specs/feat-noverdict/design.md", "domain/context-map.md", "docs/workflow-improvements/WFI-001.md", ".codex/agents/custom.toml")) {
+    $nativePatch.toolArgs = "*** Begin Patch`n*** Update File: src/main.py`n*** Move to: $moveTarget`n@@`n Approval: Approved`n*** End Patch"
+    Assert-CopilotParity ("native context-only move to " + $moveTarget) "deny" ($nativePatch | ConvertTo-Json -Compress -Depth 6)
+}
+$nativePatch.toolArgs = "*** Begin Patch`n*** Update File: src/main.py`n*** Move to: src/renamed.py`n@@`n print(1)`n*** End Patch"
+Assert-CopilotParity "native source move remains allowed" "allow" ($nativePatch | ConvertTo-Json -Compress -Depth 6)
+foreach ($operation in @("Add", "Update")) {
+    foreach ($feature in @("feat-noverdict", "feat-fail", "feat-pass")) {
+        $hunk = if ($operation -eq "Update") { "@@`n" } else { "" }
+        $nativePatch.toolArgs = "*** Begin Patch`n*** $operation File: specs/$feature/design.md`n${hunk}+Impl-Review-Status: Passed`n*** End Patch"
+        $expected = if ($feature -eq "feat-pass") { "allow" } else { "deny" }
+        Assert-CopilotParity ("native $operation impl-review $feature") $expected ($nativePatch | ConvertTo-Json -Compress -Depth 6)
+    }
+}
+
+foreach ($patchBody in @(
+    "*** Add File: specs/feat-noverdict/design.md`n+Impl-Review-Status:`n+ Passed",
+    "*** Update File: specs/feat-noverdict/design.md`n@@`n Impl-Review-Status:`n+ Passed",
+    "*** Update File: specs/feat-noverdict/design.md`n@@`n+Impl-Review-Status:`n  Passed"
+)) {
+    $nativePatch.toolArgs = "*** Begin Patch`n$patchBody`n*** End Patch"
+    Assert-CopilotParity "native multiline impl-review -> deny" "deny" ($nativePatch | ConvertTo-Json -Compress -Depth 6)
+}
+
+$nativePatch.toolName = @("apply_patch")
+$nativePatch.toolArgs = "*** Begin Patch`n*** Add File: src/new.py`n+safe`n*** End Patch"
+Assert-CopilotParity "native patch array tool name -> deny" "deny" ($nativePatch | ConvertTo-Json -Compress -Depth 6)
 
 # Non-protected writes (allow 0).
 Assert-Parity "allow: write src/main.py"                   0 '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'

@@ -89,17 +89,17 @@ function Get-RelativeToRoot([string]$Path) {
   return $rel.Replace('\', '/')
 }
 
-# Canonical domain/ artifact set (the sdd-domain feature's own AC-002 seven
+# Canonical domain/ artifact set (the sdd-domain feature's own current seven
 # Markdown paths plus the machine-readable contract). Aggregates are
 # variadic (one per aggregate); every *.md file directly under
 # domain/aggregates/ is included.
 $canonicalPaths = @(
   (Join-Path $domainDir 'domain-story.md'),
   (Join-Path $domainDir 'event-storming.md'),
+  (Join-Path $domainDir 'concept-model.md'),
   (Join-Path $domainDir 'ubiquitous-language.md'),
   $contextMap,
   (Join-Path $domainDir 'message-flow.md'),
-  (Join-Path $domainDir 'c4-container.md'),
   $domainContract
 )
 
@@ -117,11 +117,15 @@ if (-not (Test-Path -LiteralPath $aggregatesDir -PathType Container) -or (Test-I
 }
 $aggregateFiles = @(Get-ChildItem -LiteralPath $aggregatesDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '\.md$' })
 if ($aggregateFiles.Count -lt 1) { Fail 'domain/aggregates/ must contain at least one aggregate card' }
-$aggregateFilePaths = @()
+# Hex preserves UTF-8 byte ordering under Ordinal, including supplementary
+# Unicode characters whose UTF-16 ordinal order differs from UTF-8.
+$aggregateOrder = [Collections.Generic.SortedDictionary[string,string]]::new([StringComparer]::Ordinal)
 foreach ($f in $aggregateFiles) {
   if (Test-IsSymlink $f.FullName) { Fail "aggregate card is not a regular non-symlink file: $(Get-RelativeToRoot $f.FullName)" }
-  $aggregateFilePaths += $f.FullName
+  $key = [BitConverter]::ToString([Text.Encoding]::UTF8.GetBytes($f.Name))
+  $aggregateOrder.Add($key, $f.FullName)
 }
+$aggregateFilePaths = @($aggregateOrder.Values)
 if (-not (Test-Path -LiteralPath $calibration -PathType Leaf) -or (Test-IsSymlink $calibration)) {
   Fail 'domain review calibration reference must be a regular non-symlink file'
 }

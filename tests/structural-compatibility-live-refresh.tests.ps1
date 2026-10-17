@@ -13,6 +13,9 @@ $Track = if ($State -ceq 'F2') { 'lite' } else { 'full' }
 if (-not $Fixture -and -not $DryRun) {
     if ([string]::IsNullOrEmpty($env:SDD_LIVE_MODEL_CMD)) { throw 'SDD_LIVE_MODEL_CMD is required' }
     $Prompt = "Generate the complete structural-fixture-corpus/v1 JSON envelope for $State. Return JSON only; do not use markdown fences."
+    if ($State -ceq 'F2') {
+        $Prompt += ' Use feature team-coffee-orders and exactly one task T-001 named 注文登録を実装する. Follow the unchanged lite templates; include Approval: Draft and Status: Planned.'
+    }
     $Fixture = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString('N') + '.json')
     try {
         $Output = $Prompt | & $env:SDD_LIVE_MODEL_CMD
@@ -67,11 +70,22 @@ try {
             $Name = switch -CaseSensitive ($Path) { requirements.md {'requirements-lite.md'} design.md {'design-lite.md'} tasks.md {'tasks-lite.md'} default { throw "unknown lite path: $Path" } }
             $Template = Join-Path $Root "plugins/sdd-lite/templates/$Name"
         }
-        $TemplateOutput = & $HostPath -NoProfile -File $Canon $Template
+        # Expected values are fixture inputs, not values extracted from the response.
+        $TemplateText = Get-Content -LiteralPath $Template -Raw
+        $ExpectedTemplate = $Template
+        if ($Track -ceq 'lite') {
+            $ExpectedTemplate = Join-Path $Temp 'f2-expected.md'
+            [IO.File]::WriteAllText($ExpectedTemplate, $TemplateText.Replace('<feature>', 'team-coffee-orders').Replace('<タスク名>', '注文登録を実装する'), [Text.UTF8Encoding]::new($false))
+        }
+        $TemplateOutput = & $HostPath -NoProfile -File $Canon $ExpectedTemplate
         if ($LASTEXITCODE -ne 0) { throw "invalid reference template: $Path" }
         $TemplateAst = Join-Path $Temp 'template.ast'
         [IO.File]::WriteAllText($TemplateAst, ($TemplateOutput -join "`n"), [Text.UTF8Encoding]::new($false))
         if ((Get-Content -LiteralPath $AstPath -Raw) -cne (Get-Content -LiteralPath $TemplateAst -Raw)) { throw "structural mismatch: $Path" }
+        $FieldPattern = '(?m)^((?:[A-Za-z][A-Za-z0-9 -]*)?(?:Status|Approval)):\s.*$'
+        $TemplateFields = @([regex]::Matches($TemplateText, $FieldPattern, [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -CaseSensitive -Unique)
+        $LiveFields = @([regex]::Matches([string]$Artifact.content, $FieldPattern, [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -CaseSensitive -Unique)
+        if (($TemplateFields -join "`n") -cne ($LiveFields -join "`n")) { throw "status field mismatch: $Path" }
     }
     if ($DryRun) {
         Write-Output 'PASS: fixture validates; dry-run left corpus unchanged'
@@ -86,7 +100,7 @@ try {
         if ($ReorderedCode -ne 0) { throw 'reordered valid fixture rejected' }
         Write-Output 'PASS: reordered valid fixture accepted'
         $Before = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Corpus $TargetName)).Hash
-        $Entry.artifacts[0].content = "---`nbroken frontmatter"
+        $Entry.artifacts[0].content = "---`ntitle: [unterminated`n---`n# Heading"
         $Bad = Join-Path $Temp 'rejected.json'
         $Entry | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $Bad -Encoding utf8
         $RefreshScript = Join-Path $PSScriptRoot 'structural-compatibility-live-refresh.tests.ps1'
