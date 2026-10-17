@@ -459,6 +459,57 @@ class RequestAndWorkflowTests(unittest.TestCase):
         self.assertIsNotNone(match, name)
         return '\n'.join(line[10:] for line in match[1].splitlines())
 
+    def run_workflow_body(self, body, root, env):
+        bash = 'bash'
+        if sys.platform == 'win32':
+            # PATH may select the Windows WSL launcher instead of Git Bash.
+            git = shutil.which('git')
+            candidates = (() if git is None else
+                          (Path(git).parent / 'bash.exe', Path(git).parent.parent / 'bin/bash.exe'))
+            bash = next((str(path) for path in candidates if path.is_file()), None)
+            if bash is None:
+                raise RuntimeError('Git for Windows Bash is required')
+        # The Ubuntu workflow uses python3; native Windows may expose a Store alias.
+        # Bind that command to this test's real interpreter, leaving the body intact.
+        prelude = 'python3() { "$A9_TEST_PYTHON" "$@"; }\n'
+        return subprocess.run([bash, '--noprofile', '--norc', '-e', '-c', prelude + body], cwd=root,
+                              capture_output=True, text=True,
+                              env={**os.environ, **env, 'A9_TEST_PYTHON': Path(sys.executable).as_posix()})
+
+    def test_workflow_body_uses_installed_git_bash_and_current_python(self):
+        with tempfile.TemporaryDirectory(prefix='a9-workflow-runtime-') as raw:
+            root = Path(raw)
+            git = root / 'Git install/cmd/git.exe'
+            git.parent.mkdir(parents=True)
+            git.touch()
+            bash = root / 'Git install/bin/bash.exe'
+            bash.parent.mkdir()
+            bash.touch()
+            with patch.object(sys, 'platform', 'win32'), \
+                    patch.object(shutil, 'which', return_value=str(git)), \
+                    patch.object(subprocess, 'run') as run:
+                self.run_workflow_body('python3 -c "import sys"', root, {})
+            command = run.call_args.args[0]
+            self.assertEqual(Path(command[0]), bash)
+            self.assertEqual(run.call_args.kwargs['env']['A9_TEST_PYTHON'], Path(sys.executable).as_posix())
+            self.assertIn('python3() { "$A9_TEST_PYTHON" "$@"; }', command[-1])
+            self.assertTrue(command[-1].endswith('python3 -c "import sys"'))
+
+    def test_workflow_python3_executes_current_interpreter(self):
+        with tempfile.TemporaryDirectory() as raw:
+            result = self.run_workflow_body(
+                "python3 -c 'import json, sys; print(json.dumps(sys.executable))'", Path(raw), {})
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertTrue(Path(json.loads(result.stdout)).samefile(sys.executable))
+
+    def test_missing_git_bash_fails_without_falling_back_to_wsl(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            with patch.object(sys, 'platform', 'win32'), \
+                    patch.object(shutil, 'which', return_value=str(root / 'cmd/git.exe')):
+                with self.assertRaisesRegex(RuntimeError, 'Git for Windows Bash is required'):
+                    self.run_workflow_body('exit 0', root, {})
+
     def test_actual_detection_body_never_calls_unactivated_or_removed_context_success(self):
         body=self.workflow_body('Detect advisory activation without executing repository code')
         for existing, event, active in (((), 'pull_request', 'false'), (('trusted',), 'pull_request', 'true'),
@@ -468,8 +519,8 @@ class RequestAndWorkflowTests(unittest.TestCase):
                 for directory in existing:
                     path=root/directory/'sdd/project-context.yaml';path.parent.mkdir(parents=True);path.write_text('DATA ONLY')
                 output=root/'outputs'
-                result=subprocess.run(['bash','-e','-c',body],cwd=root,capture_output=True,text=True,
-                    env={**os.environ,'A9_EVENT_NAME':event,'GITHUB_OUTPUT':str(output)})
+                result=self.run_workflow_body(body,root,
+                    {'A9_EVENT_NAME':event,'GITHUB_OUTPUT':str(output)})
                 self.assertEqual(result.returncode,0,result.stderr)
                 self.assertEqual(output.read_text(),'active='+active+'\n')
                 self.assertFalse(json.loads(result.stdout)['advisory_observed'])
@@ -479,8 +530,7 @@ class RequestAndWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root=Path(raw); subject=root/'subject/scripts';subject.mkdir(parents=True)
             (subject/'observe-a9-advisory.py').write_text("raise RuntimeError('PR_CODE_MUST_NOT_RUN')")
-            result=subprocess.run(['bash','-e','-c',body],cwd=root,capture_output=True,text=True,
-                                  env={**os.environ,'RUNNER_TEMP':raw})
+            result=self.run_workflow_body(body,root,{'RUNNER_TEMP':raw})
             self.assertEqual(result.returncode,1)
             self.assertEqual(json.loads(result.stdout)['missing_inputs'],['trusted_collector'])
             self.assertNotIn('PR_CODE_MUST_NOT_RUN', result.stdout+result.stderr)
