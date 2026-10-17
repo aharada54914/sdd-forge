@@ -128,11 +128,17 @@ function Test-ConditionalFacet($cf) {
 
 function Test-LitePolicy($lp) {
   if (-not (Test-IsObject $lp)) { return $false }
-  if (-not (Test-KeysWithin $lp @('eligible', 'upgrade_reasons'))) { return $false }
+  if (-not (Test-KeysWithin $lp @('eligible', 'upgrade_reasons', 'required_lite_checks'))) { return $false }
   if (-not (Test-HasAll $lp @('eligible'))) { return $false }
   if (-not ($lp.eligible -is [bool])) { return $false }
   if (Test-HasAll $lp @('upgrade_reasons')) {
     if (-not (Test-StringArray $lp.upgrade_reasons $true $false)) { return $false }
+  }
+  if (Test-HasAll $lp @('required_lite_checks')) {
+    if (-not (Test-StringArray $lp.required_lite_checks $true $true)) { return $false }
+    foreach ($check in $lp.required_lite_checks) {
+      if ($check -cnotmatch '^[a-z0-9][a-z0-9-]*$') { return $false }
+    }
   }
   return $true
 }

@@ -1,0 +1,9 @@
+{
+  "schema": "lite-check-catalog/v1",
+  "catalog_version": 1,
+  "checks": [
+    "build",
+    "test",
+    "installer-dry-run"
+  ]
+}

@@ -66,6 +66,7 @@ BROKEN = FIXTURES / "broken"
 REAL_CONTRACTS = {
     "capability-registry.schema.json": ROOT / "contracts/capability-registry.schema.json",
     "lite-upgrade-reason-catalog.json": ROOT / "contracts/lite-upgrade-reason-catalog.json",
+    "lite-check-catalog.json": ROOT / "contracts/lite-check-catalog.json",
     "facet-manifest.schema.json": ROOT / "contracts/facet-manifest.schema.json",
     "resolver-evidence.schema.json": ROOT / "contracts/resolver-evidence.schema.json",
     "context-projection.schema.json": ROOT / "contracts/context-projection.schema.json",
@@ -134,6 +135,7 @@ def _plant_broken_contracts(dest_dir):
     for filename in BROKEN_ARTIFACTS:
         shutil.copy2(BROKEN / filename, dest_dir / filename)
     shutil.copy2(REAL_CONTRACTS["lite-upgrade-reason-catalog.json"], dest_dir / "lite-upgrade-reason-catalog.json")
+    shutil.copy2(REAL_CONTRACTS["lite-check-catalog.json"], dest_dir / "lite-check-catalog.json")
 
 
 def _install_common_scripts(scripts_dir):

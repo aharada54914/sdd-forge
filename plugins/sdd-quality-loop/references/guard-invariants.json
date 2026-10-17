@@ -105,6 +105,8 @@
     "plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json",
     "plugins/sdd-review-loop/references/a8-skip-allowlist.json",
     "tests/hook-activation-live-proof/nonce-ledger.json",
+    "contracts/lite-check-catalog.json",
+    "contracts/lite-check-catalog.schema.json",
     "plugins/sdd-lite/references/risk-upgrade-policy.md",
     "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
     "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",

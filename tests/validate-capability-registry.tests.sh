@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TDD suite for the Registry validator (T-004, REQ-003, nine checks a-i).
+# TDD suite for the Registry validator (T-004, REQ-003, ten checks a-j).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -139,10 +139,10 @@ assert_contains "TEST-039: combined fixture -- capability-id-duplicate surfaces 
 # Fully-clean fixture: proves a negative -- the suite cannot pass vacuously
 # =====================================================================
 run_validate validate-registry-fully-clean
-if [[ "$RC" -eq 0 && "$OUT" == *"all 9 checks passed"* ]]; then
-  ok "fully-clean fixture: all 9 checks pass on valid input (negative proof)"
+if [[ "$RC" -eq 0 && "$OUT" == *"all 10 checks passed"* ]]; then
+  ok "fully-clean fixture: all 10 checks pass on valid input (negative proof)"
 else
-  fail "fully-clean fixture: expected exit 0 + all-9-checks-passed message -- actual (rc=$RC): $OUT"
+  fail "fully-clean fixture: expected exit 0 + all-10-checks-passed message -- actual (rc=$RC): $OUT"
 fi
 
 # =====================================================================
@@ -179,6 +179,12 @@ if [[ -f "$STAGED_MANIFEST" ]]; then
   fi
 else
   fail "human-copy: MANIFEST.sha256 missing"
+fi
+
+if python3 -B "$ROOT/tests/lite-registry-contract.tests.py" --runtime bash; then
+  ok "Lite Registry contract: schema, catalog, opt-in and CLI boundaries"
+else
+  fail "Lite Registry contract regressions failed"
 fi
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"

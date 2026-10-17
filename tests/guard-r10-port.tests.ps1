@@ -210,6 +210,10 @@ foreach ($a9Dependency in @(
 }
 
 # The domain finalizer's Python master and both packaged wrappers are gates.
+foreach ($catalogPath in @('contracts/lite-check-catalog.json', 'contracts/lite-check-catalog.schema.json', 'plugins/sdd-quality-loop/contracts/lite-check-catalog.json', 'plugins/sdd-quality-loop/contracts/lite-check-catalog.schema.json')) {
+    $catalogPayload = @{ tool_name = 'write'; tool_input = @{ file_path = $catalogPath; content = '{}' } } | ConvertTo-Json -Depth 5 -Compress
+    Assert-Parity "r10 Lite catalog $catalogPath" 2 $catalogPayload
+}
 Assert-Parity "r10 signed handoff proof verifier" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/lib/cross-runtime-consumer-evidence.py","content":"replacement"}}'
 foreach ($suffix in @('py', 'sh', 'ps1')) {
     $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"

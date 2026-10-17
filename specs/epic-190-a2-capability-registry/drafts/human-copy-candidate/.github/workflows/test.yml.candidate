@@ -173,7 +173,8 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # Native macOS regression runs can exceed 30 minutes while making progress.
+    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}
     steps:
       # eval-lane: (none yet)
       - name: "[deterministic] Setup step 1"

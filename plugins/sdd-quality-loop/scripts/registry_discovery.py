@@ -26,6 +26,7 @@ stale/absent fallback):
      so would itself be a silent, undocumented second resolution path.
 """
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -110,10 +111,25 @@ def check_lite_upgrade_reason_catalog(doc: Any) -> bool:
     return isinstance(doc, dict) and doc.get("schema") == "lite-upgrade-reason-catalog/v1"
 
 
+def check_lite_check_catalog(doc: Any) -> bool:
+    # Discovery also validates this execution vocabulary, before membership use.
+    if not isinstance(doc, dict) or set(doc) != {"schema", "catalog_version", "checks"}:
+        return False
+    checks = doc["checks"]
+    return (
+        doc["schema"] == "lite-check-catalog/v1"
+        and type(doc["catalog_version"]) is int and doc["catalog_version"] >= 1
+        and isinstance(checks, list) and len(checks) > 0
+        and all(isinstance(item, str) and re.fullmatch(r"[a-z0-9][a-z0-9-]*", item) for item in checks)
+        and len(checks) == len(set(checks))
+    )
+
+
 VERSION_CHECKS = {
     "capability-registry.json": check_capability_registry,
     "capability-registry.schema.json": check_capability_registry_schema,
     "lite-upgrade-reason-catalog.json": check_lite_upgrade_reason_catalog,
+    "lite-check-catalog.json": check_lite_check_catalog,
 }
 
 
@@ -177,7 +193,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     or prints the fail-closed diagnostic on stderr (exit 1)."""
     argv = sys.argv[1:] if argv is None else list(argv)
     if len(argv) != 1:
-        print("usage: registry_discovery.py <capability-registry.json|capability-registry.schema.json|lite-upgrade-reason-catalog.json>", file=sys.stderr)
+        print("usage: registry_discovery.py <artifact filename>", file=sys.stderr)
         return 2
     try:
         resolved = discover_artifact(argv[0])

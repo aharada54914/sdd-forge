@@ -166,7 +166,7 @@ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid
 # a canonical source is missing, so this fixture tree must carry every
 # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
 # the missing-source error path instead of the drift path they test.
-foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json')) {
+foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json')) {
     Copy-Item -LiteralPath (Join-Path $root "contracts/$extra") -Destination (Join-Path $driftRoot "contracts/$extra")
 }
 Copy-Item -LiteralPath $realDiscovery -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/registry_discovery.py')
