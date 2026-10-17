@@ -41,12 +41,16 @@ class AdmissionTests(unittest.TestCase):
     def entry(self, path):
         return dict(path=path, sha256=digest((self.root / path).read_bytes()))
 
-    def run_pair(self, valid, raw=None, omit=False, legacy=False, pointer_link=False):
+    def run_pair(self, valid, raw=None, omit=False, legacy=False, pointer_link=False,
+                 duplicate_implementation=False, implementation_input=None):
         self.write(self.declaration, raw if raw is not None else json.dumps(self.body))
         self.manifest['supplemental_delivery_declaration'] = self.entry(self.declaration)
         self.manifest['allowed_input_manifest'] = [self.entry(self.report), self.entry(self.product)]
         if 'implementation_manifest' in self.manifest:
-            self.manifest['allowed_input_manifest'].append(self.manifest['implementation_manifest'])
+            self.manifest['allowed_input_manifest'].append(
+                implementation_input or self.manifest['implementation_manifest'])
+            if duplicate_implementation:
+                self.manifest['allowed_input_manifest'].append(self.manifest['implementation_manifest'].copy())
         if not omit:
             self.manifest['allowed_input_manifest'].append(self.entry(self.declaration))
         if legacy:
@@ -87,6 +91,78 @@ class AdmissionTests(unittest.TestCase):
     def test_legacy_manifest_binding(self):
         self.legacy_binding()
         self.run_pair(True)
+
+    def modern_binding(self, name='specs/f/verification/T-001/task-input-manifest.json'):
+        self.write(name, json.dumps(dict(schema='task-input-manifest/v1', task_id='T-001',
+                                        run_id='implementation-run', session_id='implementation-session')))
+        pin = self.entry(name)
+        self.write(self.report, '# Implementation Report: T-001\n- Task ID: T-001\n'
+                   'Run ID: implementation-run\n- **Run ID**: implementation-run\n'
+                   '- **Session ID**: implementation-session\nInput manifest: `' + name +
+                   '`, SHA-256 `' + pin['sha256'] + '`\n## Outputs\n')
+        self.body['implementation_report'] = self.entry(self.report)
+        self.manifest['implementation_manifest'] = pin
+
+    def test_current_manifest_accepts_canonical_location_and_filename(self):
+        for name in ('specs/f/verification/T-001/task-input-manifest.json',
+                     'handoffs/f-T-001/custom-inputs.json'):
+            with self.subTest(name=name):
+                self.modern_binding(name)
+                self.run_pair(True)
+
+    def test_current_manifest_rejects_unsafe_location(self):
+        for name in ('../manifest.json', '/manifest.json', 'C:/manifest.json',
+                     'specs//manifest.json', 'specs/./manifest.json', 'specs/../manifest.json',
+                     'specs\\manifest.json', 'specs/manifest.json\n', 'specs/man\rifest.json',
+                     'specs/man\x00ifest.json'):
+            with self.subTest(name=name):
+                self.modern_binding()
+                self.manifest['implementation_manifest']['path'] = name
+                self.run_pair(False)
+
+    def test_current_manifest_symlink_is_rejected(self):
+        self.modern_binding()
+        path = self.root / self.manifest['implementation_manifest']['path']
+        original = path.with_suffix('.original')
+        path.rename(original)
+        path.symlink_to(original.name)
+        self.run_pair(False)
+
+    def test_raw_manifest_controls_cannot_alias_a_clean_admitted_path(self):
+        for control in ('\r', '\n', '\x00', '\x7f'):
+            with self.subTest(control=repr(control)):
+                self.modern_binding()
+                clean = self.manifest['implementation_manifest'].copy()
+                self.manifest['implementation_manifest']['path'] += control
+                self.run_pair(False, implementation_input=clean)
+
+    def test_current_manifest_hash_citation_and_identity_remain_bound(self):
+        for mismatch in ('hash', 'citation', 'session', 'task'):
+            with self.subTest(mismatch=mismatch):
+                self.modern_binding()
+                pin = self.manifest['implementation_manifest']
+                if mismatch == 'hash':
+                    pin['sha256'] = '0' * 64
+                elif mismatch == 'citation':
+                    self.write(self.report, (self.root / self.report).read_text().replace(
+                        'Input manifest: `' + pin['path'], 'Input manifest: `other.json'))
+                elif mismatch == 'session':
+                    self.write(self.report, (self.root / self.report).read_text().replace(
+                        '- **Session ID**: implementation-session', '- **Session ID**: other-session'))
+                else:
+                    old_hash = pin['sha256']
+                    document = json.loads((self.root / pin['path']).read_text())
+                    document['task_id'] = 'T-002'
+                    self.write(pin['path'], json.dumps(document))
+                    pin.update(self.entry(pin['path']))
+                    self.write(self.report, (self.root / self.report).read_text().replace(
+                        old_hash, pin['sha256']))
+                self.body['implementation_report'] = self.entry(self.report)
+                self.run_pair(False)
+
+    def test_current_manifest_duplicate_membership_is_rejected(self):
+        self.modern_binding()
+        self.run_pair(False, duplicate_implementation=True)
 
     def test_legacy_manifest_requires_v2(self):
         self.legacy_binding()

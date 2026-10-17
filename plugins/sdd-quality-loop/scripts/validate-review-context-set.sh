@@ -466,7 +466,7 @@ jq -e '
       (if has("implementation_manifest") then
         (.implementation_manifest |
           type == "object" and ((keys | sort) == ["path", "sha256"]) and
-          (.path | type == "string" and test("^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$")) and
+          (.path | type == "string" and length > 0 and (test("[\u0000-\u001f\u007f]") | not)) and
           (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
       else true end) and
       (if has("gate_report_declaration") then
@@ -519,7 +519,9 @@ task_id=''
 scratch_binding=''
 implementation_manifest_path=''
 if [[ "$stage" == quality ]] && jq -e 'has("implementation_manifest")' "$manifest" >/dev/null 2>&1; then
-  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest" | tr -d '\r')
+  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest")
+  is_canonical_path "$implementation_manifest_path" ||
+    fail PATH 'implementation_manifest requires a canonical repository-relative path'
 fi
 scratch_root=''
 if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then

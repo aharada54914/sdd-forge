@@ -503,7 +503,8 @@ try {
         if ($implementationDeclaration -isnot [hashtable] -or
             -not (Test-ExactKeys $implementationDeclaration @('path','sha256')) -or
             $implementationDeclaration.path -isnot [string] -or
-            $implementationDeclaration.path -cnotmatch '^handoffs/[A-Za-z0-9._-]+/manifest(-[A-Za-z0-9][A-Za-z0-9_-]*)?[.]json$' -or
+            $implementationDeclaration.path -cmatch '[\x00-\x1f\x7f]' -or
+            -not (Test-CanonicalPath $implementationDeclaration.path) -or
             $implementationDeclaration.sha256 -isnot [string] -or
             $implementationDeclaration.sha256 -cnotmatch '^[0-9a-f]{64}$') {
             Fail-ReviewContext 'CONTRACT' 'implementation_manifest requires a canonical path and SHA-256'

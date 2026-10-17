@@ -98,8 +98,8 @@ anchors() {
 # The declared gate report must be canonical, symlink-free, a regular file
 # under reports/quality-gate/, and hash to the pinned value before any row is
 # read from it.
-:816-832 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
-:816-832 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+:818-834 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:818-834 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
 
 # Its `## Post-Fix Artifacts` rows are the second authorization source.
 :262-267 validator gate_report_output_is_declared() {
@@ -107,8 +107,8 @@ anchors() {
 
 # stage/role must be an authorized pair. The identically-shaped `case` inside
 # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
-:539-541 validator case "$stage:$role" in
-:539-541 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+:541-543 validator case "$stage:$role" in
+:541-543 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
 
 # No rows for the ledger's global-uniqueness check or for the line that prints
 # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
@@ -120,34 +120,34 @@ anchors() {
 
 # identity_ledger_sha256 equality: before the reservation, and again under the
 # reservation lock.
-:728 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
-:1323 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+:730 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:1325 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
 
 # The chain position this invocation must occupy.
-:730 validator [[ "$sequence" -eq "$expected_sequence"
+:732 validator [[ "$sequence" -eq "$expected_sequence"
 
 # The record-hash construction a reviewer is told to recompute: the chain-walk
 # copy the validator verifies existing records with, and the reservation copy it
 # builds the new record with. The document cites both as "the same construction".
-:620 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
-:1310 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+:622 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+:1312 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
 
 # task_id shape, and the implementation report that must carry it.
-:785-798 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
-:785-798 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+:787-800 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:787-800 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
 # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
 # no symlink component. One row per clause the field table claims.
-:965-981 validator is_canonical_path "$path"
-:965-981 validator is_forbidden_review_output "$path"
-:965-981 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+:967-983 validator is_canonical_path "$path"
+:967-983 validator is_forbidden_review_output "$path"
+:967-983 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
 
 # Manifest hash equality against the file on disk.
-:1048-1051 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
-:1048-1051 validator actual_hash=$(sha256_file "$candidate")
+:1050-1053 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
+:1050-1053 validator actual_hash=$(sha256_file "$candidate")
 
 # The append.
-:1333-1345 validator '.records += [{
+:1335-1347 validator '.records += [{
 
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
