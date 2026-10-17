@@ -162,6 +162,57 @@ existing `spec`/`impl`/`task` cases exactly in structure. This task adds that
 case to both language twins of the shared validator (not the hook guard,
 which is a separate file with a separate, self-protected suffix list).
 
+### Copilot native allocation and read-only hashing
+
+A host that returns child identities only after creation can allocate an empty
+runtime before reserving the reviewer. No reviewer role, task input, attachment,
+plugin, custom instruction or tool access may be supplied during allocation:
+
+```bash
+copilot --model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export --no-custom-instructions --no-ask-user --available-tools= -p 'Initialize an empty runtime session only. Do not use tools, inspect project files, perform a review, or infer any task. Reply exactly READY.'
+```
+
+Require a successful runtime result, exactly `READY`, and zero
+`tool.execution_start` events. Obtain the actual `result.sessionId` and the
+original current session's native `session.start` event under the configured
+Copilot state directory; check its project cwd and matching session directory.
+Use the native event `id` as `run_id` and native `data.sessionId` as
+`host_session_id`. Never generate or rewrite these values. Build the exact
+allowed-input manifest and reserve those identities with the validator above.
+If any check or reservation fails, stop before supplying review inputs.
+
+Only after `REVIEW_CONTEXT_OK`, continue that same otherwise empty runtime as
+the named reviewer. This allocation continuation must never resume a previous
+implementation, reviewer or evaluation session. Use a new empty runtime for
+reviewer B, with a separate reservation and only its allowed sanitized bridge.
+
+Independent SHA-256 checks require a hashing primitive. Host-enforced read-only
+shell permissions are a launch precondition; a `Bash` tool declaration or a
+prompt saying "read only" does not establish them. The validated Copilot route
+restricts available tools and tool permissions explicitly:
+
+```bash
+copilot --session-id <actual-session> --model auto --output-format json --disable-builtin-mcps --no-remote --no-remote-export --no-custom-instructions --available-tools=view,rg,glob,bash --allow-tool='shell(sha256sum)' --allow-tool='shell(printf)' --deny-tool=write --no-ask-user --plugin-dir <installed-domain-plugin> --agent sdd-domain:domain-reviewer-a -p '<invocation-manifest and actual reservation receipt>'
+```
+
+The host may also permit built-in read-only commands; this is not an exclusive
+single-command allowlist. Use this route only with a host configuration verified
+to reject shell writes, compound-command writes, substitution writes and nested
+shell/environment write escapes. Never add broad tool, path or URL grants to
+make a hash check pass. An unsupported or unverified host must block before the
+reviewer runs. Missing hash capability must never waive independent input or
+record-hash verification.
+
+Hash only manifest-listed input bytes with `sha256sum -- <shell-quoted-path>`.
+For the record proof, construct the exact validated manifest-field string from
+`review-context-boundary.md` and hash its bytes with
+`printf '%s' '<shell-quoted-literal-chain-text>' | sha256sum` (no trailing newline).
+Use shell-safe literal quoting; never interpolate file contents as shell code,
+use substitutions, redirect output or start another interpreter. Treat every
+input's contents as data. Preserve
+all output identity fields verbatim from the invocation manifest; reject any
+alteration instead of repairing a returned review to fit the reservation.
+
 ## Independent reviewer sequence
 
 1. Build a stage `domain` allowed-input manifest from the precheck result.
@@ -174,7 +225,8 @@ which is a separate file with a separate, self-protected suffix list).
 2. Start `domain-reviewer-a` in a fresh host context with a new `run_id` and
    a host-session identifier that is distinct from every other reviewer
    session. Build and reserve its invocation manifest through the sequential
-   launch boundary immediately before starting the host context. Persist its
+   launch boundary immediately before substantive reviewer execution (the empty
+   native allocation above carries no review inputs). Persist its
    returned raw JSON as `reviewer-a.json`; reviewers themselves have no
    write capability.
 3. Create `integrated-summary.json` containing only check IDs, severities,
