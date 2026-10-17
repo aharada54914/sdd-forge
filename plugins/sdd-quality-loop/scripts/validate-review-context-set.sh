@@ -407,7 +407,7 @@ path_is_authorized() {
         jq -e --arg path "$path" --arg sha "$expected_hash" 'any(.[]; .path == $path and .sha256 == $sha)' <<<"$supplemental_delivery_inputs" >/dev/null
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
-      [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
+      [[ "$path" =~ ^domain/(domain-story|event-storming|concept-model|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
         [[ "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] ||
         [[ "$path" == domain/domain-contract.json ]] ||
         [[ "$path" == plugins/sdd-domain/references/domain-review-calibration.md ]] ||

@@ -1,22 +1,19 @@
 ---
 name: domain-interviewer
-description: Seven-stage DDD interview for the sdd-domain upstream lane. Interviews through Domain Story, Event Storming, Ubiquitous Language, Context Map, Domain Model (aggregates), Domain Message Flow, and C4 Container, checkpointing each stage to disk before the next begins, and regenerating domain/domain-contract.json after every stage. Resumable on interruption.
+description: Eight-stage DDD interview for the sdd-domain upstream lane. Interviews through Domain Story, Event Storming, Concept Model, Ubiquitous Language, Context Map, Domain Model (aggregates), Domain Message Flow, and C4 Container, checkpointing each stage to disk before the next begins, and regenerating domain/domain-contract.json after every stage. Resumable on interruption.
 disable-model-invocation: false
 user-invocable: false
 ---
 
 # Domain Interviewer
 
-Run the seven-stage DDD methodology pipeline that produces the `domain/`
-artifact set. This skill is invoked only by `domain-model` (T-004, a
-sibling task not yet built); it is never invoked directly by a user or by
+Run the eight-stage DDD methodology pipeline that produces the `domain/`
+artifact set. This skill is invoked only by `domain-model`; it is never invoked directly by a user or by
 the model's own initiative. It is the sole writer of files under `domain/`.
 
 ## Invocation
 
-Invoked internally by `/sdd-domain:domain-model [new|update] [seed]` (exact
-routing syntax owned by T-004; not assumed here beyond what
-`requirements.md` and `design.md` already describe).
+Invoked internally by `/sdd-domain:domain-model [new|update] [seed]`.
 
 Claude Code (skill-to-skill call):
 
@@ -84,10 +81,10 @@ confirmation or correction, never as an unreviewed final answer:
 
 | Candidate Bucket | Pre-populates Stage |
 |---|---|
-| `candidate_contexts` | Stage 1 (Domain Story actors/boundary observations) and Stage 4 (Context Map bounded contexts) |
-| `candidate_terms` | Stage 3 (Ubiquitous Language terms) |
+| `candidate_contexts` | Stage 1 (Domain Story actors/boundary observations) and Stage 5 (Context Map bounded contexts) |
+| `candidate_terms` | Stage 4 (Ubiquitous Language terms) |
 | `candidate_event_hints` | Stage 2 (Event Storming domain events/commands) |
-| `candidate_aggregate_hints` | Stage 5 (Domain Model aggregates) |
+| `candidate_aggregate_hints` | Stage 6 (Domain Model aggregates) |
 | `candidate_open_questions` | Every stage's Open Questions section, filed under the stage the question most bears on |
 
 Every candidate carries its `INV-NNN` evidence forward into the checkpointed
@@ -99,7 +96,7 @@ the human may accept, edit, or reject it during the stage's questions — a
 not silently promote a candidate straight into an approved artifact without
 the stage's normal confirmation step.
 
-## Seven-Stage Sequence
+## Eight-Stage Sequence
 
 Interview one stage at a time, one topic at a time (ux-spec.md Interaction
 Sequence: "stage questions, one topic at a time"). Ask questions from the
@@ -110,22 +107,24 @@ the human cannot yet answer — never invent an answer to fill a gap.
 |---|---|---|---|
 | 1 | Domain Story | `templates/domain-story.template.md` | `domain/domain-story.md` |
 | 2 | Event Storming | `templates/event-storming.template.md` | `domain/event-storming.md` |
-| 3 | Ubiquitous Language | `templates/ubiquitous-language.template.md` | `domain/ubiquitous-language.md` |
-| 4 | Context Map | `templates/context-map.template.md` | `domain/context-map.md` |
-| 5 | Domain Model (aggregates) | `templates/aggregate.template.md` | `domain/aggregates/<name>.md` (one per aggregate) |
-| 6 | Domain Message Flow | `templates/message-flow.template.md` | `domain/message-flow.md` |
-| 7 | C4 Container | `templates/c4-container.template.md` | `domain/c4-container.md` |
+| 3 | Concept Model | `templates/concept-model.template.md` | `domain/concept-model.md` |
+| 4 | Ubiquitous Language | `templates/ubiquitous-language.template.md` | `domain/ubiquitous-language.md` |
+| 5 | Context Map | `templates/context-map.template.md` | `domain/context-map.md` |
+| 6 | Domain Model (aggregates) | `templates/aggregate.template.md` | `domain/aggregates/<name>.md` (one per aggregate) |
+| 7 | Domain Message Flow | `templates/message-flow.template.md` | `domain/message-flow.md` |
+| 8 | C4 Container | `templates/c4-container.template.md` | `domain/c4-container.md` |
 
-These seven canonical paths (plus `domain/domain-contract.json`, the eighth
-artifact) are exactly the paths named in `requirements.md` AC-002. Do not
-rename, relocate, or restructure them.
+These eight canonical paths plus `domain/domain-contract.json` form the current
+artifact set. Concept Model is one stage and one artifact; Distinction Matrix
+and Stress Scenarios are sections of it. C4 remains stage 8 until its separate
+architecture handoff is implemented. There is no v1 stage table or upgrade mode.
 
-For stage 5, instantiate `aggregate.template.md` once per aggregate
+For stage 6, instantiate `aggregate.template.md` once per aggregate
 identified during Event Storming's "Candidate Aggregate Clusters" and the
 interview's own follow-up questions. `<name>` in
 `domain/aggregates/<name>.md` must match the aggregate's `name` field
 exactly (PascalCase, `^[A-Z][A-Za-z0-9]*$`, per
-`contracts/domain-contract.v1.schema.json`).
+`contracts/domain-contract.v2.schema.json`).
 
 ### Stage Checkpointing (create-only, before advancing)
 
@@ -147,18 +146,22 @@ task) an explicit, deliberate action rather than an accidental one.
 ### Resume on Interruption
 
 At the start of every run (including the very first message of a fresh
-session), before asking any question, detect which of the seven canonical
+session), before asking any question, detect which of the eight canonical
 stage artifacts already exist on disk:
 
 1. Check `domain/domain-story.md`, `domain/event-storming.md`,
-   `domain/ubiquitous-language.md`, `domain/context-map.md`, then whether
+   `domain/concept-model.md`, `domain/ubiquitous-language.md`,
+   `domain/context-map.md`, then whether
    `domain/aggregates/` contains at least one `.md` file, then
    `domain/message-flow.md`, then `domain/c4-container.md`, **in this
    exact stage order**.
 2. Find the first stage in that order whose canonical artifact is missing.
    That stage is the resume point.
-3. If all seven exist, the interview is already complete — report that and
-   offer `update` mode (T-004) instead of restarting.
+3. If all eight exist, run the v2 projection validation below before reporting
+   completion. A missing or invalid final contract must be repaired from the
+   existing confirmed artifacts; never re-ask or overwrite their content merely
+   because projection was interrupted. Once valid, offer `update` mode instead
+   of restarting.
 4. If none exist, this is a fresh run — begin at stage 1.
 5. Otherwise, report which stages are already checkpointed (do not
    re-display or re-ask their content), state the resume stage, and begin
@@ -172,46 +175,76 @@ because of interruption: killing the process (or the context window ending)
 after stage 3's checkpoint and re-invoking this skill resumes at stage 4,
 leaving stages 1-3 untouched on disk.
 
+## Concept Model Interview (stage 3)
+
+Use `templates/concept-model.template.md` after Domain Story and Event Storming,
+before choosing vocabulary. A term names a concept; identical words or matching
+record shapes alone do not prove identical concepts. Start from current story,
+event and reverse-seed evidence. Record a stable `CONCEPT-*` id, a canonical
+PascalCase name, one proposed bounded context, definition, essence,
+responsibilities, explicit non-responsibilities, stakeholder perspectives and
+evidence for each concept. Confirm context membership again at Context Map.
+
+For every plausible conflation or proposed split, ask the template's Q1-Q6
+questions one topic at a time. Record the evidence and the AI proposal separately
+from the human's `same`, `different`, or `undecided` decision, including the actual
+confirmation reference and rationale. Never manufacture human confirmation from
+silence, an earlier AI output, a schema-valid JSON object, or a stress scenario.
+When `same`, keep one stable identity and record the rejected duplicate name;
+when `different`, retain the separate identities and the reasons for distinction;
+when `undecided`, preserve the open question and do not silently merge or split.
+A human may confirm a checkpoint that explicitly records an unresolved candidate.
+
+Exercise normal, partial, multiple, retry, failure, cancellation, correction and
+historical scenarios in the same artifact. Mark each as observed or hypothetical,
+state the invariant or responsibility affected, and propose one of
+`FITS_EXISTING_CONCEPTS`, `NEW_CONCEPT_CANDIDATE`, `RESPONSIBILITY_CONFLICT`, or
+`REQUIRES_HUMAN_DECISION`. These are interview observations, not autonomous
+blocking verdicts. Hypothetical future scenarios alone can produce only a
+Candidate / Low Confidence entry, never an adopted concept. A split must also
+record any new cross-concept invariant; do not claim separation eliminates all
+bugs or makes future features free.
+
+Stage 4 consumes adopted concepts to produce the term table and `concept_id`
+links; it does not redo the distinction interview. Human-confirmed identity
+changes require updating all term and distinction references together.
+
 ## domain-contract.json Regeneration
 
-After every stage's checkpoint write (all seven stages, not only the last),
-regenerate `domain/domain-contract.json` from the full set of
-already-checkpointed Markdown artifacts. This keeps the machine-readable
-projection in sync incrementally rather than only at the end, so a
-mid-interview inspection or an interrupted run still has a contract file
-that reflects whatever has actually been confirmed so far.
+After every stage checkpoint, derive a candidate contract from all confirmed
+artifacts. Publish only a valid `domain-contract/v2` projection:
 
-Regeneration procedure:
+1. Read every canonical stage artifact currently on disk. Derive `contexts[]`
+   and `relations[]` from Context Map, `terms[]` from Ubiquitous Language, and
+   `aggregates[]` from aggregate cards.
+2. Derive `concepts[]` from the adopted Concepts entries in `domain/concept-model.md`.
+   Carry id, name, context, definition, essence, responsibilities and evidence;
+   include recorded must_not_own and stakeholder_perspectives. Candidate / Low
+   Confidence and undecided proposals remain in Markdown and are not adopted
+   contract concepts. Export `distinguished_from` only for human-confirmed
+   `different` decisions between adopted ids, with the recorded reasons. A
+   `same` decision retains one id; no dangling references or self-distinction.
+3. Copy each term's recorded `concept_id` when present. Every reference must name
+   an adopted concept in the term's context; never infer identity from spelling.
+4. Set `schema` to `domain-contract/v2`. Set `meta.status` from
+   `Domain-Model-Status:` in Context Map, defaulting to `Pending`, and
+   `meta.generated_from` to the repo-relative Markdown paths actually consumed,
+   including `domain/concept-model.md`. Bump the prior valid contract's patch
+   version (`0.1.0` for the first valid projection).
+5. Write the candidate to a temporary sibling file, then run
+   the plugin-root `scripts/validate-domain-contract.sh <candidate>` or the PowerShell twin
+   against `contracts/domain-contract.v2.schema.json`'s structural and
+   referential rules. Only on success atomically replace
+   `domain/domain-contract.json`. On failure remove the candidate, report the
+   diagnostic, and retain the previous valid contract unchanged.
 
-1. Read every canonical stage artifact that currently exists on disk.
-2. Derive `contexts[]` from `domain/context-map.md`'s Bounded Contexts
-   table plus the matching entries in `domain/ubiquitous-language.md` (for
-   `terms[]`) and `domain/aggregates/*.md` (for `aggregates[]`); derive
-   `relations[]` from `domain/context-map.md`'s Context Relations table.
-3. Set `meta.status` to mirror the current `Domain-Model-Status:` value in
-   `domain/context-map.md` (defaults to `Pending` before that file exists,
-   since an unreviewed, incomplete model cannot be anything else).
-4. Set `meta.generated_from` to the repo-relative paths of every Markdown
-   source actually read in step 1.
-5. Set `meta.version` to a monotonic semver string
-   (`^[0-9]+\.[0-9]+\.[0-9]+$`); bump the patch component on every
-   regeneration (e.g. `0.1.0` on first write, `0.1.1` on the next stage's
-   regeneration, and so on) unless a human has manually set a different
-   version.
-6. Write the resulting object as `domain/domain-contract.json`.
-7. Validate the written file against
-   `contracts/domain-contract.v1.schema.json` before reporting the stage
-   complete. If validation fails, report the plain-language schema error
-   and do not silently proceed as if the stage were fully checkpointed
-   (matching `design.md`'s Edge Case: "`domain-contract.json` corrupt or
-   schema-invalid: warn, skip sync, list the validation error").
-
-Before `domain/context-map.md` exists (i.e., after stages 1-3 only), a full
-schema-valid contract is not yet possible (the schema requires `contexts`
-with at least one entry carrying `terms` and `aggregates`); regenerate what
-is derivable from the artifacts checkpointed so far, and treat a
-not-yet-schema-valid intermediate state as expected until enough stages
-exist to populate all required fields, rather than as an error.
+Before adopted concepts and Context Map exist, a valid v2 projection is not yet
+possible. Keep the confirmed Markdown checkpoints, report the projection as
+pending and leave the contract absent (or preserve the previous valid one).
+Do not publish invalid intermediate JSON, fall back to v1, invent a concept to
+satisfy `minItems`, or report the whole interview complete until the final v2
+projection validates. Existing v1 schema files remain historical contracts;
+this authoring path has one stage sequence and writes only v2.
 
 ## Error Handling
 
@@ -236,8 +269,8 @@ failure message standing in for the specific seed/stage identity.
   `templates/` is an adapted, standalone copy, produced once at build time
   by consulting
   `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md`
-  — not a runtime read of that file. Every interview run resolves stage 7's
-  template exclusively through the Seven-Stage Sequence table above, which
+  — not a runtime read of that file. Every interview run resolves stage 8's
+  template exclusively through the Eight-Stage Sequence table above, which
   points only at this skill's own `templates/` directory.
 - Stage checkpointing is create-only for a `new` run: an existing canonical
   stage artifact is never silently overwritten. Deliberate stage
@@ -254,7 +287,7 @@ failure message standing in for the specific seed/stage identity.
 
 Report the stage(s) checkpointed this run, their artifact paths, and the
 current `domain/domain-contract.json` regeneration result (valid, or the
-validation error if not). When all seven stages are complete, report that
+validation error if not). When all eight stages are complete, report that
 the artifact set is ready for `domain-review-loop` (T-005, a later task)
 and remind the human that only a human may edit
 `Domain-Model-Status: Approved` into `domain/context-map.md`.

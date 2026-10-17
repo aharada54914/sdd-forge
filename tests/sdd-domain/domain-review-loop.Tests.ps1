@@ -65,18 +65,10 @@ $precheckScriptPath = Join-Path $repositoryRoot "plugins/sdd-domain/scripts/doma
 $validatorShPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 $validatorPs1Path = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
 
-$bashCandidates = @(
-    "C:\Users\J0138462\AppData\Local\Programs\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\bin\bash.exe"
-)
 $script:bashExe = $null
-foreach ($candidate in $bashCandidates) {
-    if (Test-Path -LiteralPath $candidate) { $script:bashExe = $candidate; break }
-}
-if ($null -eq $script:bashExe) {
-    $cmd = Get-Command bash.exe -ErrorAction SilentlyContinue
-    if ($null -ne $cmd) { $script:bashExe = $cmd.Source }
+foreach ($name in @('bash', 'bash.exe')) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($null -ne $command) { $script:bashExe = $command.Source; break }
 }
 
 # --- Real, dependency-free reimplementations of the deterministic logic ----
@@ -171,6 +163,7 @@ function New-DomainFixtureTree {
     New-Item -ItemType Directory -Force -Path (Join-Path $Root "reports") | Out-Null
 
     Set-Content -LiteralPath (Join-Path $domainDir "domain-story.md") -Value "# Domain Story`n`ncontent`n" -Encoding UTF8 -NoNewline
+    Set-Content -LiteralPath (Join-Path $domainDir "concept-model.md") -Value "# Concept Model`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "event-storming.md") -Value "# Event Storming`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "ubiquitous-language.md") -Value "# Ubiquitous Language`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "context-map.md") -Value "# Context Map`n`nDomain-Model-Status: $Status`n`ncontent`n" -Encoding UTF8 -NoNewline
@@ -179,6 +172,7 @@ function New-DomainFixtureTree {
     Set-Content -LiteralPath (Join-Path $domainDir "aggregates/Order.md") -Value "# Order aggregate`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "domain-contract.json") -Value '{"schema":"domain-contract/v1"}' -Encoding UTF8 -NoNewline
 
+    Copy-Item -LiteralPath ($precheckScriptPath -replace '\.sh$', '.ps1') -Destination (Join-Path $Root "plugins/sdd-domain/scripts/domain-review-precheck.ps1") -Force
     Copy-Item -LiteralPath $precheckScriptPath -Destination (Join-Path $Root "plugins/sdd-domain/scripts/domain-review-precheck.sh") -Force
     Copy-Item -LiteralPath $calibrationPath -Destination (Join-Path $Root "plugins/sdd-domain/references/domain-review-calibration.md") -Force
 
@@ -186,14 +180,22 @@ function New-DomainFixtureTree {
 }
 
 function Invoke-DomainReviewPrecheck {
-    param([Parameter(Mandatory)][string]$Root, [Parameter(Mandatory)][string[]]$Arguments)
+    param([Parameter(Mandatory)][string]$Root, [Parameter(Mandatory)][string[]]$Arguments, [string]$Runtime = "bash")
+    if ($Runtime -eq "pwsh") {
+        $hostPath = (Get-Process -Id $PID).Path
+        $output = & $hostPath -NoProfile -File (Join-Path $Root "plugins/sdd-domain/scripts/domain-review-precheck.ps1") @Arguments 2>&1
+        return @{ Output = ($output -join "`n"); ExitCode = $LASTEXITCODE }
+    }
     if ($null -eq $script:bashExe) { throw "bash.exe not found on this host" }
     $scriptPath = Join-Path $Root "plugins/sdd-domain/scripts/domain-review-precheck.sh"
     # Convert "C:\foo\bar" to "/c/foo/bar" (Git-Bash/MSYS path convention) so
     # bash.exe, invoked directly from PowerShell, can resolve the script path.
-    $driveLetter = $scriptPath.Substring(0, 1).ToLowerInvariant()
-    $rest = $scriptPath.Substring(2) -replace '\\', '/'
-    $unixScriptPath = "/$driveLetter$rest"
+    $unixScriptPath = $scriptPath
+    if ($scriptPath -match '^[A-Za-z]:') {
+        $driveLetter = $scriptPath.Substring(0, 1).ToLowerInvariant()
+        $rest = $scriptPath.Substring(2) -replace '\\', '/'
+        $unixScriptPath = "/$driveLetter$rest"
+    }
     $allArgs = @($unixScriptPath) + $Arguments
     # bash.exe writes its ERROR: lines to stderr; under $ErrorActionPreference
     # = Stop (set at file scope for the rest of this suite), a native
@@ -575,6 +577,29 @@ Describe "domain-review-precheck.sh: real execution against a real fixture tree"
         $result = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1")
         $result.ExitCode | Should Not Be 0
         $result.Output | Should Match "missing canonical domain/ artifact: domain/message-flow\.md"
+    }
+
+    foreach ($runtime in @('bash', 'pwsh')) {
+        It "${runtime}: rejects a missing Concept Model checkpoint before review" {
+        Remove-Item -LiteralPath (Join-Path $script:fixtureRoot "domain/concept-model.md") -Force
+        $result = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
+        $result.ExitCode | Should Not Be 0
+        $result.Output | Should Match "missing canonical domain/ artifact: domain/concept-model\.md"
+    }
+
+        It "${runtime}: includes Concept Model content in the bound review input digest" {
+        $first = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
+        $first.ExitCode | Should Be 0
+        $report = Join-Path $script:fixtureRoot 'reports/domain-review/attempt-1/round-1/precheck-result.json'
+        $before = (Get-Content -Raw -LiteralPath $report | ConvertFrom-Json).input_sha256
+        Remove-Item -Recurse -Force -LiteralPath (Split-Path $report)
+        Add-Content -LiteralPath (Join-Path $script:fixtureRoot 'domain/concept-model.md') -Value 'A changed concept responsibility.'
+        $second = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
+        $second.ExitCode | Should Be 0
+        $after = (Get-Content -Raw -LiteralPath $report | ConvertFrom-Json).input_sha256
+        $before | Should Not Be $after
+    }
+
     }
 
     It "rejects an empty domain/aggregates/ directory (real bash execution)" {

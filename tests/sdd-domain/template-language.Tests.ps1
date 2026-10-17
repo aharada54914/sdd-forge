@@ -1,7 +1,7 @@
 #
 # T-002 domain-interviewer templates -- English-only conformance (AC-013)
 #
-# Verifies all seven domain-interviewer templates are English (AC-013:
+# Verifies all eight domain-interviewer templates are English (AC-013:
 # "Templates are English") by scanning for non-ASCII literal characters
 # (this repository's own PS1-hygiene convention treats non-ASCII presence
 # as the practical signal of non-English filler text; see the Global
@@ -34,6 +34,7 @@ $templatesDir = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-inte
 $templateNames = @(
     "domain-story.template.md",
     "event-storming.template.md",
+    "concept-model.template.md",
     "ubiquitous-language.template.md",
     "context-map.template.md",
     "aggregate.template.md",
@@ -85,9 +86,9 @@ Describe "domain-interviewer templates are English (AC-013)" {
                 $text | Should Match "\{\{[a-z_0-9]+\}\}"
             }
 
-            It "declares which of the seven stages it belongs to" {
+            It "declares which of the eight stages it belongs to" {
                 $text = Get-Content -Raw -Encoding UTF8 -LiteralPath $templatePath
-                $text | Should Match "Stage: \d of 7"
+                $text | Should Match "Stage: \d of 8"
             }
 
             It "carries an Open Questions section" {
@@ -124,7 +125,7 @@ Describe "ubiquitous-language.template.md structural requirements (AC-013)" {
     }
 
     It "the Terms table header declares canonical, JA, and forbidden-synonyms columns together in one row" {
-        $script:ulText | Should Match "\| Canonical Term \(EN\) \| JA \| Definition \| Forbidden Synonyms \| Context \|"
+        $script:ulText | Should Match "\| Canonical Term \(EN\) \| JA \| Definition \| Forbidden Synonyms \| Context \| Concept ID \|"
     }
 
     It "documents that the canonical column, not the JA column, is what domain-contract.json stores" {

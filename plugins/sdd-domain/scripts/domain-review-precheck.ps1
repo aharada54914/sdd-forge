@@ -89,13 +89,14 @@ function Get-RelativeToRoot([string]$Path) {
   return $rel.Replace('\', '/')
 }
 
-# Canonical domain/ artifact set (the sdd-domain feature's own AC-002 seven
+# Canonical domain/ artifact set (the sdd-domain feature's own current eight
 # Markdown paths plus the machine-readable contract). Aggregates are
 # variadic (one per aggregate); every *.md file directly under
 # domain/aggregates/ is included.
 $canonicalPaths = @(
   (Join-Path $domainDir 'domain-story.md'),
   (Join-Path $domainDir 'event-storming.md'),
+  (Join-Path $domainDir 'concept-model.md'),
   (Join-Path $domainDir 'ubiquitous-language.md'),
   $contextMap,
   (Join-Path $domainDir 'message-flow.md'),
