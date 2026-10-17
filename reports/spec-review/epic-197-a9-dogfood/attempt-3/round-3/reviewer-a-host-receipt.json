@@ -1,0 +1,40 @@
+{
+  "host": "Codex app-server",
+  "rpc": "thread/start",
+  "threadId": "01a0dbef-53df-7db3-a629-bb338798354b",
+  "sessionId": "01a0dbef-53df-7db3-a629-bb338798354b",
+  "model": "gpt-6-luna",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "approvalPolicy": "never",
+  "ephemeral": true,
+  "initial_status": {
+    "type": "idle"
+  },
+  "config": {
+    "web_search": "disabled",
+    "features.apps": false,
+    "features.hooks": true,
+    "features.multi_agent": false,
+    "mcp_servers.playwright.enabled": false,
+    "mcp_servers.node_repl.enabled": false,
+    "mcp_servers.computer-use.enabled": false,
+    "mcp_servers.sdd-forge-mcp.enabled": false,
+    "mcp_servers.local-env-mcp.enabled": false,
+    "mcp_servers.ci-mcp.enabled": false,
+    "mcp_servers.pencil.enabled": false,
+    "plugins.codex-app-tools@openai-bundled.mcp_servers.codex_app.enabled": false,
+    "plugins.unified-computer-use@openai-bundled.mcp_servers.cua_repl.enabled": false,
+    "plugins.openai-developers@openai-curated.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "plugins.creative-production@openai-curated-remote.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.creative-production@openai-curated.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.openai-developers@openai-curated-remote.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "model_reasoning_effort": "high",
+    "plugins.computer-history@openai-bundled.mcp_servers.computer-history.enabled": false
+  },
+  "mcp_all_disabled": true,
+  "mcp_tools_count": 0,
+  "review_execution_started": false
+}

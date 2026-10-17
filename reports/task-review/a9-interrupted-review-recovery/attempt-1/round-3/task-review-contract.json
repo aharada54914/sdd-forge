@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "EE54A9CC-E51F-4B6C-92E2-500E7F368CA4",
+  "verdict": "NEEDS_WORK",
+  "round": 3,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "workflow_match_precheck": "PASS",
+  "prior_round_contract_sha256": "5f9ca8877893b19bdf55d037e2e977aa84acc34ad607590e7a1455ffa1ef5978",
+  "requirements_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+  "acceptance_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+  "design_sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+  "tasks_sha256": "240b55e8f9ba9068c67deccf772ef24b90a749e3ed084ea0b4c436b0a3f7c8d2",
+  "traceability_sha256": "de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde",
+  "layer_sha256": {
+    "ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "9A109154-2AC1-4B40-B5D4-FB455CF9E980",
+      "host_session_id": "3F96BA72-AB98-4E28-8ECB-2E779B4592FA",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/dependency-graph.json","sha256":"11fca48f993705d97b9defe2b7606e4a8302f3145db5ba53b3cd923e0da23d7b"},
+        {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/precheck-result.json","sha256":"ed07ff785fadb4a605bcad2d9a880fbfe1e2e5e5fec32cb79a49511542821e70"},
+        {"path":"specs/a9-interrupted-review-recovery/acceptance-tests.md","sha256":"f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"},
+        {"path":"specs/a9-interrupted-review-recovery/design.md","sha256":"3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"},
+        {"path":"specs/a9-interrupted-review-recovery/frontend-spec.md","sha256":"d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"},
+        {"path":"specs/a9-interrupted-review-recovery/infra-spec.md","sha256":"142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"},
+        {"path":"specs/a9-interrupted-review-recovery/requirements.md","sha256":"78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"},
+        {"path":"specs/a9-interrupted-review-recovery/security-spec.md","sha256":"aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"},
+        {"path":"specs/a9-interrupted-review-recovery/tasks.md","sha256":"240b55e8f9ba9068c67deccf772ef24b90a749e3ed084ea0b4c436b0a3f7c8d2"},
+        {"path":"specs/a9-interrupted-review-recovery/traceability.md","sha256":"de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"},
+        {"path":"specs/a9-interrupted-review-recovery/ux-spec.md","sha256":"5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "39FA8F27-3403-4194-A634-3F400DFBF6ED",
+      "host_session_id": "946EA6FE-7C55-4B65-BA5A-A390E54914B6",
+      "allowed_input_manifest": [
+        {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+        {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/integrated-summary.json","sha256":"3a7edcea39fafe9ca5e09ee69967d142d9efc3fb1f14772bbdf1574f2f446283"},
+        {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/precheck-result.json","sha256":"ed07ff785fadb4a605bcad2d9a880fbfe1e2e5e5fec32cb79a49511542821e70"},
+        {"path":"specs/a9-interrupted-review-recovery/acceptance-tests.md","sha256":"f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"},
+        {"path":"specs/a9-interrupted-review-recovery/design.md","sha256":"3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"},
+        {"path":"specs/a9-interrupted-review-recovery/frontend-spec.md","sha256":"d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"},
+        {"path":"specs/a9-interrupted-review-recovery/infra-spec.md","sha256":"142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"},
+        {"path":"specs/a9-interrupted-review-recovery/requirements.md","sha256":"78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"},
+        {"path":"specs/a9-interrupted-review-recovery/security-spec.md","sha256":"aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"},
+        {"path":"specs/a9-interrupted-review-recovery/tasks.md","sha256":"240b55e8f9ba9068c67deccf772ef24b90a749e3ed084ea0b4c436b0a3f7c8d2"},
+        {"path":"specs/a9-interrupted-review-recovery/traceability.md","sha256":"de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"},
+        {"path":"specs/a9-interrupted-review-recovery/ux-spec.md","sha256":"5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Human applied T-003 Done When correction; a later T-002 Done When correction changed only the task plan. Approval and Status remained Draft/Planned. Round 3 found a separate T-002/T-003 test ownership inconsistency; no PASS is claimed.",
+  "timestamp": "2026-09-27T23:03:22Z"
+}

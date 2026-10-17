@@ -2,7 +2,7 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1",
+    "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
@@ -55,5 +55,8 @@
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
     }
   ],
-  "capability_gate_map": {}
+  "capability_gate_map": {
+    "cli-library": [],
+    "developer-tooling": []
+  }
 }

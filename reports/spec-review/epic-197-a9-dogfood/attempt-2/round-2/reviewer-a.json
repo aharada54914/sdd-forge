@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0d96c-c473-7901-bbfe-25e905e49b5f",
+  "host_session_id": "01a0d96c-c473-7901-bbfe-25e905e49b5f",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-2/round-2/precheck-result.json",
+      "sha256": "f482782e82ed2fa611cc741cced9df78201fb5f7be0a86f1f2495fd0d3a4c241"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "19836e34a5e8630b8c8dc9063fbc8dc48f2a74600b1600863ffef23f0ed85642"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "eef9d4caa7139553ba4c4d0ca365a193050adeb5e482f5aac696e76329c7acc9"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "f407d20d258fea55e936c8ba7749e6327dd087f03c3bd873325b10a7123f4946"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The requirements give measurable outcomes and validation rules, including exact Phase 1/2 tuples (REQ-001, REQ-008), ownership checks (REQ-003), and rollback branches (REQ-009); an implementer or verifier can determine whether each is satisfied."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated goal REQ-001–REQ-014 has at least one mapped acceptance criterion in requirements.md; the acceptance table also maps each criterion to a planned TEST-ID."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 requires overrides to appear only on component or approved cross-cutting records and requires each entry to have exactly four fields, rejecting missing or extra fields (requirements.md:135-146). AC-030/031 assert the two valid entries and test unknown names, out-of-scope entries, and no-op values, but do not specify an observable rejection for malformed field sets or placement on another record type (acceptance-tests.md:36-37). A verifier could accept those nonconforming cases under the listed oracles; this is a Phase 1 acceptance-coverage gap."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The non-goals explicitly exclude later Packs, architecture replacements, UI/cloud deployment, new CI workflows, and approval of specs, tasks, sidecars, or WFIs (requirements.md:333-339)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material approval, security, dependency, compatibility, and shared-state constraints are stated, including protected publication and human approval (REQ-001, REQ-008), rollback governance (REQ-009), and re-verification of mutable A1–A8 and shared state (REQ-011)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk promotion and rollback claims have planned validation surfaces: promotion evidence and stale/unmet-threshold rejection (AC-012–013), atomic-transition and missing-evidence cases (AC-014–015, AC-033), and rollback security and changed-registry cases (AC-016–018, AC-034)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: the project root has no domain/ directory, meeting the check's explicit skip condition."
+    }
+  ]
+}

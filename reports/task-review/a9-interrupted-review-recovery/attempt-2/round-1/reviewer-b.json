@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "01a0e6d0-35b8-7c22-bdbe-7868b2ff3356",
+  "host_session_id": "01a0e6d0-35b8-7c22-bdbe-7868b2ff3356",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/integrated-summary.json",
+        "sha256": "98aa672b2be127978330f81784b0d3a504e0d69f05264e114ea47272db18f0cc"
+      },
+      {
+        "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/precheck-result.json",
+        "sha256": "e2d50daca31018d0b2c487b0ead6819f71839ffd9c7358923f5a17dfc7818f95"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+        "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/design.md",
+        "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+        "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+        "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/requirements.md",
+        "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+        "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/tasks.md",
+        "sha256": "48c0d4c98860610880c65f873772397407c6d5e6992e4e72ac095cac7ee9c337"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/traceability.md",
+        "sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19"
+      },
+      {
+        "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+        "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:14-30,67-83,120-136で、T-001は認可・証跡の受理、T-002は検証済み状態の公開、T-003は下流の認可・provenance検証を扱い、全件highはrisk-classification-policy.md:16-19と整合する。critical相当の規制・不可逆破壊操作は含まれない。"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:46-54,99-107,152-160の各Done Whenは、実装前の失敗テストcommit IDと出力、Red→Green証跡、実装者と異なる独立レビュアーの名前・identity・verdictを要求する。criticalタスクはない。これは予定証跡の評価であり、実装・CI・実行済み検証のPASSではない。"
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:29-30,82-83,135-136は、T-001を受理検証、T-002を遷移・ロック下公開、T-003をprovenance消費・互換性検証に分ける。各Done Whenは8項目で、既存境界を再利用する一貫した実装単位であり、単一ファイル編集への過度な分割もない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:19-20,72-73,125-126の割当てに対し、acceptance-tests.md:14-89,119-174はT-001のAC-002/003の不正状態・型・認可・identity変異、:8-13,90-102はT-002のAC-001/004の不正option・symlink・競合・部分公開、:103-113はT-003のAC-005の改変provenance・PASS不成立・前提不足を具体化している。"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:81-85は、unitを純粋なvalidator境界、integrationを実際のcontract validator・identity verifier・lock・writerの連携、acceptanceをAC-001–005のCLI検証として定義する。tasks.md:30,83,136の組込みテスト範囲と整合し、acceptance-tests.md:5-113は各TEST-IDにACを明記する。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:24,77,130のRollbackは各タスクのコードだけを戻し、歴史証跡を保持し、部分公開先を隔離状態に保つ。:49,102,155のDone Whenは、disposable fixtureで通常resetの復元・旧bytes不変・部分公開先の再利用禁止を検証する証跡を要求する。"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:21,74のspec-precheck twinsとテストファイルの共有は、T-002のBlockers: T-001（:70）で順序付けられる。T-003の共有テスト・下流consumer作業（:126-136）はBlockers: T-001, T-002（:123）で後続化され、saved precheck.recoveryケースの担当も:20,73,126およびtraceability.md:185,200,215,230,232で区別される。"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:30のT-001が生成する受理validator・有効source fixtureを、T-002の公開処理（:83）が使用する。T-003のconsumer・saved provenance検証（:126,133-136）はT-001のrecord検証とT-002の新precheck公開に依存するため、:17,70,123のBlockersは論理的に整合する。"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/tasks.md:26-27,79-80,132-133は各タスクに再現fixture・症状、変更前の原因診断、対応TEST-IDの回帰証跡を指定する。T-001はterminal-contract拒否、T-002はoption dispatch・lock/publication、T-003はconsumerのfield/hash処理を診断し、既に正しい互換動作にはbaselineと負例を要求する。"
+    }
+  ],
+  "findings": []
+}

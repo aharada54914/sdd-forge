@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "PASS",
+  "warningCount": 0,
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "reviewer_a_run_id": "01a0e396-85fc-7de1-b418-dec311425db9",
+  "reviewer_a_host_session_id": "01a0e396-85fc-7de1-b418-dec311425db9",
+  "reviewer_b_run_id": "01a0e398-a107-70d3-9587-14677683bec3",
+  "reviewer_b_host_session_id": "01a0e398-a107-70d3-9587-14677683bec3"
+}

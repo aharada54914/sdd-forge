@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 1,
+  "round": 3,
+  "nodes": ["T-001","T-002","T-003"],
+  "edges": [{"from":"T-002","to":"T-001"},{"from":"T-003","to":"T-001"},{"from":"T-003","to":"T-002"}],
+  "generated_at": "2026-09-27T22:25:08Z"
+}

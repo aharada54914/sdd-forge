@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "01a0e6c6-d927-79b0-80a6-e1d7a89194c8",
+  "host_session_id": "01a0e6c6-d927-79b0-80a6-e1d7a89194c8",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/dependency-graph.json",
+      "sha256": "87eeb82eb60cdecf9ac822a4f122466aebf07477b70ae4d30f050ec9fa4b440d"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/precheck-result.json",
+      "sha256": "e2d50daca31018d0b2c487b0ead6819f71839ffd9c7358923f5a17dfc7818f95"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/tasks.md",
+      "sha256": "48c0d4c98860610880c65f873772397407c6d5e6992e4e72ac095cac7ee9c337"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/traceability.md",
+      "sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md:18–20,71–73,124–126のAC参照はすべてacceptance-tests.md:7–113のAC-001–005に解決する。Requirements欄に未定義AC参照はない。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true。tasks.md:17,70,123はそれぞれNone、T-001、T-001, T-002で、全タスクに有効な形式のBlockers欄がある。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:28–32のREQ-001–005はtasks.mdのRequirements欄で網羅される。T-001がREQ-002/003、T-002がREQ-001/004、T-003がREQ-005を担当する。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001/004はT-002、AC-002/003はT-001、AC-005はT-003に明示割当される。tasks.md:20,73,126とtraceability.md:7–113,121–232は親TEST-ID、展開ケース、保存済みprecheck.recoveryの消費ケースまで担当を示している。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:18,71,124で、T-001・T-002・T-003の各Requirements欄に実在するREQ参照がある。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "独立したテスト専用タスクはない。各タスクに付随する検証はtasks.md:19–21,72–74,125–127でACとTEST-IDに結び付けられている。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "通常の実装前レビューとして、tasks.md:12–13,65–66,118–119の全タスクがApproval: Draft／Status: Planned。予約レシートのsequence=1220、直前tip=1219、previous_record_sha256、identity_unique=yesおよび再計算したrecord_sha256が一致し、全12入力とprecheckの対応する9個の資料ピンも一致した。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md:14–16,67–69,120–122の全タスクがRisk: high／Required Workflow: tdd。precheck-result.json:6のPASSと一致し、各Evidence / High-risk Preflight節は永続化フィールド・対応契約・失敗する不一致テストの事前記録を要求する。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "一次AC担当はT-001=AC-002/003、T-002=AC-001/004、T-003=AC-005で重複しない。T-003の全体再実行は互換性回帰であり、保存済みprovenanceの消費ケースはtasks.md:20,73,126とtraceability.md:185,200,215,230,232で入場・公開ケースから区別されている。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:70,123の参照先T-001/T-002は実在する。dependency-graph.json:6–7のnodesとedgesは3タスクおよび全Blockers参照に一致する。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMATはPASS。dependency-graph.json:7の待機辺はT-002→T-001、T-003→T-001、T-003→T-002のみで循環しない。実行順T-001→T-002→T-003が成立する。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:29–30のT-001は閉じた入場検証、82–83のT-002は明示遷移とロック下公開、135–136のT-003はprovenance消費と互換性検証に分かれる。各タスクのテスト・ロールバック・証跡は当該責務に直接対応する。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:46–54,99–107,152–160はコミットIDと失敗出力、レビューverdict/identity、ロールバック不変条件、TEST-ID別結果、実装報告の識別フィールド、quality-gate結果、verification/T-001.md～T-003.mdの対応表を検査可能な成果として指定する。T-002/T-003は既存互換ケースの前後PASSと変更ケースのRed/Greenを区別する。precheckのfrozen_artifact_done_whenは空であり、独立確認でも凍結資料への書込み要求はなく、53,106,159行で実行結果を非凍結addendumへ記録する。PowerShell/SKIP未実行は未検証として残す計画であり、実行済み証明として評価していない。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md:7–113,121–232に全3タスクとREQ-001–005が対応し、未定義REQ/タスク参照はない。acceptance-tests.mdの107親IDと110明示展開IDはすべて追跡表に存在する。全107要件行のLayer Spec欄と234–241の層別表は、ハッシュ検証済み4層資料の実在する8見出しアンカーに解決する。最終状態は245行でPlannedと明記される。"
+    }
+  ],
+  "findings": []
+}

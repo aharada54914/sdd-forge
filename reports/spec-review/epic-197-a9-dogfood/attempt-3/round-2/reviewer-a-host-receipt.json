@@ -1,0 +1,100 @@
+{
+  "host": "Codex app-server",
+  "rpc": "thread/start",
+  "rpc_id": 3001,
+  "thread": {
+    "id": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+    "environments": [
+      {
+        "environmentId": "local",
+        "cwd": "[REDACTED_LOCAL_PATH]",
+        "runtimeWorkspaceRoots": [
+          "[REDACTED_LOCAL_PATH]"
+        ]
+      }
+    ],
+    "extra": null,
+    "sessionId": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "ephemeral": true,
+    "section": null,
+    "sectionEnteredAt": null,
+    "projectId": null,
+    "historyMode": "legacy",
+    "modelProvider": "openai",
+    "model": "gpt-6-luna",
+    "reasoningEffort": "high",
+    "createdAt": 1790395089,
+    "updatedAt": 1790395089,
+    "recencyAt": 1790395089,
+    "status": {
+      "type": "idle"
+    },
+    "path": null,
+    "cwd": "[REDACTED_LOCAL_PATH]",
+    "cliVersion": "0.155.0-alpha.16.4",
+    "originator": "sdd-independent-review",
+    "source": "vscode",
+    "canAcceptDirectInput": true,
+    "threadSource": null,
+    "agentNickname": null,
+    "agentRole": null,
+    "gitInfo": null,
+    "name": null,
+    "daybreakEnabled": null,
+    "turns": []
+  },
+  "model": "gpt-6-luna",
+  "approvalPolicy": "never",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "reasoningEffort": "high",
+  "config": {
+    "web_search": "disabled",
+    "features.apps": false,
+    "features.hooks": true,
+    "features.multi_agent": false,
+    "mcp_servers.playwright.enabled": false,
+    "mcp_servers.node_repl.enabled": false,
+    "mcp_servers.computer-use.enabled": false,
+    "mcp_servers.sdd-forge-mcp.enabled": false,
+    "mcp_servers.local-env-mcp.enabled": false,
+    "mcp_servers.ci-mcp.enabled": false,
+    "mcp_servers.pencil.enabled": false,
+    "plugins.codex-app-tools@openai-bundled.mcp_servers.codex_app.enabled": false,
+    "plugins.unified-computer-use@openai-bundled.mcp_servers.cua_repl.enabled": false,
+    "plugins.openai-developers@openai-curated.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "plugins.creative-production@openai-curated-remote.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.creative-production@openai-curated.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.openai-developers@openai-curated-remote.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "model_reasoning_effort": "high",
+    "plugins.computer-history@openai-bundled.mcp_servers.computer-history.enabled": false
+  },
+  "verification": {
+    "mcpServerStatus": {
+      "rpc_id": 3002,
+      "threadId": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+      "all_disabled": true,
+      "tools_count": 0,
+      "nextCursor": null
+    }
+  },
+  "identity_mapping": {
+    "run_id": "thread.id",
+    "host_session_id": "thread.sessionId"
+  },
+  "redaction": {
+    "kind": "public-redacted-derivative",
+    "original_sha256": "cc4c4aa6ffeb6322095140aa1b71b294e8ded7dba6704d3206fdc388dfb72180",
+    "removed": "Absolute local filesystem paths only; unredacted original retained privately. Review identities and execution state unchanged."
+  },
+  "review_execution_started": false,
+  "unused_context": {
+    "thread_id": "01a0dbdc-26f6-7da2-a100-5929bf54eab4",
+    "reason": "Idle context had computer-history tools; discarded before reservation or substantive review; replaced with all MCP disabled."
+  }
+}

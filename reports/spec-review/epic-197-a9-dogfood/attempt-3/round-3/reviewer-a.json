@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0dbef-53df-7db3-a629-bb338798354b",
+  "host_session_id": "01a0dbef-53df-7db3-a629-bb338798354b",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-3/precheck-result.json",
+      "sha256": "cf1315a9f8e3296d6aaf54a9a52a131e6229deccfa3c10388c6373456e419216"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "3f057d9397b1c5a838fe3eafc0457ccd9fe9a508ab27a6357215738ccf7c3613"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "ada036fada688824d4409027098dab1ea53d105677e37867ca91848f3265f724"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Review blocked before substantive reading: the required rtk proxy shell command was denied while creating its here-document temporary file, so manifest hashes could not be verified."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review blocked before substantive reading because manifest hash verification was denied."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review blocked before substantive reading because manifest hash verification was denied."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review blocked before substantive reading because manifest hash verification was denied."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review blocked before substantive reading because manifest hash verification was denied."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Review blocked before substantive reading because manifest hash verification was denied."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Explicit skip condition supplied: the project root domain/ directory is absent."
+    }
+  ]
+}

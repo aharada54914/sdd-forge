@@ -35,7 +35,39 @@
         "properties": {
           "pattern": { "type": "string" },
           "components": { "type": "array", "items": { "type": "string" } },
-          "classification": { "const": "cross-cutting" }
+          "classification": { "const": "cross-cutting" },
+          "characteristic_overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "scope",
+                "characteristic",
+                "value",
+                "rationale"
+              ],
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "characteristic": {
+                  "enum": [
+                    "credential_bearing",
+                    "release_write"
+                  ]
+                },
+                "value": {
+                  "type": "boolean"
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
         },
         "oneOf": [
           { "required": ["components"], "properties": { "components": { "type": "array", "items": { "type": "string" } } } },
@@ -76,6 +108,38 @@
         "distribution_channels": { "type": "array", "items": { "type": "string" } },
         "data_classification": { "type": "array", "items": { "type": "string" } },
         "provider_binding_ids": { "type": "array", "items": { "type": "string" } },
+        "characteristic_overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "scope",
+              "characteristic",
+              "value",
+              "rationale"
+            ],
+            "properties": {
+              "scope": {
+                "type": "string",
+                "minLength": 1
+              },
+              "characteristic": {
+                "enum": [
+                  "credential_bearing",
+                  "release_write"
+                ]
+              },
+              "value": {
+                "type": "boolean"
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
         "paths": {
           "type": "object",
           "additionalProperties": false,

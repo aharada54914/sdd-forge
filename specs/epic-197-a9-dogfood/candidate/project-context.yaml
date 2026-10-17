@@ -1,0 +1,241 @@
+# Candidate only: no live activation or approval sidecar.
+schema: "sdd-project-context/v1"
+workflow:
+  spec_profile: "full"
+  artifact_layout: "legacy-seven-layer"
+  capability_enforcement: "advisory"
+components:
+  - id: "sdd-bootstrap"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+    paths:
+      include:
+        - "plugins/sdd-bootstrap/**"
+  - id: "sdd-review-loop"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+    paths:
+      include:
+        - "plugins/sdd-review-loop/**"
+  - id: "sdd-implementation"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+    paths:
+      include:
+        - "plugins/sdd-implementation/**"
+  - id: "sdd-quality-loop"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+      - "credential_material"
+    paths:
+      include:
+        - "plugins/sdd-quality-loop/**"
+  - id: "sdd-ship"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+    paths:
+      include:
+        - "plugins/sdd-ship/**"
+  - id: "sdd-lite"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+    paths:
+      include:
+        - "plugins/sdd-lite/**"
+  - id: "sdd-domain"
+    artifact_kinds:
+      - "plugin_package"
+    runtime_classes:
+      - "host_cli_plugin"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "workflow_evidence"
+    paths:
+      include:
+        - "plugins/sdd-domain/**"
+  - id: "mcp"
+    artifact_kinds:
+      - "mcp_server"
+    runtime_classes:
+      - "local_mcp_server"
+    distribution_channels:
+      - "github_release"
+      - "multi_runtime_plugin_install"
+    data_classification:
+      - "repository_content"
+      - "host_metadata"
+      - "ci_metadata"
+      - "credential_material"
+    paths:
+      include:
+        - "mcp/**"
+    characteristic_overrides:
+      - scope: "mcp/ci-mcp"
+        characteristic: "credential_bearing"
+        value: true
+        rationale: "Read-only CI metadata requests consume a GitHub credential."
+  - id: "installer"
+    artifact_kinds:
+      - "installer_script"
+    runtime_classes:
+      - "shell_installer"
+    distribution_channels:
+      - "github_release"
+    data_classification:
+      - "repository_content"
+      - "host_configuration"
+    paths:
+      include:
+        - "install.sh"
+        - "install.ps1"
+        - "uninstall.sh"
+        - "uninstall.ps1"
+        - "scripts/bump-version.sh"
+        - "render-agent-frontmatter.sh"
+        - "render-agent-frontmatter.ps1"
+        - "scripts/rollback-1.5.0.sh"
+        - "scripts/rollback-1.5.0.ps1"
+shared_paths:
+  - pattern: "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json"
+    classification: "cross-cutting"
+  - pattern: "specs/**"
+    classification: "cross-cutting"
+  - pattern: "tests/**"
+    classification: "cross-cutting"
+  - pattern: "contracts/**"
+    classification: "cross-cutting"
+  - pattern: "docs/**"
+    classification: "cross-cutting"
+  - pattern: "reports/**"
+    classification: "cross-cutting"
+  - pattern: "marketplaces/**"
+    classification: "cross-cutting"
+  - pattern: ".github/**"
+    classification: "cross-cutting"
+    characteristic_overrides:
+      - scope: ".github/**"
+        characteristic: "release_write"
+        value: true
+        rationale: "Release automation publishes packages and release artifacts."
+  - pattern: "CHANGELOG.md"
+    classification: "cross-cutting"
+  - pattern: "AGENTS.md"
+    classification: "cross-cutting"
+  - pattern: "README.md"
+    classification: "cross-cutting"
+  - pattern: "package.json"
+    classification: "cross-cutting"
+  - pattern: ".agents/plugins/marketplace.json"
+    classification: "cross-cutting"
+  - pattern: ".claude-plugin/marketplace.json"
+    classification: "cross-cutting"
+  - pattern: ".codex/agents/sdd-evaluator.toml"
+    classification: "cross-cutting"
+  - pattern: ".codex/agents/sdd-investigator.toml"
+    classification: "cross-cutting"
+  - pattern: ".codex/agents/sdd-panelist-gemini.toml"
+    classification: "cross-cutting"
+  - pattern: ".codex/agents/sdd-panelist-gpt.toml"
+    classification: "cross-cutting"
+  - pattern: ".gitattributes"
+    classification: "cross-cutting"
+  - pattern: ".gitignore"
+    classification: "cross-cutting"
+  - pattern: ".learnings/ERRORS.md"
+    classification: "cross-cutting"
+  - pattern: ".learnings/FEATURE_REQUESTS.md"
+    classification: "cross-cutting"
+  - pattern: ".learnings/LEARNINGS.md"
+    classification: "cross-cutting"
+  - pattern: "CODEOWNERS"
+    classification: "cross-cutting"
+  - pattern: "LICENSE"
+    classification: "cross-cutting"
+  - pattern: "PLUGIN-CONTRACTS.md"
+    classification: "cross-cutting"
+  - pattern: "USERGUIDE.md"
+    classification: "cross-cutting"
+  - pattern: "handoffs/T-006-input-manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/T-007-input-manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/T-008-input-manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/T-009-input-manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/T-010-input-manifest.json"
+    classification: "cross-cutting"
+  - pattern: "scripts/apply-branch-protection.sh"
+    classification: "cross-cutting"
+  - pattern: "scripts/check-sdd-structure.sh"
+    classification: "cross-cutting"
+  - pattern: "scripts/human_copy_mirrors.py"
+    classification: "cross-cutting"
+  - pattern: "scripts/measure-evaluator-scratch-isolation.py"
+    classification: "cross-cutting"
+  - pattern: "scripts/sync-human-copy-mirrors.py"
+    classification: "cross-cutting"
+  - pattern: "skills/adversarial-review/README.md"
+    classification: "cross-cutting"
+  - pattern: "skills/adversarial-review/SKILL.md"
+    classification: "cross-cutting"
+  - pattern: "skills/adversarial-review/references/reviewer-prompts.md"
+    classification: "cross-cutting"
+  - pattern: "skills/adversarial-review/templates/report-template.md"
+    classification: "cross-cutting"
+  - pattern: "scripts/validate-a9-candidate.py"
+    classification: "cross-cutting"
+  - pattern: "handoffs/issue423-t001-20260928/manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/issue423-t002-20260928/manifest.json"
+    classification: "cross-cutting"

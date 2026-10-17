@@ -50,6 +50,20 @@
               "human_in_the_loop": { "type": "boolean" }
             }
           },
+          "characteristic_overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["scope", "characteristic", "value", "rationale"],
+              "properties": {
+                "scope": { "type": "string", "minLength": 1 },
+                "characteristic": { "enum": ["credential_bearing", "release_write"] },
+                "value": { "type": "boolean" },
+                "rationale": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
           "distribution_channels": { "type": "array", "items": { "type": "string" } },
           "data_classification": { "type": "array", "items": { "type": "string" } },
           "provider_binding_ids": { "type": "array", "items": { "type": "string" } },
@@ -69,12 +83,26 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["pattern"],
         "properties": {
-          "pattern": { "type": "string" },
+          "pattern": { "type": "string", "minLength": 1 },
           "components": { "type": "array", "items": { "type": "string" } },
-          "classification": { "const": "cross-cutting" }
+          "classification": { "const": "cross-cutting" },
+          "characteristic_overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["scope", "characteristic", "value", "rationale"],
+              "properties": {
+                "scope": { "type": "string", "minLength": 1 },
+                "characteristic": { "enum": ["credential_bearing", "release_write"] },
+                "value": { "type": "boolean" },
+                "rationale": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
         },
+        "required": ["pattern"],
         "oneOf": [
           { "required": ["components"], "properties": { "components": { "type": "array", "items": { "type": "string" } } } },
           { "required": ["classification"], "properties": { "classification": { "const": "cross-cutting" } } }
