@@ -185,6 +185,9 @@ BASELINE_SUFFIXES = (
     "tests/hook-activation-live-proof/nonce-ledger.json",
     'contracts/lite-check-catalog.json',
     'contracts/lite-check-catalog.schema.json',
+    "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+    "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+    "tests/guard-readonly-inputs.tests.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

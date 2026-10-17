@@ -982,6 +982,9 @@ parity_check "wfi061 tee exact target (deny)" 2 \
 parity_check "wfi061 file tool exact target (deny)" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"/tmp/SDD_SUDO\",\"content\":\"x\"}}"
 
+# Shared reader grammar uses the actual Python/Node guard entrypoints.
+python3 "$REPO_ROOT/tests/guard-readonly-inputs.tests.py" --runtime python --runtime node
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------

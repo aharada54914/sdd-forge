@@ -550,6 +550,10 @@ if ($gitAvailable) {
     Write-Host "SKIP: kill-switch walk-up scenarios require git (not found)"
 }
 
+# Run the shared reader corpus through the actual PowerShell guard entrypoint.
+& python3 (Join-Path $repositoryRoot "tests/guard-readonly-inputs.tests.py") --runtime powershell --powershell ([System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName)
+if ($LASTEXITCODE -ne 0) { $script:failCount++ }
+
 # --- Cleanup + summary ---
 try { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue } catch { }
 

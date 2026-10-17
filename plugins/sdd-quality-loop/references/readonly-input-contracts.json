@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "commands": {
+    "validate-approval-sidecar.py": [
+      {
+        "input_options": ["--content", "--sidecar", "--approver-registry"],
+        "value_options": {},
+        "switch_options": [],
+        "required": ["--content", "--sidecar"],
+        "positionals": 0
+      },
+      {
+        "input_options": ["--sidecar"],
+        "value_options": {},
+        "switch_options": ["--verify-provenance"],
+        "required": ["--sidecar", "--verify-provenance"],
+        "positionals": 0
+      }
+    ],
+    "canonicalize-sdd-yaml.py": [
+      {
+        "input_options": [],
+        "value_options": {"--input-format": ["yaml", "json"]},
+        "switch_options": ["--hash-only"],
+        "required": [],
+        "positionals": 1
+      }
+    ],
+    "validate-capability-registry.py": [
+      {
+        "input_options": ["--registry", "--repo-root"],
+        "value_options": {},
+        "switch_options": [],
+        "required": ["--registry"],
+        "positionals": 0
+      }
+    ]
+  }
+}
