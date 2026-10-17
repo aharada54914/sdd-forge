@@ -108,16 +108,23 @@ started, set `smoke-run` to `"required": false` and record why.
 The unified `sdd-hook-guard` script (`scripts/sdd-hook-guard.{sh,ps1,py}`)
 is wired into `PreToolUse` across three runtimes:
 
-- **Claude Code** — `hooks/hooks.json` registers it for `Edit|Write|MultiEdit|apply_patch`
-  and a separate `kill-switch` entry for all tools (`*`).
-- **Codex CLI** — reads the same `hooks/hooks.json` when the `plugin_hooks`
-  feature flag is enabled. The `command_windows` field provides the PowerShell
+- **Claude Code** — `hooks/claude-hooks.json` registers the Node guard for
+  `Edit|Write|MultiEdit|apply_patch` and a separate kill-switch for all tools (`*`).
+- **Codex CLI** — reads `hooks/hooks.json`; CLI 0.159.2 uses the `hooks`
+  feature control (`--enable hooks` / `--disable hooks`). The removed
+  `plugin_hooks` selector does not establish activation or non-firing.
+  The `command_windows` field provides the PowerShell
   override. `apply_patch` payloads are intercepted via the `tool_input.command`
   field and processed by `sdd-hook-guard`.
 - **Copilot CLI** — reads `hooks/copilot-hooks.json`, which emits a
   `permissionDecision` JSON response on stdout and fails safe (deny) when the
-  guard script cannot be located. Known limitation: plugin-defined preToolUse
-  hooks may not fire inside Copilot subagents.
+  guard script cannot be located. CLI 1.0.98 has been observed firing in both
+  primary and subagent sessions. Verify each actual execution path with its
+  own canary rather than assuming subagent hooks are inactive.
+
+If the native canary does not establish a hook refusal, Capability Mode stops
+with `CAPABILITY_RUNTIME_UNAVAILABLE`. Running deterministic diagnostics by
+hand does not replace that handshake or authorize a silent legacy fallback.
 
 The two enforced invariants are:
 

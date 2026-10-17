@@ -120,5 +120,129 @@ class NativeCopilot(unittest.TestCase):
             handshake._verify_copilot_host_denial(template, challenge['nonce'], 'copilot-cli')
 
 
+class NativeClaude(unittest.TestCase):
+    def setUp(self):
+        self.nonce = '0123456789abcdef' * 2
+        self.reason = (
+            'SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。'
+            'これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n'
+            '[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, '
+            'or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.')
+        self.record = dict(schema='sdd-claude-host-denial/v1', runtime='claude-code', nonce=self.nonce,
+            executed=False, raw_request=dict(type='tool_use', id='toolu_fixture', name='Write', caller=dict(type='direct'),
+                input=dict(file_path='sdd/.hook-canary-sentinel', content='sdd-hook-challenge:' + self.nonce)),
+            raw_result=dict(type='tool_result', tool_use_id='toolu_fixture', is_error=True,
+                content='PreToolUse:Write hook error: [sh "/fixture/scripts/sdd-hook-guard.sh" --emit exit]: '
+                    + self.reason.replace('\n', '\\n') + '\\n\\nThis hook comes from the sdd-quality-loop@inline plugin.'))
+
+    def verify(self, record=None, runtime='claude-code'):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'evidence.json'
+            path.write_text(json.dumps(record or self.record), encoding='utf-8')
+            return handshake.run_verify_response(self.nonce, str(path), runtime)
+
+    def test_native_denial_without_numeric_exit(self):
+        self.verify()
+        self.record['raw_request']['input']['file_path'] = str(Path('sdd/.hook-canary-sentinel').resolve())
+        self.verify()
+        self.record['raw_result']['content'] = self.record['raw_result']['content'].replace('\\n', '\n')
+        self.verify()
+
+    def test_installed_marketplace_uses_canonical_node_guard(self):
+        self.record['raw_result']['content'] = self.record['raw_result']['content'].replace(
+            'sh "/fixture/scripts/sdd-hook-guard.sh"', 'node /fixture/scripts/sdd-hook-guard.js'
+        ).replace('sdd-quality-loop@inline', 'sdd-quality-loop@fixture-marketplace')
+        self.verify()
+        for old,new in [('sdd-hook-guard.js','unrelated.js'),
+                        ('--emit exit]','--emit exit; other-operation]'),
+                        ('sdd-quality-loop@fixture-marketplace','other@fixture-marketplace')]:
+            changed=copy.deepcopy(self.record)
+            changed['raw_result']['content']=changed['raw_result']['content'].replace(old,new)
+            with self.assertRaises(handshake.HookHandshakeError):self.verify(changed)
+
+    def test_guard_wrapper_is_one_absolute_script_operand(self):
+        original = 'sh "/fixture/scripts/sdd-hook-guard.sh"'
+        for command in ['node /fixture/scripts/sdd-hook-guard.js',
+                        'node "/fixture with space/scripts/sdd-hook-guard.js"',
+                        r'node "C:\fixture with space\scripts\sdd-hook-guard.js"']:
+            with self.subTest(valid=command):
+                changed = copy.deepcopy(self.record)
+                changed['raw_result']['content'] = changed['raw_result']['content'].replace(original, command)
+                self.verify(changed)
+        for command in ['node unrelated.js && node /fixture/scripts/sdd-hook-guard.js',
+                        'node --import /fixture/scripts/sdd-hook-guard.js',
+                        'node /other.js /fixture/scripts/sdd-hook-guard.js',
+                        'node relative/scripts/sdd-hook-guard.js',
+                        'node /fixture;other/scripts/sdd-hook-guard.js',
+                        'node "/fixture$(other)/scripts/sdd-hook-guard.js"',
+                        'sh "/fixture`other`/scripts/sdd-hook-guard.sh"',
+                        'node "/fixture/scripts/sdd-hook-guard.js" other']:
+            with self.subTest(invalid=command):
+                changed = copy.deepcopy(self.record)
+                changed['raw_result']['content'] = changed['raw_result']['content'].replace(original, command)
+                with self.assertRaises(handshake.HookHandshakeError):
+                    self.verify(changed)
+
+    def test_mismatched_and_unrelated_native_results_are_rejected(self):
+        mutations = {
+            'extra envelope': lambda d: d.update(exit_code=2),
+            'wrong runtime': lambda d: d.update(runtime='copilot-cli'),
+            'outer nonce': lambda d: d.update(nonce='0' * 32),
+            'executed': lambda d: d.update(executed=True),
+            'executed number': lambda d: d.update(executed=0),
+            'request missing': lambda d: d.update(raw_request=None),
+            'request list': lambda d: d.update(raw_request=[d['raw_request']]),
+            'extra operation': lambda d: d['raw_request'].update(other_tool='Write'),
+            'wrong request type': lambda d: d['raw_request'].update(type='tool_result'),
+            'wrong tool': lambda d: d['raw_request'].update(name='Bash'),
+            'wrong caller': lambda d: d['raw_request'].update(caller={'type':'code_execution'}),
+            'extra caller field': lambda d: d['raw_request'].update(caller={'type':'direct','other':'operation'}),
+            'empty id': lambda d: d['raw_request'].update(id=''),
+            'different id': lambda d: d['raw_result'].update(tool_use_id='other'),
+            'wrong path': lambda d: d['raw_request']['input'].update(file_path='other.txt'),
+            'lookalike path': lambda d: d['raw_request']['input'].update(file_path='other/sdd/.hook-canary-sentinel'),
+            'inner nonce': lambda d: d['raw_request']['input'].update(content='sdd-hook-challenge:'+'0'*32),
+            'empty canary': lambda d: d['raw_request']['input'].update(content=''),
+            'extra content': lambda d: d['raw_request']['input'].update(content='sdd-hook-challenge:'+self.nonce+'\n'),
+            'extra argument': lambda d: d['raw_request']['input'].update(command='write another file'),
+            'result missing': lambda d: d.update(raw_result=None),
+            'extra result': lambda d: d['raw_result'].update(exit_code=2),
+            'wrong result type': lambda d: d['raw_result'].update(type='tool_use'),
+            'success': lambda d: d['raw_result'].update(is_error=False),
+            'error number': lambda d: d['raw_result'].update(is_error=1),
+            'generic denial': lambda d: d['raw_result'].update(content='Permission denied'),
+            'malformed payload': lambda d: d['raw_result'].update(content='PreToolUse:Write hook error: malformed hook payload'),
+            'tool mismatch': lambda d: d['raw_result'].update(content=d['raw_result']['content'].replace('PreToolUse:Write','PreToolUse:Bash')),
+            'wrong hook': lambda d: d['raw_result'].update(content=d['raw_result']['content'].replace('sdd-hook-guard.sh','other.sh')),
+            'wrong plugin': lambda d: d['raw_result'].update(content=d['raw_result']['content'].replace('sdd-quality-loop@inline','other@inline')),
+            'prose prefix': lambda d: d['raw_result'].update(content='Blocked! '+d['raw_result']['content']),
+            'prose suffix': lambda d: d['raw_result'].update(content=d['raw_result']['content']+'\nverified'),
+        }
+        for label, mutation in mutations.items():
+            with self.subTest(case=label):
+                changed=copy.deepcopy(self.record);mutation(changed)
+                with self.assertRaises(handshake.HookHandshakeError):self.verify(changed)
+        with self.assertRaises(handshake.HookHandshakeError):self.verify(runtime='copilot-cli')
+
+    def test_nonce_is_present_in_claude_challenge_and_capture_template(self):
+        challenge=handshake.build_challenge()
+        self.assertEqual(challenge['tool_call_template']['claude-code']['tool_input'], dict(
+            file_path='sdd/.hook-canary-sentinel',content='sdd-hook-challenge:'+challenge['nonce']))
+        template=challenge['recorded_result_template']['claude-code']
+        self.assertEqual(template['schema'], 'sdd-claude-host-denial/v1')
+        self.assertEqual(template['nonce'], challenge['nonce'])
+        self.assertIsNone(template['raw_request']);self.assertIsNone(template['raw_result'])
+        self.assertIn('Never infer',challenge['capture_instructions']['claude-code'])
+
+    def test_cli_duplicate_raw_members_remain_unreadable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'evidence.json'
+            raw=json.dumps(self.record).replace('"is_error": true','"is_error": true, "is_error": true')
+            path.write_text(raw)
+            result=subprocess.run([sys.executable,str(SCRIPT),'--verify-response','--nonce',self.nonce,
+                '--recorded-result',str(path),'--runtime','claude-code'],capture_output=True,text=True)
+            self.assertEqual(result.returncode,61,result.stderr)
+
+
 if __name__ == '__main__':
     unittest.main()

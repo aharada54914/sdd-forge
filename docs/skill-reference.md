@@ -261,14 +261,14 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | 環境 | フックファイル | 実装方式 | 注意点 |
 |---|---|---|---|
 | Claude Code | `hooks/claude-hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | `plugin.json` の `"hooks"` が指すのはこのファイル |
-| Codex CLI | `hooks/hooks.json` + `command_windows` | shell / PowerShell。`plugin_hooks` フラグ必須 | apply_patch は `tool_input.command` で処理 |
-| Copilot CLI | `hooks/copilot-hooks.json` | stdout で JSON `permissionDecision` 返す | サブエージェント内で発火しない既知不具合 |
+| Codex CLI | `hooks/hooks.json` + `command_windows` | shell / PowerShell。現行 CLI の制御名は `hooks` | apply_patch は `tool_input.command` で処理。稼働は実 canary で確認 |
+| Copilot CLI | `hooks/copilot-hooks.json` | stdout で JSON `permissionDecision` 返す | 親・サブエージェントそれぞれで実 canary を確認 |
 
 **フック定義はホストごとに別ファイルです（共通の1ファイルではありません）。** `plugins/sdd-quality-loop/hooks/` には `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の3ファイルが実在し、`plugins/sdd-quality-loop/.claude-plugin/plugin.json` は `"hooks": "./hooks/claude-hooks.json"` を宣言しています。`hooks/hooks.json` は Codex 用です。
 
 **設計思想**
 
-フックは defense in depth（層防御）。最終防衛線は決定論的スクリプト (`check-contract` / `check-task-state`)。フックが無効な環境では、これら決定論的スクリプトを手動実行して同じ不変条件を確認。AGENT_STOP が効かない場合はセッション手動終了。
+フックは defense in depth（層防御）。決定論的スクリプト (`check-contract` / `check-task-state`) も実行します。フックが無効な環境では手動検査で状態を診断できますが、Capability Mode は `CAPABILITY_RUNTIME_UNAVAILABLE` で停止し、検査成功だけで継続しません。AGENT_STOP が効かない場合はセッションを手動終了します。
 
 ### Hook Guard Script
 
@@ -315,6 +315,22 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | `check-task-state` | sh / ps1 | tasks.md 状態機械の検証（[詳細](#check-task-state)） |
 | `check-traceability` | sh / ps1 | REQ→AC→TEST→証跡チェーンの検証（[詳細](#check-traceability)） |
 | `check-workflow-state` | sh / ps1 | `specs/workflow-state-registry.json` をもとにリポジトリ全体の SDD ワークフロー状態を検証（診断行は API 安定） |
+
+Claude Code のハンドシェイクでは、`--emit-challenge` が返す
+`recorded_result_template.claude-code` と `capture_instructions.claude-code` を使います。
+`Write` の本文には新しい nonce を含め、実際の `tool_use` と対応する `tool_result`
+をそのまま保存します。モデルに見える拒否文から、終了コードやツール ID を推測してはいけません。
+
+ネイティブオブジェクトが会話本文に表示されないホストでは、起動側が現在のセッションの
+イベントストリームを非公開ファイルへ直接記録し、そのファイルを呼び出し元に提示します。
+例えば、既に必要なプラグインとフックが有効な環境での Claude CLI の記録設定は
+`--print --verbose --output-format stream-json --include-hook-events` です。
+標準出力の保存先をセッション開始時に明示し、呼び出し元自身が `Read` でその現在の
+ストリームから canary の要求・応答を取得してから検証器を呼びます。
+別セッションの履歴、モデルが作った代替 ID、外部から後付けした結果は使用しません。
+記録を提供できないホストでは `CAPABILITY_RUNTIME_UNAVAILABLE` のまま停止します。
+実行記録には環境情報が含まれるため、公開リポジトリには追加しません。
+この形式検証だけで署名済み実ホスト証明が成立するわけではありません。
 
 **生成系（`generate-*`、5本）** — 成果物・証跡・派生ファイルを決定論的に生成します。
 
@@ -861,21 +877,21 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 | `sdd-evaluator` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
 | `panelist-gpt` / `panelist-gemini` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | — (ツインなし) |
 | reviewer 系 (`spec` / `impl` / `task` / `domain`) ・`wfi-auditor` エージェント (10体) | ○ (サブエージェント) | — (ツインなし⁴) | — (ツインなし⁴) |
-| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/hooks.json`、`plugin_hooks` フラグ必要) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
+| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/hooks.json`、`hooks` 有効) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
 | `disable-model-invocation` | ○ | — | ○ |
 | `context: fork` | ○ | — | — |
 
 ¹ `.codex/agents/` の TOML エージェントは Codex app / CLI のインタラクティブセッションで動作します。インストーラーはこれらを `~/.codex/agents/` へもコピーします。
 
-² Codex は `hooks/hooks.json` の `command` / `command_windows` を `plugin_hooks` フィーチャーフラグが有効な場合に読み込みます。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。
+² Codex CLI 0.159.2 では `hooks` が制御名です。実セッションで `--enable hooks` 時の canary 拒否と `--disable hooks` 時の非発火を確認しました。削除済みの `plugin_hooks` を無効にしても、フックを無効化した証拠にはなりません。`hooks/hooks.json` の `command` / `command_windows` と、実 canary の結果を確認してください。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。
 
-³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。既知の不具合: サブエージェント内では発火しない場合があります。
+³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。CLI 1.0.98 の実セッションでは親・サブエージェントとも拒否を確認しました。バージョンや実行経路だけで稼働を推定せず、各セッションの canary が拒否されなければ Capability Mode を停止します。
 
 ⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分しか存在せず、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。reviewer 系・domain 系・wfi-auditor 系にはどちらのツインもありません。これらの環境では、各ペアを新規コンテキストで同等の手順としてインライン実行し、`spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` で独立性の前提を決定論的に確認してください。
 
 **フックは補助線 (defense in depth)。決定論的スクリプト (`check-contract` / `check-task-state`) が最終防衛線です。**
 
-**Codex / Copilot での運用:** `sdd-investigator` と `sdd-evaluator` はそれぞれ Codex の `.codex/agents/` TOML エージェント（`~/.codex/agents/` へインストーラーが自動コピー）および Copilot の `copilot-agents/*.agent.md` として利用できます。フックが無効な環境では、`scripts/check-task-state` と `scripts/check-contract` を手動実行して同じ不変条件を確認してください。
+**Codex / Copilot での運用:** `sdd-investigator` と `sdd-evaluator` はそれぞれ Codex の `.codex/agents/` TOML エージェント（`~/.codex/agents/` へインストーラーが自動コピー）および Copilot の `copilot-agents/*.agent.md` として利用できます。フックが無効な環境での手動検査は診断用であり、Capability Mode の稼働ハンドシェイクを代替しません。
 
 **併用時のハンドオフ:** ワークフロー状態はすべてリポジトリ内ファイル (`tasks.md` / `specs/` / `reports/` / 検証契約 JSON / `docs/review-tickets/`) に保存されます。Claude Code で生成した成果物を Codex / Copilot セッションでそのまま引き継ぐことができ、逆方向も同様です。
 
