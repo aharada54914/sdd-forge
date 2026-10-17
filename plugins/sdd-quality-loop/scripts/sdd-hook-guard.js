@@ -1904,7 +1904,21 @@ async function main() {
         if (['view', 'create'].includes(name) && (typeof args.path !== 'string' || !args.path.trim())) {
           throw new Error('invalid Copilot path');
         }
-        if (name === 'task') {
+        if (name === 'bash') {
+          if (Object.keys(args).some(k => !['command', 'description'].includes(k)) ||
+              typeof args.command !== 'string' || !args.command.trim() ||
+              (Object.prototype.hasOwnProperty.call(args, 'description') && typeof args.description !== 'string')) {
+            throw new Error('invalid bash arguments');
+          }
+          payload = { tool_name: 'bash', tool_input: { command: args.command } };
+        } else if (name === 'glob') {
+          if (Object.keys(args).some(k => !['pattern', 'path'].includes(k)) ||
+              typeof args.pattern !== 'string' || !args.pattern.trim() ||
+              (Object.prototype.hasOwnProperty.call(args, 'path') && (typeof args.path !== 'string' || !args.path.trim()))) {
+            throw new Error('invalid glob arguments');
+          }
+          payload = { tool_name: 'glob', tool_input: args };
+        } else if (name === 'task') {
           const keys = ['description', 'agent_type', 'name', 'mode', 'prompt'];
           if (Object.keys(args).length !== keys.length || keys.some(k => typeof args[k] !== 'string' || !args[k].trim())) {
             throw new Error('invalid task arguments');

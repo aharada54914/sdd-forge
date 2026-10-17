@@ -331,6 +331,31 @@ $nativeTask.toolArgs.command = "unrecognized"
 Assert-CopilotParity "native task unknown argument -> deny" "deny" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
 
 # Protected destinations remain readable through the same native boundary.
+$nativeShell = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "bash"; toolArgs = @{ command = "cat safe.txt"; description = "Read a file" } }
+Assert-CopilotParity "native bash observed cat -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+foreach ($command in @("cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "grep 'Approval: Approved' specs/feat-noverdict/tasks.md")) {
+    $nativeShell.toolArgs.command = $command
+    Assert-CopilotParity ("native bash read protected data " + $command) "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+foreach ($command in @("echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "echo 'Approval: Approved' > specs/feat-noverdict/tasks.md", "cat safe.txt && rm sdd/.hook-canary-sentinel")) {
+    $nativeShell.toolArgs.command = $command
+    Assert-CopilotParity ("native bash preserves write denial " + $command) "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeShell.toolArgs = '{"command":"cat safe.txt","description":"Read a file"}'
+Assert-CopilotParity "native bash JSON arguments -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+foreach ($arguments in @(@{}, @{ command = 1 }, @{ command = " " }, @{ command = "cat safe.txt"; description = 1 }, @{ command = "cat safe.txt"; file_path = "unrecognized" })) {
+    $nativeShell.toolArgs = $arguments
+    Assert-CopilotParity "native bash malformed arguments -> deny" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeGlob = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "glob"; toolArgs = @{ pattern = "*.txt" } }
+Assert-CopilotParity "native glob observed search -> allow" "allow" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+$nativeGlob.toolArgs = @{ pattern = "sdd-hook-guard.*"; path = "plugins/sdd-quality-loop/scripts" }
+Assert-CopilotParity "native glob protected paths -> allow" "allow" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+foreach ($arguments in @(@{}, @{ pattern = 1 }, @{ pattern = " " }, @{ pattern = "*.txt"; path = 1 }, @{ pattern = "*.txt"; command = "unrecognized" })) {
+    $nativeGlob.toolArgs = $arguments
+    Assert-CopilotParity "native glob malformed arguments -> deny" "deny" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
+}
+
 $nativeRead = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "view"; toolArgs = @{ path = "" } }
 foreach ($readPath in @("plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "sdd/.hook-canary-sentinel", "SDD_SUDO", "specs/feat-noverdict/tasks.md")) {
     $nativeRead.toolArgs.path = $readPath

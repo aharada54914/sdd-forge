@@ -1965,7 +1965,19 @@ def main():
                 path = args.get("path")
                 if name in ("view", "create") and (not isinstance(path, str) or not path.strip()):
                     raise ValueError("invalid Copilot path")
-                if name == "task":
+                if name == "bash":
+                    if (set(args) - {"command", "description"}
+                        or not isinstance(args.get("command"), str) or not args["command"].strip()
+                        or ("description" in args and not isinstance(args["description"], str))):
+                        raise ValueError("invalid bash arguments")
+                    payload = {"tool_name": "bash", "tool_input": {"command": args["command"]}}
+                elif name == "glob":
+                    if (set(args) - {"pattern", "path"}
+                        or not isinstance(args.get("pattern"), str) or not args["pattern"].strip()
+                        or ("path" in args and (not isinstance(args["path"], str) or not args["path"].strip()))):
+                        raise ValueError("invalid glob arguments")
+                    payload = {"tool_name": "glob", "tool_input": args}
+                elif name == "task":
                     keys = {"description", "agent_type", "name", "mode", "prompt"}
                     if set(args) != keys or any(not isinstance(args[k], str) or not args[k].strip() for k in keys):
                         raise ValueError("invalid task arguments")

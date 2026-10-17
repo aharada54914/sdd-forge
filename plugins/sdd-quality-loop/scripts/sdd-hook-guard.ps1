@@ -1946,7 +1946,23 @@ if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payload
             $argKeys = @($nativeArgs.PSObject.Properties | ForEach-Object { $_.Name })
             if (@("view", "create") -ccontains $nativeName -and (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
                 [string]::IsNullOrWhiteSpace($nativeArgs.path))) { throw "invalid Copilot path" }
-            if ($nativeName -ceq "task") {
+            if ($nativeName -ceq "bash") {
+                if (@($argKeys | Where-Object { @("command", "description") -cnotcontains $_ }).Count -gt 0 -or
+                    ($argKeys -cnotcontains "command") -or $nativeArgs.command -isnot [string] -or
+                    [string]::IsNullOrWhiteSpace($nativeArgs.command) -or
+                    (($argKeys -ccontains "description") -and $nativeArgs.description -isnot [string])) {
+                    throw "invalid bash arguments"
+                }
+                $payload = [pscustomobject]@{ tool_name = "bash"; tool_input = [pscustomobject]@{ command = $nativeArgs.command } }
+            } elseif ($nativeName -ceq "glob") {
+                if (@($argKeys | Where-Object { @("pattern", "path") -cnotcontains $_ }).Count -gt 0 -or
+                    ($argKeys -cnotcontains "pattern") -or $nativeArgs.pattern -isnot [string] -or
+                    [string]::IsNullOrWhiteSpace($nativeArgs.pattern) -or
+                    (($argKeys -ccontains "path") -and ($nativeArgs.path -isnot [string] -or [string]::IsNullOrWhiteSpace($nativeArgs.path)))) {
+                    throw "invalid glob arguments"
+                }
+                $payload = [pscustomobject]@{ tool_name = "glob"; tool_input = $nativeArgs }
+            } elseif ($nativeName -ceq "task") {
                 $taskKeys = @("description", "agent_type", "name", "mode", "prompt")
                 if ($argKeys.Count -ne $taskKeys.Count) { throw "invalid task arguments" }
                 foreach ($key in $taskKeys) {

@@ -50,3 +50,24 @@ so multiline status fields cannot bypass validation.
 
 This report records development validation. It does not claim post-merge CI or
 remaining host/runtime evidence that was not executed.
+
+## Native read-tool follow-up
+
+A further actual-host probe found that native `bash` (`command`, optional
+`description`) and `glob` (`pattern`, optional `path`) were rejected as malformed
+before the shared read/write checks. The three runtimes now normalize those
+observed tools. Shell commands still traverse the existing protection rules;
+this does not grant an unconditional shell exemption.
+
+Using Copilot Auto, with actual model `gpt-6-luna`, the same isolated protocol
+attempted `cat`, `grep` through native `bash`, and native `glob`. Before the fix
+all three native calls were denied as malformed. After the fix all three
+completed successfully and their actual results contained the expected fixture
+text or filename. The dedicated `grep` tool was not exposed by this model, so
+the observed search evidence is specifically the shell command. Raw native
+events and hook input/output records remain private.
+
+The full three-runtime parity suite passed 141/141 scenarios, including native
+read access, malformed argument rejection, protected shell writes, approval
+writes, and mixed read/write commands. Python compilation, JavaScript syntax,
+and whitespace checks passed. Unknown native tools remain rejected.
