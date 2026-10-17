@@ -763,8 +763,8 @@ Assert-Eq ($j.tool_call_template.'codex-cli'.tool_input.patch -ceq $expectedPatc
 $template = $j.tool_call_template.'claude-code'
 $shapeMatches = (@($template.PSObject.Properties).Count -eq 2) -and
   ($template.tool_name -ceq 'Write') -and (@($template.tool_input.PSObject.Properties).Count -eq 2) -and
-  ($template.tool_input.file_path -ceq 'sdd/.hook-canary-sentinel') -and ($template.tool_input.content -ceq '')
-Assert-Eq $shapeMatches $true 'TEST-084 complete Claude template unchanged'
+  ($template.tool_input.file_path -ceq 'sdd/.hook-canary-sentinel') -and ($template.tool_input.content -ceq "sdd-hook-challenge:$($j.nonce)")
+Assert-Eq $shapeMatches $true 'TEST-084 complete Claude template binds nonce'
 $template = $j.tool_call_template.'copilot-cli'
 Assert-Eq ($template.tool_name -ceq 'create' -and $template.tool_input.path -ceq 'sdd/.hook-canary-sentinel' -and $template.tool_input.file_text -ceq "sdd-hook-challenge:$($j.nonce)") $true 'TEST-085 native Copilot create template binds nonce'
 

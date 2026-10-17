@@ -316,6 +316,22 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | `check-traceability` | sh / ps1 | REQ→AC→TEST→証跡チェーンの検証（[詳細](#check-traceability)） |
 | `check-workflow-state` | sh / ps1 | `specs/workflow-state-registry.json` をもとにリポジトリ全体の SDD ワークフロー状態を検証（診断行は API 安定） |
 
+Claude Code のハンドシェイクでは、`--emit-challenge` が返す
+`recorded_result_template.claude-code` と `capture_instructions.claude-code` を使います。
+`Write` の本文には新しい nonce を含め、実際の `tool_use` と対応する `tool_result`
+をそのまま保存します。モデルに見える拒否文から、終了コードやツール ID を推測してはいけません。
+
+ネイティブオブジェクトが会話本文に表示されないホストでは、起動側が現在のセッションの
+イベントストリームを非公開ファイルへ直接記録し、そのファイルを呼び出し元に提示します。
+例えば、既に必要なプラグインとフックが有効な環境での Claude CLI の記録設定は
+`--print --verbose --output-format stream-json --include-hook-events` です。
+標準出力の保存先をセッション開始時に明示し、呼び出し元自身が `Read` でその現在の
+ストリームから canary の要求・応答を取得してから検証器を呼びます。
+別セッションの履歴、モデルが作った代替 ID、外部から後付けした結果は使用しません。
+記録を提供できないホストでは `CAPABILITY_RUNTIME_UNAVAILABLE` のまま停止します。
+実行記録には環境情報が含まれるため、公開リポジトリには追加しません。
+この形式検証だけで署名済み実ホスト証明が成立するわけではありません。
+
 **生成系（`generate-*`、5本）** — 成果物・証跡・派生ファイルを決定論的に生成します。
 
 | スクリプト名 | 提供ランタイム | 目的 |

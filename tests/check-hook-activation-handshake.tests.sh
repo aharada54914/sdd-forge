@@ -823,7 +823,7 @@ done
 rc=$?
 assert_exit "$rc" 0 "RT002 nonce-bound challenge emitted"
 assert_json_field "$WORK/out" "d['tool_call_template']['codex-cli']['tool_input']['patch'] == '*** Begin Patch\\n*** Add File: sdd/.hook-canary-sentinel\\n+sdd-hook-challenge:' + d['nonce'] + '\\n*** End Patch'" "True" "RT002 emitted patch binds exact fresh nonce and bytes"
-assert_json_field "$WORK/out" "d['tool_call_template']['claude-code'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': ''}}" "True" "TEST-084 complete Claude template unchanged"
+assert_json_field "$WORK/out" "d['tool_call_template']['claude-code'] == {'tool_name': 'Write', 'tool_input': {'file_path': 'sdd/.hook-canary-sentinel', 'content': 'sdd-hook-challenge:' + d['nonce']}}" "True" "TEST-084 complete Claude template binds nonce"
 assert_json_field "$WORK/out" "d['tool_call_template']['copilot-cli'] == {'tool_name': 'create', 'tool_input': {'path': 'sdd/.hook-canary-sentinel', 'file_text': 'sdd-hook-challenge:' + d['nonce']}}" "True" "TEST-085 native Copilot create template binds nonce"
 
 printf '{"schema":"sdd-codex-host-denial/v1","nonce":"%s","executed":true}\n' "$HOST_NONCE" > "$T027/cleanup-schema.json"

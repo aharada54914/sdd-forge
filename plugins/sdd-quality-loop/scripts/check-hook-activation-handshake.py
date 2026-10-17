@@ -113,6 +113,17 @@ event pair inside a nonce-bound envelope:
   Plain-file matching is not host attestation or a persistent replay ledger;
   the calling session must record one fresh actual native dispatch.
 
+  Claude native capture uses `sdd-claude-host-denial/v1`, with exactly
+  schema/runtime/nonce/executed/raw_request/raw_result. Preserve the native
+  tool_use (including caller: {type: direct}) and tool_result objects with matching
+  id/tool_use_id. The one Write
+  must target the canary and contain sdd-hook-challenge:<nonce>; its native
+  error must match the canonical protected-path hook refusal. Numeric hook
+  exit codes are not exposed in that result and must never be inferred. Use
+  the current session's captured native objects; missing capture fails closed.
+  Existing exit-mode evidence remains appropriate only when the host actually
+  exposes the numeric exit status. Neither representation is host attestation.
+
   Copilot native capture uses `sdd-copilot-host-denial/v1`, with exactly
   schema/runtime/nonce/executed/raw_events. raw_events contains the verbatim
   tool.execution_start and tool.execution_complete objects for one dispatch.
@@ -166,6 +177,7 @@ VERIFY_RESULT_SCHEMA = "sdd-hook-verify-result/v1"
 CLEANUP_RESULT_SCHEMA = "sdd-hook-cleanup-result/v1"
 HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
 COPILOT_HOST_DENIAL_SCHEMA = "sdd-copilot-host-denial/v1"
+CLAUDE_HOST_DENIAL_SCHEMA = "sdd-claude-host-denial/v1"
 HOST_DENIAL_PREFIX = (
     "Command blocked by PreToolUse hook: "
     "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
@@ -181,15 +193,6 @@ HOST_DENIAL_PREFIX = (
 CANARY_TARGET = "sdd/.hook-canary-sentinel"
 
 RUNTIMES = ("claude-code", "codex-cli", "copilot-cli")
-
-# Native write templates are built per challenge and bind the generated nonce.
-TOOL_CALL_TEMPLATES = {
-    "claude-code": {
-        "tool_name": "Write",
-        "tool_input": {"file_path": CANARY_TARGET, "content": ""},
-    },
-}
-
 
 def _codex_canary_patch(nonce):
     return (
@@ -223,7 +226,11 @@ def _fresh_nonce():
 
 def build_challenge():
     nonce = _fresh_nonce()
-    templates = dict(TOOL_CALL_TEMPLATES)
+    templates = {"claude-code": {
+        "tool_name": "Write", "tool_input": {
+            "file_path": CANARY_TARGET, "content": "sdd-hook-challenge:" + nonce,
+        },
+    }}
     templates["codex-cli"] = {
         "tool_name": "apply_patch",
         "tool_input": {"patch": _codex_canary_patch(nonce)},
@@ -240,11 +247,21 @@ def build_challenge():
         "tool_call_alternatives": {"copilot-cli": [{
             "tool_name": "apply_patch", "tool_input": _codex_canary_patch(nonce),
         }]},
-        "recorded_result_template": {"copilot-cli": {
+        "recorded_result_template": {"claude-code": {
+            "schema": CLAUDE_HOST_DENIAL_SCHEMA, "runtime": "claude-code",
+            "nonce": nonce, "executed": False, "raw_request": None, "raw_result": None,
+        }, "copilot-cli": {
             "schema": COPILOT_HOST_DENIAL_SCHEMA, "runtime": "copilot-cli",
             "nonce": nonce, "executed": False, "raw_events": [],
         }},
-        "capture_instructions": {"copilot-cli": (
+        "capture_instructions": {"claude-code": (
+            "Replace raw_request and raw_result with the verbatim native tool_use and matching tool_result "
+            "objects for your one Write attempt. Preserve their real id/tool_use_id and exact content; "
+            "the Write content must carry this challenge nonce. Keep executed:false when the hook blocks the Write; "
+            "executed means the file was actually written, not merely attempted. Never infer or invent a numeric exit code "
+            "or tool ID from prose. If the host does not expose these native objects, capture them from "
+            "this session's own host event stream before verification; unavailable capture is not HOOK_ACTIVE."
+        ), "copilot-cli": (
             "Select the template or alternative exposed by this host. Replace raw_events with the verbatim "
             "tool.execution_start and matching tool.execution_complete objects from that one native dispatch. "
             "Preserve the actual model fields; Auto evidence does not establish a fixed-model run. "
@@ -426,6 +443,53 @@ def _verify_codex_host_denial(obj, expected_nonce, runtime):
         raise HookHandshakeError("STALE_CHALLENGE_REJECTED", "echoed operation nonce does not match this challenge")
 
 
+def _verify_claude_host_denial(obj, expected_nonce, runtime):
+    """Claude exposes a native tool error, not the hook's numeric exit code."""
+    def require(condition, message):
+        if not condition:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", message)
+
+    require(set(obj) == {"schema", "runtime", "nonce", "executed", "raw_request", "raw_result"}
+            and runtime == obj.get("runtime") == "claude-code", "invalid Claude host-denial envelope")
+    require(isinstance(expected_nonce, str) and re.fullmatch(r"[0-9a-f]{32}", expected_nonce) is not None,
+            "Claude host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    request, result = obj["raw_request"], obj["raw_result"]
+    require(isinstance(request, dict) and set(request) == {"type", "id", "name", "input", "caller"}
+            and request["type"] == "tool_use" and request["name"] == "Write"
+            and request["caller"] == {"type": "direct"}
+            and isinstance(request["id"], str) and bool(request["id"]), "invalid native Claude Write request")
+    arguments = request["input"]
+    require(isinstance(arguments, dict) and set(arguments) == {"file_path", "content"}
+            and arguments["file_path"] in (CANARY_TARGET, os.path.abspath(CANARY_TARGET))
+            and arguments["content"] == "sdd-hook-challenge:" + expected_nonce,
+            "native Write is not the exact nonce-bound canary creation")
+    require(isinstance(result, dict) and set(result) == {"type", "tool_use_id", "is_error", "content"}
+            and result["type"] == "tool_result" and result["tool_use_id"] == request["id"]
+            and result["is_error"] is True and isinstance(result["content"], str),
+            "native Claude result does not match the denied Write")
+    reason = HOST_DENIAL_PREFIX[len("Command blocked by PreToolUse hook: "):-len(". Command: ")]
+    # Accept one absolute script operand, never shell syntax or another argv.
+    # Do not bind it to this helper's checkout: recorded captures can be verified
+    # from another checkout. Spaces are supported only inside a quoted operand.
+    absolute = r"(?:/|[A-Za-z]:[/\\])"
+    plain_path = absolute + r"[\w./\\:+@,-]*"
+    quoted_path = absolute + r"[\w./\\ :+@,-]*"
+    node_script = r"[/\\]scripts[/\\]sdd-hook-guard\.js"
+    command = (r'(?:sh "' + quoted_path + r'/scripts/sdd-hook-guard\.sh"'
+               r'|node (?:' + plain_path + node_script
+               + r'|"' + quoted_path + node_script + r'")) --emit exit')
+    prefix = r"PreToolUse:Write hook error: \[" + command + r"\]: "
+    plugin = r"This hook comes from the sdd-quality-loop@[A-Za-z0-9][A-Za-z0-9._-]* plugin\."
+    # Claude's print stream can render line breaks as literal backslash-n.
+    require(any(re.fullmatch(prefix + re.escape(text + separator + separator) + plugin,
+                             result["content"]) is not None
+                for text, separator in ((reason, "\n"), (reason.replace("\n", "\\n"), "\\n"))),
+            "native Claude result is not the canonical protected-canary hook denial")
+
+
 def _verify_copilot_host_denial(obj, expected_nonce, runtime):
     """Bind Copilot's native completion to the exact canary dispatch, not prose."""
     def require(condition, message):
@@ -497,6 +561,8 @@ def run_verify_response(nonce, recorded_result_path, runtime):
     normally (no return value) ONLY when HOOK_ACTIVE is proven."""
     obj = _load_json_object(recorded_result_path, "NO_RECORDED_RESULT", "RECORDED_RESULT_UNREADABLE")
     if "schema" in obj:
+        if obj["schema"] == CLAUDE_HOST_DENIAL_SCHEMA:
+            return _verify_claude_host_denial(obj, nonce, runtime)
         if obj["schema"] == COPILOT_HOST_DENIAL_SCHEMA:
             return _verify_copilot_host_denial(obj, nonce, runtime)
         if obj["schema"] != HOST_DENIAL_SCHEMA:
