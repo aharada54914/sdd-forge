@@ -62,6 +62,68 @@
       "lite_policy": { "eligible": false, "upgrade_reasons": ["durable_workflow"] },
       "minimum_enforcement": "required",
       "delivery_strategy": { "kind": "durable-workflow" }
+    },
+    {
+      "id": "developer-tooling",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "plugin_package"
+          },
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "mcp_server"
+          },
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "installer_script"
+          }
+        ]
+      },
+      "required_facets": [
+        "developer-tooling-spec"
+      ],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "developer-tooling-distribution-compatibility"
+      ],
+      "gate_ids": [],
+      "lite_policy": {
+        "eligible": true
+      },
+      "delivery_strategy": {
+        "kind": "human-copy"
+      }
+    },
+    {
+      "id": "cli-library",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "artifact_kinds",
+        "operator": "contains",
+        "value": "plugin_package"
+      },
+      "required_facets": [
+        "cli-library-spec"
+      ],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "cli-library-contract-compatibility"
+      ],
+      "gate_ids": [],
+      "lite_policy": {
+        "eligible": true
+      },
+      "delivery_strategy": {
+        "kind": "human-copy"
+      }
     }
   ]
 }

@@ -102,6 +102,7 @@ tests/context-projection-schema.tests.sh
 tests/facet-manifest-staleness.tests.sh
 tests/facet-manifest-parity.tests.sh
 tests/project-context-schema.tests.sh
+tests/a9-dogfood.tests.sh
 tests/canonicalize-sdd-yaml.tests.sh
 tests/generate-approval-sidecar.tests.sh
 tests/approver-registry-schema.tests.sh

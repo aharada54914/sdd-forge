@@ -2,7 +2,7 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278",
+    "sha256": "e9426688ec15558690ccab5470ca99f4f4f068049542be1622d50fd30a53beca",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
@@ -38,6 +38,8 @@
     }
   ],
   "capability_gate_map": {
+    "cli-library": [],
+    "developer-tooling": [],
     "durable-workflow": [
       "check-update-migration"
     ]

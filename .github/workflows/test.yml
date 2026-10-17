@@ -690,6 +690,11 @@ jobs:
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
 
+      - name: Test A9 unpublished candidate and Pack (pwsh)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
+
       - name: Test approver-registry-schema suite (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -1558,6 +1563,9 @@ jobs:
       - name: "[deterministic] Test task prior-pass receipt"
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
+      - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
       - name: "[deterministic] Test cross-model gate"
         shell: pwsh
         run: ./tests/cross-model.tests.ps1

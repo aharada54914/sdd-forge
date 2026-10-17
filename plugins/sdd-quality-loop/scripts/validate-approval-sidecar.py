@@ -95,6 +95,7 @@ invoke; T-006's own frozen Done When names no TEST id for it -- see the
 implementation report's discharge notes).
 """
 import argparse
+import importlib.util
 import glob
 import hashlib
 import hmac
@@ -647,12 +648,27 @@ def _resolve_content_schema_info(sidecar_obj):
     return info
 
 
+def _validate_context_overrides(document):
+    if not any("characteristic_overrides" in entry for key in ("components", "shared_paths")
+               for entry in document.get(key, []) if isinstance(entry, dict)):
+        return
+    spec = importlib.util.spec_from_file_location("context_ownership", Path(__file__).with_name("resolve-component-paths.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.validate_characteristic_overrides(document)
+
+
 def _validate_content(content_path, info):
     content_obj = _canonicalize_file_to_json(content_path, "CONTENT_CANONICALIZATION_FAILED")
     schema = _load_json_schema_file(_repo_root() / "contracts" / info["schema_filename"])
     errors = _schema_validate(schema, content_obj)
     if errors:
         raise ValidateApprovalSidecarError("CONTENT_SCHEMA_VIOLATION", "; ".join(errors))
+    if info["schema_filename"] == "project-context.schema.json":
+        try:
+            _validate_context_overrides(content_obj)
+        except (ValueError, TypeError, KeyError) as exc:
+            raise ValidateApprovalSidecarError("CONTENT_SCHEMA_VIOLATION", str(exc)) from exc
     array_field = info["array_field"]
     dup_id = _find_duplicate_id(content_obj.get(array_field))
     if dup_id is not None:
