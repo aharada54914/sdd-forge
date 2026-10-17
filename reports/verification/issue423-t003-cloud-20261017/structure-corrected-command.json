@@ -1,0 +1,9 @@
+{
+  "command": [
+    "bash",
+    "scripts/check-sdd-structure.sh",
+    ".",
+    "sdd-domain-multitarget"
+  ],
+  "exit_code": 0
+}

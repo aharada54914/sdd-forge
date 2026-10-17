@@ -1,0 +1,44 @@
+ticket_id: RT-20261006-001
+status: resolved
+resolution:
+  date: "2026-10-14"
+  quality_gate: reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md
+  independent_review: reports/verification/issue423-t002-independent-codex-20261014.md
+  evidence_bundle: specs/sdd-domain-multitarget/verification/20261014/T-002.evidence.json
+  limitation: "Current association only; historical execution and original-byte integrity are not claimed. Independent Codex exception used; no native reservation fabricated."
+type: contract-mismatch
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+    - plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+    - plugins/sdd-review-loop/references/review-context-boundary.md
+summary: "Recover the historical scratch declaration location without changing historical evidence"
+problem: |
+  The historical T-003-attempt2 report has a relative Scratch Root. Its
+  declaration location is independently observed, but historical execution,
+  isolation and original-byte integrity remain unproved. Current validators
+  cannot admit the history for T-002 evaluation.
+expected_fix:
+  - "Apply only the pinned two validators and boundary contract under the existing user-authorized limited recovery scope."
+  - "Keep historical reports, ledger, failed launches and task states unchanged."
+  - "Preserve canonical current roots, exact input binding, identity independence, overlap rejection and under-lock checks."
+  - "Run original-path affected regressions after human application; candidate results do not prove production behavior."
+  - "Before receipt admission, bind the genuine independent inspection and all three recovery artifacts in an authorized current-cycle declaration. Do not adopt the draft automatically."
+  - "Recheck normal T-002 prerequisites and obtain fresh independent quality evaluation; this ticket does not grant Done or prove activation."
+references:
+  - specs/sdd-domain-multitarget/tasks.md
+  - reports/implementation/sdd-domain-multitarget/T-002.md
+  - reports/implementation/sdd-domain-multitarget/T-003-attempt2.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/recovery-ticket.candidate.yml
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/contract-addendum.candidate.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/integration-verification.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/independent-source-inspection-20261006.md
+  - reports/verification/issue423-scratch-recovery-candidate-20261006/bundle-readiness.md
+# Management adoption under existing explicit limited-recovery approval;
+# independent inspection is not a formal quality verdict or signature.
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 0

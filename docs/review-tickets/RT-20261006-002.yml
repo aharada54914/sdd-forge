@@ -1,0 +1,40 @@
+ticket_id: RT-20261006-002
+status: resolved
+resolution:
+  date: "2026-10-14"
+  quality_gate: reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md
+  independent_review: reports/verification/issue423-t002-independent-codex-20261014.md
+  evidence_bundle: specs/sdd-domain-multitarget/verification/20261014/T-002.evidence.json
+  verification: "Recursive provider-key rejection, positive controls, installed byte parity and fresh independent Codex exception review passed."
+type: contract-mismatch
+severity: critical
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+    - specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py
+summary: "Provider names in predicate object keys bypass the ownership boundary"
+problem: |
+  Fresh shipped sdd-evaluator run 01a110a1-5589-7501-b440-8926b897e0a2
+  observed both trigger and conditional_facets[].when accepting predicate
+  values {"azure": true} and {"metadata": {"aws": false}}. All four cases
+  have schema_errors [], check_g_accepted true and diagnostics []. Equivalent
+  string values containing azure are rejected. The dictionary branch at
+  validate-capability-registry.py:153-156 checks only credentials/state_authority
+  keys, while the provider vocabulary is applied only to string values at
+  lines 160-164. REQ-002 and T-002 Done When require provider-neutral Capability
+  content and detection of boundary violations. Existing 28 tests pass while
+  this reproducible negative path remains uncovered. Finding accepted.
+expected_fix:
+  - "Under the approved protected repair path, reject provider vocabulary in dictionary keys through the shared recursive validator, preserving existing required-key handling and provider-neutral valid inputs."
+  - "Add failing regression assertions for trigger and conditional predicates, direct and nested object keys, and positive controls. Check equivalent published validator payloads if this file is projected."
+  - "Run affected checks, independently review the exact repaired bytes, declare them in the authorized post-fix input channel, and reserve a fresh evaluator identity for the next complete quality cycle."
+references:
+  - specs/sdd-domain-multitarget/requirements.md
+  - specs/sdd-domain-multitarget/tasks.md
+  - reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-result.txt
+  - reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/evaluator-negative-experiment.json
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

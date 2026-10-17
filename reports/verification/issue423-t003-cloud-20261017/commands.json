@@ -1,0 +1,110 @@
+[
+  {
+    "label": "t003",
+    "command": [
+      "python3",
+      "tests/sdd-domain-multitarget-T-003.tests.py"
+    ],
+    "exit_code": 0,
+    "log": "reports/verification/issue423-t003-cloud-20261017/t003.log"
+  },
+  {
+    "label": "registry-bash",
+    "command": [
+      "bash",
+      "tests/registry-discovery.tests.sh"
+    ],
+    "exit_code": 0,
+    "log": "reports/verification/issue423-t003-cloud-20261017/registry-bash.log"
+  },
+  {
+    "label": "registry-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/registry-discovery.tests.ps1"
+    ],
+    "exit_code": 127,
+    "log": "reports/verification/issue423-t003-cloud-20261017/registry-powershell.log"
+  },
+  {
+    "label": "vendor",
+    "command": [
+      "python3",
+      "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "reports/verification/issue423-t003-cloud-20261017/vendor.log"
+  },
+  {
+    "label": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "reports/verification/issue423-t003-cloud-20261017/diff-check.log"
+  },
+  {
+    "label": "task-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/sdd-domain-multitarget/tasks.md"
+    ],
+    "exit_code": 1,
+    "log": "reports/verification/issue423-t003-cloud-20261017/task-state.log"
+  },
+  {
+    "label": "workflow-state",
+    "command": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+    ],
+    "exit_code": 0,
+    "log": "reports/verification/issue423-t003-cloud-20261017/workflow-state.log"
+  },
+  {
+    "label": "structure",
+    "command": [
+      "bash",
+      "plugins/sdd-implementation/scripts/check-sdd-structure.sh"
+    ],
+    "exit_code": 127,
+    "log": "reports/verification/issue423-t003-cloud-20261017/structure.log"
+  },
+  {
+    "label": "ruff-availability",
+    "command": [
+      "python3",
+      "-m",
+      "ruff",
+      "--version"
+    ],
+    "exit_code": 1,
+    "log": "reports/verification/issue423-t003-cloud-20261017/ruff-availability.log"
+  },
+  {
+    "label": "mypy-availability",
+    "command": [
+      "python3",
+      "-m",
+      "mypy",
+      "--version"
+    ],
+    "exit_code": 1,
+    "log": "reports/verification/issue423-t003-cloud-20261017/mypy-availability.log"
+  },
+  {
+    "label": "codex-availability",
+    "command": [
+      "codex",
+      "--version"
+    ],
+    "exit_code": 127,
+    "log": "reports/verification/issue423-t003-cloud-20261017/codex-availability.log"
+  }
+]

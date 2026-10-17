@@ -1,0 +1,46 @@
+ticket_id: RT-20260930-001
+status: resolved
+resolution:
+  date: "2026-10-14"
+  quality_gate: reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md
+  independent_review: reports/verification/issue423-t002-independent-codex-20261014.md
+  evidence_bundle: specs/sdd-domain-multitarget/verification/20261014/T-002.evidence.json
+  verification: "Approved fixture migration passed six CLI, eleven unit and nine registry checks; required obligations remain fail-closed."
+type: test-gap
+severity: major
+target:
+  feature: sdd-domain-multitarget
+  task: T-002
+  files:
+    - contracts/capability-registry.json
+    - plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+    - specs/sdd-domain-multitarget/verification/T-002.contract.json
+summary: "T-002 canonical Registry validation fails despite the focused boundary regression passing"
+problem: |
+  On 2026-09-30 the real validate-capability-registry.sh dispatcher exited 1:
+  check-update-migration.py is referenced but absent. The durable-workflow
+  capability names this required gate; no executable or CLI/migration/evidence
+  contract exists, so an alias, stub, or deleted reference would silently
+  change required behavior. Four other diagnostics are distinct additive
+  registration omissions: check-component-coverage.py, check-contract.py,
+  check-criterion-freeze.py, and check-hook-activation-handshake.py each exists
+  as a direct Python gate master but has no gates[] entry. The validator's
+  direct-master scan requires exactly one matching entry per file.
+  The focused T-002 suite passes 28/28 and the
+  nested provider-neutral boundary has an independent scoped review, but
+  neither result makes the canonical Registry validation pass. The protected
+  registration path refused an agent write; the missing migration-check
+  behavior also needs an explicit contract decision rather than an invented
+  implementation. This blocks a T-002 Done verdict.
+expected_fix:
+  - "Decide whether durable-workflow is production or fixture-only. For production, define and implement the real migration-check inputs, invariants, evidence, and exit semantics; for fixture-only, approve a versioned migration preserving or explicitly replacing its required obligations."
+  - "If current HEAD and baseline hashes match, apply the four-registration human-copy candidate through the authorized protected-file workflow; it covers canonical, vendored, and generated files in two publication steps. Its candidate tests pass 4/4 but intentionally leave the missing migration diagnostic."
+  - "After a separately approved migration-contract resolution, rerun the canonical dispatcher and require exit 0 before asserting Registry PASS."
+  - "Rerun the complete T-002 quality gate with fresh evidence and a fresh isolated evaluator reservation."
+references:
+  - specs/sdd-domain-multitarget/verification/T-002/qg-20260930-command-evidence.md
+  - specs/sdd-domain-multitarget/verification/T-002/registry-registration-recovery.md
+  - reports/implementation/sdd-domain-multitarget/T-002.md
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

@@ -1,0 +1,5 @@
+{
+  "nonce": "43d8d9c3098af42d6b86a645d399ccbd",
+  "executed": false,
+  "raw_result": "Command blocked by PreToolUse hook: SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.. Command: *** Begin Patch\n*** Add File: /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge/sdd/.hook-canary-sentinel\n+\n*** End Patch"
+}

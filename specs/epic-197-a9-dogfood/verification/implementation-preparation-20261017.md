@@ -52,7 +52,7 @@ additional or misclassified components instead of hiding inventory drift.
 
 - Initial new regressions failed on the original schema/Registry/validator:
   the approved overrides were not accepted and both Pack capabilities were absent.
-- New Python regression suite: 11 tests passed, including subcases for malformed
+- New Python regression suite: 15 tests passed, including subcases for malformed
   overrides, classification and inventory mutations, and real approval-content
   admission. The PowerShell entry point passed the same suite on Linux.
 - Existing Project Context schema: 44 passed, 0 failed.
@@ -67,12 +67,34 @@ additional or misclassified components instead of hiding inventory drift.
 
 ## Integration boundaries still open
 
-A direct invocation of the real capability Resolver was attempted in an isolated
-fixture using the repository Registry and candidate. It blocked on the existing
-canonical Registry defects: the illustrative check-update-migration implementation
-is absent and four real gates are unregistered. PR #535 already repairs those
-same defects. Its integration must precede the full candidate/Pack pipeline
-verification; the fixture-suite successes above do not claim that pipeline ran.
+PR #535 was integrated at `76e442b3`. Its canonical Registry repairs now
+allow the real candidate/Pack pipeline to run. Integration exposed two additional
+faults: the output Context Projection schema rejected the valid input overrides,
+and the generated repository-wide projection was incorrectly owned by the quality
+plugin. The output schema now carries the same bounded override fields, and the
+single generated projection path is explicitly cross-cutting. No source path is
+ignored and no concurrency or publication check is weakened.
+
+Real subprocess regressions now execute Git diff collection, canonicalization,
+ownership, Registry validation, predicate selection, publication and a second
+unchanged-source run. Plugin, MCP, installer, mixed, nonmatching and case-variant
+inputs produce the expected facets with zero added gates. Full required and Lite
+advisory fixture runs preserve their input track; the Lite run produces its
+Summary without a Full Manifest/Projection. Removing either the override output
+contract or the cross-cutting projection rule reproduces its corresponding
+failure, and the failed publication leaves no successful Manifest.
+
+Additional verification after integration: the existing Resolver block suite
+passed 407 checks; Context schema passed 44; Facet Manifest schema passed 57;
+Registry semantic validation passed 27; Registry schema passed its accepted and
+rejected fixtures; install/uninstall matrix passed 20. Candidate ownership includes
+the two new exact-path cross-component handoff manifests from #535.
+
+The divergent pre-integration A9 identity ledger is preserved byte-for-byte in
+`identity-ledger-pre-integration.json`, with its original sequences and hashes.
+The canonical ledger follows #535. The archived A9 review records were not
+re-chained, newly signed, or treated as fresh review approval. The immutable
+preparation commit `bc7be7f7` also retains the original invocation paths.
 
 Actual live activation still requires usable A7/A8 native integration and a
 valid, separately authenticated publication. No signing key or human identity

@@ -3,6 +3,9 @@
 import copy
 import importlib.util
 import json
+import hashlib
+import shutil
+import sys
 from pathlib import Path
 import subprocess
 import tempfile
@@ -160,6 +163,134 @@ class CandidatePackTests(unittest.TestCase):
             self.assertEqual(cap["required_facets"], [name + "-spec"])
             suffix = "distribution" if name == "developer-tooling" else "contract"
             self.assertEqual(cap["review_check_ids"], [name + "-" + suffix + "-compatibility"])
+
+
+class ResolverIntegrationTests(unittest.TestCase):
+    def run_pipeline(self, changed_paths, *, context_mutation=None, projection_schema_mutation=False, output_ownership_mutation=False):
+        """Execute real Git, canonicalization, ownership, Registry and publication."""
+        with tempfile.TemporaryDirectory(prefix="a9-resolver-") as directory:
+            root = Path(directory)
+            for relative in ("contracts", "plugins/sdd-quality-loop/scripts",
+                             "plugins/sdd-quality-loop/contracts", "plugins/sdd-quality-loop/references"):
+                shutil.copytree(ROOT / relative, root / relative, ignore=shutil.ignore_patterns("__pycache__"))
+            shutil.copy2(ROOT / ".gitignore", root / ".gitignore")
+            config = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
+            if output_ownership_mutation:
+                config["shared_paths"] = [entry for entry in config["shared_paths"]
+                                          if entry["pattern"] != "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json"]
+            if context_mutation:
+                context_mutation(config)
+            (root / "sdd").mkdir()
+            def yaml_lines(value, indent=0):
+                prefix = " " * indent
+                if isinstance(value, dict):
+                    for key, item in value.items():
+                        if isinstance(item, (dict, list)) and item:
+                            yield prefix + key + ":"
+                            yield from yaml_lines(item, indent + 2)
+                        else:
+                            yield prefix + key + ": " + json.dumps(item)
+                else:
+                    for item in value:
+                        if isinstance(item, dict):
+                            lines = list(yaml_lines(item, indent + 2))
+                            yield prefix + "- " + lines[0].lstrip()
+                            yield from lines[1:]
+                        else:
+                            yield prefix + "- " + json.dumps(item)
+            (root / "sdd/project-context.yaml").write_text("\n".join(yaml_lines(config)) + "\n", encoding="utf-8")
+            (root / "specs/fixture").mkdir(parents=True)
+            if projection_schema_mutation:
+                for relative in ("contracts", "plugins/sdd-quality-loop/contracts"):
+                    schema_path = root / relative / "context-projection.schema.json"
+                    schema = json.loads(schema_path.read_text())
+                    schema["definitions"]["projectedComponent"]["properties"].pop("characteristic_overrides", None)
+                    schema_path.write_text(json.dumps(schema))
+            for relative in changed_paths:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("before\n")
+            for command in (["git", "init", "-q"], ["git", "add", "."],
+                            ["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                             "-c", "commit.gpgsign=false", "commit", "-qm", "fixture"]):
+                subprocess.run(command, cwd=root, check=True, capture_output=True)
+            for relative in changed_paths:
+                (root / relative).write_text("after\n")
+            script = root / "plugins/sdd-quality-loop/scripts/resolve-project-context.py"
+            command = [sys.executable, str(script), "--config", "sdd/project-context.yaml",
+                       "--source-rev", "HEAD", "--target-rev", "HEAD", "--feature", "fixture"]
+            result = subprocess.run(command, cwd=root, capture_output=True, text=True)
+            if output_ownership_mutation:
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("post-publication-generation-mismatch", result.stderr)
+                self.assertFalse((root / "specs/fixture/facet-manifest.yaml").exists())
+                return
+            if projection_schema_mutation:
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("output-schema-validation-failed", result.stderr)
+                self.assertFalse((root / "specs/fixture/facet-manifest.yaml").exists())
+                return
+            self.assertEqual(result.returncode, 0, result.stderr)
+            evidence = json.loads((root / "specs/fixture/resolver-evidence.yaml").read_text())
+            lite = config["workflow"]["spec_profile"] == "lite"
+            artifact = json.loads((root / "specs/fixture" / ("capability-summary.yaml" if lite else "facet-manifest.yaml")).read_text())
+            binding = evidence["context_binding"]
+            projection_path = root / "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json"
+            if lite:
+                self.assertEqual(artifact["track"], "lite")
+                self.assertEqual(artifact["capabilities"], ["cli-library", "developer-tooling"])
+                self.assertFalse(artifact["full_upgrade_required"])
+                self.assertFalse(projection_path.exists())
+                self.assertFalse((root / "specs/fixture/facet-manifest.yaml").exists())
+            else:
+                self.assertEqual(binding, artifact["context_binding"])
+                projection = json.loads(projection_path.read_text())
+                self.assertEqual(projection["workflow"], config["workflow"])
+                self.assertEqual(projection["components"]["mcp"]["characteristic_overrides"], config["components"][7]["characteristic_overrides"])
+                self.assertEqual(projection["shared_paths"], config["shared_paths"])
+                self.assertEqual(binding["projection_sha256"], "sha256:" + hashlib.sha256(projection_path.read_bytes()).hexdigest())
+                self.assertEqual(binding["full_context_revision"], projection["source_sha256"])
+            expected_ownership = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(config), changed_paths)
+            self.assertEqual(binding["ownership_digest"], expected_ownership["context_binding"]["ownership_digest"])
+            if not lite:
+                self.assertEqual(artifact["affected_components"], expected_ownership["affected_components"])
+                self.assertEqual(artifact["resolved_gates"], [])
+            # Re-running against unchanged source must remain stable after output publication.
+            second = subprocess.run(command, cwd=root, capture_output=True, text=True)
+            self.assertEqual(second.returncode, 0, second.stderr)
+            self.assertEqual(json.loads((root / "specs/fixture/resolver-evidence.yaml").read_text())["context_binding"], binding)
+            return artifact
+
+    def test_real_resolver_pack_matrix_and_stable_publication(self):
+        both = ["cli-library", "developer-tooling"]
+        cases = [(["plugins/sdd-bootstrap/example.py"], both),
+                 (["mcp/ci-mcp/example.py"], ["developer-tooling"]),
+                 (["install.sh"], ["developer-tooling"]),
+                 (["mcp/ci-mcp/example.py", "plugins/sdd-bootstrap/example.py"], both)]
+        for paths, expected in cases:
+            with self.subTest(paths=paths):
+                artifact = self.run_pipeline(paths)
+                self.assertEqual(artifact["capabilities"], expected)
+                self.assertEqual(artifact["required_facets"], [item + "-spec" for item in expected])
+        for kind in ("unknown", "PLUGIN_PACKAGE"):
+            with self.subTest(kind=kind):
+                artifact = self.run_pipeline(["plugins/sdd-bootstrap/example.py"],
+                    context_mutation=lambda doc: doc["components"][0].update(artifact_kinds=[kind]))
+                self.assertEqual(artifact["capabilities"], [])
+                self.assertEqual(artifact["required_facets"], [])
+
+    def test_projection_schema_rejects_missing_override_contract(self):
+        self.run_pipeline(["plugins/sdd-bootstrap/example.py"], projection_schema_mutation=True)
+
+    def test_component_owned_projection_cannot_pass_publication(self):
+        self.run_pipeline(["plugins/sdd-bootstrap/example.py"], output_ownership_mutation=True)
+
+    def test_full_required_and_lite_advisory_are_preserved(self):
+        for profile, layout, enforcement in [("full", "facet-hybrid", "required"),
+                                               ("lite", "lite-three-file", "advisory")]:
+            with self.subTest(profile=profile):
+                self.run_pipeline(["plugins/sdd-bootstrap/example.py"], context_mutation=lambda doc:
+                    doc["workflow"].update(spec_profile=profile, artifact_layout=layout, capability_enforcement=enforcement))
 
 
 if __name__ == "__main__":

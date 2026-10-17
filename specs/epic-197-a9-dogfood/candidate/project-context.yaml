@@ -146,6 +146,8 @@ components:
         - "scripts/rollback-1.5.0.sh"
         - "scripts/rollback-1.5.0.ps1"
 shared_paths:
+  - pattern: "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json"
+    classification: "cross-cutting"
   - pattern: "specs/**"
     classification: "cross-cutting"
   - pattern: "tests/**"
@@ -232,4 +234,8 @@ shared_paths:
   - pattern: "skills/adversarial-review/templates/report-template.md"
     classification: "cross-cutting"
   - pattern: "scripts/validate-a9-candidate.py"
+    classification: "cross-cutting"
+  - pattern: "handoffs/issue423-t001-20260928/manifest.json"
+    classification: "cross-cutting"
+  - pattern: "handoffs/issue423-t002-20260928/manifest.json"
     classification: "cross-cutting"

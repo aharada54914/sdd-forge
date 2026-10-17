@@ -134,6 +134,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/scripts/nontty-impl-pretool-guard.mjs",
     "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
     "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py",
     "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
     "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
     "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
