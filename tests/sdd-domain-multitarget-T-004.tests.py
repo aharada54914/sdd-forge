@@ -22,6 +22,11 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / 'plugins/sdd-quality-loop/scripts'
 BOOTSTRAP = ROOT / 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer'
+REQUIREMENTS_TEMPLATE = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md'
+# Reviewed 24fd8033 adds only the initial Pending field; retain the old baseline.
+REVIEWED_REQUIREMENTS_SHA256 = '903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5'
+OLD_REQUIREMENTS_PREFIX = b'# Requirements: {{feature_name}}\n\n'
+REVIEWED_REQUIREMENTS_PREFIX = OLD_REQUIREMENTS_PREFIX + b'Spec-Review-Status: Pending\n\n'
 DOCUMENTS = ('requirements', 'acceptance-tests', 'design', 'ux-spec',
              'frontend-spec', 'infra-spec', 'security-spec')
 
@@ -43,12 +48,42 @@ def retained(feature):
 
 
 class CompatibilityTests(unittest.TestCase):
+    def assert_reviewed_consumer(self, path, content, expected):
+        if path == REQUIREMENTS_TEMPLATE:
+            self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
+            self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
+            content = OLD_REQUIREMENTS_PREFIX + content[len(REVIEWED_REQUIREMENTS_PREFIX):]
+        self.assertEqual(hashlib.sha256(content).hexdigest(), expected)
+
     def test_005_007_reviewed_contracts_templates_and_checks_unchanged(self):
         baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())
         self.assertTrue(baseline['sha256'])
         for path, expected in baseline['sha256'].items():
             with self.subTest(path=path):
-                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
+                self.assert_reviewed_consumer(path, (ROOT / path).read_bytes(), expected)
+
+    def test_reviewed_pending_status_requires_exact_change_and_original_baseline(self):
+        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
+        content = (ROOT / REQUIREMENTS_TEMPLATE).read_bytes()
+        expected = baseline[REQUIREMENTS_TEMPLATE]
+        self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, content, expected)
+        status = b'Spec-Review-Status: Pending\n\n'
+        mutations = {
+            'missing': content.replace(status, b'', 1),
+            'passed': content.replace(b'Spec-Review-Status: Pending', b'Spec-Review-Status: Passed', 1),
+            'unknown': content.replace(b'Spec-Review-Status:', b'Unknown-Review-Status:', 1),
+            'duplicate': content.replace(status, status + status, 1),
+            'moved': content.replace(status, b'', 1) + b'\n' + status,
+            'body': content.replace(b'{{overview}}', b'Changed overview', 1),
+        }
+        for label, changed in mutations.items():
+            with self.subTest(mutation=label), self.assertRaises(AssertionError):
+                self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, changed, expected)
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(REQUIREMENTS_TEMPLATE, content, REVIEWED_REQUIREMENTS_SHA256)
+        unrelated = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(unrelated, (ROOT / unrelated).read_bytes() + b'changed', baseline[unrelated])
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')

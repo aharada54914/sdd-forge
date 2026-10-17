@@ -32,3 +32,22 @@ is still rejected by the existing refresh validator for all three full states
 in both runtimes (12 negative controls), without modifying the checked-in
 corpus. This verifies current structure; it does not claim a new native run or
 completion of the remaining A7/A8/A9 acceptance conditions.
+
+
+## Reviewed consumer snapshot
+
+The T-004 consumer snapshot retains its original requirements-template hash
+`16250a183bf286f1967f160bc816c73f882e0f53158cd4fb11a09e9acdadf5d8`.
+The test now validates the single reviewed change from `24fd8033` explicitly:
+current full-file SHA-256 must equal
+`903a725c445fac4505dfea3a3ac7aaf13b37fdb103ccffc1d1a6d1608dc940b5`,
+and undoing only the exact Pending field immediately after the existing title
+must reproduce the original full-file digest. All other consumer paths still
+use their original complete digest comparison. The baseline JSON and product
+bytes are unchanged.
+
+Regression controls reject a missing, Passed, unknown, duplicated, or moved
+status field; an unrelated body edit; replacement of the old baseline digest;
+and modification of another template. The original failing pin assertion is
+retained on the strict reviewed-change path, rather than skipped or refreshed
+from whatever current bytes happen to contain.
