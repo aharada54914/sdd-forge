@@ -36,7 +36,7 @@ has no provider or network APIs and cannot authorize cloud deployment.
 | AC-002/012 ownership and provider neutrality | T-002 contract-boundaries suite | 29 passed |
 | AC-003/004/013 five targets, obligations, unavailable/unknown, stage boundaries | T-003 integration/evaluator suite, including real resolver CLI and standalone package tests | 29 passed |
 | AC-005/006/007 absent/malformed/stale Context and hybrid retention | T-004 suite, including legacy byte comparison and seven structural mutation cases | 5 tests plus 5 stale-publication assertions passed |
-| AC-008/009 UI applicability/consent/fallback | design-sync-policy suite; real helper subprocess, all regimes/scope changes and adapter spy | 11 passed |
+| AC-008/009 UI applicability/consent/fallback | design-sync-policy suite; real helper subprocess, all regimes/scope changes and adapter spy | 12 passed |
 | AC-008/009 existing scanner and contract continuity | design-sync-standing-consent, design-sync-scan, design-system-contract, bootstrap-interview-guidance | 55, 101, 121, 32 passed |
 | AC-010 simulated/real and provider result boundary | T-003 implementation-only, nonimplementation-observation rejection and required execution-state tests; T-002 ownership checks | passed; only implementation-stage observations emitted, no deployment claim |
 | AC-011 host semantics | guard-parity; guard-r10-port (Python/Node/PowerShell); cli-hook-enforcement (configured Claude/Codex/Copilot invocation forms) | 114, 60, 15 passed |
@@ -52,12 +52,13 @@ human-copy candidates are retained rather than replaced with current bytes.
 
 Before implementation, the new helper/consumer tests failed (8 test methods,
 12 failures) because the helper and consumer references did not exist. After
-implementation and independent review, all 11 methods pass. Independent review
+implementation and independent review, all 12 methods pass. Independent review
 found two concrete consent defects: old off records persisting across a setting
 change, and missing audit output for scope egress prohibitions. Both were fixed
 with regression cases; the reviewer reran the suite and reported no additional
 findings. A further assertion verifies standing consent cannot override a
-persisted scope prohibition.
+persisted scope prohibition. Pull remains independent of upload consent, but
+an explicit egress prohibition also blocks provider reads.
 
 ## Limits
 

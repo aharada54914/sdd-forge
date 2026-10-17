@@ -51,6 +51,11 @@ class PolicyTests(unittest.TestCase):
             self.assertEqual(self.resolve(request(operation="pull", setting=setting,
                                                  provider_available=False))["action"], "manual")
 
+    def test_pull_respects_egress_policy_without_upload_consent(self):
+        result = self.resolve(request(operation="pull", setting="standing", egress_permitted=False))
+        self.assertEqual(result["action"], "manual")
+        self.assertIsNone(result["audit"])
+
     def test_exact_scope_and_latest_decision(self):
         self.assertEqual(self.resolve(request(records=[record()]))["action"], "proceed")
         for change in ({"feature": "other"}, {"session": "ended"}, {"destination": "other"},
