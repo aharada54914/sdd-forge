@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import sys
 import hashlib
 import shutil
@@ -82,6 +83,15 @@ class Inputs(unittest.TestCase):
         for raw in ('{}', '{', '{"schema":"domain-contract/v1","schema":"domain-contract/v1"}'):
             self.put('domain/domain-contract.json', raw)
             self.assertEqual(self.resolve()['domain_status'], 'skipped')
+
+    def test_concept_validator_loader_missing_blocks(self):
+        self.put('specs/example/concept-test.json', '{}')
+        unavailable = (None, importlib.util.spec_from_loader('conditional_concept', None))
+        for spec in unavailable:
+            with self.subTest(spec=spec), patch.object(
+                    module.importlib.util, 'spec_from_file_location', return_value=spec):
+                with self.assertRaisesRegex(ValueError, 'Concept Test validator loader unavailable'):
+                    self.resolve('quality')
 
     def test_schema_dependency_missing_blocks(self):
         self.domain()

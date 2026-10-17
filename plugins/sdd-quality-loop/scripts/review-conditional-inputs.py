@@ -140,6 +140,8 @@ def resolve(root, feature, stage, revision=None):
     if concept_required or source(concept_path, True) is not None:
         module_path = Path(__file__).resolve().parents[2] / 'sdd-domain/scripts/validate-concept-test.py'
         spec = importlib.util.spec_from_file_location('conditional_concept', module_path)
+        if spec is None or spec.loader is None:
+            raise ValueError('Concept Test validator loader unavailable')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         concept, concept_inputs = module.evidence(root, feature, observe)
