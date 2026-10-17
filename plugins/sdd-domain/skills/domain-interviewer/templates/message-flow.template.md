@@ -1,6 +1,6 @@
 # Domain Message Flow: {{domain_name}}
 
-Stage: 7 of 8 (Domain Message Flow)
+Stage: 7 of 7 (Domain Message Flow)
 Seed-Source: {{seed_source}}
 
 Traces how commands, events, and policies from the Event Storming stage

@@ -1,7 +1,7 @@
 # Context Map: {{domain_name}}
 
 Domain-Model-Status: Pending
-Stage: 5 of 8 (Context Map)
+Stage: 5 of 7 (Context Map)
 Seed-Source: {{seed_source}}
 
 `Domain-Model-Status` tracks this domain model's review/approval state:

@@ -1,13 +1,13 @@
 ---
 name: domain-interviewer
-description: Eight-stage DDD interview for the sdd-domain upstream lane. Interviews through Domain Story, Event Storming, Concept Model, Ubiquitous Language, Context Map, Domain Model (aggregates), Domain Message Flow, and C4 Container, checkpointing each stage to disk before the next begins, and regenerating domain/domain-contract.json after every stage. Resumable on interruption.
+description: Seven-stage DDD interview for the sdd-domain upstream lane. Interviews through Domain Story, Event Storming, Concept Model, Ubiquitous Language, Context Map, Domain Model (aggregates), and Domain Message Flow, checkpointing each stage to disk before the next begins, and regenerating domain/domain-contract.json after every stage. Resumable on interruption.
 disable-model-invocation: false
 user-invocable: false
 ---
 
 # Domain Interviewer
 
-Run the eight-stage DDD methodology pipeline that produces the `domain/`
+Run the seven-stage DDD methodology pipeline that produces the `domain/`
 artifact set. This skill is invoked only by `domain-model`; it is never invoked directly by a user or by
 the model's own initiative. It is the sole writer of files under `domain/`.
 
@@ -82,6 +82,7 @@ confirmation or correction, never as an unreviewed final answer:
 | Candidate Bucket | Pre-populates Stage |
 |---|---|
 | `candidate_contexts` | Stage 1 (Domain Story actors/boundary observations) and Stage 5 (Context Map bounded contexts) |
+| `candidate_concepts`, `concept_smells` | Stage 3 (Concept Model proposals and evidence; same/different/undecided requires human confirmation) |
 | `candidate_terms` | Stage 4 (Ubiquitous Language terms) |
 | `candidate_event_hints` | Stage 2 (Event Storming domain events/commands) |
 | `candidate_aggregate_hints` | Stage 6 (Domain Model aggregates) |
@@ -96,7 +97,7 @@ the human may accept, edit, or reject it during the stage's questions — a
 not silently promote a candidate straight into an approved artifact without
 the stage's normal confirmation step.
 
-## Eight-Stage Sequence
+## Seven-Stage Sequence
 
 Interview one stage at a time, one topic at a time (ux-spec.md Interaction
 Sequence: "stage questions, one topic at a time"). Ask questions from the
@@ -112,12 +113,11 @@ the human cannot yet answer — never invent an answer to fill a gap.
 | 5 | Context Map | `templates/context-map.template.md` | `domain/context-map.md` |
 | 6 | Domain Model (aggregates) | `templates/aggregate.template.md` | `domain/aggregates/<name>.md` (one per aggregate) |
 | 7 | Domain Message Flow | `templates/message-flow.template.md` | `domain/message-flow.md` |
-| 8 | C4 Container | `templates/c4-container.template.md` | `domain/c4-container.md` |
 
-These eight canonical paths plus `domain/domain-contract.json` form the current
+These seven canonical paths plus `domain/domain-contract.json` form the current
 artifact set. Concept Model is one stage and one artifact; Distinction Matrix
-and Stress Scenarios are sections of it. C4 remains stage 8 until its separate
-architecture handoff is implemented. There is no v1 stage table or upgrade mode.
+and Stress Scenarios are sections of it. C4 is owned by bootstrap architecture,
+not a domain checkpoint. There is no v1 stage table or upgrade mode.
 
 For stage 6, instantiate `aggregate.template.md` once per aggregate
 identified during Event Storming's "Candidate Aggregate Clusters" and the
@@ -146,18 +146,18 @@ task) an explicit, deliberate action rather than an accidental one.
 ### Resume on Interruption
 
 At the start of every run (including the very first message of a fresh
-session), before asking any question, detect which of the eight canonical
+session), before asking any question, detect which of the seven canonical
 stage artifacts already exist on disk:
 
 1. Check `domain/domain-story.md`, `domain/event-storming.md`,
    `domain/concept-model.md`, `domain/ubiquitous-language.md`,
    `domain/context-map.md`, then whether
    `domain/aggregates/` contains at least one `.md` file, then
-   `domain/message-flow.md`, then `domain/c4-container.md`, **in this
+   `domain/message-flow.md`, **in this
    exact stage order**.
 2. Find the first stage in that order whose canonical artifact is missing.
    That stage is the resume point.
-3. If all eight exist, run the v2 projection validation below before reporting
+3. If all seven exist, run the v2 projection validation below before reporting
    completion. A missing or invalid final contract must be repaired from the
    existing confirmed artifacts; never re-ask or overwrite their content merely
    because projection was interrupted. Once valid, offer `update` mode instead
@@ -264,14 +264,10 @@ failure message standing in for the specific seed/stage identity.
 - This skill is the sole writer of files under `domain/`. `domain-reverse`
   never writes there; `domain-model` (T-004) only orchestrates calls into
   this skill.
-- Never read another plugin's files by relative filesystem path at runtime
-  (Global Constraints). The C4 container template under this skill's own
-  `templates/` is an adapted, standalone copy, produced once at build time
-  by consulting
-  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md`
-  — not a runtime read of that file. Every interview run resolves stage 8's
-  template exclusively through the Eight-Stage Sequence table above, which
-  points only at this skill's own `templates/` directory.
+- Resolve domain templates from this skill's own `templates/` directory.
+  C4 architecture authoring belongs to bootstrap; do not create or require
+  `domain/c4-container.md`. Historical C4 files are optional input only and
+  their absence does not block resume, update, completion or review.
 - Stage checkpointing is create-only for a `new` run: an existing canonical
   stage artifact is never silently overwritten. Deliberate stage
   replacement is `domain-model update` mode's responsibility (T-004), not
@@ -287,7 +283,7 @@ failure message standing in for the specific seed/stage identity.
 
 Report the stage(s) checkpointed this run, their artifact paths, and the
 current `domain/domain-contract.json` regeneration result (valid, or the
-validation error if not). When all eight stages are complete, report that
+validation error if not). When all seven stages are complete, report that
 the artifact set is ready for `domain-review-loop` (T-005, a later task)
 and remind the human that only a human may edit
 `Domain-Model-Status: Approved` into `domain/context-map.md`.

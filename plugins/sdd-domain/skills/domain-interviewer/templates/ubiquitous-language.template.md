@@ -1,6 +1,6 @@
 # Ubiquitous Language: {{domain_name}}
 
-Stage: 4 of 8 (Ubiquitous Language)
+Stage: 4 of 7 (Ubiquitous Language)
 Seed-Source: {{seed_source}}
 
 Canonical terms are English (per AC-013). The JA column records the agreed

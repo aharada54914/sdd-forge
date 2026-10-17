@@ -168,7 +168,6 @@ function New-DomainFixtureTree {
     Set-Content -LiteralPath (Join-Path $domainDir "ubiquitous-language.md") -Value "# Ubiquitous Language`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "context-map.md") -Value "# Context Map`n`nDomain-Model-Status: $Status`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "message-flow.md") -Value "# Message Flow`n`ncontent`n" -Encoding UTF8 -NoNewline
-    Set-Content -LiteralPath (Join-Path $domainDir "c4-container.md") -Value "# C4 Container`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "aggregates/Order.md") -Value "# Order aggregate`n`ncontent`n" -Encoding UTF8 -NoNewline
     Set-Content -LiteralPath (Join-Path $domainDir "domain-contract.json") -Value '{"schema":"domain-contract/v1"}' -Encoding UTF8 -NoNewline
 
@@ -585,6 +584,19 @@ Describe "domain-review-precheck.sh: real execution against a real fixture tree"
         $result = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
         $result.ExitCode | Should Not Be 0
         $result.Output | Should Match "missing canonical domain/ artifact: domain/concept-model\.md"
+    }
+
+        It "${runtime}: ignores optional historical C4 in the domain input digest" {
+        $first = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
+        $first.ExitCode | Should Be 0
+        $report = Join-Path $script:fixtureRoot 'reports/domain-review/attempt-1/round-1/precheck-result.json'
+        $before = (Get-Content -Raw -LiteralPath $report | ConvertFrom-Json).input_sha256
+        Remove-Item -Recurse -Force -LiteralPath (Split-Path $report)
+        Set-Content -LiteralPath (Join-Path $script:fixtureRoot 'domain/c4-container.md') -Value 'Historical architecture input, outside the domain checkpoint set.'
+        $second = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1") -Runtime $runtime
+        $second.ExitCode | Should Be 0
+        $after = (Get-Content -Raw -LiteralPath $report | ConvertFrom-Json).input_sha256
+        $before | Should Be $after
     }
 
         It "${runtime}: includes Concept Model content in the bound review input digest" {

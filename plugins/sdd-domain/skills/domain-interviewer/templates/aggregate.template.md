@@ -1,6 +1,6 @@
 # Aggregate: {{aggregate_name}}
 
-Stage: 6 of 8 (Domain Model - Aggregates)
+Stage: 6 of 7 (Domain Model - Aggregates)
 Context: {{context_name}}
 Seed-Source: {{seed_source}}
 

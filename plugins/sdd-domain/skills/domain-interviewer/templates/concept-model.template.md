@@ -1,6 +1,6 @@
 # Concept Model: {{domain_name}}
 
-Stage: 3 of 8 (Concept Model)
+Stage: 3 of 7 (Concept Model)
 Seed-Source: {{seed_source}}
 
 A concept is a domain meaning with an identity and responsibility boundary.
