@@ -182,8 +182,8 @@ def proof_cases(runtime, temp, environment):
                 ledger.write_text(json.dumps(mutated)); changed = ledger.read_bytes()
                 try:
                     helper.read_only_proof(project, proof_records)
-                except Exception:
-                    pass
+                except ValueError as exc:
+                    assert str(project) not in str(exc) and str(proof_records) not in str(exc)
                 else:
                     raise AssertionError('read-only verification accepted an incomplete or different receipt')
                 assert ledger.read_bytes() == changed, 'failed read-only validation wrote ledger'

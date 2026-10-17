@@ -60,14 +60,18 @@ def read_only_proof(repo, records):
     module = proof_validator(repo)
     args = module.parser().parse_args(['--records-dir', str(records), '--nonce-ledger', str(ledger_path)])
     stdout = io.StringIO()
-    with contextlib.redirect_stdout(stdout):
-        module.run(args, consume=False)
+    try:
+        with contextlib.redirect_stdout(stdout):
+            module.run(args, consume=False)
+        ledger = module.load_json(ledger_path, 'consumed nonce ledger')
+        completed = [(filename, module.load_json(records / filename, 'completed record'))
+                     for filename in module.FILENAMES.values()]
+    except module.ValidationError:
+        raise ValueError('signed live-host proof was rejected') from None
     if stdout.getvalue() != 'discharged\n':
         raise ValueError('signed live-host proof did not discharge')
-    ledger = module.load_json(ledger_path, 'consumed nonce ledger')
     consumed = {entry['nonce']: entry['consumed_by_record'] for entry in ledger['entries']}
-    for filename in module.FILENAMES.values():
-        record = module.load_json(records / filename, 'completed record')
+    for filename, record in completed:
         nonces = {record['nonce']} | {entry['nonce'] for entry in record['consumer_executions']}
         expected = 'tests/hook-activation-live-proof/' + filename
         if any(consumed[nonce] != expected for nonce in nonces):
