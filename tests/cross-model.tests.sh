@@ -533,6 +533,10 @@ process_is_dead() {
     local pid="$1"
     local attempts=0
     while kill -0 "$pid" 2>/dev/null && [ "$attempts" -lt 20 ]; do
+        # A container's PID 1 may leave terminated descendants unreaped.
+        if [ -r "/proc/$pid/stat" ] && grep -Eq '^[0-9]+ \(.*\) Z ' "/proc/$pid/stat"; then
+            return 0
+        fi
         sleep 0.1
         attempts=$((attempts+1))
     done
@@ -1064,6 +1068,12 @@ fi
 # ============================================================================
 # Summary
 # ============================================================================
+
+if python3 "${REPO_ROOT}/tests/cross-model-process-state.tests.py"; then
+    ok 'process liveness distinguishes running, terminated, and reaped children'
+else
+    fail 'process liveness regression'
+fi
 
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed"

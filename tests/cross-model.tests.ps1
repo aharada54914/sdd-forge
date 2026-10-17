@@ -90,6 +90,11 @@ function Test-ProcessExited {
     param([int]$ProcessId)
     for ($attempt = 0; $attempt -lt 20; $attempt++) {
         if (-not (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) { return $true }
+        # A container's PID 1 may leave terminated descendants unreaped.
+        if ($IsLinux) {
+            $state = Get-Content -Raw -LiteralPath "/proc/$ProcessId/stat" -ErrorAction SilentlyContinue
+            if ($state -cmatch '(?s)^\d+ \(.*\) Z ') { return $true }
+        }
         Start-Sleep -Milliseconds 100
     }
     return -not [bool](Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)
