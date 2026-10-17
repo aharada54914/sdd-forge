@@ -155,7 +155,7 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
-      - name: Install structural YAML parser
+      - name: "[deterministic] Install structural YAML parser"
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
       - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
