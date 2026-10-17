@@ -15,7 +15,7 @@
     "config_path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
     "expected_sha256": "sha256:6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
   },
-  "Copilot-subagent-expected-unavailable": {
+  "Copilot-subagent-observed": {
     "config_path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
     "expected_sha256": "sha256:6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4"
   }
