@@ -4,6 +4,7 @@
 import hashlib
 import json
 import pathlib
+import re
 import shutil
 import subprocess
 import tempfile
@@ -75,6 +76,46 @@ class VerifyInputsTest(unittest.TestCase):
     def snapshot(self):
         return {str(p.relative_to(self.root)): p.read_bytes()
                 for p in self.root.rglob("*") if p.is_file()}
+
+    def test_author_template_enters_first_review_with_pending_status(self):
+        templates = ROOT / "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates"
+        rendered = re.sub(r"\{\{[^{}]+\}\}", "Example", (
+            templates / "requirements.template.md").read_text(encoding="utf-8")).encode()
+        design = re.sub(r"\{\{[^{}]+\}\}", "Example", (
+            templates / "design.template.md").read_text(encoding="utf-8")).encode()
+        report_root = self.root / "reports/spec-review/example"
+        first_result = report_root / "attempt-1/round-1/precheck-result.json"
+        for shell in ("sh", "ps1"):
+            if shell == "ps1" and not shutil.which("pwsh"):
+                continue
+            script = self.root / "plugins/sdd-review-loop/scripts" / f"spec-review-precheck.{shell}"
+            argv = (["bash", str(script), "example", "1", "1"] if shell == "sh" else
+                    ["pwsh", "-NoProfile", "-File", str(script), "-Feature", "example",
+                     "-Attempt", "1", "-Round", "1"])
+            cases = (
+                ("template", rendered, design, True),
+                ("missing", rendered.replace(b"Spec-Review-Status: Pending\n", b""), design, False),
+                ("design_only", rendered.replace(b"Spec-Review-Status: Pending\n", b""),
+                 design + b"\nSpec-Review-Status: Pending\n", False),
+                ("passed_without_review", rendered.replace(b"Spec-Review-Status: Pending", b"Spec-Review-Status: Passed"), design, False),
+            )
+            for name, requirements, design_bytes, expected in cases:
+                with self.subTest(shell=shell, case=name):
+                    shutil.rmtree(report_root, ignore_errors=True)
+                    self.requirements.write_bytes(requirements)
+                    (self.spec / "design.md").write_bytes(design_bytes)
+                    result = subprocess.run(argv, capture_output=True, text=True)
+                    self.assertEqual(result.returncode == 0, expected, result.stdout + result.stderr)
+                    self.assertEqual(self.requirements.read_bytes(), requirements)
+                    self.assertEqual((self.spec / "design.md").read_bytes(), design_bytes)
+                    if expected:
+                        record = json.loads(first_result.read_text())
+                        self.assertEqual(record["spec_review_status_field"], "Pending")
+                        self.assertEqual(record["requirements_sha256"], digest(requirements))
+                    else:
+                        self.assertIn("requirements.md must declare Spec-Review-Status: Pending",
+                                      result.stdout + result.stderr)
+                        self.assertFalse(first_result.exists())
 
     def write_prior_contract(self, conditional=(), mutate=None):
         """Seal a synthetic round-one NEEDS_WORK review for real next-round prechecks."""
