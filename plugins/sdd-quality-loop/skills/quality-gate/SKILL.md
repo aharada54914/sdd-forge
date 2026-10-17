@@ -76,7 +76,7 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      (script path relative to this plugin; on Windows use `python`). First
      complete the existing context approval, Resolver and staleness checks;
      create the task verification directory before invocation. The output and
-     every parent must be real paths without symlinks; other output locations
+     every parent must be real paths without symlinks or junctions; other output locations
      are rejected. The feature/task identity comes from the evaluated inputs;
      supply their current manifest, never a hand-authored selection. Record
      the command, exit code and versioned plan as gate evidence. Nonzero or
@@ -93,10 +93,14 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      all preceding full-gate checks, context approval and Resolver checks, and
      additionally invoke `python3 plugins/sdd-lite/lib/run-lite-gate.py
      --summary <current-resolver-summary> --enforcement <advisory|required>
+     --full-gate-promotion
      --repo-root <project-root> --runtime <posix|powershell>` (locate the
      installed sdd-lite plugin; on Windows use `python`). This existing adapter
      validates the Summary and executes its Registry-sourced required Lite
-     checks using the Lite command-discovery contract. Its baseline no-ops
+     checks using the Lite command-discovery contract. The explicit promotion
+     flag satisfies `full_upgrade_required: true` only because this caller is
+     already running all full-gate checks; the ordinary Lite caller retains its
+     early upgrade-required failure and must not pass this flag. Its baseline no-ops
      require the corresponding full-gate observations already executed above.
      Missing/invalid Summary, unavailable adapter, required-check failure, or
      nonzero execution blocks acceptance. Record the real command, exit code

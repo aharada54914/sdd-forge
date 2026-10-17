@@ -340,7 +340,14 @@ class SelectedPlanTests(unittest.TestCase):
                     self.assertIn('schema-identity-invalid', result.stderr)
 
     def test_output_paths_cannot_modify_other_files(self):
-        for attack in ('leaf-link', 'leaf-loop', 'parent-link', 'outside', 'wrong-feature', 'wrong-task', 'traversal', 'hardlink'):
+        self.check_output_paths(('leaf-link', 'leaf-loop', 'parent-link', 'outside', 'wrong-feature', 'wrong-task', 'traversal', 'hardlink'))
+
+    @unittest.skipUnless(os.name == 'nt', 'real Windows junction requires Windows')
+    def test_windows_output_parent_junction_is_rejected(self):
+        self.check_output_paths(('parent-junction',))
+
+    def check_output_paths(self, attacks):
+        for attack in attacks:
             with self.subTest(attack=attack), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory).resolve()
                 registry, manifest, contract = passing_fixture('ui')
@@ -356,13 +363,17 @@ class SelectedPlanTests(unittest.TestCase):
                     output.symlink_to(protected)
                 elif attack == 'leaf-loop':
                     output.symlink_to(output.name)
-                elif attack == 'parent-link':
+                elif attack in ('parent-link', 'parent-junction'):
                     output.parent.rmdir()
                     destination = root / 'other'
                     destination.mkdir()
                     (destination / output.name).write_text('protected original bytes')
                     protected = destination / output.name
-                    output.parent.symlink_to(destination, target_is_directory=True)
+                    if attack == 'parent-junction':
+                        subprocess.run(['cmd', '/c', 'mklink', '/J', str(output.parent), str(destination)],
+                                       capture_output=True, text=True, check=True)
+                    else:
+                        output.parent.symlink_to(destination, target_is_directory=True)
                 elif attack == 'outside':
                     output = protected
                 elif attack == 'wrong-feature':
@@ -531,6 +542,7 @@ class SelectedPlanTests(unittest.TestCase):
         skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text()
         self.assertIn('C3 PROMOTE_FULL', skill)
         self.assertIn('run-lite-gate.py', skill)
+        self.assertIn('--full-gate-promotion', skill)
         self.assertIn('spec_profile: full', skill)
         runner = ROOT / 'plugins/sdd-lite/lib/run-lite-gate.py'
         with tempfile.TemporaryDirectory() as directory:
@@ -551,6 +563,17 @@ class SelectedPlanTests(unittest.TestCase):
             result = json.loads(run.stdout)
             self.assertEqual(result['verdict'], 'PASS')
             self.assertEqual(result['checks'][0]['exit_code'], 0)
+            upgraded = json.loads(summary.read_text())
+            upgraded['full_upgrade_required'] = True
+            summary.write_text(json.dumps(upgraded))
+            run = subprocess.run(argv, capture_output=True, text=True)
+            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+            self.assertEqual(json.loads(run.stdout)['checks'], [])
+            self.assertEqual(json.loads(run.stdout)['reason'], 'full_upgrade_required: true')
+            argv.append('--full-gate-promotion')
+            run = subprocess.run(argv, capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            self.assertEqual(json.loads(run.stdout)['checks'][0]['exit_code'], 0)
             shell.write_text('echo synthetic-failure\nexit 7\n')
             run = subprocess.run(argv, capture_output=True, text=True)
             self.assertEqual(run.returncode, 1, run.stdout + run.stderr)

@@ -9,6 +9,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import stat
 from pathlib import Path
 import sys
 import tempfile
@@ -180,8 +181,13 @@ def validate_output(output: Path, root: Path, plan: dict[str, Any]) -> Path:
     if destination != expected:
         raise ValueError('output-outside-task-verification-directory')
     for path in (destination, *destination.parents):
-        if path.is_symlink():
-            raise ValueError('output-path-symlink')
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
+            continue
+        if (stat.S_ISLNK(metadata.st_mode) or
+                getattr(metadata, 'st_file_attributes', 0) & getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0)):
+            raise ValueError('output-path-symlink-or-reparse-point')
     if not destination.parent.is_dir():
         raise ValueError('task-verification-directory-missing')
     return destination
