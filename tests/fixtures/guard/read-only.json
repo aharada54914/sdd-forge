@@ -172,5 +172,141 @@
     "command": "rg -e --no-config .codex/agents/custom.toml",
     "rg_config": "fixture-config",
     "exit": 2
+  },
+  {
+    "name": "role rg wildcard options",
+    "command": "rg pattern * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "gate rg wildcard options",
+    "command": "rg pattern * plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "exit": 2
+  },
+  {
+    "name": "sudo rg wildcard options",
+    "command": "rg pattern * SDD_SUDO",
+    "exit": 2
+  },
+  {
+    "name": "role sed wildcard options",
+    "command": "sed -n '1p' * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg question wildcard",
+    "command": "rg pattern ????????? .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg bracket wildcard",
+    "command": "rg pattern [a-z-]* .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role proxy rg wildcard",
+    "command": "rtk proxy rg pattern * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg explicit option end",
+    "command": "rg -- pattern * .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role rg no config option end",
+    "command": "rg --no-config -- pattern * .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role sed explicit option end",
+    "command": "sed -n '1p' -- * .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role rg consumed option end",
+    "command": "rg -e -- * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role separate wildcard command",
+    "command": "ls * && rg pattern .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role double quoted literal metacharacters",
+    "command": "rg \"developer_(instructions){1}<value>\" .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role double quoted literal glob",
+    "command": "rg \"[a-z]*?\" .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role double quoted substitution",
+    "command": "rg \"$(touch marker)\" .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role double quoted backtick",
+    "command": "rg \"`touch marker`\" .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "rg glob with output redirect",
+    "command": "rg pattern * > harmless.log",
+    "exit": 2
+  },
+  {
+    "name": "sed glob with output redirect",
+    "command": "sed -n p * > harmless.log",
+    "exit": 2
+  },
+  {
+    "name": "rg glob with escaped argument",
+    "command": "rg pattern * harmless\\ path",
+    "exit": 2
+  },
+  {
+    "name": "rg glob with fd redirect",
+    "command": "rg pattern * 2>&1",
+    "exit": 2
+  },
+  {
+    "name": "rg glob with quoted separators",
+    "command": "rg \"[|&;]\" * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "rg glob in second command",
+    "command": "ls * && rg pattern * .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role literal pre pattern after option end",
+    "command": "rg -- --pre * .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role literal hostname pattern after option end",
+    "command": "rg --no-config -- --hostname-bin * .codex/agents/custom.toml",
+    "exit": 0,
+    "rg_config": "fixture-config"
+  },
+  {
+    "name": "rg escaped double quote before glob",
+    "command": "rg \\\" *",
+    "exit": 2
+  },
+  {
+    "name": "rg escaped single quote before glob",
+    "command": "rg \\' *",
+    "exit": 2
+  },
+  {
+    "name": "rg unterminated quote with glob",
+    "command": "rg \"*",
+    "exit": 2
   }
 ]

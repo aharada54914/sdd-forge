@@ -1211,41 +1211,71 @@ function patchWritesInvalidAgentRole(patch) {
   return false;
 }
 
-function shellIsReadOnly(cmd) {
-  // Classify every command; quoted search text is data, not shell syntax.
-  if (typeof cmd !== 'string') return false;
+function shellReadSegments(cmd) {
+  // Keep quote-aware expansion flags alongside the shared tokenizer's segments.
+  if (typeof cmd !== 'string') return null;
   let quote = null;
+  const globs = [false];
+  let readSafe = true;
   for (const ch of cmd) {
     if (quote === "'") {
       if (ch === "'") quote = null;
       continue;
     }
-    if ('$`<>(){}'.includes(ch)) return false;
+    if ('$`'.includes(ch) || (quote === null && '<>(){}'.includes(ch))) readSafe = false;
+    if (quote === null) {
+      if ('*?['.includes(ch)) globs[globs.length - 1] = true;
+      else if ('\n\r;|&'.includes(ch)) globs.push(false);
+    }
     if (ch === '"') quote = quote === '"' ? null : '"';
     else if (ch === "'" && quote === null) quote = "'";
   }
   const tokens = tokenizeShellCommand(cmd);
-  if (!tokens || !tokens.length) return false;
-  const readers = new Set([
-    'cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
-    'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object',
-  ]);
+  // Unsupported escapes can change quote boundaries; do not trust their flags.
+  if (!tokens || !tokens.length) return { segments: [], readSafe: false, unknownGlob: /[*?\[]/.test(cmd) };
   const segments = [[]];
   for (const [kind, word] of tokens) {
     if (kind === 'sep') segments.push([]);
     else segments[segments.length - 1].push(word);
   }
-  for (let words of segments) {
+  return { segments: segments.map((words, index) => [words, globs[index]]), readSafe,
+    unknownGlob: segments.length !== globs.length && globs.some(Boolean) };
+}
+
+function readerGlobCanAddOptions(words, hasGlob) {
+  if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
+  if (!words.length || !hasGlob) return false;
+  if (words[0].toLowerCase() === 'rg') return !(words[1] === '--' || (words[1] === '--no-config' && words[2] === '--'));
+  if (words[0].toLowerCase() === 'sed') return !(words[1] === '-n' && words[3] === '--');
+  return false;
+}
+
+function shellHasGlobbedReaderOptions(cmd) {
+  const parsed = shellReadSegments(cmd);
+  return !!parsed && (parsed.unknownGlob || parsed.segments.some(([words, glob]) => readerGlobCanAddOptions(words, glob)));
+}
+
+function shellIsReadOnly(cmd) {
+  // Quoted patterns are data; expansions are not the final argv.
+  const parsed = shellReadSegments(cmd);
+  if (parsed === null || !parsed.readSafe || parsed.unknownGlob) return false;
+  const readers = new Set([
+    'cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
+    'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object',
+  ]);
+  for (let [words, hasGlob] of parsed.segments) {
+    if (readerGlobCanAddOptions(words, hasGlob)) return false;
     if (!words.length) continue;
     if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
     if (!words.length) return false;
     const verb = words[0].toLowerCase();
     if (verb === 'sed') {
       // sed can write or execute; admit only its print-range form.
-      if (words.length < 3 || words[1] !== '-n' || !/^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]) || words.slice(3).some(word => word.startsWith('-'))) return false;
+      if (words.length < 3 || words[1] !== '-n' || !/^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]) || (words[3] !== '--' && words.slice(3).some(word => word.startsWith('-')))) return false;
     } else if (!readers.has(verb)) return false;
     if (verb === 'rg') {
-      if (words.slice(1).some(word => ['--pre', '--hostname-bin'].includes(word.split('=')[0]))) return false;
+      const optionsClosed = words[1] === '--' || (words[1] === '--no-config' && words[2] === '--');
+      if (!optionsClosed && words.slice(1).some(word => ['--pre', '--hostname-bin'].includes(word.split('=')[0]))) return false;
       if (process.env.RIPGREP_CONFIG_PATH && words[1] !== '--no-config') return false;
     }
   }
@@ -1867,6 +1897,11 @@ async function main() {
     const toolName = String(payload.tool_name || '').toLowerCase();
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
+    // Reject unknown argv before legacy write scanners can miss glob-added options.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command)) {
+      emitDecision('deny', 'SDD deterministic gate: unquoted rg/sed globs require an explicit option terminator (--).', mode);
+      return;
+    }
     // Read-only inspection cannot change protected files or grant approvals.
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command)) {
       emitDecision('allow', null, mode);

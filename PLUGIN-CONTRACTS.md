@@ -11,6 +11,16 @@ search patterns as data. Supported readers include `cat`, `ls`, `stat`,
 `head`, `tail`, `grep`, `rg`, `wc`, PowerShell `Get-Content` and related read
 cmdlets, and `sed -n '1,200p'` style print ranges. `cd` followed by inspection
 and the `rtk proxy` wrapper use the same classification.
+Single- and double-quoted parentheses, braces, angle brackets and glob patterns
+remain literal data; expansion through `$` or backticks inside double quotes
+does not qualify as a read.
+
+Unquoted `rg` and `sed` globs can expand repository filenames into executable
+or writing options, so they are denied unless options are explicitly terminated:
+use `rg -- pattern *`, `rg --no-config -- pattern *`, or `sed -n '1,200p' -- *`.
+A `--` consumed as another option's value is not an option terminator. Other
+read-only commands in the same pipeline or command list retain their own glob behavior.
+Unquoted globs combined with shell syntax the tokenizer cannot model are also denied.
 
 A read followed by a write, output redirection, executable substitution,
 `rg --pre` / `--hostname-bin`, and writing/executing `sed` programs do not qualify as read-only.
