@@ -406,7 +406,10 @@ fi
 # check-component-coverage.* entries in BOTH protected_gate_suffixes and
 # phase2_human_copy_targets; T-004's two live workflow steps must remain
 # present; every candidate must match its manifest hash; and T-004-owned
-# protected rows must remain byte-identical live. The shared workflow row is
+# protected rows must remain byte-identical live, except the six invariant
+# files may pass the existing strict archive-to-live evolution validator and
+# its negative controls. Archive hashes remain mandatory for every row.
+# The shared workflow row is
 # candidate-only because later serialized tasks reuse it for pending staged
 # registrations after T-004's own steps have been human-applied. A later
 # task's explicit HUMAN APPLY STEP may likewise add a not-yet-live protected
@@ -416,9 +419,19 @@ if python3 -c "
 import hashlib
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 repo = Path('${REPO_ROOT}')
 manifest = Path('${HC_MANIFEST_191}')
+invariant_paths = {
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    *('plugins/sdd-quality-loop/scripts/generated/' + name for name in (
+        'guard_invariants.py', 'guard-invariants.generated.js',
+        'guard-invariants.generated.ps1', 'guard-invariants.generated.sh')),
+}
+invariant_evolution_verified = False
 tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
 t006 = tasks.split('## T-006', 1)[1]
 declared_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
@@ -454,10 +467,20 @@ for line in manifest.read_text().splitlines():
     guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
     pending_human_apply = relative in declared_human_apply and not guard_applied
     if not pending_human_apply and hashlib.sha256(applied_bytes).hexdigest() != expected:
-        raise SystemExit(f'applied hash mismatch: {relative}')
+        if relative not in invariant_paths:
+            raise SystemExit(f'applied hash mismatch: {relative}')
+        if not invariant_evolution_verified:
+            result = subprocess.run([
+                sys.executable, '-B', str(repo / 'tests/lib/guard-invariants-evolution.py'),
+                str(manifest.parent / 'plugins/sdd-quality-loop'),
+                str(repo / 'plugins/sdd-quality-loop'), '--self-test'],
+                capture_output=True, text=True)
+            if result.returncode != 0:
+                raise SystemExit('strict invariant evolution or negative controls failed: ' + result.stderr)
+            invariant_evolution_verified = True
 raise SystemExit(0)
 "; then
-  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live"
+  ok "TEST-036.4: live registrations and every archive digest verify; non-invariant owned rows stay byte-identical; invariant-only evolution passes strict validation and negative controls"
 else
   fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
 fi

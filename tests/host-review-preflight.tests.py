@@ -233,6 +233,11 @@ GUARDS = tuple(QUALITY_SCRIPTS + 'sdd-hook-guard.' + ext
 FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WORKFLOW)
 # Pin all unrelated keys and memberships to the admitted T-003 baseline.
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
+# T-005 commit 7e110ebb adds exactly this protected policy boundary. Keep the
+# original unrelated baseline pin; require each acknowledged addition once.
+ACKNOWLEDGED_PROTECTIONS = (
+    'plugins/sdd-bootstrap/scripts/resolve-design-sync.py',
+)
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
     re.MULTILINE)
@@ -341,9 +346,13 @@ class ProtectedEntrypointTests(unittest.TestCase):
                                     str(self.root / name))
 
     def assert_unrelated_unchanged(self, data):
+        for path in ACKNOWLEDGED_PROTECTIONS:
+            self.assertEqual(data['protected_gate_suffixes'].count(path), 1,
+                             f'acknowledged protection must occur exactly once: {path}')
         unrelated = dict(data)
         unrelated['protected_gate_suffixes'] = [
-            path for path in data['protected_gate_suffixes'] if path not in ENTRYPOINTS]
+            path for path in data['protected_gate_suffixes']
+            if path not in ENTRYPOINTS + ACKNOWLEDGED_PROTECTIONS]
         digest = hashlib.sha256(json.dumps(unrelated, sort_keys=True,
                                separators=(',', ':')).encode()).hexdigest()
         self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
@@ -368,6 +377,29 @@ class ProtectedEntrypointTests(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
             self.assert_unrelated_unchanged(mutated)
         self.assert_unrelated_unchanged(data)
+
+    def test_012e_acknowledged_protection_is_mandatory_and_unique(self):
+        data = json.loads((self.root / CANONICAL).read_bytes())
+        for path in ACKNOWLEDGED_PROTECTIONS:
+            self.assertTrue((ROOT / path).is_file(), f'acknowledged protected file missing: {path}')
+            for action in ('remove', 'duplicate'):
+                with self.subTest(path=path, action=action):
+                    mutated = json.loads(json.dumps(data))
+                    if action == 'remove':
+                        mutated['protected_gate_suffixes'].remove(path)
+                    else:
+                        mutated['protected_gate_suffixes'].append(path)
+                    with self.assertRaisesRegex(AssertionError, 'acknowledged protection must occur exactly once'):
+                        self.assert_unrelated_unchanged(mutated)
+        for action in ('add', 'reorder'):
+            with self.subTest(action=action):
+                mutated = json.loads(json.dumps(data))
+                if action == 'add':
+                    mutated['protected_gate_suffixes'].append('plugins/unapproved-extra.py')
+                else:
+                    mutated['protected_gate_suffixes'][:2] = reversed(mutated['protected_gate_suffixes'][:2])
+                with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
+                    self.assert_unrelated_unchanged(mutated)
 
     def assert_transport_registered(self):
         workflow = (self.root / WORKFLOW).read_text()

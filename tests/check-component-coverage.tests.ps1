@@ -361,7 +361,10 @@ if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
 # TEST-036.4 (retargeted 2026-08-12): live guard-invariants.json must carry
 # the three entries in BOTH protected lists; T-004's own live workflow steps
 # must remain present; every shared-manifest candidate hash must verify; and
-# T-004-owned protected rows must still match live. The shared workflow row
+# T-004-owned protected rows must still match live. Only the six invariant
+# files may instead pass the shared strict evolution validator and its negative
+# controls; every archived row must still match its manifest digest.
+# The shared workflow row
 # may carry a later serialized task's pending staged registration. Explicit
 # HUMAN APPLY STEP paths are derived from that later task's text and remain
 # candidate-only only while the candidate's argument guard is absent live.
@@ -378,6 +381,16 @@ foreach ($n in $newSuffixes) {
 $manifestOk = $true
 $manifestChecked = 0
 $liveChecked = 0
+$invariantPaths = @(
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
+)
+$invariantEvolutionChecked = $false
+$invariantEvolutionOk = $false
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
 $t006Text = ($tasksText -split '## T-006', 2)[1]
 $declaredHumanApply = @([regex]::Matches($t006Text, 'human-copy/(plugins/[^`\s]+)') | ForEach-Object { $_.Groups[1].Value })
@@ -407,15 +420,29 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
     $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
     if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+        if ($liveHash -cne $parts[0].Trim()) {
+            if ($invariantPaths -cnotcontains $relativePath) {
+                $manifestOk = $false
+            } else {
+                if (-not $invariantEvolutionChecked) {
+                    $evolutionHelper = Join-Path $repoRoot 'tests/lib/guard-invariants-evolution.py'
+                    $archiveLoop = Join-Path (Split-Path -Parent $hcManifest191) 'plugins/sdd-quality-loop'
+                    $liveLoop = Join-Path $repoRoot 'plugins/sdd-quality-loop'
+                    $evolutionOutput = & python3 -B $evolutionHelper $archiveLoop $liveLoop --self-test 2>&1
+                    $invariantEvolutionOk = $LASTEXITCODE -eq 0
+                    $invariantEvolutionChecked = $true
+                }
+                if (-not $invariantEvolutionOk) { $manifestOk = $false }
+            }
+        }
         $liveChecked++
     }
     $manifestChecked++
 }
 if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
-    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked T-004-owned protected rows remain byte-identical live"
+    Ok "TEST-036.4: all $manifestChecked archive digests and $liveChecked live rows verify; only six invariant paths permit strict evolution with negative controls; other owned rows stay byte-identical"
 } else {
-    Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
+    Fail "TEST-036.4: registration, archive integrity, or live continuity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked evolutionChecked=$invariantEvolutionChecked evolutionOk=$invariantEvolutionOk)"
 }
 # TEST-036.5 (retargeted 2026-08-11): the generator inventory check runs
 # against the LIVE tree — the applied state is what must be consistent.
