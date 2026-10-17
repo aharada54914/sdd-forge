@@ -591,7 +591,7 @@ jq -e '
     ] + (if has("scratch_declaration_sha256") then ["scratch_declaration_sha256"] else [] end)
       + (if has("allowed_inputs_sha256") then ["allowed_inputs_sha256"] else [] end) | sort)) and
     (if has("allowed_inputs_sha256") then
-      (.stage == "spec" or .stage == "impl" or .stage == "task" or .stage == "quality") and
+      (.stage == "spec" or .stage == "impl" or .stage == "task" or .stage == "quality" or .stage == "domain") and
       (.allowed_inputs_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
      else true end) and
     (if has("scratch_declaration_sha256") then
@@ -655,7 +655,7 @@ persisted_match=$(jq -c --arg run "$run_id" --arg session "$host_session_id" '
 # Canonical paths/hashes cannot contain tab/newline separators. Preserve order.
 input_binding=''
 persisted_input_binding=''
-if [[ "$stage" == spec || "$stage" == impl ]] ||
+if [[ "$stage" == spec || "$stage" == impl || "$stage" == domain ]] ||
     jq -e --arg p "specs/$feature/concept-test.json" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null; then
   input_text=$(jq -jr '[.allowed_input_manifest[] | .path + "\t" + .sha256] | join("\n")' "$manifest") ||
     fail CONTRACT 'cannot compute reserved input binding'

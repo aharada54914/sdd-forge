@@ -641,7 +641,10 @@ for domain_gate in \
     plugins/sdd-domain/scripts/validate-concept-test.sh \
     plugins/sdd-domain/scripts/validate-concept-test.ps1 \
     plugins/sdd-domain/scripts/validate-concept-test.py \
-    plugins/sdd-domain/scripts/domain-review-precheck.ps1; do
+    plugins/sdd-domain/scripts/domain-review-precheck.ps1 \
+    plugins/sdd-domain/scripts/finalize-domain-review.py \
+    plugins/sdd-domain/scripts/finalize-domain-review.sh \
+    plugins/sdd-domain/scripts/finalize-domain-review.ps1; do
     parity_check "concept enforcement: $domain_gate" 2 \
         "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$domain_gate\",\"content\":\"replacement\"}}"
 done

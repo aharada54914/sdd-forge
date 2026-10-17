@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/domain-review-contract.v1.schema.json",
+  "title": "Validated internal domain review evidence; cross-model and human approval remain pending",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "stage",
+    "attempt",
+    "round",
+    "run_id",
+    "host_session_id",
+    "input_sha256",
+    "calibration_sha256",
+    "precheck_sha256",
+    "verdict",
+    "warningCount",
+    "findings",
+    "reviewers",
+    "cross_model_required",
+    "human_approval"
+  ],
+  "properties": {
+    "schema": {
+      "const": "domain-review-contract/v1"
+    },
+    "stage": {
+      "const": "domain"
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "host_session_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "calibration_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "precheck_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "NEEDS_WORK",
+        "BLOCKED"
+      ]
+    },
+    "warningCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Critical",
+        "Major",
+        "Minor"
+      ],
+      "properties": {
+        "Critical": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "Major": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "Minor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "reviewers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "run_id",
+            "host_session_id",
+            "sequence",
+            "invocation_sha256",
+            "output_sha256"
+          ],
+          "properties": {
+            "role": {
+              "const": "domain-reviewer-a"
+            },
+            "run_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "host_session_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "invocation_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "output_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "run_id",
+            "host_session_id",
+            "sequence",
+            "invocation_sha256",
+            "output_sha256"
+          ],
+          "properties": {
+            "role": {
+              "const": "domain-reviewer-b"
+            },
+            "run_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "host_session_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "invocation_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "output_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "cross_model_required": {
+      "const": true
+    },
+    "human_approval": {
+      "const": "Pending"
+    }
+  }
+}

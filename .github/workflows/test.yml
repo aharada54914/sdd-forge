@@ -70,6 +70,7 @@ jobs:
         run: |
           python3 -B tests/concept-test.tests.py
           python3 -B tests/concept-review-continuity.tests.py
+          python3 -B tests/domain-review-finalize.tests.py
           python3 -B tests/fixed-review-inputs.tests.py
           python3 -B tests/fixed-review-state.tests.py
           python3 -B tests/fixed-review-launch.tests.py
@@ -164,7 +165,9 @@ jobs:
       - name: "[deterministic] Test Concept Test gate on native Windows"
         if: runner.os == 'Windows'
         shell: pwsh
-        run: python -B tests/concept-test.tests.py
+        run: |
+          python -B tests/concept-test.tests.py
+          python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'

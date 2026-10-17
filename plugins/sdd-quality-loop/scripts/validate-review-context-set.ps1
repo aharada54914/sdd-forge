@@ -621,7 +621,7 @@ try {
         $inputBoundRecord = $record -is [hashtable] -and $record.ContainsKey('allowed_inputs_sha256')
         if ($inputBoundRecord) {
             $allowedRecordKeys += 'allowed_inputs_sha256'
-            if ($record.stage -cnotin @('spec','impl','task','quality') -or
+            if ($record.stage -cnotin @('spec','impl','task','quality','domain') -or
                 $record.allowed_inputs_sha256 -isnot [string] -or
                 $record.allowed_inputs_sha256 -cnotmatch '^[0-9a-f]{64}$') {
                 Fail-ReviewContext 'IDENTITY' 'invalid input binding in identity ledger'
@@ -666,7 +666,7 @@ try {
     # Same ordered ASCII path<TAB>hash lines as Bash, without a final newline.
     $inputBinding = ''
     $conceptInputPath = "specs/$($document.feature)/concept-test.json"
-    if ($document.stage -cin @('spec','impl') -or
+    if ($document.stage -cin @('spec','impl','domain') -or
         @($document.allowed_input_manifest | Where-Object { $_.path -ceq $conceptInputPath }).Count -eq 1) {
         $inputText = @($document.allowed_input_manifest | ForEach-Object { "$($_.path)`t$($_.sha256)" }) -join "`n"
         $inputBinding = Get-Sha256Text $inputText

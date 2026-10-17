@@ -1,5 +1,5 @@
 #!/bin/sh
-# Generated from guard-invariants.json; schema_version=1; sha256=733c1bced50d7d2779ba8b7bbd00dafaf42efd60cce53398aa08ef3e6adfd7b5
+# Generated from guard-invariants.json; schema_version=1; sha256=0f0976ab144bfb088c8e1ea509cc396a83d92eb0770a5dc28c53ad91308f213a
 # This dispatcher provenance module intentionally exposes no decision constants.
 GUARD_INVARIANTS_SCHEMA_VERSION=1
-GUARD_INVARIANTS_SOURCE_SHA256=733c1bced50d7d2779ba8b7bbd00dafaf42efd60cce53398aa08ef3e6adfd7b5
+GUARD_INVARIANTS_SOURCE_SHA256=0f0976ab144bfb088c8e1ea509cc396a83d92eb0770a5dc28c53ad91308f213a

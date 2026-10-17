@@ -181,6 +181,13 @@ Assert-Parity "r10 file-write: claude-hooks.json"          2 '{"tool_name":"writ
 Assert-Parity "r10 apply_patch: sdd-hook-guard.py"         2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+x\n*** End Patch"}}'
 Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"write","tool_input":{"file_path":"foo/../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
 
+# The domain finalizer's Python master and both packaged wrappers are gates.
+foreach ($suffix in @('py', 'sh', 'ps1')) {
+    $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"
+    $payload = @{ tool_name = 'write'; tool_input = @{ file_path = $finalizerPath; content = 'replacement' } } | ConvertTo-Json -Compress
+    Assert-Parity "r10 domain finalizer: $suffix" 2 $payload
+}
+
 # R-10 exhaustive protected-table coverage (RT-20260712-002): one write-denial
 # fixture for every ProtectedGateSuffixes entry not already covered above, so
 # the corpus exercises every protected suffix class rather than a sample

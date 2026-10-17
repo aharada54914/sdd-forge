@@ -11,7 +11,8 @@ Run this manually after `domain-interviewer` (T-002) has produced the seven
 canonical `domain/` artifacts and before a human sets
 `Domain-Model-Status: Approved` in `domain/context-map.md`. It is the only
 workflow mechanism permitted to change `Domain-Model-Status: Pending` to
-`Domain-Model-Status: Reviewed`. It never writes `Approved` — only a human may
+`Domain-Model-Status: Reviewed`, after both the internal review and required
+cross-model verification pass. It never writes `Approved` — only a human may
 do that, and the hook guard (T-006) rejects an agent-authored write of that
 value.
 
@@ -203,6 +204,17 @@ make a hash check pass. An unsupported or unverified host must block before the
 reviewer runs. Missing hash capability must never waive independent input or
 record-hash verification.
 
+The orchestrator enforces this boundary and supplies launch facts alongside the
+manifest and receipt: CLI version, exact `available_tools`, shell grants,
+write denial, absence of broad grants, and the verified write/compound/substitution/
+wrapper rejection categories. Preserve the actual command and native denial
+observations as private execution evidence. Supply facts only for the profile
+actually used; never infer them from role instructions or input documents. The
+reviewer relies on these trusted invocation facts for host configuration, which
+may not be introspectable from inside its session. It still independently hashes
+all inputs and the receipt, and stops if that capability is unavailable. A prompt
+claim does not replace the orchestrator's obligation to enforce and test the host.
+
 Hash only manifest-listed input bytes with `sha256sum -- <shell-quoted-path>`.
 For the record proof, construct the exact validated manifest-field string from
 `review-context-boundary.md` and hash its bytes with
@@ -229,23 +241,72 @@ alteration instead of repairing a returned review to fit the reservation.
    native allocation above carries no review inputs). Persist its
    returned raw JSON as `reviewer-a.json`; reviewers themselves have no
    write capability.
-3. Create `integrated-summary.json` containing only check IDs, severities,
-   and counts. It must not reproduce any raw finding text.
+3. Run the deterministic summary command below against the exact captured A
+   output and persisted invocation. It creates `integrated-summary.json`
+   containing only check IDs, severities, and counts. Never construct a different
+   summary or copy raw finding text into B's context.
 4. Start `domain-reviewer-b` in a separate fresh host context. Its allowed-
    input manifest contains only the canonical artifacts, calibration
    reference, precheck result, and that sanitized summary. It must never
    receive `reviewer-a.json`. Build and reserve a new invocation manifest
    against the ledger state produced by reviewer A immediately before
    launch.
-5. Validate both returned schemas, stage/role/run/session identity, allowed
-   manifests, and input hashes. Derive the sanitized A summary from A's
-   checks, then derive `integrated-verdict.json` from both outputs. Reject a
-   duplicated or blank host-session ID, raw report path, altered input,
-   malformed output, or a verdict/warning count that contradicts the checks.
-6. Write `domain-review-contract.json` and the report from the supplied
-   templates only after that validation. The contract must exactly repeat
-   the derived verdict and `warningCount`; it is not an independent source
-   of truth.
+5. Persist B's returned JSON verbatim, then run the deterministic finalizer below.
+   It validates both reserved identities, exact canonical input sets and hashes,
+   ordered checks, severity floors, skip conditions, the B-bound summary, and
+   each declared verdict before deriving the combined verdict and warning count.
+   Never repair output IDs, findings or a malformed result to make it validate.
+6. Run its read-only verification mode against the published evidence. An internal
+   PASS is eligible for the existing cross-model step; it is not human approval.
+   Keep canonical input bytes and status Pending while that step is unresolved.
+
+### Deterministic evidence commands
+
+All commands use the existing round containing `precheck-result.json`,
+`reviewer-a-invocation.json`, and A's unedited `reviewer-a.json`. Before B's
+reservation and invocation, run:
+
+```bash
+bash plugins/sdd-domain/scripts/finalize-domain-review.sh --root <repository-root> --attempt <M> --round <N> --mode summary
+```
+
+After B's real reservation and unedited `reviewer-b.json` have been persisted
+alongside `reviewer-b-invocation.json`, run:
+
+```bash
+bash plugins/sdd-domain/scripts/finalize-domain-review.sh --root <repository-root> --attempt <M> --round <N>
+bash plugins/sdd-domain/scripts/finalize-domain-review.sh --root <repository-root> --attempt <M> --round <N> --mode verify
+```
+
+On PowerShell, use `pwsh -NoProfile -File` with the `.ps1` twin and identical
+arguments. Both wrappers dispatch to one Python core and reuse the existing
+shared context validator in verification mode, without reserving identities again.
+Each reviewer must already have an exact persisted, input-bound ledger record;
+unbound historical records are not upgraded or reconstructed. Start a new genuine
+review if the earlier host did not record the required binding.
+
+Summary and finalization publish exclusively under the existing precheck lock.
+A replay, existing output, symlink/reparse path, malformed or changed input,
+missing reservation, reordered/missing check, or inconsistent verdict blocks
+publication. The contract is the last published completion marker. Verification
+recomputes the same evidence without rewriting it. The finalizer never changes
+reviewer bytes, identities, domain status, cross-model results or approval.
+
+The fixed output formats are documented by
+`plugins/sdd-domain/templates/domain-review-contract.template.json`,
+`domain-review-integrated-verdict.template.json`, and
+`domain-review-report.template.md`; the contract's public schema is
+`contracts/domain-review-contract.v1.schema.json`. The actual outputs are
+`integrated-verdict.json`, `report.md`, and `domain-review-contract.json`.
+The contract retains `human_approval: Pending`; the report states the requirement for cross-model review;
+the internal contract does not substitute for its separate aggregate.
+
+Verification checks the current Pending input snapshot. After a legitimate
+cross-model PASS and subsequent Reviewed or human Approved transition, preserve
+this contract as historical evidence of that Pending snapshot. A later current-
+input verification correctly rejects changed bytes; it is not a historical
+verification of the earlier execution. Never rewrite old manifests, reservations
+or captured outputs to conceal a later status transition.
 
 ## Upstream concept handoff
 
@@ -289,16 +350,17 @@ Merged verdict:
 - `critical == 0 and major == 0 and minor == 0` → `PASS`, `warningCount: 0`
   (clean pass, any round).
 
-Never waive findings. Only a validated merged PASS may advance
-`Domain-Model-Status`.
+Never waive findings. Only a validated merged PASS plus a successful required cross-model gate may
+advance `Domain-Model-Status` to Reviewed. Internal finalization keeps the hashed
+input bytes Pending; it does not preempt the separate cross-model decision.
 
 ## State transition rules
 
 | State | permitted invocation | result |
 |---|---|---|
-| Pending, no evidence | round 1 | PASS changes header to `Reviewed`; finding creates NEEDS_WORK |
-| Pending, round 1/2 NEEDS_WORK | `--edit-summary`, next round | clean PASS changes header; otherwise writes NEEDS_WORK |
-| Pending, round 2 NEEDS_WORK | `--edit-summary`, round 3 | Minor-only produces PASS (header -> `Reviewed`) with `warningCount > 0`; Major/Critical produces BLOCKED |
+| Pending, no evidence | round 1 | internal PASS keeps Pending until cross-model PASS; finding creates NEEDS_WORK |
+| Pending, round 1/2 NEEDS_WORK | `--edit-summary`, next round | clean internal PASS requires cross-model PASS before Reviewed; otherwise writes NEEDS_WORK |
+| Pending, round 2 NEEDS_WORK | `--edit-summary`, round 3 | Minor-only produces internal PASS with `warningCount > 0`, then requires cross-model PASS before Reviewed; Major/Critical produces BLOCKED |
 | Pending, blocked or completed attempt | `--reset`, next attempt round 1 | preserve prior evidence and retain Pending |
 | Reviewed or Approved | any normal invocation | reject; a `Reviewed` or `Approved` model requires `--reset` (or, for `Approved`, the AC-014 drift path above) before another round may run |
 
@@ -511,8 +573,8 @@ this skill:
 1. **`result: "PASS"`, `requires_human_decision: false`** -- clean
    cross-model consensus (`vendors_distinct >= 2`, `non_anthropic_count >=
    1`, all collected verdicts `PASS`, no `Critical` finding, digest
-   verified). Proceed: report the round complete to the human as ready for
-   `Domain-Model-Status: Approved`, attaching both this round's
+   verified). Proceed: only now may the caller transition the status to Reviewed and
+   report the round complete to the human as ready for `Domain-Model-Status: Approved`, attaching both this round's
    `domain-review-contract.json` and the cross-model aggregate as evidence.
 2. **`result: "FAIL"` from the diversity check
    (`vendors_distinct < 2` or `non_anthropic_count < 1`)** -- this is the
