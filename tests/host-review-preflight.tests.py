@@ -237,6 +237,7 @@ ADDITIONAL_PROTECTIONS = (
     'scripts/validate-a9-rollback-receipt.py',
     'plugins/sdd-bootstrap/scripts/resolve-design-sync.py',
     QUALITY_SCRIPTS + 'initialize-review-identity.py',
+    QUALITY_SCRIPTS + 'issue-live-host-nonce.py',
     'plugins/sdd-domain/scripts/record-upstream-concept-issue.py',
     'plugins/sdd-domain/scripts/validate-domain-contract.sh',
     'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
