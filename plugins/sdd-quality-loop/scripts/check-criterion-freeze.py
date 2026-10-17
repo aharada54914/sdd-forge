@@ -103,7 +103,8 @@ def main():
         return 0
     parent = parents[1]  # first parent: a merge is judged against its base
 
-    changed = [p for p in (git("diff", "--name-only", parent, COMMIT) or
+    # Inspect both rename endpoints so reviewed source deletions cannot disappear.
+    changed = [p for p in (git("diff", "--no-renames", "--name-only", parent, COMMIT) or
                            "").splitlines() if p]
     if not changed:
         print("check-criterion-freeze: %s changes no files" % short)

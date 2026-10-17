@@ -75,7 +75,8 @@ if ($parents.Count -lt 2) {
 }
 $parent = $parents[1]
 
-$changed = @((Invoke-Git -GitArgs @("diff", "--name-only", $parent, $Commit)) -split "`n" |
+# Inspect both rename endpoints so reviewed source deletions cannot disappear.
+$changed = @((Invoke-Git -GitArgs @("diff", "--no-renames", "--name-only", $parent, $Commit)) -split "`n" |
     Where-Object { $_ -ne "" })
 if ($changed.Count -eq 0) {
     Write-Output "check-criterion-freeze: $short changes no files"
