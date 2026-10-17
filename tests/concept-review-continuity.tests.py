@@ -3,11 +3,13 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,6 +31,8 @@ class PersistedConcept(workflow.WorkflowFixture, unittest.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         for relative in ('plugins/sdd-domain/scripts/validate-concept-test.py',
+                         'plugins/sdd-domain/scripts/validate-domain-contract.sh',
+                         'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
                          'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py',
                          'contracts/concept-test.v1.schema.json'):
             cls.put(relative, (ROOT / relative).read_text())
@@ -146,6 +150,13 @@ class LateStageAdmission(unittest.TestCase):
         self.addCleanup(self.fixture.doCleanups)
         self.root = self.fixture.root
 
+    def test_signed_decision_admission_and_persistence(self):
+        self.fixture.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.fixture.save()
+        self.fixture.sign()
+        with mock.patch.dict(os.environ, self.fixture.env, clear=True):
+            self.test_task_and_quality_require_every_concept_pin()
+
     def test_task_and_quality_require_every_concept_pin(self):
         self.assertIsNotNone(shutil.which('pwsh'), 'PowerShell required for parity')
         for stage, role in [('task', 'task-reviewer-a'), ('quality', 'sdd-evaluator')]:
@@ -199,6 +210,28 @@ class LateStageAdmission(unittest.TestCase):
                         self.assertEqual(ledger.read_bytes(), before)
                         if omitted is None:
                             self.assertEqual(launcher.required_dependencies(self.root, invocation)['inputs'], selected)
+                            if 'decision' in self.fixture.record:
+                                evidence = {p: (self.root / p).read_bytes() for p in (
+                                    'specs/example/concept-test.md', 'specs/example/concept-test.json',
+                                    'specs/example/concept-test.approval.json')}
+                                for invalid in ('forged', 'rejected', 'defer-to-domain-update'):
+                                    if invalid == 'forged':
+                                        self.fixture.write('specs/example/concept-test.approval.json', {})
+                                    else:
+                                        self.fixture.record['decision'] = invalid
+                                        self.fixture.save()
+                                        self.fixture.sign()
+                                    changed = dict(invocation, allowed_input_manifest=[
+                                        dict(path=e['path'], sha256=hashlib.sha256((self.root / e['path']).read_bytes()).hexdigest())
+                                        for e in invocation['allowed_input_manifest']])
+                                    path.write_text(json.dumps(changed))
+                                    refused = subprocess.run(command, capture_output=True, text=True, timeout=40)
+                                    self.assertNotEqual(refused.returncode, 0, refused.stdout + refused.stderr)
+                                    self.assertEqual(ledger.read_bytes(), before)
+                                    for name, content in evidence.items():
+                                        (self.root / name).write_bytes(content)
+                                    self.fixture.record['decision'] = 'proceed'
+                                path.write_text(json.dumps(invocation))
                             reserved = subprocess.run(command + ['--reserve' if runtime == 'bash' else '-Reserve'],
                                                       capture_output=True, text=True, timeout=40)
                             self.assertEqual(reserved.returncode, 0, reserved.stdout + reserved.stderr)

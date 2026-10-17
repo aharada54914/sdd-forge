@@ -10,6 +10,8 @@ split or merge; the human always confirms same/different/undecided decisions.
 ## Concepts
 
 Repeat this card for each adopted concept. Keep stable IDs across renames.
+IDs match `^CONCEPT-[A-Z][A-Z0-9-]*$` (for example, `CONCEPT-ORDER` or
+`CONCEPT-BOOK-EDITION`); numeric-only suffixes such as `CONCEPT-001` are invalid.
 
 ### {{concept_id}}: {{concept_name}}
 

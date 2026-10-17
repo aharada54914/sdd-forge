@@ -36,7 +36,12 @@ def runtime_files(root, stage, fixed_inputs=False):
     names.update('contracts/domain-contract.' + version + '.schema.json'
                  for version in ('v1', 'v2'))
     names.update(('contracts/concept-test.v1.schema.json',
-                  'plugins/sdd-domain/scripts/validate-concept-test.py'))
+                  'contracts/approval-sidecar.schema.json',
+                  'contracts/approver-registry.schema.json',
+                  quality + 'canonicalize-sdd-yaml.py',
+                  'plugins/sdd-domain/scripts/validate-concept-test.py',
+                  'plugins/sdd-domain/scripts/validate-domain-contract.sh',
+                  'plugins/sdd-domain/scripts/validate-domain-contract.ps1'))
     if stage == 'quality':
         names.add(quality + 'preflight-evaluator-delivery.py')
     else:

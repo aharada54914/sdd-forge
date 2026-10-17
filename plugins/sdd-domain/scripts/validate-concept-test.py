@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import sys
 import subprocess
+import tempfile
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[3]
@@ -33,7 +34,13 @@ def evidence(root, feature, read=None):
     """Return the evidence plus every pinned input, using live or fixed reads."""
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature):
         raise ValueError('invalid feature')
-    read = read or (lambda path: conditional.read_safe(root, path))
+    source = read or (lambda path: conditional.read_safe(root, path))
+    snapshot_bytes = {}
+
+    def read(path):
+        if path not in snapshot_bytes:
+            snapshot_bytes[path] = source(path)
+        return snapshot_bytes[path]
     prefix = 'specs/' + feature + '/concept-test'
     document = parse(read(prefix + '.json'))
     schema = parse((ROOT / 'contracts/concept-test.v1.schema.json').read_bytes())
@@ -84,6 +91,31 @@ def evidence(root, feature, read=None):
     if document['proposal'] != 'FITS_EXISTING_CONCEPTS':
         sidecar = prefix + '.approval.json'
         result.append({'path': sidecar, 'sha256': hashlib.sha256(read(sidecar)).hexdigest()})
+    # Reuse the exact gate checks against the selected source, including Git
+    # snapshots. Never fall back to live files when resolving a fixed revision.
+    with tempfile.TemporaryDirectory(prefix='concept-validation-') as temporary:
+        snapshot = Path(temporary)
+        contract_path = snapshot / 'domain-contract.json'
+        contract_path.write_bytes(read('domain/domain-contract.json'))
+        validator = Path(__file__).with_name('validate-domain-contract')
+        command = (['pwsh', '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
+                   if os.name == 'nt' else ['bash', str(validator.with_suffix('.sh'))])
+        validation = subprocess.run(command + [str(contract_path)], capture_output=True, timeout=30)
+        if validation.returncode:
+            raise ValueError('invalid v2 domain contract references')
+        if document['proposal'] != 'FITS_EXISTING_CONCEPTS':
+            content = snapshot / 'concept-test.json'
+            approval = snapshot / 'concept-test.approval.json'
+            registry = snapshot / 'approver-registry.yaml'
+            content.write_bytes(read(prefix + '.json'))
+            approval.write_bytes(read(prefix + '.approval.json'))
+            registry.write_bytes(read('sdd/approver-registry.yaml'))
+            if parse(approval.read_bytes()).get('schema') != 'sdd-concept-test-approval/v1':
+                raise ValueError('wrong approval type')
+            try:
+                auth.run_standard_validation(content, approval, registry)
+            except auth.ValidateApprovalSidecarError as error:
+                raise ValueError('invalid Concept Test approval') from error
     return document, result
 
 
@@ -97,21 +129,6 @@ def validate(root, feature):
     if not domain.exists():
         return 'SKIP'
     document, _ = evidence(root, feature)
-    validator = Path(__file__).with_name('validate-domain-contract')
-    command = (['pwsh', '-NoProfile', '-File', str(validator.with_suffix('.ps1'))]
-               if os.name == 'nt' else ['bash', str(validator.with_suffix('.sh'))])
-    result = subprocess.run(command + [str(root / 'domain/domain-contract.json')],
-                            capture_output=True, timeout=30)
-    if result.returncode:
-        raise ValueError('invalid v2 domain contract references')
-    if document['proposal'] != 'FITS_EXISTING_CONCEPTS':
-        prefix = root / 'specs' / feature / 'concept-test'
-        registry = root / 'sdd/approver-registry.yaml'
-        conditional.read_safe(root, 'sdd/approver-registry.yaml')
-        sidecar = prefix.with_suffix('.approval.json')
-        if parse(sidecar.read_bytes()).get('schema') != 'sdd-concept-test-approval/v1':
-            raise ValueError('wrong approval type')
-        auth.run_standard_validation(prefix.with_suffix('.json'), sidecar, registry)
     return {'proceed': 'CONTINUE', 'defer-to-domain-update': 'DEFER', 'rejected': 'REJECT'}.get(document.get('decision'), 'CONTINUE')
 
 

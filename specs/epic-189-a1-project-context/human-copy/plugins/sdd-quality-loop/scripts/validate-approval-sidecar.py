@@ -150,6 +150,12 @@ CATEGORY_EXIT_CODES = {
 # sidecar `schema` id -> the content schema this sidecar accompanies, per
 # design.md's Data Plan / API Contract Plan.
 CONTENT_SCHEMA_INFO = {
+    "sdd-concept-test-approval/v1": {
+        "schema_filename": "concept-test.v1.schema.json",
+        "input_format": "json",
+        "array_field": "inputs",
+        "dup_category": "CONTENT_SCHEMA_VIOLATION",
+    },
     "sdd-project-context-approval/v1": {
         "schema_filename": "project-context.schema.json",
         "array_field": "components",
@@ -253,7 +259,7 @@ def _canonicalizer_path():
     return Path(__file__).resolve().parent / "canonicalize-sdd-yaml.py"
 
 
-def _canonicalize_file_to_json(path, failure_category):
+def _canonicalize_file_to_json(path, failure_category, input_format="yaml"):
     """Dispatches `path` (YAML input mode) to canonicalize-sdd-yaml.py and
     returns the parsed canonical JSON object. Any non-zero exit (missing
     file, hostile/out-of-subset YAML, a document that canonicalizes to a
@@ -261,7 +267,7 @@ def _canonicalize_file_to_json(path, failure_category):
     canon_path = _canonicalizer_path()
     try:
         proc = subprocess.run(
-            [sys.executable, str(canon_path), str(path), "--input-format", "yaml"],
+            [sys.executable, str(canon_path), str(path), "--input-format", input_format],
             capture_output=True,
         )
     except OSError as exc:
@@ -288,13 +294,13 @@ def _canonicalize_file_to_json(path, failure_category):
     return obj
 
 
-def _hash_file_via_canonicalizer(path, failure_category):
+def _hash_file_via_canonicalizer(path, failure_category, input_format="yaml"):
     """context_sha256 recomputation: `--hash-only` dispatch, returning the
     full `sha256:<hex>` string REQ-003 emits."""
     canon_path = _canonicalizer_path()
     try:
         proc = subprocess.run(
-            [sys.executable, str(canon_path), str(path), "--input-format", "yaml", "--hash-only"],
+            [sys.executable, str(canon_path), str(path), "--input-format", input_format, "--hash-only"],
             capture_output=True,
         )
     except OSError as exc:
@@ -585,6 +591,8 @@ def _schema_validate(schema, instance, path="/", root=None):
             if k in props:
                 errors.extend(_schema_validate(props[k], v, path.rstrip("/") + "/" + k, root))
     elif isinstance(instance, list) and "items" in schema:
+        if "minItems" in schema and len(instance) < schema["minItems"]:
+            errors.append("%s: fewer than minItems %d" % (path, schema["minItems"]))
         for idx, item in enumerate(instance):
             errors.extend(_schema_validate(schema["items"], item, path.rstrip("/") + "/%d" % idx, root))
     elif isinstance(instance, str) and "minLength" in schema and len(instance) < schema["minLength"]:
@@ -648,7 +656,7 @@ def _resolve_content_schema_info(sidecar_obj):
 
 
 def _validate_content(content_path, info):
-    content_obj = _canonicalize_file_to_json(content_path, "CONTENT_CANONICALIZATION_FAILED")
+    content_obj = _canonicalize_file_to_json(content_path, "CONTENT_CANONICALIZATION_FAILED", info.get("input_format", "yaml"))
     schema = _load_json_schema_file(_repo_root() / "contracts" / info["schema_filename"])
     errors = _schema_validate(schema, content_obj)
     if errors:
@@ -768,7 +776,8 @@ def _validate_sidecar_schema(sidecar_obj, sidecar_path):
 
 
 def _check_hash_match(content_path, sidecar_obj):
-    recomputed = _hash_file_via_canonicalizer(content_path, "CONTENT_CANONICALIZATION_FAILED")
+    recomputed = _hash_file_via_canonicalizer(content_path, "CONTENT_CANONICALIZATION_FAILED",
+        _resolve_content_schema_info(sidecar_obj).get("input_format", "yaml"))
     stored = sidecar_obj.get("context_sha256")
     if not isinstance(stored, str) or recomputed != stored:
         raise ValidateApprovalSidecarError(

@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'plugins/sdd-domain/scripts/validate-concept-test.py'
@@ -213,11 +214,75 @@ class ConceptTests(unittest.TestCase):
         self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
         self.save()
         self.sign()
-        result = concept.conditional.resolve(self.root, 'example', 'spec')
+        with mock.patch.dict(os.environ, self.env, clear=True):
+            result = concept.conditional.resolve(self.root, 'example', 'spec')
         self.assertIn('specs/example/concept-test.approval.json', {item['path'] for item in result['inputs']})
         (self.feature / 'concept-test.md').unlink()
         with self.assertRaises(ValueError):
             concept.conditional.resolve(self.root, 'example', 'spec')
+
+    def test_review_cannot_bypass_gate_or_use_live_approval_for_fixed_revision(self):
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+
+        def resolve(stage, revision=None):
+            with mock.patch.dict(os.environ, self.env, clear=True):
+                return concept.conditional.resolve(self.root, 'example', stage, revision)
+
+        def reject_all(revision=None):
+            for stage in ['spec', 'impl', 'task', 'quality']:
+                with self.subTest(stage=stage, revision=revision):
+                    with self.assertRaises(ValueError):
+                        resolve(stage, revision)
+
+        self.record.update(proposal='RESPONSIBILITY_CONFLICT', decision='proceed')
+        self.save()
+        self.write('specs/example/concept-test.approval.json', {})
+        reject_all()
+        self.sign()
+        for stage in ['spec', 'impl', 'task', 'quality']:
+            self.assertIn('sdd/approver-registry.yaml', resolve(stage)['observed'])
+        for decision in ['rejected', 'defer-to-domain-update']:
+            self.record['decision'] = decision
+            self.save()
+            self.sign()
+            reject_all()
+        self.record['decision'] = 'proceed'
+        self.save()
+        self.sign()
+        def git(*args):
+            return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
+        git('init', '-q')
+        git('add', '.')
+        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Valid approval')
+        revision = git('rev-parse', 'HEAD')
+        self.write('specs/example/concept-test.approval.json', {})
+        self.write('sdd/approver-registry.yaml', 'invalid live registry')
+        reject_all()
+        for stage in ['spec', 'impl', 'task', 'quality']:
+            self.assertTrue(resolve(stage, revision)['inputs'])
+        git('add', '.')
+        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Invalid approval')
+        invalid_revision = git('rev-parse', 'HEAD')
+        git('checkout', revision, '--', 'sdd/approver-registry.yaml', 'specs/example/concept-test.approval.json')
+        reject_all(invalid_revision)
+
+    def test_review_rejects_invalid_domain_and_unapproved_v2_without_concept_record(self):
+        self.write('specs/example/requirements.md', 'Bounded-Context: catalog\n')
+        path = self.root / 'domain/domain-contract.json'
+        document = json.loads(path.read_bytes())
+        document['concepts'][0]['context'] = 'missing'
+        self.write('domain/domain-contract.json', document)
+        self.record['inputs'][0]['sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+        self.save()
+        for stage in ['spec', 'impl', 'task', 'quality']:
+            with self.assertRaises(ValueError):
+                concept.conditional.resolve(self.root, 'example', stage)
+        self.write('domain/context-map.md', 'Domain-Model-Status: Pending\n')
+        (self.feature / 'concept-test.json').unlink()
+        (self.feature / 'concept-test.md').unlink()
+        for stage in ['spec', 'impl', 'task', 'quality']:
+            with self.assertRaises(ValueError):
+                concept.conditional.resolve(self.root, 'example', stage)
 
 
 if __name__ == '__main__':

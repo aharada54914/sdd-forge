@@ -64,12 +64,16 @@ States "Empty": "new run, no seed -> prompt offers seed options
 
 When the seed is a `domain-reverse` candidate seed (identified by its
 `Seed-Source: reverse (investigate-codebase, <feature>)` header line), it
-carries five sections, always present even when empty
+carries seven sections, always present even when empty
 (`(none found)`):
 
 - `candidate_contexts` — `name` (kebab-case), `rationale`, `evidence`
   (`INV-NNN` array)
 - `candidate_terms` — `term`, `definition_hint`, `evidence`
+- `candidate_concepts` — `name`, `context_hint`, `definition_hint`,
+  `responsibilities`, `must_not_own`, `status: Candidate`, `confidence`, `evidence`
+- `concept_smells` — `kind` (`multi-role-model` | `responsibility-conflict`),
+  `observation`, `question`, `status: Candidate`, `confidence`, `evidence`
 - `candidate_event_hints` — `name` (PastTense), `kind` (`event` \|
   `command`), `rationale`, `evidence`
 - `candidate_aggregate_hints` — `name` (PascalCase), `rationale`,
@@ -180,7 +184,10 @@ leaving stages 1-3 untouched on disk.
 Use `templates/concept-model.template.md` after Domain Story and Event Storming,
 before choosing vocabulary. A term names a concept; identical words or matching
 record shapes alone do not prove identical concepts. Start from current story,
-event and reverse-seed evidence. Record a stable `CONCEPT-*` id, a canonical
+event and reverse-seed evidence. Record a stable id matching
+`^CONCEPT-[A-Z][A-Z0-9-]*$`, such as `CONCEPT-ORDER` or `CONCEPT-BOOK-EDITION`.
+The first character after `CONCEPT-` must be a letter; `CONCEPT-001` is invalid.
+Record a canonical
 PascalCase name, one proposed bounded context, definition, essence,
 responsibilities, explicit non-responsibilities, stakeholder perspectives and
 evidence for each concept. Confirm context membership again at Context Map.

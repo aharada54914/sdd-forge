@@ -24,7 +24,12 @@ live files. No new cryptographic algorithm or key store is introduced.
 
 The review conditional-input resolver selects these files at the same revision
 as the review. Both admission twins require the selected hashes; historical
-reservations keep their bound inputs. The three plugin manifests already expose
+reservations keep their bound inputs. Every review stage repeats domain semantic
+validation and signed approval validation against a private snapshot of the
+selected bytes, and requires a continuing decision. The approver registry is an
+observed validation dependency at that same revision. Existing domain validators,
+canonicalizer and approval schemas are part of the fixed runtime dependencies.
+The three plugin manifests already expose
 the entire skills directory, so no per-skill manifest enumeration is necessary.
 
 The validator reports CONTINUE/SKIP (0), BLOCK (1), DEFER (2), REJECT (3).

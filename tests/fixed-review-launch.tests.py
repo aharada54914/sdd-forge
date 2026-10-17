@@ -771,7 +771,12 @@ class RuntimeFilesTests(unittest.TestCase):
                 self.assertNotIn(root / 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', files)
                 for dependency in ('contracts/domain-contract.v1.schema.json',
                                    'contracts/concept-test.v1.schema.json',
-                                   'plugins/sdd-domain/scripts/validate-concept-test.py'):
+                                   'contracts/approval-sidecar.schema.json',
+                                   'contracts/approver-registry.schema.json',
+                                   'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py',
+                                   'plugins/sdd-domain/scripts/validate-concept-test.py',
+                                   'plugins/sdd-domain/scripts/validate-domain-contract.sh',
+                                   'plugins/sdd-domain/scripts/validate-domain-contract.ps1'):
                     self.assertIn(root / dependency, files)
                 self.assertEqual(SCRIPTS / 'validate-layer-traceability.py' in files, stage == 'task')
 

@@ -21,9 +21,11 @@ separate. No v1 migration or second loader is added.
   signed rejected stops. Missing, corrupt, stale, or unapproved evidence blocks.
   Every nonzero outcome stops domain-sync and generation. No domain/ preserves
   the existing skip behavior. Lite integration is outside this phase.
-- REQ-005: Subsequent review inputs include the same evidence, required approval,
-  and all recorded inputs. Missing or changed evidence fails admission. Frozen
-  reviews retain their original input sets.
+- REQ-005: Spec, implementation, task and quality review inputs include the same
+  evidence, required approval, and all recorded inputs. Admission repeats the
+  domain-reference and signed-decision validation; missing, changed, unapproved,
+  deferred or rejected evidence blocks review. Fixed reviews validate their
+  selected revision, including its approver registry, without live-file fallback.
 - REQ-006: Publish the internal skill through the existing directory manifests;
   ship Bash and PowerShell dispatchers sharing one deterministic implementation.
 
