@@ -477,3 +477,85 @@ Describe "domain conformance JSON semantics and exact identifiers" {
         }
     }
 }
+
+
+Describe 'domain conformance handles non-object JSON members without hiding findings' {
+    $relationJson = '{"contexts":[{"name":"orders","terms":[{"canonical":"Order"}]},{"name":"shipping"}],"relations":[7]}'
+    $cases = foreach ($runtime in @('ps1', 'sh')) {
+        foreach ($mode in @('warn', 'error')) {
+            foreach ($json in @('7', '"text"', 'true', 'null', '[]', '[7]', '{"contexts":[7],"relations":[7]}', '{"contexts":[{"terms":[7],"aggregates":[7]}]}', $relationJson)) {
+                @{ Runtime = $runtime; Mode = $mode; Json = $json; RelationOnly = ($json -eq $relationJson) }
+            }
+        }
+    }
+    It '<Runtime>/<Mode> reports absent declarations for <Json>' -TestCases $cases {
+        param($Runtime, $Mode, $Json, $RelationOnly)
+        $root = Join-Path ([IO.Path]::GetTempPath()) ('domain-shape-' + [guid]::NewGuid().ToString('N'))
+        $oldEnforce = $env:SDD_DOMAIN_ENFORCE
+        try {
+            New-Item -ItemType Directory -Path (Join-Path $root 'domain') | Out-Null
+            [IO.File]::WriteAllText((Join-Path $root 'domain/domain-contract.json'), $Json)
+            $req = Join-Path $root 'requirements.md'
+            [IO.File]::WriteAllText($req, "Bounded-Context: orders, shipping`n## [[term:Order]]`n")
+            $env:SDD_DOMAIN_ENFORCE = $Mode
+            $nativePreference = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            try {
+                if ($Runtime -eq 'ps1') {
+                    $output = & (Get-Process -Id $PID).Path -NoProfile -File $checkPs1 -ProjectRoot $root -RequirementsMd $req 2>&1 | Out-String
+                } else {
+                    $shArgs = @((Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/check-domain-conformance.sh'), $root, $req) | ForEach-Object {
+                        $path = $_.Replace('\', '/')
+                        if ($path -match '^([A-Za-z]):/') { $path = '/' + $Matches[1].ToLowerInvariant() + $path.Substring(2) }
+                        $path
+                    }
+                    $output = & (Get-Command bash -ErrorAction Stop).Source @shArgs 2>&1 | Out-String
+                }
+                $exit = $LASTEXITCODE
+            } finally { $ErrorActionPreference = $nativePreference }
+            $expectedExit = if ($Mode -eq 'error') { 1 } else { 0 }
+            $expectedLabel = if ($Mode -eq 'error') { 'FAILED' } else { 'WARN' }
+            $exit | Should Be $expectedExit
+            $output | Should Match "check-domain-conformance $expectedLabel"
+            if ($RelationOnly) {
+                $output | Should Match 'no declared relation in context map'
+            } else {
+                $output | Should Match "Bounded-Context 'orders' not found"
+                $output | Should Match "unrecognized term 'Order'"
+            }
+            $output | Should Not Match 'jq: error'
+        } finally {
+            if ($null -eq $oldEnforce) { Remove-Item Env:SDD_DOMAIN_ENFORCE -ErrorAction SilentlyContinue } else { $env:SDD_DOMAIN_ENFORCE = $oldEnforce }
+            if (Test-Path -LiteralPath $root) { Remove-Item -Recurse -Force -LiteralPath $root }
+        }
+    }
+}
+
+Describe 'domain conformance preserves jq execution failures' {
+    It 'propagates jq failure at <Stage> instead of emitting a domain verdict' -TestCases @(@{ Stage = '-r' }, @{ Stage = '-e' }) {
+        param($Stage)
+        $root = Join-Path ([IO.Path]::GetTempPath()) ('domain-jq-failure-' + [guid]::NewGuid().ToString('N'))
+        $oldPreference = $ErrorActionPreference
+        try {
+            New-Item -ItemType Directory -Path (Join-Path $root 'domain'), (Join-Path $root 'bin') | Out-Null
+            [IO.File]::WriteAllText((Join-Path $root 'domain/domain-contract.json'), '{"contexts":[{"name":"orders"},{"name":"shipping"}],"relations":[]}')
+            [IO.File]::WriteAllText((Join-Path $root 'requirements.md'), "Bounded-Context: orders, shipping`n")
+            $stub = "#!/bin/sh`n" + 'if [ "$1" = "$SDD_TEST_JQ_FAIL_STAGE" ]; then echo synthetic-jq-runtime-failure >&2; exit 7; fi' + "`n" + 'exec "$SDD_TEST_REAL_JQ" "$@"' + "`n"
+            [IO.File]::WriteAllText((Join-Path $root 'bin/jq'), $stub, [Text.UTF8Encoding]::new($false))
+            $paths = @($root, (Join-Path $repositoryRoot 'plugins/sdd-quality-loop/scripts/check-domain-conformance.sh')) | ForEach-Object {
+                $path = $_.Replace('\', '/')
+                if ($path -match '^([A-Za-z]):/') { $path = '/' + $Matches[1].ToLowerInvariant() + $path.Substring(2) }
+                $path
+            }
+            $ErrorActionPreference = 'Continue'
+            $output = & (Get-Command bash -ErrorAction Stop).Source -c 'real_jq=$(command -v jq) && chmod +x "$1/bin/jq" && SDD_TEST_REAL_JQ="$real_jq" SDD_TEST_JQ_FAIL_STAGE="$3" SDD_DOMAIN_ENFORCE=warn PATH="$1/bin:$PATH" sh "$2" "$1" "$1/requirements.md"' -- @paths $Stage 2>&1 | Out-String
+            $exit = $LASTEXITCODE
+            $exit | Should Be 1
+            $output | Should Match 'synthetic-jq-runtime-failure'
+            $output | Should Not Match 'passed|skipped|WARN'
+        } finally {
+            $ErrorActionPreference = $oldPreference
+            if (Test-Path -LiteralPath $root) { Remove-Item -Recurse -Force -LiteralPath $root }
+        }
+    }
+}

@@ -50,9 +50,9 @@ if ! jq empty "$contract" >/dev/null 2>&1; then
   echo "check-domain-conformance skipped: domain-contract.json is not valid JSON."
   exit 0
 fi
-context_names=$(jq -r '.contexts[]?.name // empty' "$contract") || exit 1
-canonical_terms=$(jq -r '.contexts[]?.terms[]?.canonical // empty' "$contract") || exit 1
-aggregate_names=$(jq -r '.contexts[]?.aggregates[]?.name // empty' "$contract") || exit 1
+context_names=$(jq -r '.contexts?[]? | .name? // empty' "$contract") || exit 1
+canonical_terms=$(jq -r '.contexts?[]? | .terms?[]? | .canonical? // empty' "$contract") || exit 1
+aggregate_names=$(jq -r '.contexts?[]? | .aggregates?[]? | .name? // empty' "$contract") || exit 1
 
 context_exists() {
   ctx="$1"
@@ -61,7 +61,7 @@ context_exists() {
 
 relation_declared() {
   jq -e --arg a "$1" --arg b "$2" '
-    any(.relations[]?; (.from == $a and .to == $b) or (.from == $b and .to == $a))
+    any(.relations?[]?; (.from? == $a and .to? == $b) or (.from? == $b and .to? == $a))
   ' "$contract" >/dev/null
 }
 
@@ -91,9 +91,13 @@ if [ -n "$requirements_md" ]; then
         c1="$ctx_1"
         c2="$ctx_2"
         if context_exists "$c1" && context_exists "$c2"; then
-          if ! relation_declared "$c1" "$c2"; then
-            echo "requirements.md: Bounded-Context lists two contexts ('$c1', '$c2') with no declared relation in context map" >> "$_f"
-          fi
+          relation_status=0
+          relation_declared "$c1" "$c2" || relation_status=$?
+          case "$relation_status" in
+            0) ;;
+            1) echo "requirements.md: Bounded-Context lists two contexts ('$c1', '$c2') with no declared relation in context map" >> "$_f" ;;
+            *) echo "check-domain-conformance: relation lookup failed (jq exit $relation_status)" >&2; exit 1 ;;
+          esac
         fi
       fi
     fi
