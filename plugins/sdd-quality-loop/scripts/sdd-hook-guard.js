@@ -1762,6 +1762,22 @@ function implReviewStatusPassedIncreases(payload) {
   const toolName = String(payload.tool_name || '').toLowerCase();
   const filePath = toolInput.file_path || '';
 
+  if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
+    const sections = [];
+    let current = null;
+    for (const line of (toolInput.command || '').split(/\r?\n/)) {
+      const header = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+      if (header) {
+        current = { path: header[2].trim(), content: [] };
+        sections.push(current);
+      } else if (current && (line.startsWith('+') || line.startsWith(' '))) {
+        current.content.push(line.slice(1));
+      }
+    }
+    return sections.some(section => implReviewStatusPassedIncreases({
+      tool_name: 'write', tool_input: { file_path: section.path, content: section.content.join('\n') },
+    }));
+  }
   if (!TARGETED_FILE_TOOLS.has(toolName)) return false;
   if (!isDesignMd(filePath)) return false;
 
@@ -1870,27 +1886,47 @@ async function main() {
       }
       const name = payload.toolName;
       let args = payload.toolArgs;
-      if (typeof args === 'string') args = JSON.parse(args);
-      if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args) ||
-          typeof args.path !== 'string' || !args.path.trim()) {
-        throw new Error('invalid Copilot call');
-      }
-      if (name === 'view') {
-        if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
-            (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
-             (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
-              args.view_range.some(n => !Number.isInteger(n))))) {
-          throw new Error('invalid view arguments');
+      // Native apply_patch is a raw patch string; normalize it before the shared guards.
+      if (name === 'apply_patch') {
+        if (typeof args !== 'string') throw new Error('invalid patch arguments');
+        const lines = args.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n');
+        if (lines.length < 3 || lines[0] !== '*** Begin Patch' || lines[lines.length - 1] !== '*** End Patch' ||
+            !/^\*\*\* (Add|Update|Delete) File: \S.*$/.test(lines[1]) ||
+            lines.slice(1, -1).some(line => ['*** Begin Patch', '*** End Patch'].includes(line))) {
+          throw new Error('invalid patch envelope');
         }
-        payload = { tool_name: 'read', tool_input: { file_path: args.path } };
-      } else if (name === 'create') {
-        if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
-            typeof args.file_text !== 'string') {
-          throw new Error('invalid create arguments');
-        }
-        payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
+        payload = { tool_name: 'apply_patch', tool_input: { command: args } };
       } else {
-        throw new Error('unsupported Copilot tool');
+        if (typeof args === 'string') args = JSON.parse(args);
+        if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args)) {
+          throw new Error('invalid Copilot call');
+        }
+        if (['view', 'create'].includes(name) && (typeof args.path !== 'string' || !args.path.trim())) {
+          throw new Error('invalid Copilot path');
+        }
+        if (name === 'task') {
+          const keys = ['description', 'agent_type', 'name', 'mode', 'prompt'];
+          if (Object.keys(args).length !== keys.length || keys.some(k => typeof args[k] !== 'string' || !args[k].trim())) {
+            throw new Error('invalid task arguments');
+          }
+          payload = { tool_name: 'task', tool_input: args };
+        } else if (name === 'view') {
+          if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
+              (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
+               (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
+                args.view_range.some(n => !Number.isInteger(n))))) {
+            throw new Error('invalid view arguments');
+          }
+          payload = { tool_name: 'read', tool_input: { file_path: args.path } };
+        } else if (name === 'create') {
+          if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
+              typeof args.file_text !== 'string') {
+            throw new Error('invalid create arguments');
+          }
+          payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
+        } else {
+          throw new Error('unsupported Copilot tool');
+        }
       }
     } catch (_) {
       emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
@@ -1938,7 +1974,7 @@ async function main() {
     // apply_patch: check for SDD_SUDO targets.
     if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
       const patch = toolInput.command || '';
-      const fileRegex = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      const fileRegex = /^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$/gm;
       let fileMatch;
       while ((fileMatch = fileRegex.exec(patch))) {
         if (targetPathIsSddSudo(fileMatch[2].trim())) {
@@ -1965,10 +2001,14 @@ async function main() {
 
     if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
       const patch = toolInput.command || '';
-      const fileRegex2 = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      const fileRegex2 = /^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$/gm;
       let fileMatch2;
       while ((fileMatch2 = fileRegex2.exec(patch))) {
-        if (isProtectedGateFile(fileMatch2[2].trim())) {
+        const target = fileMatch2[2].trim();
+        // A rename can import approval/role content without any added lines.
+        const guardedMove = fileMatch2[1] === 'Move to' &&
+          [isTasksMd, isWfiPath, isDomainContextMapPath, isAgentRolePath, isDesignMd].some(test => test(target));
+        if (isProtectedGateFile(target) || guardedMove) {
           emitDecision('deny', GATE_PROTECT_MSG, mode);
           return;
         }

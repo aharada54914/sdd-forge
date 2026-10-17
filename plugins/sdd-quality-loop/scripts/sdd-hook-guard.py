@@ -198,6 +198,20 @@ def impl_review_status_passed_increases(payload):
     tool_name = (payload.get("tool_name") or "").lower()
     file_path = tool_input.get("file_path") or ""
 
+    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+        sections = []
+        current = None
+        for line in (tool_input.get("command") or "").splitlines():
+            header = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+            if header:
+                current = {"path": header.group(2).strip(), "content": []}
+                sections.append(current)
+            elif current is not None and line.startswith(("+", " ")):
+                current["content"].append(line[1:])
+        return any(impl_review_status_passed_increases({
+            "tool_name": "write", "tool_input": {"file_path": section["path"], "content": "\n".join(section["content"])}
+        }) for section in sections)
+
     if tool_name not in TARGETED_FILE_TOOLS:
         return False
     if not is_design_md(file_path):
@@ -1932,27 +1946,44 @@ def main():
                 raise ValueError("invalid Copilot timestamp")
             name = payload["toolName"]
             args = payload["toolArgs"]
-            if isinstance(args, str):
-                args = json.loads(args)
-            if not isinstance(args, dict) or not isinstance(name, str):
-                raise ValueError("invalid Copilot call")
-            path = args.get("path")
-            if not isinstance(path, str) or not path.strip():
-                raise ValueError("invalid Copilot path")
-            if name == "view":
-                if set(args) - {"path", "view_range"}:
-                    raise ValueError("unsupported view arguments")
-                if "view_range" in args and (not isinstance(args["view_range"], list)
-                    or len(args["view_range"]) != 2
-                    or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
-                    raise ValueError("invalid view range")
-                payload = {"tool_name": "read", "tool_input": {"file_path": path}}
-            elif name == "create":
-                if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
-                    raise ValueError("invalid create arguments")
-                payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
+            # Native apply_patch is a raw patch string; all canonical guards still run.
+            if name == "apply_patch":
+                if not isinstance(args, str):
+                    raise ValueError("invalid patch arguments")
+                normalized = args.replace("\r\n", "\n")
+                lines = (normalized[:-1] if normalized.endswith("\n") else normalized).split("\n")
+                if (len(lines) < 3 or lines[0] != "*** Begin Patch" or lines[-1] != "*** End Patch"
+                    or not re.fullmatch(r"\*\*\* (Add|Update|Delete) File: \S.*", lines[1])
+                    or any(line in ("*** Begin Patch", "*** End Patch") for line in lines[1:-1])):
+                    raise ValueError("invalid patch envelope")
+                payload = {"tool_name": "apply_patch", "tool_input": {"command": args}}
             else:
-                raise ValueError("unsupported Copilot tool")
+                if isinstance(args, str):
+                    args = json.loads(args)
+                if not isinstance(args, dict) or not isinstance(name, str):
+                    raise ValueError("invalid Copilot call")
+                path = args.get("path")
+                if name in ("view", "create") and (not isinstance(path, str) or not path.strip()):
+                    raise ValueError("invalid Copilot path")
+                if name == "task":
+                    keys = {"description", "agent_type", "name", "mode", "prompt"}
+                    if set(args) != keys or any(not isinstance(args[k], str) or not args[k].strip() for k in keys):
+                        raise ValueError("invalid task arguments")
+                    payload = {"tool_name": "task", "tool_input": args}
+                elif name == "view":
+                    if set(args) - {"path", "view_range"}:
+                        raise ValueError("unsupported view arguments")
+                    if "view_range" in args and (not isinstance(args["view_range"], list)
+                        or len(args["view_range"]) != 2
+                        or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
+                        raise ValueError("invalid view range")
+                    payload = {"tool_name": "read", "tool_input": {"file_path": path}}
+                elif name == "create":
+                    if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
+                        raise ValueError("invalid create arguments")
+                    payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
+                else:
+                    raise ValueError("unsupported Copilot tool")
         except (ValueError, TypeError, KeyError):
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
             return
@@ -1995,7 +2026,7 @@ def main():
         if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
             patch = tool_input.get("command") or ""
             for line in patch.splitlines():
-                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+                m = re.match(r"\*\*\* (Update File|Add File|Delete File|Move to): (.+)$", line)
                 if m and _target_path_is_sdd_sudo(m.group(2).strip()):
                     emit("deny", SDD_SUDO_WRITE_MSG, mode)
                     return
@@ -2016,10 +2047,15 @@ def main():
         if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
             patch = tool_input.get("command") or ""
             for line in patch.splitlines():
-                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
-                if m and _is_protected_gate_file(m.group(2).strip()):
-                    emit("deny", _GATE_PROTECT_MSG, mode)
-                    return
+                m = re.match(r"\*\*\* (Update File|Add File|Delete File|Move to): (.+)$", line)
+                if m:
+                    target = m.group(2).strip()
+                    # Renames can import approval/role content with no added lines.
+                    guarded_move = m.group(1) == "Move to" and any(check(target) for check in (
+                        is_tasks_md, is_wfi_path, is_domain_context_map_path, is_agent_role_path, is_design_md))
+                    if _is_protected_gate_file(target) or guarded_move:
+                        emit("deny", _GATE_PROTECT_MSG, mode)
+                        return
 
         # Check 2b: Approval guard (bypassed by valid sudo).
         if approval_increases(payload) and not sudo_active():
