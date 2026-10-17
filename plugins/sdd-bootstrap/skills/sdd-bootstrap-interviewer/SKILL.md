@@ -134,6 +134,28 @@ design catch-all.
   Mermaid remains canonical and the step remains manual and optional.
 - LITE excludes this section and produces no layer documents.
 
+## Architecture diagrams
+
+C4 belongs to the architecture decisions of Phase 1, not to the domain-model
+interview. When the approved requirements need a context, container or component
+view, use this skill's `templates/c4-context.template.md`,
+`templates/c4-container.template.md` or `templates/c4-component.template.md` and
+place the relevant diagram in the feature's `design.md` or `infra-spec.md`.
+Choose only the levels that explain an actual system boundary or deployment
+responsibility; C4 is not a mandatory extra domain artifact or review gate.
+
+Use confirmed domain contexts/concepts as logical inputs when available. A
+bounded context or concept is not automatically a deployable container; record
+the reason for any mapping in the architecture view. Keep technology, runtime,
+external-system and deployment choices here. Domain Story, Concept Model and
+Context Map remain the domain lane's sources of meaning and ownership.
+
+The old `domain/c4-container.md` output is deprecated as a domain checkpoint.
+It is not required for domain authoring, resume, update or review. An existing
+file may be read as historical architecture input; do not delete it or copy it
+into new canonical outputs automatically. The active C4 templates and future
+architecture authoring are owned by bootstrap.
+
 ## Preflight
 
 In `feature`, `bugfix`, and `refactor` modes, run
