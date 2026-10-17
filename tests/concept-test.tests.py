@@ -19,6 +19,10 @@ GENERATOR = ROOT / 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.p
 spec = importlib.util.spec_from_file_location('concept', SCRIPT)
 concept = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(concept)
+IDENTITY = ROOT / 'plugins/sdd-quality-loop/scripts/initialize-review-identity.py'
+identity_spec = importlib.util.spec_from_file_location('initial_review_identity', IDENTITY)
+identity = importlib.util.module_from_spec(identity_spec)
+identity_spec.loader.exec_module(identity)
 
 
 class ConceptTests(unittest.TestCase):
@@ -283,6 +287,161 @@ class ConceptTests(unittest.TestCase):
         for stage in ['spec', 'impl', 'task', 'quality']:
             with self.assertRaises(ValueError):
                 concept.conditional.resolve(self.root, 'example', stage)
+
+
+class InitialReviewIdentityTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.base = Path(self.temporary.name).resolve()
+        self.root = self.base / 'project'
+        self.root.mkdir()
+        self.events = self.base / 'native/session-state/fixture-session/events.jsonl'
+        self.events.parent.mkdir(parents=True)
+        self.native_env = mock.patch.dict(os.environ, COPILOT_HOME=str(self.base / 'native'))
+        self.native_env.start()
+        self.addCleanup(self.native_env.stop)
+        self.event = dict(type='session.start', id='fixture-native-event', parentId=None,
+                          data=dict(version=1, producer='copilot-agent', sessionId='fixture-session',
+                                    context=dict(cwd=str(self.root))))
+        self.save()
+        self.ledger = self.root / 'reports/review-context/identity-ledger.json'
+        self.lock = self.ledger.with_suffix('.json.lock')
+
+    def save(self):
+        self.events.write_text(json.dumps(self.event) + '\n', encoding='utf-8')
+
+    def test_native_record_initializes_one_host_with_valid_hash_and_no_reservation(self):
+        document = identity.initialize(self.root, self.events)
+        record = document['records'][0]
+        self.assertEqual(record['stage'], 'host')
+        self.assertEqual(record['role'], 'orchestrator')
+        self.assertEqual(record['sequence'], 1)
+        self.assertEqual(record['run_id'], self.event['id'])
+        self.assertEqual(record['host_session_id'], self.event['data']['sessionId'])
+        expected = hashlib.sha256(b'1|host|orchestrator|fixture-native-event|fixture-session|').hexdigest()
+        self.assertEqual(record['record_sha256'], expected)
+        self.assertEqual(json.loads(self.ledger.read_bytes()), document)
+        self.assertFalse(self.lock.exists())
+        self.assertEqual(list(self.ledger.parent.iterdir()), [self.ledger])
+
+    def test_existing_valid_or_malformed_ledger_is_never_changed(self):
+        identity.initialize(self.root, self.events)
+        for before in (self.ledger.read_bytes(), b'not a ledger'):
+            with self.subTest(before=before):
+                self.ledger.write_bytes(before)
+                with self.assertRaises(ValueError):
+                    identity.initialize(self.root, self.events)
+                self.assertEqual(self.ledger.read_bytes(), before)
+                self.assertFalse(self.lock.exists())
+
+    def test_native_source_must_bind_producer_session_and_project(self):
+        mutations = [lambda e: e.update(type='session.resume'),
+                     lambda e: e.pop('parentId'),
+                     lambda e: e['data'].update(producer='caller'),
+                     lambda e: e['data'].update(version=True),
+                     lambda e: e['data'].update(sessionId='different-session'),
+                     lambda e: e.update(id='not an identity'),
+                     lambda e: e['data']['context'].update(cwd=str(self.base))]
+        original = copy.deepcopy(self.event)
+        for mutate in mutations:
+            self.event = copy.deepcopy(original)
+            mutate(self.event)
+            self.save()
+            with self.assertRaises((ValueError, OSError)):
+                identity.initialize(self.root, self.events)
+            self.assertFalse(self.ledger.exists())
+        self.events.write_text('{"type":"session.start","type":"session.start"}\n')
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, self.events)
+        self.events.write_text('x' * 65537)
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, self.events)
+        self.assertFalse(self.ledger.exists())
+
+    def test_copied_transcript_and_prior_history_are_not_bootstrap_sources(self):
+        forged = self.base / 'elsewhere/session-state/fixture-session/events.jsonl'
+        forged.parent.mkdir(parents=True)
+        shutil.copyfile(self.events, forged)
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, forged)
+        copied = self.base / 'session-start.json'
+        shutil.copyfile(self.events, copied)
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, copied)
+        for name in ('domain-review', 'implementation', 'review-context'):
+            with self.subTest(name=name):
+                history = self.root / 'reports' / name / 'prior.json'
+                history.parent.mkdir(parents=True, exist_ok=True)
+                history.write_text('{}')
+                with self.assertRaises(ValueError):
+                    identity.initialize(self.root, self.events)
+                self.assertFalse(self.ledger.exists())
+                self.assertEqual(history.read_text(), '{}')
+                self.assertFalse(self.lock.exists())
+                history.unlink()
+
+    def test_existing_lock_and_failed_publish_leave_no_partial_ledger(self):
+        self.lock.parent.mkdir(parents=True)
+        self.lock.mkdir()
+        with self.assertRaises(FileExistsError):
+            identity.initialize(self.root, self.events)
+        self.assertTrue(self.lock.is_dir())
+        self.assertFalse(self.ledger.exists())
+        self.lock.rmdir()
+        self.lock.write_text('another reservation owns this lock')
+        with self.assertRaises(FileExistsError):
+            identity.initialize(self.root, self.events)
+        self.assertEqual(self.lock.read_text(), 'another reservation owns this lock')
+        self.lock.unlink()
+        with mock.patch.object(identity.os, 'link', side_effect=OSError('simulated publication failure')):
+            with self.assertRaises(OSError):
+                identity.initialize(self.root, self.events)
+        self.assertEqual(list(self.ledger.parent.iterdir()), [])
+        with mock.patch.object(identity.os, 'fsync', side_effect=OSError('simulated staging failure')):
+            with self.assertRaises(OSError):
+                identity.initialize(self.root, self.events)
+        self.assertEqual(list(self.ledger.parent.iterdir()), [])
+
+    def test_symlink_native_source_or_destination_is_rejected(self):
+        target = self.base / 'outside.jsonl'
+        self.events.rename(target)
+        try:
+            self.events.symlink_to(target)
+        except OSError:
+            self.skipTest('host does not permit creating test symlinks')
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, self.events)
+        self.events.unlink()
+        target.rename(self.events)
+        (self.root / 'reports').symlink_to(self.base, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, self.events)
+        self.assertFalse((self.base / 'review-context').exists())
+
+    def test_hardlinked_native_source_and_reparse_metadata_are_rejected(self):
+        alias = self.base / 'alias.jsonl'
+        os.link(self.events, alias)
+        with self.assertRaises(ValueError):
+            identity.initialize(self.root, self.events)
+        self.assertFalse(self.ledger.exists())
+        alias.unlink()
+        # Exercise the Windows junction/reparse flag without requiring admin privileges.
+        with mock.patch.object(Path, 'lstat', return_value=mock.Mock(st_mode=0o040755, st_file_attributes=0x400)):
+            self.assertTrue(identity.redirected(self.events.parent))
+
+    def test_packaged_helper_runs_without_repository_imports(self):
+        # Installation copies this self-contained script with the quality plugin.
+        installed = self.base / 'installed/plugins/sdd-quality-loop/scripts/initialize-review-identity.py'
+        installed.parent.mkdir(parents=True)
+        shutil.copyfile(IDENTITY, installed)
+        result = subprocess.run([sys.executable, str(installed), '--root', str(self.root),
+                                 '--copilot-events', str(self.events)], capture_output=True, text=True,
+                                cwd=self.base)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.strip(), 'REVIEW_HOST_REGISTERED')
+        self.assertNotIn('REVIEW_CONTEXT_OK', result.stdout)
+        self.assertTrue(self.ledger.is_file())
 
 
 if __name__ == '__main__':

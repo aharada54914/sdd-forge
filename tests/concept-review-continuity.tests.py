@@ -267,7 +267,7 @@ class DomainInputManifest(unittest.TestCase):
         precheck = 'reports/domain-review/attempt-1/round-1/precheck-result.json'
         paths = [p.replace('<name>', 'Order') for p in canonical] + additional + [precheck]
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             for name in paths:
                 if name == precheck:
                     continue
@@ -279,16 +279,20 @@ class DomainInputManifest(unittest.TestCase):
             script.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / script.relative_to(root), script)
             (root / 'reports').mkdir(exist_ok=True)
+            # Synthetic native metadata exercises the actual producer, not a hand-built ledger.
+            events = root / 'native/session-state/fixture-host-session/events.jsonl'
+            events.parent.mkdir(parents=True)
+            events.write_text(json.dumps(dict(type='session.start', id='fixture-host', parentId=None,
+                                             data=dict(version=1, producer='copilot-agent',
+                                                       sessionId='fixture-host-session', context=dict(cwd=str(root))))))
+            with mock.patch.dict(os.environ, COPILOT_HOME=str(root / 'native')):
+                initial_document = concept.identity.initialize(root, events)
             checked = subprocess.run(['bash', str(script), '1', '1'], capture_output=True, text=True)
             self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
             entries = [dict(path=p, sha256=hashlib.sha256((root / p).read_bytes()).hexdigest()) for p in paths]
             ledger = root / 'reports/review-context/identity-ledger.json'
-            ledger.parent.mkdir(parents=True)
-            initial = dict(sequence=1, stage='implementation', role='implementer', run_id='fixture-host',
-                           host_session_id='fixture-host-session', previous_record_sha256='')
-            initial['record_sha256'] = hashlib.sha256(
-                b'1|implementation|implementer|fixture-host|fixture-host-session|').hexdigest()
-            before = json.dumps(dict(schema='review-identity-ledger/v1', records=[initial])).encode()
+            initial = initial_document['records'][0]
+            before = ledger.read_bytes()
             invocation = dict(schema='review-context-invocation/v2', input_mode='file-manifest', fallback_mode='none',
                               read_only=True, stage='domain', role='domain-reviewer-a', feature='sdd-domain-model',
                               run_id='fixture-review', host_session_id='fixture-review-session', sequence=2,

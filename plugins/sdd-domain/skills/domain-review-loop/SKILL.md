@@ -27,6 +27,32 @@ start it out of order, and the model must be able to reach it).
 
 ## Preconditions
 
+Before the first precheck in a fresh Copilot project, register the invoking
+orchestrator from its **original current host** session record if
+`reports/review-context/identity-ledger.json` does not exist:
+
+```text
+python3 plugins/sdd-quality-loop/scripts/initialize-review-identity.py --root <repository-root> --copilot-events <native-session-state>/<current-session>/events.jsonl
+```
+
+Obtain that source from the running host's native session-state location:
+`$COPILOT_HOME/session-state` when configured, otherwise `$HOME/.copilot/session-state`.
+The helper rejects sources outside that configured native directory. Do not
+change `COPILOT_HOME` to point at copied or manufactured session data.
+The helper reads the native `session.start` event, checks the Copilot producer,
+containing session directory and project working directory, and exclusively
+publishes the initial host record. The input is trusted host metadata, not an
+agent-authored transcript or an authentication token: never copy, edit, or
+invent it to obtain a pass. There are no caller-supplied identity arguments.
+The helper does not reserve a reviewer or emit `REVIEW_CONTEXT_OK`.
+
+Use it only before any review/implementation history exists. If a ledger
+already exists, skip initialization and use the normal chain validation below;
+the helper refuses to replace any existing ledger, including malformed ones.
+A missing ledger with prior history, an unsupported host, or unavailable native
+metadata is a hard stop, not permission to reconstruct identities. Initial
+registration currently supports Copilot's native version-1 session-start event.
+
 Read `domain/context-map.md` and confirm every one of the seven canonical
 `domain/` artifacts exists (per `domain-interviewer`'s Seven-Stage Sequence
 table) plus `domain/domain-contract.json`. The context-map header must

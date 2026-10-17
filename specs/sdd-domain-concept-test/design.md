@@ -36,3 +36,23 @@ The validator reports CONTINUE/SKIP (0), BLOCK (1), DEFER (2), REJECT (3).
 The bootstrap skill is declarative: test the executable gate independently and
 assert the documented ordering/stop contract; do not claim a simulated LLM run
 is an observed end-to-end bootstrap session.
+
+## Fresh domain review identity
+
+The normal first domain review previously required a nonempty identity ledger
+without providing a producer. A bounded initializer now reads the original
+Copilot `session.start` event under its configured native state directory,
+binds the event's session directory and project cwd, and publishes sequence 1
+with stage `host` and role `orchestrator`. It accepts no caller-supplied IDs.
+The documented `COPILOT_HOME` setting (default `.copilot` in the home directory)
+and selection of the current session are trusted host configuration. This is
+native metadata provenance, not cryptographic or live-process attestation.
+Other hosts are not inferred from this format.
+
+Initialization precedes the first domain precheck. Existing ledgers, prior
+review/implementation artifacts, redirected paths, aliased event files and
+reservation locks cause refusal. The existing cross-runtime ledger lock and
+exclusive publication of a completely written file prevent overwrites and
+partial records. Failure removes only this invocation's temporary state. Normal
+review admission still validates the full chain and reserves each new reviewer;
+initialization neither authorizes a reviewer nor fabricates review history.

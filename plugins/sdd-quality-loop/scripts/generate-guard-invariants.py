@@ -115,6 +115,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
     "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
     "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+    "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
     "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
     "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
     "plugins/sdd-quality-loop/scripts/detect-panel.sh",

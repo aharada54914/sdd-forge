@@ -107,6 +107,7 @@ foreach ($relativePath in @(
     "install.ps1",
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+    "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
     "plugins/sdd-review-loop/.claude-plugin/plugin.json",
     "plugins/sdd-review-loop/.codex-plugin/plugin.json",
     "plugins/sdd-review-loop/.plugin/plugin.json"
@@ -122,6 +123,7 @@ foreach ($relativePath in @(
     install.ps1 `
     plugins/sdd-bootstrap/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/.claude-plugin/plugin.json `
+    plugins/sdd-quality-loop/scripts/initialize-review-identity.py `
     plugins/sdd-review-loop
 $stagedDiff = & git -C $installerSourceRoot diff --cached --name-only
 if ($stagedDiff) {
@@ -936,6 +938,12 @@ try {
     $env:SDD_CODEX_HOME = Join-Path $smokeRoot "codex-home"
     & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $smokeInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
 
+    $identityRelative = "plugins/sdd-quality-loop/scripts/initialize-review-identity.py"
+    $identityInstalled = Join-Path $smokeInstall $identityRelative
+    if (-not (Test-Path $identityInstalled) -or
+        (Get-FileHash $identityInstalled).Hash -ne (Get-FileHash (Join-Path $repositoryRoot $identityRelative)).Hash) {
+        throw "smoke (D): installed native review identity producer missing or changed"
+    }
     $smokeGate = Join-Path $smokeInstall "plugins/sdd-quality-loop/scripts/check-risk.ps1"
     if (-not (Test-Path $smokeGate)) {
         throw "smoke (D): installed check-risk.ps1 not found at: $smokeGate"
