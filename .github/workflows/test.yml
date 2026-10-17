@@ -1659,8 +1659,9 @@ jobs:
   test-windows-heavy:
     name: test-windows-heavy
     runs-on: windows-latest
-    # Native current-product captures add about 10 minutes to the existing lane.
-    timeout-minutes: 35
+    # Native captures plus the expanded A9 suites need about 35-38 minutes,
+    # including the existing post-A9 checks; retain margin for runner variance.
+    timeout-minutes: 45
     steps:
       - name: "[deterministic] Setup step 1"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
