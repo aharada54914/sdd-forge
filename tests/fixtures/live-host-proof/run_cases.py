@@ -1480,6 +1480,12 @@ def inventory_cases():
     wrapper = 'const r = await tools.exec_command({cmd:' + json.dumps(command) + '}); text(r.output);'
     for label, text, expected in (
         ('codex-literal-wrapper', wrapper, True),
+        ('codex-observed-exit-code-tail', wrapper+' text(`EXIT_CODE=${r.exit_code}`);', True),
+        ('codex-observed-framed-exit-code-tail', wrapper+' text(`\\n__EXIT_CODE__=${r.exit_code}`);', True),
+        ('codex-exit-tail-other-variable-rejected', wrapper+' text(`EXIT_CODE=${other.exit_code}`);', False),
+        ('codex-exit-tail-computed-value-rejected', wrapper+' text(`EXIT_CODE=${r.exit_code || 0}`);', False),
+        ('codex-exit-tail-extra-prose-rejected', wrapper+' text(`EXIT_CODE=${r.exit_code} VERIFIED`);', False),
+        ('codex-exit-tail-forged-output-rejected', wrapper.replace('text(r.output)', 'text("forged")')+' text(`EXIT_CODE=${r.exit_code}`);', False),
         ('codex-wrapper-comment-is-data', '/* '+wrapper+' */ text("not executed");', False),
         ('codex-wrapper-string-is-data', 'text('+json.dumps(wrapper)+');', False),
         ('codex-wrapper-conditional-not-executed', 'if (false) { '+wrapper+' }', False),
