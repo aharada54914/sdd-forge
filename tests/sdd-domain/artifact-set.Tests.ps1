@@ -2,7 +2,7 @@
 # T-002 domain-interviewer skill -- acceptance-first Pester test
 #
 # Required Workflow for T-002 is "acceptance-first" (Risk: medium), not
-# strict TDD. domain-interviewer's actual seven-stage interview is
+# strict TDD. domain-interviewer's actual eight-stage interview is
 # agent-driven -- an LLM asks questions, records human answers, and writes
 # Markdown artifacts one stage at a time. There is no deterministic script
 # to execute for that conversational process, so this file does not (and
@@ -15,10 +15,10 @@
 #
 #   1. A worked fixture: a hand-authored example domain/ directory tree
 #      following domain-interviewer/SKILL.md's own documented conventions
-#      (the seven canonical Markdown paths from AC-002, one aggregate card,
+#      (the eight canonical Markdown paths from AC-002, one aggregate card,
 #      and a domain-contract.json). Assert the fixture's structure matches
 #      what SKILL.md promises, and that its domain-contract.json actually
-#      validates against contracts/domain-contract.v1.schema.json (this
+#      validates against contracts/domain-contract.v2.schema.json (this
 #      part is executed for real).
 #
 #   2. Resume-on-interruption: SKILL.md's own documented detection-order
@@ -41,11 +41,12 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $skillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-interviewer/SKILL.md"
-$schemaPath = Join-Path $repositoryRoot "contracts/domain-contract.v1.schema.json"
+$schemaPath = Join-Path $repositoryRoot "contracts/domain-contract.v2.schema.json"
 
 $templateNames = @(
     "domain-story.template.md",
     "event-storming.template.md",
+    "concept-model.template.md",
     "ubiquitous-language.template.md",
     "context-map.template.md",
     "aggregate.template.md",
@@ -78,78 +79,17 @@ function Get-PropSafe {
     return $prop.Value
 }
 
-# Minimal structural validator for the domain-contract/v1 shape. Mirrors
-# tests/sdd-domain/contract-schema.Tests.ps1's Test-DomainContract exactly,
-# duplicated here (not dot-sourced) so this file has no cross-file runtime
-# dependency and stays independently runnable.
+# Exercise the shipped v2 validator, including concept references, rather
+# than maintaining a second approximate schema checker in this fixture.
 function Test-DomainContract {
     param([Parameter(Mandatory)]$Contract)
-
-    $errors = New-Object System.Collections.Generic.List[string]
-
-    $schemaValue = Get-PropSafe $Contract "schema"
-    if ($null -eq $schemaValue -or $schemaValue -ne "domain-contract/v1") {
-        $errors.Add("schema const must equal 'domain-contract/v1'")
-    }
-
-    $meta = Get-PropSafe $Contract "meta"
-    if ($null -eq $meta) {
-        $errors.Add("meta is required")
-    } else {
-        $metaVersion = Get-PropSafe $meta "version"
-        if ($null -eq $metaVersion) { $errors.Add("meta.version is required") }
-        elseif ($metaVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+$') { $errors.Add("meta.version must match semver pattern") }
-
-        $metaStatus = Get-PropSafe $meta "status"
-        if ($null -eq $metaStatus) { $errors.Add("meta.status is required") }
-        elseif (@("Pending", "Reviewed", "Approved") -notcontains $metaStatus) { $errors.Add("meta.status must be one of Pending|Reviewed|Approved") }
-
-        $metaGeneratedFrom = Get-PropSafe $meta "generated_from"
-        if ($null -eq $metaGeneratedFrom) { $errors.Add("meta.generated_from is required") }
-        elseif (@($metaGeneratedFrom).Count -lt 1) { $errors.Add("meta.generated_from must have at least 1 item") }
-    }
-
-    $contexts = Get-PropSafe $Contract "contexts"
-    if ($null -eq $contexts) {
-        $errors.Add("contexts is required")
-    } else {
-        $contexts = @($contexts)
-        if ($contexts.Count -lt 1) { $errors.Add("contexts must have at least 1 item") }
-        foreach ($context in $contexts) {
-            foreach ($field in @("name", "description", "terms", "aggregates")) {
-                if ($null -eq (Get-PropSafe $context $field)) { $errors.Add("contexts[].$field is required") }
-            }
-            $contextName = Get-PropSafe $context "name"
-            if ($null -ne $contextName -and $contextName -notmatch '^[a-z][a-z0-9-]*$') {
-                $errors.Add("contexts[].name must be kebab-case")
-            }
-            foreach ($term in @(Get-PropSafe $context "terms")) {
-                foreach ($field in @("canonical", "definition")) {
-                    if ($null -eq (Get-PropSafe $term $field)) { $errors.Add("contexts[].terms[].$field is required") }
-                }
-            }
-            foreach ($aggregate in @(Get-PropSafe $context "aggregates")) {
-                foreach ($field in @("name", "root_entity", "invariants", "transaction_boundary", "card")) {
-                    if ($null -eq (Get-PropSafe $aggregate $field)) { $errors.Add("contexts[].aggregates[].$field is required") }
-                }
-            }
-        }
-    }
-
-    $relations = Get-PropSafe $Contract "relations"
-    if ($null -ne $relations) {
-        foreach ($relation in @($relations)) {
-            foreach ($field in @("from", "to", "pattern")) {
-                if ($null -eq (Get-PropSafe $relation $field)) { $errors.Add("relations[].$field is required") }
-            }
-            $relationPattern = Get-PropSafe $relation "pattern"
-            if ($null -ne $relationPattern -and $validPattern -notcontains $relationPattern) {
-                $errors.Add("relations[].pattern must be a recognized contextRelation pattern")
-            }
-        }
-    }
-
-    return $errors
+    $temporary = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString() + '.json')
+    try {
+        $Contract | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $temporary -Encoding UTF8
+        $output = & (Join-Path $repositoryRoot 'plugins/sdd-domain/scripts/validate-domain-contract.ps1') $temporary 2>&1
+        if ($LASTEXITCODE -ne 0) { return @($output) }
+        return @()
+    } finally { Remove-Item -LiteralPath $temporary -Force }
 }
 
 function Get-Sha256Hex {
@@ -170,9 +110,10 @@ Describe "domain-interviewer SKILL.md contract" {
         $script:skillText | Should Match "user-invocable: false"
     }
 
-    It "documents all seven canonical checkpoint paths from AC-002" {
+    It "documents all eight canonical checkpoint paths from AC-002" {
         $script:skillText | Should Match ([regex]::Escape("domain/domain-story.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/event-storming.md"))
+        $script:skillText | Should Match ([regex]::Escape("domain/concept-model.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/ubiquitous-language.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/context-map.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/aggregates/<name>.md"))
@@ -183,7 +124,7 @@ Describe "domain-interviewer SKILL.md contract" {
     It "documents the domain-contract.json regeneration step after every stage" {
         $script:skillText | Should Match ([regex]::Escape("domain/domain-contract.json"))
         $script:skillText | Should Match "after every stage"
-        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v1.schema.json"))
+        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v2.schema.json"))
     }
 
     It "documents seed intake for text, local path, issue URL, and reverse candidate seed" {
@@ -212,13 +153,13 @@ Describe "domain-interviewer SKILL.md contract" {
         # never reads across the plugin boundary by relative filesystem path.
         # SKILL.md is allowed to mention the sdd-bootstrap path in prose (to
         # explain the adaptation and disclaim a runtime read of it); the
-        # invariant under test is that this skill's own Seven-Stage Sequence
+        # invariant under test is that this skill's own Eight-Stage Sequence
         # table -- the actual stage-to-template wiring the interview follows
         # -- points only at its own templates/ directory, never at
         # sdd-bootstrap's.
         $script:skillText | Should Match ([regex]::Escape("not a runtime read"))
-        $script:skillText | Should Match ([regex]::Escape("| 7 | C4 Container | ``templates/c4-container.template.md`` |"))
-        $script:skillText | Should Not Match ([regex]::Escape("| 7 | C4 Container | ``plugins/sdd-bootstrap"))
+        $script:skillText | Should Match ([regex]::Escape("| 8 | C4 Container | ``templates/c4-container.template.md`` |"))
+        $script:skillText | Should Not Match ([regex]::Escape("| 8 | C4 Container | ``plugins/sdd-bootstrap"))
     }
 }
 
@@ -232,7 +173,7 @@ Describe "domain-interviewer templates exist" {
     }
 }
 
-Describe "Worked fixture: eight-artifact domain/ tree (AC-002)" {
+Describe "Worked fixture: nine-artifact domain/ tree (AC-002)" {
 
     BeforeAll {
         $script:fixtureDir = Join-Path ([IO.Path]::GetTempPath()) ("sdd-domain-t002-" + [Guid]::NewGuid().ToString("N"))
@@ -244,7 +185,7 @@ Describe "Worked fixture: eight-artifact domain/ tree (AC-002)" {
         Set-Content -LiteralPath (Join-Path $script:domainDir "domain-story.md") -Encoding UTF8 -Value @'
 # Domain Story: widget-catalog
 
-Stage: 1 of 7 (Domain Story)
+Stage: 1 of 8 (Domain Story)
 Seed-Source: free text
 
 ## Actors
@@ -291,7 +232,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "event-storming.md") -Encoding UTF8 -Value @'
 # Event Storming: widget-catalog
 
-Stage: 2 of 7 (Event Storming)
+Stage: 2 of 8 (Event Storming)
 Seed-Source: free text
 
 ## Domain Events
@@ -343,11 +284,29 @@ None.
 None.
 '@
 
+        Set-Content -LiteralPath (Join-Path $script:domainDir "concept-model.md") -Encoding UTF8 -Value @'
+# Concept Model: widget-catalog
+Stage: 3 of 8 (Concept Model)
+## Concepts
+CONCEPT-ORDER: Order, context order-management.
+Definition: A shopper's purchase request. Essence: Records the purchase commitment.
+Responsibilities: Record purchased quantities. Must Not Own: Physical shipping.
+Evidence: domain/domain-story.md. Human Confirmation Reference: fixture-decision-1.
+## Distinction Matrix
+No competing identity is asserted in this fixture.
+## Stress Scenarios
+normal: purchase commitment retained; retry: do not duplicate a purchase.
+## Open Questions
+None.
+## Unknowns
+None.
+'@
+
         # --- Stage 3: Ubiquitous Language --------------------------------
         Set-Content -LiteralPath (Join-Path $script:domainDir "ubiquitous-language.md") -Encoding UTF8 -Value @'
 # Ubiquitous Language: widget-catalog
 
-Stage: 3 of 7 (Ubiquitous Language)
+Stage: 4 of 8 (Ubiquitous Language)
 Seed-Source: free text
 
 ## Terms
@@ -378,7 +337,7 @@ None.
 # Context Map: widget-catalog
 
 Domain-Model-Status: Pending
-Stage: 4 of 7 (Context Map)
+Stage: 5 of 8 (Context Map)
 Seed-Source: free text
 
 ## Bounded Contexts
@@ -413,7 +372,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:aggregatesDir "Order.md") -Encoding UTF8 -Value @'
 # Aggregate: Order
 
-Stage: 5 of 7 (Domain Model - Aggregates)
+Stage: 6 of 8 (Domain Model - Aggregates)
 Context: order-management
 Seed-Source: free text
 
@@ -467,7 +426,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "message-flow.md") -Encoding UTF8 -Value @'
 # Domain Message Flow: widget-catalog
 
-Stage: 6 of 7 (Domain Message Flow)
+Stage: 7 of 8 (Domain Message Flow)
 Seed-Source: free text
 
 ## Message Catalog
@@ -512,7 +471,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "c4-container.md") -Encoding UTF8 -Value @'
 # C4 Container: widget-catalog
 
-Stage: 7 of 7 (C4 Container)
+Stage: 8 of 8 (C4 Container)
 Seed-Source: free text
 
 ## Diagram
@@ -555,15 +514,16 @@ None.
 None.
 '@
 
-        # --- Eighth artifact: domain-contract.json ------------------------
+        # --- Ninth artifact: domain-contract.json ------------------------
         $script:contractFixture = @{
-            schema = "domain-contract/v1"
+            schema = "domain-contract/v2"
             meta = @{
                 version = "0.1.6"
                 status = "Pending"
                 generated_from = @(
                     "domain/domain-story.md",
                     "domain/event-storming.md",
+                    "domain/concept-model.md",
                     "domain/ubiquitous-language.md",
                     "domain/context-map.md",
                     "domain/aggregates/Order.md",
@@ -571,12 +531,20 @@ None.
                     "domain/c4-container.md"
                 )
             }
+            concepts = @(@{
+                id = "CONCEPT-ORDER"; name = "Order"; context = "order-management"
+                definition = "A shopper purchase request"; essence = "Records the purchase commitment"
+                responsibilities = @("Record purchased quantities")
+                must_not_own = @("Physical shipping")
+                evidence = @("domain/domain-story.md")
+            })
             contexts = @(
                 @{
                     name = "order-management"
                     description = "Handles order lifecycle from placement to fulfillment."
                     terms = @(
                         @{
+                            concept_id = "CONCEPT-ORDER"
                             canonical = "Order"
                             ja = "chuumon"
                             definition = "A request from a shopper to purchase one or more widgets."
@@ -616,9 +584,10 @@ None.
         }
     }
 
-    It "produces all seven canonical Markdown checkpoint paths from AC-002" {
+    It "produces all eight canonical Markdown checkpoint paths from AC-002" {
         Test-Path -LiteralPath (Join-Path $script:domainDir "domain-story.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "event-storming.md") | Should Be $true
+        Test-Path -LiteralPath (Join-Path $script:domainDir "concept-model.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "ubiquitous-language.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "context-map.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:aggregatesDir "Order.md") | Should Be $true
@@ -626,7 +595,7 @@ None.
         Test-Path -LiteralPath (Join-Path $script:domainDir "c4-container.md") | Should Be $true
     }
 
-    It "produces the eighth artifact domain-contract.json" {
+    It "produces the ninth artifact domain-contract.json" {
         Test-Path -LiteralPath (Join-Path $script:domainDir "domain-contract.json") | Should Be $true
     }
 
@@ -635,7 +604,7 @@ None.
         $text | Should Match "Domain-Model-Status: Pending"
     }
 
-    It "domain-contract.json validates against contracts/domain-contract.v1.schema.json (AC-003)" {
+    It "domain-contract.json validates against contracts/domain-contract.v2.schema.json (AC-003)" {
         $contractText = Get-Content -Raw -Encoding Utf8 -LiteralPath (Join-Path $script:domainDir "domain-contract.json")
         $contract = $contractText | ConvertFrom-Json
         $errors = @(Test-DomainContract -Contract $contract)
@@ -663,19 +632,19 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
         $script:resumeDomainDir = Join-Path $script:resumeFixtureDir "domain"
         New-Item -ItemType Directory -Path $script:resumeDomainDir -Force | Out-Null
 
-        $script:stage1Content = "# Domain Story: resume-fixture`n`nStage: 1 of 7 (Domain Story)`nSeed-Source: free text`n`nAlready checkpointed.`n"
-        $script:stage2Content = "# Event Storming: resume-fixture`n`nStage: 2 of 7 (Event Storming)`nSeed-Source: free text`n`nAlready checkpointed.`n"
-        $script:stage3Content = "# Ubiquitous Language: resume-fixture`n`nStage: 3 of 7 (Ubiquitous Language)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage1Content = "# Domain Story: resume-fixture`n`nStage: 1 of 8 (Domain Story)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage2Content = "# Event Storming: resume-fixture`n`nStage: 2 of 8 (Event Storming)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage3Content = "# Concept Model: resume-fixture`n`nStage: 3 of 8 (Concept Model)`nSeed-Source: free text`n`nAlready checkpointed.`n"
 
         Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "domain-story.md") -Encoding UTF8 -Value $script:stage1Content
         Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "event-storming.md") -Encoding UTF8 -Value $script:stage2Content
-        Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "ubiquitous-language.md") -Encoding UTF8 -Value $script:stage3Content
+        Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "concept-model.md") -Encoding UTF8 -Value $script:stage3Content
         # Stages 4-7 and aggregates/ deliberately absent.
 
         $script:hashBefore = @{
             "domain-story.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "domain-story.md")
             "event-storming.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "event-storming.md")
-            "ubiquitous-language.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "ubiquitous-language.md")
+            "concept-model.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "concept-model.md")
         }
     }
 
@@ -686,7 +655,7 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
     }
 
     # Simulates SKILL.md's documented detection-order algorithm: check the
-    # seven canonical paths in stage order; the resume point is the first
+    # eight canonical paths in stage order; the resume point is the first
     # stage whose canonical artifact is missing.
     function Get-ResumeStage {
         param([string]$DomainDir)
@@ -694,15 +663,16 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
         $stageChecks = @(
             @{ Stage = 1; Path = Join-Path $DomainDir "domain-story.md" },
             @{ Stage = 2; Path = Join-Path $DomainDir "event-storming.md" },
-            @{ Stage = 3; Path = Join-Path $DomainDir "ubiquitous-language.md" },
-            @{ Stage = 4; Path = Join-Path $DomainDir "context-map.md" },
-            @{ Stage = 5; Path = Join-Path $DomainDir "aggregates" },
-            @{ Stage = 6; Path = Join-Path $DomainDir "message-flow.md" },
-            @{ Stage = 7; Path = Join-Path $DomainDir "c4-container.md" }
+            @{ Stage = 3; Path = Join-Path $DomainDir "concept-model.md" },
+            @{ Stage = 4; Path = Join-Path $DomainDir "ubiquitous-language.md" },
+            @{ Stage = 5; Path = Join-Path $DomainDir "context-map.md" },
+            @{ Stage = 6; Path = Join-Path $DomainDir "aggregates" },
+            @{ Stage = 7; Path = Join-Path $DomainDir "message-flow.md" },
+            @{ Stage = 8; Path = Join-Path $DomainDir "c4-container.md" }
         )
 
         foreach ($check in $stageChecks) {
-            if ($check.Stage -eq 5) {
+            if ($check.Stage -eq 6) {
                 $aggregatesExist = (Test-Path -LiteralPath $check.Path) -and
                     (@(Get-ChildItem -LiteralPath $check.Path -Filter "*.md" -ErrorAction SilentlyContinue).Count -gt 0)
                 if (-not $aggregatesExist) { return $check.Stage }
@@ -743,19 +713,19 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
         $hashAfter = @{
             "domain-story.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "domain-story.md")
             "event-storming.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "event-storming.md")
-            "ubiquitous-language.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "ubiquitous-language.md")
+            "concept-model.md" = Get-Sha256Hex (Join-Path $script:resumeDomainDir "concept-model.md")
         }
         $hashAfter["domain-story.md"] | Should Be $script:hashBefore["domain-story.md"]
         $hashAfter["event-storming.md"] | Should Be $script:hashBefore["event-storming.md"]
-        $hashAfter["ubiquitous-language.md"] | Should Be $script:hashBefore["ubiquitous-language.md"]
+        $hashAfter["concept-model.md"] | Should Be $script:hashBefore["concept-model.md"]
     }
 
-    It "a completed all-seven-stage tree reports no resume point (interview already complete)" {
+    It "a completed all-eight-stage tree reports no resume point (interview already complete)" {
         $completeDir = Join-Path ([IO.Path]::GetTempPath()) ("sdd-domain-t002-complete-" + [Guid]::NewGuid().ToString("N"))
         $completeAggregatesDir = Join-Path $completeDir "aggregates"
         New-Item -ItemType Directory -Path $completeAggregatesDir -Force | Out-Null
         try {
-            foreach ($name in @("domain-story.md", "event-storming.md", "ubiquitous-language.md", "context-map.md", "message-flow.md", "c4-container.md")) {
+            foreach ($name in @("domain-story.md", "event-storming.md", "concept-model.md", "ubiquitous-language.md", "context-map.md", "message-flow.md", "c4-container.md")) {
                 Set-Content -LiteralPath (Join-Path $completeDir $name) -Encoding UTF8 -Value "placeholder"
             }
             Set-Content -LiteralPath (Join-Path $completeAggregatesDir "Order.md") -Encoding UTF8 -Value "placeholder"

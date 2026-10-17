@@ -262,7 +262,7 @@ function Test-AuthorizedPath {
             return $GateReportOutputs.Contains("$Path`n$Sha256")
         }
         { $_ -in @('domain:domain-reviewer-a', 'domain:domain-reviewer-b') } {
-            if ($Path -cmatch '^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$' -or
+            if ($Path -cmatch '^domain/(domain-story|event-storming|concept-model|ubiquitous-language|context-map|message-flow|c4-container)\.md$' -or
                 $Path -cmatch '^domain/aggregates/[^/]+\.md$' -or
                 $Path -ceq 'domain/domain-contract.json' -or
                 $Path -ceq 'plugins/sdd-domain/references/domain-review-calibration.md' -or

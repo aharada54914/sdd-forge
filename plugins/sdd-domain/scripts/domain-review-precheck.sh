@@ -60,12 +60,13 @@ domain_contract="${domain_dir}/domain-contract.json"
 report_dir="${reports_base}/attempt-${attempt}/round-${round}"
 fingerprint_path="${reports_base}/last-approved-fingerprint.json"
 
-# Canonical domain/ artifact set (AC-002's seven Markdown paths plus the
+# Canonical domain/ artifact set (AC-002's eight Markdown paths plus the
 # machine-readable contract). Aggregates are variadic (one per aggregate);
 # every *.md file directly under domain/aggregates/ is included.
 declare -a canonical_paths=(
   "${domain_dir}/domain-story.md"
   "${domain_dir}/event-storming.md"
+  "${domain_dir}/concept-model.md"
   "${domain_dir}/ubiquitous-language.md"
   "${domain_dir}/context-map.md"
   "${domain_dir}/message-flow.md"

@@ -1,6 +1,6 @@
 # Event Storming: {{domain_name}}
 
-Stage: 2 of 7 (Event Storming)
+Stage: 2 of 8 (Event Storming)
 Seed-Source: {{seed_source}}
 
 ## Domain Events
@@ -57,7 +57,7 @@ flowchart LR
 {{candidate_aggregate_clusters}}
 
 Groupings of events/commands that appear to share a consistency boundary.
-These clusters are candidates for the Domain Model stage (stage 5); they are
+These clusters are candidates for the Domain Model stage (stage 6); they are
 not yet approved aggregates.
 
 ## Open Questions

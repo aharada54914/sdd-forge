@@ -1,12 +1,12 @@
 # Aggregate: {{aggregate_name}}
 
-Stage: 5 of 7 (Domain Model - Aggregates)
+Stage: 6 of 8 (Domain Model - Aggregates)
 Context: {{context_name}}
 Seed-Source: {{seed_source}}
 
 One file per aggregate under `domain/aggregates/<name>.md`, where `<name>`
 matches this aggregate's `name` field exactly (PascalCase, per
-`contracts/domain-contract.v1.schema.json`'s `aggregate.name` pattern
+`contracts/domain-contract.v2.schema.json`'s `aggregate.name` pattern
 `^[A-Z][A-Za-z0-9]*$`).
 
 ## Root Entity

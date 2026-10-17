@@ -1,6 +1,6 @@
 # Ubiquitous Language: {{domain_name}}
 
-Stage: 3 of 7 (Ubiquitous Language)
+Stage: 4 of 8 (Ubiquitous Language)
 Seed-Source: {{seed_source}}
 
 Canonical terms are English (per AC-013). The JA column records the agreed
@@ -10,11 +10,15 @@ stakeholders; it never becomes the canonical term stored in
 not be used in specs for this concept once this term is approved, so drift
 is caught by `check-domain-conformance` (a later task).
 
+Use adopted concepts from `domain/concept-model.md`; `concept_id` refers to
+the stable identity, not the spelling of the term. Never invent or merge a
+concept during vocabulary selection. Unresolved candidates remain open.
+
 ## Terms
 
-| Canonical Term (EN) | JA | Definition | Forbidden Synonyms | Context |
-|---|---|---|---|---|
-| {{canonical_term}} | {{ja_translation}} | {{definition}} | {{forbidden_synonyms}} | {{context_name}} |
+| Canonical Term (EN) | JA | Definition | Forbidden Synonyms | Context | Concept ID |
+|---|---|---|---|---|---|
+| {{canonical_term}} | {{ja_translation}} | {{definition}} | {{forbidden_synonyms}} | {{context_name}} | {{concept_id}} |
 
 ## Term Relationships
 
