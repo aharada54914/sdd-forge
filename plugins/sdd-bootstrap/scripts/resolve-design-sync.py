@@ -59,14 +59,15 @@ def resolve(request):
         return decision("skip", "UI provider not applicable")
     if not request["capability_resolved"]:
         return decision("manual", "UI capability not resolved")
+    if not request["egress_permitted"]:
+        return decision("manual", "egress not permitted",
+                        audit("not-permitted", "egress policy") if request["operation"] == "upload" else None)
     if request["operation"] == "pull":
         return decision("proceed", "applicable provider read") if request["provider_available"] else decision("manual", "design tools unavailable")
     if setting == "off":
         return decision("manual", "uploads disabled", audit("not-permitted"))
     if not request["provider_available"]:
         return decision("manual", "design tools unavailable")
-    if not request["egress_permitted"]:
-        return decision("manual", "egress not permitted", audit("not-permitted", "egress policy"))
     records = [record for record in request["records"]
                if all(record[key] == value for key, value in scope.items())]
     latest = records[-1] if records else None

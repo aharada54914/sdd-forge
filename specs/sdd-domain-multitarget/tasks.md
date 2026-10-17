@@ -74,7 +74,7 @@ Done When:
 ## T-004 Compatibility and hybrid fallback
 
 Approval: Approved
-Status: Implementation Complete
+Status: In Progress
 Risk: high
 Risk Rationale: Compatibility behavior is shared by existing consumers; a regression could alter approval, evidence, or artifact semantics for legacy projects.
 Required Workflow: tdd
@@ -90,7 +90,7 @@ Done When:
 - [ ] `facet-hybrid` retains all seven legacy layer documents and records applicability only in a separate manifest.
 - [ ] Any changed field, schema, or check vocabulary is versioned with enumerated reader/writer migration evidence.
 - [ ] Tests cover absent, valid, stale, and malformed context inputs without changing default behavior.
-- [ ] Red compatibility tests fail before the change and green tests pass after it; the implementation report records both runs and an independent reviewer verdict.
+- [ ] Compare with the existing verified version, run compatibility regressions through actual usage paths, obtain independent evaluation, and verify successful required CI on the latest head. Fix any discovered defects and retain their regression coverage. This T-004-only completion-condition amendment was explicitly human-approved on 2026-10-17; see `verification/T-004/completion-condition-approval-20261017.md`. It does not assert historical production RED or waive other task conditions.
 
 ## T-005 UI provider boundary and consent-safe fallback
 
