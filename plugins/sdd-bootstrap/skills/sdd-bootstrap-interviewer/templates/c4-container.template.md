@@ -24,3 +24,13 @@ C4Container
 ## Related ADRs
 
 - {{adr_link}}
+
+## Logical-to-Deployment Mapping
+
+| Container | Confirmed Context / Concept | Mapping Rationale | Source |
+|---|---|---|---|
+| {{container_name}} | {{context_or_concept}} | {{mapping_rationale}} | {{source_reference}} |
+
+A concept or bounded context does not imply one deployable container. Record
+actual architecture decisions and unresolved mappings; do not invent ownership
+or deployment boundaries from naming alone.
