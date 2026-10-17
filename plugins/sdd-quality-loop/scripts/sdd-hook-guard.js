@@ -129,7 +129,6 @@ const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
 const SUDO_ISSUED_RE = /(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)/;
-const SHELL_AGENT_ROLE_READ_ONLY_RE = /^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex\/agents(?:\/|\b)/is;
 const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec']);
 const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
 
@@ -1212,33 +1211,52 @@ function patchWritesInvalidAgentRole(patch) {
   return false;
 }
 
-function roleProxyRgReadOnly(cmd) {
-  if (!/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+/.test(cmd)) return false;
-  if (/[$`<>&\\\r\n]/.test(cmd)) return false;
+function shellIsReadOnly(cmd) {
+  // Classify every command; quoted search text is data, not shell syntax.
+  if (typeof cmd !== 'string') return false;
+  let quote = null;
+  for (const ch of cmd) {
+    if (quote === "'") {
+      if (ch === "'") quote = null;
+      continue;
+    }
+    if ('$`<>(){}'.includes(ch)) return false;
+    if (ch === '"') quote = quote === '"' ? null : '"';
+    else if (ch === "'" && quote === null) quote = "'";
+  }
   const tokens = tokenizeShellCommand(cmd);
-  if (!tokens || tokens.some(([kind]) => kind !== 'word')) return false;
-  const words = tokens.map(([, value]) => value);
-  if (words.length < 7 || words[0] !== 'rtk' || words[1] !== 'proxy' || words[2] !== 'rg') return false;
-  const firstFlags = words[3] === '--no-config' && words[4] === '-n';
-  const secondFlags = words[3] === '-n' && words[4] === '--no-config';
-  if (!firstFlags && !secondFlags) return false;
-  const pattern = words[5];
-  // Special regexp syntax requires one literal single-quoted word: the
-  // shared tokenizer deliberately does not preserve quote provenance.
-  const quoted = cmd.match(/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+/);
-  const plainPattern = /^[A-Za-z0-9_./:|+-]+$/.test(pattern);
-  const quotedPattern = quoted && quoted[1] === pattern && /^[A-Za-z0-9_./:|+^# ()-]+$/.test(pattern);
-  if (pattern.startsWith('-') || !(plainPattern || quotedPattern)) return false;
-  const paths = words.slice(6);
-  if (!paths.every(p => !p.startsWith('-') && /^[A-Za-z0-9_./-]+$/.test(p))) return false;
-  return paths.some(p => /(?:^|\/)\.codex\/agents\/[^/]+\.toml$/i.test(p));
+  if (!tokens || !tokens.length) return false;
+  const readers = new Set([
+    'cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
+    'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object',
+  ]);
+  const segments = [[]];
+  for (const [kind, word] of tokens) {
+    if (kind === 'sep') segments.push([]);
+    else segments[segments.length - 1].push(word);
+  }
+  for (let words of segments) {
+    if (!words.length) continue;
+    if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
+    if (!words.length) return false;
+    const verb = words[0].toLowerCase();
+    if (verb === 'sed') {
+      // sed can write or execute; admit only its print-range form.
+      if (words.length < 3 || words[1] !== '-n' || !/^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]) || words.slice(3).some(word => word.startsWith('-'))) return false;
+    } else if (!readers.has(verb)) return false;
+    if (verb === 'rg') {
+      if (words.slice(1).some(word => ['--pre', '--hostname-bin'].includes(word.split('=')[0]))) return false;
+      if (process.env.RIPGREP_CONFIG_PATH && words[1] !== '--no-config') return false;
+    }
+  }
+  return true;
 }
 
 function shellWritesInvalidAgentRole(cmd) {
   if (typeof cmd !== 'string') return false;
   const normalizedCmd = cmd.replace(/\\/g, '/');
   if (!/\.codex\/agents(?:\/|\b)/i.test(normalizedCmd)) return false;
-  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd) && !roleProxyRgReadOnly(cmd);
+  return !shellIsReadOnly(cmd);
 }
 
 function targetPathIsSddSudo(filePath) {
@@ -1894,6 +1912,12 @@ async function main() {
     const toolName = String(payload.tool_name || '').toLowerCase();
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
+    // Read-only inspection cannot change protected files or grant approvals.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command)) {
+      emitDecision('allow', null, mode);
+      return;
+    }
+
 
     // File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
     if (['edit', 'write', 'multiedit'].includes(toolName)) {

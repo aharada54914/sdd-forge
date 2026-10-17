@@ -275,6 +275,17 @@ parity_check "wfi-022: backgrounded second command not exempt" 2 \
 parity_check "second-approval-guard: Write adds Second Approval" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"content\":\"## T-001\\nApproval: Draft\\nSecond Approval: Approved\"}}"
 
+# Shared read/write classification regressions also run through PowerShell.
+while IFS=$'\t' read -r scenario expected payload rg_config; do
+    RIPGREP_CONFIG_PATH="$rg_config" parity_check "read-only: $scenario" "$expected" "$payload"
+done < <(python3 - "$REPO_ROOT/tests/fixtures/guard/read-only.json" <<'PYCASES'
+import json, sys
+for case in json.load(open(sys.argv[1], encoding="utf-8")):
+    payload = {"tool_name": "bash", "tool_input": {"command": case["command"]}}
+    print(case["name"], case["exit"], json.dumps(payload), case.get("rg_config", ""), sep="\t")
+PYCASES
+)
+
 # ---------------------------------------------------------------------------
 # Scenario 7: Agent-role guard — write .toml without developer_instructions (deny — exit 2)
 # ---------------------------------------------------------------------------

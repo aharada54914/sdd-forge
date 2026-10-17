@@ -1,0 +1,176 @@
+[
+  {
+    "name": "role sed inspection",
+    "command": "sed -n '1,200p' .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role pipeline inspection",
+    "command": "cat .codex/agents/custom.toml | head -20",
+    "exit": 0
+  },
+  {
+    "name": "role compound inspection",
+    "command": "ls .codex/agents && cat .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role newline inspection",
+    "command": "ls .codex/agents\ncat .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role working directory inspection",
+    "command": "cd .codex/agents && cat custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role quoted search data",
+    "command": "rg -n 'rm|write|Status: Approved' .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role literal expansion search",
+    "command": "rg -n '\\$\\(rm' .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role proxy sed inspection",
+    "command": "rtk proxy sed -n '1,20p' .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role proxy recursive search",
+    "command": "rtk proxy rg --no-config 'developer_instructions' .codex/agents",
+    "exit": 0
+  },
+  {
+    "name": "role PowerShell inspection",
+    "command": "Get-Content .codex/agents/custom.toml | Select-Object -First 20",
+    "exit": 0
+  },
+  {
+    "name": "gate quoted write vocabulary",
+    "command": "rg -n 'rm|sed|write' plugins/sdd-quality-loop/scripts/sdd-hook-guard.py | head -20",
+    "exit": 0
+  },
+  {
+    "name": "approval quoted search pipeline",
+    "command": "rg -n 'Status: Approved' docs/workflow-improvements | head -20",
+    "exit": 0
+  },
+  {
+    "name": "role appended mutation",
+    "command": "cat .codex/agents/custom.toml && rm .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role appended redirect",
+    "command": "cat .codex/agents/custom.toml > .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role command substitution",
+    "command": "cat .codex/agents/custom.toml $(rm .codex/agents/custom.toml)",
+    "exit": 2
+  },
+  {
+    "name": "role backtick substitution",
+    "command": "cat .codex/agents/custom.toml `rm .codex/agents/custom.toml`",
+    "exit": 2
+  },
+  {
+    "name": "role newline mutation",
+    "command": "cat .codex/agents/custom.toml\nrm .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role read then inplace edit",
+    "command": "cat .codex/agents/custom.toml; sed -i '1d' .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role sed execution",
+    "command": "sed -n '1e rm .codex/agents/custom.toml' .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg preprocessing",
+    "command": "rg --pre=untrusted pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role proxy rg preprocessing",
+    "command": "rtk proxy rg --no-config --pre=untrusted pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role PowerShell output",
+    "command": "Get-Content .codex/agents/custom.toml | Set-Content .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "gate read then mutation",
+    "command": "cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py && rm plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "exit": 2
+  },
+  {
+    "name": "approval read then mutation",
+    "command": "rg 'Status: Approved' docs/workflow-improvements; echo 'Status: Approved' > docs/workflow-improvements/WFI-999.md",
+    "exit": 2
+  },
+  {
+    "name": "role rg hostname execution",
+    "command": "rg --hostname-bin=untrusted --hyperlink-format=default pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role proxy rg hostname execution",
+    "command": "rtk proxy rg --hostname-bin untrusted --hyperlink-format=default pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg pretty output",
+    "command": "rg --pretty pattern .codex/agents/custom.toml",
+    "exit": 0
+  },
+  {
+    "name": "role rg implicit config",
+    "command": "rg pattern .codex/agents/custom.toml",
+    "rg_config": "fixture-config",
+    "exit": 2
+  },
+  {
+    "name": "role rg config explicitly disabled",
+    "command": "rg --no-config pattern .codex/agents/custom.toml",
+    "rg_config": "fixture-config",
+    "exit": 0
+  },
+  {
+    "name": "role rg config assignment",
+    "command": "RIPGREP_CONFIG_PATH=fixture-config rg pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg config environment wrapper",
+    "command": "env RIPGREP_CONFIG_PATH=fixture-config rg pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg config expansion",
+    "command": "rg $FLAGS pattern .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "role rg no-config used as pattern",
+    "command": "rg -- --no-config .codex/agents/custom.toml",
+    "rg_config": "fixture-config",
+    "exit": 2
+  },
+  {
+    "name": "role rg no-config consumed by regexp",
+    "command": "rg -e --no-config .codex/agents/custom.toml",
+    "rg_config": "fixture-config",
+    "exit": 2
+  }
+]

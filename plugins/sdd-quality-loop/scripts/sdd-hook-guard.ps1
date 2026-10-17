@@ -261,37 +261,57 @@ function Test-AgentRolePath {
     return ($Path -replace "\\", "/").ToLower() -match "\.codex/agents/[^/]+\.toml$"
 }
 
-function Test-RoleProxyRgReadOnly {
+function Test-ShellReadOnly {
     param([string]$Cmd)
-    if (-not [regex]::IsMatch($Cmd, '^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+')) { return $false }
-    foreach ($unsafe in @('$', '`', '<', '>', '&', '\')) {
-        if ($Cmd.Contains($unsafe)) { return $false }
+    # Classify every command; quoted search text is data, not shell syntax.
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    $quote = $null
+    foreach ($ch in $Cmd.ToCharArray()) {
+        if ($quote -eq "'") {
+            if ($ch -eq "'") { $quote = $null }
+            continue
+        }
+        if ('$`<>(){}'.Contains([string]$ch)) { return $false }
+        if ($ch -eq '"') {
+            if ($quote -eq '"') { $quote = $null } else { $quote = '"' }
+        } elseif ($ch -eq "'" -and $null -eq $quote) { $quote = "'" }
     }
-    if ($Cmd.Contains("`r") -or $Cmd.Contains("`n")) { return $false }
     $parsed = Tokenize-ShellCommand $Cmd
-    if ($null -eq $parsed) { return $false }
+    if ($null -eq $parsed -or $parsed.Tokens.Count -eq 0) { return $false }
+    $readers = @('cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
+        'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object')
+    $segments = New-Object System.Collections.Generic.List[object]
     $words = New-Object System.Collections.Generic.List[string]
     foreach ($token in $parsed.Tokens) {
-        if ($token[0] -cne 'word') { return $false }
-        $words.Add([string]$token[1])
+        if ($token[0] -eq 'sep') {
+            $segments.Add($words.ToArray())
+            $words.Clear()
+        } else { $words.Add([string]$token[1]) }
     }
-    if ($words.Count -lt 7 -or $words[0] -cne 'rtk' -or $words[1] -cne 'proxy' -or $words[2] -cne 'rg') { return $false }
-    $firstFlags = $words[3] -ceq '--no-config' -and $words[4] -ceq '-n'
-    $secondFlags = $words[3] -ceq '-n' -and $words[4] -ceq '--no-config'
-    if (-not $firstFlags -and -not $secondFlags) { return $false }
-    # Special regexp syntax requires literal single quotes; the shared
-    # tokenizer deliberately does not preserve quote provenance.
-    $quoted = [regex]::Match($Cmd, "^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+")
-    $plainPattern = [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+-]+$')
-    $quotedPattern = $quoted.Success -and $quoted.Groups[1].Value -ceq $words[5] -and [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+^# ()-]+$')
-    if ($words[5].StartsWith('-') -or -not ($plainPattern -or $quotedPattern)) { return $false }
-    $hasRolePath = $false
-    for ($i = 6; $i -lt $words.Count; $i++) {
-        $path = $words[$i]
-        if ($path.StartsWith('-') -or -not [regex]::IsMatch($path, '^[A-Za-z0-9_./-]+$')) { return $false }
-        if ([regex]::IsMatch($path, '(?i)(?:^|/)\.codex/agents/[^/]+\.toml$')) { $hasRolePath = $true }
+    $segments.Add($words.ToArray())
+    foreach ($segment in $segments) {
+        $argsList = @($segment)
+        if ($argsList.Count -eq 0) { continue }
+        if ($argsList.Count -ge 2 -and $argsList[0] -ceq 'rtk' -and $argsList[1] -ceq 'proxy') {
+            $argsList = @($argsList | Select-Object -Skip 2)
+        }
+        if ($argsList.Count -eq 0) { return $false }
+        $verb = $argsList[0].ToLowerInvariant()
+        if ($verb -eq 'sed') {
+            # sed can write or execute; admit only its print-range form.
+            if ($argsList.Count -lt 3 -or $argsList[1] -cne '-n' -or -not [regex]::IsMatch($argsList[2], '^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$')) { return $false }
+            foreach ($arg in @($argsList | Select-Object -Skip 3)) {
+                if ($arg.StartsWith('-')) { return $false }
+            }
+        } elseif ($readers -notcontains $verb) { return $false }
+        if ($verb -eq 'rg') {
+            if ($env:RIPGREP_CONFIG_PATH -and ($argsList.Count -lt 2 -or $argsList[1] -cne '--no-config')) { return $false }
+            foreach ($arg in @($argsList | Select-Object -Skip 1)) {
+                if (@('--pre', '--hostname-bin') -ccontains ($arg -split '=', 2)[0]) { return $false }
+            }
+        }
     }
-    return $hasRolePath
+    return $true
 }
 
 function Test-ShellWritesAgentRole {
@@ -299,8 +319,7 @@ function Test-ShellWritesAgentRole {
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     $normalizedCmd = $Cmd -replace "\\", "/"
     if (-not ($normalizedCmd.ToLower() -match "\.codex/agents(?:/|\b)")) { return $false }
-    $readOnlyRe = "(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
-    return -not ([regex]::IsMatch($normalizedCmd, $readOnlyRe) -or (Test-RoleProxyRgReadOnly $Cmd))
+    return -not (Test-ShellReadOnly $Cmd)
 }
 
 function Test-PayloadMalformed {
@@ -1931,6 +1950,11 @@ try {
     $filePath = [string]$toolInput.file_path
     $command = $null
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
+
+    # Read-only inspection cannot change protected files or grant approvals.
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command)) {
+        Emit-Decision 'allow' $null
+    }
 
     # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
     # File tools: Edit, Write, MultiEdit targeting SDD_SUDO.

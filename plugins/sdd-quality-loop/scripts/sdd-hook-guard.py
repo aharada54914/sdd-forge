@@ -72,9 +72,7 @@ TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
 SUDO_EPOCH_RE = re.compile(r"(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
 SUDO_ISSUED_RE = re.compile(r"(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)")
-SHELL_AGENT_ROLE_READ_ONLY_RE = re.compile(
-    r"(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
-)
+
 TARGETED_COMMAND_TOOLS = {"apply_patch", "bash", "shell", "exec_command", "exec"}
 TARGETED_FILE_TOOLS = {"edit", "write", "multiedit"}
 
@@ -1717,41 +1715,57 @@ def _shell_targets_protected_gate_file(cmd):
     return not _shell_write_targets_are_safe(cmd)
 
 
-def _role_proxy_rg_read_only(cmd):
-    # Require the exact literal wrapper and verb, not only equivalent parsed words.
-    if not re.match(r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+", cmd):
+def _shell_is_read_only(cmd):
+    """Classify every command, keeping quoted search text separate from shell syntax."""
+    if not isinstance(cmd, str):
         return False
-    # No expansion, substitution, redirection, backgrounding or line continuation.
-    if re.search(r"[$`<>&\\\r\n]", cmd):
-        return False
+    quote = None
+    for ch in cmd:
+        if quote == "'":
+            if ch == "'":
+                quote = None
+            continue
+        if ch in "$`<>(){}":
+            return False
+        if ch == '"':
+            quote = None if quote == '"' else '"'
+        elif ch == "'" and quote is None:
+            quote = "'"
     tokens = _tokenize_shell_command(cmd)
-    if tokens is None or any(kind != "word" for kind, _ in tokens):
+    if not tokens:
         return False
-    words = [value for _, value in tokens]
-    if len(words) < 7 or words[:3] != ["rtk", "proxy", "rg"]:
-        return False
-    if words[3:5] not in (["--no-config", "-n"], ["-n", "--no-config"]):
-        return False
-    pattern = words[5]
-    # Special regexp syntax is admitted only as one literal single-quoted word.
-    # The shared tokenizer intentionally discards quote provenance.
-    quoted = re.match(
-        r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+"
-        r"(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+",
-        cmd,
-    )
-    plain_pattern = re.fullmatch(r"[A-Za-z0-9_./:|+-]+", pattern)
-    quoted_pattern = (
-        quoted is not None
-        and quoted.group(1) == pattern
-        and re.fullmatch(r"[A-Za-z0-9_./:|+^# ()-]+", pattern)
-    )
-    if pattern.startswith("-") or not (plain_pattern or quoted_pattern):
-        return False
-    paths = words[6:]
-    if not all(not p.startswith("-") and re.fullmatch(r"[A-Za-z0-9_./-]+", p) for p in paths):
-        return False
-    return any(re.search(r"(?i)(?:^|/)\.codex/agents/[^/]+\.toml$", p) for p in paths)
+    readers = {
+        "cat", "ls", "stat", "head", "tail", "grep", "rg", "wc", "pwd", "test", "cd",
+        "get-content", "get-item", "get-childitem", "select-string", "select-object", "measure-object",
+    }
+    segments = [[]]
+    for kind, word in tokens:
+        if kind == "sep":
+            segments.append([])
+        else:
+            segments[-1].append(word)
+    for words in segments:
+        if not words:
+            continue
+        if words[:2] == ["rtk", "proxy"]:
+            words = words[2:]
+        if not words:
+            return False
+        verb = words[0].lower()
+        if verb == "sed":
+            # Only the common print-range form: sed also supports writes and execution.
+            if (len(words) < 3 or words[1] != "-n"
+                    or not re.fullmatch(r"(?:[0-9]+(?:,[0-9$]+)?|\$)?p", words[2])
+                    or any(word.startswith("-") for word in words[3:])):
+                return False
+        elif verb not in readers:
+            return False
+        if verb == "rg":
+            if any(word.split("=", 1)[0] in ("--pre", "--hostname-bin") for word in words[1:]):
+                return False
+            if os.environ.get("RIPGREP_CONFIG_PATH") and words[1:2] != ["--no-config"]:
+                return False
+    return True
 
 
 def _shell_writes_agent_role(cmd):
@@ -1761,7 +1775,7 @@ def _shell_writes_agent_role(cmd):
     normalized_cmd = cmd.replace("\\", "/")
     if not re.search(r"(?i)\.codex/agents(?:/|\b)", normalized_cmd):
         return False
-    return not (bool(SHELL_AGENT_ROLE_READ_ONLY_RE.search(normalized_cmd)) or _role_proxy_rg_read_only(cmd))
+    return not _shell_is_read_only(cmd)
 
 
 def _target_path_is_sdd_sudo(file_path):
@@ -1951,6 +1965,12 @@ def main():
             return
         if payload_is_malformed(payload):
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+            return
+
+        # Read-only shell inspection cannot change protected files or grant approvals.
+        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+                and _shell_is_read_only(tool_input.get("command"))):
+            emit("allow", None, mode)
             return
 
         # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
