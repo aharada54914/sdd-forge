@@ -225,13 +225,12 @@ def release_commits(cycle):
     if not isinstance(cycle, dict) or any(not isinstance(cycle.get(k), str) or
             not re.fullmatch(r"[0-9a-f]{40}", cycle[k]) for k in ("base_sha", "head_sha")):
         raise ValueError("invalid release boundaries")
-    subprocess.check_call(["git", "merge-base", "--is-ancestor", cycle["base_sha"], cycle["head_sha"]], cwd=ROOT)
-    commits = subprocess.check_output(["git", "rev-list", "--first-parent",
-        cycle["base_sha"] + ".." + cycle["head_sha"]], cwd=ROOT, text=True).splitlines()
+    OBSERVER.git(ROOT, "merge-base", "--is-ancestor", cycle["base_sha"], cycle["head_sha"])
+    commits = OBSERVER.git(ROOT, "rev-list", "--first-parent",
+        cycle["base_sha"] + ".." + cycle["head_sha"]).decode().splitlines()
     tag = cycle["release"]["tag_name"]
-    subprocess.check_call(["git", "check-ref-format", "refs/tags/" + tag], cwd=ROOT)
-    tag_head = subprocess.check_output(["git", "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}"],
-        cwd=ROOT, text=True).strip()
+    OBSERVER.git(ROOT, "check-ref-format", "refs/tags/" + tag)
+    tag_head = OBSERVER.git(ROOT, "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}").decode().strip()
     if tag_head != cycle["head_sha"]:
         raise ValueError("published release tag does not resolve to the recorded cycle head")
     return commits
