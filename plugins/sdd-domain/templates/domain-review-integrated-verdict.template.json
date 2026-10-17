@@ -1,0 +1,17 @@
+{
+  "schema": "domain-review-integrated/v1",
+  "stage": "domain",
+  "attempt": 1,
+  "round": 1,
+  "verdict": "<derived-verdict>",
+  "warningCount": 0,
+  "findings": {
+    "Critical": 0,
+    "Major": 0,
+    "Minor": 0
+  },
+  "reviewer_verdicts": {
+    "a": "<validated-verdict>",
+    "b": "<validated-verdict>"
+  }
+}

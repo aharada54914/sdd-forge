@@ -110,7 +110,8 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 normalized_hash_of() {
   local path="$1"
   if [[ "$path" == "$context_map" ]]; then
-    sed 's/^Domain-Model-Status:[[:space:]]*.*/Domain-Model-Status: NORMALIZED/' "$path" | sha256_text
+    local carriage_return=$'\r'
+    sed "s/^Domain-Model-Status:[^${carriage_return}]*\\(${carriage_return}\\{0,1\\}\\)$/Domain-Model-Status: NORMALIZED\\1/" "$path" | sha256_text
   else
     sha256 "$path"
   fi
