@@ -176,7 +176,7 @@ with tempfile.TemporaryDirectory(prefix='.review-read-guard-', dir=ledger.parent
     use_order = []
     results = {}
     events = []
-    for row in rows:
+    for row in transport.native_messages(rows, session):
         content = row.get('message', {}).get('content', [])
         for block in content if isinstance(content, list) else []:
             if not isinstance(block, dict):

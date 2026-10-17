@@ -49,6 +49,32 @@ class TaskStructuredOutputTests(unittest.TestCase):
                                               'receipt', 'c' * 64, strict=False)
             self.assertNotIn('1.\n```sh', legacy)
 
+    def test_native_events_ignore_replay_data_but_keep_real_identity_and_order(self):
+        session = str(uuid.uuid4())
+        def row(kind, block, **changes):
+            return dict({'type': kind, 'sessionId': session,
+                         'message': {'content': [block]}}, **changes)
+        use = {'type': 'tool_use', 'id': 'call-1', 'name': 'Read',
+               'input': {'file_path': 'specs/example/requirements.md'}}
+        result = {'type': 'tool_result', 'tool_use_id': 'call-1',
+                  'is_error': False, 'content': 'actual file'}
+        actual = [row('assistant', use), row('user', result)]
+        replay = [row('api-request-blob', use), row('api-request-blob', result)]
+        self.assertEqual(transport.native_messages(actual + replay, session), actual)
+        self.assertEqual(transport.native_messages(replay, session), [])
+        with self.assertRaisesRegex(ValueError, 'probe tool sequence'):
+            transport.require_probe_tool_sequence([], [('Read', 'input')], 'quality')
+        for rows in ([actual[1], actual[0]], actual + [actual[0]],
+                     actual + [actual[1]], [row('user', use)],
+                     [actual[0], row('assistant', result)],
+                     [replay[0], actual[1]],
+                     actual + [dict(replay[0], sessionId=str(uuid.uuid4()))]):
+            with self.subTest(rows=rows), self.assertRaises(ValueError):
+                transport.native_messages(rows, session)
+        # Only native user results discharge calls; replayed results do not.
+        filtered = transport.native_messages([actual[0], replay[1]], session)
+        self.assertEqual(filtered, [actual[0]])
+
     def test_probe_scratch_uses_existing_ledger_parent(self):
         parsed = ast.parse(PROBE.read_text())
         call = next(node for node in ast.walk(parsed)
@@ -338,6 +364,24 @@ for (const [schema, value, expected] of cases) {
                                                      transcript(hash_events + [output_event]),
                                                      prompt, wrapper, receipt, strict=True)
                     self.assertEqual(good[0]['stage'], stage)
+                    # Persisted Claude telemetry replays earlier messages as data.
+                    path = transcript(hash_events + [output_event])
+                    rows = [json.loads(line) for line in path.read_text().splitlines()]
+                    replays = [dict(row, type='api-request-blob') for row in rows[1:]]
+                    path.write_text('\n'.join(json.dumps(row) for row in rows + replays))
+                    self.assertEqual(transport.native_delivery(
+                        root, invocation, path, prompt, wrapper, receipt,
+                        strict=True)[0]['stage'], stage)
+                    # A replay cannot replace a real result or a real tool call.
+                    for missing_kind in ('assistant', 'user'):
+                        mutated = [dict(row, type='api-request-blob')
+                                   if row.get('type') == missing_kind and
+                                   isinstance(row.get('message', {}).get('content'), list)
+                                   else row for row in rows]
+                        path.write_text('\n'.join(json.dumps(row) for row in mutated))
+                        with self.subTest(stage=stage, missing=missing_kind), self.assertRaises(ValueError):
+                            transport.native_delivery(root, invocation, path,
+                                                      prompt, wrapper, receipt, strict=True)
                     pending_read = transcript(hash_events + [('Read', str(invocation), None),
                                                              output_event])
                     pending_rows = [json.loads(line) for line in pending_read.read_text().splitlines()]
