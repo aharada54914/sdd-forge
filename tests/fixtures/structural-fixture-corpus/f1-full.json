@@ -1,13 +1,13 @@
 {
   "schema": "structural-fixture-corpus/v1",
   "fixture_state": "F1",
-  "recorded_at_model": "claude-sonnet",
-  "recorded_at_commit": "e973307f05f9ada72c11b2817e56b143525cc3b7",
+  "recorded_at_model": "deterministic-template-contract-refresh",
+  "recorded_at_commit": "1eb302bb4689ed9351ea4a71f4bd40deb3206042",
   "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
   "artifacts": [
     {
       "path": "requirements.md",
-      "content": "# Requirements: {{feature_name}}\n## Overview\n## Target Users\n## Problems\n## Goals\n## Non-goals\n## User Stories\n## Acceptance Criteria\n## Roles and Permissions\n## Main Workflows\n## Edge Cases\n## Security Boundaries\n## Assumptions\n## Open Questions\n## Risks\nREQ-001\nAC-001"
+      "content": "# Requirements: {{feature_name}}\nSpec-Review-Status: Pending\n## Overview\n## Target Users\n## Problems\n## Goals\n## Non-goals\n## User Stories\n## Acceptance Criteria\n## Roles and Permissions\n## Main Workflows\n## Edge Cases\n## Security Boundaries\n## Assumptions\n## Open Questions\n## Risks\nREQ-001\nAC-001"
     },
     {
       "path": "acceptance-tests.md",
