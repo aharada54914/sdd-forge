@@ -30,6 +30,7 @@ def load(name: str, filename: str) -> ModuleType:
 
 legacy = load('selected_plan_legacy', 'check-contract.py')
 facets = load('selected_plan_facets', 'validate-facet-manifest.py')
+resolver_evidence = load('selected_plan_resolver_evidence', 'validate-resolver-evidence.py')
 registry_checks = load('selected_plan_registry', 'validate-capability-registry.py')
 digest = load('selected_plan_digest', 'generate-registry-digest.py')
 
@@ -70,7 +71,7 @@ def evaluate(registry_path: Path, manifest_path: Path, contract_path: Path,
              'verification_contract_sha256': contract_path}
     raw = {key: path.read_bytes() for key, path in paths.items()}
     registry = json.loads(raw['registry_sha256'])
-    manifest = facets.load_manifest(str(manifest_path))
+    manifest = resolver_evidence.load_document(manifest_path, 'manifest-unreadable')
     contract = json.loads(raw['verification_contract_sha256'])
     errors = list(facets.validate_against_schema(registry, schema('capability-registry.schema.json')))
     errors.extend(facets.validate_document(manifest))
@@ -184,7 +185,7 @@ def main() -> int:
             print(error, file=sys.stderr)
         print('selected-verification-plan: ' + plan['verdict'])
         return 0 if plan['verdict'] == 'PASS' else 1
-    except (OSError, ValueError, TypeError, KeyError) as error:
+    except (OSError, ValueError, TypeError, KeyError, resolver_evidence.ValidatorError) as error:
         print('selected-verification-plan: BLOCKED: ' + str(error), file=sys.stderr)
         return 1
 

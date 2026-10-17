@@ -488,5 +488,87 @@ class SelectedPlanTests(unittest.TestCase):
             self.assertIn('sdd-domain-multitarget-T-003.tests.py', (ROOT / 'tests' / name).read_text())
 
 
+class ResolverCliIntegrationTests(unittest.TestCase):
+    def test_resolver_output_reaches_selected_plan_for_all_targets(self):
+        helper = load('t003_cli_fixture', ROOT / 'tests/resolve-project-context-block-check.py')
+        for target in TARGETS:
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as directory:
+                repo = Path(directory).resolve()
+                subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+                scripts = helper.install_scripts(repo)
+                for suffix in ('py', 'sh', 'ps1'):
+                    shutil.copy2(SCRIPTS / f'resolve-project-context.{suffix}', scripts)
+                helper.install_t003_dependencies(repo, scripts, None)
+                registry, _, contract = target_fixture(target)
+                for gate in registry['gates']:
+                    gate['implementation_ref'] = f"{gate['id']}.py"
+                    (repo / gate['implementation_ref']).write_text('pass\n')
+                selected = TARGET_PROFILES[target][1][0]
+                selected_verifier = repo / f'{selected}.py'
+                (repo / 'project-context.yaml').write_text(f'''schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: facet-native
+  capability_enforcement: advisory
+components:
+  - id: comp-a
+    paths:
+      include:
+        - comp-a/**
+    artifact_kinds:
+      - {target}
+shared_paths: []
+''')
+                (repo / 'contracts/capability-registry.json').write_text(json.dumps(registry))
+                helper.plant_sentinels(repo, scripts)
+                (repo / 'evidence.log').write_text('synthetic observation\n')
+                (repo / 'contract.json').write_text(json.dumps(contract))
+                base = helper.git_commit_all(repo, 'fixture baseline')
+                (repo / 'comp-a').mkdir()
+                (repo / 'comp-a/file.txt').write_text('changed\n')
+                head = helper.git_commit_all(repo, 'fixture component change')
+                result = subprocess.run(helper.t003_resolver_argv('sh', scripts, base, head),
+                                        cwd=repo, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                manifest = repo / 'specs/example-feature/facet-manifest.yaml'
+                original = manifest.read_bytes()
+                argv = [sys.executable, str(EVALUATOR), '--repo-root', str(repo),
+                        '--registry', 'contracts/capability-registry.json',
+                        '--facet-manifest', 'specs/example-feature/facet-manifest.yaml',
+                        '--contract', 'contract.json', '--output', 'plan.json']
+
+                def evaluate():
+                    (repo / 'plan.json').unlink(missing_ok=True)
+                    run = subprocess.run(argv, cwd=repo, capture_output=True, text=True)
+                    plan_path = repo / 'plan.json'
+                    return run, json.loads(plan_path.read_text()) if plan_path.exists() else None
+
+                run, plan = evaluate()
+                self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+                self.assertEqual(plan['verdict'], 'PASS')
+                self.assertEqual(manifest.read_bytes(), original)
+                for failure in ('missing-check', 'unavailable-check', 'malformed-input', 'missing-input'):
+                    with self.subTest(failure=failure):
+                        changed = copy.deepcopy(contract)
+                        if failure == 'missing-check':
+                            changed['checks'] = [c for c in changed['checks'] if c['id'] != selected]
+                        elif failure == 'unavailable-check':
+                            selected_verifier.unlink()
+                        elif failure == 'malformed-input':
+                            manifest.write_text('{')
+                        else:
+                            manifest.unlink()
+                        (repo / 'contract.json').write_text(json.dumps(changed))
+                        run, plan = evaluate()
+                        self.assertNotEqual(run.returncode, 0, failure)
+                        self.assertNotIn('Traceback', run.stderr)
+                        if plan is not None:
+                            self.assertEqual(plan['verdict'], 'BLOCKED')
+                        else:
+                            self.assertIn('selected-verification-plan: BLOCKED:', run.stderr)
+                        manifest.write_bytes(original)
+                        selected_verifier.write_text('pass\n')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
