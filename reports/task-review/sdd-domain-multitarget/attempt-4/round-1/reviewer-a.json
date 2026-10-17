@@ -1,0 +1,142 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "issue423-t004-amendment-task-a-df5e1e6bb9d34abc96fe16d91661289d",
+  "host_session_id": "issue423-t004-amendment-task-a-session-543cfa484f4940e2acaeb8215b8d5085",
+  "manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "3f43cedc08cc99d877191258079f59234e4bf9b46265228392c2318849e3a3cc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-4/round-1/precheck-result.json",
+      "sha256": "32c90e908cef27481e9ab5d25ec847bbc21dbcb1f14b71922e70cfea04551352"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-4/round-1/dependency-graph.json",
+      "sha256": "465bc92960b353e169468a23876b1860026f23acef858d36906d70a14cd1d531"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Acceptance rows declare AC-001 through AC-014 and unique test-row IDs. All admitted hashes verified before substantive reads; tasks hash verified after the specified lifecycle normalization. Invocation raw SHA 9ec647d368e304c7c1bbdf63663e00c02388a586e4d61c799326ab61ae0b9844 matches the caller's corrected external pin. The originally supplied a349d92bf3efb611a1a0aa22dfc230b9b3a537eca166671f4363c5f776560f75 was clarified as the reservation record hash, not the raw invocation hash."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Each task uses None or explicit task IDs; admitted precheck confirms valid blocker formatting."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "REQ-001 through REQ-006 are assigned to tasks with corresponding acceptance and test references."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "AC-001 through AC-014 are covered by the six tasks, including each acceptance criterion's individual test rows."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Every task names existing requirements, acceptance criteria, and tests."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": null,
+      "finding": "All acceptance test IDs are assigned to tasks; none is orphaned."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "All tasks are Approved and use normal lifecycle states, including Implementation Complete, Blocked, Done, In Progress, and Planned. These provenance re-review states do not constitute an initial-state defect."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Each task declares risk, rationale, and workflow. High-risk tasks declare tdd and rollback conditions; medium-risk tasks declare acceptance-first. The admitted precheck reports workflow pairing PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Each acceptance criterion has one owning task; multiple test rows for a criterion remain together."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "The explicit T-001 through T-006 dependency chain orders inventory, ownership, resolution, compatibility, consent boundaries, and final evidence."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "The admitted dependency graph is a linear acyclic chain with no missing nodes or self-dependencies."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Tasks separate consumer inventory, ownership contracts, resolver obligations, compatibility, consent-safe provider selection, and evidence/conformance into coherent implementation concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Done conditions name inspectable fixtures, contracts, outcomes, and evidence. T-004's revised final condition explicitly requires comparison with the verified version, regressions through actual usage paths, independent evaluation, successful required CI on latest head, and fixes with retained regression coverage. Its remaining conditions preserve legacy output, hybrid documents, versioned migration evidence, and context-input tests. This evaluates planned evidence only; it does not establish test execution or quality acceptance."
+    }
+  ],
+  "findings": []
+}
