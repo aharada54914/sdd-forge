@@ -2,7 +2,7 @@
 set -euo pipefail
 root=$(git rev-parse --show-toplevel)
 python3 - "$root" <<'PY'
-import os, pathlib, subprocess, sys
+import os, pathlib, re, subprocess, sys
 root = pathlib.Path(sys.argv[1])
 required = ['SDD_A8_' + 'CODEX_BIN', 'gpt-5.6-' + 'sol', 'son' + 'net', 'SDD_A8_' + 'COPILOT_MODEL']
 def valid(source):
@@ -22,9 +22,10 @@ for suffix in ('sh', 'ps1'):
         assert live.count(argument) == 1, suffix + ': missing or ambiguous scoped Copilot tool argument: ' + argument
     assert live.count('You may use a read-only shell command to read that file.') == 1, suffix + ': Codex consumer cannot read its fixture'
     assert live.count('Do not modify files or read anything else.') == 1, suffix + ': Codex consumer scope changed'
-    assert live.count('Read,Edit,Bash(rtk proxy rg:*)') == 1, suffix + ': Claude producer lost scoped read-only search permission'
-    assert live.count('Do not modify any other file or run any other shell command.') == 1, suffix + ': Claude producer scope changed'
-    assert live.count('using read-only rtk proxy sed commands.') == 1, suffix + ': Codex producer cannot read its fixtures'
+    assert not re.search(r'\brtk\b', live), suffix + ': live handoff requires an undeclared command wrapper'
+    assert live.count('Read,Edit,Grep') == 1, suffix + ': Claude producer lost native read-only search permission'
+    assert live.count('Do not modify any other file or run shell commands.') == 1, suffix + ': Claude producer scope changed'
+    assert live.count('using read-only cat commands on POSIX or Get-Content on PowerShell.') == 1, suffix + ': Codex producer cannot read its fixtures'
     assert live.count('Do not run any other shell command or modify any other file.') == 1, suffix + ': Codex producer scope changed'
     sandbox = '--sandbox read-only' if suffix == 'sh' else "'--sandbox', 'read-only'"
     assert sandbox in live, suffix + ': Codex consumer lost read-only sandbox'
