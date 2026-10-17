@@ -4,11 +4,14 @@
 Usage:
     validate-facet-manifest.py --manifest <path>
 
-<path> ending in .yaml/.yml is loaded through the YAML parse contract: a
+<path> ending in .yaml/.yml is loaded through the canonicalizer contract: a
 `canonicalize-sdd-yaml` subprocess invocation (canonical-JSON stdout) is the
 sole path from YAML bytes to a Python structure -- never a hand-rolled YAML
 parser and never a silent fallback. A non-zero canonicalizer exit surfaces as
-this validator's own `canonicalizer-invocation-failed` diagnostic.
+this validator's own `canonicalizer-invocation-failed` diagnostic. Resolver output
+uses canonical JSON bytes even under a .yaml name; an initial JSON object
+delimiter selects the same canonicalizer's strict JSON input mode. Block YAML
+uses its restricted YAML mode. Neither path falls back after a parse failure.
 
 <path> ending in .json is loaded directly via stdlib `json.load` -- this is
 NOT a YAML parsing path of any kind; it exists because the schema-conformance
@@ -131,10 +134,15 @@ def load_manifest_yaml(path):
         canonicalizer = "canonicalize-sdd-yaml"  # rely on PATH as a last resort
 
     try:
+        # Resolver-published .yaml artifacts contain canonical JSON objects.
+        # Keep both formats behind the strict canonicalizer; extension alone
+        # cannot identify these bytes and a failed parse never retries leniently.
+        with open(path, "rb") as handle:
+            input_format = "json" if handle.read().lstrip().startswith(b"{") else "yaml"
         if canonicalizer.endswith(".py"):
-            argv = [sys.executable, canonicalizer, "--input-format", "yaml", path]
+            argv = [sys.executable, canonicalizer, "--input-format", input_format, path]
         else:
-            argv = [canonicalizer, "--input-format", "yaml", path]
+            argv = [canonicalizer, "--input-format", input_format, path]
         result = subprocess.run(
             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
         )

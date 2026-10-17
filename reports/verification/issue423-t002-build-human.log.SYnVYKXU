@@ -1,0 +1,12 @@
+SHA-256 verified: 843f473f1234572426d1a4b23e6a4cd03515dc214ae3b9b16590df7ed9f819c5 plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+SHA-256 verified: ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea plugins/sdd-quality-loop/scripts/registry_discovery.py
+SHA-256 verified: 87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50 install.sh
+Note: dependency resolution auto-included: sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite.
+
+SDD plugins installed at: <isolated-install-root>
+Plugin registration was skipped because --target=FilesOnly.
+SHA-256 verified: 843f473f1234572426d1a4b23e6a4cd03515dc214ae3b9b16590df7ed9f819c5 /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//sdd-t002-build.TEKnhsoE/installed/plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+SHA-256 verified: ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//sdd-t002-build.TEKnhsoE/installed/plugins/sdd-quality-loop/scripts/registry_discovery.py
+validate-capability-registry: all 9 checks passed.
+T-002 installed payload assembly, byte parity, and validator execution: PASS
+Publication note: the local installation path is redacted; recorded outcomes are unchanged.

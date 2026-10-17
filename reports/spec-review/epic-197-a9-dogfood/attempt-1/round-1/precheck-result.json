@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-197-a9-dogfood",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "53bbc354e4200063e023808ddeb229b62073bfcddcacb73cc73881ac8493297e",
+  "acceptance_sha256": "467afa6cd200f0542fc3fbce56e4af2c9bc6f3c18131c6c528f13c31aed1e0a7",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "1ae38a58327ac6ab753324e38f99e1f4d43834ced0bbfa2ba5b0eb8dc31f58a3",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-09-04T13:28:17Z"
+}

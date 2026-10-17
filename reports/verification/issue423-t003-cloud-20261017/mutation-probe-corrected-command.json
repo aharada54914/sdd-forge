@@ -1,0 +1,7 @@
+{
+  "command": [
+    "python3",
+    "reports/verification/issue423-t003-cloud-20261017/mutation-probe.py"
+  ],
+  "exit_code": 0
+}

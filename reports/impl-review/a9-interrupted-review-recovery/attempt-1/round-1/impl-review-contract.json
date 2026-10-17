@@ -1,0 +1,123 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "bugfix",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+  "acceptance_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+  "design_sha256": "0f9f1dc78e6112f16e9f903e5206378051647c6a5ffe2f79928bfe1e774dc5fc",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e39f-3eab-7ca1-8a99-9275c63949ea",
+      "host_session_id": "01a0e39f-3eab-7ca1-8a99-9275c63949ea",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+          "sha256": "ef6dd62c15eae3cf67c9923c99c714b3ac02ac38beb9da82cb533659fc2bcec4"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "0f9f1dc78e6112f16e9f903e5206378051647c6a5ffe2f79928bfe1e774dc5fc"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e39f-deed-7e01-b9ef-a36239be8fb6",
+      "host_session_id": "01a0e39f-deed-7e01-b9ef-a36239be8fb6",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+          "sha256": "322f03a7ee8fcac644ecebfe1fd650263efae5bcec99c1d897c4ba62da89dc30"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+          "sha256": "ef6dd62c15eae3cf67c9923c99c714b3ac02ac38beb9da82cb533659fc2bcec4"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "0f9f1dc78e6112f16e9f903e5206378051647c6a5ffe2f79928bfe1e774dc5fc"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-09-27T16:29:47.545Z"
+}

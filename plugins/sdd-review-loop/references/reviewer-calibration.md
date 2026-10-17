@@ -180,3 +180,22 @@ the bytes it reviewed, then restore the amended bytes and let the new
 round's manifests pin them. And the entry must be re-extended whenever the
 completion chain gains another commit, or the next gate will correctly
 refuse it as incomplete.
+
+
+## Developer tooling and CLI/library capability facets
+
+When the reviewed design includes `developer-tooling-spec`, evaluate
+`developer-tooling-distribution-compatibility`: identify the changed distribution
+or installation surface, supported hosts, and concrete compatibility evidence.
+Missing any item is a finding. A surface unaffected by the change needs an
+explicit reason.
+
+When the reviewed design includes `cli-library-spec`, evaluate
+`cli-library-contract-compatibility`: identify each affected public command,
+skill, or script and its inputs, outputs, failure behavior, and compatibility
+evidence. Missing any dimension is a finding. An unaffected interface needs an
+explicit reason. Use only the already allowed design/layer inputs; do not fetch
+unlisted files. Record findings under the existing applicable architectural or
+interface check, identifying the capability check in the finding explanation.
+These checks use existing reviewers and create no execution gate. Advisory
+Pack findings do not disable or weaken an existing blocking gate.

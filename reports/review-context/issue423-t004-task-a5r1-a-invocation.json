@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "sdd-domain-multitarget",
+  "run_id": "issue423-t004-task-a5r1-a-eb97f1bce4ff4229a05ee196179a588e",
+  "host_session_id": "issue423-t004-task-a5r1-a-session-bc16da93c2e74208b5413c61aada363c",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "1b93f9b241072c005ba2dded03f435afcf88ca2bfe66429e317cbb3c15d036be",
+  "previous_record_sha256": "330b1f3c6e0a16bd648e2ef75eb4c7e9b64c43bcafe526e4bbe3531abb4826b6",
+  "sequence": 1195,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "3f43cedc08cc99d877191258079f59234e4bf9b46265228392c2318849e3a3cc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-5/round-1/precheck-result.json",
+      "sha256": "44b7d1b9ee85578f33cdeaee9e8480164bb2ae5bb7c6923887422f06d24cb695"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-5/round-1/dependency-graph.json",
+      "sha256": "1b38b9530683705f0fc590df8cd06e74ee3884587ddafea00366e71b9767b668"
+    }
+  ]
+}

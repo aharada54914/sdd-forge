@@ -142,13 +142,31 @@ skip_allowlist_audit() {
       elif (( $? > 1 )); then
         printf 'ERROR: %s invalid activation evidence\n' "$assertion" >&2; failures=$((failures + 1))
       fi
-      dep_count="$(jq --arg ac "$assertion" '.[]|select(.assertion_id==$ac)|.dependencies|length' "$manifest")"
-      for ((index=0; index<dep_count; index++)); do
-        epic="$(jq -r --arg ac "$assertion" --argjson i "$index" '.[]|select(.assertion_id==$ac)|.dependencies[$i].epic' "$manifest")"
-        if skip_allowlist_merged "$manifest" "$assertion" "$epic" "$repo" "$main_ref" && ! skip_allowlist_fingerprint_match "$manifest" "$assertion" "$index" "$repo" "$main_ref"; then printf 'ERROR: %s dependency %s fingerprint drift\n' "$assertion" "$epic" >&2; failures=$((failures + 1)); fi
-      done
     done <<<"$ids"
   done <"$output"
+  # Fingerprint currency is an independent invariant, even when the consumer
+  # has emitted no SKIP line for a merged dependency. Capture jq's status:
+  # process substitution would otherwise hide an unreadable manifest.
+  local assertions evidence_status
+  assertions="$(jq -er 'if type == "array" and length > 0 then .[].assertion_id else error("invalid manifest") end' "$manifest")" || return 2
+  while IFS= read -r assertion; do
+    dep_count="$(jq -er --arg ac "$assertion" '.[]|select(.assertion_id==$ac)|.dependencies|if type == "array" and length > 0 then length else error("invalid dependencies") end' "$manifest")" || return 2
+    for ((index=0; index<dep_count; index++)); do
+      epic="$(jq -er --arg ac "$assertion" --argjson i "$index" '.[]|select(.assertion_id==$ac)|.dependencies[$i].epic|if type == "string" and length > 0 then . else error("invalid epic") end' "$manifest")" || return 2
+      if skip_allowlist_merged "$manifest" "$assertion" "$epic" "$repo" "$main_ref"; then
+        if skip_allowlist_fingerprint_match "$manifest" "$assertion" "$index" "$repo" "$main_ref"; then :
+        else
+          evidence_status=$?
+          if ((evidence_status > 1)); then printf 'ERROR: %s dependency %s invalid fingerprint evidence\n' "$assertion" "$epic" >&2
+          else printf 'ERROR: %s dependency %s fingerprint drift\n' "$assertion" "$epic" >&2; fi
+          failures=$((failures + 1))
+        fi
+      else
+        evidence_status=$?
+        if ((evidence_status > 1)); then printf 'ERROR: %s dependency %s invalid merge evidence\n' "$assertion" "$epic" >&2; failures=$((failures + 1)); fi
+      fi
+    done
+  done <<<"$assertions"
   ((failures == 0)) || return 1
   printf 'audited %d allowlisted line%s\n' "$count" "$([[ $count -eq 1 ]] || printf s)"
 }

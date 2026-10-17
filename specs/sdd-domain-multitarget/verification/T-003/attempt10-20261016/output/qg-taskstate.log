@@ -1,0 +1,7 @@
+Task state check FAILED:
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+ - T-002 is Done but verification/T-002.evidence.json does not exist in specs/sdd-domain-multitarget
+
+Exit code: 1

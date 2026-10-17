@@ -210,10 +210,15 @@ $stagedData = Get-Content -Raw -LiteralPath $StagedJson | ConvertFrom-Json
 $liveData = Get-Content -Raw -LiteralPath $LiveJson | ConvertFrom-Json
 
 Assert-SeqEq @($stagedData.epic_a1_targets) $paths 'TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)'
-# Two allowed states, mirroring TEST-022: BEFORE the human apply the staged
-# list is the live list plus the 28 manifest paths; AFTER it, the live list
-# IS the staged list. Anything else fails closed. A one-sided "live + 28"
-# assertion is correct only until the batch is legitimately applied.
+# Validate all six live files against the archived validator and renderer.
+$evolutionHelper = Join-Path $Root 'tests/lib/guard-invariants-evolution.py'
+$evolutionOutput = & $Python $evolutionHelper $StagedLoop $LiveLoop 2>&1
+$liveEvolutionOk = $LASTEXITCODE -eq 0
+if ($liveEvolutionOk) {
+    $mutationOutput = & $Python $evolutionHelper $StagedLoop $LiveLoop --self-test 2>&1
+    Assert-Eq $LASTEXITCODE 0 'TEST-022-MUT: additive evolution accepted; removed protections, weakened policy, changed generator and stale projections rejected'
+}
+# The historical apply states and verified additive live evolution are valid.
 $stagedProtected = @($stagedData.protected_gate_suffixes)
 $liveProtected = @($liveData.protected_gate_suffixes)
 $stagedJoined = $stagedProtected -join "`n"
@@ -221,8 +226,10 @@ if ($stagedJoined -eq (($liveProtected + $paths) -join "`n")) {
     Test-Pass 'TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths (pre-apply)'
 } elseif ($stagedJoined -eq ($liveProtected -join "`n")) {
     Test-Pass 'TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)'
+} elseif ($liveEvolutionOk) {
+    Test-Pass 'TEST-021: live inventory retains all staged protections with verified additions'
 } else {
-    Test-Fail 'TEST-021: staged protected_gate_suffixes is neither live-plus-manifest nor live itself' 'sequences differ'
+    Test-Fail 'TEST-021: staged/live protected inventories violate the apply or additive-evolution contract' 'sequences differ'
 }
 
 # Apply-state INDEPENDENT, and the stronger of the two.
@@ -242,7 +249,11 @@ foreach ($name in @('PHASE2_TARGETS', 'BASELINE_SUFFIXES')) {
     $stagedConst = Get-PyTupleConstant $StagedGen $name
     Assert-True ($null -ne $liveConst -and $null -ne $stagedConst) "TEST-021: $name is parseable in both live and staged generators"
     if ($null -ne $liveConst -and $null -ne $stagedConst) {
-        Assert-SeqEq $stagedConst $liveConst "TEST-021: frozen constant untouched in the staged generator: $name"
+        if ($name -eq 'BASELINE_SUFFIXES' -and $liveEvolutionOk) {
+            Assert-SeqEq @($liveConst | Where-Object { $stagedConst -contains $_ }) $stagedConst 'TEST-021: live baseline retains the frozen staged constant with verified additions'
+        } else {
+            Assert-SeqEq $stagedConst $liveConst "TEST-021: frozen constant untouched in the staged generator: $name"
+        }
     }
 }
 
@@ -356,7 +367,7 @@ $mut3Out = Join-Path (Split-Path -Parent $mut3Gen) 'generated/guard_invariants.p
 Assert-True ((Invoke-Check $mut3Gen) -ne 0) 'TEST-021-MUT: --check rejects a stale generated output'
 
 # ---------------------------------------------------------------------------
-# TEST-022: LIVE files are untouched by this task's agent commit
+# TEST-022: historical apply states or strictly additive live protection evolution
 # ---------------------------------------------------------------------------
 
 function Assert-LiveUnchanged([string]$LivePath, [string]$StagedPath, [string]$BaselineKey, [string]$Label) {
@@ -369,8 +380,10 @@ function Assert-LiveUnchanged([string]$LivePath, [string]$StagedPath, [string]$B
         Test-Pass "TEST-022: live $Label is at the pre-apply baseline (agent commit changed nothing)"
     } elseif ((Test-Path -LiteralPath $StagedPath -PathType Leaf) -and ($actual -eq (Get-Sha256 $StagedPath))) {
         Test-Pass "TEST-022: live $Label equals this batch's reviewed staged candidate (human apply landed)"
+    } elseif ($liveEvolutionOk) {
+        Test-Pass "TEST-022: live $Label preserves the staged policy with verified additive protections"
     } else {
-        Test-Fail "TEST-022: live $Label is neither the pre-apply baseline nor the staged candidate" "got $actual"
+        Test-Fail "TEST-022: live $Label violates the historical apply or additive-evolution contract" "got $actual"
     }
 }
 

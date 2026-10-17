@@ -46,6 +46,7 @@ file whose Standing Note tells reviewers to trust these descriptions.
 """
 
 import argparse
+import importlib.util
 import hashlib
 import json
 import os
@@ -912,6 +913,16 @@ def _schema_errors(value, schema, pointer="$"):
     return errors
 
 
+def _validate_context_overrides(document):
+    if not any("characteristic_overrides" in entry for key in ("components", "shared_paths")
+               for entry in document.get(key, []) if isinstance(entry, dict)):
+        return
+    spec = importlib.util.spec_from_file_location("context_ownership", Path(__file__).with_name("resolve-component-paths.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.validate_characteristic_overrides(document)
+
+
 def _project_context_valid(document, repo_root):
     schema_path = repo_root / "contracts/project-context.schema.json"
     try:
@@ -919,7 +930,13 @@ def _project_context_valid(document, repo_root):
             schema = json.load(handle)
     except (OSError, json.JSONDecodeError):
         return False
-    return not _schema_errors(document, schema)
+    if _schema_errors(document, schema):
+        return False
+    try:
+        _validate_context_overrides(document)
+    except (ValueError, TypeError, KeyError):
+        return False
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -3340,6 +3357,28 @@ def main(argv=None):
             script_dir, registry_document, affected_components, projection_components,
             capability_evaluations, warn_diagnostics,
         )
+        # RT-20260930-001: fail closed on this retired v1 trigger until replaced.
+        if not any(capability["id"] == "durable-workflow" for capability in registry_document["capabilities"]):
+            legacy_trigger = {"any": [{
+                "scope": "affected_component", "field": "artifact_kinds",
+                "operator": "contains", "value": "durable_workflow",
+            }]}
+            for component_id in sorted(affected_components):
+                if "durable_workflow" not in projection_components[component_id].get("artifact_kinds", []):
+                    continue
+                selected, _ = _evaluate_predicate(
+                    script_dir, legacy_trigger, projection_components[component_id],
+                )
+                if selected:
+                    detail = (
+                        "durable-workflow-content-migration/2026-10-01-v1: "
+                        f"affected component {component_id!r} selects retired durable-workflow; "
+                        "its mandatory facet, review, gate, and Lite obligations have no approved replacement"
+                    )
+                    return _block(
+                        repo_root, args.feature, "registry-validation-failed", detail,
+                        state, capability_evaluations, warn_diagnostics,
+                    )
     except RegistryValidationFailed:
         # Amendment A① (human-approved 2026-08-24): requirements.md's
         # AC-056 sentence now carries an explicit exception in the "or

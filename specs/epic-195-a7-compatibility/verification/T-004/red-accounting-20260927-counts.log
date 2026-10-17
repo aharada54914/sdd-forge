@@ -1,0 +1,19 @@
+RED_CLASSIFIED_KILLED=113
+RED_CLASSIFIED_SURVIVED=3
+MUTATION-SURVIVED: corpus-bad-frontmatter [ps1] exit=1 expected=FAIL: full requirements.md canonicalizes without parse fallback
+38 passed, 2 failed
+MUTATION-SURVIVED: corpus-bad-heading [ps1] exit=1 expected=FAIL: full requirements.md canonicalizes without parse fallback
+38 passed, 2 failed
+MUTATION-SURVIVED: corpus-and-template-bad-heading [ps1] exit=1 expected=FAIL: full requirements.md canonicalizes without parse fallback
+39 passed, 1 failed
+61 passed, 0 failed
+39 passed, 1 failed
+EXIT_CODE=1
+GREEN_CLASSIFIED_KILLED=116
+GREEN_CLASSIFIED_SURVIVED=0
+RESTORE-GREEN: Bash
+61 passed, 0 failed
+RESTORE-GREEN: PowerShell
+68 passed, 0 failed
+MUTATION SUMMARY: 116 killed, 0 survived
+EXIT_CODE=0

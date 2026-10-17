@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0dbe4-0852-79e1-a646-8f77065b78cc",
+  "host_session_id": "01a0dbe4-0852-79e1-a646-8f77065b78cc",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-2/integrated-summary.json",
+      "sha256": "119f0e01d2ff44814ab1d9fe9347690d2b569ad9145a905ff69c00136258f8bb"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-2/precheck-result.json",
+      "sha256": "8f98cebafedbf0a41edfd4ff180194a1ecae5fe1da388d5df8047c2defe850cb"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "d47c9b43868d6fb4fdeaa98c4b4f7a47a3f9016d07137666aef85a043d5abe75"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "3f758fb594c2ef8fdab8b5d056e73f7234457d46c9568c9fb3c21b9485be0e26"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements define the component inventory, ownership, Pack behavior, promotion criteria, rollback branches, and approval boundaries with observable outcomes."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The resolved amendments and dated supersession notes reconcile the historical component count, ownership, and Pack decisions; no direct conflict remains in the current requirements."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-031 requires rejection of unknown override names and out-of-scope entries and cites TEST-031a–k; the coverage note also says these branches are separately exercised. The detailed cases start at TEST-031c and provide no concrete assertions for TEST-031a or TEST-031b. Implementers cannot verify the two required negative branches against an explicit oracle. Add individual test rows or state where each is concretely covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Mutable shared-state claims, including Registry inventory, component directories, and dependency readiness, carry instructions to re-verify at the relevant review or implementation point."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human approval and protected-copy boundaries are specified for Phase 1 and promotion; acceptance criteria cover invalid publication bindings and absent, misbound, or agent-authored Phase-2 approval."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The product decisions are sufficiently specified for implementation-policy review; the identified defect is missing acceptance-test rows, not missing product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped under the explicit launch instruction: root domain/ is absent."
+    }
+  ]
+}

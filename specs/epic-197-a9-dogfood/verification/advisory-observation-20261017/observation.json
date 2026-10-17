@@ -1,0 +1,75 @@
+{
+  "observed_at": "2026-10-17T03:44:35.031547+00:00",
+  "source_revision": "f10c2c61f93e5deca46f73497ca8feaa0315df26",
+  "target_revision": "c40cde5782233adfc8f6be7f3f576ee40ac58118",
+  "context": "candidate-only",
+  "live_activation": "not_attempted",
+  "approval": "not_issued",
+  "resolver_exit_code": 0,
+  "manifest_validator_exit_code": 0,
+  "evidence_validator_exit_code": 0,
+  "artifact_sha256": {
+    "facet-manifest.yaml": "55c29d13d3bb7c00d9ce96281b3a98ceaa8693940a77762a332bfc0831f1c41d",
+    "resolver-evidence.yaml": "0200056172286845c51896707f52b41a3f8a029a0269194f83927d33496b288c",
+    "project-context.resolved.json": "ea35bc5d0c15fb39ea37784be6c434526d4fcc9a0f1c6d74a94bd0940d64df26"
+  },
+  "release_cycle": {
+    "status": "not_started",
+    "start_release": null,
+    "end_release": null,
+    "published_releases": [],
+    "tags": [],
+    "open_pr_observation": [
+      {
+        "headRefOid": "08e62a10f33d747fa2fe6b1bebb149605a2ff9be",
+        "number": 572,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "b9d8c5d5789d7fac464323f901f72a141c60657c",
+        "number": 571,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "eaa930e378d02a5fdc15db743082615fbb5fabdb",
+        "number": 570,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "25dbd52fda120222fda2648d60d86148df812776",
+        "number": 569,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "87f59ca3c921d553ccefaa5082c21c238e838510",
+        "number": 535,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "8020fe88316b7659ec8b97b6327a618356e3dd23",
+        "number": 528,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "0739a15107300fc13a1b833d438c129fde75a641",
+        "number": 513,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "cbf661565113ca4f16cc5492b67a79faacdec7c6",
+        "number": 512,
+        "advisory_capability_gate": "not_verified"
+      },
+      {
+        "headRefOid": "bc7be7f70d755258799e925aaf99d152110b9a7c",
+        "number": 401,
+        "advisory_capability_gate": "not_verified"
+      }
+    ],
+    "blockers": [
+      "live approved Context and approver registry absent",
+      "A7/A8 native readiness not established",
+      "no release boundary exists"
+    ]
+  }
+}

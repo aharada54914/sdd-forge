@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 5,
+  "round": 1,
+  "run_id": "issue423-t004-task-a5r1-a-eb97f1bce4ff4229a05ee196179a588e",
+  "host_session_id": "issue423-t004-task-a5r1-a-session-bc16da93c2e74208b5413c61aada363c",
+  "manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "3f43cedc08cc99d877191258079f59234e4bf9b46265228392c2318849e3a3cc"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-5/round-1/precheck-result.json",
+      "sha256": "44b7d1b9ee85578f33cdeaee9e8480164bb2ae5bb7c6923887422f06d24cb695"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-5/round-1/dependency-graph.json",
+      "sha256": "1b38b9530683705f0fc590df8cd06e74ee3884587ddafea00366e71b9767b668"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Invocation raw SHA-256 matches independent pin 34fd751b5b0cfdf5443820490bd70ab580a300db8e9831fb9328401ffead6180. All admitted file hashes match, with tasks.md normalized to Pending/Draft/Planned exactly matching the precheck digest. All referenced AC and TEST IDs exist."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "T-001 uses None; T-002 through T-006 each name an existing predecessor task."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "REQ-001 through REQ-006 have task coverage: consumer inventory/ownership, resolution, compatibility, provider consent, and target examples."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "AC-001 through AC-014 and their individual test variants are assigned across T-001 through T-006."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Every task names requirements, acceptance criteria, and test rows and has an inspectable scope."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Every acceptance test row is assigned to a task, including TEST-001i and the individual target and consent variants."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Approved approvals and current Planned, Blocked, In Progress, Implementation Complete, and Done lifecycle states are valid in this post-implementation re-review. Normalized review inputs match the pinned initial-state form."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Every task has risk, rationale, and required workflow; high-risk T-003/T-004/T-005 use tdd and include rollback. T-004's final completion condition has the explicitly authorized task-only replacement; other conditions remain applicable."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Each AC has one task owner; multiple TEST rows beneath AC-001, AC-003, AC-008, and AC-009 are intentional distinct fixtures."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Inventory precedes ownership, ownership precedes resolution, resolution precedes compatibility, compatibility precedes provider extraction, and release evidence follows all implementation boundaries."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "The admitted graph is the acyclic chain T-001 through T-006."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "Tasks separate inventory, ownership, resolver obligations, compatibility, consent/provider routing, and final evidence/host conformance into coherent concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "All tasks name observable inventory, fixture, contract, output, or review-evidence outcomes. The sole precheck frozen_artifact_done_when entry is T-001 line 31: 'Review evidence records the inventory and fixture paths without requiring a post-review edit to traceability.md.' It is satisfiable WITHOUT editing the frozen artifact by recording paths in review evidence. T-006 likewise explicitly places implementation/test paths in verification reports. T-004's authorized replacement requires baseline comparison, actual usage-path regressions, independent evaluation, latest-head required CI, and retained defect regression coverage; this is a reviewable completion plan, not a claim that implementation has passed. T-003 and T-005 retain their red/green evidence obligations."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "none",
+      "finding": "All six task rows match tasks.md in requirement IDs, AC IDs, and test IDs: T-001 REQ-001; T-002 REQ-001/002; T-003 REQ-003/006; T-004 REQ-004; T-005 REQ-005; T-006 REQ-002/004/005/006. Every REQ-001 through REQ-006 has design anchors, acceptance coverage, and task coverage. Shared release-rollup and provider evidence do not replace primary requirement owners. Each requirement's layer N/A entry supplies a cross-layer policy/boundary rationale. UX and frontend N/A are supported by absence of rendered UI/frontend changes, infrastructure N/A by no deployment/resources, and security remains substantively assessed through protected registry/context, fail-closed checks, host boundaries, and legacy approval/evidence controls."
+    }
+  ],
+  "findings": []
+}

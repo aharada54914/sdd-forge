@@ -131,6 +131,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
       - name: Run POSIX inventory shard
@@ -152,6 +155,12 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
+      - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
+        shell: pwsh
+        run: python -B tests/sdd-domain-multitarget-T-003.tests.py
 
       - name: "[deterministic] Test Concept Test gate on native Windows"
         if: runner.os == 'Windows'
@@ -705,6 +714,11 @@ jobs:
         if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/project-context-schema.tests.ps1
+
+      - name: Test A9 unpublished candidate and Pack (pwsh)
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
 
       - name: Test approver-registry-schema suite (bash)
         if: runner.os != 'Windows'
@@ -1574,6 +1588,9 @@ jobs:
       - name: "[deterministic] Test task prior-pass receipt"
         shell: pwsh
         run: ./tests/task-prior-pass-receipt.tests.ps1
+      - name: "[deterministic] Test A9 unpublished candidate and Pack"
+        shell: pwsh
+        run: ./tests/a9-dogfood.tests.ps1
       - name: "[deterministic] Test cross-model gate"
         shell: pwsh
         run: ./tests/cross-model.tests.ps1

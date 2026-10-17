@@ -1,0 +1,1642 @@
+{
+  "record_kind": "evidence-publication-inventory; not a task-input manifest, review receipt, approval, signature or verdict",
+  "publication_base": "36e498950bb0a3084fc4997e42f9c39d376c8e73",
+  "historical_source_head": "3b5c38f08c98f8740d69a7c24ff7ff4a06c56ed9",
+  "originals": [
+    {
+      "source_relative_path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+      "sha256": "56460f6e9e23a748c2a16fb7546c570cbc3f4e4ef813815f90e015d103482432",
+      "bytes": 5288
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-completion-20261014.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-completion-20261014.md",
+      "sha256": "91f234f303eed42679958469a5ac533e68c44ee727c188b205de577bfa63b14a",
+      "bytes": 1029
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-independent-codex-20261014.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-independent-codex-20261014.md",
+      "sha256": "648a14c4b36e87593d218e359da5ed7e371e49275fedd4a4a0b3072d826c7c1f",
+      "bytes": 3062
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-current-validation-20261014.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-current-validation-20261014.md",
+      "sha256": "89cf534953f9dbfc86464daebf55ac59c177f2de4f0155cd58a84f10ff9a7955",
+      "bytes": 3803
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-recovery-independent-inspection-20261014.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-recovery-independent-inspection-20261014.md",
+      "sha256": "10b91ea0811a9cbdf5b19e3002c3dd6c0214262d4d3f26d006c981758b71023e",
+      "bytes": 2507
+    },
+    {
+      "source_relative_path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.md",
+      "sha256": "a204e954986c2207f9719174f11c5fca2cf9fcbb877828d78f06f5fea7a6d462",
+      "bytes": 4134
+    },
+    {
+      "source_relative_path": "docs/review-tickets/RT-20260930-001.yml",
+      "historical_snapshot_source": false,
+      "public_path": "docs/review-tickets/RT-20260930-001.yml",
+      "sha256": "a79e6e39b867019d3a1557b1d593d8076923acc4667015edc839de1b19d48552",
+      "bytes": 3113
+    },
+    {
+      "source_relative_path": "docs/review-tickets/RT-20261006-001.yml",
+      "historical_snapshot_source": false,
+      "public_path": "docs/review-tickets/RT-20261006-001.yml",
+      "sha256": "1ea6428bee5c75611200f240aa97a9e53f3783824eb4602e2e87ef8cf5df3be9",
+      "bytes": 2901
+    },
+    {
+      "source_relative_path": "docs/review-tickets/RT-20261006-002.yml",
+      "historical_snapshot_source": false,
+      "public_path": "docs/review-tickets/RT-20261006-002.yml",
+      "sha256": "2523147dccb67f29b6977d52dbcc8802b067f23958f38cd65904e44c7c69fc39",
+      "bytes": 2632
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-build-human.log.SYnVYKXU",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-build-human.log.SYnVYKXU",
+      "sha256": "2af432e4dcf7f61048f9168ec3ad971fa0a4a1187702343438681fccc7076a5f",
+      "bytes": 1245
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c",
+      "bytes": 4582
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003/T-002.original.md",
+      "sha256": "5bc3d169918ab875e36f138e3e9ed2083045dc5ccf95a4b500b4755d39e02b05",
+      "bytes": 9183
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-002/recovery-20261003-refresh/contract-boundaries-test.log",
+      "sha256": "360d7cf57b96672446ff3561344810934fa98065ddf20ddbdf78a972601d3377",
+      "bytes": 4292
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/lint.stdout.txt",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/lint.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+      "bytes": 25
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/registry.stdout.txt",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/registry.stdout.txt",
+      "sha256": "94c7743c4c51abdf221ee7c8bad93f29e4032aa6f9ccff0dc8adccb8aea9f808",
+      "bytes": 51
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+      "sha256": "5167b82fa998683b6137e47954c61dfa14e36a39759ffce3850590ccf6eb4a35",
+      "bytes": 203
+    },
+    {
+      "source_relative_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/typecheck.stdout.txt",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/typecheck.stdout.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    {
+      "source_relative_path": "reports/implementation/sdd-domain-multitarget/T-002.md",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-cloud-inputs-20261016/originals/reports/implementation/sdd-domain-multitarget/T-002.md",
+      "sha256": "3f2ae5bf8d85e7a28b87165f9f699068801562ca77b88ab4d8877c38e5a1d2b4",
+      "bytes": 9023
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/task-input-manifest.json",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/task-input-manifest.json",
+      "sha256": "90a5eb8fb83c2d71f20d4bf777a95a3528319cb3670d29ab9329322b4e641654",
+      "bytes": 40553
+    },
+    {
+      "source_relative_path": "AGENTS.md",
+      "historical_snapshot_source": true,
+      "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/AGENTS.md",
+      "sha256": "916fa6a1642fed0d326ad31ec1ac6db8099ffdf714137f3083b41c05c285bfb6",
+      "bytes": 22640
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/tasks.md",
+      "historical_snapshot_source": true,
+      "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "df14a94dd693637e57432f06220ceeebda55dea747d055116d7c8307caf51397",
+      "bytes": 7900
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/handoff-baseline-20261004.md",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/handoff-baseline-20261004.md",
+      "sha256": "85a9bbbb775153bb3ad93bf5d139702da515b4e8402cadf3cde58a2e91055bea",
+      "bytes": 464
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/design-boundary-addendum-20261004.md",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/design-boundary-addendum-20261004.md",
+      "sha256": "94b3060c805d9128c078093273d0d70fc7308e14b976ecae3a60f62941cdbc11",
+      "bytes": 14035
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/contracts/selected-verification-plan.schema.json",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/contracts/selected-verification-plan.schema.json",
+      "sha256": "8485a0f3435589c1fd25c7d17d18e94ac0779f33b2ae714f5f832129773201b5",
+      "bytes": 2882
+    },
+    {
+      "source_relative_path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "historical_snapshot_source": true,
+      "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea",
+      "bytes": 7160
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.sh",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.sh",
+      "sha256": "e36368e433f7c3b82cb05512f6a118e736b5ba80e41a7767e03fe713887c6388",
+      "bytes": 3488
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.ps1",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.ps1",
+      "sha256": "20326f85c0d12156563c7017ffea124d0ecfa85851aae65b5cdccd22ff504fa7",
+      "bytes": 6577
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "historical_snapshot_source": true,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "c965e9668f584c33b843b61531188c764b5a7fb437012dad7a44040b4cdd43b2",
+      "bytes": 27332
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline-map.json",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline-map.json",
+      "sha256": "ce8c2f6f97a1f5454e269fc3e7d5badc7694b27a5e2339b52074b371ff5acc9e",
+      "bytes": 615
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/owner-head.txt",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/owner-head.txt",
+      "sha256": "e0c1fbc6966fafc1e85a3a538e0957de1174b9699ce0fabdbb3f0a2764c4647e",
+      "bytes": 41
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/facet-schema-package-finish.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/facet-schema-package-finish.log",
+      "sha256": "49e2f165da32d060eac8fdfc9e68e7ed320765e112a835995f2f681d5c96c881",
+      "bytes": 6470
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/green-cycle1.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/green-cycle1.log",
+      "sha256": "f25b2f1a71bb6f24e9a56da8daf6efb0b82205f2408d11f2d9393137acf11cf7",
+      "bytes": 2321
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-bash-syntax.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-bash-syntax.log",
+      "sha256": "7d1f29c33554f1f3d9e2bcc75251dbd09efefa887e9bb2ddf9fa97b30835df8d",
+      "bytes": 14
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-discovery-bash.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-discovery-bash.log",
+      "sha256": "51c40760f96e1dbe7f8ee4fe13cd5e3bda1692c56ccd2e9caa6ae79125f98de2",
+      "bytes": 2002
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-discovery-pwsh.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-discovery-pwsh.log",
+      "sha256": "51c40760f96e1dbe7f8ee4fe13cd5e3bda1692c56ccd2e9caa6ae79125f98de2",
+      "bytes": 2002
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-existing-bytes.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-existing-bytes.log",
+      "sha256": "edd9969f7e3fd7a304d49ca7ea6733864738cc9aa021e792f1cc43ef062c6cba",
+      "bytes": 78
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-green.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-green.log",
+      "sha256": "a7bc86f86a5bb78a2796ff226a3242abdebf4c06b65c8e7f3f83998f84b71e2d",
+      "bytes": 2449
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-pwsh-syntax.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-pwsh-syntax.log",
+      "sha256": "9a502e57eb78e31b3219fd2ca281d664e34e2cddd3cef61873a0b5f8a18ccaf4",
+      "bytes": 36
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-vendor-check.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-vendor-check.log",
+      "sha256": "894cb533272ceee3dc2f2df5d90fba863d45bb3cc5c3d3461899a28797d04e6f",
+      "bytes": 99
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-lint.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-lint.log",
+      "sha256": "2f04f17ebd16bcdda74ff54cd80644082a6af69f8031272bfa1c67892fde4f66",
+      "bytes": 33
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-placeholders.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-placeholders.log",
+      "sha256": "bb26d5606f4b67cd05b73367a9759a0370fa1d8b3041d77e2993333b3b317165",
+      "bytes": 39
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-taskstate.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-taskstate.log",
+      "sha256": "036565eeb6c26ea5bdabc4083e6701434760cc5dfe5ac3049391a6c2abda24dd",
+      "bytes": 304
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-types.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-types.log",
+      "sha256": "c4df3f188c20209955377728ff1a04d1885cd27322b1a31e7372da204bd6682c",
+      "bytes": 2589
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-workflow.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-workflow.log",
+      "sha256": "ba582fa62b87c78e58c9c67b9b2a8c6fb59686038605a2cfd3bc9abc6bcdb23f",
+      "bytes": 73
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/registry-schema-package-finish.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/registry-schema-package-finish.log",
+      "sha256": "553dc805886f2f15cda36d02bb9920972a37897347f0f6cba5f0aa179604a5b1",
+      "bytes": 104
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/registry-validator-package-finish.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/registry-validator-package-finish.log",
+      "sha256": "92a3611c40ce2b654bcb424f4722420d7b64174f5c3f2286756bb9d2bb40b52e",
+      "bytes": 2032
+    },
+    {
+      "source_relative_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/resolver-match-package-finish.log",
+      "historical_snapshot_source": false,
+      "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/resolver-match-package-finish.log",
+      "sha256": "461f944ac8b457d3acb85dd69ed0ce33c410f560ee878b15edae473c2abc3a5c",
+      "bytes": 18326
+    },
+    {
+      "source_relative_path": "install.sh",
+      "historical_snapshot_source": false,
+      "public_path": "reports/verification/issue423-cloud-inputs-20261016/originals/install.sh",
+      "sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+      "bytes": 45468
+    }
+  ],
+  "T002_bundle_artifact_closure": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+      "expected_sha256": "7935c20fd18cc34b0b3c0f756ca56eb5e41928cc81c5c98e6fbb29ee4ab5e281",
+      "present_at_original_public_path": false,
+      "hash_matches": null
+    },
+    {
+      "path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+      "expected_sha256": "56460f6e9e23a748c2a16fb7546c570cbc3f4e4ef813815f90e015d103482432",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-build-human.log.SYnVYKXU",
+      "expected_sha256": "2af432e4dcf7f61048f9168ec3ad971fa0a4a1187702343438681fccc7076a5f",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-current-cycle-boundary-tests-20261007.log",
+      "expected_sha256": "9e64e4f127182326d4c5c9ccdeeec096cf49ac0bc14a24692852952b5a873c8c",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/lint.stdout.txt",
+      "expected_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/placeholder.stdout.txt",
+      "expected_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/registry.stdout.txt",
+      "expected_sha256": "94c7743c4c51abdf221ee7c8bad93f29e4032aa6f9ccff0dc8adccb8aea9f808",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/task-state.stdout.txt",
+      "expected_sha256": "5167b82fa998683b6137e47954c61dfa14e36a39759ffce3850590ccf6eb4a35",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    },
+    {
+      "path": "reports/verification/issue423-t002-fresh-caller-01a1109f-c67e-75f1-8682-b4b4ba72ffc6/typecheck.stdout.txt",
+      "expected_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "present_at_original_public_path": true,
+      "hash_matches": true
+    }
+  ],
+  "T002_canonical_bundle_missing_at_owner_and_public": true,
+  "T002_dated_bundle_alias": {
+    "path": "specs/sdd-domain-multitarget/verification/T-002-20261014.evidence.json",
+    "identical_to": "specs/sdd-domain-multitarget/verification/20261014/T-002.evidence.json",
+    "sha256": "241011521219dc1dc2c3eb61434f9a7a9ee2d68a0026e2d2566fe3e419ec3d19"
+  },
+  "T003_historical_manifest": {
+    "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/task-input-manifest.json",
+    "sha256": "90a5eb8fb83c2d71f20d4bf777a95a3528319cb3670d29ab9329322b4e641654",
+    "snapshot_inputs_verified_locally": 183,
+    "public_inputs_available_by_exact_hash": 182,
+    "inputs": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "916fa6a1642fed0d326ad31ec1ac6db8099ffdf714137f3083b41c05c285bfb6",
+        "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/AGENTS.md",
+        "status": "archived-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/requirements.md",
+        "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298",
+        "public_path": "specs/sdd-domain-multitarget/requirements.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/design.md",
+        "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119",
+        "public_path": "specs/sdd-domain-multitarget/design.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/tasks.md",
+        "sha256": "df14a94dd693637e57432f06220ceeebda55dea747d055116d7c8307caf51397",
+        "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/specs/sdd-domain-multitarget/tasks.md",
+        "status": "archived-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+        "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad",
+        "public_path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/traceability.md",
+        "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5",
+        "public_path": "specs/sdd-domain-multitarget/traceability.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/ux-spec.md",
+        "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed",
+        "public_path": "specs/sdd-domain-multitarget/ux-spec.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+        "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481",
+        "public_path": "specs/sdd-domain-multitarget/frontend-spec.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/infra-spec.md",
+        "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560",
+        "public_path": "specs/sdd-domain-multitarget/infra-spec.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/security-spec.md",
+        "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e",
+        "public_path": "specs/sdd-domain-multitarget/security-spec.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "docs/adr/0016-workflow-axes-separation.md",
+        "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c",
+        "public_path": "docs/adr/0016-workflow-axes-separation.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "docs/adr/0017-gate-stage-model.md",
+        "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650",
+        "public_path": "docs/adr/0017-gate-stage-model.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "docs/adr/0018-provider-binding-separation.md",
+        "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597",
+        "public_path": "docs/adr/0018-provider-binding-separation.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/project-context.schema.json",
+        "sha256": "cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5",
+        "public_path": "contracts/project-context.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/capability-registry.schema.json",
+        "sha256": "3a2ddfa6ad3fde7cce3b6b23399ff5772311380d6d2fdde885df69889b8ccef7",
+        "public_path": "contracts/capability-registry.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/capability-registry.json",
+        "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1",
+        "public_path": "contracts/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+        "sha256": "d803be2741e21ea71ba7aaac691aeea314f63f477ee5bab27f37a8e7a553dbe5",
+        "public_path": "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-cli.tests.sh",
+        "sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b",
+        "public_path": "tests/resolve-project-context-cli.tests.sh",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-match.tests.sh",
+        "sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527",
+        "public_path": "tests/resolve-project-context-match.tests.sh",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-block.tests.sh",
+        "sha256": "a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890",
+        "public_path": "tests/resolve-project-context-block.tests.sh",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+        "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c",
+        "public_path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+        "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+        "public_path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+        "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+        "public_path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+        "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+        "public_path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+        "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+        "public_path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/handoff-baseline-20261004.md",
+        "sha256": "85a9bbbb775153bb3ad93bf5d139702da515b4e8402cadf3cde58a2e91055bea",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/handoff-baseline-20261004.md",
+        "status": "original-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/design-boundary-addendum-20261004.md",
+        "sha256": "94b3060c805d9128c078093273d0d70fc7308e14b976ecae3a60f62941cdbc11",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/design-boundary-addendum-20261004.md",
+        "status": "original-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/contracts/selected-verification-plan.schema.json",
+        "sha256": "8485a0f3435589c1fd25c7d17d18e94ac0779f33b2ae714f5f832129773201b5",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/contracts/selected-verification-plan.schema.json",
+        "status": "original-identical"
+      },
+      {
+        "path": "contracts/facet-manifest.schema.json",
+        "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51",
+        "public_path": "contracts/facet-manifest.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/resolver-evidence.schema.json",
+        "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3",
+        "public_path": "contracts/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+        "sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3",
+        "public_path": "plugins/sdd-quality-loop/scripts/check-contract.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+        "sha256": "dd3a0642deeceac3d8def2c476c97fe6cf69fbfcebb2e1682bcd7939862b0aaf",
+        "public_path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+        "sha256": "b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff",
+        "public_path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "scripts/check-sdd-structure.sh",
+        "sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6",
+        "public_path": "scripts/check-sdd-structure.sh",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+        "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d",
+        "public_path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+        "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9",
+        "public_path": "plugins/sdd-quality-loop/scripts/validate_path.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+        "sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea",
+        "public_path": "reports/verification/issue423-cloud-inputs-20261016/attempt10-inputs/plugins/sdd-quality-loop/scripts/registry_discovery.py",
+        "status": "archived-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+        "sha256": "d6505e2909ea988384c0694c3f4b865e8f4539ba25eb71dab85d21ed447882fd",
+        "public_path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-cli-check.py",
+        "sha256": "67a7d06c1b5469372f35d353bcab001bd7457c91a95fc3f664751f403b962756",
+        "public_path": "tests/resolve-project-context-cli-check.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-match-check.py",
+        "sha256": "89f46e03750a7b4199cd95330ecd186dee94f30cf772ac883801d50c191baebd",
+        "public_path": "tests/resolve-project-context-match-check.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/resolve-project-context-block-check.py",
+        "sha256": "8f0638b42c11176c4c4d0174686e32918c53f871281375933b585a2249032a09",
+        "public_path": "tests/resolve-project-context-block-check.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.sh",
+        "sha256": "e36368e433f7c3b82cb05512f6a118e736b5ba80e41a7767e03fe713887c6388",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.sh",
+        "status": "original-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.ps1",
+        "sha256": "20326f85c0d12156563c7017ffea124d0ecfa85851aae65b5cdccd22ff504fa7",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/tests/run-all.ps1",
+        "status": "original-identical"
+      },
+      {
+        "path": "tests/resolver-evidence-schema-check.py",
+        "sha256": "2f1b4b16f5fed85af37b18f3b274afc5a82c5519e437e83578bc8eefa40a3f9b",
+        "public_path": "tests/resolver-evidence-schema-check.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+        "sha256": "ae27deb32d5af3d31dcbfd505812fd737603a9d682476451a855d48fb36ed511",
+        "public_path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+        "sha256": "03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429",
+        "public_path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+        "sha256": "d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656",
+        "public_path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/lite-upgrade-reason-catalog.json",
+        "sha256": "cff4ec30d3daa2f26422a9b57319b6dc4ee52b96a35301302b353d7574374536",
+        "public_path": "contracts/lite-upgrade-reason-catalog.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/context-projection.schema.json",
+        "sha256": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc",
+        "public_path": "contracts/context-projection.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "contracts/capability-summary.schema.json",
+        "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f",
+        "public_path": "contracts/capability-summary.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/provider-terms.json",
+        "sha256": "2355adabd24e3d01b18f3eb99e986073791fb3f85b4d9d27a91fd6a0f0a0ae7d",
+        "public_path": "plugins/sdd-quality-loop/references/provider-terms.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+        "sha256": "38b870f89b8b95cd4e9de7074cd77f610d53aca19715d4bff6df05381c11383e",
+        "public_path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+        "sha256": "4daa549e9bb06b71759580a0ed1389033745dee21c5a1ae7ef694c725a2b9156",
+        "public_path": "plugins/sdd-quality-loop/scripts/evaluate-predicate.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+        "sha256": "843f473f1234572426d1a4b23e6a4cd03515dc214ae3b9b16590df7ed9f819c5",
+        "public_path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json",
+        "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml",
+        "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py",
+        "sha256": "aba58c21d5a47bfb780103514ad14da1bec16810541b287c065ae1d3f5be425a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/capability-registry.json",
+        "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/project-context.yaml",
+        "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py",
+        "sha256": "215f395703319b5e2b9360e617fca33563b870a62b02fb9a7455bdeb64e8751e",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/resolve-component-paths.py",
+        "sha256": "8ef4761e79ca0fcab181f3736c9df930f34b38b9c98896b3caac6f4bf4a9a4e2",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/artifact-publication-failed/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/artifact-publication-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/canonicalize-sdd-yaml.py",
+        "sha256": "d4fc38410ab6783feebcdfcd83a33f36dfe05a95616bea9915eff44229041e8f",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/canonicalize-sdd-yaml.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/project-context.yaml",
+        "sha256": "3e6f3f19f2305735fc202a2c8ba7214e641f43f60b18aee59bc38f1c2e4033a8",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/canonicalizer-invocation-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-full-track-publication/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-full-track-publication/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-lite-track-publication/project-context.yaml",
+        "sha256": "78886aded07ff8b2f8aed77f7a32a65c2e66483cc8a0e1d849b7e0056c0a227d",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/clean-lite-track-publication/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json",
+        "sha256": "919024a80c6fa2b10274aa97b72c380f4c001c01504aca6851d5ee3ed3e1262a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json",
+        "sha256": "b83f5d80234b383d15ad15e9b8e6c9093318a5614d78599318575a6a948cc9ba",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/resolver-evidence.schema.json",
+        "sha256": "54dcf34a93a6f8f1c7b9132fd8dfa9cf9f9789fe2e63d83075202d5955e92c4f",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/resolver-evidence.schema.json",
+        "sha256": "41634b0328c5acb1c95f80f156042d8fde9d81d8f4910924590cdf5bca1fd3eb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/canonicalize-sdd-yaml.py",
+        "sha256": "5c03e3a40fc22a6b84be1f84fd74643745686150984b35dd97aa9de50763be09",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/canonicalize-sdd-yaml.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/project-context.yaml",
+        "sha256": "ace500086f147c22e5e567105f0fc4f84becca78c35f3242556ad798cda3adb9",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-output-malformed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/capability-registry.json",
+        "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/generate-registry-digest.py",
+        "sha256": "3af616fcc8fd2056aa6d48cfe17a6e7fd05289785038a8747b7d20ae186891aa",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dependency-subprocess-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/capability-registry.json",
+        "sha256": "cfca5c8711db2c68c1238493b9913ab043095a235bed9670b0a741d88e1cffc1",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/project-context.yaml",
+        "sha256": "965043da3cff0bb3b9f6b035fa1244be59dc50728ed009fa437b23ef23b6315d",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/capability-registry.json",
+        "sha256": "e244976ccd3a9bb4a82389680bb48c0494555043c8536d76cb2a264138fc087e",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/capability-registry.json",
+        "sha256": "2f1f0255a60f25c72db115784c489f0198fffe063813e7aa147d6139139eac55",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/project-context.yaml",
+        "sha256": "eff959d0701ee400341a0fa0dceb6f16f6640ca7dab9c337c47dfdc2048c7c21",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py",
+        "sha256": "5f446beea05e58f35ede81981b0b25ff21dd68d1b4bb852069a6270d5f1da391",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/capability-registry.json",
+        "sha256": "c409a16a0f6e477664385036e8592aef0b4865d988b5cbc2cace564ceb2ed0bf",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/evaluate-predicate.py",
+        "sha256": "917fa018ff8bc918bea21482a394b31da1f6e3ad06798b318206ca879fb7b3be",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/evaluate-predicate.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-failure-after-warn/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/capability-registry.json",
+        "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/evaluate-predicate.py",
+        "sha256": "938f7d048b38410a31da8e943e00a7b4e54170d43f79ec1040a585af634a61c5",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/evaluate-predicate.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/capability-registry.json",
+        "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/evaluate-predicate.py",
+        "sha256": "68d54f7e01b3a124d9d2e9393c68fdb4408e3975a883065acc3d332dd48a86b3",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/evaluate-predicate.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-unhashable/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/capability-registry.json",
+        "sha256": "5c2704b6b1b3dab7b21896a100faf3e9854bf741fa5a6387bc296d37b5646f76",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/evaluate-predicate.py",
+        "sha256": "65c73b21f7084f571efef7ca57877c943a45eb1fd86f6f3f8c08a15d2d4a1514",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/evaluate-predicate.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/capability-registry.json",
+        "sha256": "337ed6f8f2addd9db70afa44050e3689655b6bf00c7b522e213c5eff1e8cf4ea",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/project-context.yaml",
+        "sha256": "ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/capability-registry.json",
+        "sha256": "f627d8c89a15d0cd5d9ebf106d242b5c58719413e7662901cd41fff36680423f",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/project-context.yaml",
+        "sha256": "e85b80930c2e887312c85feb50582bd19ce93e67b8b24f94520fe30e2b8387a8",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/lite-check-source-undefined/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/context-projection.schema.json",
+        "sha256": "d713de289a09366dcf04f72a2ccf0b2bf55be71699db13628abf7f52a96ef5da",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/context-projection.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-artifact/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/resolver-evidence.schema.json",
+        "sha256": "9c3cacef8a599e96324609a3a568d1378408ccdf239bdcde39c0bcb486004064",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-evidence/resolver-evidence.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/facet-manifest.schema.json",
+        "sha256": "949da1c07d4c339649b7e44f6e011fef6b3646580b8657eabbd6f20dc40ceb19",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/facet-manifest.schema.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/registry_discovery.py",
+        "sha256": "20003aacda80503ddcee72c3fa94f7af9a3cbb28ef8acfbc5e3c244fecf073d1",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/resolve-component-paths.py",
+        "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-crash-before-evidence/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/resolve-component-paths.py",
+        "sha256": "e7e9d5900992f96f5927a97ed3c85487bfc80de5b80d42e48249a61a015ead71",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/post-publication-generation-mismatch/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/project-context-validation-failed/missing-enforcement.yaml",
+        "sha256": "70bef174f2ac3ce391f8705eb75aeba6df8f5a9e57d306dc73a96e5d90e20962",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/project-context-validation-failed/missing-enforcement.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/registry_discovery.py",
+        "sha256": "6a1fd82067858648657f1a17121d934a9c716c297641ca10b6f66a1001ed63ca",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-created-dir-fsync-failure/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+        "sha256": "384474992f7d853cf92b46210b75e48e756c3f47aced9fc19e6fd697053fb9de",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-fsync-failure/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/registry_discovery.py",
+        "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery-crash/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/registry_discovery.py",
+        "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-recovery/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/registry_discovery.py",
+        "sha256": "dd3e5a75bfbb1a146cbe1756d5a88fab26ddbde11cf737d3d9eaae3c119b1172",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-roundtrip-unresolved-repo/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-target-escape/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-target-escape/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+        "sha256": "52e6b5ca0a91eaa8d770693d1197c2087aeb43ae9f1c9f1d39781f9c9e9b6280",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-chain-fsync-failure/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-parent-symlink/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-staging-parent-symlink/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml",
+        "sha256": "31b2eaf334c689f5a2ee4e1a1341d75ad3657e08ea741bb22d890b6992fe1bdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/publication-target-parent-symlink/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml",
+        "sha256": "193379b1051fa49ffbfdc33571dacc9e5c24ab68db65d54ca65bd8dd3ff2d9a3",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py",
+        "sha256": "746c8f384c7399329b967d2437cab3275eee217b92f865570ab00a18e4d64caa",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+        "sha256": "142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/registry_discovery.py",
+        "sha256": "b16af38d839bdcc28bdb1000a784a79a69eb2e00c78abe8b37d464bce2f7a34c",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/registry_discovery.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json",
+        "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py",
+        "sha256": "21b2faf08f66b9f95f82c86036cd30dce82014936efe8b83ea00fa5e2f5e7758",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/capability-registry.json",
+        "sha256": "b5871a40114579d08f0b1f61ccbf8c3156c6c858b9637dfa6b051af1ba354513",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/capability-registry.json",
+        "sha256": "0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/project-context.yaml",
+        "sha256": "98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/resolve-component-paths.py",
+        "sha256": "b36102a0cd8cdcbd0d71768baa39058919144ff2ce6f5de00f667d84de97671b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-binding-not-object/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-launch-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-launch-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml",
+        "sha256": "705c7131882a6f98dab54c00648919548cafe2640e4104f07153d83e06ab41e5",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py",
+        "sha256": "868d948a66ef19058892638e410422feb1261671b294c151af115f20be753cdc",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch-affected-components/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
+        "sha256": "94ce16ed44066f4102d1b26483d0a144c6f946211e3586ec7c4ca6adf00ad2a2",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/project-context.yaml",
+        "sha256": "9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/capability-registry.json",
+        "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/project-context.yaml",
+        "sha256": "a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/full-lite-layout.yaml",
+        "sha256": "314e462c73fb27f5ac4b191a4e4007f38292e9976ae687f802bb91dae48130a2",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/full-lite-layout.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/lite-wrong-layout.yaml",
+        "sha256": "9f7a3e766432f0fd93fb66bf62b8a1f751103cd98f2b2e8bbcaa2c5dde4997e3",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-block/workflow-combination-invalid/lite-wrong-layout.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/project-context.yaml",
+        "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/resolve-component-paths.py",
+        "sha256": "f310576b7da26432e7ba9b52eabb94c98b0ff1305adddc2b1a7511eb09af1564",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-cli/source-rev-default/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/capability-registry.json",
+        "sha256": "2583c9a8c3f538a18d1fbc1678be17045b01e1c27aedb90b2cfca69a4985088b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py",
+        "sha256": "6bb714aed3b1e01676e91a73a219cfbbb28b78e62974a28d445ed263a6de62b1",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-advisory.yaml",
+        "sha256": "78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-advisory.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-required.yaml",
+        "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-required.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json",
+        "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py",
+        "sha256": "0e8c03ffdbf743bfe2bb66eba895008c0d1fdeaf22afa66de6f7a9f606d202c1",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/project-context.yaml",
+        "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py",
+        "sha256": "e88b3da3c38ccda7a3cf5d57985a4504fc0d0bacd1204851337b6b91a52d1d23",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/capability-registry.json",
+        "sha256": "1642c9c5325820b5f924db872ac437b68b64cce3d2ba59e819030cde75f2c1c2",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/project-context.yaml",
+        "sha256": "dd94fc0799ff3135941e140792c74eb7fbf638dd0a0ba8e0cb79f8af98f1cb11",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json",
+        "sha256": "ae0d763d1767e29fcf8695f37f580d2cd306cf173bb5d83ff0936692af23ff7a",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml",
+        "sha256": "290c85f8891a90a7644595064ecdbc8b62ae14e8fe727b09609192da5b48f448",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/capability-registry.json",
+        "sha256": "b5d9b5e2439da9e843cfd36de445f2df54e06455dbd7e694d954411311c84bc4",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/project-context.yaml",
+        "sha256": "8a789a9432ba0e9d4293c99d2d41497f704ae415545f71871892b680169429ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/capability-registry.json",
+        "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/capability-registry.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py",
+        "sha256": "b285c8028982eed870e529375d185c30966a60b30bb49d0a36646267b5fff554",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/project-context.yaml",
+        "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/project-context.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py",
+        "sha256": "5520b44925770dcf7b784c874864dc2e88ef1989e3fd2568b5d75e0db2291ab0",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json",
+        "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/omits-components.yaml",
+        "sha256": "4b61a1c2bfafa72688216d30e267ad74edf2c6cfdf48c3767d26c7ba16f2094b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-projection/omits-components.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py",
+        "sha256": "8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py",
+        "status": "existing-identical"
+      },
+      {
+        "path": "tests/fixtures/capability-resolver/resolve-project-context-projection/two-components.yaml",
+        "sha256": "d6689e8863fd3a8d464c3febfedf14a87018e8ec17ec7a4ed6147ae3ee80d4ae",
+        "public_path": "tests/fixtures/capability-resolver/resolve-project-context-projection/two-components.yaml",
+        "status": "existing-identical"
+      },
+      {
+        "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+        "sha256": "c965e9668f584c33b843b61531188c764b5a7fb437012dad7a44040b4cdd43b2",
+        "public_path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/baseline/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+        "status": "original-identical"
+      },
+      {
+        "path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+        "sha256": "56460f6e9e23a748c2a16fb7546c570cbc3f4e4ef813815f90e015d103482432",
+        "public_path": "reports/quality-gate/20261014-sdd-domain-multitarget-T-002.md",
+        "status": "original-identical"
+      },
+      {
+        "path": "reports/verification/issue423-t002-completion-20261014.md",
+        "sha256": "91f234f303eed42679958469a5ac533e68c44ee727c188b205de577bfa63b14a",
+        "public_path": "reports/verification/issue423-t002-completion-20261014.md",
+        "status": "original-identical"
+      },
+      {
+        "path": "reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261016-fresh.md",
+        "sha256": "b9e1e52b68edcc50369eb7d57a4d0f6ba389c32c896233ff4d8f4643d298aeec",
+        "public_path": null,
+        "status": "held-private-owner-path"
+      }
+    ]
+  },
+  "private_originals_held": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+      "sha256": "7935c20fd18cc34b0b3c0f756ca56eb5e41928cc81c5c98e6fbb29ee4ab5e281",
+      "bytes": 7718,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/20261014/T-002.evidence.json",
+      "sha256": "241011521219dc1dc2c3eb61434f9a7a9ee2d68a0026e2d2566fe3e419ec3d19",
+      "bytes": 8809,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-attempt10.md",
+      "sha256": "90f2a4f1a8ec14775c4a6683cbf72975c5dcc56b563e7860e7a4e7d00450c586",
+      "bytes": 27404,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261016-fresh.md",
+      "sha256": "b9e1e52b68edcc50369eb7d57a4d0f6ba389c32c896233ff4d8f4643d298aeec",
+      "bytes": 5536,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261016-complete-fresh.md",
+      "sha256": "ee164c593363c00f8df9be90f574fd9b29bfc79433516090f51c04cbe9d8fa87",
+      "bytes": 5928,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-003-attempt2.scratch-owner.json",
+      "sha256": "1a2a624f1b6ef291384172914f851cc90a150a60bfdde045bd8403b939ae34d0",
+      "bytes": 805,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/verification/issue423-scratch-recovery-candidate-20261006/T-003-attempt2.owner-observation.candidate.json",
+      "sha256": "4114ddada34bdf7d76d158f5321c4f8b3772517372980a86be726e0b8a04d679",
+      "bytes": 210,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "reports/verification/issue423-scratch-recovery-candidate-20261006/T-003-attempt2.source-inspection.candidate.md",
+      "sha256": "7cb1e2731938d8a2cb1f8bb035ce3bcf5cc93223fb200966b87a70c1c9bafe1f",
+      "bytes": 2960,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/red.log",
+      "sha256": "693da2390fa753de27c3eb17c39b7696cdcae185a34767a801a025513c6211e5",
+      "bytes": 14587,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/red-tightened.log",
+      "sha256": "2224c1b043eab3bf9f060dd704e7e0fcc69fed3496b69d059b4cd13b055ff155",
+      "bytes": 20259,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/red-final.log",
+      "sha256": "4b5d6ad7379b8a5d97e8924223025fed268740cac71f4dedbc5c6ed3d2ea9f75",
+      "bytes": 20351,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/red-approved-policy.log",
+      "sha256": "44f1e221b57f554371c3b57a751290b3464d0b6ad2918ed17e063440b3758e26",
+      "bytes": 65648,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/red-continuation.log",
+      "sha256": "07926660047a9682dc39734d4ac00c821e3683797788e5a89aa4f7e1d9a280f9",
+      "bytes": 25241,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-red.log",
+      "sha256": "585bcd21536f8ea78f7c5aee7326e7e54de6825c92558684d419f1ae85357e91",
+      "bytes": 986,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/packaging-generate.log",
+      "sha256": "38a7fbeaa944966494822f7865c6d3753cb2aa924d544719ae2c4b97a201d1c3",
+      "bytes": 253,
+      "reason": "personal local owner paths; dated bundle also contains local user identifier; no redaction applied"
+    }
+  ],
+  "private_transport_prepared_locally": {
+    "files": 15,
+    "bytes": 235520,
+    "archive_sha256": "5ae6ca102e842d68ac63b4d02cb010f1cdd6f5453a07c2a129df04bb57e77d59",
+    "external_transfer": false
+  },
+  "public_task_state_preserved": {
+    "T-001": "Implementation Complete",
+    "T-002": "Blocked",
+    "T-003": "Planned",
+    "T-004": "Planned",
+    "T-005": "Planned",
+    "T-006": "Planned",
+    "approval": "Approved for all six tasks"
+  },
+  "known_historical_nonzero_results": [
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-types.log",
+      "exit_code": 1,
+      "result": "18 strict type errors; no fix attempted"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-taskstate.log",
+      "exit_code": 1,
+      "result": "canonical T-002 evidence bundle absent"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-003/attempt10-20261016/output/qg-workflow.log",
+      "exit_code": 1,
+      "result": "invalid CLI argument; not a completed workflow-state validation"
+    }
+  ]
+}

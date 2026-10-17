@@ -1,0 +1,127 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "bugfix",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "3479946ee820aca21041f7c25142b0bdc67e72e194ab43a333913ce9bbb8f5ea",
+  "requirements_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+  "acceptance_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+  "design_sha256": "fbaba19584e3301dcc5de0465353c9b2c96cbf5032f2c277e718b865ff71c141",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e3b1-4d44-7de0-8d73-37e722e57d6e",
+      "host_session_id": "01a0e3b1-4d44-7de0-8d73-37e722e57d6e",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+          "sha256": "322f03a7ee8fcac644ecebfe1fd650263efae5bcec99c1d897c4ba62da89dc30"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+          "sha256": "a1181941c9cb7471a73d0134ac04167a4d60ebe1103b4b290c4ba5b4edcf3c18"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "fbaba19584e3301dcc5de0465353c9b2c96cbf5032f2c277e718b865ff71c141"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e3b1-6cfb-7782-9e3b-0a27ab87a75c",
+      "host_session_id": "01a0e3b1-6cfb-7782-9e3b-0a27ab87a75c",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+          "sha256": "7a4c648bb729a630def09369c283bd7b369ab6fa4e8a74c142523dec32df1585"
+        },
+        {
+          "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+          "sha256": "a1181941c9cb7471a73d0134ac04167a4d60ebe1103b4b290c4ba5b4edcf3c18"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "fbaba19584e3301dcc5de0465353c9b2c96cbf5032f2c277e718b865ff71c141"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Added explicit Data Entities, Existing Data Affected, Migration Strategy fields and concrete unit/mock/integration/acceptance test scopes; requirements, acceptance and layer inputs unchanged.",
+  "timestamp": "2026-09-27T16:40:54.666Z"
+}

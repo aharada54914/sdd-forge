@@ -72,15 +72,14 @@ decision B4). It has exactly three modes:
 Recorded-result evidence schema (this script's own implementation-level
 realization of requirements.md REQ-010's per-runtime prose description --
 design.md fixes the CLI surface and the high-level signature description,
-not the byte-level JSON field names; chosen to mirror `sdd-hook-guard.py`'s
-own documented output shapes as closely as possible so a real evidence
-file recorded from a live host, once Epic A8 wires real capture, needs no
-translation layer):
+not the byte-level JSON field names). Legacy variants mirror the guard's
+output shapes; explicit native adapters preserve the host's own result or
+event pair inside a nonce-bound envelope:
 
   Every recorded-result / recorded-cleanup-result file is a JSON object
   with (at minimum) a top-level `"nonce"` string (compared verbatim
   against `--nonce`) and a top-level boolean `"executed"` (did the
-  tool-call attempt actually run/succeed). `executed: true` ALWAYS
+  tool-call attempt actually run/succeed). In valid legacy records, `executed: true`
   short-circuits to `WRITE_EXECUTED` regardless of any other field --
   proof the write ran is proof the hook did not block it, full stop, never
   overridden by a contradictory denial claim elsewhere in the same file.
@@ -101,15 +100,29 @@ translation layer):
                   case (decision doc Section 7 v2) and correctly falls
                   through to `UNRECOGNIZED_RESULT`, never a special case.
     codex-cli:    `"plugin_hooks_enabled": true` AND
-                  `"denied_by_plugin_hooks": true`. An unset/false
-                  `plugin_hooks_enabled` collapses into
-                  `CAPABILITY_RUNTIME_UNAVAILABLE` (reason
-                  `PLUGIN_HOOKS_DISABLED`) regardless of
-                  `denied_by_plugin_hooks` -- a guard that was never
-                  invoked (feature flag unset) cannot have produced a
-                  denial signature, matching REQ-010's explicit
-                  "indistinguishable from, and correctly collapses into,
-                  'hook not active'" text.
+                  `"denied_by_plugin_hooks": true`. Missing/invalid metadata
+                  remains unavailable with legacy reason `PLUGIN_HOOKS_DISABLED`;
+                  it does not prove that hooks were actually disabled.
+
+  RT-20260909-002 adds the explicit `sdd-codex-host-denial/v1` response
+  adapter: exactly schema/runtime/nonce/executed/raw_result, Codex only,
+  boolean nonexecution and an exact operation-bound host denial. Unknown
+  selectors never fall back to legacy evidence. Duplicate JSON members at
+  any depth are unreadable in both response and cleanup modes. See the
+  approved hook-recovery-entry-contract-20260909.md for normative bytes.
+  Plain-file matching is not host attestation or a persistent replay ledger;
+  the calling session must record one fresh actual native dispatch.
+
+  Copilot native capture uses `sdd-copilot-host-denial/v1`, with exactly
+  schema/runtime/nonce/executed/raw_events. raw_events contains the verbatim
+  tool.execution_start and tool.execution_complete objects for one dispatch.
+  Their toolCallId and actual model must match. The start must create the
+  canary with the challenge nonce using create or apply_patch; the completion
+  must report success:false and the exact protected-path hook denial. A
+  malformed-payload refusal, unrelated policy denial or model prose is not
+  activation evidence. Select the emitted template/alternative matching the
+  tools actually exposed by the host. Auto model selection is recorded in
+  actual_model and does not establish a separately required fixed-model run.
 
   The recorded-cleanup-result file uses the SAME `"nonce"`/`"executed"`
   envelope alone (no runtime-specific sub-fields; the literal
@@ -129,6 +142,7 @@ REQ-009's five entry points is T-011/T-012's own scope, not this script's.
 import argparse
 import json
 import os
+import re
 import secrets
 import sys
 
@@ -150,6 +164,16 @@ CATEGORY_EXIT_CODES = {
 CHALLENGE_SCHEMA = "sdd-hook-challenge/v1"
 VERIFY_RESULT_SCHEMA = "sdd-hook-verify-result/v1"
 CLEANUP_RESULT_SCHEMA = "sdd-hook-cleanup-result/v1"
+HOST_DENIAL_SCHEMA = "sdd-codex-host-denial/v1"
+COPILOT_HOST_DENIAL_SCHEMA = "sdd-copilot-host-denial/v1"
+HOST_DENIAL_PREFIX = (
+    "Command blocked by PreToolUse hook: "
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。"
+    "これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。\n"
+    "[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, "
+    "or critical test files. These are part of the enforcement chain and cannot be "
+    "bypassed by sudo.. Command: "
+)
 
 # Dedicated canary target -- NEVER the live approval sidecars (B5). Fixed,
 # never caller-overridable, CWD-relative like every sibling script's
@@ -158,28 +182,20 @@ CANARY_TARGET = "sdd/.hook-canary-sentinel"
 
 RUNTIMES = ("claude-code", "codex-cli", "copilot-cli")
 
-# Per-runtime example tool-call the AGENT SESSION itself is instructed to
-# attempt (illustrative -- the exact bytes are not pinned by any AC; the
-# calling skill, REQ-009's own scope, is free to adapt these). Claude
-# Code/Copilot CLI share the same native Write-tool shape (requirements.md);
-# Codex CLI uses the equivalent apply_patch envelope, mirroring
-# `sdd-hook-guard.py`'s own AC-023 matrix row 12 example shape.
+# Native write templates are built per challenge and bind the generated nonce.
 TOOL_CALL_TEMPLATES = {
     "claude-code": {
         "tool_name": "Write",
         "tool_input": {"file_path": CANARY_TARGET, "content": ""},
     },
-    "copilot-cli": {
-        "tool_name": "Write",
-        "tool_input": {"file_path": CANARY_TARGET, "content": ""},
-    },
-    "codex-cli": {
-        "tool_name": "apply_patch",
-        "tool_input": {
-            "patch": "*** Begin Patch\n*** Add File: {}\n+\n*** End Patch\n".format(CANARY_TARGET),
-        },
-    },
 }
+
+
+def _codex_canary_patch(nonce):
+    return (
+        f"*** Begin Patch\n*** Add File: {CANARY_TARGET}\n"
+        f"+sdd-hook-challenge:{nonce}\n*** End Patch"
+    )
 
 
 class HookHandshakeError(Exception):
@@ -206,11 +222,34 @@ def _fresh_nonce():
 
 
 def build_challenge():
+    nonce = _fresh_nonce()
+    templates = dict(TOOL_CALL_TEMPLATES)
+    templates["codex-cli"] = {
+        "tool_name": "apply_patch",
+        "tool_input": {"patch": _codex_canary_patch(nonce)},
+    }
+    templates["copilot-cli"] = {
+        "tool_name": "create",
+        "tool_input": {"path": CANARY_TARGET, "file_text": "sdd-hook-challenge:" + nonce},
+    }
     return {
         "schema": CHALLENGE_SCHEMA,
-        "nonce": _fresh_nonce(),
+        "nonce": nonce,
         "canary_target": CANARY_TARGET,
-        "tool_call_template": TOOL_CALL_TEMPLATES,
+        "tool_call_template": templates,
+        "tool_call_alternatives": {"copilot-cli": [{
+            "tool_name": "apply_patch", "tool_input": _codex_canary_patch(nonce),
+        }]},
+        "recorded_result_template": {"copilot-cli": {
+            "schema": COPILOT_HOST_DENIAL_SCHEMA, "runtime": "copilot-cli",
+            "nonce": nonce, "executed": False, "raw_events": [],
+        }},
+        "capture_instructions": {"copilot-cli": (
+            "Select the template or alternative exposed by this host. Replace raw_events with the verbatim "
+            "tool.execution_start and matching tool.execution_complete objects from that one native dispatch. "
+            "Preserve the actual model fields; Auto evidence does not establish a fixed-model run. "
+            "An empty pair, unavailable tool, malformed-payload denial, or model prose is not activation evidence."
+        )},
     }
 
 
@@ -243,6 +282,15 @@ def run_emit_challenge():
 # ---------------------------------------------------------------------------
 
 
+def _unique_json_members(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError("duplicate JSON member")
+        obj[key] = value
+    return obj
+
+
 def _load_json_object(path, missing_category, unreadable_category):
     if not os.path.isfile(path):
         raise HookHandshakeError(missing_category, f"no evidence file at {path!r}")
@@ -252,8 +300,8 @@ def _load_json_object(path, missing_category, unreadable_category):
     except (OSError, UnicodeDecodeError) as exc:
         raise HookHandshakeError(unreadable_category, f"cannot read {path!r}: {exc}") from exc
     try:
-        obj = json.loads(raw)
-    except json.JSONDecodeError as exc:
+        obj = json.loads(raw, object_pairs_hook=_unique_json_members)
+    except ValueError as exc:
         raise HookHandshakeError(unreadable_category, f"{path!r} is not valid JSON: {exc}") from exc
     if not isinstance(obj, dict):
         raise HookHandshakeError(unreadable_category, f"{path!r} must be a JSON object at the top level")
@@ -338,11 +386,11 @@ def _verify_codex_cli(obj):
     if obj.get("plugin_hooks_enabled") is not True:
         raise HookHandshakeError(
             "PLUGIN_HOOKS_DISABLED",
-            "codex-cli evidence's 'plugin_hooks_enabled' is not true -- an "
-            "unset/false plugin_hooks feature flag means the guard was "
-            "never invoked at all, so no denial signature can appear; "
-            "this correctly collapses into hook-not-active rather than "
-            "being treated as ambiguous",
+            "codex-cli evidence does not establish 'plugin_hooks_enabled: true'; "
+            "missing or invalid evidence metadata is not proof that plugin hooks are disabled. "
+            "The legacy PLUGIN_HOOKS_DISABLED category is retained for compatibility; "
+            "verification remains unavailable without the required evidence, "
+            "including when the recorded flag is explicitly false",
         )
     if obj.get("denied_by_plugin_hooks") is not True:
         raise HookHandshakeError(
@@ -351,6 +399,90 @@ def _verify_codex_cli(obj):
             "'denied_by_plugin_hooks: true' signature; got "
             f"denied_by_plugin_hooks={obj.get('denied_by_plugin_hooks')!r}",
         )
+
+
+def _verify_codex_host_denial(obj, expected_nonce, runtime):
+    if (set(obj) != {"schema", "runtime", "nonce", "executed", "raw_result"}
+            or runtime != "codex-cli" or obj.get("runtime") != "codex-cli"):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "invalid host-denial fields or runtime")
+    for nonce in (expected_nonce, obj.get("nonce")):
+        if not isinstance(nonce, str) or re.fullmatch(r"[0-9a-f]{32}", nonce) is None:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    raw_result = obj.get("raw_result")
+    if not isinstance(raw_result, str):
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial raw_result must be a string")
+    # Escape the entire normative envelope; only the one nonce slot varies.
+    # fullmatch accepts no prefix, suffix, normalization or terminal newline.
+    placeholder = "<nonce>"
+    pattern = r"(?:Script error:\n)?" + re.escape(HOST_DENIAL_PREFIX + _codex_canary_patch(placeholder))
+    pattern = pattern.replace(re.escape(placeholder), r"([0-9a-f]{32})")
+    match = re.fullmatch(pattern, raw_result)
+    if match is None:
+        raise HookHandshakeError("UNRECOGNIZED_RESULT", "host-denial envelope or operation does not match")
+    if match.group(1) != expected_nonce:
+        raise HookHandshakeError("STALE_CHALLENGE_REJECTED", "echoed operation nonce does not match this challenge")
+
+
+def _verify_copilot_host_denial(obj, expected_nonce, runtime):
+    """Bind Copilot's native completion to the exact canary dispatch, not prose."""
+    def require(condition, message):
+        if not condition:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", message)
+
+    require(set(obj) == {"schema", "runtime", "nonce", "executed", "raw_events"}
+            and runtime == obj.get("runtime") == "copilot-cli", "invalid Copilot host-denial envelope")
+    require(isinstance(expected_nonce, str) and re.fullmatch(r"[0-9a-f]{32}", expected_nonce) is not None,
+            "Copilot host-denial nonce must be 32 lowercase hex digits")
+    _check_nonce(obj, expected_nonce)
+    if _check_executed_field(obj):
+        raise HookHandshakeError("WRITE_EXECUTED", "recorded evidence shows the canary write EXECUTED")
+    events = obj["raw_events"]
+    require(isinstance(events, list) and len(events) == 2, "expected one native start/completion pair")
+    for event, kind in zip(events, ("tool.execution_start", "tool.execution_complete")):
+        require(isinstance(event, dict) and {"type", "id", "parentId", "timestamp", "data"} <= set(event)
+                and set(event) <= {"type", "id", "parentId", "timestamp", "data", "agentId"}
+                and event.get("type") == kind and isinstance(event.get("data"), dict),
+                "invalid native event envelope")
+        require(all(isinstance(event.get(key), str) and event[key] for key in ("id", "timestamp"))
+                and (event["parentId"] is None or isinstance(event["parentId"], str)),
+                "invalid native event identity")
+    start, complete = [event["data"] for event in events]
+    require({"toolCallId", "toolName", "arguments", "model"} <= set(start)
+            and set(start) <= {"toolCallId", "toolName", "arguments", "model", "turnId", "toolTitle", "parentToolCallId"},
+            "invalid native tool start")
+    require({"toolCallId", "success", "error", "model"} <= set(complete)
+            and set(complete) <= {"toolCallId", "success", "error", "model", "turnId", "interactionId", "rte", "toolTelemetry", "parentToolCallId"},
+            "invalid native tool completion")
+    require(events[0]["id"] != events[1]["id"] and all(
+        isinstance(start[key], str) and start[key] and start[key] == complete[key]
+        for key in ("toolCallId", "model")), "native events are not the same tool call and model")
+    require(start.get("turnId") == complete.get("turnId"), "native events belong to different turns")
+    for first, second, key in ((events[0], events[1], "agentId"), (start, complete, "parentToolCallId")):
+        if key in first or key in second:
+            require(isinstance(first.get(key), str) and first[key] and first.get(key) == second.get(key),
+                    "native subagent identities differ")
+    arguments = start["arguments"]
+    if start["toolName"] == "apply_patch":
+        patch = _codex_canary_patch(expected_nonce)
+        require(isinstance(arguments, str) and arguments in (patch, patch + "\n"),
+                "native patch is not the exact nonce-bound canary creation")
+    elif start["toolName"] == "create":
+        require(isinstance(arguments, dict) and set(arguments) == {"path", "file_text"}
+                and arguments["path"] in (CANARY_TARGET, os.path.abspath(CANARY_TARGET))
+                and arguments["file_text"] == "sdd-hook-challenge:" + expected_nonce,
+                "native create is not the exact nonce-bound canary creation")
+    else:
+        require(False, "unrecognized native canary tool")
+    # A malformed-payload refusal proves that a hook ran, but not that a valid
+    # canary was evaluated. Require the guard's protected-path decision exactly.
+    guard_reason = HOST_DENIAL_PREFIX[len("Command blocked by PreToolUse hook: "):-len(". Command: ")]
+    require(complete["success"] is False and complete["error"] == {
+        "code": "denied", "message": "Denied by preToolUse hook: " + guard_reason,
+    }, "native completion is not the protected-canary hook denial")
+    return start["model"]
 
 
 RUNTIME_VERIFIERS = {
@@ -364,20 +496,29 @@ def run_verify_response(nonce, recorded_result_path, runtime):
     """Raises HookHandshakeError for every non-HOOK_ACTIVE outcome; returns
     normally (no return value) ONLY when HOOK_ACTIVE is proven."""
     obj = _load_json_object(recorded_result_path, "NO_RECORDED_RESULT", "RECORDED_RESULT_UNREADABLE")
+    if "schema" in obj:
+        if obj["schema"] == COPILOT_HOST_DENIAL_SCHEMA:
+            return _verify_copilot_host_denial(obj, nonce, runtime)
+        if obj["schema"] != HOST_DENIAL_SCHEMA:
+            raise HookHandshakeError("UNRECOGNIZED_RESULT", "unknown recorded-result schema")
+        _verify_codex_host_denial(obj, nonce, runtime)
+        return
     _check_nonce(obj, nonce)
     RUNTIME_VERIFIERS[runtime](obj)
 
 
-def _print_verify_result(status, runtime, nonce, reason=None):
+def _print_verify_result(status, runtime, nonce, reason=None, actual_model=None):
     doc = {"schema": VERIFY_RESULT_SCHEMA, "status": status, "runtime": runtime, "nonce": nonce}
     if reason is not None:
         doc["reason"] = reason
+    if actual_model is not None:
+        doc["actual_model"] = actual_model
     print(json.dumps(doc, indent=2, sort_keys=True))
 
 
 def do_verify_response(nonce, recorded_result_path, runtime):
     try:
-        run_verify_response(nonce, recorded_result_path, runtime)
+        actual_model = run_verify_response(nonce, recorded_result_path, runtime)
     except HookHandshakeError as exc:
         _print_verify_result("CAPABILITY_RUNTIME_UNAVAILABLE", runtime, nonce, reason=exc.category)
         print(
@@ -386,7 +527,7 @@ def do_verify_response(nonce, recorded_result_path, runtime):
             file=sys.stderr,
         )
         return CATEGORY_EXIT_CODES.get(exc.category, 1)
-    _print_verify_result("HOOK_ACTIVE", runtime, nonce)
+    _print_verify_result("HOOK_ACTIVE", runtime, nonce, actual_model=actual_model)
     return 0
 
 

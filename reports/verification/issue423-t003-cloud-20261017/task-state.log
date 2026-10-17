@@ -1,0 +1,2 @@
+Task state check FAILED:
+ - T-002 is Blocked but ### Blockers section has no content (not None or empty)

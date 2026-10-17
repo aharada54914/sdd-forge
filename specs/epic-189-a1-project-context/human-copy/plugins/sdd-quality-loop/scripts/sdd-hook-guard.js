@@ -129,7 +129,6 @@ const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
 const SUDO_ISSUED_RE = /(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)/;
-const SHELL_AGENT_ROLE_READ_ONLY_RE = /^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex\/agents(?:\/|\b)/is;
 const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec']);
 const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
 
@@ -1212,33 +1211,90 @@ function patchWritesInvalidAgentRole(patch) {
   return false;
 }
 
-function roleProxyRgReadOnly(cmd) {
-  if (!/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+/.test(cmd)) return false;
-  if (/[$`<>&\\\r\n]/.test(cmd)) return false;
+function shellReadSegments(cmd) {
+  // Keep quote-aware expansion flags alongside the shared tokenizer's segments.
+  if (typeof cmd !== 'string') return null;
+  let quote = null;
+  const globs = [false];
+  const expansions = [false];
+  let readSafe = true;
+  for (let index = 0; index < cmd.length; index++) {
+    const ch = cmd[index];
+    if (quote === "'") {
+      if (ch === "'") quote = null;
+      continue;
+    }
+    if ('$`'.includes(ch) || (quote === null && '<>(){}'.includes(ch))) readSafe = false;
+    if ('$`'.includes(ch) || (quote === null && '(){}'.includes(ch))) expansions[expansions.length - 1] = true;
+    if (quote === null) {
+      if ('*?['.includes(ch)) globs[globs.length - 1] = true;
+      else if ('\n\r;|&'.includes(ch) && (ch !== '&' || (cmd[index - 1] !== '>' && cmd[index + 1] !== '>'))) {
+        globs.push(false);
+        expansions.push(false);
+      }
+    }
+    if (ch === '"') quote = quote === '"' ? null : '"';
+    else if (ch === "'" && quote === null) quote = "'";
+  }
   const tokens = tokenizeShellCommand(cmd);
-  if (!tokens || tokens.some(([kind]) => kind !== 'word')) return false;
-  const words = tokens.map(([, value]) => value);
-  if (words.length < 7 || words[0] !== 'rtk' || words[1] !== 'proxy' || words[2] !== 'rg') return false;
-  const firstFlags = words[3] === '--no-config' && words[4] === '-n';
-  const secondFlags = words[3] === '-n' && words[4] === '--no-config';
-  if (!firstFlags && !secondFlags) return false;
-  const pattern = words[5];
-  // Special regexp syntax requires one literal single-quoted word: the
-  // shared tokenizer deliberately does not preserve quote provenance.
-  const quoted = cmd.match(/^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+/);
-  const plainPattern = /^[A-Za-z0-9_./:|+-]+$/.test(pattern);
-  const quotedPattern = quoted && quoted[1] === pattern && /^[A-Za-z0-9_./:|+^# ()-]+$/.test(pattern);
-  if (pattern.startsWith('-') || !(plainPattern || quotedPattern)) return false;
-  const paths = words.slice(6);
-  if (!paths.every(p => !p.startsWith('-') && /^[A-Za-z0-9_./-]+$/.test(p))) return false;
-  return paths.some(p => /(?:^|\/)\.codex\/agents\/[^/]+\.toml$/i.test(p));
+  // Unsupported escapes can change quote boundaries; do not trust their flags.
+  if (!tokens || !tokens.length) return { segments: [], readSafe: false, ambiguous: false, unknownGlob: /[*?\[]/.test(cmd) };
+  const segments = [[]];
+  for (const [kind, word] of tokens) {
+    if (kind === 'sep') segments.push([]);
+    else segments[segments.length - 1].push(word);
+  }
+  return { segments: segments.map((words, index) => [words, globs[index], expansions[index]]), readSafe,
+    ambiguous: segments.length !== globs.length,
+    unknownGlob: segments.length !== globs.length && globs.some(Boolean) };
+}
+
+function readerGlobCanAddOptions(words, hasGlob, expands) {
+  if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
+  if (!words.length || !hasGlob) return false;
+  if (['rg', 'sed'].includes(words[0].toLowerCase()) && expands) return true;
+  if (words[0].toLowerCase() === 'rg') return !(words[1] === '--' || (words[1] === '--no-config' && words[2] === '--'));
+  if (words[0].toLowerCase() === 'sed') return !(words[1] === '-n' && words[3] === '--' && /^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]));
+  return false;
+}
+
+function shellHasGlobbedReaderOptions(cmd) {
+  const parsed = shellReadSegments(cmd);
+  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => readerGlobCanAddOptions(words, glob, expands)));
+}
+
+function shellIsReadOnly(cmd) {
+  // Quoted patterns are data; expansions are not the final argv.
+  const parsed = shellReadSegments(cmd);
+  if (parsed === null || !parsed.readSafe || parsed.ambiguous || parsed.unknownGlob) return false;
+  const readers = new Set([
+    'cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
+    'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object',
+  ]);
+  for (let [words, hasGlob, expands] of parsed.segments) {
+    if (readerGlobCanAddOptions(words, hasGlob, expands)) return false;
+    if (!words.length) continue;
+    if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
+    if (!words.length) return false;
+    const verb = words[0].toLowerCase();
+    if (verb === 'sed') {
+      // sed can write or execute; admit only its print-range form.
+      if (words.length < 3 || words[1] !== '-n' || !/^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]) || (words[3] !== '--' && words.slice(3).some(word => word.startsWith('-')))) return false;
+    } else if (!readers.has(verb)) return false;
+    if (verb === 'rg') {
+      const optionsClosed = words[1] === '--' || (words[1] === '--no-config' && words[2] === '--');
+      if (!optionsClosed && words.slice(1).some(word => ['--pre', '--hostname-bin'].includes(word.split('=')[0]))) return false;
+      if (process.env.RIPGREP_CONFIG_PATH && words[1] !== '--no-config') return false;
+    }
+  }
+  return true;
 }
 
 function shellWritesInvalidAgentRole(cmd) {
   if (typeof cmd !== 'string') return false;
   const normalizedCmd = cmd.replace(/\\/g, '/');
   if (!/\.codex\/agents(?:\/|\b)/i.test(normalizedCmd)) return false;
-  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd) && !roleProxyRgReadOnly(cmd);
+  return !shellIsReadOnly(cmd);
 }
 
 function targetPathIsSddSudo(filePath) {
@@ -1744,6 +1800,22 @@ function implReviewStatusPassedIncreases(payload) {
   const toolName = String(payload.tool_name || '').toLowerCase();
   const filePath = toolInput.file_path || '';
 
+  if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
+    const sections = [];
+    let current = null;
+    for (const line of (toolInput.command || '').split(/\r?\n/)) {
+      const header = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+      if (header) {
+        current = { path: header[2].trim(), content: [] };
+        sections.push(current);
+      } else if (current && (line.startsWith('+') || line.startsWith(' '))) {
+        current.content.push(line.slice(1));
+      }
+    }
+    return sections.some(section => implReviewStatusPassedIncreases({
+      tool_name: 'write', tool_input: { file_path: section.path, content: section.content.join('\n') },
+    }));
+  }
   if (!TARGETED_FILE_TOOLS.has(toolName)) return false;
   if (!isDesignMd(filePath)) return false;
 
@@ -1835,6 +1907,85 @@ async function main() {
     return;
   }
 
+  // Native lower-case Copilot preToolUse is one camelCase call, not toolCalls[].
+  if (mode === 'copilot' && Object.prototype.hasOwnProperty.call(payload, 'toolCalls')) {
+    emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
+    return;
+  }
+  if (mode === 'copilot' && (Object.prototype.hasOwnProperty.call(payload, 'toolName') || Object.prototype.hasOwnProperty.call(payload, 'toolArgs'))) {
+    try {
+      const required = ['sessionId', 'timestamp', 'cwd', 'toolName', 'toolArgs'];
+      const forbidden = ['tool_name', 'tool_input', 'hook_event_name', 'session_id'];
+      if (required.some(k => !Object.prototype.hasOwnProperty.call(payload, k)) ||
+          forbidden.some(k => Object.prototype.hasOwnProperty.call(payload, k)) ||
+          typeof payload.sessionId !== 'string' || typeof payload.cwd !== 'string' ||
+          typeof payload.timestamp !== 'number' || !Number.isFinite(payload.timestamp)) {
+        throw new Error('invalid Copilot envelope');
+      }
+      const name = payload.toolName;
+      let args = payload.toolArgs;
+      // Native apply_patch is a raw patch string; normalize it before the shared guards.
+      if (name === 'apply_patch') {
+        if (typeof args !== 'string') throw new Error('invalid patch arguments');
+        const lines = args.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n');
+        if (lines.length < 3 || lines[0] !== '*** Begin Patch' || lines[lines.length - 1] !== '*** End Patch' ||
+            !/^\*\*\* (Add|Update|Delete) File: \S.*$/.test(lines[1]) ||
+            lines.slice(1, -1).some(line => ['*** Begin Patch', '*** End Patch'].includes(line))) {
+          throw new Error('invalid patch envelope');
+        }
+        payload = { tool_name: 'apply_patch', tool_input: { command: args } };
+      } else {
+        if (typeof args === 'string') args = JSON.parse(args);
+        if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args)) {
+          throw new Error('invalid Copilot call');
+        }
+        if (['view', 'create'].includes(name) && (typeof args.path !== 'string' || !args.path.trim())) {
+          throw new Error('invalid Copilot path');
+        }
+        if (name === 'bash') {
+          if (Object.keys(args).some(k => !['command', 'description'].includes(k)) ||
+              typeof args.command !== 'string' || !args.command.trim() ||
+              (Object.prototype.hasOwnProperty.call(args, 'description') && typeof args.description !== 'string')) {
+            throw new Error('invalid bash arguments');
+          }
+          payload = { tool_name: 'bash', tool_input: { command: args.command } };
+        } else if (name === 'glob') {
+          if (Object.keys(args).some(k => !['pattern', 'path'].includes(k)) ||
+              typeof args.pattern !== 'string' || !args.pattern.trim() ||
+              (Object.prototype.hasOwnProperty.call(args, 'path') && (typeof args.path !== 'string' || !args.path.trim()))) {
+            throw new Error('invalid glob arguments');
+          }
+          payload = { tool_name: 'glob', tool_input: args };
+        } else if (name === 'task') {
+          const keys = ['description', 'agent_type', 'name', 'mode', 'prompt'];
+          if (Object.keys(args).length !== keys.length || keys.some(k => typeof args[k] !== 'string' || !args[k].trim())) {
+            throw new Error('invalid task arguments');
+          }
+          payload = { tool_name: 'task', tool_input: args };
+        } else if (name === 'view') {
+          if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
+              (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
+               (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
+                args.view_range.some(n => !Number.isInteger(n))))) {
+            throw new Error('invalid view arguments');
+          }
+          payload = { tool_name: 'read', tool_input: { file_path: args.path } };
+        } else if (name === 'create') {
+          if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
+              typeof args.file_text !== 'string') {
+            throw new Error('invalid create arguments');
+          }
+          payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
+        } else {
+          throw new Error('unsupported Copilot tool');
+        }
+      }
+    } catch (_) {
+      emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
+  }
+
   try {
     if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
       emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
@@ -1849,6 +2000,17 @@ async function main() {
     const toolName = String(payload.tool_name || '').toLowerCase();
     const toolInput = payload.tool_input || {};
     const filePath = (toolInput.file_path || '').toLowerCase();
+    // Reject unknown argv before legacy write scanners can miss glob-added options.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command)) {
+      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).', mode);
+      return;
+    }
+    // Read-only inspection cannot change protected files or grant approvals.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellIsReadOnly(toolInput.command)) {
+      emitDecision('allow', null, mode);
+      return;
+    }
+
 
     // File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
     if (['edit', 'write', 'multiedit'].includes(toolName)) {
@@ -1869,7 +2031,7 @@ async function main() {
     // apply_patch: check for SDD_SUDO targets.
     if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
       const patch = toolInput.command || '';
-      const fileRegex = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      const fileRegex = /^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$/gm;
       let fileMatch;
       while ((fileMatch = fileRegex.exec(patch))) {
         if (targetPathIsSddSudo(fileMatch[2].trim())) {
@@ -1896,10 +2058,14 @@ async function main() {
 
     if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
       const patch = toolInput.command || '';
-      const fileRegex2 = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      const fileRegex2 = /^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$/gm;
       let fileMatch2;
       while ((fileMatch2 = fileRegex2.exec(patch))) {
-        if (isProtectedGateFile(fileMatch2[2].trim())) {
+        const target = fileMatch2[2].trim();
+        // A rename can import approval/role content without any added lines.
+        const guardedMove = fileMatch2[1] === 'Move to' &&
+          [isTasksMd, isWfiPath, isDomainContextMapPath, isAgentRolePath, isDesignMd].some(test => test(target));
+        if (isProtectedGateFile(target) || guardedMove) {
           emitDecision('deny', GATE_PROTECT_MSG, mode);
           return;
         }

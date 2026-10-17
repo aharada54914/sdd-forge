@@ -10724,6 +10724,69 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-attempt12r1-sonnet",
       "previous_record_sha256": "bff29ff1d41040ffc6de642aed6bbb1dcc071a25101bb27a7ef0a1b67522ac2f",
       "record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7"
+    },
+    {
+      "sequence": 1190,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+      "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+      "previous_record_sha256": "89811d1f62e6a18ab71cd050d445dc3af08d8306e9753f93b9c475d76f8795c7",
+      "record_sha256": "7cc39fd3922f3a476407b05ae3deeea3d94fa50a3cb11d3a3fb788167d2b606a"
+    },
+    {
+      "sequence": 1191,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+      "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-b-20260928-sol",
+      "previous_record_sha256": "7cc39fd3922f3a476407b05ae3deeea3d94fa50a3cb11d3a3fb788167d2b606a",
+      "record_sha256": "d8b1ef162f38018f043b522b9ef13996ffaabaaee96a09abf73a4d567d28b0ce"
+    },
+    {
+      "sequence": 1192,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "issue423-t004-amendment-task-a-df5e1e6bb9d34abc96fe16d91661289d",
+      "host_session_id": "issue423-t004-amendment-task-a-session-543cfa484f4940e2acaeb8215b8d5085",
+      "previous_record_sha256": "d8b1ef162f38018f043b522b9ef13996ffaabaaee96a09abf73a4d567d28b0ce",
+      "record_sha256": "a349d92bf3efb611a1a0aa22dfc230b9b3a537eca166671f4363c5f776560f75"
+    },
+    {
+      "sequence": 1193,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "issue423-t004-amendment-task-b-cbf1f1a05f78450f9ad298e486efa0db",
+      "host_session_id": "issue423-t004-amendment-task-b-session-bf3f1309be294741b5b1733183d20492",
+      "previous_record_sha256": "a349d92bf3efb611a1a0aa22dfc230b9b3a537eca166671f4363c5f776560f75",
+      "record_sha256": "649df4833f7d0b955fe63f37edf286f25aa18a055d6f12d3ea1ad3dbcd83090c"
+    },
+    {
+      "sequence": 1194,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "issue423-t004-amendment-task-b-corrected-a38817e4650f45e88af5700a1e9ba7b5",
+      "host_session_id": "issue423-t004-task-b-corrected-session-883572ccedee42da8594305e0ba1ef04",
+      "previous_record_sha256": "649df4833f7d0b955fe63f37edf286f25aa18a055d6f12d3ea1ad3dbcd83090c",
+      "record_sha256": "330b1f3c6e0a16bd648e2ef75eb4c7e9b64c43bcafe526e4bbe3531abb4826b6"
+    },
+    {
+      "sequence": 1195,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "issue423-t004-task-a5r1-a-eb97f1bce4ff4229a05ee196179a588e",
+      "host_session_id": "issue423-t004-task-a5r1-a-session-bc16da93c2e74208b5413c61aada363c",
+      "previous_record_sha256": "330b1f3c6e0a16bd648e2ef75eb4c7e9b64c43bcafe526e4bbe3531abb4826b6",
+      "record_sha256": "ac5cabc95a5e49ac743bc0db3370454d6ee8fde099803388afcdb9367e982458"
+    },
+    {
+      "sequence": 1196,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "issue423-t004-task-a5r1-b-ab6f510c72e2477b898a9436f82a6bfc",
+      "host_session_id": "issue423-t004-task-a5r1-b-session-2a7b3c190b8b44a9929e63c088d6fe92",
+      "previous_record_sha256": "ac5cabc95a5e49ac743bc0db3370454d6ee8fde099803388afcdb9367e982458",
+      "record_sha256": "e13e0951c8300afde9a7a088922811396abf12cf09e4a7ee0bec550570ca91d6"
     }
   ]
 }

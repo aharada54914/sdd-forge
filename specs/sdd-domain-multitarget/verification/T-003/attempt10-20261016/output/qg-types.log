@@ -1,0 +1,21 @@
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:19: error: Function is missing a type annotation  [no-untyped-def]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:21: error: Argument 1 to "module_from_spec" has incompatible type "ModuleSpec | None"; expected "ModuleSpec"  [arg-type]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:23: error: Item "None" of "ModuleSpec | None" has no attribute "loader"  [union-attr]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:23: error: Item "None" of "Loader | Any | None" has no attribute "exec_module"  [union-attr]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:27: error: Call to untyped function "load" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:28: error: Call to untyped function "load" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:29: error: Call to untyped function "load" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:30: error: Call to untyped function "load" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:33: error: Function is missing a type annotation  [no-untyped-def]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:43: error: Function is missing a type annotation  [no-untyped-def]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:45: error: Call to untyped function "schema" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:57: error: Function is missing a type annotation  [no-untyped-def]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:64: error: Call to untyped function "schema" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:154: error: Call to untyped function "validate_plan" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:159: error: Function is missing a return type annotation  [no-untyped-def]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:168: error: Call to untyped function "evaluate" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:170: error: Call to untyped function "validate_plan" in typed context  [no-untyped-call]
+plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py:182: error: Call to untyped function "main" in typed context  [no-untyped-call]
+Found 18 errors in 1 file (checked 1 source file)
+
+Exit code: 1

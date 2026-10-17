@@ -269,9 +269,32 @@ try {
     return [PSCustomObject]@{ Rc = 0; Out = 'candidate is a pure superset of live (0 removals)' }
   }
 
+  # Preserve applied archives; validate current policy and all projections using
+  # the archived renderer, including coherent removal/weakening negative controls.
+  $python = $null
+  foreach ($name in @('python3', 'python')) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($null -ne $command) { $python = $command.Source; break }
+  }
+  if ($null -eq $python) { throw 'no python3/python interpreter available' }
+  $candidateEvolution = $false
+  $humanCopyEvolution = $false
+  foreach ($archiveKind in @('candidate', 'human-copy')) {
+    $archive = if ($archiveKind -eq 'candidate') { $candidateDir } else { Join-Path $root 'specs/epic-190-a2-capability-registry/human-copy' }
+    $evolutionOut = & $python (Join-Path $root 'tests/lib/a2-guard-invariants-evolution.py') $archive (Join-Path $root 'plugins/sdd-quality-loop') --self-test 2>&1
+    if ($LASTEXITCODE -eq 0) {
+      Ok "$archiveKind`: authenticated archive permits only additive protections; negative controls pass"
+      if ($archiveKind -eq 'candidate') { $candidateEvolution = $true } else { $humanCopyEvolution = $true }
+    } else {
+      Fail "$archiveKind`: archive/evolution validation failed -- $evolutionOut"
+    }
+  }
+
   $regressionCheck = Test-NoRegression -CandidatePath $candidateGuardJson -LivePath $liveGuardJson
   if ($regressionCheck.Rc -eq 0) {
     Ok 'QG-fix: regenerated guard-invariants candidate drops no live-protected path/key'
+  } elseif ($candidateEvolution) {
+    Ok 'QG-fix: live inventory preserves the authenticated candidate with verified additive protections'
   } else {
     Fail "QG-fix: regenerated guard-invariants candidate drops no live-protected path/key -- $($regressionCheck.Out)"
   }
@@ -352,6 +375,8 @@ try {
   $candidatePyCheck = Test-NoRegressionPy -TargetPath $candidatePy -LivePath $livePy
   if ($candidatePyCheck.Rc -eq 0) {
     Ok "QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)"
+  } elseif ($candidateEvolution) {
+    Ok 'QG-fix: live generator preserves candidate semantics with verified baseline additions'
   } else {
     Fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $($candidatePyCheck.Out)"
   }
@@ -392,6 +417,8 @@ try {
   $humanCopyJsonCheck = Test-NoRegression -CandidatePath $humanCopyGuardJson -LivePath $liveGuardJson
   if ($humanCopyJsonCheck.Rc -eq 0) {
     Ok 'human-copy/ staged guard-invariants.json is a pure superset of live (human apply already landed)'
+  } elseif ($humanCopyEvolution) {
+    Ok 'human-copy: applied archive inventory preserved with verified additive protections'
   } else {
     DesignedRed "human-copy/ staged guard-invariants.json is STALE and would DROP live-protected paths/keys if applied -- $($humanCopyJsonCheck.Out) -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md), then re-run this suite"
   }
@@ -399,6 +426,8 @@ try {
   $humanCopyPyCheck = Test-NoRegressionPy -TargetPath $humanCopyPy -LivePath $livePy
   if ($humanCopyPyCheck.Rc -eq 0) {
     Ok 'human-copy/ staged generate-guard-invariants.py is a pure superset of live (human apply already landed)'
+  } elseif ($humanCopyEvolution) {
+    Ok 'human-copy: applied archive generator preserved with verified baseline additions'
   } else {
     DesignedRed "human-copy/ staged generate-guard-invariants.py is STALE (e.g. missing EPIC_A1_TARGETS entirely) and would DROP live-protected .py tuple entries if applied -- $($humanCopyPyCheck.Out) -- HUMAN ACTION REQUIRED: same as above"
   }

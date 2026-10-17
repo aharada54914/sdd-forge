@@ -1,0 +1,52 @@
+{
+  "record_kind": "publication-observation-not-quality-gate",
+  "base_commit": "1f1c908bcc7312e986642afb22670597395f32ad",
+  "published_test_commit": "9bd006a66ff59766b9a74329e1680af56ca90e9b",
+  "published_tree": "46c5842c6be64953a6cb2214fb5760fb0740edd6",
+  "local_tested_commits": [
+    "9f471cda",
+    "deddd08e"
+  ],
+  "local_and_published_tree_identical": true,
+  "git_push": {
+    "command": "git push origin HEAD:refs/heads/codex/issue423-boundary-checkpoint",
+    "exit_code": 128,
+    "reason": "HTTPS credential unavailable; no trust/permission/credential changes performed"
+  },
+  "connector_publication": {
+    "method": "create_tree, create_commit, update_ref",
+    "parent_commit": "1f1c908bcc7312e986642afb22670597395f32ad",
+    "expected_sha": "1f1c908bcc7312e986642afb22670597395f32ad",
+    "force": false,
+    "result": "success"
+  },
+  "fetch_and_tree_comparison": {
+    "result": "success",
+    "commands": [
+      "git fetch origin codex/issue423-boundary-checkpoint",
+      "git diff --exit-code HEAD origin/codex/issue423-boundary-checkpoint"
+    ]
+  },
+  "ci_observation": {
+    "scope": "PR-triggered first-page API results for published_test_commit only",
+    "workflow_runs": {
+      "workflow_runs": []
+    },
+    "combined_status": {
+      "statuses": [
+        {
+          "context": "CodeRabbit",
+          "state": "success",
+          "target_url": null
+        }
+      ]
+    },
+    "full_ci_proven": false
+  },
+  "independent_review": "BLOCKED: missing canonical report/admission/prerequisite evidence; not launched",
+  "formal_quality_gate": "BLOCKED: not entered",
+  "done": false,
+  "merge": false,
+  "local_checkpoint_branch": "codex/issue423-cloud-local-checkpoint-20261017",
+  "note": "This observation is committed later than published_test_commit and does not claim CI success for the later documentation commit."
+}

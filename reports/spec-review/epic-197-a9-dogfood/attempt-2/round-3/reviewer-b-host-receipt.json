@@ -1,0 +1,65 @@
+{
+  "host": "Codex app-server",
+  "rpc": "thread/read",
+  "rpc_id": 39,
+  "thread": {
+    "id": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+    "sessionId": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+    "ephemeral": true,
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "status": {
+      "type": "idle"
+    },
+    "createdAt": 1790355756
+  },
+  "model": "gpt-6-luna",
+  "requested_approval_policy": "never",
+  "requested_sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "config": {
+    "web_search": "disabled",
+    "features.apps": false,
+    "features.hooks": true,
+    "features.multi_agent": false,
+    "mcp_servers.playwright.enabled": false,
+    "mcp_servers.node_repl.enabled": false,
+    "mcp_servers.computer-use.enabled": false,
+    "mcp_servers.sdd-forge-mcp.enabled": false,
+    "mcp_servers.local-env-mcp.enabled": false,
+    "mcp_servers.ci-mcp.enabled": false,
+    "mcp_servers.pencil.enabled": false,
+    "plugins.codex-app-tools@openai-bundled.mcp_servers.codex_app.enabled": false,
+    "plugins.unified-computer-use@openai-bundled.mcp_servers.cua_repl.enabled": false,
+    "plugins.openai-developers@openai-curated.mcp_servers.openai-api-key-local-confirmation.enabled": false,
+    "plugins.creative-production@openai-curated-remote.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.creative-production@openai-curated.mcp_servers.creative_production_mcp.enabled": false,
+    "plugins.openai-developers@openai-curated-remote.mcp_servers.openai-api-key-local-confirmation.enabled": false
+  },
+  "verification": {
+    "mcpServerStatus": {
+      "threadId": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+      "all_disabled": true,
+      "tools_count": 0,
+      "nextCursor": null
+    },
+    "apps": {
+      "threadId": "01a0d983-a2a6-7f90-9d54-21e76f62c409",
+      "all_enabled_false": true,
+      "all_callable_false": true
+    },
+    "security_hooks": {
+      "kill_switch_enabled": true,
+      "sdd_hook_guard_enabled": true
+    }
+  },
+  "identity_mapping": {
+    "run_id": "thread.id",
+    "host_session_id": "thread.sessionId"
+  },
+  "review_execution_started": false,
+  "note": "Created by thread/start RPC 31. Its response was not retained due to output truncation; host identity and idle state were independently retrieved before any model turn. RPC 34 resume and RPC 35 includeTurns were unsupported for this ephemeral thread and ran no review. The first turn explicitly enforces read-only, network-disabled permissions."
+}

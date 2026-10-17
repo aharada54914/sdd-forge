@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e38a-eb21-7e52-a9ca-57b2f9e736fd",
+  "host_session_id": "01a0e38a-eb21-7e52-a9ca-57b2f9e736fd",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "sha256": "5081d009de89411d589050ffcea9f00e1faaf41ede9d96902ebc452c583147d7"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "sha256": "04c339c4badfa612d2a7f5f24f36a348cf9c005fb6ed0dd943af25e9c1f3e4f6"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "4d64083d8cc6beccc8d70254f1268a693b737c3b3cffbf7a58830f6b318eb249"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "2831367b47f43d33a6dceb582f114ee2cc60e0da2aa20c7870e377289f68029e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-003（requirements.md:30）と AC-003（:40）は厳密な閉じた recovery-record 契約を要求するが、acceptance-tests.md:123-143 はフィールド名と変異だけを列挙し、正しい schema 値、全フィールドの型・許容値を定義していない。さらに :163 の認可の「八つの必須 binding」は列挙されていない。実装者と検証者が有効なレコードを異なる基準で判定できる。受理する入力の意味は Phase 1 の仕様事項であり、下流不一致を生むため Major。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "AC-004（requirements.md:41）は拒否時の target ファイル作成を禁止し、Main Workflows（:52）は失敗時に target evidence がないことを要求する。acceptance-tests.md:3 も全 negative row に no target output を課す。一方 TEST-095（:101）は writer failure 後の partial target を残し、再実行がそれを拒否する挙動を要求する。書き込み失敗時に削除するか残すかを実装者が決められず、両方の受入条件を同時に満たせない。これは実装方式ではなく失敗時の成果物保持という仕様上の直接矛盾であり、Critical。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:7-113 は起動オプション、source/target 境界、非 Pending、前段契約の不整合、B の存在、入力・識別情報の改変、symlink、競合、書き込み失敗、互換性と runtime 不在を対象とする。:123-163 はフィールド・参照スロット別の negative ケースを展開している。判定契約と失敗時 oracle の欠陥は別チェックで報告したが、主要な失敗経路自体は計画されている。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:64 は未解決の product choice がないとし、AUTH-001 を実行時の artifact 添付だけで解決する扱いにしている。しかし :68 は未知の認可 provenance を拒否し、TEST-042（acceptance-tests.md:48）は trusted human apply/capture による origin 確立を要求する一方、何を trusted とするかは定義されていない。artifact を添付しても信頼判定は解決せず、下流が認可ポリシーを創作する必要がある。設計前に解決または明示的な決定事項とすべき Phase 1 の前提であり、Major。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "REQ-003（requirements.md:30）、AUTH-001（:64）、Risks（:68）は人間による真正な明示認可を recovery の必須境界とする。TEST-041/042（acceptance-tests.md:47-48）は偽署名扱いと未確立の human origin を拒否するが、受理可能な human apply/capture 証拠、その信頼元、検証可能な認可形式が定義されていない。ハッシュだけでは人間の著作者性を証明しないと仕様自身が認めており、検証者は真正な認可と自己申告を区別する合否基準を持てない。これは必須の人間承認境界をテスト可能にする Phase 1 の責務であり、未定義のままでは未認可 recovery を許し得るため Critical。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-003/AC-003（requirements.md:30,40）の有効入力契約、AUTH-001（:64）の真正認可の判定条件、AC-004（:41）と TEST-095（acceptance-tests.md:101）の失敗後の保持方針が確定していない。implementation-policy reviewer は実装方式を選ぶ前に、受理する認可・レコードと失敗時の外部状態を決める必要がある。欠けているのは設計詳細ではなく product behavior と承認ポリシーであり、Phase 1 からの引き渡しを阻害するため Major。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認により、プロジェクト root の domain/ ディレクトリは存在しない。適用条件を満たさないため SKIP。"
+    }
+  ]
+}

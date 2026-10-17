@@ -1,5 +1,10 @@
 # T-004 Independent Implementation Review
 
+> Evidence correction (2026-09-27, RT-20260814-001): the historical
+> sole-survivor `115/1` malformed RED claim below is superseded by
+> `red-accounting-correction-20260927.md`. This notice preserves, and does
+> not renew or rewrite, the original verdict.
+
 Date: 2026-08-12; remediation re-review 2026-08-14
 
 Role: independent reviewer

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+  "host_session_id": "01a0dbdd-031a-7560-8eaa-91bad66ec569",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-197-a9-dogfood/attempt-3/round-2/precheck-result.json",
+      "sha256": "8f98cebafedbf0a41edfd4ff180194a1ecae5fe1da388d5df8047c2defe850cb"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/acceptance-tests.md",
+      "sha256": "d47c9b43868d6fb4fdeaa98c4b4f7a47a3f9016d07137666aef85a043d5abe75"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/investigation.md",
+      "sha256": "404ed29d497d948e27bad442eafd0d49c7eeff3896ad79f4272b46dceec73d3b"
+    },
+    {
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "sha256": "3f758fb594c2ef8fdab8b5d056e73f7234457d46c9568c9fb3c21b9485be0e26"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-014 have observable criteria in AC-001–AC-035, including separate negative fixtures for promotion, rollback, ownership, and approval boundaries."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each numbered requirement maps to at least one acceptance criterion; REQ-006, REQ-007/008, REQ-009, and REQ-010 also have additional operational or security criteria."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify checkable tuples, outputs, records, rejection conditions, and state transitions."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals exclude later Packs, replacement of existing mechanisms, new UI/cloud/CI workflows, and approval by the agent; REQ-005 also bounds the Pack contract."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions requires re-reading the mutable Capability Registry at specification review and recording its current IDs before relying on the OQ-006 inventory claim. The Registry is absent from the allowed-input manifest, so this review cannot perform the required reconciliation. The current inventory and any necessary reconciliation therefore remain unresolved."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk promotion, rollback, publication, and ownership claims have explicit negative acceptance coverage, including AC-013, AC-015–018, AC-032–035."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no root domain/ directory exists."
+    }
+  ]
+}

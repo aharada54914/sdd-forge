@@ -1,0 +1,155 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "sdd423-t002-20260928-b2e4033f",
+  "session_id": "b2e4033f-ccc9-41b5-9048-9ce1f5d43685",
+  "agent_instance_id": "claude-native-b2e4033f",
+  "model_tier": "standard",
+  "provider": "anthropic",
+  "model": "sonnet",
+  "estimated_cost_per_attempt_usd": "0.8058488",
+  "cost_estimate_source": "Forecast of 4 calls at observed READY probe list-equivalent USD 0.2014622 per call, claude-sonnet-5 session 9bf5c0b7-a35b-4fd6-9b93-6847f75e97b8. Forecast only; not measured task usage or a Pro subscription charge.",
+  "cost_estimate_timestamp": "2026-09-28T00:45:43Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8da12bb2769988d0f5313a74acfffda9a1638ef61a6a8090e7524533ddeb1b73"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "97d88bc6920ba5258317efad9141e65f6e9ce87c7592c034b0a424974547a34c"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "fdc5bda8b7865ad30d5c71a81a01bfc92ba67874d4d23543097f1f3275ea38e7"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "f869e1c0a1025ed9b4e779673ad88ddde31b6db0891fddcbb9d9a1130e64b7fc"
+    },
+    {
+      "path": "mcp/ci-mcp/src/server.ts",
+      "sha256": "ba5824252063b78cc078219852b74cd3c661bf12e12af79701227c2874c4fed5"
+    },
+    {
+      "path": "mcp/ci-mcp/src/github-client.ts",
+      "sha256": "2158b448b1a6b6181dc48b6b069aff428b71c224bbeda4179c189e1608604a5e"
+    },
+    {
+      "path": "docs/adr/0016-workflow-axes-separation.md",
+      "sha256": "c72452308fc5d40f422f748b729e86a1190e57fc06a178f2e807d8a17b4d144c"
+    },
+    {
+      "path": "docs/adr/0017-gate-stage-model.md",
+      "sha256": "8b6b337dfcaa18d6ffc25f04151bfb9e1aafaaf69dcbb21d9b5326baba2ad650"
+    },
+    {
+      "path": "docs/adr/0018-provider-binding-separation.md",
+      "sha256": "26b70c330c3d42146c31381a09beca3df8b3b92e374359a9d141bbc2e115d597"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "678f5169d8e173f1626f5c09a534d491603b987547dd2f0412c8896a190298cb"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/SKILL.md",
+      "sha256": "6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "contracts/project-context.schema.json",
+      "sha256": "8755a8ac8924ec2085c7fb47c677dc71c97b6643076bceaece0586bf8e19f7cb"
+    },
+    {
+      "path": "contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "contracts/capability-registry.schema.json",
+      "sha256": "3a2ddfa6ad3fde7cce3b6b23399ff5772311380d6d2fdde885df69889b8ccef7"
+    },
+    {
+      "path": "contracts/capability-registry.json",
+      "sha256": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "sha256": "b7311b30a9b4224a60a251facbcf0d4ca71db563df06f62a301a7e698b88cf13"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-registry.py",
+      "sha256": "6504e44ee537a1ff6e90796b58abe182d8bce44ca47ffa3fa903ef294592e015"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "385c849f6c0bc7f71fc2717e2c2bfb5ea9e3ff4a5fe7496d8889cc75f420ad4a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/provider-terms.json",
+      "sha256": "2355adabd24e3d01b18f3eb99e986073791fb3f85b4d9d27a91fd6a0f0a0ae7d"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/verification/T-001/consumer-inventory.json",
+      "sha256": "9f3b3e3c330d14d00546223cb371084f5bf98a0cebb3900b23f2fc38fcc3edc2"
+    },
+    {
+      "path": "reports/implementation/sdd-domain-multitarget/T-001.md",
+      "sha256": "c0c126c812a308baed537e9f734522d02642346e2e08f6a5adc456c6e11993d8"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py",
+    "specs/sdd-domain-multitarget/verification/T-002/contract-boundaries-evidence.json",
+    "reports/implementation/sdd-domain-multitarget/T-002.md"
+  ]
+}

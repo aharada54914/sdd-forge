@@ -14,7 +14,12 @@ $script:Passed = 0
 $script:Failed = 0
 
 function Pass([string]$Label) { Write-Output "PASS: $Label"; $script:Passed++ }
-function Fail([string]$Label) { Write-Error "FAIL: $Label" -ErrorAction Continue; $script:Failed++ }
+function Fail([string]$Label) {
+    Write-Error "FAIL: $Label" -ErrorAction Continue
+    $script:Failed++
+    # A mutation is killed only after its target assertion actually fails.
+    if ($env:STRUCTURAL_MUTATION_TARGET -and ("FAIL: $Label").StartsWith($env:STRUCTURAL_MUTATION_TARGET, [StringComparison]::Ordinal)) { exit 1 }
+}
 function Assert-True([string]$Label, [bool]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
 
 $Required = @(
@@ -123,7 +128,7 @@ function Invoke-Canon([string]$Path) {
         Invoke-Canon $Path
     }
     function Status-Fields([string]$Text) {
-        [regex]::Matches($Text, '(?m)^([A-Za-z][A-Za-z0-9 -]*(?:Status|Approval)):\s.*$', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -CaseSensitive -Unique
+        [regex]::Matches($Text, '(?m)^((?:[A-Za-z][A-Za-z0-9 -]*)?(?:Status|Approval)):\s.*$', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -CaseSensitive -Unique
     }
     function Validate-Track([string]$Track, $Entry) {
         $Expected = if ($Track -ceq 'full') { @(Get-FullPaths) } else { @(Get-LitePaths) }
@@ -137,7 +142,10 @@ function Invoke-Canon([string]$Path) {
             $TemplateText = Get-Content -LiteralPath $Template -Raw
             $Artifact = $Entry.artifacts | Where-Object { $_.path -ceq $Path }
             if ($null -eq $Artifact) { Fail "$Track corpus contains $Path"; continue }
-            $ExpectedAst = Invoke-Canon $Template
+            # Trusted F2 inputs are fixed before collection; never infer from actual.
+            $ExpectedAst = if ($Track -ceq 'lite') {
+                Invoke-CanonText ($TemplateText.Replace('<feature>', 'team-coffee-orders').Replace('<タスク名>', '注文登録を実装する')) 'f2-expected.md'
+            } else { Invoke-Canon $Template }
             $ActualAst = Invoke-CanonText $Artifact.content ("corpus-" + $Path.Replace('/', '_'))
             if ($ExpectedAst.ExitCode -ne 0 -or $ActualAst.ExitCode -ne 0) {
                 Fail "$Track $Path canonicalizes without parse fallback"
@@ -166,6 +174,17 @@ function Invoke-Canon([string]$Path) {
 
     $BadFront = Invoke-CanonText "---`ntitle: broken`n" 'bad-frontmatter.md'
     Assert-True 'malformed frontmatter is a hard failure with its process exit captured' ($BadFront.ExitCode -eq 2 -and $BadFront.Error.Contains('markdown AST parse failure:'))
+    foreach ($ParserCase in (Get-Content -Raw -LiteralPath (Join-Path $RepoRoot 'tests/fixtures/structural-frontmatter-cases.json') | ConvertFrom-Json)) {
+        $Result = Invoke-CanonText $ParserCase.content 'parser-case.md'
+        if ($ParserCase.valid) {
+            Assert-True "frontmatter accepts $($ParserCase.name)" ($Result.ExitCode -eq 0)
+            $Actual = @((ConvertFrom-Json $Result.Text).frontmatter) | ConvertTo-Json -Depth 20 -Compress
+            $Expected = @($ParserCase.frontmatter) | ConvertTo-Json -Depth 20 -Compress
+            Assert-True "frontmatter parses $($ParserCase.name) into semantic values" ($Actual -ceq $Expected)
+        } else {
+            Assert-True "frontmatter rejects $($ParserCase.name) without partial output" ($Result.ExitCode -eq 2 -and $Result.Text.Length -eq 0)
+        }
+    }
     $BadHeading = Invoke-CanonText '####### Broken heading grammar' 'bad-heading.md'
     Assert-True 'unrecognized heading grammar is a hard failure with its process exit captured' ($BadHeading.ExitCode -eq 2 -and $BadHeading.Error.Contains('markdown AST parse failure:'))
 
@@ -192,15 +211,16 @@ function Invoke-Canon([string]$Path) {
 
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]
-        if ($Fixture -ceq 'F4') {
+        if ($Fixture -ceq 'F4' -or $Fixture -ceq 'F3') {
+            $ActivationAc = if ($Fixture -ceq 'F4') { 'AC-007' } else { 'AC-042' }
             $AuditHost = (Get-Process -Id $PID).Path
-            & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') condition (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') AC-007 $EvidenceRepo origin/main
+            & $AuditHost -NoProfile -File (Join-Path $RepoRoot 'tests/lib/skip-allowlist-evaluator.ps1') condition (Join-Path $RepoRoot 'tests/fixtures/skip-allowlist-manifest.json') $ActivationAc $EvidenceRepo origin/main
             if ($LASTEXITCODE -eq 0) {
-                Write-Output 'AC-007 active: checking recorded F4 full-track artifacts'
-                Validate-Track 'full' $F4
+                Write-Output "$ActivationAc active: checking recorded $Fixture full-track artifacts"
+                Validate-Track 'full' $Entry
                 continue
             }
-            if ($LASTEXITCODE -ne 1) { Fail 'F4 activation evidence is unavailable or invalid'; continue }
+            if ($LASTEXITCODE -ne 1) { Fail "$Fixture activation evidence is unavailable or invalid"; continue }
         }
         $Row = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains("($Fixture", [StringComparison]::Ordinal) }
         $Ac = (($Row -csplit '\|')[1]).Trim()

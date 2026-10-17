@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e3b1-4d44-7de0-8d73-37e722e57d6e",
+  "host_session_id": "01a0e3b1-4d44-7de0-8d73-37e722e57d6e",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "sha256": "322f03a7ee8fcac644ecebfe1fd650263efae5bcec99c1d897c4ba62da89dc30"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "sha256": "a1181941c9cb7471a73d0134ac04167a4d60ebe1103b4b290c4ba5b4edcf3c18"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "fbaba19584e3301dcc5de0465353c9b2c96cbf5032f2c277e718b865ff71c141"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "bugfix",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:6-26 に人間、ローカル orchestrator、検証、既存ロック、出力の境界と連携、Bash/PowerShell・既存 runtime/stdlib の技術選択を定義。frontend-spec.md:3-13 と infra-spec.md:3-5 が frontend・HTTP・新規サービスを不要と明示し、各層の範囲が整合している。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:10-26,70-77 の依存は承認・既存証拠→検証→ロックと再検証→新規出力→後続レビュー。既存 contract validator と identity verifier は検証側で再利用され、明示された依存に循環はない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:52-68 に Data Entities、Existing Data Affected、Migration Strategy を明示。閉じた recovery record、別の承認 artifact、追加 provenance の形と互換性、既存証拠の不変性を定義。requirements.md:75-115 と infra-spec.md:19-21 に整合し、移行・backfill・削除を必要としない理由もある。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/requirements.md:28-32 と design.md:62-77 が新規 CLI recovery 入力、閉じた request record、拒否条件、新規 Pending precheck・blank report と provenance 出力を規定。frontend-spec.md:11-13 は HTTP API 変更なしを明示。通常 reset と既存 PASS semantics の維持は requirements.md:32,42 と design.md:58-60,87 に記載されている。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:64-76,89-95 と security-spec.md:5-35 が caller→validator、repository evidence→writer の信頼境界、承認の出所確認と hash 検証の分担、default deny、内部 provenance の分類、アクセス制御・injection・symlink・race・replay 対策を規定。AUTH-001 未解決時は実 recovery を禁止し、hash を人間の署名と扱わない。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type は bugfix。specs/a9-interrupted-review-recovery/frontend-spec.md:3-13 と ux-spec.md:3-9 が frontend、client state、HTTP API、UI を対象外と明示しており、比較対象となる frontend/backend surface が存在しない。reviewer-calibration.md:90-100 の scoped surface 不在条件を適用。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:79-87 が pure validator の unit scope と mock 方針、実 contract/identity/lock/writer を組み合わせる integration scope、AC-001–005 の acceptance scope、具体的 regression suite 名を定義。acceptance-tests.md:3-174 に各拒否分岐、publication failure、互換性、両 runtime の具体的 oracle がある。PowerShell 不在や新規到達 SKIP は未検証として報告する計画であり、本判定は実行結果を証明しない。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:8-26 に recovery validator、precheck twins、own-stage contract validator、persisted identity verifier と destination writer の責務・既存連携を定義。人間と orchestrator の責務は design.md:68,72-77 と security-spec.md:19-27 に明示。外部 data contract に依存せず design.md:62-68 内で必要な契約内容を評価できる。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/a9-interrupted-review-recovery/design.md:8,48-50 は既存 topology・identity algorithm の維持と新規 ADR 不要の理由を明示。新規 technology、deployment unit、architectural departure は提案されていない。precheck-result.json の adr_inputs=[] と design の ADR 宣言集合が一致し、ADR directory にはアクセスしていない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: specs/a9-interrupted-review-recovery/design.md:37-39 が正確に N/A — ds_profile: none を記録。ux-spec.md:19-23 も design-system integration なしと整合している。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: 許可された repository root の domain/ 存在確認で directory 不在を確認。domain model・contract・aggregate の読取りは行っていない。"
+    }
+  ]
+}

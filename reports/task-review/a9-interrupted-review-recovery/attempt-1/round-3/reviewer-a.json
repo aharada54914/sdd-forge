@@ -1,0 +1,44 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "a9-interrupted-review-recovery",
+  "attempt": 1,
+  "round": 3,
+  "run_id": "9A109154-2AC1-4B40-B5D4-FB455CF9E980",
+  "host_session_id": "3F96BA72-AB98-4E28-8ECB-2E779B4592FA",
+  "manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/dependency-graph.json","sha256":"11fca48f993705d97b9defe2b7606e4a8302f3145db5ba53b3cd923e0da23d7b"},
+    {"path":"reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/precheck-result.json","sha256":"ed07ff785fadb4a605bcad2d9a880fbfe1e2e5e5fec32cb79a49511542821e70"},
+    {"path":"specs/a9-interrupted-review-recovery/acceptance-tests.md","sha256":"f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"},
+    {"path":"specs/a9-interrupted-review-recovery/design.md","sha256":"3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"},
+    {"path":"specs/a9-interrupted-review-recovery/frontend-spec.md","sha256":"d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"},
+    {"path":"specs/a9-interrupted-review-recovery/infra-spec.md","sha256":"142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"},
+    {"path":"specs/a9-interrupted-review-recovery/requirements.md","sha256":"78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"},
+    {"path":"specs/a9-interrupted-review-recovery/security-spec.md","sha256":"aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"},
+    {"path":"specs/a9-interrupted-review-recovery/tasks.md","sha256":"240b55e8f9ba9068c67deccf772ef24b90a749e3ed084ea0b4c436b0a3f7c8d2"},
+    {"path":"specs/a9-interrupted-review-recovery/traceability.md","sha256":"de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"},
+    {"path":"specs/a9-interrupted-review-recovery/ux-spec.md","sha256":"5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","status":"PASS","severity":"Critical","finding":"tasks.md の AC-001〜AC-005 は acceptance-tests.md に存在する。"},
+    {"id":"BLOCKERS-FORMAT","status":"PASS","severity":"Major","finding":"T-001 は None、T-002 と T-003 は有効なタスク ID の列挙。blockers_format_valid=true。"},
+    {"id":"REQ-COVERAGE","status":"PASS","severity":"Critical","finding":"REQ-001〜REQ-005 は T-001〜T-003 の Requirements に割り当て済み。"},
+    {"id":"AC-COVERAGE","status":"PASS","severity":"Critical","finding":"AC-001〜AC-005 は T-001〜T-003 の Acceptance Criteria に割り当て済み。"},
+    {"id":"ORPHAN-TASK","status":"PASS","severity":"Major","finding":"全3タスクが REQ ID を参照する。"},
+    {"id":"ORPHAN-TEST","status":"PASS","severity":"Major","finding":"独立したテスト専用タスクはない。各タスクのテスト作業には AC ID がある。"},
+    {"id":"INITIAL-STATE","status":"PASS","severity":"Major","finding":"全3タスクが Approval: Draft、Status: Planned。"},
+    {"id":"RISK-WORKFLOW-FORMAT","status":"PASS","severity":"Critical","finding":"全3タスクが Risk: high と Required Workflow: tdd の組合せ。precheck も PASS。"},
+    {"id":"NO-DUPLICATE-AC","status":"PASS","severity":"Major","finding":"主要 AC は T-001 が AC-002/003、T-002 が AC-001/004、T-003 が AC-005 で重複しない。"},
+    {"id":"DEPENDENCY-COMPLETE","status":"PASS","severity":"Major","finding":"dependency-graph.json の nodes に T-001〜T-003 があり、全 Blockers 参照が解決する。"},
+    {"id":"DEPENDENCY-CYCLE","status":"PASS","severity":"Critical","finding":"依存辺は T-002→T-001、T-003→T-001/T-002 で循環しない。"},
+    {"id":"SINGLE-CONCERN","status":"FAIL","severity":"Major","finding":"tasks.md の T-002 Test IDs は TEST-086-P15/TEST-088-P15 を担当範囲に含める。一方、acceptance-tests.md の参照スロット表は両ケースを、公開後の saved precheck.recovery の消費テストと定義し、T-003 はその消費・検証を担当すると記す。traceability.md の Exact expanded-case ownership でも行は T-002、説明文は saved precheck.recovery を T-003 とし矛盾する。T-002 の公開処理と T-003 の消費処理の境界が曖昧になり、両ケースの実装・検証責任を一意に判断できない。"},
+    {"id":"OBSERVABLE-DONE","status":"PASS","severity":"Major","finding":"各タスクの Done When はテスト出力、実装報告、verification/T-NNN.md、品質ゲート結果など検査可能な証拠を指定する。precheck の frozen_artifact_done_when は空。"},
+    {"id":"TRACEABILITY-SYNC","status":"PASS","severity":"Major","finding":"T-001〜T-003 と REQ-001〜REQ-005 は traceability.md に存在し、参照する REQ は requirements.md に存在する。層仕様アンカーはハッシュ固定された4文書の実在セクションを指す。"}
+  ],
+  "findings": [
+    {"check_id":"SINGLE-CONCERN","severity":"Major","task_id":"T-002","finding":"tasks.md:73 は TEST-086-P15/TEST-088-P15 を T-002 に割り当てるが、acceptance-tests.md:119,161 は公開後の saved precheck.recovery 消費テストと定義する。tasks.md:126 と traceability.md:232 はその消費を T-003 の担当とし、traceability.md:215,230 の T-002 行と矛盾する。公開処理と消費処理の責任境界を確定しないと、両ケースの実装・検証担当が曖昧になる。"}
+  ]
+}

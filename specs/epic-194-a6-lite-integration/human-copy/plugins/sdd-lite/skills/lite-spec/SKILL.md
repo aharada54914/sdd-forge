@@ -213,7 +213,8 @@ ship time, unmodified by this extension) -- both stages are mandatory.
    - `design.md`（`templates/design-lite.md`）
    - `tasks.md`（`templates/tasks-lite.md`）
 4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
-   （sdd-bootstrap プラグインの内部スキル）を実行する。モックアップは
+   （sdd-bootstrap プラグインの内部スキル）を実行する。外部操作の前に同スキルの
+   `resolve-design-sync.py` 判定を実行し、manual/skip では外部操作を行わない。モックアップは
    `specs/<feature>/mockups/` に、`Design-Source` / `Mockup-Status` は
    `specs/<feature>/design.md` に記録される。任意・非ブロッキングで、ツール
    がない環境では手動手順にフォールバックする。希望しない場合はこのステップ

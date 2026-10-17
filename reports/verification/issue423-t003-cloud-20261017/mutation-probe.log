@@ -1,0 +1,6 @@
+collapse-facets tests: 6 failures: 5 errors: 0
+Traceback (most recent call last):
+  File "<repository>/998fe0c06beb/sdd-forge/reports/verification/issue423-t003-cloud-20261017/mutation-probe.py", line 25, in <module>
+    assert result.testsRun == 6 and len(result.failures) == 6 and not result.errors
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

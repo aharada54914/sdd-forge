@@ -7,7 +7,7 @@ $tokens = $null
 $parseErrors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile($suitePath, [ref]$tokens, [ref]$parseErrors)
 if ($parseErrors.Count) { throw 'Cross-model suite parse failed' }
-foreach ($name in @('Test-BoundaryTiming', 'Assert-ProcessObservation')) {
+foreach ($name in @('Read-BoundaryPhases', 'Test-BoundaryTiming', 'Assert-ProcessObservation')) {
     $functions = @($ast.FindAll({ param($node)
         $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $name
     }, $true))

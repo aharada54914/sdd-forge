@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "a9-interrupted-review-recovery",
+  "run_id": "843cf8b0-1d0d-4b47-9871-cfa1c5430204",
+  "verdict": "NEEDS_WORK",
+  "round": 2,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "workflow_match_precheck": "PASS",
+  "prior_round_contract_sha256": "995c7e7731a738476a44f07ae0bbbe093d9d521f8b0501fe2b2b0041596d2ce0",
+  "requirements_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+  "acceptance_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+  "design_sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+  "tasks_sha256": "7f1d42139b34fce4f798ec80f522e68344378867452ead169f9234131b9c143f",
+  "traceability_sha256": "de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde",
+  "layer_sha256": {
+    "ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "01a0e4d8-13f7-7f10-8bec-a3ac2e17d547",
+      "host_session_id": "01a0e4d8-13f7-7f10-8bec-a3ac2e17d547",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/dependency-graph.json",
+          "sha256": "284ace8fe7562fb1d1d95ccb69b83832452d90ef49d2ece8e919732c624e7d0d"
+        },
+        {
+          "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+          "sha256": "946945b807b8be776150cd21dab620ad97b137466537797969807ef382deea04"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/tasks.md",
+          "sha256": "7f1d42139b34fce4f798ec80f522e68344378867452ead169f9234131b9c143f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/traceability.md",
+          "sha256": "de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "01a0e4d9-5476-7843-9393-2a2edcf242e8",
+      "host_session_id": "01a0e4d9-5476-7843-9393-2a2edcf242e8",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+          "sha256": "e3e7167678ce1c0c2318c06cc1459c50260e43829952d51dd770721035fd0e27"
+        },
+        {
+          "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+          "sha256": "946945b807b8be776150cd21dab620ad97b137466537797969807ef382deea04"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+          "sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/design.md",
+          "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+          "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+          "sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/requirements.md",
+          "sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+          "sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/tasks.md",
+          "sha256": "7f1d42139b34fce4f798ec80f522e68344378867452ead169f9234131b9c143f"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/traceability.md",
+          "sha256": "de6a300bc2c0fa0efee0e1147bb5d174c7456a17686974b7d8fff1ade5712cde"
+        },
+        {
+          "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+          "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Human applied the single T-003 Done When correction: changed defect and negative-mutation cases require Red then Green; already-correct compatibility cases (including TEST-099/100) require passing pre-change baseline and post-change regression, with each assigned TEST-ID/variant's category and exact outputs recorded in verification/T-003.md. All task approvals/statuses remain Draft/Planned.",
+  "timestamp": "2026-09-27T22:00:04.520Z"
+}

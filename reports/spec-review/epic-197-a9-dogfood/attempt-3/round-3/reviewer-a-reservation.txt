@@ -1,0 +1,2 @@
+REVIEW_CONTEXT_OK b1a1bfac4fd0e64e2f3bdc9c36229691101076f5598f50a3f3396f5763ccb42a sequence=1204 previous_record_sha256=22c0ef8169a1086c47c7eca180bc52223033cf4a00b8dca8a94ac0e1b30cefaa pre_append_tip_sequence=1203 identity_unique=yes
+Registry source hash matched bound observation immediately before reservation.
