@@ -1,0 +1,70 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "9aee5f69-9648-47cd-8a78-494b27233869",
+  "host_session_id": "9aee5f69-9648-47cd-8a78-494b27233869",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "sha256": "001d964c6eb3180d9280ba0c488ea1c3f948bbf69aa6347f041d3a0418a982e7"
+    },
+    {
+      "path": "specs/shared-review-launch-repair/acceptance-tests.md",
+      "sha256": "6e07717f6789c98fe0839081648e396aa380763685e5922c1f266fddf35a7352"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/shared-review-launch-repair/attempt-1/round-1/precheck-result.json",
+      "sha256": "f12f230cb0263f8e1317cfefc9c399cfc7fec0c7c901f87e73da662ad7ca9e78"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜006 はそれぞれ観測可能な accept/reject 条件を持つ。例: REQ-001 は欠落フラグ・誤モデル・複合コマンド・範囲外 Read の拒否、REQ-002 は予約前の台帳不変と予約後の不一致での停止、REQ-004 は最終ステータスセルのみ正規化、REQ-005 は旧レシピとのダイジェスト一致。いずれも検証可能。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜006 は AC-001〜006 に 1 対 1 で対応し、各 AC は TEST-001〜013 に展開されている。AC-002 の分岐(欠落・改変・別名・symlink・範囲外・生ハッシュ・受領証・予約後不一致)は TEST-005a〜h にすべて個別の assertion がある。AC-006 の 6 パスは TEST-011a〜f が個別にカバーする。AC-004 と AC-005 も同様に展開済み。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "各 AC は拒否結果、台帳コピーの不変、ダイジェスト一致、CI の実行、インベントリ検査の失敗といった外部から観測できる状態や成果物の変化で記述されている。曖昧な意図だけの AC は見当たらない。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "「Non-goals and assumptions」で、新プロトコル、台帳スキーマ、レビュア構成、不変入力アーキテクチャ、インストーラ変更、製品 T-002 の変更を除外している。REQ-005 は新しい状態文法を追加せず遷移も広げないと明記し、REQ-006 は無関係なパスを変更しないと明記している。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "次の制約が明示されている。(1) フォールバック実行器なし、権限を弱めない。(2) 予約済み識別子は再試行しない。(3) 履歴 verdict・台帳・凍結成果物・タスク状態の書き換え禁止。(4) 保護境界は正確に 6 パス。(5) 共有 git 追跡状態は pre-review と pre-merge で再検証する。(6) 実ホストと Windows の検証は対象環境で行う。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "高リスク主張のそれぞれに検証面がある。予約・台帳整合は TEST-004/005、保護境界は TEST-011/012/013、CI の持続的実行は TEST-006a/b、ネイティブ・Windows の未確認分は「保留観測」として別枠で報告する(AC-003、TEST-006b)。履歴のローカル成功や診断用 DELIVERY_OK を PASS とみなさないことも明記されている。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "起動前の観測で domain/context-map.md と domain/domain-contract.json はともに存在しない(domain_status: skipped)。SKIP 条件に該当する。"
+    }
+  ]
+}

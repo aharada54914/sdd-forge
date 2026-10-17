@@ -52,10 +52,18 @@ grep -Fq 'No same-session fallback is permitted for the evaluator.' "$QUALITY_GA
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
+implementation_identity() {
+  local repository=$1
+  printf 'Run ID: fixture-task-run\n'
+  printf '%s\n' '- **Run ID**: fixture-task-run' '- **Session ID**: fixture-task-session'
+  printf 'Input manifest: `handoffs/fixture-task/manifest.json`, SHA-256 `%s`\n\n' \
+    "$(sha256 "$repository/handoffs/fixture-task/manifest.json")"
+}
+
 make_repository() {
   local repository=$1
   mkdir -p \
-    "$repository/specs/f" \
+    "$repository/specs/f" "$repository/handoffs/fixture-task" \
     "$repository/plugins/sdd-review-loop/references" \
     "$repository/plugins/sdd-quality-loop/references" \
     "$repository/reports/spec-review/f/attempt-1/round-1" \
@@ -81,8 +89,12 @@ make_repository() {
   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
   local authorized_output_hash
   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
+  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",
+    run_id:"fixture-task-run",session_id:"fixture-task-session"}' \
+    > "$repository/handoffs/fixture-task/manifest.json"
   {
     printf '# Implementation Report: T-001\n\n'
+    implementation_identity "$repository"
     printf '## Task\n\n'
     printf '%s\n\n' '- Task ID: T-001'
     printf '## Outputs\n\n'
@@ -132,10 +144,11 @@ stage_for_role() {
 make_manifest() {
   local repository=$1 role=$2 output=$3
   local ledger="$repository/reports/review-context/identity-ledger.json"
-  local path stage ledger_hash previous sequence input_hash
+  local path stage ledger_hash previous sequence input_hash implementation_hash=''
   path="$(input_for_role "$role")"
   stage="$(stage_for_role "$role")"
   if [[ "$role" == "sdd-evaluator" ]]; then
+    implementation_hash="$(sha256 "$repository/handoffs/fixture-task/manifest.json")"
     local implementation_report="$repository/reports/implementation/f/T-001.md"
     if ! grep -Fq '**Scratch Root**:' "$implementation_report"; then
       printf '%s\n' '- **Scratch Root**: /tmp/implementation-f' >> "$implementation_report"
@@ -148,6 +161,7 @@ make_manifest() {
   jq -n \
     --arg stage "$stage" --arg role "$role" --arg path "$path" \
     --arg ledger_hash "$ledger_hash" --arg previous "$previous" \
+    --arg implementation_hash "$implementation_hash" \
     --arg input_hash "$input_hash" --argjson sequence "$sequence" '({
       schema:"review-context-invocation/v2",
       stage:$stage,
@@ -163,7 +177,10 @@ make_manifest() {
       previous_record_sha256:$previous,
       sequence:$sequence,
       allowed_input_manifest:[{path:$path,sha256:$input_hash}]
-    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))' > "$output"
+    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f",
+      implementation_manifest:{path:"handoffs/fixture-task/manifest.json",sha256:$implementation_hash}}
+      else {} end)) |
+    if $role == "sdd-evaluator" then .allowed_input_manifest += [.implementation_manifest] else . end' > "$output"
 }
 
 run_bash() {
@@ -301,10 +318,10 @@ rm "$bash_repository/specs/f/investigation.md"
 evaluator_manifest="$tmp/evaluator-valid.json"
 make_manifest "$bash_repository" sdd-evaluator "$evaluator_manifest"
 jq --arg hash "$(sha256 "$bash_repository/plugins/internal/arbitrary-existing.txt")" \
-  '.allowed_input_manifest = [{
+  '.allowed_input_manifest[0] = {
     path:"plugins/internal/arbitrary-existing.txt",
     sha256:$hash
-  }]' "$evaluator_manifest" > "$candidate"
+  }' "$evaluator_manifest" > "$candidate"
 assert_rejected_both missing-task-implementation-report "$candidate" "$bash_repository" REVIEW_CONTEXT_PATH
 jq --arg hash "$(sha256 "$bash_repository/plugins/task/authorized-output.txt")" \
   '.allowed_input_manifest += [{
@@ -386,6 +403,7 @@ annot_wrong_hash="$(printf '%064d' 0 | tr '0' 'd')"
 
 {
   printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$annot_repository"
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
   printf '## Outputs\n\n'
@@ -912,6 +930,7 @@ legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
 # reports WFI-017 exists to keep valid.
 {
   printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$legacy_repository"
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
   printf '## Output Paths And Hashes\n\n'
@@ -958,6 +977,7 @@ assert_rejected_both wfi017-legacy-row-hash-mismatch \
 # change cannot be mistaken for a licence to invent further formats.
 {
   printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$legacy_repository"
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
   printf '## Output Paths And Hashes\n\n'
@@ -999,6 +1019,7 @@ parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
 write_declaration() {
   local section=$1
   printf '# Implementation Report: T-001\n\n'
+  implementation_identity "$parity_repository"
   printf '## Task\n\n'
   printf '%s\n\n' '- Task ID: T-001'
   printf '## %s\n\n' "$section"

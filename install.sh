@@ -707,7 +707,7 @@ rollback() {
     fi
 }
 
-trap 'rc=$?; rollback; cleanup; exit $rc' EXIT
+trap 'rc=$?; if [[ $rc -ne 0 ]]; then rollback; fi; cleanup; exit $rc' EXIT
 
 # ---------------------------------------------------------------------------
 # Resolve source

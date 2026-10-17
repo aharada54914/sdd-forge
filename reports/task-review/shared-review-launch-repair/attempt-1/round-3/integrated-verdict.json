@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "shared-review-launch-repair",
+  "run_id": "6f6167e2-bc36-4e9c-8fb1-f70711bdac74",
+  "verdict": "PASS",
+  "round": 3,
+  "attempt": 1,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0
+}
