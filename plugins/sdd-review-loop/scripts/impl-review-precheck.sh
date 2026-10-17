@@ -31,8 +31,10 @@ calibration_sha256=""
 
 fail() { echo "ERROR: impl-review-precheck: $*" >&2; exit 1; }
 sha256() {
-  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  local file=$1
+  if [[ -n "${fixed_source_map:-}" ]]; then file=$(fixed_input_path "$file"); fi
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$file" | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$file" | awk '{print $1}';
   else fail "neither sha256sum nor shasum is available"; fi
 }
 sha256_stream() {
@@ -51,6 +53,10 @@ reviewed_sha256() {
 # RT-20260908-004: scoped declaration inputs, never caller-selected ADR reads.
 adr_precheck_safe_file() {
   local relative=$1 current=$repo_root component entry found
+  if [[ -n "${fixed_source_map:-}" && "$relative" != reports/* ]]; then
+    fixed_input_path "$relative" >/dev/null || return 1
+    current=$(cd "$fixed_input_snapshot" && pwd -P)
+  fi
   local -a components
   [[ "$relative" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] || return 1
   [[ "$relative" != */ && "$relative" != *//* ]] || return 1
@@ -71,6 +77,8 @@ adr_precheck_safe_file() {
 
 # Same restricted byte grammar as admission; not general Markdown parsing.
 adr_precheck_declared_paths() {
+  local file=$1
+  if [[ -n "${fixed_source_map:-}" ]]; then file=$(fixed_input_path "$file"); fi
   LC_ALL=C awk '
     function width(s, i, ch, n) {
       n = 0
@@ -121,7 +129,7 @@ adr_precheck_declared_paths() {
         i = j + n
       }
     }
-  ' "$1" | LC_ALL=C sort -u
+  ' "$file" | LC_ALL=C sort -u
 }
 
 adr_precheck_collect() {
@@ -186,6 +194,8 @@ command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
 [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] ||
   fail "unknown mode: $MODE"
+. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+fixed_input_options "${@:5}"
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -196,7 +206,8 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
   adr_precheck_safe_file "$DESIGN_MD" || fail "unsafe design input path"
   [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
   for path in "$DESIGN_MD" "$REQS_MD" "$ACCEPT_MD"; do
-    [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
+    source_path=$(fixed_input_path "$path")
+    [[ -f "$source_path" && ! -L "$source_path" ]] || fail "review input is missing or substituted: $path"
   done
   jq -e --arg design "$(sha256 "$DESIGN_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
     --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg feature "$FEATURE" \
@@ -212,7 +223,8 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
       "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
     for name in "${LAYER_FILES[@]}"; do
       path="${SPECS_DIR}/${name}"
-      [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+      source_path=$(fixed_input_path "$path")
+      [[ -f "$source_path" && ! -L "$source_path" ]] || fail "layer review input is missing or substituted: $path"
       jq -e --arg name "$name" --arg hash "$(sha256 "$path")" \
         '.layer_sha256[$name] == $hash' "$precheck" >/dev/null ||
         fail "layer review input changed after precheck: $path"

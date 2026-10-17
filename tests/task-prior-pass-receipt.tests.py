@@ -5,6 +5,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 import shutil
@@ -25,9 +26,9 @@ class ReceiptLaunchTests(unittest.TestCase):
             report = root / "reports/task-review" / feature / "attempt-2/round-1/precheck-result.json"
             report.parent.mkdir(parents=True)
             report.write_text(json.dumps({"provenance_rereview": True}))
-            command = ["python3", str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
+            command = [sys.executable, str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
                        "--root", str(root), "--feature", feature, "--attempt", "2",
-                       "--verify", str(report.relative_to(root))]
+                       "--verify", report.relative_to(root).as_posix()]
             result = subprocess.run(command, cwd=REPO, text=True, capture_output=True)
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("missing prior-PASS receipt", result.stdout + result.stderr)
@@ -155,7 +156,7 @@ class ReceiptUnitTests(unittest.TestCase):
         path = "reports/task-review/fixture/attempt-2/round-1/precheck-result.json"
         precheck = {"provenance_rereview": True, "prior_pass_receipt": result}
         self.put(path, json.dumps(precheck).encode())
-        command = ["python3", str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
+        command = [sys.executable, str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
                    "--root", str(self.root), "--feature", "fixture", "--attempt", "2", "--verify", path]
         self.assertEqual(subprocess.run(command, capture_output=True).returncode, 0)
         for field, value in (("all_inputs_unchanged", 1), ("source_attempt", True)):
@@ -184,7 +185,7 @@ class ReceiptUnitTests(unittest.TestCase):
         path = "reports/task-review/fixture/attempt-2/round-1/precheck-result.json"
         self.put(path, json.dumps({"provenance_rereview": True,
                                    "prior_pass_receipt": result}).encode())
-        command = ["python3", str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
+        command = [sys.executable, str(REPO / "plugins/sdd-review-loop/scripts/task-prior-pass-receipt.py"),
                    "--root", str(self.root), "--feature", "fixture", "--attempt", "2", "--verify", path]
         completed = subprocess.run(command, capture_output=True, text=True)
         self.assertNotEqual(completed.returncode, 0)
