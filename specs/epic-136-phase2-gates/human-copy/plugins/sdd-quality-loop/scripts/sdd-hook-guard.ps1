@@ -1300,9 +1300,34 @@ function Test-CommandReferencesProtectedPath {
         }
         return $false
     }
+    # A direct Python/POSIX-shell file operand is executable input, not a write target.
+    # Only the first bare interpreter has no preceding command that can rebind it.
+    # Keep dynamic syntax and directory transitions on the conservative path.
+    $literalContext = $true
     foreach ($t in $res.Tokens) {
-        if ($t[0] -ne "word") { continue }
-        $candidate = [string]$t[1]
+        if ($t[0] -eq "word" -and ((Test-HasUnsafeChar $t[1]) -or
+            ([string]$t[1]).StartsWith("#") -or
+            (@($ShellCdCmds) + @("popd")) -contains (Get-ShellTokenBasename $t[1]))) {
+            $literalContext = $false
+        }
+    }
+    $position = 0
+    $verb = ""
+    $firstCommand = $true
+    foreach ($t in $res.Tokens) {
+        if ($t[0] -ne "word") {
+            if ($position -gt 0) { $firstCommand = $false }
+            $position = 0; $verb = ""; continue
+        }
+        $text = [string]$t[1]
+        $scriptInput = $literalContext -and $firstCommand -and $position -eq 1 -and -not $text.StartsWith("-") -and -not $text.StartsWith("~") -and
+            (((@("python", "python3") -ccontains $verb) -and $text.EndsWith(".py")) -or
+             ((@("bash", "sh") -ccontains $verb) -and $text.EndsWith(".sh"))) -and
+            -not $text.Contains(">") -and -not $text.Contains("<")
+        if ($position -eq 0) { $verb = $text }
+        $position += 1
+        if ($scriptInput) { continue }
+        $candidate = $text
         if ($candidate.Contains(">")) {
             $m = [regex]::Match($candidate, $ShellRedirectTokenRe)
             if ($m.Success -and $m.Groups[2].Value) { $candidate = $m.Groups[2].Value }

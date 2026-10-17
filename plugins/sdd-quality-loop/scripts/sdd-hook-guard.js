@@ -792,8 +792,26 @@ function commandReferencesProtectedPath(cmd) {
       return cmdLower.includes(slRel) || cmdNorm.includes(slRel);
     });
   }
+  // A direct Python/POSIX-shell file operand is executable input, not a write target.
+  // Only the first bare interpreter has no preceding command that can rebind it.
+  // Keep dynamic syntax and directory transitions on the conservative path.
+  const literalContext = !tokens.some(([kind, text]) => kind === 'word' &&
+    (SHELL_UNSAFE_TOKEN_CHARS.some(c => text.includes(c)) || text.startsWith('#') ||
+     [...SHELL_CD_CMDS, 'popd'].includes(shellTokenBasename(text))));
+  let position = 0;
+  let verb = '';
+  let firstCommand = true;
   for (const [kind, text] of tokens) {
-    if (kind !== 'word') continue;
+    if (kind !== 'word') {
+      if (position > 0) firstCommand = false;
+      position = 0; verb = ''; continue;
+    }
+    const scriptInput = literalContext && firstCommand && position === 1 && !text.startsWith('-') && !text.startsWith('~') &&
+      ((['python', 'python3'].includes(verb) && text.endsWith('.py')) ||
+       (['bash', 'sh'].includes(verb) && text.endsWith('.sh'))) && !text.includes('>') && !text.includes('<');
+    if (position === 0) verb = text;
+    position += 1;
+    if (scriptInput) continue;
     let candidate = text;
     if (text.includes('>')) {
       const m = text.match(SHELL_REDIRECT_TOKEN_RE);

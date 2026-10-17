@@ -1673,8 +1673,29 @@ def _command_references_protected_path(cmd):
                 s.lower().lstrip("/") in cmd_lower or
                 s.lower().lstrip("/") in cmd_norm
                 for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    # A direct Python/POSIX-shell file operand is executable input, not a write target.
+    # Only the first bare interpreter has no preceding command that can rebind it.
+    # Keep dynamic syntax and directory transitions on the conservative path.
+    literal_context = not any(
+        kind == "word" and (any(c in text for c in _SHELL_UNSAFE_TOKEN_CHARS)
+                            or text.startswith("#")
+                            or _shell_token_basename(text) in _SHELL_CD_CMDS + ("popd",))
+        for kind, text in tokens)
+    position, verb, first_command = 0, "", True
     for kind, text in tokens:
         if kind != "word":
+            if position:
+                first_command = False
+            position, verb = 0, ""
+            continue
+        script_input = (literal_context and first_command and position == 1 and not text.startswith(("-", "~"))
+                        and ((verb in ("python", "python3") and text.endswith(".py"))
+                             or (verb in ("bash", "sh") and text.endswith(".sh")))
+                        and ">" not in text and "<" not in text)
+        if position == 0:
+            verb = text
+        position += 1
+        if script_input:
             continue
         candidate = text
         if ">" in text:

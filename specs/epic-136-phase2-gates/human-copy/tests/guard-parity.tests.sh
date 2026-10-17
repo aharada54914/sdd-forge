@@ -950,6 +950,18 @@ for wfi048_case in \
 done
 
 
+# The same role corpus also traverses the canonical shell-command envelope.
+# Materialize first so a missing/malformed fixture cannot silently run zero cases.
+python3 - "${REPO_ROOT}/tests/fixtures/guard-script-input/cases.json" > "$WORK/script-input-cases.tsv" <<'PYCASES'
+import json, sys
+for label, expected, command in json.load(open(sys.argv[1], encoding="utf-8")):
+    payload = {"tool_name": "bash", "tool_input": {"command": command}}
+    print(f"{label}\t{expected}\t{json.dumps(payload)}")
+PYCASES
+while IFS=$'\t' read -r role_label role_expected role_payload; do
+    parity_check "script input: $role_label" "$role_expected" "$role_payload"
+done < "$WORK/script-input-cases.tsv"
+
 # ---------------------------------------------------------------------------
 # WFI-061: consent-token false-positive regression and write/delete guardrail.
 # ---------------------------------------------------------------------------

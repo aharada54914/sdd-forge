@@ -385,6 +385,14 @@ $nativeTask.toolArgs.prompt = "safe"
 $nativeTask.toolArgs.command = "unrecognized"
 Assert-CopilotParity "native task unknown argument -> deny" "deny" ($nativeTask | ConvertTo-Json -Compress -Depth 6)
 
+# Script-input roles must agree through the actual native Bash envelope.
+$scriptInputCases = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "fixtures/guard-script-input/cases.json") | ConvertFrom-Json
+foreach ($case in $scriptInputCases) {
+    $nativeExecution = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "bash"; toolArgs = @{ command = $case[2]; description = "Inspect script input roles" } }
+    $expected = if ($case[1] -eq 0) { "allow" } else { "deny" }
+    Assert-CopilotParity ("script input: " + $case[0]) $expected ($nativeExecution | ConvertTo-Json -Compress -Depth 6)
+}
+
 # Protected destinations remain readable through the same native boundary.
 $nativeShell = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "bash"; toolArgs = @{ command = "cat safe.txt"; description = "Read a file" } }
 Assert-CopilotParity "native bash observed cat -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
