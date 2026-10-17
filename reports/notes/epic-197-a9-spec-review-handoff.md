@@ -7,7 +7,7 @@ cost this session four discarded reviewer runs.
 ## Where the work is
 
 - Branch: `feature/epic-197-a9-dogfood`
-- Worktree used: `/Users/jrmag/Projects/active/sdd-forge-wt-epic-197`
+- Worktree used: `<local-path>`
 - Spec package: `specs/epic-197-a9-dogfood/` (14 REQ, 29 AC, 29 TEST, 6 tasks,
   all Draft/Planned). `Spec-Review-Status: Pending`, `Human-Spec-Approval: Pending`.
 - Round-1 evidence: `reports/spec-review/epic-197-a9-dogfood/attempt-1/round-1/`

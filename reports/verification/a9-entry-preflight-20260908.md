@@ -10,7 +10,7 @@ The exact response is preserved in `a9-handshake-observation-20260908.json`.
 
 The tool response does not contain the two boolean fields required by this
 validator's Codex branch. A read-only `rg -n plugin_hooks` against
-`/Users/jrmag/.codex/config.toml` returned no match (exit 1). This does not
+`<local-path>` returned no match (exit 1). This does not
 prove that hooks are disabled: the actual denial is direct contrary evidence
 to that broad claim. The missing booleans were not manufactured from assumed
 host configuration.
