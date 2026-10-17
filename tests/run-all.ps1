@@ -134,7 +134,7 @@ try {
             $failed += $testFile
         }
     }
-    foreach ($testFile in @('tests/sdd-domain-multitarget-T-003.tests.py', 'tests/workflow-conditional-inputs.tests.py', 'tests/quality-nontty-transport.tests.py', 'tests/supplemental-delivery-declaration.tests.py', 'tests/t001-evaluation-preparation.tests.py')) {
+    foreach ($testFile in @('tests/sdd-domain-multitarget-T-003.tests.py', 'tests/sdd-domain-multitarget-T-004.tests.py', 'tests/workflow-conditional-inputs.tests.py', 'tests/quality-nontty-transport.tests.py', 'tests/supplemental-delivery-declaration.tests.py', 'tests/t001-evaluation-preparation.tests.py')) {
         Write-Host "==> $testFile"
         $python = Get-Command python3 -ErrorAction SilentlyContinue
         if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }

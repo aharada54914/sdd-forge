@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "8dc6fc2122fcc9f1cc4c753a6962a5aa2c3c0dfd",
+  "purpose": "Pre-change T-004 compatibility consumer snapshot; not a runtime contract.",
+  "sha256": {
+    "contracts/context-projection.schema.json": "800ce609de7ffc037fbaf6b56e0a5523cb338e35395c9324e5b35ce509967cdc",
+    "contracts/facet-manifest.schema.json": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51",
+    "contracts/project-context.schema.json": "cf3ac16e3161077ab1d0d3919ab53f3b71bb5ae611bb67f6c16018c7c97493d5",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md": "e4708bbd8ab0a390b970e4aa75d793feedaa3358ca6562c85963ae1dfb050179",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md": "748f31b0136a2eae7ad8978ffb461ca749247408afd19217b73e93377bd95798",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/frontend-spec.template.md": "63fe6069647d5ca1b1214eba31fd0c191c27d7baa80b01577122898955b59f10",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/infra-spec.template.md": "2089374cb3779b968c3dd511881213a5f2de51dafff33c07bd9bb953da39f020",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md": "16250a183bf286f1967f160bc816c73f882e0f53158cd4fb11a09e9acdadf5d8",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/security-spec.template.md": "f006ec05c71b0fe5f4800659a8d2b31628698187748d9de0eeaaa84004a533c5",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ux-spec.template.md": "eb35a0c3da4d6a68bd98045a387d1dcac1ce929a7407c5fa053ee6312d43a607",
+    "plugins/sdd-quality-loop/scripts/check-contract.py": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3"
+  }
+}
