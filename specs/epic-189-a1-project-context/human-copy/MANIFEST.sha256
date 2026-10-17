@@ -14,4 +14,4 @@ d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06  plugins/sdd-qu
 b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff  plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
 8a20021958d84e1ae7e5a239a2500dc73f15289158a68e905c90d3d5f317d7e1  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 0202c8f32f8810d77ba438a965f6b57213fb907f1a3c724f318cda9fd7b19d90  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
-229544c4ef800f4c272a0e768d7ac59e2a10b9fbc965681d2bcbfc192c1d238e  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+db7760cf8cfd970971588fda6468185de316bb75d16b91a2f009a1b88fab7c5c  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js

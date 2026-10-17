@@ -402,6 +402,37 @@ foreach ($arguments in @(@{}, @{ command = 1 }, @{ command = " " }, @{ command =
     $nativeShell.toolArgs = $arguments
     Assert-CopilotParity "native bash malformed arguments -> deny" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
 }
+# Copilot CLI 1.0.98 declares optional initial_wait as number, without range or integer constraints.
+# Waiting metadata never bypasses the canonical command and write checks.
+foreach ($waitValue in @(600, 0, -1, 0.5, 601, 1e100)) {
+    $nativeShell.toolArgs = @{ command = "cat safe.txt"; description = "Read a file"; initial_wait = $waitValue }
+    Assert-CopilotParity ("native bash finite initial_wait " + $waitValue) "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeShell.toolArgs = '{"command":"cat safe.txt","description":"Read a file","initial_wait":600}'
+Assert-CopilotParity "native bash JSON wait arguments -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+$nativeShell.toolArgs = '{"command":"cat safe.txt","initial_wait":9223372036854775808}'
+Assert-CopilotParity "native bash large finite JSON integer wait -> allow" "allow" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+foreach ($waitValue in @($null, $true, $false, "600", @(), @{ seconds = 600 })) {
+    $nativeShell.toolArgs = @{ command = "cat safe.txt"; initial_wait = $waitValue }
+    Assert-CopilotParity "native bash invalid wait type -> deny" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+foreach ($number in @("NaN", "Infinity", "-Infinity", "1e999")) {
+    $nativeShell.toolArgs = '{"command":"cat safe.txt","initial_wait":' + $number + '}'
+    Assert-CopilotParity ("native bash nonfinite wait " + $number) "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$hugeWaitArguments = '{"command":"cat safe.txt","initial_wait":1' + ('0' * 400) + '}'
+$nativeShell.toolArgs = $hugeWaitArguments
+Assert-CopilotParity "native bash overflowing integer string -> deny" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+$nativeShell.toolArgs = @{ command = "cat safe.txt"; initial_wait = "HUGE_WAIT_PLACEHOLDER" }
+$hugeWaitPayload = ($nativeShell | ConvertTo-Json -Compress -Depth 6).Replace('"HUGE_WAIT_PLACEHOLDER"', ('1' + ('0' * 400)))
+Assert-CopilotParity "native bash overflowing integer object -> deny" "deny" $hugeWaitPayload
+foreach ($command in @("echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py", "echo 'Approval: Approved' > specs/feat-noverdict/tasks.md", "cat safe.txt && rm sdd/.hook-canary-sentinel")) {
+    $nativeShell.toolArgs = @{ command = $command; initial_wait = 600 }
+    Assert-CopilotParity ("native bash wait preserves write denial " + $command) "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+}
+$nativeShell.toolArgs = @{ command = "cat safe.txt"; initial_wait = 600; unexpected = 1 }
+Assert-CopilotParity "native bash wait rejects unknown argument" "deny" ($nativeShell | ConvertTo-Json -Compress -Depth 6)
+
 $nativeGlob = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "glob"; toolArgs = @{ pattern = "*.txt" } }
 Assert-CopilotParity "native glob observed search -> allow" "allow" ($nativeGlob | ConvertTo-Json -Compress -Depth 6)
 $nativeGlob.toolArgs = @{ pattern = "sdd-hook-guard.*"; path = "plugins/sdd-quality-loop/scripts" }

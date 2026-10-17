@@ -2015,11 +2015,19 @@ if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payload
             if (@("view", "create") -ccontains $nativeName -and (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
                 [string]::IsNullOrWhiteSpace($nativeArgs.path))) { throw "invalid Copilot path" }
             if ($nativeName -ceq "bash") {
-                if (@($argKeys | Where-Object { @("command", "description") -cnotcontains $_ }).Count -gt 0 -or
+                if (@($argKeys | Where-Object { @("command", "description", "initial_wait") -cnotcontains $_ }).Count -gt 0 -or
                     ($argKeys -cnotcontains "command") -or $nativeArgs.command -isnot [string] -or
                     [string]::IsNullOrWhiteSpace($nativeArgs.command) -or
                     (($argKeys -ccontains "description") -and $nativeArgs.description -isnot [string])) {
                     throw "invalid bash arguments"
+                }
+                if ($argKeys -ccontains "initial_wait") {
+                    $waitValue = $nativeArgs.initial_wait
+                    if (-not (($waitValue -is [int]) -or ($waitValue -is [long]) -or
+                        ($waitValue -is [double]) -or ($waitValue -is [System.Numerics.BigInteger])) -or
+                        [double]::IsNaN([double]$waitValue) -or [double]::IsInfinity([double]$waitValue)) {
+                        throw "invalid bash initial_wait"
+                    }
                 }
                 $payload = [pscustomobject]@{ tool_name = "bash"; tool_input = [pscustomobject]@{ command = $nativeArgs.command } }
             } elseif ($nativeName -ceq "glob") {
