@@ -20,6 +20,10 @@ def load(name):
     return module
 
 
+spec = importlib.util.spec_from_file_location("a9_observer", ROOT / "scripts/observe-a9-advisory.py")
+OBSERVER = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(OBSERVER)
+
 OWNERSHIP = load("resolve-component-paths")
 RESOLVER = load("resolve-project-context")
 PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop",
@@ -150,6 +154,12 @@ def validate_release_cycle(cycle, commits):
                 raise ValueError("advisory Gate or required platform CI is missing")
             if any(c["status"] != "completed" or c["conclusion"] != "success" for c in latest.values()):
                 raise ValueError("latest recorded checks must all complete successfully")
+            observation = pr["advisory_observation"]
+            if latest[gate]["advisory_observation_sha256"] != OWNERSHIP.canonical_digest(observation):
+                raise ValueError("latest advisory check does not bind the collected observation")
+            diagnostics = OBSERVER.validate_observation(observation, pr["head_sha"], pr["base_sha"], ROOT)
+            if diagnostics:
+                raise ValueError("; ".join(diagnostics))
     except (KeyError, TypeError, ValueError, AttributeError) as exc:
         return ["release/CI evidence rejected: " + str(exc)]
     return []
@@ -257,7 +267,7 @@ def main():
                       "release_cycle_evidence": "consistency_checked" if args.phase == "phase2" and not errors else ("not_collected" if args.phase == "phase1" else "not_validated"),
                       "promotion_authorized": False,
                       "preflight_scope": "candidate_transition_and_release_ci_consistency" if args.phase == "phase2" else "phase1_candidate",
-                      "unchecked_requirements": ["export authenticity and required-check policy", "human promotion approval",
+                      "unchecked_requirements": ["export authenticity and required-check policy", "approved Phase-1 publication authenticity", "human promotion approval",
                           "false-positive triage and unresolved findings", "signed end-to-end rollback rehearsal",
                           "post-promotion real feature workflow"]}, sort_keys=True))
     return 1 if errors else 0

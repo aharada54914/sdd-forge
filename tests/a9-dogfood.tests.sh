@@ -10,4 +10,5 @@ else
   printf 'a9-dogfood: Python 3 is required\n' >&2
   exit 1
 fi
-exec "$python_bin" "$root/tests/a9-dogfood.tests.py"
+"$python_bin" "$root/tests/a9-dogfood.tests.py"
+exec "$python_bin" "$root/tests/a9-advisory-evidence.tests.py"

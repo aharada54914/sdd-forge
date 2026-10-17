@@ -14,3 +14,8 @@ $test = Join-Path $PSScriptRoot 'a9-dogfood.tests.py'
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
+
+& $python.Source (Join-Path $PSScriptRoot 'a9-advisory-evidence.tests.py')
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
