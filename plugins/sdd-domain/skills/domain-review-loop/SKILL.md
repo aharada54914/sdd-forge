@@ -139,10 +139,12 @@ which is a separate file with a separate, self-protected suffix list).
 ## Independent reviewer sequence
 
 1. Build a stage `domain` allowed-input manifest from the precheck result.
-   Include the seven canonical `domain/` Markdown artifacts,
-   `domain/concept-model.md`, `domain/domain-contract.json`,
+   Include each canonical Markdown artifact from the interviewer's seven-stage
+   table exactly once. Concept Model is already part of that set; expand the
+   aggregate-card pattern to one entry per actual card. Add
+   `domain/domain-contract.json`,
    `plugins/sdd-domain/references/domain-review-calibration.md`, and the
-   precheck-result path with hashes.
+   precheck-result path with hashes. Every manifest path must be unique.
 2. Start `domain-reviewer-a` in a fresh host context with a new `run_id` and
    a host-session identifier that is distinct from every other reviewer
    session. Build and reserve its invocation manifest through the sequential
