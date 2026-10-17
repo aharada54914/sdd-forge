@@ -68,6 +68,7 @@ jobs:
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
+          python3 -B tests/current-byte-capture.tests.py
           python3 -B tests/concept-test.tests.py
           python3 -B tests/concept-review-continuity.tests.py
           python3 -B tests/domain-review-finalize.tests.py
@@ -1569,12 +1570,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      # A7's byte-identical suite performs independent full baseline captures.
+      # A7 executes current working-tree payload in independent F1/F2 fixtures.
       # It remains a required native-Windows assertion, but runs in parallel
       # with the golden-baseline suite in the main Windows test job.
       - name: "[deterministic] Test A7 byte-identical compatibility (pwsh)"
         shell: pwsh
         run: ./tests/compatibility-byte-identical.tests.ps1
+
+      - name: "[deterministic] Test A7 current-product reachability"
+        shell: pwsh
+        run: python -B tests/current-byte-capture.tests.py
 
       - name: "[deterministic] Test deterministic gate scripts"
         shell: pwsh
