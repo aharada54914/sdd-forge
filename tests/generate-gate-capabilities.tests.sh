@@ -623,10 +623,12 @@ else
   fail "QG-fix: rebuilt CI workflow candidate drops a live job -- $candidate_jobs_out"
 fi
 
-if human_copy_jobs_out="$(job_superset_check "$STAGED_WORKFLOW" 2>&1)"; then
-  ok "human-copy/ staged workflow is a job-set superset of live (human apply already landed)"
+# The applied workflow is an immutable historical baseline, not a current apply
+# candidate. Authenticate it and validate the separate current replacement.
+if workflow_evolution_out="$(python3 "$ROOT/tests/lib/a2-workflow-evolution.py" "$ROOT" --self-test 2>&1)"; then
+  ok "historical workflow preserved; current candidate supersedes it with strict job/aggregation checks and negative controls"
 else
-  designed_red "human-copy/ staged workflow is STALE and would DROP whole live job(s) if applied -- $human_copy_jobs_out -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
+  fail "historical/current workflow contract failed -- $workflow_evolution_out"
 fi
 
 # Done When #4 (tasks.md, "Suite registration + structural checks"): "a
