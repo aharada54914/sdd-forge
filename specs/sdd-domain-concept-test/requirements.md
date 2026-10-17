@@ -28,6 +28,10 @@ separate. No v1 migration or second loader is added.
   selected revision, including its approver registry, without live-file fallback.
 - REQ-006: Publish the internal skill through the existing directory manifests;
   ship Bash and PowerShell dispatchers sharing one deterministic implementation.
+- REQ-007: A fresh Copilot project's first domain review can register the real
+  invoking host before precheck using its native session-start metadata. Existing
+  ledgers and any prior review/implementation history must never be replaced or
+  reconstructed. Initial host registration is distinct from reviewer reservation.
 
 ## Confirmed decisions
 

@@ -115,6 +115,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
     "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
     "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+    "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
     "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
     "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
     "plugins/sdd-quality-loop/scripts/detect-panel.sh",
@@ -145,6 +146,13 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
     "plugins/sdd-bootstrap/scripts/resolve-design-sync.py",
     "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+    "plugins/sdd-domain/scripts/record-upstream-concept-issue.py",
+    "plugins/sdd-domain/scripts/validate-domain-contract.sh",
+    "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+    "plugins/sdd-domain/scripts/validate-concept-test.sh",
+    "plugins/sdd-domain/scripts/validate-concept-test.ps1",
+    "plugins/sdd-domain/scripts/validate-concept-test.py",
+    "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
     "plugins/sdd-lite/scripts/check-task-state-lite.sh",
     # Sourced libraries that carry the gate logic for protected scripts above
     # (require_persisted_pass, panelist consent/signature helpers). Leaving one

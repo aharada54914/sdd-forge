@@ -324,7 +324,7 @@ Domain-Model-Status: Pending
 
 - loop-driver-fixture-context: synthetic bounded context for the loop-driver domain fixture.
 EOF
-  for name in domain-story event-storming ubiquitous-language message-flow c4-container; do
+  for name in domain-story event-storming concept-model ubiquitous-language message-flow; do
     cat > "${domain_dir}/${name}.md" <<EOF
 # ${name}
 

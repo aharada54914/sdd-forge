@@ -547,7 +547,7 @@ Body text unrelated to any check.
     }
 
     $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 63 -End 102 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 4
+    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 67 -End 106 -ExpectedSha "5f83fd5a18c94571a28303b9c8773355bfcbbd9e3a23bf34a682e76b86938823" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 4
     # The live check activates only after A5's interviewer caller exists. The
     # spec directory may be staged before that insertion point is wired.
     $a5CallerPresent = (Test-Path -LiteralPath $a5SkillMd -PathType Leaf) -and

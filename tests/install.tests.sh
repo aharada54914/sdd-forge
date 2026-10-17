@@ -50,6 +50,7 @@ for relative_path in \
     "install.ps1" \
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json" \
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json" \
+    "plugins/sdd-quality-loop/scripts/initialize-review-identity.py" \
     "plugins/sdd-review-loop/.claude-plugin/plugin.json" \
     "plugins/sdd-review-loop/.codex-plugin/plugin.json" \
     "plugins/sdd-review-loop/.plugin/plugin.json"; do
@@ -63,6 +64,7 @@ git -C "$SOURCE_FIXTURE" add \
     install.ps1 \
     plugins/sdd-bootstrap/.claude-plugin/plugin.json \
     plugins/sdd-quality-loop/.claude-plugin/plugin.json \
+    plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
     plugins/sdd-review-loop
 git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
 
@@ -1041,6 +1043,12 @@ else
     export SDD_CODEX_HOME="$_d_orig_codex_home"
 fi
 
+_d_identity="${_d_install}/plugins/sdd-quality-loop/scripts/initialize-review-identity.py"
+if [[ -f "$_d_identity" ]] && cmp -s "$_d_identity" "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/initialize-review-identity.py"; then
+    ok "smoke (D): installed native review identity producer matches bundled bytes"
+else
+    fail "smoke (D): installed native review identity producer missing or changed"
+fi
 _d_gate="${_d_install}/plugins/sdd-quality-loop/scripts/check-risk.sh"
 _d_fixtures="${_d_root}/fixtures"
 mkdir -p "$_d_fixtures"
