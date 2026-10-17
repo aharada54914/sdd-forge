@@ -79,7 +79,7 @@ printf '==> %s\n' 'tests/sdd-domain.tests.ps1'
 if ! pwsh -NoProfile -File tests/sdd-domain.tests.ps1; then
   failed+=('tests/sdd-domain.tests.ps1')
 fi
-for test_name in concept-test concept-review-continuity fixed-review-inputs fixed-review-state fixed-review-launch fixed-review-precheck-ps fixed-review-precheck-bash review-conditional-inputs workflow-conditional-inputs spec-review-verify-inputs host-review-preflight unified-launch-order unified-task-launch task-structured-output supplemental-delivery-declaration t001-evaluation-preparation; do
+for test_name in concept-test concept-review-continuity domain-review-finalize fixed-review-inputs fixed-review-state fixed-review-launch fixed-review-precheck-ps fixed-review-precheck-bash review-conditional-inputs workflow-conditional-inputs spec-review-verify-inputs host-review-preflight unified-launch-order unified-task-launch task-structured-output supplemental-delivery-declaration t001-evaluation-preparation; do
   test_file="tests/${test_name}.tests.py"
   printf '==> %s\n' "$test_file"
   if ! python3 -B "$test_file"; then
