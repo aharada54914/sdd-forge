@@ -6,6 +6,7 @@ Existing structural and byte suites exercise that contract; these tests exercise
 its actual resolver publication boundary with the retained full-profile files.
 They do not claim that an autonomous interview was executed.
 """
+import copy
 import hashlib
 import importlib.util
 import json
@@ -42,12 +43,50 @@ def retained(feature):
 
 
 class CompatibilityTests(unittest.TestCase):
-    def test_005_007_prechange_contracts_templates_and_checks_unchanged(self):
+    def test_005_007_reviewed_contracts_templates_and_checks_unchanged(self):
         baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())
         self.assertTrue(baseline['sha256'])
         for path, expected in baseline['sha256'].items():
             with self.subTest(path=path):
                 self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), expected)
+
+    def test_additive_override_contract_preserves_existing_context_boundaries(self):
+        resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')
+        context = {"schema": "sdd-project-context/v1", "workflow": {
+            "spec_profile": "full", "artifact_layout": "legacy-seven-layer",
+            "capability_enforcement": "advisory"}, "components": [{
+            "id": "app", "paths": {"include": ["app/**"]}}],
+            "shared_paths": [{"pattern": ".github/**", "classification": "cross-cutting"}]}
+        input_schema = json.loads((ROOT / 'contracts/project-context.schema.json').read_text())
+        output_schema = json.loads((ROOT / 'contracts/context-projection.schema.json').read_text())
+        def check_both(document, expected):
+            self.assertEqual(resolver._draft7_conforms(document, input_schema), expected)
+            projection = resolver._projection(document, "sha256:" + "a" * 64)
+            self.assertEqual(resolver._draft7_conforms(projection, output_schema), expected)
+        check_both(context, True)
+        for record, scope, characteristic in [
+            (context['components'][0], 'app/ci', 'credential_bearing'),
+            (context['shared_paths'][0], '.github/**', 'release_write')]:
+            record['characteristic_overrides'] = [{"scope": scope,
+                "characteristic": characteristic, "value": True, "rationale": "Scoped runtime responsibility."}]
+        check_both(context, True)
+        self.assertTrue(resolver._project_context_valid(context, ROOT))
+        for owner in ('components', 'shared_paths'):
+            for field, value in [('characteristic', 'unknown'), ('value', 'true'), ('extra', True)]:
+                with self.subTest(owner=owner, field=field):
+                    changed = copy.deepcopy(context)
+                    changed[owner][0]['characteristic_overrides'][0][field] = value
+                    check_both(changed, False)
+            changed = copy.deepcopy(context)
+            changed[owner][0]['unexpected'] = True
+            check_both(changed, False)
+        for field in ('spec_profile', 'artifact_layout', 'capability_enforcement'):
+            changed = copy.deepcopy(context)
+            changed['workflow'][field] = 'unknown'
+            check_both(changed, False)
+        changed = copy.deepcopy(context)
+        changed['shared_paths'][0]['pattern'] = ''
+        self.assertFalse(resolver._draft7_conforms(changed, input_schema))
 
     def test_005_full_profile_output_contract_and_no_context_compatibility(self):
         text = (BOOTSTRAP / 'SKILL.md').read_text()
