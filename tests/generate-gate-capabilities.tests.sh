@@ -507,11 +507,10 @@ fi
 # tests/deterministic-lane-selfcheck.tests.sh's job_keys() already
 # established for this exact purpose in this repository (text markers
 # only, no YAML-parsing dependency, per that file's own "Technique" note).
-# Applied to BOTH the drafts/ candidate (expected PASS) and the REAL
-# human-copy/ workflow (expected DESIGNED-RED): the real human-copy/ file
-# predates the `test`-job parallel split (commit 3baadda5) and is missing
-# three whole jobs outright (measured: `installers`, `loops-routing`,
-# `version-gates`), not just a missing step inside an existing job.
+# The current drafts/ candidate must retain the complete live job set.
+# The applied human-copy/ workflow is checked separately against its fixed
+# historical bytes, while every later job and the required-checks block must
+# match the live workflow in the current candidate.
 # =====================================================================
 LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
 
