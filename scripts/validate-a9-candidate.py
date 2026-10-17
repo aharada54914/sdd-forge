@@ -21,6 +21,8 @@ def load(name):
 
 
 spec = importlib.util.spec_from_file_location("a9_observer", ROOT / "scripts/observe-a9-advisory.py")
+if spec is None or spec.loader is None:
+    raise RuntimeError("A9 observation validator is unavailable")
 OBSERVER = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(OBSERVER)
 

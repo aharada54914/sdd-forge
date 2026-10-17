@@ -150,7 +150,8 @@ def completed_host_proof(check, trace, record, decided):
     records = check.path(relative + '/nonce-ledger.json').parent
     # Cache original raw bytes before revalidation so later publication detects concurrent changes.
     for path in records.rglob('*'):
-        if not path.is_dir(): check.read(path.relative_to(check.root).as_posix())
+        if not path.is_dir():
+            check.read(path.relative_to(check.root).as_posix())
     for relative_source in PROOF.CONSUMERS.values():
         captured = records.parent.parent / relative_source
         check.read(captured.relative_to(check.root).as_posix())
@@ -249,7 +250,8 @@ def admit(args, check):
     for name, target in zip(CANDIDATE, TARGETS):
         require(bindings[name]['path'] == str(stage / target), 'promotion candidate is outside the supplied stage')
     require(bindings['manifest']['path'] == str(stage / 'MANIFEST.sha256'), 'promotion manifest differs from stage')
-    for binding in bindings.values(): check.bound(binding)
+    for binding in bindings.values():
+        check.bound(binding)
     identities = [(check.path(b['path']).stat().st_dev, check.path(b['path']).stat().st_ino) for b in bindings.values()]
     require(len(set(identities)) == len(identities), 'promotion inputs must be distinct files')
     docs = {name: document(check, binding) for name, binding in bindings.items() if name != 'manifest'}

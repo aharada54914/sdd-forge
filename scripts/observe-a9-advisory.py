@@ -144,7 +144,8 @@ def replay_plan(record, docs, root, head_sha, owned):
 def validate_observation(record, head_sha, base_sha, root, expected_state="advisory"):
     """Consistency of trusted exports and immutable Git inputs, not authentication."""
     try:
-        commit(head_sha); commit(base_sha)
+        commit(head_sha)
+        commit(base_sha)
         if (not re.fullmatch('[a-z0-9][a-z0-9-]*', record['feature'])
                 or not re.fullmatch('T-[0-9]{3,}', record['task_id'])):
             raise ValueError('invalid observation identity')
@@ -271,7 +272,8 @@ def collect(root, base_sha, head_sha, feature, contract_path, output=None):
 
 def collect_with_tools(root, base_sha, head_sha, feature, contract_path, scripts):
     root = root.resolve()
-    commit(base_sha); commit(head_sha)
+    commit(base_sha)
+    commit(head_sha)
     if git(root, 'rev-parse', 'HEAD').decode().strip() != head_sha:
         raise ValueError('checkout is not the requested PR head')
     if git(root, 'status', '--porcelain', '--untracked-files=no'):
@@ -443,7 +445,8 @@ def main():
                 raise ValueError('private reconstruction does not match the original observation digest')
         fd = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
-            json.dump(record, stream, sort_keys=True, indent=2); stream.write('\n')
+            json.dump(record, stream, sort_keys=True, indent=2)
+            stream.write('\n')
         summary = {key: record[key] for key in ('state', 'result', 'authorization_checked', 'head_sha', 'base_sha')}
         summary['observation_sha256'] = record_digest
         if args.expected_observation_sha256 is not None:
