@@ -285,6 +285,11 @@ Each reviewer must already have an exact persisted, input-bound ledger record;
 unbound historical records are not upgraded or reconstructed. Start a new genuine
 review if the earlier host did not record the required binding.
 
+Precheck and finalization hash aggregate cards in UTF-8 byte ordinal filename
+order, independent of locale or filesystem enumeration. The status field uses
+the precheck's whitespace normalization for validation; its original bytes remain
+bound by the reviewer manifests. Historical precheck hashes are never rewritten.
+
 Summary and finalization publish exclusively under the existing precheck lock.
 A replay, existing output, symlink/reparse path, malformed or changed input,
 missing reservation, reordered/missing check, or inconsistent verdict blocks

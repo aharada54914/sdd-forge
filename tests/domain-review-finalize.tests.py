@@ -49,7 +49,7 @@ def core():
 
 
 class Fixture:
-    def __init__(self, owner, round_number=1, fail=None, runtime=None, crlf=False):
+    def __init__(self, owner, round_number=1, fail=None, runtime=None, crlf=False, status=None, aggregate_names=(), reserve=True, locale_name=None):
         self.runtime = runtime or RUNTIME
         self.owner = owner
         temporary = tempfile.TemporaryDirectory(prefix='domain-finalizer-test-')
@@ -76,7 +76,16 @@ class Fixture:
                             else '# Synthetic domain fixture\n', encoding='utf-8')
         if crlf:
             (self.root / 'domain/context-map.md').write_bytes(b'Domain-Model-Status: Pending\r\n')
+        if status is not None:
+            ending = b'\r\n' if crlf else b'\n'
+            (self.root / 'domain/context-map.md').write_bytes(b'Domain-Model-Status:' + status + ending)
+        for name in aggregate_names:
+            (self.root / 'domain/aggregates' / name).write_bytes(('Card ' + name + '\n').encode('utf-8'))
+        self.files = [p for p in FILES if not p.startswith('domain/aggregates/')]
+        self.files += sorted(p.relative_to(self.root).as_posix() for p in (self.root / 'domain/aggregates').glob('*.md'))
         self.env = dict(os.environ, COPILOT_HOME=str(self.root / 'native'))
+        if locale_name is not None:
+            self.env['LC_ALL'] = locale_name
         events = self.root / 'native/session-state/synthetic-host/events.jsonl'
         save(events, dict(type='session.start', id='synthetic-host-event', parentId=None,
                          data=dict(producer='copilot-agent', version=1, sessionId='synthetic-host',
@@ -95,9 +104,10 @@ class Fixture:
                 command = ['bash', str(self.root / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'), '1', str(number)]
                 command += ['--edit-summary=synthetic fixture edit'] if number > 1 else []
             self.checked(command)
-        self.paths = FILES + [(self.round / 'precheck-result.json').relative_to(self.root).as_posix()]
-        self.reserve('a', self.paths)
-        self.output('a', fail if fail and fail[0] == 'a' else None)
+        self.paths = self.files + [(self.round / 'precheck-result.json').relative_to(self.root).as_posix()]
+        if reserve:
+            self.reserve('a', self.paths)
+            self.output('a', fail if fail and fail[0] == 'a' else None)
         self.before = self.snapshot_inputs()
 
     def checked(self, command):
@@ -159,7 +169,7 @@ class Fixture:
         self.output('b', fail)
 
     def snapshot_inputs(self):
-        return {p: (self.root / p).read_bytes() for p in FILES}
+        return {p: (self.root / p).read_bytes() for p in self.files}
 
 
 class DomainFinalizerTests(unittest.TestCase):
@@ -172,6 +182,65 @@ class DomainFinalizerTests(unittest.TestCase):
         self.assertFalse((fixture.round / 'domain-review-contract.json').exists())
         self.assertFalse((fixture.round / 'report.md').exists())
         self.assertEqual(fixture.snapshot_inputs(), fixture.before)
+
+    def test_status_whitespace_accepted_by_both_actual_producers(self):
+        for runtime in (('powershell',) if os.name == 'nt' else ('bash', 'powershell')):
+            for crlf in (False, True):
+                with self.subTest(runtime=runtime, crlf=crlf):
+                    f = Fixture(self, runtime=runtime, crlf=crlf, status=b' \tPending \t')
+                    f.prepare_b()
+                    self.assert_success(f.run())
+                    self.assert_success(f.run('verify'))
+                    self.assertEqual(f.snapshot_inputs(), f.before)
+
+    def test_unicode_status_whitespace_accepted_by_actual_powershell_producer(self):
+        f = Fixture(self, runtime='powershell', status=' Pending\u00a0'.encode('utf-8'))
+        f.prepare_b()
+        self.assert_success(f.run())
+        self.assert_success(f.run('verify'))
+        self.assertEqual(f.snapshot_inputs(), f.before)
+
+    def test_aggregate_hash_order_is_utf8_ordinal_for_both_actual_producers(self):
+        ascii_names = ('zLast.md', 'aLower.md', 'BUpper.md')
+        cases = (ascii_names, ascii_names + ('\u00c9clair.md', '\u03a9mega.md',
+                                            '\ue000Private.md', '\U00010000Supplementary.md'))
+        producers = [('powershell', None)]
+        if os.name != 'nt':
+            producers.append(('bash', 'C'))
+            locales = subprocess.run(['locale', '-a'], capture_output=True, text=True, check=True).stdout.splitlines()
+            cultured = next((name for name in locales if name.lower().startswith('en_us.') and 'utf' in name.lower()), None)
+            if cultured:
+                producers.append(('bash', cultured))
+        for names in cases:
+            hashes = []
+            for runtime, locale_name in producers:
+                with self.subTest(runtime=runtime, locale=locale_name, names=names):
+                    # Admission currently permits ASCII paths only. Unicode cases
+                    # exercise the actual producer/consumer hash boundary without
+                    # fabricating an admitted reservation for unsupported names.
+                    admissible = names == ascii_names
+                    f = Fixture(self, runtime=runtime, aggregate_names=names, reserve=admissible, locale_name=locale_name)
+                    canonical = FILES[:7] + sorted(
+                        (p.relative_to(f.root).as_posix() for p in (f.root / 'domain/aggregates').glob('*.md')),
+                        key=lambda p: p.encode('utf-8'))
+                    content_hashes = []
+                    for path in canonical:
+                        content = (f.root / path).read_bytes()
+                        if path == 'domain/context-map.md':
+                            content = content.replace(b'Pending', b'NORMALIZED')
+                        content_hashes.append(hashlib.sha256(content).hexdigest())
+                    expected = hashlib.sha256(':'.join(content_hashes).encode()).hexdigest()
+                    actual = read(f.round / 'precheck-result.json')['input_sha256']
+                    self.assertEqual(actual, expected)
+                    hashes.append(actual)
+                    core().Review(f.root, 1, 1, runtime).precheck()
+                    if admissible:
+                        f.prepare_b()
+                        self.assert_success(f.run())
+                        self.assert_success(f.run('verify'))
+                    self.assertEqual(f.snapshot_inputs(), f.before)
+            if hashes:
+                self.assertEqual(len(set(hashes)), 1)
 
     def test_product_entrypoints_exist(self):
         for suffix in ('.py', '.sh', '.ps1'):

@@ -137,7 +137,8 @@ class Review:
             content = self.read(relative)
             if relative == 'domain/context-map.md':
                 statuses = re.findall(rb'^Domain-Model-Status:[ \t]*([^\r\n]*)\r?$', content, re.M)
-                require(statuses == [b'Pending'], 'domain status must remain Pending')
+                statuses = [re.sub(r'\s', '', value.decode('utf-8')) for value in statuses]
+                require(statuses == ['Pending'], 'domain status must remain Pending')
                 content = re.sub(rb'^Domain-Model-Status:[^\r\n]*(\r?)$',
                                  rb'Domain-Model-Status: NORMALIZED\1', content, flags=re.M)
             hashes.append(digest(content))
