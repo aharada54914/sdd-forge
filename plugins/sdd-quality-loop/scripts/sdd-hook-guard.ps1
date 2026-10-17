@@ -2039,8 +2039,11 @@ if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payload
                 }
                 $payload = [pscustomobject]@{ tool_name = "task"; tool_input = $nativeArgs }
             } elseif ($nativeName -ceq "view") {
-                if (@($argKeys | Where-Object { @("path", "view_range") -cnotcontains $_ }).Count -gt 0) {
+                if (@($argKeys | Where-Object { @("path", "view_range", "forceReadLargeFiles") -cnotcontains $_ }).Count -gt 0) {
                     throw "unsupported view arguments"
+                }
+                if ($argKeys -ccontains "forceReadLargeFiles" -and $nativeArgs.forceReadLargeFiles -isnot [bool]) {
+                    throw "invalid large-file read flag"
                 }
                 if ($argKeys -ccontains "view_range") {
                     $range = $nativeArgs.view_range

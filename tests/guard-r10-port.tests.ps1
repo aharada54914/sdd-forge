@@ -267,6 +267,21 @@ $native = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = 
 Assert-CopilotParity "native view object -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
 $native.toolArgs = '{"path":"src/main.py"}'
 Assert-CopilotParity "native view JSON string -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+foreach ($forceRead in @($true, $false)) {
+    $native.toolArgs = @{ path = "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"; forceReadLargeFiles = $forceRead }
+    Assert-CopilotParity "native protected view large-file flag $forceRead -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+    $native.toolArgs.view_range = @(1, 10)
+    $native.toolArgs = $native.toolArgs | ConvertTo-Json -Compress -Depth 6
+    Assert-CopilotParity "native protected view JSON large-file flag and range -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+}
+foreach ($invalidFlag in @($null, 0, 1, "true", "false", @(), @{})) {
+    $native.toolArgs = @{ path = "src/main.py"; forceReadLargeFiles = $invalidFlag }
+    Assert-CopilotParity "native view nonboolean large-file flag -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+}
+$native.toolArgs = @{ path = "src/main.py"; forceReadLargeFiles = $true; file_text = "write" }
+Assert-CopilotParity "native view large-file flag cannot admit write arguments -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py"; forceReadLargeFiles = $true; view_range = @("1", 10) }
+Assert-CopilotParity "native view large-file flag keeps range validation -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
 $native.toolName = "create"
 $native.toolArgs = @{ path = "src/main.py"; file_text = "safe" }
 Assert-CopilotParity "native create safe write -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)

@@ -2030,8 +2030,10 @@ def main():
                         raise ValueError("invalid task arguments")
                     payload = {"tool_name": "task", "tool_input": args}
                 elif name == "view":
-                    if set(args) - {"path", "view_range"}:
+                    if set(args) - {"path", "view_range", "forceReadLargeFiles"}:
                         raise ValueError("unsupported view arguments")
+                    if "forceReadLargeFiles" in args and not isinstance(args["forceReadLargeFiles"], bool):
+                        raise ValueError("invalid large-file read flag")
                     if "view_range" in args and (not isinstance(args["view_range"], list)
                         or len(args["view_range"]) != 2
                         or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
