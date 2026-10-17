@@ -7,7 +7,7 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/sdd-t003-baseline-mutation.XXXXXX")"
 trap 'rm -rf -- "$WORK"' EXIT
 
 prove_runtime() {
-  local runtime=$1 cache="$WORK/cache-$1" mutated="$WORK/canonical-$1" rc
+  local runtime=$1 mutated="$WORK/canonical-$1" rc log="$WORK/mutation-$1.log"
   local command=()
   if [[ "$runtime" == bash ]]; then
     command=(bash "$ROOT/tests/compatibility-byte-identical.tests.sh")
@@ -16,7 +16,7 @@ prove_runtime() {
   fi
 
   printf '=== %s baseline GREEN ===\n' "$runtime"
-  T003_CAPTURE_CACHE="$cache" "${command[@]}"
+  "${command[@]}"
 
   cp -R "$CANONICAL" "$mutated"
   python3 - "$mutated/targets/deterministic-script-output.bin" <<'PY'
@@ -32,10 +32,11 @@ p.write_bytes(data)
 PY
   printf 'MUTATE %s canonical deterministic-script-output by one byte\n' "$runtime"
   set +e
-  T003_CAPTURE_CACHE="$cache" T003_CANONICAL_UNDER_TEST="$mutated" "${command[@]}"
+  T003_CANONICAL_UNDER_TEST="$mutated" "${command[@]}" >"$log" 2>&1
   rc=$?
   set -e
-  if [[ $rc -eq 0 ]]; then
+  cat "$log"
+  if [[ $rc -eq 0 ]] || ! grep -Fq -- "historical canonical bytes differ from manifest" "$log"; then
     printf 'FAIL: %s suite accepted the one-byte-mutated golden baseline\n' "$runtime"
     return 1
   fi
@@ -44,7 +45,7 @@ PY
   rm -rf -- "$mutated"
   cp -R "$CANONICAL" "$mutated"
   printf 'RESTORE %s canonical / GREEN\n' "$runtime"
-  T003_CAPTURE_CACHE="$cache" T003_CANONICAL_UNDER_TEST="$mutated" "${command[@]}"
+  T003_CANONICAL_UNDER_TEST="$mutated" "${command[@]}"
 }
 
 prove_runtime bash

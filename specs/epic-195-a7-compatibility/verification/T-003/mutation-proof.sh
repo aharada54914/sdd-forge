@@ -35,9 +35,13 @@ fi
 
 mutate_contract_for_cell() {
   local cell=$1 destination=$2
-  mkdir -p "$destination/plugins/sdd-ship/skills/ship"
+  git clone -q --shared "$ROOT" "$destination"
   cp "$ROOT/plugins/sdd-ship/skills/ship/SKILL.md" "$destination/plugins/sdd-ship/skills/ship/SKILL.md"
   cp "$ROOT/PLUGIN-CONTRACTS.md" "$destination/PLUGIN-CONTRACTS.md"
+  T003_PRODUCT_ROOT_UNDER_TEST="$destination" "${command[@]}" >"$WORK/product-control.log" 2>&1 || {
+    cat "$WORK/product-control.log"
+    return 1
+  }
   python3 - "$destination/plugins/sdd-ship/skills/ship/SKILL.md" "$cell" <<'PY'
 from pathlib import Path
 import re
@@ -71,7 +75,7 @@ PY
 }
 
 prove_runtime() {
-  local runtime=$1 cache="$WORK/cache-$1" assertion rc mutation_root
+  local runtime=$1 assertion rc mutation_root diagnostic log="$WORK/mutation-$1.log"
   local command=()
   if [[ "$runtime" == bash ]]; then
     command=(bash "$ROOT/tests/compatibility-byte-identical.tests.sh")
@@ -79,28 +83,36 @@ prove_runtime() {
     command=(pwsh -NoProfile -File "$ROOT/tests/compatibility-byte-identical.tests.ps1")
   fi
 
-  printf '=== %s cache prime / GREEN ===\n' "$runtime"
-  T003_CAPTURE_CACHE="$cache" "${command[@]}"
+  printf '=== %s current product / GREEN ===\n' "$runtime"
+  "${command[@]}"
   for assertion in "${ASSERTIONS[@]}"; do
     printf 'MUTATE %s %s\n' "$runtime" "$assertion"
-    set +e
     if [[ "$assertion" == CLI:* ]]; then
       mutation_root="$WORK/contract-$runtime-${assertion//[^A-Za-z0-9]/_}"
       mutate_contract_for_cell "${assertion#CLI:}" "$mutation_root"
-      T003_CAPTURE_CACHE="$cache" T003_PRODUCT_ROOT_UNDER_TEST="$mutation_root" "${command[@]}"
+      diagnostic="FAIL: CLI cell ${assertion#CLI:}"
+    elif [[ "$assertion" == negative-self-check ]]; then
+      diagnostic='FAIL: negative self-check:'
     else
-      T003_CAPTURE_CACHE="$cache" T003_MUTATE_ASSERTION="$assertion" "${command[@]}"
+      diagnostic="FAIL: ${assertion/:/ } "
+    fi
+    set +e
+    if [[ "$assertion" == CLI:* ]]; then
+      T003_PRODUCT_ROOT_UNDER_TEST="$mutation_root" "${command[@]}" >"$log" 2>&1
+    else
+      T003_MUTATE_ASSERTION="$assertion" "${command[@]}" >"$log" 2>&1
     fi
     rc=$?
     set -e
-    if [[ $rc -eq 0 ]]; then
-      printf 'FAIL: mutation survived: %s %s\n' "$runtime" "$assertion"
+    cat "$log"
+    if [[ $rc -eq 0 ]] || ! grep -Fq -- "$diagnostic" "$log"; then
+      printf 'FAIL: mutation survived or failed for an unrelated reason: %s %s\n' "$runtime" "$assertion"
       return 1
     fi
     printf 'EXPECTED RED: %s %s (exit %d)\n' "$runtime" "$assertion" "$rc"
   done
   printf 'RESTORE %s / GREEN\n' "$runtime"
-  T003_CAPTURE_CACHE="$cache" "${command[@]}"
+  "${command[@]}"
 }
 
 runtimes=(bash pwsh)
