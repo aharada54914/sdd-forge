@@ -9,3 +9,12 @@ Its default mode validates the actual supplied HMAC approval and Ed25519 receipt
 without applying them. The explicit `--apply` route invokes the existing safe
 publisher only after admission. A separately signed applied attestation and
 current-file verification are required for the signed rehearsal result.
+
+For Phase-2 promotion, the [bound admission contract](../verification/promotion-admission-contract.md)
+connects the release preflight, original findings and WFI artifacts, three-OS
+compatibility, signed live-host proof, and a completed signed rollback rehearsal
+to the real Phase-2 HMAC approval and an operator-signed decision.
+`scripts/validate-a9-promotion.py` validates by default; its explicit `--apply`
+route rechecks the evidence before using the existing three-file publisher.
+An `ADMISSIBLE` result does not publish, and `APPLIED` does not claim the
+subsequent real feature acceptance condition has completed.

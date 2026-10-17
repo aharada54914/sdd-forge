@@ -168,6 +168,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
     "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
     "scripts/validate-a9-rollback-receipt.py",
+    "scripts/validate-a9-promotion.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

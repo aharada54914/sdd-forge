@@ -635,6 +635,7 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
 # including wrappers mentioned through brace syntax in skill documentation.
 for domain_gate in \
     scripts/validate-a9-rollback-receipt.py \
+    scripts/validate-a9-promotion.py \
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
     plugins/sdd-domain/scripts/record-upstream-concept-issue.py \
     plugins/sdd-domain/scripts/validate-domain-contract.sh \

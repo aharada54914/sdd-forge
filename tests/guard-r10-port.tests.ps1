@@ -184,6 +184,8 @@ Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"writ
 # A9 publication admission must remain protected in all three guard runtimes.
 $rollbackPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/validate-a9-rollback-receipt.py'; content = 'replacement' } } | ConvertTo-Json -Compress
 Assert-Parity 'r10 A9 rollback admission' 2 $rollbackPayload
+$promotionPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/validate-a9-promotion.py'; content = 'replacement' } } | ConvertTo-Json -Compress
+Assert-Parity 'r10 A9 promotion admission' 2 $promotionPayload
 
 # The domain finalizer's Python master and both packaged wrappers are gates.
 Assert-Parity "r10 signed handoff proof verifier" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/lib/cross-runtime-consumer-evidence.py","content":"replacement"}}'

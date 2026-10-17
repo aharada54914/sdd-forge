@@ -235,6 +235,7 @@ FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WOR
 # explicit and present exactly once; they do not loosen unrelated membership.
 ADDITIONAL_PROTECTIONS = (
     'scripts/validate-a9-rollback-receipt.py',
+    'scripts/validate-a9-promotion.py',
     'plugins/sdd-bootstrap/scripts/resolve-design-sync.py',
     QUALITY_SCRIPTS + 'initialize-review-identity.py',
     QUALITY_SCRIPTS + 'issue-live-host-nonce.py',

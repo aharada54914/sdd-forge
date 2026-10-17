@@ -24,3 +24,8 @@ if ($LASTEXITCODE -ne 0) {
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
+
+& $python.Source (Join-Path $PSScriptRoot 'a9-promotion-admission.tests.py')
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}

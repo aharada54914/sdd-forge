@@ -245,6 +245,8 @@ shared_paths:
     classification: "cross-cutting"
   - pattern: "scripts/observe-a9-advisory.py"
     classification: "cross-cutting"
+  - pattern: "scripts/validate-a9-promotion.py"
+    classification: "cross-cutting"
   - pattern: "scripts/validate-a9-rollback-receipt.py"
     classification: "cross-cutting"
   - pattern: "scripts/validate-a9-candidate.py"
