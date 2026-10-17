@@ -271,6 +271,7 @@ def collect(root, base_sha, head_sha, feature, contract_path, output=None):
 
 
 def collect_with_tools(root, base_sha, head_sha, feature, contract_path, scripts):
+    lexical_root = Path(os.path.abspath(root))
     root = root.resolve()
     commit(base_sha)
     commit(head_sha)
@@ -302,7 +303,13 @@ def collect_with_tools(root, base_sha, head_sha, feature, contract_path, scripts
     if state not in WORKFLOWS or context['workflow'] != WORKFLOWS[state]:
         raise ValueError('live Context is not an exact supported phase')
     contract_path = Path(os.path.abspath(contract_path))
-    contract_relative = contract_path.relative_to(root).as_posix()
+    try:
+        contract_relative = contract_path.relative_to(lexical_root).as_posix()
+    except ValueError:
+        contract_relative = contract_path.relative_to(root).as_posix()
+    # Normalize only the repository ancestor (e.g. macOS /var -> /private/var).
+    # read_input must still inspect every unresolved component below that root.
+    contract_path = root / contract_relative
     contract_raw = read_input(root, contract_relative)
     contract = json.loads(contract_raw)
     task_id = contract['task_id']

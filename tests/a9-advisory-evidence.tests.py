@@ -178,6 +178,34 @@ class ObservationTests(unittest.TestCase):
                 with self.assertRaises((ValueError, OSError)):
                     observer.collect(root, base, head, 'fixture', contract)
 
+    def test_manual_contract_accepts_repository_ancestor_alias(self):
+        with tempfile.TemporaryDirectory(prefix='a9-root-alias-') as raw:
+            alias = Path(raw).resolve() / 'repo'
+            try:
+                alias.symlink_to(self.root.resolve(), target_is_directory=True)
+            except OSError:
+                self.skipTest('symlink privilege unavailable')
+            for contract in (alias / self.contract.relative_to(self.root), self.contract.resolve()):
+                with self.subTest(contract_form='alias' if contract.is_relative_to(alias) else 'canonical'):
+                    record = observer.collect(alias, self.base, self.head, 'fixture', contract)
+                    self.assertEqual(record['result'], 'PASS')
+                    self.assertEqual(record['artifacts']['verification_contract'], self.record['artifacts']['verification_contract'])
+
+    def test_manual_contract_under_aliased_root_rejects_internal_symlink(self):
+        with tempfile.TemporaryDirectory(prefix='a9-root-alias-negative-') as raw:
+            alias = Path(raw).resolve() / 'repo'
+            internal = self.root / 'untracked-contract-alias'
+            try:
+                alias.symlink_to(self.root.resolve(), target_is_directory=True)
+                internal.symlink_to(self.contract.parent.resolve(), target_is_directory=True)
+            except OSError:
+                self.skipTest('symlink privilege unavailable')
+            try:
+                with self.assertRaisesRegex(ValueError, 'symlinks and reparse points'):
+                    observer.collect(alias, self.base, self.head, 'fixture', alias / internal.name / self.contract.name)
+            finally:
+                internal.unlink()
+
     def test_public_cli_diagnostic_does_not_print_private_path_or_error_payload(self):
         output = io.StringIO()
         with tempfile.TemporaryDirectory(prefix='a9-private-diagnostic-') as raw:
