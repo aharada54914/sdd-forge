@@ -165,9 +165,11 @@ jobs:
       - name: "[deterministic] Test Concept Test gate on native Windows"
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          python -B tests/concept-test.tests.py
-          python -B tests/domain-review-finalize.tests.py
+        run: python -B tests/concept-test.tests.py
+
+      - name: "[deterministic] Test domain review finalization on native platforms"
+        shell: pwsh
+        run: python -B tests/domain-review-finalize.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'

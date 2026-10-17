@@ -7,6 +7,7 @@ structural changes must update this test rather than silently skip checks.
 """
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import unittest
@@ -109,6 +110,40 @@ class RequiredChecksTests(unittest.TestCase):
         consumers = [step for step in steps if 'tests/quality-nontty-transport.tests.py' in step]
         self.assertEqual(len(consumers), 1)
         self.assertLess(steps.index(install), steps.index(consumers[0]))
+
+    def test_domain_finalization_has_its_own_unconditional_native_step(self):
+        job = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)[0]
+        steps = re.split(r'^      - ', job, flags=re.M)[1:]
+        consumers = [step for step in steps if 'tests/domain-review-finalize.tests.py' in step]
+        self.assertEqual(len(consumers), 1)
+        self.assertNotRegex(consumers[0], r'(?m)^        (if|continue-on-error):')
+        self.assertIn('        run: python -B tests/domain-review-finalize.tests.py',
+                      consumers[0].splitlines())
+
+    def test_each_native_python_failure_propagates_to_the_step(self):
+        job = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)[0]
+        steps = re.split(r'^      - ', job, flags=re.M)[1:]
+        executable = "'" + sys.executable.replace("'", "''") + "'"
+        for suite in ('tests/concept-test.tests.py', 'tests/domain-review-finalize.tests.py'):
+            with self.subTest(suite=suite):
+                consumers = [step for step in steps if suite in step]
+                self.assertEqual(len(consumers), 1)
+                step = consumers[0]
+                self.assertIn('        shell: pwsh', step.splitlines())
+                body = step.split('        run: ', 1)[1]
+                if body.startswith('|\n'):
+                    body = '\n'.join(line[10:] for line in body[2:].splitlines())
+                body = re.sub(r'python -B (tests/[\w.-]+\.py)',
+                              lambda match: f'& {executable} -c "raise SystemExit({23 if match[1] == suite else 0})"',
+                              body)
+                # GitHub's pwsh wrapper exits with the final native command's
+                # status. Exercise the actual step body with one failing suite.
+                script = ("$ErrorActionPreference = 'stop'\n"
+                          "$PSNativeCommandUseErrorActionPreference = $false\n" + body +
+                          "\nif (Test-Path variable:\\LASTEXITCODE) { exit $LASTEXITCODE }\n")
+                run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', script],
+                                     capture_output=True, text=True, timeout=30)
+                self.assertEqual(run.returncode, 23, run.stdout + run.stderr)
 
     def execute_body(self, failed_job=None, result='success'):
         def expand(match):
