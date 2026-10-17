@@ -287,7 +287,11 @@ class DomainInputManifest(unittest.TestCase):
                                                        sessionId='fixture-host-session', context=dict(cwd=str(root))))))
             with mock.patch.dict(os.environ, COPILOT_HOME=str(root / 'native')):
                 initial_document = concept.identity.initialize(root, events)
-            checked = subprocess.run(['bash', str(script), '1', '1'], capture_output=True, text=True)
+            documented = re.search(r'`((?:bash )?plugins/sdd-domain/scripts/domain-review-precheck.sh) <attempt> <round>`', skill)
+            self.assertIsNotNone(documented)
+            command = documented.group(1).split()
+            command[-1] = str(script)
+            checked = subprocess.run(command + ['1', '1'], capture_output=True, text=True)
             self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
             entries = [dict(path=p, sha256=hashlib.sha256((root / p).read_bytes()).hexdigest()) for p in paths]
             ledger = root / 'reports/review-context/identity-ledger.json'

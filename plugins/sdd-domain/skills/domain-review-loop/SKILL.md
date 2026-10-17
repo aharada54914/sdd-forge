@@ -59,7 +59,7 @@ table) plus `domain/domain-contract.json`. The context-map header must
 declare `Domain-Model-Status: Pending`. Determine the next attempt and round
 from persisted `reports/domain-review/attempt-<M>/round-<N>/` evidence; do not
 invent or replay a round. Invoke
-`plugins/sdd-domain/scripts/domain-review-precheck.sh <attempt> <round>` with
+`bash plugins/sdd-domain/scripts/domain-review-precheck.sh <attempt> <round>` with
 the matching `--edit-summary` or `--reset` option before creating reviewer
 input.
 
@@ -142,8 +142,8 @@ Immediately before launching the named reviewer, reserve its identity with
 one of:
 
 ```text
-plugins/sdd-quality-loop/scripts/validate-review-context-set.sh <invocation-manifest> <repository-root> --reserve
-plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 -Manifest <invocation-manifest> -RepositoryRoot <repository-root> -Reserve
+bash plugins/sdd-quality-loop/scripts/validate-review-context-set.sh <invocation-manifest> <repository-root> --reserve
+pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 -Manifest <invocation-manifest> -RepositoryRoot <repository-root> -Reserve
 ```
 
 Require `REVIEW_CONTEXT_OK`, then launch exactly the role/run/session named in
