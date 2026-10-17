@@ -8,7 +8,7 @@ Minor: 0
 ## Provenance and limits
 
 This is the coordinator's transcription of the completed independent evaluation
-returned by `/root/issue423_t002_current_review`, not a native transcript or a
+returned by `agent:issue423_t002_current_review`, not a native transcript or a
 canonical ledger reservation. The user authorized independent Codex evaluation
 outside the formal review ledger. Actual model, reasoning effort and native
 session identifier were not exposed and are unknown. No reserved run identity
@@ -52,3 +52,5 @@ This PASS does not itself change task status, resolve tickets, admit recovery
 receipts, reserve an identity, prove native Windows/host activation, or establish
 latest-head CI, merge or post-merge success. A current quality-gate decision and
 validated evidence bundle remain separate acceptance steps.
+
+Publication note: local paths and internal agent paths are redacted in this copy. Historical observations and source digests are retained; this publication copy is not byte-identical to the original capture.

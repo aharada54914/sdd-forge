@@ -21,7 +21,9 @@ macOS, PowerShell 7.6.2:
 - PowerShell parser: no syntax errors.
 - `pwsh -NoProfile -File tests/cross-model.tests.ps1`: **89 passed, 0 failed**, exit 0. Both runners completed all 5 boundary repetitions with successful waits and no cleanup kills. All vendor CLIs were synthetic fixtures; no external panelist was invoked.
 - `git diff --check`: exit 0.
-- Independent read-only reviewer `/root/windows_fixture_review`: no findings; confirmed unchanged success criteria. This is a diff review, not the formal quality gate.
+- Independent read-only reviewer `agent:windows_fixture_review`: no findings; confirmed unchanged success criteria. This is a diff review, not the formal quality gate.
 - Latest fetched main `3b155fb21aa5cf10ac0811865dc8815b6f103cc3` is an ancestor of the prior head.
 
 Windows verification remains pending on the new commit. This report does not claim timeout recovery, formal gate success, live-host activation, task completion, merge, or Issue closure.
+
+Publication note: local paths and internal agent paths are redacted in this copy. Historical observations and source digests are retained; this publication copy is not byte-identical to the original capture.

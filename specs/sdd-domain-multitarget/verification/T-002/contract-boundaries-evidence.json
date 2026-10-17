@@ -8,7 +8,7 @@
   "inputs": {
     "manifest": "handoffs/issue423-t002-20260928/manifest.json",
     "sha256": "de0ee63808fec9bcafaea2363c3ffba7a95f1c16f1ef1b78033b2c4c112205c4",
-    "immutable_snapshot": "/tmp/sdd423-t002-snapshot-b2e4033f",
+    "immutable_snapshot": "<isolated-snapshot-root>",
     "parent_scope_extension": "Parent traced and changed the shared_paths boundary in both canonical schemas and synchronized the distributed projection schema. These changes were not authored or authorized by the original read-only worker manifest."
   },
   "artifacts": [
@@ -164,7 +164,7 @@
     }
   ],
   "independent_diff_review": {
-    "reviewer": "/root/issue423_t002_diff_review",
+    "reviewer": "agent:issue423_t002_diff_review",
     "formal_quality_gate": false,
     "verdict": "NEEDS_WORK",
     "severity": "Major",
@@ -206,5 +206,5 @@
     "Native hook activation",
     "Main integration"
   ],
-  "publication_redaction": "Local filesystem prefixes have been replaced with placeholders; captured outcomes and source-artifact digests are unchanged."
+  "publication_redaction": "Local filesystem prefixes and internal agent paths are replaced with placeholders. Captured outcomes and historical source-artifact digests are unchanged; those digests describe the original capture, not this redacted publication copy."
 }

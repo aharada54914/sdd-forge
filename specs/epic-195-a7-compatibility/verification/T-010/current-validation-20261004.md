@@ -122,8 +122,10 @@ Implementation Complete claim.
 
 The only actual host-issued identifier obtained for this session is the
 temporary scratch basename above. The agent routing name is
-`/root/other_pr_readiness/a7_t010_fresh_validation`; a separate host-issued
+`agent:other_pr_readiness.a7_t010_fresh_validation`; a separate host-issued
 Run ID, Session ID, and Agent Instance ID were not exposed to this agent.
 No identity value has been invented or retroactively attributed to the
 historical implementation. This addendum cannot substitute for a complete
 canonical v2 implementation report or the later quality gate.
+
+Publication note: local paths and internal agent paths are redacted in this copy. Historical observations and source digests are retained; this publication copy is not byte-identical to the original capture.
