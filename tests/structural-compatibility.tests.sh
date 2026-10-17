@@ -16,7 +16,12 @@ source "$REPO_ROOT/tests/lib/skip-allowlist-evaluator.sh"
 PASS=0
 FAIL=0
 pass() { printf 'PASS: %s\n' "$1"; PASS=$((PASS + 1)); }
-fail() { printf 'FAIL: %s\n' "$1" >&2; FAIL=$((FAIL + 1)); }
+fail() {
+  printf 'FAIL: %s\n' "$1" >&2
+  FAIL=$((FAIL + 1))
+  # A mutation is killed only after its target assertion actually fails.
+  if [[ -n "${STRUCTURAL_MUTATION_TARGET:-}" && "FAIL: $1" == "${STRUCTURAL_MUTATION_TARGET:-}"* ]]; then exit 1; fi
+}
 assert_true() { local label="$1"; shift; if "$@"; then pass "$label"; else fail "$label"; fi; }
 
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/structural-compat.XXXXXX")"

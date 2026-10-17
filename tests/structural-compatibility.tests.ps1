@@ -14,7 +14,12 @@ $script:Passed = 0
 $script:Failed = 0
 
 function Pass([string]$Label) { Write-Output "PASS: $Label"; $script:Passed++ }
-function Fail([string]$Label) { Write-Error "FAIL: $Label" -ErrorAction Continue; $script:Failed++ }
+function Fail([string]$Label) {
+    Write-Error "FAIL: $Label" -ErrorAction Continue
+    $script:Failed++
+    # A mutation is killed only after its target assertion actually fails.
+    if ($env:STRUCTURAL_MUTATION_TARGET -and ("FAIL: $Label").StartsWith($env:STRUCTURAL_MUTATION_TARGET, [StringComparison]::Ordinal)) { exit 1 }
+}
 function Assert-True([string]$Label, [bool]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
 
 $Required = @(

@@ -6,9 +6,15 @@ const require = createRequire(new URL('../../mcp/sdd-forge-mcp/package.json', im
 const horizontal = value => value.replace(/[ \t]+/g, ' ').trim();
 const byteOrder = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
 
+function checkedNumber(value) {
+  if (!Number.isFinite(value)) throw new Error('non-finite YAML value');
+  if (Number.isInteger(value) && !Number.isSafeInteger(value)) throw new Error('unsafe YAML integer');
+  return value;
+}
+
 function normalize(value, ancestors = new Set()) {
   if (typeof value === 'string') return horizontal(value);
-  if (typeof value === 'number' && !Number.isFinite(value)) throw new Error('non-finite YAML value');
+  if (typeof value === 'number') return checkedNumber(value);
   if (value === null || typeof value !== 'object') return value;
   if (ancestors.has(value)) throw new Error('cyclic YAML alias');
   ancestors.add(value);
@@ -22,6 +28,17 @@ function normalize(value, ancestors = new Set()) {
 try {
   if (process.argv.length !== 3) throw new Error('expected one Markdown file');
   const yaml = require('js-yaml');
+  // Reject lossy integers during scalar construction, including mapping keys
+  // that js-yaml would otherwise round before converting them to strings.
+  const schema = new yaml.Schema(yaml.CORE_SCHEMA.tags.map(tag =>
+    tag === yaml.intCoreTag || tag === yaml.floatCoreTag
+      ? yaml.defineScalarTag(tag.tagName, {
+        ...tag,
+        resolve(...args) {
+          const value = tag.resolve(...args);
+          return value === yaml.NOT_RESOLVED ? value : checkedNumber(value);
+        },
+      }) : tag));
   const lines = new TextDecoder('utf-8', { fatal: true }).decode(readFileSync(process.argv[2]))
     .replace(/\r\n?/g, '\n').split('\n');
   let start = 0;
@@ -30,7 +47,7 @@ try {
     const end = lines.indexOf('---', 1);
     if (end === -1) throw new Error('unterminated frontmatter');
     const source = lines.slice(1, end).join('\n');
-    const parsed = yaml.load(source, { schema: yaml.CORE_SCHEMA });
+    const parsed = yaml.load(source, { schema });
     if (parsed !== undefined && (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed))) {
       throw new Error('frontmatter must be a key-value map');
     }
