@@ -1,0 +1,20 @@
+{
+  "published_originals_checked": 49,
+  "published_originals_matched": 49,
+  "mismatches": [],
+  "missing_canonical_inputs": [
+    "docs/development-policy.md",
+    "reports/implementation/sdd-domain-multitarget/T-003.md",
+    "specs/sdd-domain-multitarget/verification/T-002.contract.json",
+    "specs/sdd-domain-multitarget/verification/T-002.evidence.json",
+    "reports/implementation/sdd-domain-multitarget/T-003-preflight-handoff-20261016-fresh.md"
+  ],
+  "helper": {
+    "archived_sha256": "ea08dbd141b24f4685fd9211b4454d782e5ea80e081e0a59d89ee7f7fe5282ea",
+    "active_sha256": "385c849f6c0bc7f71fc2717e2c2bfb5ea9e3ff4a5fe7496d8889cc75f420ad4a"
+  },
+  "installer": {
+    "archived_sha256": "87bcebfeb53f6521f03cc62f2bc760902bd7af2d28ea24ffb2d29662b71bad50",
+    "active_sha256": "9b43d5eaf93a9cefffc562a3108f43ab2bc2a64c675a710ec5c59250f7abe719"
+  }
+}

@@ -14,8 +14,8 @@ Source: Issue #423 (Multi-target Foundation Phase 1)
 
 ## T-001 Consumer inventory and boundary fixtures
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: The inventory drives later routing decisions; a stale or incomplete mapping can silently bypass an existing consumer.
 Required Workflow: acceptance-first
@@ -32,8 +32,8 @@ Done When:
 
 ## T-002 Ownership and contract boundary fixtures
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: Ownership and provider-neutral contract rules protect shared Core policy from provider leakage.
 Required Workflow: acceptance-first
@@ -51,8 +51,8 @@ Done When:
 
 ## T-003 Target capability resolution and verification obligations
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Resolver output controls required checks and fail-closed behavior at a trust boundary; an incorrect obligation can permit an unverified target.
 Required Workflow: tdd
@@ -73,8 +73,8 @@ Done When:
 
 ## T-004 Compatibility and hybrid fallback
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Compatibility behavior is shared by existing consumers; a regression could alter approval, evidence, or artifact semantics for legacy projects.
 Required Workflow: tdd
@@ -94,8 +94,8 @@ Done When:
 
 ## T-005 UI provider boundary and consent-safe fallback
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Provider extraction crosses an egress and consent boundary; a routing error could send design data without configured consent.
 Required Workflow: tdd
@@ -115,8 +115,8 @@ Done When:
 
 ## T-006 Provider evidence, host conformance, and release evidence
 
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: Evidence and host adapters must agree on the same obligations; a missing host mapping can make a correct resolver result unenforced.
 Required Workflow: acceptance-first

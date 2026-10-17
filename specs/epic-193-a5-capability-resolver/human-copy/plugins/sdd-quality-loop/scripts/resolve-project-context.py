@@ -3340,6 +3340,28 @@ def main(argv=None):
             script_dir, registry_document, affected_components, projection_components,
             capability_evaluations, warn_diagnostics,
         )
+        # RT-20260930-001: fail closed on this retired v1 trigger until replaced.
+        if not any(capability["id"] == "durable-workflow" for capability in registry_document["capabilities"]):
+            legacy_trigger = {"any": [{
+                "scope": "affected_component", "field": "artifact_kinds",
+                "operator": "contains", "value": "durable_workflow",
+            }]}
+            for component_id in sorted(affected_components):
+                if "durable_workflow" not in projection_components[component_id].get("artifact_kinds", []):
+                    continue
+                selected, _ = _evaluate_predicate(
+                    script_dir, legacy_trigger, projection_components[component_id],
+                )
+                if selected:
+                    detail = (
+                        "durable-workflow-content-migration/2026-10-01-v1: "
+                        f"affected component {component_id!r} selects retired durable-workflow; "
+                        "its mandatory facet, review, gate, and Lite obligations have no approved replacement"
+                    )
+                    return _block(
+                        repo_root, args.feature, "registry-validation-failed", detail,
+                        state, capability_evaluations, warn_diagnostics,
+                    )
     except RegistryValidationFailed:
         # Amendment A① (human-approved 2026-08-24): requirements.md's
         # AC-056 sentence now carries an explicit exception in the "or

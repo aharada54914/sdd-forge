@@ -21,6 +21,9 @@ file" below).
 
 ## Capability Detection
 
+For an applicable UI/custom target, complete the local Ensure design-system/
+section below before probing; provider absence must not suppress local artifacts.
+
 1. Probe for the `DesignSync` tool. In Claude Code it may be a deferred tool;
    search for it before concluding it is absent.
 2. If the tool is unavailable or authentication fails, record
@@ -322,3 +325,66 @@ what happened, never permission for what happens next.
   contract without a human-approved edit.
 - Consumers of `design-system/` never rewrite it here beyond the creation and
   human-approved edits described in "Ensure design-system/".
+
+## Provider decision boundary
+
+Both full and lite callers use `scripts/resolve-design-sync.py` from the
+sdd-bootstrap plugin. Run it with Python 3 and the following transient JSON on
+stdin before every provider operation; do not persist its request as a new
+source of policy. This helper has no network or provider API access.
+
+```json
+{
+  "schema": "design-sync-request/v1",
+  "operation": "upload",
+  "ui_app": true,
+  "ds_profile": "custom",
+  "capability_resolved": true,
+  "provider_available": true,
+  "egress_permitted": true,
+  "feature": "example",
+  "session": "current-session",
+  "destination": "selected-project",
+  "setting": "per-feature",
+  "records": []
+}
+```
+
+Use `operation: pull` for step 1's provider reads: upload consent does not gate
+that existing direction and this operation returns no consent audit. Before a
+project is selected, destination is the named provider; after selection it is
+the actual project. Use `operation: upload` at step 3, after step 4's answer,
+and before step 5. A pull decision must never be reused for an upload.
+
+Populate inputs from the current interview/approved Context and resolved UI
+Capability, the actual tool availability, the current egress policy, and the
+existing layer file. With no Context, the explicit UI/custom interview choice
+is the legacy applicability decision; with Context, require its resolved UI
+Capability. Do not infer UI applicability from seven retained layer filenames.
+Re-read `ds_upload_consent` from Project Settings on every invocation, including
+after a prompt and immediately before upload; missing/unknown/mis-cased values
+remain per-feature. Never reuse a cached decision as authorization.
+
+Normalize existing Design-Source records into oldest-first objects with
+`feature`, `session`, `destination`, `decision` (the Egress-Consent value), and
+`setting` (Ds-Upload-Consent-Setting, absent means the original per-feature
+contract). Include withdrawals and not-permitted records, and bind session to
+the current live session; an ended session must never be reused. Do not turn
+ambiguous records into grants. A standing record is not a per-feature grant.
+A fresh informed answer adds `response: grant` and the actual `party`, or
+`response: decline`, for this invocation only; clear it on the next attempt.
+
+Consume the `design-sync-decision/v1` result exactly: `skip` returns to the
+caller without integration, `manual` uses the local fallback, `prompt` performs
+step 4 and resolves again, and `proceed` continues the existing loop.
+In particular, proceed does not authorize an upload: step 5's fresh scan and
+all existing egress restrictions still apply. Copy any returned `audit` into
+the existing Design-Source fields, with the actual ISO-8601 time, subject and
+session expiry; do not invent a human party for standing/off. A null audit
+writes no additional grant. Record a withdrawal when it occurs before resolving
+again. Errors, missing Python, or unresolved inputs take the local manual path,
+never provider calls. These decisions do not claim actual provider execution.
+
+Local design-system creation, file-only DTCG import and disposable local mockups
+remain available in the manual path; they do not require a remote capability or
+consent. An unavailable provider must not suppress those local operations.

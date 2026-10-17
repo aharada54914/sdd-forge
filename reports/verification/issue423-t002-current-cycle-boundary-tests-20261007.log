@@ -1,0 +1,37 @@
+Command: rtk proxy python3 -B specs/sdd-domain-multitarget/verification/T-002/contract-boundaries.tests.py --repo-root . -v
+Exit code: 0
+
+test_actual_registry_has_no_provider_terms (__main__.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (__main__.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (__main__.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (__main__.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (__main__.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (__main__.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (__main__.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (__main__.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (__main__.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (__main__.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (__main__.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (__main__.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (__main__.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (__main__.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (__main__.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (__main__.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (__main__.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (__main__.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (__main__.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (__main__.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (__main__.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (__main__.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (__main__.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (__main__.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.042s
+
+OK

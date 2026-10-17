@@ -2,7 +2,7 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "737af6db85d6ec9e31ad087acb358ea34de1e1d57f4ad4f2ffe2017c64d91278",
+    "sha256": "42b884b2b58d2b370b03b64b115d0f20b7a049e60b5e715e673fe12c022564c1",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
@@ -25,21 +25,35 @@
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-scope-boundary.py"
     },
     {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    },
+    {
       "id": "check-installed-plugin-drift",
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
-    },
-    {
-      "id": "check-update-migration",
-      "stage": "implementation",
-      "blocking": true,
-      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
     }
   ],
-  "capability_gate_map": {
-    "durable-workflow": [
-      "check-update-migration"
-    ]
-  }
+  "capability_gate_map": {}
 }

@@ -2,12 +2,6 @@
   "schema": "capability-registry/v1",
   "gates": [
     {
-      "id": "check-update-migration",
-      "stage": "implementation",
-      "blocking": true,
-      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
-    },
-    {
       "id": "check-installed-plugin-drift",
       "stage": "implementation",
       "blocking": true,
@@ -30,38 +24,31 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+    },
+    {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-criterion-freeze",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-criterion-freeze.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
     }
   ],
-  "capabilities": [
-    {
-      "id": "durable-workflow",
-      "trigger": {
-        "any": [
-          {
-            "scope": "affected_component",
-            "field": "artifact_kinds",
-            "operator": "contains",
-            "value": "durable_workflow"
-          }
-        ]
-      },
-      "required_facets": ["data-spec"],
-      "conditional_facets": [
-        {
-          "facet": "pii-handling-spec",
-          "when": {
-            "scope": "affected_component",
-            "field": "characteristics.pii",
-            "operator": "equals",
-            "value": true
-          }
-        }
-      ],
-      "review_check_ids": ["durable-workflow-replay-safety"],
-      "gate_ids": ["check-update-migration"],
-      "lite_policy": { "eligible": false, "upgrade_reasons": ["durable_workflow"] },
-      "minimum_enforcement": "required",
-      "delivery_strategy": { "kind": "durable-workflow" }
-    }
-  ]
+  "capabilities": []
 }

@@ -1,0 +1,3 @@
+collapse-facets tests: 5 failures: 5 errors: 0
+drop-selected-gates tests: 5 failures: 5 errors: 0
+Both deliberately incorrect Resolver projections were rejected by all five target tests.

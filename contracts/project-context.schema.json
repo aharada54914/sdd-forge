@@ -68,7 +68,13 @@
       "type": "array",
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["pattern"],
+        "properties": {
+          "pattern": { "type": "string" },
+          "components": { "type": "array", "items": { "type": "string" } },
+          "classification": { "const": "cross-cutting" }
+        },
         "oneOf": [
           { "required": ["components"], "properties": { "components": { "type": "array", "items": { "type": "string" } } } },
           { "required": ["classification"], "properties": { "classification": { "const": "cross-cutting" } } }

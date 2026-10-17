@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-multitarget",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+  "host_session_id": "SESS-sdd-domain-multitarget-task-a3r1-a-20260928-sol",
+  "manifest": [
+    {
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/acceptance-tests.md",
+      "sha256": "8e9629f26b59039d0026fc44581bf3998bcd875d374a692a0c56e11c0a2b4bad"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/design.md",
+      "sha256": "161f5790d58b13003d08d3bab0dca24537f36476ba3be8bb453a3a58c2182119"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/tasks.md",
+      "sha256": "d7330c004133ca96e02d0c8faabe878f61aa4d5bacbdce6a8e6cba1696d8dd89"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/traceability.md",
+      "sha256": "b2cf01bb0e1efab9d29f0a6454a5d422f649dbd30d3183da32e6e8657347a8c5"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/ux-spec.md",
+      "sha256": "f5d65c2c3d84ba3a7cf4306d7939bdb4255b067ae9978ebd6ce0a00030e707ed"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/frontend-spec.md",
+      "sha256": "b048306334af50c13d0b15c323951bf4a7cb338e8dc0734b10968a3bc91ea481"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/infra-spec.md",
+      "sha256": "60dbb2225a396967a8f38494a8e0deb295a0257d0dcc9be779104262fffe9560"
+    },
+    {
+      "path": "specs/sdd-domain-multitarget/security-spec.md",
+      "sha256": "600f30b04b39071ec8b0630dcb5b189eba52d5009ed8505e13a63bfd05681f7e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-3/round-1/precheck-result.json",
+      "sha256": "4a574936afa051a81eb87ad52e073b8ba7a15f6348431e78b628ad04b3d1f399"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-multitarget/attempt-3/round-1/dependency-graph.json",
+      "sha256": "cc4ced4d27656e449d3e32bc3d496a5ef4c852f04e891c252e265fa4b6f01f96"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.mdのT-001〜T-006がAcceptance欄で参照するAC-001〜AC-014は、すべてacceptance-tests.mdの実在する基準に解決する。Requirements欄に未定義のAC参照はない。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true。tasks.mdのT-001はBlockers: None、T-002〜T-006は順にT-001〜T-005を単一の正規タスクIDで指定している。範囲表記、散文、欠落はない。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.mdのREQ-001〜REQ-006はすべてtasks.mdのRequirements欄で被覆される。主担当はREQ-001=T-001、REQ-002=T-002、REQ-003/REQ-006=T-003、REQ-004=T-004、REQ-005=T-005で、T-006が横断的証拠をまとめる。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.mdのAcceptance/Tests欄とtraceability.mdのRequirement to Task Anchorsにより、AC-001=T-001、AC-002/012=T-002、AC-003/004/013=T-003、AC-005/006/007=T-004、AC-008/009=T-005、AC-010/011/014=T-006へ対応し、各基準の具体的TEST-IDも記載されている。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdの全6タスクに実在するREQ-NNNを含むRequirements欄がある。INFRA/HOUSEKEEPING例外を必要とする孤立タスクはない。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "境界・契約fixtureを扱うT-001/T-002はAC-001、AC-002/012を明示し、T-003〜T-006の検証作業も各Acceptance欄とTests欄でACとTEST-IDに対応する。受入基準に接続しないテスト作業はない。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "宣言された承認済みpost-implementation provenance re-reviewとしてライフサイクルを評価した。全タスクはApproval: Approved、T-001はImplementation Complete、T-002はBlocked、T-003〜T-006はPlannedで許容状態に属する。これらの状態を実行済み検証やDoneの証明とは扱っていない。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.mdではT-001/T-002/T-006がmedium→acceptance-first、T-003/T-004/T-005がhigh→tddで、全タスクにRiskとRequired Workflowがある。precheck-result.jsonのworkflow_match_precheck: PASSとも一致する。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのAcceptance欄はAC-001〜AC-014を重複なく6タスクへ割り当てる。T-006のAC-014はacceptance-tests.mdでrelease evidence roll-upと明示され、個別TEST-IDの代替や同一レベルの重複主対象ではない。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdの全Blockers参照T-001〜T-005が実在する。dependency-graph.jsonのnodesはT-001〜T-006を過不足なく含み、5本のedgesは各Blockers欄と一致する。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMATはPASS。dependency-graph.jsonはT-006→T-005→T-004→T-003→T-002→T-001の待機関係のみで、T-001に依存先はなく循環しない。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのT-001はconsumer inventory、T-002はownership契約、T-003はresolver obligations、T-004はcompatibility、T-005はUI-provider/consent境界、T-006はnormalized evidenceとhost/release conformanceを扱う。各fixture・検証作業は同じタスクの境界または証拠契約に直接結び付く。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのDone Whenはinventoryの必須フィールド、TEST-IDに対応するfixture結果、legacy/hybrid出力、consent/upload否定結果、Red/Green記録、独立レビュー判定、evidence bundleおよびverification reportを検査可能な成果として指定する。各タスクに具体的な検証結果または証拠成果物がある。precheck-result.jsonのfrozen_artifact_done_whenはT-001 line 31の1件のみで、inventory/fixture pathsをreview evidenceに記録しtraceability.mdのpost-review編集を要求しないと明記しているため、凍結成果物を編集せず充足できる。T-006も最終パスをverification reportsへ記録すると指定する。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.mdのRequirement to Task Anchorsにはtasks.mdのT-001〜T-006すべてがあり、REQ-001〜REQ-006、AC-001〜AC-014および各TEST-IDの対応が一致する。Requirement to Design and Layer Anchorsの全6要件は理由付きのN/A — cross-layer onlyを持ち、読了した4層仕様の非UI・非デプロイ・共有契約境界のスコープと整合する。"
+    }
+  ],
+  "findings": []
+}
