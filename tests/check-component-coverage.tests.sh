@@ -412,6 +412,8 @@ fi
 # task's explicit HUMAN APPLY STEP may likewise add a not-yet-live protected
 # candidate; those paths are derived from that task's text and are exempt only
 # while the candidate's unknown-argument guard is absent from the live file.
+# The six shared invariant files may add protections only when the archived
+# validator/renderer and its negative mutation controls verify the complete set.
 if python3 -c "
 import hashlib
 import json
@@ -419,6 +421,20 @@ import re
 from pathlib import Path
 repo = Path('${REPO_ROOT}')
 manifest = Path('${HC_MANIFEST_191}')
+import importlib.util
+import sys
+sys.dont_write_bytecode = True
+spec = importlib.util.spec_from_file_location('guard_evolution', repo / 'tests/lib/guard-invariants-evolution.py')
+evolution = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(evolution)
+evolution.self_test(manifest.parent / 'plugins/sdd-quality-loop', repo / 'plugins/sdd-quality-loop')
+evolved_paths = {
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    *('plugins/sdd-quality-loop/scripts/generated/' + name for name in (
+        'guard_invariants.py', 'guard-invariants.generated.js',
+        'guard-invariants.generated.ps1', 'guard-invariants.generated.sh')),
+}
 tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
 t006 = tasks.split('## T-006', 1)[1]
 declared_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
@@ -453,11 +469,11 @@ for line in manifest.read_text().splitlines():
     applied_bytes = applied.read_bytes()
     guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
     pending_human_apply = relative in declared_human_apply and not guard_applied
-    if not pending_human_apply and hashlib.sha256(applied_bytes).hexdigest() != expected:
+    if not pending_human_apply and relative not in evolved_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
         raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then
-  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live"
+  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and live protected rows are byte-identical or verified additive invariant evolution"
 else
   fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
 fi
