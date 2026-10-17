@@ -75,14 +75,37 @@ class CurrentCaptureTests(unittest.TestCase):
                     shutil.rmtree(self.destination)
                 if marker:
                     (self.fixture / 'AGENTS.md').write_bytes(marker)
-                statements = (f'assert Path.cwd() == Path({str(self.fixture)!r})\n'
-                              'assert not Path("sdd/project-context.yaml").exists()\n'
-                              f'assert (Path("AGENTS.md").read_bytes() if Path("AGENTS.md").exists() else None) == {marker!r}')
+                # capture resolves directory aliases (including Windows short names).
+                # Compare the same physical directory rather than its input spelling.
+                statements = (f'assert Path.cwd() == Path({str(self.fixture.resolve())!r}), "fixture cwd mismatch"\n'
+                              'assert not Path("sdd/project-context.yaml").exists(), "fixture Context unexpectedly present"\n'
+                              f'assert (Path("AGENTS.md").read_bytes() if Path("AGENTS.md").exists() else None) == {marker!r}, "fixture marker mismatch"')
                 if GENERATOR in self.edits:
                     (self.product / GENERATOR).write_bytes(self.edits[GENERATOR])
                 self.inject_generator(statements)
-                self.assertEqual(set(), self.capture())
+                mismatches = self.capture()
+                output = (self.destination / 'targets/deterministic-script-output.bin').read_bytes()
+                status = (self.destination / 'targets/exit-code.txt').read_text().strip()
+                # Report fixed tags only; raw child tracebacks contain temporary paths.
+                tags = ('fixture cwd mismatch', 'fixture Context unexpectedly present', 'fixture marker mismatch')
+                diagnostic = next((tag for tag in tags if tag.encode() in output), 'no fixture assertion diagnostic')
+                self.assertEqual(set(), mismatches, f'generator exit {status}: {diagnostic}')
                 self.assertEqual({'AGENTS.md'} if marker else set(), {p.name for p in self.fixture.iterdir()})
+
+    def test_directory_alias_reaches_the_same_real_f1_and_f2_fixture(self):
+        alias = self.work / 'fixture-alias'
+        if os.name == 'nt':
+            # Junctions do not require the symlink privilege on Windows runners.
+            created = subprocess.run(['cmd', '/c', 'mklink', '/J', str(alias), str(self.fixture)],
+                                     capture_output=True)
+            self.assertEqual(0, created.returncode, 'could not create the directory-alias fixture')
+            self.addCleanup(alias.rmdir)
+        else:
+            alias.symlink_to(self.fixture, target_is_directory=True)
+            self.addCleanup(alias.unlink)
+        self.assertNotEqual(alias, alias.resolve())
+        self.fixture = alias
+        self.test_real_f1_and_f2_fixture_cwd_and_marker_reach_current_generator()
 
     def test_product_project_metadata_cannot_populate_absent_context_fixture(self):
         names = ('sdd/project-context.yaml', 'sdd/approver-registry.yaml')
