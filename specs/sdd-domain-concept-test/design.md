@@ -56,3 +56,23 @@ exclusive publication of a completely written file prevent overwrites and
 partial records. Failure removes only this invocation's temporary state. Normal
 review admission still validates the full chain and reserves each new reviewer;
 initialization neither authorizes a reviewer nor fabricates review history.
+
+## Independent native review hashing
+
+The native child-agent interface may reveal IDs only after creation. Copilot's
+CLI supports empty tool-free runtime allocation first, followed by reservation
+of its actual native event/session identities and continuation into the named
+reviewer. Only that empty allocation may precede reservation. No implementation,
+review, evaluation or substantive input context may be reused.
+
+Read/Grep/Glob alone could not perform the existing independent SHA-256 checks.
+Domain roles now describe a conditional Bash hashing primitive, with verified
+host-enforced read-only permissions required before launch. The native route
+exposes view/rg/glob/bash and grants only sha256sum/printf explicitly, denies the
+write tool and disallows interactive permission escalation. Built-in read-only
+commands may remain available; this is not a single-command sandbox. Actual
+host permission probes must cover compound commands, substitution and nested
+shell/environment writes. Unknown host profiles block rather than trusting a
+prompt-only read-only promise. Literal record text is hashed without a terminal
+newline, input bytes remain individually verified, and output identities must
+match the reservation verbatim.

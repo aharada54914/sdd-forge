@@ -33,6 +33,12 @@ separate. No v1 migration or second loader is added.
   ledgers and any prior review/implementation history must never be replaced or
   reconstructed. Initial host registration is distinct from reviewer reservation.
 
+- REQ-008: Domain reviewers independently hash allowed inputs and reservation
+  record bytes using host-enforced read-only tools. An unverified host or missing
+  hashing capability blocks review; it never waives integrity checks or grants a
+  writable shell. Empty native runtime allocation may precede reservation only
+  without tools or substantive context; review starts after successful reservation.
+
 ## Confirmed decisions
 
 The prior Phase 1 branch's owner decisions are retained: reuse signed approval;
