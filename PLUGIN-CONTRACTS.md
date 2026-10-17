@@ -3,6 +3,26 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Read-only inspection through protection hooks
+
+The protection hooks allow file inspection independently of write protection.
+They classify every command in a pipeline or command list, treating quoted
+search patterns as data. Supported readers include `cat`, `ls`, `stat`,
+`head`, `tail`, `grep`, `rg`, `wc`, PowerShell `Get-Content` and related read
+cmdlets, and `sed -n '1,200p'` style print ranges. `cd` followed by inspection
+and the `rtk proxy` wrapper use the same classification.
+
+A read followed by a write, output redirection, executable substitution,
+`rg --pre` / `--hostname-bin`, and writing/executing `sed` programs do not qualify as read-only.
+Those commands still pass through the write guards, including agent-role,
+approval, and enforcement-file protection. Unrecognized shell programs retain
+the existing guard behavior. The emergency kill switch and malformed-payload
+checks still apply to reads. When `RIPGREP_CONFIG_PATH` is set in the hook
+process, `rg` must start with the `--no-config` argument because its configuration can launch
+external programs. This classification assumes the normal command binaries and
+the hook's environment; it does not replace the host sandbox or analyze a
+separately modified executable search path or shell environment.
+
 ## implement-tasks → quality-gate (v0.12.0+)
 
 **Source**: `plugins/sdd-implementation/skills/implement-tasks/SKILL.md`
