@@ -81,9 +81,14 @@ for p in "${canonical_paths[@]}"; do
 done
 aggregates_dir="${domain_dir}/aggregates"
 [[ -d "$aggregates_dir" && ! -L "$aggregates_dir" ]] || fail "domain/aggregates/ must exist and not be a symlink"
-shopt -s nullglob
-aggregate_files=("$aggregates_dir"/*.md)
-shopt -u nullglob
+# Match the finalizer's UTF-8 byte ordinal order, regardless of caller locale.
+collect_aggregate_files() {
+  local LC_ALL=C
+  shopt -s nullglob
+  aggregate_files=("$aggregates_dir"/*.md)
+  shopt -u nullglob
+}
+collect_aggregate_files
 [[ ${#aggregate_files[@]} -ge 1 ]] || fail "domain/aggregates/ must contain at least one aggregate card"
 for p in "${aggregate_files[@]}"; do
   [[ -f "$p" && ! -L "$p" ]] || fail "aggregate card is not a regular non-symlink file: ${p#$repo_root/}"
