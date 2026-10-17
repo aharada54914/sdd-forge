@@ -1729,36 +1729,82 @@ def _shell_targets_protected_gate_file(cmd):
     return not _shell_write_targets_are_safe(cmd)
 
 
-def _shell_is_read_only(cmd):
-    """Classify every command, keeping quoted search text separate from shell syntax."""
+def _shell_read_segments(cmd):
+    """Keep quote-aware expansion flags alongside the shared tokenizer's segments."""
     if not isinstance(cmd, str):
-        return False
+        return None
     quote = None
-    for ch in cmd:
+    globs = [False]
+    expansions = [False]
+    read_safe = True
+    for index, ch in enumerate(cmd):
         if quote == "'":
             if ch == "'":
                 quote = None
             continue
-        if ch in "$`<>(){}":
-            return False
+        if ch in "$`" or (quote is None and ch in "<>(){}"):
+            read_safe = False
+        if ch in "$`" or (quote is None and ch in "(){}"):
+            expansions[-1] = True
+        if quote is None:
+            if ch in "*?[":
+                globs[-1] = True
+            elif ch in "\n\r;|&":
+                if ch != "&" or not ((index > 0 and cmd[index - 1] == ">") or cmd[index + 1:index + 2] == ">"):
+                    globs.append(False)
+                    expansions.append(False)
         if ch == '"':
             quote = None if quote == '"' else '"'
         elif ch == "'" and quote is None:
             quote = "'"
     tokens = _tokenize_shell_command(cmd)
     if not tokens:
-        return False
-    readers = {
-        "cat", "ls", "stat", "head", "tail", "grep", "rg", "wc", "pwd", "test", "cd",
-        "get-content", "get-item", "get-childitem", "select-string", "select-object", "measure-object",
-    }
+        # Unsupported escapes can change quote boundaries; do not trust their flags.
+        return {"segments": [], "read_safe": False, "ambiguous": False, "unknown_glob": any(ch in cmd for ch in "*?[")}
     segments = [[]]
     for kind, word in tokens:
         if kind == "sep":
             segments.append([])
         else:
             segments[-1].append(word)
-    for words in segments:
+    return {"segments": list(zip(segments, globs, expansions)), "read_safe": read_safe,
+            "ambiguous": len(segments) != len(globs),
+            "unknown_glob": len(segments) != len(globs) and any(globs)}
+
+
+def _reader_glob_can_add_options(words, has_glob, expands):
+    if words[:2] == ["rtk", "proxy"]:
+        words = words[2:]
+    if not words or not has_glob:
+        return False
+    if words[0].lower() in ("rg", "sed") and expands:
+        return True
+    if words[0].lower() == "rg":
+        return not (words[1:2] == ["--"] or words[1:3] == ["--no-config", "--"])
+    if words[0].lower() == "sed":
+        return not (words[1:2] == ["-n"] and words[3:4] == ["--"]
+                    and re.fullmatch(r"(?:[0-9]+(?:,[0-9$]+)?|\$)?p", words[2]))
+    return False
+
+
+def _shell_has_globbed_reader_options(cmd):
+    parsed = _shell_read_segments(cmd)
+    return bool(parsed and (parsed["ambiguous"] or parsed["unknown_glob"] or any(
+        _reader_glob_can_add_options(words, glob, expands) for words, glob, expands in parsed["segments"])))
+
+
+def _shell_is_read_only(cmd):
+    """Classify every command; quoted patterns are data, expansions are not argv."""
+    parsed = _shell_read_segments(cmd)
+    if parsed is None or not parsed["read_safe"] or parsed["ambiguous"] or parsed["unknown_glob"]:
+        return False
+    readers = {
+        "cat", "ls", "stat", "head", "tail", "grep", "rg", "wc", "pwd", "test", "cd",
+        "get-content", "get-item", "get-childitem", "select-string", "select-object", "measure-object",
+    }
+    for words, has_glob, expands in parsed["segments"]:
+        if _reader_glob_can_add_options(words, has_glob, expands):
+            return False
         if not words:
             continue
         if words[:2] == ["rtk", "proxy"]:
@@ -1770,12 +1816,13 @@ def _shell_is_read_only(cmd):
             # Only the common print-range form: sed also supports writes and execution.
             if (len(words) < 3 or words[1] != "-n"
                     or not re.fullmatch(r"(?:[0-9]+(?:,[0-9$]+)?|\$)?p", words[2])
-                    or any(word.startswith("-") for word in words[3:])):
+                    or (words[3:4] != ["--"] and any(word.startswith("-") for word in words[3:]))):
                 return False
         elif verb not in readers:
             return False
         if verb == "rg":
-            if any(word.split("=", 1)[0] in ("--pre", "--hostname-bin") for word in words[1:]):
+            options_closed = words[1:2] == ["--"] or words[1:3] == ["--no-config", "--"]
+            if not options_closed and any(word.split("=", 1)[0] in ("--pre", "--hostname-bin") for word in words[1:]):
                 return False
             if os.environ.get("RIPGREP_CONFIG_PATH") and words[1:2] != ["--no-config"]:
                 return False
@@ -2010,6 +2057,11 @@ def main():
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
             return
 
+        # Reject unknown argv before the legacy write scanners can miss glob-added options.
+        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+                and _shell_has_globbed_reader_options(tool_input.get("command"))):
+            emit("deny", "SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).", mode)
+            return
         # Read-only shell inspection cannot change protected files or grant approvals.
         if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
                 and _shell_is_read_only(tool_input.get("command"))):
