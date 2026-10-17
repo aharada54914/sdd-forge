@@ -384,6 +384,40 @@ else
   fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $candidate_py_out"
 fi
 
+# Independently remove the newly protected provider policy from each candidate
+# surface. A correct sibling must not conceal either deletion.
+PROVIDER_POLICY_PATH=plugins/sdd-bootstrap/scripts/resolve-design-sync.py
+python3 - "$CANDIDATE_GUARD_JSON" "$WORKDIR/missing-provider-policy.json" "$PROVIDER_POLICY_PATH" <<'PYEOF'
+import json, sys
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+assert sys.argv[3] in data["protected_gate_suffixes"]
+data["protected_gate_suffixes"].remove(sys.argv[3])
+with open(sys.argv[2], "w", encoding="utf-8") as handle:
+    json.dump(data, handle)
+PYEOF
+if mutation_out="$(no_regression_check "$WORKDIR/missing-provider-policy.json" 2>&1)"; then
+  fail "candidate JSON regression control accepts a removed provider policy"
+elif [[ "$mutation_out" == *"[protected_gate_suffixes] $PROVIDER_POLICY_PATH"* ]]; then
+  ok "candidate JSON regression control rejects a removed provider policy"
+else
+  fail "candidate JSON regression control failed without expected diagnostic: $mutation_out"
+fi
+python3 - "$CANDIDATE_PY" "$WORKDIR/missing-provider-policy.py.candidate" "$PROVIDER_POLICY_PATH" <<'PYEOF'
+import sys
+source = open(sys.argv[1], encoding="utf-8").read()
+entry = '    "' + sys.argv[3] + '",\n'
+assert source.count(entry) == 1
+with open(sys.argv[2], "w", encoding="utf-8") as handle:
+    handle.write(source.replace(entry, "", 1))
+PYEOF
+if mutation_out="$(py_tuple_superset_check "$WORKDIR/missing-provider-policy.py.candidate" 2>&1)"; then
+  fail "candidate generator regression control accepts a removed provider policy"
+elif [[ "$mutation_out" == *"[BASELINE_SUFFIXES] $PROVIDER_POLICY_PATH"* ]]; then
+  ok "candidate generator regression control rejects a removed provider policy"
+else
+  fail "candidate generator regression control failed without expected diagnostic: $mutation_out"
+fi
+
 # A correct path tuple must not conceal missing shell keys or renamed exports.
 # These temporary source fixtures are parsed only, never executed.
 sed '/"patch_apply_cmds"/d' "$LIVE_PY" > "$WORKDIR/missing-shell-key.candidate"

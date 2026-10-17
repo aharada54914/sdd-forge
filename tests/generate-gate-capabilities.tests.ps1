@@ -357,6 +357,39 @@ try {
   }
 
   # Temporary source fixtures are parsed only, never executed.
+  # Delete the new protection independently on each candidate surface.
+  $providerPolicyPath = 'plugins/sdd-bootstrap/scripts/resolve-design-sync.py'
+  $missingPolicyJson = Join-Path $workDir 'missing-provider-policy.json'
+  $mutantJson = Get-Content -LiteralPath $candidateGuardJson -Raw | ConvertFrom-Json
+  if (@($mutantJson.protected_gate_suffixes) -cnotcontains $providerPolicyPath) {
+    throw 'provider policy missing from positive JSON fixture'
+  }
+  $mutantJson.protected_gate_suffixes = @($mutantJson.protected_gate_suffixes | Where-Object { $_ -cne $providerPolicyPath })
+  [IO.File]::WriteAllText($missingPolicyJson, ($mutantJson | ConvertTo-Json -Depth 100))
+  $missingPolicyCheck = Test-NoRegression -CandidatePath $missingPolicyJson -LivePath $liveGuardJson
+  if ($missingPolicyCheck.Rc -eq 0) {
+    Fail 'candidate JSON regression control accepts a removed provider policy'
+  } elseif ($missingPolicyCheck.Out.Contains('[protected_gate_suffixes] ' + $providerPolicyPath)) {
+    Ok 'candidate JSON regression control rejects a removed provider policy'
+  } else {
+    Fail "candidate JSON regression control failed without expected diagnostic: $($missingPolicyCheck.Out)"
+  }
+  $missingPolicyPy = Join-Path $workDir 'missing-provider-policy.py.candidate'
+  $candidateSource = [IO.File]::ReadAllText($candidatePy)
+  $policyEntry = '(?m)^    "' + [regex]::Escape($providerPolicyPath) + '",\r?\n'
+  if ([regex]::Matches($candidateSource, $policyEntry).Count -ne 1) {
+    throw 'provider policy must occur exactly once in positive generator fixture'
+  }
+  [IO.File]::WriteAllText($missingPolicyPy, [regex]::Replace($candidateSource, $policyEntry, ''))
+  $missingPolicyCheck = Test-NoRegressionPy -TargetPath $missingPolicyPy -LivePath $livePy
+  if ($missingPolicyCheck.Rc -eq 0) {
+    Fail 'candidate generator regression control accepts a removed provider policy'
+  } elseif ($missingPolicyCheck.Out.Contains('[BASELINE_SUFFIXES] ' + $providerPolicyPath)) {
+    Ok 'candidate generator regression control rejects a removed provider policy'
+  } else {
+    Fail "candidate generator regression control failed without expected diagnostic: $($missingPolicyCheck.Out)"
+  }
+
   $missingKeyPath = Join-Path $workDir 'missing-shell-key.candidate'
   $sourceLines = [IO.File]::ReadAllLines($livePy)
   [IO.File]::WriteAllLines($missingKeyPath, [string[]]@($sourceLines | Where-Object { $_ -cnotmatch '"patch_apply_cmds"' }))
