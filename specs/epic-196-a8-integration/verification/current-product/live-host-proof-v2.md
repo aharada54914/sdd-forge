@@ -71,6 +71,77 @@ are covered by the record signatures. Existing key identity, collision,
 TTL, single-use, atomic consumption, and synthetic-substitution protections
 remain in effect.
 
+### Issue a nonce before the actual dispatch
+
+The ordinary handshake helper remains stateless. Its `--emit-challenge`
+does not append or sign an issuance ledger. The operator-owned adapter
+`plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py` supplies this
+missing issuance step using the registered issuer's existing Ed25519 key
+through OpenSSL. This replaces the historical claim that the handshake
+helper itself already writes a signed ledger. It issues only the nonce in
+the caller's challenge, with the actual current UTC time; it cannot create
+keys, register identities, backdate issuance, or sign completed captures.
+
+Use the installed current scripts, a maintainer-approved public registry,
+and an existing `live-host-nonce-ledger/v1` ledger. Keep the private key on
+the operator's machine, outside the native host workspace and repository.
+The operator must check the original pending caller challenge and intended
+cell. The CLI validates signatures and consistency; it does not establish
+the challenge's provenance without that operator check. OpenSSL must be
+available on the operator machine. Key provisioning and custody remain
+human responsibilities; fixture keys are never acceptable.
+
+For every consumer/cell execution:
+
+1. In the actual native session, read the full current consumer SKILL and
+   invoke its ordinary `--emit-challenge`. Save its unmodified JSON and
+   pause that same session before the canary tool call. A standalone
+   external canary or a replacement session is not equivalent.
+2. Transfer that challenge to the operator. On the operator machine run:
+
+   ```sh
+   python3 <installed-scripts>/issue-live-host-nonce.py --issue \
+     --challenge <original-challenge.json> --matrix-cell <cell> \
+     --nonce-ledger <private-ledger.json> --trusted-signers <approved-registry.json> \
+     --issuer-key-id <registered-issuer-key-id> --private-key <operator-key-file>
+   ```
+
+   The adapter uses the aggregate's ledger lock, validates the existing
+   ledger, rejects duplicate nonces, verifies its newly produced signature
+   against the registered public key, and atomically appends the entry.
+   Do not issue the same nonce twice or edit a failed entry into success.
+   An interrupted issue that committed the ledger can be checked using the
+   public verification command below; never infer success from missing output.
+3. Return only the signed public ledger and approved public registry to
+   the caller. Before resuming, verify against the original challenge:
+
+   ```sh
+   python3 <installed-scripts>/issue-live-host-nonce.py --verify-receipt \
+     --challenge <original-challenge.json> --matrix-cell <cell> \
+     --nonce-ledger <private-ledger.json> --trusted-signers <approved-registry.json>
+   ```
+
+   Continue only on exit 0 with matching nonce and cell. This path accepts
+   no private key and rejects unknown, consumed, future, expired, or invalidly
+   signed issuance. A printed receipt alone is not trusted input.
+4. Resume the same native caller, dispatch its nonce-bearing canary, then
+   run the ordinary helper verification and retain original native events.
+   Dispatch must occur after actual issuance and within 24 hours. If the
+   session or window is lost, restart with a fresh challenge; never infer
+   a historical issuance time or modify raw events.
+5. Repeat for all five consumers in all five cells. Preserve original
+   installed helper/configuration bytes and native launch metadata. Build
+   the five v2 records from those originals, obtain operator and independent
+   reviewer signatures, and run the existing aggregate validator. Its
+   successful `discharged` result consumes the 25 issued nonces atomically.
+
+The issuer adapter and aggregate must use the same ledger, or transfer a
+single authoritative copy serially; concurrent divergent copies are not
+merged. Store captures and signatures privately. Public issue comments need
+only sanitized results and code/CI references, never original session IDs,
+local directories, or key material. The existing unsigned 25 captures are
+functional evidence, not input to retrospective issuance.
+
 Native event structure and hashes establish consistency, not cryptographic
 host attestation. The independent operator/reviewer trust boundary still
 establishes origin and installed helper provenance. Recognizing a helper
@@ -102,3 +173,35 @@ conflicting feature selectors, false helper invocations, shuffled source
 reads, redirected-result replacement, and native child ownership. Positive
 cases retain manual and automated execution and exact redirected reads.
 Historical unsigned v1 records remain explicit incomplete evidence.
+
+## Handoff completion and downstream revalidation
+
+When AC-006 is active, the live cross-runtime handoff drivers validate the
+signed five-cell aggregate after both real handoffs succeed. The Bash
+`--live-host-proof-dir` and PowerShell `-LiveHostProofDir` options select its
+records directory; the default is the repository's live-host-proof directory.
+Trusted signers, expected configuration digests, the skip allowlist, and the
+verifier remain those of the current checkout. The captured five consumer
+sources must match that checkout even when the proof is stored elsewhere.
+
+Only a successful `discharged` result produces `canary_case.result: PASS`
+and `coverage_complete: true`. Missing, unsigned, stale, or invalid proof
+does not produce a successful trace. Fixture-only and pre-activation runs
+remain incomplete coverage; manual result fields cannot replace validation.
+The private trace binds the five original records, the consumed nonce ledger,
+current policy/source hashes, and original validator output in
+`canary_case.proof` (`cross-runtime-live-proof/v1`). These artifacts may contain
+sensitive host information and must not be published as raw evidence.
+Artifact references for records and the ledger are relative to the selected
+records directory; current verifier, consumer, and policy references are
+repository-relative. The stdout reference is relative to the trace evidence
+directory. `records_dir` is an original collection locator, not an immutable
+identity: transporting the original evidence preserves the relative references
+and hashes, and revalidation uses the explicitly selected proof root.
+
+Downstream promotion uses the same validator through the read-only
+`read_only_proof` helper. It requires an already completed consumption receipt
+for each exact record, rechecks all original signatures and evidence, and
+leaves ledger bytes unchanged. It does not reset consumed nonces or turn an
+unconsumed issuance into completed proof. The validator CLI still consumes
+valid nonces by default.

@@ -1557,6 +1557,8 @@ def main():
     crypto_ok, crypto_detail = crypto_known_answer_case()
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
     results.extend(t008_acceptance_cases())
+    from issuer_cases import cases as issuer_cases
+    results.extend(issuer_cases(ROOT, KEYS))
 
     passed = 0
     for name, ok, detail in results:

@@ -234,8 +234,25 @@ FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WOR
 # Keep the admitted T-003 baseline pinned. Later reviewed additions must be
 # explicit and present exactly once; they do not loosen unrelated membership.
 ADDITIONAL_PROTECTIONS = (
+    'scripts/validate-a9-rollback-receipt.py',
+    'scripts/validate-a9-promotion.py',
+    'scripts/validate-a9-candidate.py',
+    'scripts/observe-a9-advisory.py',
+    'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py',
+    'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
+    'plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py',
+    'plugins/sdd-quality-loop/scripts/resolve-component-paths.py',
+    'plugins/sdd-quality-loop/scripts/validate-capability-registry.py',
+    'plugins/sdd-quality-loop/scripts/generate-registry-digest.py',
+    'plugins/sdd-quality-loop/scripts/registry_discovery.py',
+    'plugins/sdd-quality-loop/scripts/evaluate-predicate.py',
+    'plugins/sdd-review-loop/references/a8-trusted-signers.json',
+    'plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json',
+    'plugins/sdd-review-loop/references/a8-skip-allowlist.json',
+    'tests/hook-activation-live-proof/nonce-ledger.json',
     'plugins/sdd-bootstrap/scripts/resolve-design-sync.py',
     QUALITY_SCRIPTS + 'initialize-review-identity.py',
+    QUALITY_SCRIPTS + 'issue-live-host-nonce.py',
     'plugins/sdd-domain/scripts/record-upstream-concept-issue.py',
     'plugins/sdd-domain/scripts/validate-domain-contract.sh',
     'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
@@ -246,6 +263,7 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-domain/scripts/finalize-domain-review.py',
     'plugins/sdd-domain/scripts/finalize-domain-review.sh',
     'plugins/sdd-domain/scripts/finalize-domain-review.ps1',
+    'tests/lib/cross-runtime-consumer-evidence.py',
 )
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(

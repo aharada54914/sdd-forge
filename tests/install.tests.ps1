@@ -108,6 +108,7 @@ foreach ($relativePath in @(
     "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
     "plugins/sdd-quality-loop/scripts/initialize-review-identity.py",
+    "plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py",
     "plugins/sdd-domain/scripts/finalize-domain-review.py",
     "plugins/sdd-domain/scripts/finalize-domain-review.sh",
     "plugins/sdd-domain/scripts/finalize-domain-review.ps1",
@@ -130,6 +131,7 @@ foreach ($relativePath in @(
     plugins/sdd-bootstrap/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/.claude-plugin/plugin.json `
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py `
+    plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py `
     plugins/sdd-domain/scripts/finalize-domain-review.py `
     plugins/sdd-domain/scripts/finalize-domain-review.sh `
     plugins/sdd-domain/scripts/finalize-domain-review.ps1 `
@@ -957,6 +959,7 @@ try {
         throw "smoke (D): installed native review identity producer missing or changed"
     }
     foreach ($relative in @(
+        "plugins/sdd-quality-loop/scripts/issue-live-host-nonce.py",
         "plugins/sdd-domain/scripts/finalize-domain-review.py",
         "plugins/sdd-domain/scripts/finalize-domain-review.sh",
         "plugins/sdd-domain/scripts/finalize-domain-review.ps1",

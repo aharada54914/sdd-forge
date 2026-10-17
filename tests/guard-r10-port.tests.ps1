@@ -181,7 +181,36 @@ Assert-Parity "r10 file-write: claude-hooks.json"          2 '{"tool_name":"writ
 Assert-Parity "r10 apply_patch: sdd-hook-guard.py"         2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+x\n*** End Patch"}}'
 Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"write","tool_input":{"file_path":"foo/../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
 
+# A9 publication admission must remain protected in all three guard runtimes.
+$rollbackPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/validate-a9-rollback-receipt.py'; content = 'replacement' } } | ConvertTo-Json -Compress
+Assert-Parity 'r10 A9 rollback admission' 2 $rollbackPayload
+$promotionPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/validate-a9-promotion.py'; content = 'replacement' } } | ConvertTo-Json -Compress
+Assert-Parity 'r10 A9 promotion admission' 2 $promotionPayload
+
+# Promotion's imported validators and fixed trust inputs are authorization dependencies.
+foreach ($a9Dependency in @(
+    'scripts/validate-a9-candidate.py',
+    'scripts/observe-a9-advisory.py',
+    'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py',
+    'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
+    'plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py',
+    'plugins/sdd-quality-loop/scripts/resolve-component-paths.py',
+    'plugins/sdd-quality-loop/scripts/validate-capability-registry.py',
+    'plugins/sdd-quality-loop/scripts/generate-registry-digest.py',
+    'plugins/sdd-quality-loop/scripts/registry_discovery.py',
+    'plugins/sdd-quality-loop/scripts/evaluate-predicate.py',
+    'plugins/sdd-review-loop/references/a8-trusted-signers.json',
+    'plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json',
+    'plugins/sdd-review-loop/references/a8-skip-allowlist.json',
+    'tests/hook-activation-live-proof/nonce-ledger.json')) {
+    $writePayload = @{ tool_name = 'write'; tool_input = @{ file_path = $a9Dependency; content = 'replacement' } } | ConvertTo-Json -Compress
+    Assert-Parity "r10 A9 dependency write: $a9Dependency" 2 $writePayload
+    $readPayload = @{ tool_name = 'read'; tool_input = @{ file_path = $a9Dependency } } | ConvertTo-Json -Compress
+    Assert-Parity "r10 A9 dependency read: $a9Dependency" 0 $readPayload
+}
+
 # The domain finalizer's Python master and both packaged wrappers are gates.
+Assert-Parity "r10 signed handoff proof verifier" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/lib/cross-runtime-consumer-evidence.py","content":"replacement"}}'
 foreach ($suffix in @('py', 'sh', 'ps1')) {
     $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"
     $payload = @{ tool_name = 'write'; tool_input = @{ file_path = $finalizerPath; content = 'replacement' } } | ConvertTo-Json -Compress

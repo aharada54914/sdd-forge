@@ -3,6 +3,7 @@
 param(
     [string]$Fixture,
     [string]$TraceFile,
+    [string]$LiveHostProofDir,
     [switch]$SelfTestActivation,
     [switch]$LiveE2E
 )
@@ -10,6 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $fixtureNewline = [char]10
 $repoRoot = (& git rev-parse --show-toplevel).Trim()
+if (-not $LiveHostProofDir) { $LiveHostProofDir = Join-Path $repoRoot 'tests/hook-activation-live-proof' }
 if (-not $Fixture) { $Fixture = Join-Path $repoRoot 'tests/fixtures/cross-runtime-handoff' }
 $tasksFile = if ($env:SDD_CROSS_RUNTIME_TASKS_PATH) { $env:SDD_CROSS_RUNTIME_TASKS_PATH } else { Join-Path $repoRoot 'specs/epic-196-a8-integration/tasks.md' }
 $mainRef = if ($env:SDD_CROSS_RUNTIME_MAIN_REF) { $env:SDD_CROSS_RUNTIME_MAIN_REF } else { 'origin/main' }
@@ -215,12 +217,18 @@ function Invoke-LiveE2E {
     $modelEvidence = $modelJson | ConvertFrom-Json
     $status = Get-TaskStatus $tasksFile
     $activated = Test-CanaryActivated $status
-    $canaryResult = if ($activated) { 'FAIL' } else { 'SKIP' }
-    $topResult = if ($activated) { 'FAIL' } else { 'PASS' }
-    $skipReason = if ($activated) { 'T-005 is active and the Epic A1 handshake files exist on main; live-host proof remains owned by T-005 (#189/#187).' } else { "AC-006 presence-only in T-001; live-host handshake remains tracked by #189/#187 and T-005 is not started (status: $status)." }
+    $proofEvidence = $null
+    if ($activated) {
+        $proofJson = & python3 (Join-Path $repoRoot 'tests/lib/cross-runtime-consumer-evidence.py') proof $LiveHostProofDir $evidenceDir
+        if ($LASTEXITCODE -ne 0) { Stop-Test 'active AC-006 requires discharged signed live-host proof' }
+        $proofEvidence = $proofJson | ConvertFrom-Json
+    }
+    $canaryResult = if ($activated) { 'PASS' } else { 'SKIP' }
+    $topResult = 'PASS'
+    $skipReason = if ($activated) { $null } else { "AC-006 presence-only in T-001; live-host handshake remains tracked by #189/#187 and T-005 is not started (status: $status)." }
     $trace = [ordered]@{
         schema = 'cross-runtime-handoff-trace/v1'; fixture_id = 'cross-runtime-handoff'; result = $topResult
-        coverage_complete = $false; skip_allowlist_version = 'a8-skip-allowlist/v1'; upstream_commit = $null
+        coverage_complete = [bool]$activated; skip_allowlist_version = 'a8-skip-allowlist/v1'; upstream_commit = $null
         copilot_model = $modelEvidence
         headless_contracts = @(
             @{ runtime = 'claude'; status = 'confirmed'; invocation = 'claude --print'; evidence = 'https://docs.anthropic.com/en/docs/claude-code/cli-usage' },
@@ -231,13 +239,12 @@ function Invoke-LiveE2E {
             @{ producer_runtime = 'claude'; consumer_runtime = 'codex'; artifact_path = 'tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml'; artifact_initial_sha256 = "sha256:$initial1"; artifact_final_sha256 = "sha256:$expected1"; mutation_nonce = $nonce1; consumer_observable = @{ kind = 'stdout_substring'; expected = "HANDOFF-01:$nonce1" }; invocation_mode = 'automated'; result = 'PASS'; evidence_refs = @('claude-producer.log', 'codex-consumer.log') },
             @{ producer_runtime = 'codex'; consumer_runtime = 'copilot'; artifact_path = 'tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md'; artifact_initial_sha256 = "sha256:$initial2"; artifact_final_sha256 = "sha256:$expected2"; mutation_nonce = $nonce2; consumer_observable = @{ kind = 'generated_file_hash'; expected = "sha256:$expectedOutput" }; invocation_mode = 'automated'; result = 'PASS'; evidence_refs = @('codex-producer.log', 'copilot-consumer.log') }
         )
-        canary_case = @{ present = $true; result = $canaryResult; skip_reason = $skipReason }
+        canary_case = @{ present = $true; result = $canaryResult; skip_reason = $skipReason; proof = $proofEvidence }
     }
     $tracePath = Join-Path $evidenceDir 'trace.json'
     [IO.File]::WriteAllText($tracePath, ($trace | ConvertTo-Json -Depth 12) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
     if ($TraceFile) { Copy-Item -LiteralPath $tracePath -Destination $TraceFile; Get-Content -LiteralPath $TraceFile -Raw } else { Get-Content -LiteralPath $tracePath -Raw }
     [Console]::Error.WriteLine("Evidence directory: $evidenceDir")
-    if ($activated) { exit 1 }
 }
 if ($SelfTestActivation) { Invoke-ActivationSelfTest; exit 0 }
 if (-not (Test-Path -LiteralPath $allowlist -PathType Leaf)) { Stop-Test 'missing AC-006 allowlist' }

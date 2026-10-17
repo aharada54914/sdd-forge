@@ -6,6 +6,103 @@ import hashlib
 import stat
 from pathlib import Path
 import re
+import importlib.util
+import subprocess
+import sys
+import contextlib
+import io
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def artifact(kind, path, base):
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('proof artifact must be a regular file')
+    return {'kind': kind, 'ref': path.relative_to(base).as_posix(),
+            'sha256': 'sha256:' + hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def proof_validator(repo):
+    validator = repo / 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py'
+    spec = importlib.util.spec_from_file_location('handoff_live_proof', validator)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def current_proof_inputs(repo, records):
+    """Keep proof collection roots separate from the current trusted policy."""
+    validator = repo / 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py'
+    module = proof_validator(repo)
+    inputs = [artifact('validator', validator, repo),
+              artifact('handshake_verifier', validator.with_name('check-hook-activation-handshake.py'), repo)]
+    for relative in module.CONSUMERS.values():
+        current = artifact('consumer', repo / relative, repo)
+        captured = artifact('consumer', records.parent.parent / relative, records.parent.parent)
+        if current['sha256'] != captured['sha256']:
+            raise ValueError('proof consumer differs from the current checkout')
+        inputs.append(current)
+    references = repo / 'plugins/sdd-review-loop/references'
+    for kind, name in (('trusted_signers', 'a8-trusted-signers.json'),
+                       ('expected_manifest', 'a8-expected-hook-config-digests.json'),
+                       ('skip_allowlist', 'a8-skip-allowlist.json')):
+        inputs.append(artifact(kind, references / name, repo))
+    inputs.extend(artifact('record', records / name, records) for name in module.FILENAMES.values())
+    return inputs
+
+
+def read_only_proof(repo, records):
+    """Revalidate a completed receipt without writing or resetting nonce state."""
+    repo, records = Path(repo).resolve(), Path(records).resolve()
+    inputs = current_proof_inputs(repo, records)
+    ledger_path = records / 'nonce-ledger.json'
+    before = artifact('nonce_ledger', ledger_path, records)
+    module = proof_validator(repo)
+    args = module.parser().parse_args(['--records-dir', str(records), '--nonce-ledger', str(ledger_path)])
+    stdout = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(stdout):
+            module.run(args, consume=False)
+        ledger = module.load_json(ledger_path, 'consumed nonce ledger')
+        completed = [(filename, module.load_json(records / filename, 'completed record'))
+                     for filename in module.FILENAMES.values()]
+    except module.ValidationError:
+        raise ValueError('signed live-host proof was rejected') from None
+    if stdout.getvalue() != 'discharged\n':
+        raise ValueError('signed live-host proof did not discharge')
+    consumed = {entry['nonce']: entry['consumed_by_record'] for entry in ledger['entries']}
+    for filename, record in completed:
+        nonces = {record['nonce']} | {entry['nonce'] for entry in record['consumer_executions']}
+        expected = 'tests/hook-activation-live-proof/' + filename
+        if any(consumed[nonce] != expected for nonce in nonces):
+            raise ValueError('proof nonce has no matching completed consumption receipt')
+    if current_proof_inputs(repo, records) != inputs or artifact('nonce_ledger', ledger_path, records) != before:
+        raise ValueError('proof inputs changed during read-only validation')
+    return {'schema': 'cross-runtime-live-proof/v1', 'aggregate': 'discharged',
+            'records_dir': str(records), 'artifacts': inputs + [before]}
+
+
+def validate_live_proof(records, evidence):
+    records = records.resolve()
+    inputs = current_proof_inputs(ROOT, records)
+    ledger = records / 'nonce-ledger.json'
+    artifact('nonce_ledger', ledger, records)
+    validator = ROOT / 'plugins/sdd-quality-loop/scripts/validate-live-host-proof.py'
+    completed = subprocess.run([sys.executable, str(validator), '--records-dir', str(records),
+                                '--nonce-ledger', str(ledger)], capture_output=True)
+    stdout = evidence / 'live-host-proof.stdout.log'
+    stdout.write_bytes(completed.stdout)
+    (evidence / 'live-host-proof.stderr.log').write_bytes(completed.stderr)
+    if completed.returncode != 0 or completed.stdout not in {b'discharged\n', b'discharged\r\n'}:
+        raise ValueError('signed live-host proof did not discharge')
+    if current_proof_inputs(ROOT, records) != inputs:
+        raise ValueError('proof inputs changed during validation')
+    # Same-record revalidation is idempotent; preserve the consumed ledger,
+    # never reset its nonce entries for downstream promotion verification.
+    inputs.append(artifact('nonce_ledger', ledger, records))
+    return {'schema': 'cross-runtime-live-proof/v1', 'aggregate': 'discharged',
+            'records_dir': str(records), 'artifacts': inputs,
+            'stdout': artifact('validator_stdout', stdout, evidence)}
 
 
 def model_id(value):
@@ -79,8 +176,14 @@ def main():
     after.add_argument('workspace', type=Path)
     after.add_argument('before', type=Path)
     after.add_argument('output_sha256')
+    proof = commands.add_parser('proof')
+    proof.add_argument('records', type=Path)
+    proof.add_argument('evidence', type=Path)
     args = parser.parse_args()
     try:
+        if args.command == 'proof':
+            print(json.dumps(validate_live_proof(args.records, args.evidence), sort_keys=True))
+            return
         if args.command == 'snapshot':
             args.destination.write_text(json.dumps(snapshot(args.workspace)), encoding='utf-8')
             return
@@ -92,8 +195,8 @@ def main():
         if snapshot(args.workspace) != expected:
             raise ValueError('consumer changed unexpected workspace entries')
         result = observe(args.requested, args.log)
-    except (OSError, ValueError):
-        parser.exit(1, 'Copilot model or workspace evidence is missing, invalid, or inconsistent\n')
+    except (OSError, ValueError) as exc:
+        parser.exit(1, 'Handoff evidence is missing, invalid, or inconsistent (' + type(exc).__name__ + ')\n')
     print(json.dumps(result, sort_keys=True))
 
 

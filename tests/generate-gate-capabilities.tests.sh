@@ -507,11 +507,10 @@ fi
 # tests/deterministic-lane-selfcheck.tests.sh's job_keys() already
 # established for this exact purpose in this repository (text markers
 # only, no YAML-parsing dependency, per that file's own "Technique" note).
-# Applied to BOTH the drafts/ candidate (expected PASS) and the REAL
-# human-copy/ workflow (expected DESIGNED-RED): the real human-copy/ file
-# predates the `test`-job parallel split (commit 3baadda5) and is missing
-# three whole jobs outright (measured: `installers`, `loops-routing`,
-# `version-gates`), not just a missing step inside an existing job.
+# The current drafts/ candidate must retain the complete live job set.
+# The applied human-copy/ workflow is checked separately against its fixed
+# historical bytes, while every later job and the required-checks block must
+# match the live workflow in the current candidate.
 # =====================================================================
 LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
 
@@ -623,10 +622,12 @@ else
   fail "QG-fix: rebuilt CI workflow candidate drops a live job -- $candidate_jobs_out"
 fi
 
-if human_copy_jobs_out="$(job_superset_check "$STAGED_WORKFLOW" 2>&1)"; then
-  ok "human-copy/ staged workflow is a job-set superset of live (human apply already landed)"
+# The applied workflow is an immutable historical baseline, not a current apply
+# candidate. Authenticate it and validate the separate current replacement.
+if workflow_evolution_out="$(python3 "$ROOT/tests/lib/a2-workflow-evolution.py" "$ROOT" --self-test 2>&1)"; then
+  ok "historical workflow preserved; current candidate supersedes it with strict job/aggregation checks and negative controls"
 else
-  designed_red "human-copy/ staged workflow is STALE and would DROP whole live job(s) if applied -- $human_copy_jobs_out -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
+  fail "historical/current workflow contract failed -- $workflow_evolution_out"
 fi
 
 # Done When #4 (tasks.md, "Suite registration + structural checks"): "a

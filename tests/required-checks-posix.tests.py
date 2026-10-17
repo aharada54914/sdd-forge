@@ -19,7 +19,7 @@ REQUIRED = (
     'test', 'test-windows-heavy', 'installers', 'loops-routing', 'version-gates',
     'version-gates-windows-bump', 'version-gates-windows-lanes', 'mcp-tests',
     'local-env-mcp-tests', 'ci-mcp-tests', 'cli-hook-enforcement',
-    'posix-regression', 'posix-unwired-sharded',
+    'posix-regression', 'posix-unwired-sharded', 'a9-advisory-inputs', 'a9-advisory',
 )
 
 
@@ -145,12 +145,13 @@ class RequiredChecksTests(unittest.TestCase):
                                      capture_output=True, text=True, timeout=30)
                 self.assertEqual(run.returncode, 23, run.stdout + run.stderr)
 
-    def execute_body(self, failed_job=None, result='success'):
+    def execute_body(self, failed_job=None, result='success', active='true'):
         def expand(match):
             name = match[1]
             self.assertIn(name, self.needs)
             return result if name == failed_job else 'success'
-        body = re.sub(r'\$\{\{ needs\.([a-z-]+)\.result \}\}', expand, self.body)
+        body = re.sub(r'\$\{\{ needs\.([a-z0-9-]+)\.result \}\}', expand, self.body)
+        body = body.replace('${{ needs.a9-advisory-inputs.outputs.active }}', active)
         self.assertNotIn('${{', body)
         return subprocess.run(['bash', '-e', '-c', body], capture_output=True,
                               text=True, timeout=10)
@@ -158,6 +159,12 @@ class RequiredChecksTests(unittest.TestCase):
     def test_all_success(self):
         run = self.execute_body()
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
+    def test_inactive_advisory_is_skipped_not_success(self):
+        self.assertEqual(self.execute_body('a9-advisory', 'skipped', 'false').returncode, 0)
+        for active, result in (('false', 'success'), ('false', 'failure'), ('', 'skipped'), ('true', 'skipped')):
+            with self.subTest(active=active, result=result):
+                self.assertNotEqual(self.execute_body('a9-advisory', result, active).returncode, 0)
 
     def test_each_dependency_non_success(self):
         for name in REQUIRED:

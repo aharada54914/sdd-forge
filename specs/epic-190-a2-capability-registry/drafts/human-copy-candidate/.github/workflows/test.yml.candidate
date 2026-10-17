@@ -18,6 +18,94 @@ permissions:
   contents: read
 
 jobs:
+  a9-advisory-inputs:
+    name: A9 advisory activation detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      active: ${{ steps.detect.outputs.active }}
+    steps:
+      - name: Read trusted base
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+      - name: Read exact PR head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: subject
+          persist-credentials: false
+      - name: Detect advisory activation without executing repository code
+        id: detect
+        shell: bash
+        env:
+          A9_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python3 - <<'PYCODE'
+          import json, os
+          active = os.environ['A9_EVENT_NAME'] == 'pull_request' and any(
+              os.path.lexists(root + '/sdd/project-context.yaml') for root in ('trusted', 'subject'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('active=' + str(active).lower() + '\n')
+          print(json.dumps({'state': 'inputs_required' if active else 'not_activated',
+                            'advisory_observed': False}))
+          PYCODE
+
+  a9-advisory:
+    name: capability-mode Gate
+    needs: [a9-advisory-inputs]
+    if: needs.a9-advisory-inputs.outputs.active == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout trusted collection implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout isolated exact PR head as data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: subject
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Collect actual advisory consumers with explicit request
+        shell: bash
+        env:
+          A9_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          A9_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          umask 077
+          if [ ! -f trusted/scripts/observe-a9-advisory.py ]; then
+            echo '{"state":"blocked","result":"BLOCKED","authorization_checked":false,"missing_inputs":["trusted_collector"]}'
+            exit 1
+          fi
+          if ! git -C subject fetch --no-tags ../trusted "$A9_BASE_SHA" >/dev/null 2>&1; then
+            echo '{"state":"blocked","result":"BLOCKED","authorization_checked":false,"missing_inputs":["base_revision"]}'
+            exit 1
+          fi
+          private_dir=$(mktemp -d "$RUNNER_TEMP/a9-observation.XXXXXX")
+          python3 trusted/scripts/observe-a9-advisory.py \
+            --repo-root "$GITHUB_WORKSPACE/subject" \
+            --base-sha "$A9_BASE_SHA" --head-sha "$A9_HEAD_SHA" \
+            --request sdd/a9-advisory-request.json \
+            --output "$private_dir/observation.json"
+          # Raw evidence stays private and is deliberately never uploaded.
+          # A safe summary/check success alone cannot complete release evidence.
+
   # run-all.sh is the canonical POSIX suite inventory. This fallback runs
   # every suite not already named by one of the specialized jobs below, so a
   # new registration cannot remain local-only or duplicate expensive lanes.
@@ -1366,7 +1454,7 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression]
+    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1420,6 +1508,18 @@ jobs:
             echo "posix-regression job failed"
             exit 1
           fi
+          if [ "${{ needs.posix-unwired-sharded.result }}" != "success" ]; then
+            echo "posix-unwired-sharded job failed"
+            exit 1
+          fi
+          if [ "${{ needs.a9-advisory-inputs.result }}" != "success" ]; then
+            echo "A9 activation detection failed"
+            exit 1
+          fi
+          case "${{ needs.a9-advisory-inputs.outputs.active }}:${{ needs.a9-advisory.result }}" in
+            true:success|false:skipped) ;;
+            *) echo "A9 advisory result does not match activation state"; exit 1 ;;
+          esac
           echo "all required checks passed"
   # Keep the Windows-only deterministic suites in a parallel job.
   # Their assertions remain required by required-checks.

@@ -20,6 +20,12 @@ def load(name):
     return module
 
 
+spec = importlib.util.spec_from_file_location("a9_observer", ROOT / "scripts/observe-a9-advisory.py")
+if spec is None or spec.loader is None:
+    raise RuntimeError("A9 observation validator is unavailable")
+OBSERVER = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(OBSERVER)
+
 OWNERSHIP = load("resolve-component-paths")
 RESOLVER = load("resolve-project-context")
 PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop",
@@ -150,6 +156,12 @@ def validate_release_cycle(cycle, commits):
                 raise ValueError("advisory Gate or required platform CI is missing")
             if any(c["status"] != "completed" or c["conclusion"] != "success" for c in latest.values()):
                 raise ValueError("latest recorded checks must all complete successfully")
+            observation = pr["advisory_observation"]
+            if latest[gate]["advisory_observation_sha256"] != OWNERSHIP.canonical_digest(observation):
+                raise ValueError("latest advisory check does not bind the collected observation")
+            diagnostics = OBSERVER.validate_observation(observation, pr["head_sha"], pr["base_sha"], ROOT)
+            if diagnostics:
+                raise ValueError("; ".join(diagnostics))
     except (KeyError, TypeError, ValueError, AttributeError) as exc:
         return ["release/CI evidence rejected: " + str(exc)]
     return []
@@ -215,13 +227,12 @@ def release_commits(cycle):
     if not isinstance(cycle, dict) or any(not isinstance(cycle.get(k), str) or
             not re.fullmatch(r"[0-9a-f]{40}", cycle[k]) for k in ("base_sha", "head_sha")):
         raise ValueError("invalid release boundaries")
-    subprocess.check_call(["git", "merge-base", "--is-ancestor", cycle["base_sha"], cycle["head_sha"]], cwd=ROOT)
-    commits = subprocess.check_output(["git", "rev-list", "--first-parent",
-        cycle["base_sha"] + ".." + cycle["head_sha"]], cwd=ROOT, text=True).splitlines()
+    OBSERVER.git(ROOT, "merge-base", "--is-ancestor", cycle["base_sha"], cycle["head_sha"])
+    commits = OBSERVER.git(ROOT, "rev-list", "--first-parent",
+        cycle["base_sha"] + ".." + cycle["head_sha"]).decode().splitlines()
     tag = cycle["release"]["tag_name"]
-    subprocess.check_call(["git", "check-ref-format", "refs/tags/" + tag], cwd=ROOT)
-    tag_head = subprocess.check_output(["git", "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}"],
-        cwd=ROOT, text=True).strip()
+    OBSERVER.git(ROOT, "check-ref-format", "refs/tags/" + tag)
+    tag_head = OBSERVER.git(ROOT, "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}").decode().strip()
     if tag_head != cycle["head_sha"]:
         raise ValueError("published release tag does not resolve to the recorded cycle head")
     return commits
@@ -257,7 +268,7 @@ def main():
                       "release_cycle_evidence": "consistency_checked" if args.phase == "phase2" and not errors else ("not_collected" if args.phase == "phase1" else "not_validated"),
                       "promotion_authorized": False,
                       "preflight_scope": "candidate_transition_and_release_ci_consistency" if args.phase == "phase2" else "phase1_candidate",
-                      "unchecked_requirements": ["export authenticity and required-check policy", "human promotion approval",
+                      "unchecked_requirements": ["export authenticity and required-check policy", "approved Phase-1 publication authenticity", "human promotion approval",
                           "false-positive triage and unresolved findings", "signed end-to-end rollback rehearsal",
                           "post-promotion real feature workflow"]}, sort_keys=True))
     return 1 if errors else 0

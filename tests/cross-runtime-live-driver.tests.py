@@ -7,6 +7,8 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import importlib.util
+import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 STUB = r'''import json, os, pathlib, re, subprocess, sys
@@ -98,6 +100,97 @@ def run(runtime):
             else:
                 assert not trace.exists(), 'failed handoff published a success trace'
             print('ok:', runtime, model or '<missing>', mode)
+        proof_cases(runtime, temp, env)
+
+
+def proof_cases(runtime, temp, environment):
+    """Synthetic signed fixtures exercise the real aggregate, never live proof."""
+    spec = importlib.util.spec_from_file_location('proof_fixtures', ROOT / 'tests/fixtures/live-host-proof/run_cases.py')
+    fixtures = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixtures)
+    for mode in ('valid-signed', 'explicit-valid', 'stale-consumer', 'missing-record', 'unsigned-record', 'invalid-issuer', 'untrusted-signer'):
+        fixture = fixtures.Fixture(temp / mode)
+        project = fixture.root
+        shutil.copytree(ROOT / 'plugins/sdd-quality-loop/scripts', project / 'plugins/sdd-quality-loop/scripts')
+        shutil.copytree(ROOT / 'tests/lib', project / 'tests/lib')
+        shutil.copytree(ROOT / 'tests/fixtures/cross-runtime-handoff', project / 'tests/fixtures/cross-runtime-handoff')
+        references = project / 'plugins/sdd-review-loop/references'
+        references.mkdir(parents=True)
+        for source, name in ((fixture.registry, 'a8-trusted-signers.json'), (fixture.manifest, 'a8-expected-hook-config-digests.json'), (ROOT / 'plugins/sdd-review-loop/references/a8-skip-allowlist.json', 'a8-skip-allowlist.json')):
+            shutil.copyfile(source, references / name)
+        subprocess.run(['git', 'init', '-q', str(project)], check=True)
+        subprocess.run(['git', 'add', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh', 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1'], cwd=project, check=True)
+        subprocess.run(['git', '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'synthetic activation fixture'], cwd=project, check=True)
+        tasks = project / 'tasks.md'
+        tasks.write_text('## T-005 fixture\nStatus: In Progress\n', encoding='utf-8')
+        proof_records = fixture.records
+        if mode in {'explicit-valid', 'stale-consumer'}:
+            external = temp / (mode + '-capture')
+            proof_records = external / 'tests/hook-activation-live-proof'
+            shutil.copytree(fixture.records, proof_records)
+            for relative in fixtures.load_validator_module().CONSUMERS.values():
+                target = external / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(project / relative, target)
+            if mode == 'stale-consumer':
+                current = project / next(iter(fixtures.load_validator_module().CONSUMERS.values()))
+                current.write_text(current.read_text() + 'Current consumer changed.\n')
+        record = fixture.record_path('Claude-active')
+        if mode == 'missing-record':
+            record.unlink()
+        elif mode == 'unsigned-record':
+            data = json.loads(record.read_text()); data['operator_signature'] = ''; record.write_text(json.dumps(data))
+        elif mode == 'invalid-issuer':
+            data = json.loads(fixture.ledger.read_text()); data['entries'][0]['issuer_signature'] = ''; fixture.ledger.write_text(json.dumps(data))
+        elif mode == 'untrusted-signer':
+            registry = references / 'a8-trusted-signers.json'
+            data = json.loads(registry.read_text()); del data['signers']['operator-key']; registry.write_text(json.dumps(data))
+        trace = project / 'trace.json'
+        env = {**environment, 'SDD_A8_COPILOT_MODEL': 'auto', 'SDD_STUB_MODE': 'good',
+               'SDD_CROSS_RUNTIME_TASKS_PATH': str(tasks), 'SDD_CROSS_RUNTIME_MAIN_REF': 'HEAD'}
+        if runtime == 'bash':
+            command = ['bash', str(ROOT / 'tests/cross-runtime-handoff.tests.sh'), '--live-e2e', '--trace-file', str(trace)]
+        else:
+            command = [runtime, '-NoProfile', '-File', str(ROOT / 'tests/cross-runtime-handoff.tests.ps1'), '-LiveE2E', '-TraceFile', str(trace)]
+        if proof_records != fixture.records:
+            command += ['--live-host-proof-dir' if runtime == 'bash' else '-LiveHostProofDir', str(proof_records)]
+        result = subprocess.run(command, cwd=project, env=env, capture_output=True, text=True, timeout=60)
+        assert (result.returncode == 0) == (mode in {'valid-signed', 'explicit-valid'}), (runtime, mode, result.stdout, result.stderr)
+        if mode in {'valid-signed', 'explicit-valid'}:
+            data = json.loads(trace.read_text(encoding='utf-8-sig'))
+            assert data['result'] == 'PASS' and data['coverage_complete'] is True
+            assert data['canary_case']['result'] == 'PASS' and data['canary_case']['skip_reason'] is None
+            proof = data['canary_case']['proof']
+            assert proof['schema'] == 'cross-runtime-live-proof/v1' and proof['aggregate'] == 'discharged'
+            assert len([a for a in proof['artifacts'] if a['kind'] == 'record']) == 5
+            assert all(not Path(a['ref']).is_absolute() for a in proof['artifacts'])
+            ledger = proof_records / 'nonce-ledger.json'
+            assert all(e['consumed_by_record'] for e in json.loads(ledger.read_text())['entries'])
+            helper_spec = importlib.util.spec_from_file_location('handoff_proof_helper', project / 'tests/lib/cross-runtime-consumer-evidence.py')
+            helper = importlib.util.module_from_spec(helper_spec)
+            helper_spec.loader.exec_module(helper)
+            before = ledger.read_bytes()
+            verified = helper.read_only_proof(project, proof_records)
+            assert verified == {key: value for key, value in proof.items() if key != 'stdout'}
+            assert ledger.read_bytes() == before, 'read-only verification changed the ledger'
+            relocated = temp / (mode + '-transport')
+            shutil.copytree(proof_records.parent.parent, relocated)
+            replayed = helper.read_only_proof(project, relocated / 'tests/hook-activation-live-proof')
+            assert replayed['artifacts'] == verified['artifacts'], 'transport changed stable proof identities'
+            for consumed in (None, 'tests/hook-activation-live-proof/another.json'):
+                mutated = json.loads(before); mutated['entries'][0]['consumed_by_record'] = consumed
+                ledger.write_text(json.dumps(mutated)); changed = ledger.read_bytes()
+                try:
+                    helper.read_only_proof(project, proof_records)
+                except ValueError as exc:
+                    assert str(project) not in str(exc) and str(proof_records) not in str(exc)
+                else:
+                    raise AssertionError('read-only verification accepted an incomplete or different receipt')
+                assert ledger.read_bytes() == changed, 'failed read-only validation wrote ledger'
+            ledger.write_bytes(before)
+        else:
+            assert not trace.exists(), 'invalid signed proof published a trace'
+        print('ok:', runtime, 'active proof', mode)
 
 
 if __name__ == '__main__':

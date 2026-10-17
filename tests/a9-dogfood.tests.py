@@ -315,6 +315,21 @@ class ResolverIntegrationTests(unittest.TestCase):
 
 class PromotionPreflightTests(unittest.TestCase):
     """Synthetic evidence tests: these never authorize a real promotion."""
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("a9_observation_fixture", ROOT / "tests/a9-advisory-evidence.tests.py")
+        cls.fixture_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.fixture_module)
+        cls.fixture_tmp = tempfile.TemporaryDirectory(prefix="a9-release-fixture-")
+        cls.fixture_root = Path(cls.fixture_tmp.name)
+        cls.pr_base, cls.pr_head, contract = cls.fixture_module.fixture(cls.fixture_root)
+        cls.observation = cls.fixture_module.observer.collect(cls.fixture_root, cls.pr_base,
+            cls.pr_head, "fixture", contract, None)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.fixture_tmp.cleanup()
+
     def setUp(self):
         spec = importlib.util.spec_from_file_location("a9_promotion", ROOT / "scripts/validate-a9-candidate.py")
         self.checker = importlib.util.module_from_spec(spec)
@@ -331,7 +346,7 @@ class PromotionPreflightTests(unittest.TestCase):
         for document in (self.evidence, self.manifest):
             document["context_binding"]["full_context_revision"] = OWNERSHIP.canonical_digest(self.baseline)
             document["context_binding"]["ownership_digest"] = ownership["context_binding"]["ownership_digest"]
-        self.head = "b" * 40
+        self.head = self.pr_head
         self.commit = "c" * 40
         self.cycle = {"schema": "a9-release-cycle/v1", "base_sha": "a" * 40, "head_sha": self.commit,
             "release": {"tag_name": "synthetic-release", "draft": False, "prerelease": False,
@@ -345,9 +360,29 @@ class PromotionPreflightTests(unittest.TestCase):
                     for i, name in enumerate(["capability-mode Gate (advisory)", "tests (ubuntu-latest)",
                                               "tests (macos-latest)", "tests (windows-latest)"])]}]}
 
+        self.cycle["pull_requests"][0].update(base_sha=self.pr_base,
+            advisory_observation=copy.deepcopy(self.observation))
+        self.cycle["pull_requests"][0]["check_runs"][0]["advisory_observation_sha256"] = OWNERSHIP.canonical_digest(self.observation)
+
     def check(self):
-        return self.checker.validate_promotion(self.candidate, self.baseline, self.tracked,
-            self.registry, self.evidence, self.manifest, self.cycle, [self.commit])
+        with patch.object(self.checker, "ROOT", self.fixture_root):
+            return self.checker.validate_promotion(self.candidate, self.baseline, self.tracked,
+                self.registry, self.evidence, self.manifest, self.cycle, [self.commit])
+
+    def test_green_check_names_without_actual_advisory_observation_reject(self):
+        self.cycle["pull_requests"][0].pop("advisory_observation")
+        self.assertTrue(self.check(), "green CI names alone are not an executed advisory Gate")
+
+    def test_latest_advisory_check_requires_exact_observation_digest(self):
+        check = self.cycle['pull_requests'][0]['check_runs'][0]
+        check['advisory_observation_sha256'] = 'sha256:' + '0' * 64
+        self.assertTrue(self.check())
+
+    def test_inactive_observation_cannot_count_even_with_rehashed_green_check(self):
+        pr = self.cycle['pull_requests'][0]
+        pr['advisory_observation']['state'] = 'not_activated'
+        pr['check_runs'][0]['advisory_observation_sha256'] = OWNERSHIP.canonical_digest(pr['advisory_observation'])
+        self.assertTrue(self.check())
 
     def test_complete_scoped_preflight(self):
         self.assertEqual(self.check(), [])
@@ -376,6 +411,7 @@ class PromotionPreflightTests(unittest.TestCase):
             self.cycle["head_sha"] = git("rev-parse", "HEAD")
             self.cycle["pull_requests"][0]["merge_commit_sha"] = self.cycle["head_sha"]
             git("tag", "synthetic-release")
+            git("fetch", str(self.fixture_root), self.pr_head)
             tracked = git("ls-files").splitlines()
             ownership = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(self.baseline), tracked)
             for document in (self.evidence, self.manifest):

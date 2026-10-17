@@ -634,6 +634,8 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
 # Concept review's executable enforcement chain must resist direct replacement,
 # including wrappers mentioned through brace syntax in skill documentation.
 for domain_gate in \
+    scripts/validate-a9-rollback-receipt.py \
+    scripts/validate-a9-promotion.py \
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
     plugins/sdd-domain/scripts/record-upstream-concept-issue.py \
     plugins/sdd-domain/scripts/validate-domain-contract.sh \
@@ -647,6 +649,29 @@ for domain_gate in \
     plugins/sdd-domain/scripts/finalize-domain-review.ps1; do
     parity_check "concept enforcement: $domain_gate" 2 \
         "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$domain_gate\",\"content\":\"replacement\"}}"
+done
+
+# Promotion imports these validators before checking authorization. Protect the
+# executable dependency chain and fixed trust inputs while preserving reads.
+for a9_dependency in \
+    scripts/validate-a9-candidate.py \
+    scripts/observe-a9-advisory.py \
+    plugins/sdd-quality-loop/scripts/validate-live-host-proof.py \
+    plugins/sdd-quality-loop/scripts/validate-facet-manifest.py \
+    plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py \
+    plugins/sdd-quality-loop/scripts/resolve-component-paths.py \
+    plugins/sdd-quality-loop/scripts/validate-capability-registry.py \
+    plugins/sdd-quality-loop/scripts/generate-registry-digest.py \
+    plugins/sdd-quality-loop/scripts/registry_discovery.py \
+    plugins/sdd-quality-loop/scripts/evaluate-predicate.py \
+    plugins/sdd-review-loop/references/a8-trusted-signers.json \
+    plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json \
+    plugins/sdd-review-loop/references/a8-skip-allowlist.json \
+    tests/hook-activation-live-proof/nonce-ledger.json; do
+    parity_check "A9 dependency write: $a9_dependency" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$a9_dependency\",\"content\":\"replacement\"}}"
+    parity_check "A9 dependency read: $a9_dependency" 0 \
+        "{\"tool_name\":\"read\",\"tool_input\":{\"file_path\":\"$a9_dependency\"}}"
 done
 
 wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
