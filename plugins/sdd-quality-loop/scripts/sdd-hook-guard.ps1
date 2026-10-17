@@ -268,16 +268,26 @@ function Get-ShellReadSegments {
     $quote = $null
     $globs = New-Object System.Collections.Generic.List[bool]
     $globs.Add($false)
+    $expansions = New-Object System.Collections.Generic.List[bool]
+    $expansions.Add($false)
     $readSafe = $true
-    foreach ($ch in $Cmd.ToCharArray()) {
+    for ($charIndex = 0; $charIndex -lt $Cmd.Length; $charIndex++) {
+        $ch = $Cmd[$charIndex]
         if ($quote -eq "'") {
             if ($ch -eq "'") { $quote = $null }
             continue
         }
         if ('$`'.Contains([string]$ch) -or ($null -eq $quote -and '<>(){}'.Contains([string]$ch))) { $readSafe = $false }
+        if ('$`'.Contains([string]$ch) -or ($null -eq $quote -and '(){}'.Contains([string]$ch))) { $expansions[$expansions.Count - 1] = $true }
         if ($null -eq $quote) {
             if ('*?['.Contains([string]$ch)) { $globs[$globs.Count - 1] = $true }
-            elseif ("`n`r;|&".Contains([string]$ch)) { $globs.Add($false) }
+            elseif ("`n`r;|&".Contains([string]$ch)) {
+                if ($ch -ne '&' -or -not (($charIndex -gt 0 -and $Cmd[$charIndex - 1] -eq '>') -or
+                        ($charIndex + 1 -lt $Cmd.Length -and $Cmd[$charIndex + 1] -eq '>'))) {
+                    $globs.Add($false)
+                    $expansions.Add($false)
+                }
+            }
         }
         if ($ch -eq '"') {
             if ($quote -eq '"') { $quote = $null } else { $quote = '"' }
@@ -286,7 +296,8 @@ function Get-ShellReadSegments {
     $parsed = Tokenize-ShellCommand $Cmd
     if ($null -eq $parsed -or $parsed.Tokens.Count -eq 0) {
         # Unsupported escapes can change quote boundaries; do not trust their flags.
-        return [pscustomobject]@{ Segments = @(); Globs = $globs; ReadSafe = $false; UnknownGlob = ($Cmd.IndexOfAny([char[]]'*?[') -ge 0) }
+        return [pscustomobject]@{ Segments = @(); Globs = $globs; Expansions = $expansions; ReadSafe = $false;
+            Ambiguous = $false; UnknownGlob = ($Cmd.IndexOfAny([char[]]'*?[') -ge 0) }
     }
     $segments = New-Object System.Collections.Generic.List[object]
     $words = New-Object System.Collections.Generic.List[string]
@@ -297,23 +308,26 @@ function Get-ShellReadSegments {
         } else { $words.Add([string]$token[1]) }
     }
     $segments.Add($words.ToArray())
-    return [pscustomobject]@{ Segments = $segments; Globs = $globs; ReadSafe = $readSafe;
+    return [pscustomobject]@{ Segments = $segments; Globs = $globs; Expansions = $expansions; ReadSafe = $readSafe;
+        Ambiguous = ($segments.Count -ne $globs.Count);
         UnknownGlob = ($segments.Count -ne $globs.Count -and $globs.Contains($true)) }
 }
 
 function Test-ReaderGlobCanAddOptions {
-    param([string[]]$Words, [bool]$HasGlob)
+    param([string[]]$Words, [bool]$HasGlob, [bool]$Expands)
     $argsList = @($Words)
     if ($argsList.Count -ge 2 -and $argsList[0] -ceq 'rtk' -and $argsList[1] -ceq 'proxy') {
         $argsList = @($argsList | Select-Object -Skip 2)
     }
     if ($argsList.Count -eq 0 -or -not $HasGlob) { return $false }
+    if (@('rg', 'sed') -contains $argsList[0].ToLowerInvariant() -and $Expands) { return $true }
     if ($argsList[0].ToLowerInvariant() -eq 'rg') {
         return -not (($argsList.Count -ge 2 -and $argsList[1] -ceq '--') -or
             ($argsList.Count -ge 3 -and $argsList[1] -ceq '--no-config' -and $argsList[2] -ceq '--'))
     }
     if ($argsList[0].ToLowerInvariant() -eq 'sed') {
-        return -not ($argsList.Count -ge 4 -and $argsList[1] -ceq '-n' -and $argsList[3] -ceq '--')
+        return -not ($argsList.Count -ge 4 -and $argsList[1] -ceq '-n' -and $argsList[3] -ceq '--' -and
+            [regex]::IsMatch($argsList[2], '^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$'))
     }
     return $false
 }
@@ -322,9 +336,9 @@ function Test-ShellHasGlobbedReaderOptions {
     param([string]$Cmd)
     $parsed = Get-ShellReadSegments $Cmd
     if ($null -eq $parsed) { return $false }
-    if ($parsed.UnknownGlob) { return $true }
+    if ($parsed.Ambiguous -or $parsed.UnknownGlob) { return $true }
     for ($index = 0; $index -lt $parsed.Segments.Count; $index++) {
-        if (Test-ReaderGlobCanAddOptions $parsed.Segments[$index] $parsed.Globs[$index]) { return $true }
+        if (Test-ReaderGlobCanAddOptions $parsed.Segments[$index] $parsed.Globs[$index] $parsed.Expansions[$index]) { return $true }
     }
     return $false
 }
@@ -333,12 +347,12 @@ function Test-ShellReadOnly {
     param([string]$Cmd)
     # Quoted patterns are data; expansions are not the final argv.
     $parsed = Get-ShellReadSegments $Cmd
-    if ($null -eq $parsed -or -not $parsed.ReadSafe -or $parsed.UnknownGlob) { return $false }
+    if ($null -eq $parsed -or -not $parsed.ReadSafe -or $parsed.Ambiguous -or $parsed.UnknownGlob) { return $false }
     $readers = @('cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
         'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object')
     for ($index = 0; $index -lt $parsed.Segments.Count; $index++) {
         $argsList = @($parsed.Segments[$index])
-        if (Test-ReaderGlobCanAddOptions $argsList $parsed.Globs[$index]) { return $false }
+        if (Test-ReaderGlobCanAddOptions $argsList $parsed.Globs[$index] $parsed.Expansions[$index]) { return $false }
         if ($argsList.Count -eq 0) { continue }
         if ($argsList.Count -ge 2 -and $argsList[0] -ceq 'rtk' -and $argsList[1] -ceq 'proxy') {
             $argsList = @($argsList | Select-Object -Skip 2)
@@ -1948,7 +1962,7 @@ try {
 
     # Reject unknown argv before legacy write scanners can miss glob-added options.
     if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellHasGlobbedReaderOptions $command)) {
-        Emit-Decision 'deny' 'SDD deterministic gate: unquoted rg/sed globs require an explicit option terminator (--).'
+        Emit-Decision 'deny' 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).'
     }
     # Read-only inspection cannot change protected files or grant approvals.
     if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command)) {

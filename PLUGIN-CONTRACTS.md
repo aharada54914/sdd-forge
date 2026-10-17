@@ -21,6 +21,9 @@ use `rg -- pattern *`, `rg --no-config -- pattern *`, or `sed -n '1,200p' -- *`.
 A `--` consumed as another option's value is not an option terminator. Other
 read-only commands in the same pipeline or command list retain their own glob behavior.
 Unquoted globs combined with shell syntax the tokenizer cannot model are also denied.
+The `sed` script must be a literal print range; variable or command expansions
+cannot qualify for the glob exemption. Disagreement about quoted command boundaries
+is denied outright instead of falling through to the write guards.
 
 A read followed by a write, output redirection, executable substitution,
 `rg --pre` / `--hostname-bin`, and writing/executing `sed` programs do not qualify as read-only.

@@ -1216,55 +1216,63 @@ function shellReadSegments(cmd) {
   if (typeof cmd !== 'string') return null;
   let quote = null;
   const globs = [false];
+  const expansions = [false];
   let readSafe = true;
-  for (const ch of cmd) {
+  for (let index = 0; index < cmd.length; index++) {
+    const ch = cmd[index];
     if (quote === "'") {
       if (ch === "'") quote = null;
       continue;
     }
     if ('$`'.includes(ch) || (quote === null && '<>(){}'.includes(ch))) readSafe = false;
+    if ('$`'.includes(ch) || (quote === null && '(){}'.includes(ch))) expansions[expansions.length - 1] = true;
     if (quote === null) {
       if ('*?['.includes(ch)) globs[globs.length - 1] = true;
-      else if ('\n\r;|&'.includes(ch)) globs.push(false);
+      else if ('\n\r;|&'.includes(ch) && (ch !== '&' || (cmd[index - 1] !== '>' && cmd[index + 1] !== '>'))) {
+        globs.push(false);
+        expansions.push(false);
+      }
     }
     if (ch === '"') quote = quote === '"' ? null : '"';
     else if (ch === "'" && quote === null) quote = "'";
   }
   const tokens = tokenizeShellCommand(cmd);
   // Unsupported escapes can change quote boundaries; do not trust their flags.
-  if (!tokens || !tokens.length) return { segments: [], readSafe: false, unknownGlob: /[*?\[]/.test(cmd) };
+  if (!tokens || !tokens.length) return { segments: [], readSafe: false, ambiguous: false, unknownGlob: /[*?\[]/.test(cmd) };
   const segments = [[]];
   for (const [kind, word] of tokens) {
     if (kind === 'sep') segments.push([]);
     else segments[segments.length - 1].push(word);
   }
-  return { segments: segments.map((words, index) => [words, globs[index]]), readSafe,
+  return { segments: segments.map((words, index) => [words, globs[index], expansions[index]]), readSafe,
+    ambiguous: segments.length !== globs.length,
     unknownGlob: segments.length !== globs.length && globs.some(Boolean) };
 }
 
-function readerGlobCanAddOptions(words, hasGlob) {
+function readerGlobCanAddOptions(words, hasGlob, expands) {
   if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
   if (!words.length || !hasGlob) return false;
+  if (['rg', 'sed'].includes(words[0].toLowerCase()) && expands) return true;
   if (words[0].toLowerCase() === 'rg') return !(words[1] === '--' || (words[1] === '--no-config' && words[2] === '--'));
-  if (words[0].toLowerCase() === 'sed') return !(words[1] === '-n' && words[3] === '--');
+  if (words[0].toLowerCase() === 'sed') return !(words[1] === '-n' && words[3] === '--' && /^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$/.test(words[2]));
   return false;
 }
 
 function shellHasGlobbedReaderOptions(cmd) {
   const parsed = shellReadSegments(cmd);
-  return !!parsed && (parsed.unknownGlob || parsed.segments.some(([words, glob]) => readerGlobCanAddOptions(words, glob)));
+  return !!parsed && (parsed.ambiguous || parsed.unknownGlob || parsed.segments.some(([words, glob, expands]) => readerGlobCanAddOptions(words, glob, expands)));
 }
 
 function shellIsReadOnly(cmd) {
   // Quoted patterns are data; expansions are not the final argv.
   const parsed = shellReadSegments(cmd);
-  if (parsed === null || !parsed.readSafe || parsed.unknownGlob) return false;
+  if (parsed === null || !parsed.readSafe || parsed.ambiguous || parsed.unknownGlob) return false;
   const readers = new Set([
     'cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
     'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object',
   ]);
-  for (let [words, hasGlob] of parsed.segments) {
-    if (readerGlobCanAddOptions(words, hasGlob)) return false;
+  for (let [words, hasGlob, expands] of parsed.segments) {
+    if (readerGlobCanAddOptions(words, hasGlob, expands)) return false;
     if (!words.length) continue;
     if (words[0] === 'rtk' && words[1] === 'proxy') words = words.slice(2);
     if (!words.length) return false;
@@ -1899,7 +1907,7 @@ async function main() {
     const filePath = (toolInput.file_path || '').toLowerCase();
     // Reject unknown argv before legacy write scanners can miss glob-added options.
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && shellHasGlobbedReaderOptions(toolInput.command)) {
-      emitDecision('deny', 'SDD deterministic gate: unquoted rg/sed globs require an explicit option terminator (--).', mode);
+      emitDecision('deny', 'SDD deterministic gate: ambiguous shell parsing or glob-expanded reader options; use explicit arguments and an option terminator (--).', mode);
       return;
     }
     // Read-only inspection cannot change protected files or grant approvals.

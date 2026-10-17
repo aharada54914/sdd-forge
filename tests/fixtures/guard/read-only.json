@@ -308,5 +308,55 @@
     "name": "rg unterminated quote with glob",
     "command": "rg \"*",
     "exit": 2
+  },
+  {
+    "name": "sed glob script before option end",
+    "command": "sed -n * -- harmless.txt",
+    "exit": 2
+  },
+  {
+    "name": "sed glob script protected target",
+    "command": "sed -n * -- .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "ls glob with fd duplication",
+    "command": "ls * 2>&1",
+    "exit": 0
+  },
+  {
+    "name": "rg safe glob with fd duplication",
+    "command": "rg -- pattern * 2>&1",
+    "exit": 0
+  },
+  {
+    "name": "quoted redirect followed by background mutation",
+    "command": "cat '>'&rm .codex/agents/custom.toml",
+    "exit": 2
+  },
+  {
+    "name": "quoted redirect followed by sudo mutation",
+    "command": "cat '>'&rm SDD_SUDO",
+    "exit": 2
+  },
+  {
+    "name": "sed dynamic script before option end",
+    "command": "sed -n $p -- *",
+    "exit": 2
+  },
+  {
+    "name": "sed dynamic range before option end",
+    "command": "sed -n 1,$p -- *",
+    "exit": 2
+  },
+  {
+    "name": "sed quoted dynamic script before option end",
+    "command": "sed -n \"$p\" -- *",
+    "exit": 2
+  },
+  {
+    "name": "sed literal final-line print before option end",
+    "command": "sed -n '$p' -- * .codex/agents/custom.toml",
+    "exit": 0
   }
 ]
