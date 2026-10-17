@@ -71,3 +71,17 @@ The full three-runtime parity suite passed 141/141 scenarios, including native
 read access, malformed argument rejection, protected shell writes, approval
 writes, and mixed read/write commands. Python compilation, JavaScript syntax,
 and whitespace checks passed. Unknown native tools remain rejected.
+
+## Capture documentation provenance
+
+The current native evidence envelope and tool-selection procedure are documented
+in [Copilot native handshake capture](../../plugins/sdd-quality-loop/references/copilot-native-handshake.md).
+These implementation instructions supplement transport capture; they do not
+change A8's signed live-host proof requirements or its acceptance classifications.
+The historically reviewed A8 design is retained at its reviewed content, and its
+review contracts and recorded approval hashes remain unchanged. This separation
+avoids attributing later host-adapter documentation to an earlier design review.
+
+The A8 workflow-state check failed on the appended design section before this
+relocation and passed afterward in both Bash and PowerShell. The native handshake
+contract suite also passed all four tests. No historical review record was rewritten.
