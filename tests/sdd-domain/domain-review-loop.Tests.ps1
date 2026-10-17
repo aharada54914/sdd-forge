@@ -65,18 +65,10 @@ $precheckScriptPath = Join-Path $repositoryRoot "plugins/sdd-domain/scripts/doma
 $validatorShPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 $validatorPs1Path = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
 
-$bashCandidates = @(
-    "C:\Users\J0138462\AppData\Local\Programs\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\bin\bash.exe"
-)
 $script:bashExe = $null
-foreach ($candidate in $bashCandidates) {
-    if (Test-Path -LiteralPath $candidate) { $script:bashExe = $candidate; break }
-}
-if ($null -eq $script:bashExe) {
-    $cmd = Get-Command bash.exe -ErrorAction SilentlyContinue
-    if ($null -ne $cmd) { $script:bashExe = $cmd.Source }
+foreach ($name in @('bash', 'bash.exe')) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($null -ne $command) { $script:bashExe = $command.Source; break }
 }
 
 # --- Real, dependency-free reimplementations of the deterministic logic ----
@@ -191,9 +183,12 @@ function Invoke-DomainReviewPrecheck {
     $scriptPath = Join-Path $Root "plugins/sdd-domain/scripts/domain-review-precheck.sh"
     # Convert "C:\foo\bar" to "/c/foo/bar" (Git-Bash/MSYS path convention) so
     # bash.exe, invoked directly from PowerShell, can resolve the script path.
-    $driveLetter = $scriptPath.Substring(0, 1).ToLowerInvariant()
-    $rest = $scriptPath.Substring(2) -replace '\\', '/'
-    $unixScriptPath = "/$driveLetter$rest"
+    $unixScriptPath = $scriptPath
+    if ($scriptPath -match '^[A-Za-z]:') {
+        $driveLetter = $scriptPath.Substring(0, 1).ToLowerInvariant()
+        $rest = $scriptPath.Substring(2) -replace '\\', '/'
+        $unixScriptPath = "/$driveLetter$rest"
+    }
     $allArgs = @($unixScriptPath) + $Arguments
     # bash.exe writes its ERROR: lines to stderr; under $ErrorActionPreference
     # = Stop (set at file scope for the rest of this suite), a native
@@ -274,12 +269,12 @@ Describe "domain-reviewer-a.md contract (strategic checks)" {
         $script:reviewerAText | Should Match "disallowedTools: Write, Edit, NotebookEdit"
     }
 
-    It "declares the six strategic check IDs in order" {
-        $expectedOrder = "CONTEXT-BOUNDARY-CLARITY, RELATION-PATTERN-VALID, EVENT-COVERAGE, TERM-UNIQUENESS, AGGREGATE-CONTEXT-OWNERSHIP, DOMAIN-MODEL-STATUS-PRESENT."
+    It "declares the ten strategic and concept check IDs in order" {
+        $expectedOrder = "CONTEXT-BOUNDARY-CLARITY, RELATION-PATTERN-VALID, EVENT-COVERAGE, TERM-UNIQUENESS, AGGREGATE-CONTEXT-OWNERSHIP, CONCEPT-DISTINCTION-JUSTIFIED, MULTI-ROLE-CONCEPT, STAKEHOLDER-PERSPECTIVE-COVERAGE, NAME-SEMANTIC-FIT, DOMAIN-MODEL-STATUS-PRESENT."
         $script:reviewerAText | Should Match ([regex]::Escape($expectedOrder))
     }
 
-    foreach ($checkId in @("CONTEXT-BOUNDARY-CLARITY", "RELATION-PATTERN-VALID", "EVENT-COVERAGE", "TERM-UNIQUENESS", "AGGREGATE-CONTEXT-OWNERSHIP", "DOMAIN-MODEL-STATUS-PRESENT")) {
+    foreach ($checkId in @("CONTEXT-BOUNDARY-CLARITY", "RELATION-PATTERN-VALID", "EVENT-COVERAGE", "TERM-UNIQUENESS", "AGGREGATE-CONTEXT-OWNERSHIP", "CONCEPT-DISTINCTION-JUSTIFIED", "MULTI-ROLE-CONCEPT", "STAKEHOLDER-PERSPECTIVE-COVERAGE", "NAME-SEMANTIC-FIT", "DOMAIN-MODEL-STATUS-PRESENT")) {
         It "documents check $checkId with a severity" {
             $script:reviewerAText | Should Match ([regex]::Escape("``$checkId``"))
         }
@@ -672,7 +667,7 @@ Describe "Worked fixtures (documented contract validation, per Done-When)" {
         }
     }
 
-    $aIds = @("CONTEXT-BOUNDARY-CLARITY", "RELATION-PATTERN-VALID", "EVENT-COVERAGE", "TERM-UNIQUENESS", "AGGREGATE-CONTEXT-OWNERSHIP", "DOMAIN-MODEL-STATUS-PRESENT")
+    $aIds = @("CONTEXT-BOUNDARY-CLARITY", "RELATION-PATTERN-VALID", "EVENT-COVERAGE", "TERM-UNIQUENESS", "AGGREGATE-CONTEXT-OWNERSHIP", "CONCEPT-DISTINCTION-JUSTIFIED", "MULTI-ROLE-CONCEPT", "STAKEHOLDER-PERSPECTIVE-COVERAGE", "NAME-SEMANTIC-FIT", "DOMAIN-MODEL-STATUS-PRESENT")
     $bIds = @("INVARIANT-VERIFIABLE", "TRANSACTION-BOUNDARY-REALISTIC", "NO-GOD-AGGREGATE", "NO-ANEMIC-MODEL", "LIFECYCLE-DEFINED", "AGGREGATE-SIZE-PROPORTIONATE")
 
     It "both-reviewers-PASS -> clean PASS (worked example)" {

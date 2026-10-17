@@ -161,3 +161,4 @@ tests/component-path-ownership-parity.tests.sh
 tests/cross-runtime-handoff.tests.sh
 tests/check-installed-plugin-drift.tests.sh
 tests/check-a8-process-integrity.tests.sh
+tests/upstream-concept-issue.tests.sh

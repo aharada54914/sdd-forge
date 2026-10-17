@@ -74,60 +74,30 @@ $skillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-review-
 $preparePanelistScript = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh"
 $checkCrossModelScript = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-cross-model.sh"
 
-$bashCandidates = @(
-    "C:\Users\J0138462\AppData\Local\Programs\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\usr\bin\bash.exe",
-    "C:\Program Files\Git\bin\bash.exe"
-)
 $script:bashExe = $null
-foreach ($candidate in $bashCandidates) {
-    if (Test-Path -LiteralPath $candidate) { $script:bashExe = $candidate; break }
-}
-if ($null -eq $script:bashExe) {
-    $cmd = Get-Command bash.exe -ErrorAction SilentlyContinue
-    if ($null -ne $cmd) { $script:bashExe = $cmd.Source }
+foreach ($name in @('bash', 'bash.exe')) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($null -ne $command) { $script:bashExe = $command.Source; break }
 }
 
-# --- Environment constraint: WindowsApps python3.exe alias stub is broken --
-#
-# On this host, `python3` on PATH resolves to
-# C:\Users\<user>\AppData\Local\Microsoft\WindowsApps\python3.exe, which is
-# a Windows Store app-execution-alias stub. It prints "Python" and exits
-# nonzero instead of running any script, regardless of caller (confirmed
-# identically from a plain shell and from bash.exe launched via
-# PowerShell's `&` operator). A real interpreter IS installed at
-# C:\Users\<user>\AppData\Local\Programs\Python\Python314\python.exe (or
-# discoverable via `py -3` launcher on some hosts); both scripts under test
-# unconditionally invoke the bare command name `python3` and provide no
-# override. This is a pre-existing, host-level PATH-shadowing defect, not
-# something introduced by this task's SKILL.md change -- the same class of
-# environment constraint recorded in project memory for `jq`
-# (sdd-forge-windows-jq-gate-scripts) and documented by T-005 for the same
-# reason.
-#
-# Workaround for real-execution evidence: build a small shim directory
-# containing only a `python3` (no extension; bash's shebangless `command -v
-# python3` / direct invocation resolves extension-less names first on
-# MSYS/Git-Bash) that is a copy of a real, working python executable, and
-# prepend that directory to PATH for the duration of the bash.exe child
-# process only. This does not alter the system PATH or any other process.
+# Locate a real interpreter, excluding Windows Store execution aliases.
 function Get-WorkingPythonPath {
-    $candidates = @(
-        "C:\Users\J0138462\AppData\Local\Programs\Python\Python314\python.exe"
-    )
-    foreach ($c in $candidates) {
-        if (Test-Path -LiteralPath $c) { return $c }
+    foreach ($name in @('python3', 'python', 'python3.exe', 'python.exe')) {
+        $commands = @(Get-Command $name -All -ErrorAction SilentlyContinue |
+            Where-Object { $_.Source -notmatch 'WindowsApps' })
+        foreach ($command in $commands) {
+            try {
+                $null = & $command.Source -c 'import sys' 2>$null
+                if ($LASTEXITCODE -eq 0) { return $command.Source }
+            } catch { }
+        }
     }
-    # Fall back to scanning Get-Command for any python*.exe that actually runs.
-    $found = Get-Command python.exe -All -ErrorAction SilentlyContinue |
-        Where-Object { $_.Source -notmatch 'WindowsApps' } |
-        Select-Object -First 1 -ExpandProperty Source
-    return $found
+    return $null
 }
 
 $script:workingPython = Get-WorkingPythonPath
 $script:python3ShimDir = $null
-if ($null -ne $script:workingPython) {
+if ($null -ne $script:workingPython -and [IO.Path]::DirectorySeparatorChar -eq [char]92) {
     $script:python3ShimDir = Join-Path ([IO.Path]::GetTempPath()) ("t011-py3shim-" + [Guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $script:python3ShimDir | Out-Null
     Copy-Item -LiteralPath $script:workingPython -Destination (Join-Path $script:python3ShimDir "python3.exe") -Force
@@ -143,9 +113,12 @@ function Invoke-BashScript {
     )
     if ($null -eq $script:bashExe) { throw "bash.exe not found on this host" }
 
-    $driveLetter = $ScriptPath.Substring(0, 1).ToLowerInvariant()
-    $rest = $ScriptPath.Substring(2) -replace '\\', '/'
-    $unixScriptPath = "/$driveLetter$rest"
+    $unixScriptPath = $ScriptPath
+    if ($ScriptPath -match '^[A-Za-z]:') {
+        $driveLetter = $ScriptPath.Substring(0, 1).ToLowerInvariant()
+        $rest = $ScriptPath.Substring(2) -replace '\\', '/'
+        $unixScriptPath = "/$driveLetter$rest"
+    }
 
     $previousPreference = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
@@ -157,7 +130,7 @@ function Invoke-BashScript {
         }
         $savedPath = $env:Path
         if ($null -ne $script:python3ShimDir) {
-            $env:Path = "$script:python3ShimDir;$env:Path"
+            $env:Path = $script:python3ShimDir + [IO.Path]::PathSeparator + $env:Path
         }
         $previousLocation = Get-Location
         Set-Location -LiteralPath $WorkingDirectory
@@ -211,9 +184,9 @@ function New-DomainCrossModelFixtureRoot {
     Set-Utf8NoBom -Path (Join-Path $domainDir "ubiquitous-language.md") -Value "# Ubiquitous Language`n`nOrder term, forbidden order-item`n"
     Set-Utf8NoBom -Path (Join-Path $domainDir "context-map.md") -Value "# Context Map`n`nDomain-Model-Status: Reviewed`n`nOrdering context`n"
     Set-Utf8NoBom -Path (Join-Path $domainDir "message-flow.md") -Value "# Message Flow`n`nPlaceOrder command`n"
-    Set-Utf8NoBom -Path (Join-Path $domainDir "c4-container.md") -Value "# C4 Container`n`nWeb app`n"
+    Set-Utf8NoBom -Path (Join-Path $domainDir "concept-model.md") -Value "# Concept Model`n`nConfirmed concept distinctions`n"
     Set-Utf8NoBom -Path (Join-Path $domainDir "aggregates/Order.md") -Value "# Order aggregate`n`nRoot: Order`n"
-    Set-Utf8NoBom -Path (Join-Path $domainDir "domain-contract.json") -Value '{"schema":"domain-contract/v1"}'
+    Set-Utf8NoBom -Path (Join-Path $domainDir "domain-contract.json") -Value '{"schema":"domain-contract/v2"}'
 
     return $domainDir
 }
@@ -349,6 +322,22 @@ Describe "prepare-panelist-input.sh: real execution, consent gate (design.md Ass
         $bundleText | Should Match "# consent: sudo"
         $bundleText | Should Match "input_digest: [0-9a-f]{64}"
         $bundleText | Should Match "Ordering context"
+        $bundleText | Should Match "Confirmed concept distinctions"
+        $bundleText | Should Match "domain-contract/v2"
+        $bundleText | Should Match "Order aggregate"
+    }
+
+    It "REAL: missing concept evidence fails without an output bundle" {
+        New-SudoTokenFile -Root $script:fixtureRoot
+        Remove-Item -LiteralPath (Join-Path $script:fixtureRoot "domain/concept-model.md")
+        $outRelative = "reports/domain-review/attempt-1/round-1/cross-model/DM-001.panelist-input.txt"
+        $result = Invoke-BashScript -ScriptPath $preparePanelistScript -WorkingDirectory $script:fixtureRoot -Arguments @(
+            "--task", "DM-001", "--feature", "sdd-domain-model", "--input", "domain/",
+            "--project-root", $script:fixtureRoot, "--out", $outRelative
+        ) -EnvVars @{ SDD_SUDO_SKIP_SIG = "1" }
+        $result.ExitCode | Should Be 1
+        $result.Output | Should Match "canonical domain artifact"
+        (Test-Path -LiteralPath (Join-Path $script:fixtureRoot $outRelative)) | Should Be $false
     }
 
     It "REAL: the sanitized bundle never contains the literal SDD_SUDO signature value" {

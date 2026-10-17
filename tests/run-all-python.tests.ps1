@@ -26,10 +26,10 @@ function Invoke-FixturePython {
 }
 
 foreach ($case in @(
-    @{ Available = 'python3'; Code = 0; Failures = 0; Calls = 4; Lookups = 4 },
-    @{ Available = 'python'; Code = 0; Failures = 0; Calls = 4; Lookups = 8 },
-    @{ Available = ''; Code = 0; Failures = 4; Calls = 0; Lookups = 8 },
-    @{ Available = 'python3'; Code = 9; Failures = 4; Calls = 4; Lookups = 4 }
+    @{ Available = 'python3'; Code = 0; Failures = 0; Calls = 5; Lookups = 5 },
+    @{ Available = 'python'; Code = 0; Failures = 0; Calls = 5; Lookups = 10 },
+    @{ Available = ''; Code = 0; Failures = 5; Calls = 0; Lookups = 10 },
+    @{ Available = 'python3'; Code = 9; Failures = 5; Calls = 5; Lookups = 5 }
 )) {
     $script:available = $case.Available
     $script:code = $case.Code
