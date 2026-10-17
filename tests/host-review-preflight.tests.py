@@ -233,7 +233,17 @@ GUARDS = tuple(QUALITY_SCRIPTS + 'sdd-hook-guard.' + ext
 FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WORKFLOW)
 # Keep the admitted T-003 baseline pinned. Later reviewed additions must be
 # explicit and present exactly once; they do not loosen unrelated membership.
-ADDITIONAL_PROTECTIONS = ('plugins/sdd-bootstrap/scripts/resolve-design-sync.py',)
+ADDITIONAL_PROTECTIONS = (
+    'plugins/sdd-bootstrap/scripts/resolve-design-sync.py',
+    QUALITY_SCRIPTS + 'initialize-review-identity.py',
+    'plugins/sdd-domain/scripts/record-upstream-concept-issue.py',
+    'plugins/sdd-domain/scripts/validate-domain-contract.sh',
+    'plugins/sdd-domain/scripts/validate-domain-contract.ps1',
+    'plugins/sdd-domain/scripts/validate-concept-test.sh',
+    'plugins/sdd-domain/scripts/validate-concept-test.ps1',
+    'plugins/sdd-domain/scripts/validate-concept-test.py',
+    'plugins/sdd-domain/scripts/domain-review-precheck.ps1',
+)
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
