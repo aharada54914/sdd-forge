@@ -70,7 +70,7 @@ if [[ "$DRY" -eq 1 ]]; then
   if [[ "${SDD_LIVE_REFRESH_SELF_CHECK:-0}" == 1 ]]; then echo 'PASS: fixture validates'; exit 0; fi
   echo 'PASS: fixture validates; dry-run left corpus unchanged'
   before="$(shasum -a 256 "$target" | awk '{print $1}')"
-  jq '.artifacts[0].content = "---\nbroken frontmatter"' "$target" > "$tmp/rejected.json"
+  jq '.artifacts[0].content = "---\ntitle: [unterminated\n---\n# Heading"' "$target" > "$tmp/rejected.json"
   if SDD_LIVE_REFRESH_SELF_CHECK=1 "$0" --state "$STATE" --fixture "$tmp/rejected.json" --dry-run >/dev/null 2>&1; then fail 'malformed fixture was accepted'; fi
   after="$(shasum -a 256 "$target" | awk '{print $1}')"
   [[ "$before" == "$after" ]] || fail 'rejected fixture modified corpus'

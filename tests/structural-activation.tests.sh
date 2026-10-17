@@ -6,9 +6,11 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/structural-activation.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 git clone --quiet --no-hardlinks "$root" "$tmp/repo"
 git -C "$tmp/repo" update-ref refs/remotes/origin/main "$(git -C "$root" rev-parse origin/main)"
-for file in tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1; do
+for file in tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 tests/lib/markdown-ast-canonicalizer.mjs tests/fixtures/structural-frontmatter-cases.json; do
   cp "$root/$file" "$tmp/repo/$file"
 done
+# The isolated clone needs the same locked parser used by the parent suite.
+ln -s "$root/mcp/sdd-forge-mcp/node_modules" "$tmp/repo/mcp/sdd-forge-mcp/node_modules"
 corpus=tests/fixtures/structural-fixture-corpus/f4-required.json
 passed=0
 for runtime in bash pwsh; do

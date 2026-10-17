@@ -169,6 +169,17 @@ function Invoke-Canon([string]$Path) {
 
     $BadFront = Invoke-CanonText "---`ntitle: broken`n" 'bad-frontmatter.md'
     Assert-True 'malformed frontmatter is a hard failure with its process exit captured' ($BadFront.ExitCode -eq 2 -and $BadFront.Error.Contains('markdown AST parse failure:'))
+    foreach ($ParserCase in (Get-Content -Raw -LiteralPath (Join-Path $RepoRoot 'tests/fixtures/structural-frontmatter-cases.json') | ConvertFrom-Json)) {
+        $Result = Invoke-CanonText $ParserCase.content 'parser-case.md'
+        if ($ParserCase.valid) {
+            Assert-True "frontmatter accepts $($ParserCase.name)" ($Result.ExitCode -eq 0)
+            $Actual = @((ConvertFrom-Json $Result.Text).frontmatter) | ConvertTo-Json -Depth 20 -Compress
+            $Expected = @($ParserCase.frontmatter) | ConvertTo-Json -Depth 20 -Compress
+            Assert-True "frontmatter parses $($ParserCase.name) into semantic values" ($Actual -ceq $Expected)
+        } else {
+            Assert-True "frontmatter rejects $($ParserCase.name) without partial output" ($Result.ExitCode -eq 2 -and $Result.Text.Length -eq 0)
+        }
+    }
     $BadHeading = Invoke-CanonText '####### Broken heading grammar' 'bad-heading.md'
     Assert-True 'unrecognized heading grammar is a hard failure with its process exit captured' ($BadHeading.ExitCode -eq 2 -and $BadHeading.Error.Contains('markdown AST parse failure:'))
 

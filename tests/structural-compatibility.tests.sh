@@ -191,6 +191,20 @@ assert_true "corpus artifact array order is comparison-irrelevant" cmp -s "$tmp/
 
 printf '%s\n' '---' 'title: broken' > "$tmp/bad-frontmatter.md"
 if bash "$CANON" "$tmp/bad-frontmatter.md" >/dev/null 2>&1; then fail "malformed frontmatter is a hard failure"; else pass "malformed frontmatter is a hard failure"; fi
+# Exercise the parser through this existing suite in both runtimes.
+while IFS= read -r parser_case; do
+  label="$(jq -r '.name' <<<"$parser_case")"
+  jq -r '.content' <<<"$parser_case" > "$tmp/parser-case.md"
+  status=0
+  bash "$CANON" "$tmp/parser-case.md" > "$tmp/parser-case.ast" 2> "$tmp/parser-case.err" || status=$?
+  if [[ "$(jq -r '.valid' <<<"$parser_case")" == true ]]; then
+    assert_true "frontmatter accepts $label" test "$status" -eq 0
+    assert_true "frontmatter parses $label into semantic values" jq -e --argjson expected "$(jq '.frontmatter' <<<"$parser_case")" '.frontmatter == $expected' "$tmp/parser-case.ast"
+  else
+    assert_true "frontmatter rejects $label without partial output" bash -c '[[ "$1" -eq 2 && ! -s "$2" ]]' _ "$status" "$tmp/parser-case.ast"
+  fi
+done < <(jq -c '.[]' "$REPO_ROOT/tests/fixtures/structural-frontmatter-cases.json")
+
 printf '%s\n' '####### Broken heading grammar' > "$tmp/bad-heading.md"
 if bash "$CANON" "$tmp/bad-heading.md" >/dev/null 2>&1; then fail "unrecognized heading grammar is a hard failure"; else pass "unrecognized heading grammar is a hard failure"; fi
 

@@ -100,7 +100,7 @@ try {
         if ($ReorderedCode -ne 0) { throw 'reordered valid fixture rejected' }
         Write-Output 'PASS: reordered valid fixture accepted'
         $Before = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $Corpus $TargetName)).Hash
-        $Entry.artifacts[0].content = "---`nbroken frontmatter"
+        $Entry.artifacts[0].content = "---`ntitle: [unterminated`n---`n# Heading"
         $Bad = Join-Path $Temp 'rejected.json'
         $Entry | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $Bad -Encoding utf8
         $RefreshScript = Join-Path $PSScriptRoot 'structural-compatibility-live-refresh.tests.ps1'
