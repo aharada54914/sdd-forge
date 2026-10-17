@@ -68,6 +68,8 @@ jobs:
   improve:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      audit_complete: ${{ steps.audit_completion.outputs.complete }}
     steps:
       # fail-fast: 認証情報の欠落はセッション起動前に検出し、
       # 失敗 Issue に人間が読める原因を残す(3週連続のサイレント失敗の再発防止)。
@@ -111,7 +113,7 @@ jobs:
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@7b0b255830a1fab6e602658672acad11c12d841d # v1.0.226
+        uses: anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc # v1.0.248
         env:
           # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
@@ -203,6 +205,68 @@ jobs:
             fi
           done
 
+      # An ordinary model exit and an empty PR diff are not audit completion.
+      # The record is a session assertion, not independent test-execution proof.
+      - name: Validate audit completion
+        id: audit_completion
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import subprocess
+
+          def unique_object(pairs):
+              result = {}
+              for key, value in pairs:
+                  if key in result:
+                      raise ValueError("duplicate completion field")
+                  result[key] = value
+              return result
+
+          record = pathlib.Path(os.environ["RUNNER_TEMP"]) / (
+              f'self-improvement-{os.environ["GITHUB_RUN_ID"]}-{os.environ["GITHUB_RUN_ATTEMPT"]}.json'
+          )
+          try:
+              data = json.loads(record.read_text(), object_pairs_hook=unique_object)
+          except (OSError, ValueError) as error:
+              reason = "unreadable" if isinstance(error, OSError) else "invalid_json"
+              print("Audit completion diagnostic: " + json.dumps({"record": reason}), flush=True)
+              raise SystemExit("Audit incomplete: completion evidence could not be read") from None
+          head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          checks = data.get("checks") if isinstance(data, dict) else None
+          valid = (
+              isinstance(data, dict)
+              and data.get("run_id") == os.environ["GITHUB_RUN_ID"]
+              and data.get("run_attempt") == os.environ["GITHUB_RUN_ATTEMPT"]
+              and data.get("head") == head
+              and data.get("status") == "complete"
+              and isinstance(checks, dict)
+              and set(checks) == {"guards", "install", "python", "node", "json_yaml"}
+              and all(type(value) is int and value == 0 for value in checks.values())
+          )
+          if not valid:
+              # Publish fixed categories only; record values and keys may contain secrets.
+              fields = data if isinstance(data, dict) else {}
+              check_fields = checks if isinstance(checks, dict) else {}
+              status = fields.get("status")
+              diagnostic = {
+                  "record_object": isinstance(data, dict),
+                  "run_id_match": fields.get("run_id") == os.environ["GITHUB_RUN_ID"],
+                  "run_attempt_match": fields.get("run_attempt") == os.environ["GITHUB_RUN_ATTEMPT"],
+                  "head_match": fields.get("head") == head,
+                  "status": status if status in ("complete", "partial") else "invalid",
+                  "check_names_match": isinstance(checks, dict) and set(checks) == {"guards", "install", "python", "node", "json_yaml"},
+                  "checks": {name: type(check_fields.get(name)) is int and check_fields[name] == 0
+                             for name in ("guards", "install", "python", "node", "json_yaml")},
+              }
+              print("Audit completion diagnostic: " + json.dumps(diagnostic), flush=True)
+              raise SystemExit("Audit incomplete: missing, stale or unsuccessful completion evidence")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write("complete=true\n")
+          PY
+
       # 失敗時は既存の open な失敗 Issue に追記し、無ければ新規作成する
       # (毎週の失敗で Issue が積み上がるのを防ぐ)。原因の見当も本文に残す。
       - name: Report workflow failure as issue
@@ -211,6 +275,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PREFLIGHT_REASON: ${{ steps.preflight.outputs.failure_reason }}
           CLAUDE_STEP_OUTCOME: ${{ steps.claude_session.outcome }}
+          COMPLETION_STEP_OUTCOME: ${{ steps.audit_completion.outcome }}
           GUARD_STEP_OUTCOME: ${{ steps.enforce_guard.outcome }}
           CI_SAFETY_STEP_OUTCOME: ${{ steps.label_no_ci.outcome }}
         run: |
@@ -218,6 +283,8 @@ jobs:
             reason="$PREFLIGHT_REASON"
           elif [ "$CLAUDE_STEP_OUTCOME" = failure ]; then
             reason="Claude self-improvement action step failed. The issue report omits execution payload; inspect the action's sanitized run log."
+          elif [ "$COMPLETION_STEP_OUTCOME" = failure ]; then
+            reason="Audit completion evidence is missing, partial, invalid or reports incomplete verification. The audit has not recovered; inspect the session report and completion-step log."
           elif [ "$GUARD_STEP_OUTCOME" = failure ]; then
             reason="The enforcement-chain guard step failed. Inspect the run log for the guard's deterministic finding."
           elif [ "$CI_SAFETY_STEP_OUTCOME" = failure ]; then
@@ -247,7 +314,7 @@ jobs:
   # succeeded. A failed, cancelled, or skipped improve job cannot recover an issue.
   finalize-recovery:
     needs: improve
-    if: ${{ success() && needs.improve.result == 'success' }}
+    if: ${{ success() && needs.improve.result == 'success' && needs.improve.outputs.audit_complete == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -256,7 +323,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          AUDIT_COMPLETE: ${{ needs.improve.outputs.audit_complete }}
         run: |
+          [ "${AUDIT_COMPLETE:-}" = true ] || { echo "Audit completion not confirmed" >&2; exit 1; }
           run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           run_prefix="- 実行ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/"
           issue_number="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 \

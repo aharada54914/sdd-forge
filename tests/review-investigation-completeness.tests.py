@@ -118,7 +118,9 @@ def probe(repo, runtime, stage, suffix, case, mode="reservation", file_kind="reg
             valid = valid and unchanged
             diagnostic = ("reserved input" if case in ("late-added", "late-removed", "late-hash") else
                           "role-unlisted" if stage == "task" else
+                          "REVIEW_CONTEXT_INPUT" if stage == "impl" and file_kind == "symlink" and (case in ("declared", "bad-hash") or runtime == "bash" and case == "omitted") else
                           "REVIEW_CONTEXT_PATH" if file_kind == "symlink" and case in ("declared", "bad-hash") else
+                          "omits selected conditional review dependencies" if stage == "impl" and (case == "bad-hash" or runtime == "bash" and case == "omitted") else
                           "REVIEW_CONTEXT_HASH" if case == "bad-hash" else "investigation")
             valid = valid and diagnostic in result.stdout + result.stderr
         elif case in ("historical", "reserved-unchanged") or mode == "preflight":

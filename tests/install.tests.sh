@@ -377,6 +377,9 @@ invoke_installer_scenario() {
         if [[ $installer_failed -eq 0 ]]; then
             fail "installer should have failed for pattern '${fail_pattern}'"
         fi
+        if [[ "$out" != *"Note: registration failed"* ]]; then
+            fail "real registration failure did not report the retained install"
+        fi
         if [[ ! -f "${install_root}/plugins/sdd-bootstrap/.codex-plugin/plugin.json" ]]; then
             fail "registration failure did not leave the newly placed tree in the install root (pattern '${fail_pattern}')"
         fi
@@ -934,6 +937,8 @@ _m_log="${_m_root}/commands.log"
 _m_lock_dir="${_m_install}.sdd-install.lock"
 _m_orig_path="$PATH"
 _m_orig_codex_home="${SDD_CODEX_HOME:-}"
+_m_stdout="${_m_root}/stdout.log"
+_m_stderr="${_m_root}/stderr.log"
 make_fake_commands "$_m_bin" "$_m_log"
 export PATH="${_m_bin}:${_m_orig_path}"
 export SDD_CODEX_HOME="${_m_root}/codex-home"
@@ -944,7 +949,7 @@ bash "$INSTALLER" \
     --target FilesOnly \
     --skip-plugin-install \
     --skip-agent-install \
-    2>/dev/null || _m_failed=1
+    >"$_m_stdout" 2>"$_m_stderr" || _m_failed=1
 export PATH="$_m_orig_path"
 if [[ -z "$_m_orig_codex_home" ]]; then
     unset SDD_CODEX_HOME
@@ -954,6 +959,14 @@ fi
 _m_ok=1
 if [[ $_m_failed -ne 0 ]]; then
     fail "lock scenario (m): successful install failed unexpectedly"
+    _m_ok=0
+fi
+if ! grep -Fq 'Plugin registration was skipped because --target=FilesOnly.' "$_m_stdout"; then
+    fail "lock scenario (m): FilesOnly skip message missing"
+    _m_ok=0
+fi
+if grep -Fq 'registration failed' "$_m_stderr"; then
+    fail "lock scenario (m): successful FilesOnly install reported registration failure"
     _m_ok=0
 fi
 if [[ -d "$_m_lock_dir" ]]; then

@@ -244,7 +244,7 @@ try {
     Invoke-Render -RenderArgs @('-RepoRoot', $tmp, '-Registry', $registryDst) | Out-Null
 
     $expectedEffort = @{
-        'plugins/sdd-quality-loop/agents/evaluator.md'          = 'high'
+        'plugins/sdd-quality-loop/agents/evaluator.md'          = 'medium'
         'plugins/sdd-bootstrap/agents/investigator.md'          = 'low'
         'plugins/sdd-review-loop/agents/spec-reviewer-a.md'     = 'medium'
         'plugins/sdd-review-loop/agents/spec-reviewer-b.md'     = 'medium'
@@ -428,6 +428,36 @@ Body text unaffected.
     }
 
     # =======================================================================
+    $overrideCases = [ordered]@{
+        absent = $null
+        null = $null
+        array = @()
+        missing = @{ minimum_tier = 'standard' }
+        extra = @{ minimum_tier = 'standard'; default_effort = 'medium'; extra = $true }
+        'tier-case' = @{ minimum_tier = 'Standard'; default_effort = 'medium' }
+        'effort-case' = @{ minimum_tier = 'standard'; default_effort = 'Medium' }
+    }
+    foreach ($caseName in $overrideCases.Keys) {
+        $registry = Get-Content -LiteralPath $registryDst -Raw | ConvertFrom-Json
+        $role = $registry.role_defaults.'sdd-evaluator'
+        $role.PSObject.Properties.Remove('claude_frontmatter')
+        if ($caseName -cne 'absent') {
+            $role | Add-Member -NotePropertyName claude_frontmatter -NotePropertyValue $overrideCases[$caseName]
+        }
+        $casePath = Join-Path $tmp "override-$caseName.json"
+        $registry | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $casePath -Encoding utf8
+        $result = Invoke-Render -RenderArgs @('-RepoRoot', $tmp, '-TargetsFile', $miscasedTargets, '-Registry', $casePath)
+        if ($caseName -ceq 'absent') {
+            $content = Get-Content -LiteralPath (Join-Path $tmp 'plugins/sdd-quality-loop/agents/evaluator.md') -Raw
+            if ($result.ExitCode -eq 0 -and $content -cmatch '(?m)^model: opus\r?$' -and
+                $content -cmatch '(?m)^<!-- x-sdd-effort: high -->\r?$') {
+                Test-Ok 'Claude override absent preserves base role defaults'
+            } else { Test-Bad 'Claude override absent did not preserve base role defaults' }
+        } elseif ($result.ExitCode -ne 0 -and $result.Combined -cmatch 'invalid claude_frontmatter') {
+            Test-Ok "Claude override $caseName rejected"
+        } else { Test-Bad "Claude override $caseName not rejected correctly: $($result.Combined)" }
+    }
+
     # Self-registration.
     # =======================================================================
     # The runner loads an external inventory; inspect its public list, not its source.

@@ -131,7 +131,7 @@ function Get-ModelForTier($Registry, [string]$Tier, [string]$Kind) {
     throw "RENDER_ERROR: no $Kind model found for tier '$Tier'"
 }
 
-function Get-RoleValues($Registry, [string]$Role) {
+function Get-RoleValues($Registry, [string]$Role, [string]$Kind) {
     $entry = $null
     if ($null -ne $Registry.role_defaults) {
         foreach ($prop in $Registry.role_defaults.PSObject.Properties) {
@@ -143,6 +143,19 @@ function Get-RoleValues($Registry, [string]$Role) {
     }
     if ($null -eq $entry -or -not $entry.minimum_tier -or -not $entry.default_effort) {
         throw "RENDER_ERROR: role_defaults missing or incomplete for role '$Role'"
+    }
+    if ($Kind -ceq 'claude' -and @($entry.PSObject.Properties.Name) -ccontains 'claude_frontmatter') {
+        $entry = $entry.claude_frontmatter
+        if ($entry -isnot [pscustomobject]) {
+            throw "RENDER_ERROR: invalid claude_frontmatter for role '$Role'"
+        }
+        $keys = @($entry.PSObject.Properties.Name)
+        if ($keys.Count -ne 2 -or
+            $keys -cnotcontains 'minimum_tier' -or $keys -cnotcontains 'default_effort' -or
+            @('lightweight', 'standard', 'strong') -cnotcontains $entry.minimum_tier -or
+            @('low', 'medium', 'high', 'xhigh') -cnotcontains $entry.default_effort) {
+            throw "RENDER_ERROR: invalid claude_frontmatter for role '$Role'"
+        }
     }
     return [pscustomobject]@{ Tier = [string]$entry.minimum_tier; Effort = [string]$entry.default_effort }
 }
@@ -259,7 +272,7 @@ function Update-Manifest([string]$ManifestPath, [string]$RelPath, [string]$Sha) 
 }
 
 function Invoke-RenderTarget($Registry, $Target, [bool]$CheckMode, [string]$ManifestPath) {
-    $roleValues = Get-RoleValues $Registry $Target.Role
+    $roleValues = Get-RoleValues $Registry $Target.Role $Target.Kind
     $kindForModel = if ($Target.Kind -ceq 'claude') { 'claude' } else { 'codex' }
     $modelName = Get-ModelForTier $Registry $roleValues.Tier $kindForModel
     $effort = $roleValues.Effort
