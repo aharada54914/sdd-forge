@@ -8,5 +8,5 @@ e72ab8db35d082855e10aca9455e47b3e3ab6ba0079c21caab1f90d5bfe6d20d  plugins/sdd-qu
 f627ab50b85a2855b7a65bece51948723a5b6a3ecdfb41f0122eb90d8348ff3c  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
 4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570  plugins/sdd-lite/skills/lite-spec/SKILL.md
 ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d  plugins/sdd-ship/skills/ship/SKILL.md
-d7dace7b103a4c3d4a7bf038a1af84d8a0640bf9d6ab999f05350559a233601b  tests/guard-parity.tests.sh
+405d2bb245014288222a28a3d6a605acb5dec3dba3125760cd69e36ea105e3a4  tests/guard-parity.tests.sh
 bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
