@@ -415,6 +415,10 @@
       "profile": "full"
     },
     {
+      "feature": "sdd-domain-concept-test",
+      "profile": "full"
+    },
+    {
       "feature": "shared-review-launch-repair",
       "profile": "full"
     },

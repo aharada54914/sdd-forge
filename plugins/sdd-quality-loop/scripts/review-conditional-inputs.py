@@ -49,7 +49,7 @@ def unique_object(pairs):
 
 def resolve(root, feature, stage, revision=None):
     root = Path(root).resolve(strict=True)
-    if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl'):
+    if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl', 'task', 'quality'):
         raise ValueError('unsupported feature or review stage')
     inputs = []
     observed = {}
@@ -93,6 +93,15 @@ def resolve(root, feature, stage, revision=None):
             inputs.append({'path': relative, 'sha256': hashlib.sha256(raw).hexdigest()})
         return raw
 
+    raw_contract = source('domain/domain-contract.json', True)
+    try:
+        candidate = json.loads(raw_contract, object_pairs_hook=unique_object) if raw_contract is not None else {}
+    except (ValueError, UnicodeError):
+        candidate = {}
+    concept_required = isinstance(candidate, dict) and candidate.get('schema') == 'domain-contract/v2'
+    if stage in ('task', 'quality'):
+        if not concept_required and source('specs/' + feature + '/concept-test.json', True) is None:
+            return {'inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
     if stage == 'impl':
         admit('specs/' + feature + '/investigation.md', True)
     context = admit('domain/context-map.md', True)
@@ -127,6 +136,18 @@ def resolve(root, feature, stage, revision=None):
                     if not re.fullmatch(r'domain/aggregates/[^/]+\.md', card):
                         raise ValueError('unsafe aggregate card path: ' + card)
                     admit(card)
+    concept_path = 'specs/' + feature + '/concept-test.json'
+    if concept_required or source(concept_path, True) is not None:
+        module_path = Path(__file__).resolve().parents[2] / 'sdd-domain/scripts/validate-concept-test.py'
+        spec = importlib.util.spec_from_file_location('conditional_concept', module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        concept, concept_inputs = module.evidence(root, feature, observe)
+        if concept.get('decision', 'proceed') != 'proceed':
+            raise ValueError('Concept Test does not permit continuing feature work')
+        for entry in concept_inputs:
+            if entry['path'] not in {item['path'] for item in inputs}:
+                admit(entry['path'])
     ds_status = 'not-applicable'
     ds_dir = root / 'design-system'
     ds_present = ('design-system' in tree if revision is not None else
@@ -153,12 +174,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', required=True)
     parser.add_argument('--feature', required=True)
-    parser.add_argument('--stage', choices=('spec', 'impl'), required=True)
+    parser.add_argument('--stage', choices=('spec', 'impl', 'task', 'quality'), required=True)
     parser.add_argument('--revision')
     args = parser.parse_args()
     try:
         print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision), sort_keys=True))
-    except (OSError, ValueError, UnicodeError) as error:
+    except (OSError, ValueError, UnicodeError, subprocess.SubprocessError) as error:
         print('CONDITIONAL_INPUTS: ' + str(error), file=sys.stderr)
         return 1
     return 0

@@ -70,10 +70,12 @@ class Inputs(unittest.TestCase):
         self.assertNotEqual(self.resolve(), before)
 
     def test_versions(self):
-        for version in ('v1', 'v2'):
-            self.domain(version)
-            self.assertEqual(self.resolve()['domain_status'], 'active')
-            self.assertEqual(len(self.resolve('spec')['inputs']), 2)
+        self.domain('v1')
+        self.assertEqual(self.resolve()['domain_status'], 'active')
+        self.assertEqual(len(self.resolve('spec')['inputs']), 2)
+        self.domain('v2')
+        with self.assertRaisesRegex(ValueError, 'concept-test.json'):
+            self.resolve()
 
     def test_invalid_schema_preserves_skip(self):
         self.domain()

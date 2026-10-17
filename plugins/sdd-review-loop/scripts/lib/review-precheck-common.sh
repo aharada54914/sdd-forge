@@ -310,13 +310,13 @@ require_persisted_pass() {
      else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
     fail "persisted ${stage} verdict is not a complete PASS contract"
   local conditional_inputs='[]'
-  if [[ "$stage" == spec || "$stage" == impl ]] && jq -e --arg repo "${repo_root}/" '
+  if [[ "$stage" == spec || "$stage" == impl || "$stage" == task ]] && jq -e --arg repo "${repo_root}/" --arg feature "$FEATURE" '
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\\.md|domain-contract\\.json|aggregates/[^/]+\\.md)|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
       else . end;
     any(.reviewers[]?.allowed_input_manifest[]?;
-      .path | relative_path | test("^(domain|design-system)/"))' "$contract" >/dev/null; then
+      .path | relative_path | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test"))' "$contract" >/dev/null; then
     conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
       --root "$repo_root" --feature "$FEATURE" --stage "$stage") || fail "persisted conditional inputs cannot be resolved"
     conditional_inputs=$(jq -ce '.inputs' <<<"$conditional_inputs") || fail "invalid conditional input selection"
@@ -335,7 +335,7 @@ require_persisted_pass() {
     # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\\.md|domain-contract\\.json|aggregates/[^/]+\\.md)|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
       else . end;
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
@@ -394,7 +394,7 @@ require_persisted_pass() {
              (($path | startswith("/")) | not) and
              ($path | test("(^|/)\\.\\.?(/|$)") | not) and
              allowed_input($role; $path; $attempt; $round) and
-             (if ($path | test("^(domain|design-system)/")) then
+             (if ($path | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test")) then
                 .sha256 as $hash | any($conditional_inputs[]; .path == $path and .sha256 == $hash)
               else true end) and
              (.sha256 | type == "string") and

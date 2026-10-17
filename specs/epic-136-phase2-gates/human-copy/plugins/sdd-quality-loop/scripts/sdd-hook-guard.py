@@ -72,9 +72,7 @@ TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
 SUDO_EPOCH_RE = re.compile(r"(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
 SUDO_ISSUED_RE = re.compile(r"(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)")
-SHELL_AGENT_ROLE_READ_ONLY_RE = re.compile(
-    r"(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
-)
+
 TARGETED_COMMAND_TOOLS = {"apply_patch", "bash", "shell", "exec_command", "exec"}
 TARGETED_FILE_TOOLS = {"edit", "write", "multiedit"}
 
@@ -199,6 +197,20 @@ def impl_review_status_passed_increases(payload):
     tool_input = payload.get("tool_input") or {}
     tool_name = (payload.get("tool_name") or "").lower()
     file_path = tool_input.get("file_path") or ""
+
+    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+        sections = []
+        current = None
+        for line in (tool_input.get("command") or "").splitlines():
+            header = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+            if header:
+                current = {"path": header.group(2).strip(), "content": []}
+                sections.append(current)
+            elif current is not None and line.startswith(("+", " ")):
+                current["content"].append(line[1:])
+        return any(impl_review_status_passed_increases({
+            "tool_name": "write", "tool_input": {"file_path": section["path"], "content": "\n".join(section["content"])}
+        }) for section in sections)
 
     if tool_name not in TARGETED_FILE_TOOLS:
         return False
@@ -1717,41 +1729,57 @@ def _shell_targets_protected_gate_file(cmd):
     return not _shell_write_targets_are_safe(cmd)
 
 
-def _role_proxy_rg_read_only(cmd):
-    # Require the exact literal wrapper and verb, not only equivalent parsed words.
-    if not re.match(r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+", cmd):
+def _shell_is_read_only(cmd):
+    """Classify every command, keeping quoted search text separate from shell syntax."""
+    if not isinstance(cmd, str):
         return False
-    # No expansion, substitution, redirection, backgrounding or line continuation.
-    if re.search(r"[$`<>&\\\r\n]", cmd):
-        return False
+    quote = None
+    for ch in cmd:
+        if quote == "'":
+            if ch == "'":
+                quote = None
+            continue
+        if ch in "$`<>(){}":
+            return False
+        if ch == '"':
+            quote = None if quote == '"' else '"'
+        elif ch == "'" and quote is None:
+            quote = "'"
     tokens = _tokenize_shell_command(cmd)
-    if tokens is None or any(kind != "word" for kind, _ in tokens):
+    if not tokens:
         return False
-    words = [value for _, value in tokens]
-    if len(words) < 7 or words[:3] != ["rtk", "proxy", "rg"]:
-        return False
-    if words[3:5] not in (["--no-config", "-n"], ["-n", "--no-config"]):
-        return False
-    pattern = words[5]
-    # Special regexp syntax is admitted only as one literal single-quoted word.
-    # The shared tokenizer intentionally discards quote provenance.
-    quoted = re.match(
-        r"^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+"
-        r"(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+",
-        cmd,
-    )
-    plain_pattern = re.fullmatch(r"[A-Za-z0-9_./:|+-]+", pattern)
-    quoted_pattern = (
-        quoted is not None
-        and quoted.group(1) == pattern
-        and re.fullmatch(r"[A-Za-z0-9_./:|+^# ()-]+", pattern)
-    )
-    if pattern.startswith("-") or not (plain_pattern or quoted_pattern):
-        return False
-    paths = words[6:]
-    if not all(not p.startswith("-") and re.fullmatch(r"[A-Za-z0-9_./-]+", p) for p in paths):
-        return False
-    return any(re.search(r"(?i)(?:^|/)\.codex/agents/[^/]+\.toml$", p) for p in paths)
+    readers = {
+        "cat", "ls", "stat", "head", "tail", "grep", "rg", "wc", "pwd", "test", "cd",
+        "get-content", "get-item", "get-childitem", "select-string", "select-object", "measure-object",
+    }
+    segments = [[]]
+    for kind, word in tokens:
+        if kind == "sep":
+            segments.append([])
+        else:
+            segments[-1].append(word)
+    for words in segments:
+        if not words:
+            continue
+        if words[:2] == ["rtk", "proxy"]:
+            words = words[2:]
+        if not words:
+            return False
+        verb = words[0].lower()
+        if verb == "sed":
+            # Only the common print-range form: sed also supports writes and execution.
+            if (len(words) < 3 or words[1] != "-n"
+                    or not re.fullmatch(r"(?:[0-9]+(?:,[0-9$]+)?|\$)?p", words[2])
+                    or any(word.startswith("-") for word in words[3:])):
+                return False
+        elif verb not in readers:
+            return False
+        if verb == "rg":
+            if any(word.split("=", 1)[0] in ("--pre", "--hostname-bin") for word in words[1:]):
+                return False
+            if os.environ.get("RIPGREP_CONFIG_PATH") and words[1:2] != ["--no-config"]:
+                return False
+    return True
 
 
 def _shell_writes_agent_role(cmd):
@@ -1761,7 +1789,7 @@ def _shell_writes_agent_role(cmd):
     normalized_cmd = cmd.replace("\\", "/")
     if not re.search(r"(?i)\.codex/agents(?:/|\b)", normalized_cmd):
         return False
-    return not (bool(SHELL_AGENT_ROLE_READ_ONLY_RE.search(normalized_cmd)) or _role_proxy_rg_read_only(cmd))
+    return not _shell_is_read_only(cmd)
 
 
 def _target_path_is_sdd_sudo(file_path):
@@ -1918,27 +1946,56 @@ def main():
                 raise ValueError("invalid Copilot timestamp")
             name = payload["toolName"]
             args = payload["toolArgs"]
-            if isinstance(args, str):
-                args = json.loads(args)
-            if not isinstance(args, dict) or not isinstance(name, str):
-                raise ValueError("invalid Copilot call")
-            path = args.get("path")
-            if not isinstance(path, str) or not path.strip():
-                raise ValueError("invalid Copilot path")
-            if name == "view":
-                if set(args) - {"path", "view_range"}:
-                    raise ValueError("unsupported view arguments")
-                if "view_range" in args and (not isinstance(args["view_range"], list)
-                    or len(args["view_range"]) != 2
-                    or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
-                    raise ValueError("invalid view range")
-                payload = {"tool_name": "read", "tool_input": {"file_path": path}}
-            elif name == "create":
-                if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
-                    raise ValueError("invalid create arguments")
-                payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
+            # Native apply_patch is a raw patch string; all canonical guards still run.
+            if name == "apply_patch":
+                if not isinstance(args, str):
+                    raise ValueError("invalid patch arguments")
+                normalized = args.replace("\r\n", "\n")
+                lines = (normalized[:-1] if normalized.endswith("\n") else normalized).split("\n")
+                if (len(lines) < 3 or lines[0] != "*** Begin Patch" or lines[-1] != "*** End Patch"
+                    or not re.fullmatch(r"\*\*\* (Add|Update|Delete) File: \S.*", lines[1])
+                    or any(line in ("*** Begin Patch", "*** End Patch") for line in lines[1:-1])):
+                    raise ValueError("invalid patch envelope")
+                payload = {"tool_name": "apply_patch", "tool_input": {"command": args}}
             else:
-                raise ValueError("unsupported Copilot tool")
+                if isinstance(args, str):
+                    args = json.loads(args)
+                if not isinstance(args, dict) or not isinstance(name, str):
+                    raise ValueError("invalid Copilot call")
+                path = args.get("path")
+                if name in ("view", "create") and (not isinstance(path, str) or not path.strip()):
+                    raise ValueError("invalid Copilot path")
+                if name == "bash":
+                    if (set(args) - {"command", "description"}
+                        or not isinstance(args.get("command"), str) or not args["command"].strip()
+                        or ("description" in args and not isinstance(args["description"], str))):
+                        raise ValueError("invalid bash arguments")
+                    payload = {"tool_name": "bash", "tool_input": {"command": args["command"]}}
+                elif name == "glob":
+                    if (set(args) - {"pattern", "path"}
+                        or not isinstance(args.get("pattern"), str) or not args["pattern"].strip()
+                        or ("path" in args and (not isinstance(args["path"], str) or not args["path"].strip()))):
+                        raise ValueError("invalid glob arguments")
+                    payload = {"tool_name": "glob", "tool_input": args}
+                elif name == "task":
+                    keys = {"description", "agent_type", "name", "mode", "prompt"}
+                    if set(args) != keys or any(not isinstance(args[k], str) or not args[k].strip() for k in keys):
+                        raise ValueError("invalid task arguments")
+                    payload = {"tool_name": "task", "tool_input": args}
+                elif name == "view":
+                    if set(args) - {"path", "view_range"}:
+                        raise ValueError("unsupported view arguments")
+                    if "view_range" in args and (not isinstance(args["view_range"], list)
+                        or len(args["view_range"]) != 2
+                        or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
+                        raise ValueError("invalid view range")
+                    payload = {"tool_name": "read", "tool_input": {"file_path": path}}
+                elif name == "create":
+                    if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
+                        raise ValueError("invalid create arguments")
+                    payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
+                else:
+                    raise ValueError("unsupported Copilot tool")
         except (ValueError, TypeError, KeyError):
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
             return
@@ -1951,6 +2008,12 @@ def main():
             return
         if payload_is_malformed(payload):
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+            return
+
+        # Read-only shell inspection cannot change protected files or grant approvals.
+        if (tool_name.lower() in ("bash", "shell", "exec_command", "exec")
+                and _shell_is_read_only(tool_input.get("command"))):
+            emit("allow", None, mode)
             return
 
         # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
@@ -1975,7 +2038,7 @@ def main():
         if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
             patch = tool_input.get("command") or ""
             for line in patch.splitlines():
-                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+                m = re.match(r"\*\*\* (Update File|Add File|Delete File|Move to): (.+)$", line)
                 if m and _target_path_is_sdd_sudo(m.group(2).strip()):
                     emit("deny", SDD_SUDO_WRITE_MSG, mode)
                     return
@@ -1996,10 +2059,15 @@ def main():
         if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
             patch = tool_input.get("command") or ""
             for line in patch.splitlines():
-                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
-                if m and _is_protected_gate_file(m.group(2).strip()):
-                    emit("deny", _GATE_PROTECT_MSG, mode)
-                    return
+                m = re.match(r"\*\*\* (Update File|Add File|Delete File|Move to): (.+)$", line)
+                if m:
+                    target = m.group(2).strip()
+                    # Renames can import approval/role content with no added lines.
+                    guarded_move = m.group(1) == "Move to" and any(check(target) for check in (
+                        is_tasks_md, is_wfi_path, is_domain_context_map_path, is_agent_role_path, is_design_md))
+                    if _is_protected_gate_file(target) or guarded_move:
+                        emit("deny", _GATE_PROTECT_MSG, mode)
+                        return
 
         # Check 2b: Approval guard (bypassed by valid sudo).
         if approval_increases(payload) and not sudo_active():

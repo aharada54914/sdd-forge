@@ -34,7 +34,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $skillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-sync/SKILL.md"
 $bootstrapSkillPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
-$schemaPath = Join-Path $repositoryRoot "contracts/domain-contract.v1.schema.json"
+$schemaPath = Join-Path $repositoryRoot "contracts/domain-contract.v2.schema.json"
 
 # Set-StrictMode -Version Latest throws on a missing property access for a
 # PSCustomObject (unlike a hashtable). Fixtures round-trip through
@@ -56,10 +56,14 @@ function Test-DomainContract {
     $errors = New-Object System.Collections.Generic.List[string]
 
     $schemaValue = Get-PropSafe $Contract "schema"
-    if ($null -eq $schemaValue -or $schemaValue -ne "domain-contract/v1") {
-        $errors.Add("schema const must equal 'domain-contract/v1'")
+    if ($null -eq $schemaValue -or $schemaValue -ne "domain-contract/v2") {
+        $errors.Add("schema const must equal 'domain-contract/v2'")
     }
 
+    $concepts = Get-PropSafe $Contract "concepts"
+    if ($null -eq $concepts -or @($concepts).Count -lt 1) {
+        $errors.Add("v2 concepts are required")
+    }
     $meta = Get-PropSafe $Contract "meta"
     if ($null -eq $meta) {
         $errors.Add("meta is required")
@@ -109,7 +113,7 @@ Describe "domain-sync SKILL.md contract" {
         $script:skillText | Should Match "Does\s*``domain/``\s*exist"
         $script:skillText | Should Match "Domain-Model-Status: Approved"
         $script:skillText | Should Match ([regex]::Escape("domain/domain-contract.json"))
-        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v1.schema.json"))
+        $script:skillText | Should Match ([regex]::Escape("contracts/domain-contract.v2.schema.json"))
     }
 
     It "documents exactly one skip line when domain/ is absent (AC-010)" {
@@ -229,7 +233,16 @@ None.
 
         # --- domain-contract.json (Approved) --------------------------------
         $script:contractFixture = @{
-            schema = "domain-contract/v1"
+            schema = "domain-contract/v2"
+            concepts = @(@{
+                id = "CONCEPT-ORDER"
+                name = "Order"
+                context = "order-management"
+                definition = "A purchase commitment"
+                essence = "Committed purchase"
+                responsibilities = @("Track purchase")
+                evidence = @("domain/context-map.md")
+            })
             meta = @{
                 version = "1.0.0"
                 status = "Approved"
@@ -285,7 +298,7 @@ Shoppers place orders for widgets.
         }
     }
 
-    It "domain-contract.json validates against contracts/domain-contract.v1.schema.json" {
+    It "domain-contract.json validates against contracts/domain-contract.v2.schema.json" {
         $contractText = Get-Content -Raw -Encoding Utf8 -LiteralPath (Join-Path $script:domainDir "domain-contract.json")
         $contract = $contractText | ConvertFrom-Json
         $errors = @(Test-DomainContract -Contract $contract)
@@ -329,7 +342,16 @@ Describe "Worked fixture: two-context feature with declared relation (Edge Case)
 
     BeforeAll {
         $script:twoCtxContract = @{
-            schema = "domain-contract/v1"
+            schema = "domain-contract/v2"
+            concepts = @(@{
+                id = "CONCEPT-ORDER"
+                name = "Order"
+                context = "order-management"
+                definition = "A purchase commitment"
+                essence = "Committed purchase"
+                responsibilities = @("Track purchase")
+                evidence = @("domain/context-map.md")
+            })
             meta = @{
                 version = "1.0.0"
                 status = "Approved"

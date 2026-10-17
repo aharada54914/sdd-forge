@@ -1,7 +1,7 @@
 # Context Map: {{domain_name}}
 
 Domain-Model-Status: Pending
-Stage: 4 of 7 (Context Map)
+Stage: 5 of 7 (Context Map)
 Seed-Source: {{seed_source}}
 
 `Domain-Model-Status` tracks this domain model's review/approval state:
@@ -20,7 +20,7 @@ approval resets this field to `Pending`, requiring re-review (AC-014).
 ## Context Relations
 
 Relation `pattern` values match
-`contracts/domain-contract.v1.schema.json`'s `contextRelation.pattern` enum:
+`contracts/domain-contract.v2.schema.json`'s `contextRelation.pattern` enum:
 `partnership`, `shared-kernel`, `customer-supplier`, `conformist`,
 `anticorruption-layer`, `open-host-service`, `published-language`,
 `separate-ways`.

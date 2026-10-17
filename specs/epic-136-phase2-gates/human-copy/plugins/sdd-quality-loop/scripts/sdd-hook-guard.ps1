@@ -261,37 +261,57 @@ function Test-AgentRolePath {
     return ($Path -replace "\\", "/").ToLower() -match "\.codex/agents/[^/]+\.toml$"
 }
 
-function Test-RoleProxyRgReadOnly {
+function Test-ShellReadOnly {
     param([string]$Cmd)
-    if (-not [regex]::IsMatch($Cmd, '^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+')) { return $false }
-    foreach ($unsafe in @('$', '`', '<', '>', '&', '\')) {
-        if ($Cmd.Contains($unsafe)) { return $false }
+    # Classify every command; quoted search text is data, not shell syntax.
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    $quote = $null
+    foreach ($ch in $Cmd.ToCharArray()) {
+        if ($quote -eq "'") {
+            if ($ch -eq "'") { $quote = $null }
+            continue
+        }
+        if ('$`<>(){}'.Contains([string]$ch)) { return $false }
+        if ($ch -eq '"') {
+            if ($quote -eq '"') { $quote = $null } else { $quote = '"' }
+        } elseif ($ch -eq "'" -and $null -eq $quote) { $quote = "'" }
     }
-    if ($Cmd.Contains("`r") -or $Cmd.Contains("`n")) { return $false }
     $parsed = Tokenize-ShellCommand $Cmd
-    if ($null -eq $parsed) { return $false }
+    if ($null -eq $parsed -or $parsed.Tokens.Count -eq 0) { return $false }
+    $readers = @('cat', 'ls', 'stat', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd', 'test', 'cd',
+        'get-content', 'get-item', 'get-childitem', 'select-string', 'select-object', 'measure-object')
+    $segments = New-Object System.Collections.Generic.List[object]
     $words = New-Object System.Collections.Generic.List[string]
     foreach ($token in $parsed.Tokens) {
-        if ($token[0] -cne 'word') { return $false }
-        $words.Add([string]$token[1])
+        if ($token[0] -eq 'sep') {
+            $segments.Add($words.ToArray())
+            $words.Clear()
+        } else { $words.Add([string]$token[1]) }
     }
-    if ($words.Count -lt 7 -or $words[0] -cne 'rtk' -or $words[1] -cne 'proxy' -or $words[2] -cne 'rg') { return $false }
-    $firstFlags = $words[3] -ceq '--no-config' -and $words[4] -ceq '-n'
-    $secondFlags = $words[3] -ceq '-n' -and $words[4] -ceq '--no-config'
-    if (-not $firstFlags -and -not $secondFlags) { return $false }
-    # Special regexp syntax requires literal single quotes; the shared
-    # tokenizer deliberately does not preserve quote provenance.
-    $quoted = [regex]::Match($Cmd, "^[ \t]*rtk[ \t]+proxy[ \t]+rg[ \t]+(?:--no-config[ \t]+-n|-n[ \t]+--no-config)[ \t]+'([^']+)'[ \t]+")
-    $plainPattern = [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+-]+$')
-    $quotedPattern = $quoted.Success -and $quoted.Groups[1].Value -ceq $words[5] -and [regex]::IsMatch($words[5], '^[A-Za-z0-9_./:|+^# ()-]+$')
-    if ($words[5].StartsWith('-') -or -not ($plainPattern -or $quotedPattern)) { return $false }
-    $hasRolePath = $false
-    for ($i = 6; $i -lt $words.Count; $i++) {
-        $path = $words[$i]
-        if ($path.StartsWith('-') -or -not [regex]::IsMatch($path, '^[A-Za-z0-9_./-]+$')) { return $false }
-        if ([regex]::IsMatch($path, '(?i)(?:^|/)\.codex/agents/[^/]+\.toml$')) { $hasRolePath = $true }
+    $segments.Add($words.ToArray())
+    foreach ($segment in $segments) {
+        $argsList = @($segment)
+        if ($argsList.Count -eq 0) { continue }
+        if ($argsList.Count -ge 2 -and $argsList[0] -ceq 'rtk' -and $argsList[1] -ceq 'proxy') {
+            $argsList = @($argsList | Select-Object -Skip 2)
+        }
+        if ($argsList.Count -eq 0) { return $false }
+        $verb = $argsList[0].ToLowerInvariant()
+        if ($verb -eq 'sed') {
+            # sed can write or execute; admit only its print-range form.
+            if ($argsList.Count -lt 3 -or $argsList[1] -cne '-n' -or -not [regex]::IsMatch($argsList[2], '^(?:[0-9]+(?:,[0-9$]+)?|\$)?p$')) { return $false }
+            foreach ($arg in @($argsList | Select-Object -Skip 3)) {
+                if ($arg.StartsWith('-')) { return $false }
+            }
+        } elseif ($readers -notcontains $verb) { return $false }
+        if ($verb -eq 'rg') {
+            if ($env:RIPGREP_CONFIG_PATH -and ($argsList.Count -lt 2 -or $argsList[1] -cne '--no-config')) { return $false }
+            foreach ($arg in @($argsList | Select-Object -Skip 1)) {
+                if (@('--pre', '--hostname-bin') -ccontains ($arg -split '=', 2)[0]) { return $false }
+            }
+        }
     }
-    return $hasRolePath
+    return $true
 }
 
 function Test-ShellWritesAgentRole {
@@ -299,8 +319,7 @@ function Test-ShellWritesAgentRole {
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     $normalizedCmd = $Cmd -replace "\\", "/"
     if (-not ($normalizedCmd.ToLower() -match "\.codex/agents(?:/|\b)")) { return $false }
-    $readOnlyRe = "(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
-    return -not ([regex]::IsMatch($normalizedCmd, $readOnlyRe) -or (Test-RoleProxyRgReadOnly $Cmd))
+    return -not (Test-ShellReadOnly $Cmd)
 }
 
 function Test-PayloadMalformed {
@@ -1327,6 +1346,25 @@ function Test-ImplReviewStatusPassedIncreases {
     if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
     $filePath = [string]$toolInput.file_path
 
+    $patchCommand = [string]$toolInput.command
+    if ($toolName -eq "apply_patch" -or $patchCommand.Contains("*** Begin Patch")) {
+        $sections = @()
+        $current = $null
+        foreach ($line in ($patchCommand -split "\r?\n")) {
+            $header = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+            if ($header.Success) {
+                $current = [pscustomobject]@{ path = $header.Groups[2].Value.Trim(); content = @() }
+                $sections += $current
+            } elseif ($null -ne $current -and ($line.StartsWith("+") -or $line.StartsWith(" "))) {
+                $current.content += $line.Substring(1)
+            }
+        }
+        foreach ($section in $sections) {
+            $write = [pscustomobject]@{ tool_name = "write"; tool_input = [pscustomobject]@{ file_path = $section.path; content = ($section.content -join "`n") } }
+            if (Test-ImplReviewStatusPassedIncreases $write) { return $true }
+        }
+        return $false
+    }
     if (-not (@("edit", "write", "multiedit") -contains $toolName)) { return $false }
     if (-not (Test-DesignMd $filePath)) { return $false }
 
@@ -1885,34 +1923,72 @@ if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payload
             throw "invalid Copilot timestamp"
         }
         $nativeName = $payload.toolName
+        if ($nativeName -isnot [string]) { throw "invalid Copilot tool name" }
         $nativeArgs = $payload.toolArgs
-        if ($nativeArgs -is [string]) {
-            if ($nativeArgs -cnotmatch '\A[ \t\r\n]*\{') { throw "arguments must be an object" }
-            $nativeArgs = $nativeArgs | ConvertFrom-Json -ErrorAction Stop
-        }
-        if ($nativeName -isnot [string] -or $null -eq $nativeArgs -or
-            $nativeArgs -isnot [pscustomobject]) { throw "invalid Copilot call" }
-        $argKeys = @($nativeArgs.PSObject.Properties | ForEach-Object { $_.Name })
-        if (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
-            [string]::IsNullOrWhiteSpace($nativeArgs.path)) { throw "invalid Copilot path" }
-        if ($nativeName -ceq "view") {
-            if (@($argKeys | Where-Object { @("path", "view_range") -cnotcontains $_ }).Count -gt 0) {
-                throw "unsupported view arguments"
+        # Native apply_patch is raw text, then traverses every canonical write guard.
+        if ($nativeName -ceq "apply_patch") {
+            if ($nativeArgs -isnot [string]) { throw "invalid patch arguments" }
+            $patchLines = ($nativeArgs.Replace("`r`n", "`n") -creplace "`n$", "") -split "`n"
+            if ($patchLines.Count -lt 3 -or $patchLines[0] -cne "*** Begin Patch" -or
+                $patchLines[-1] -cne "*** End Patch" -or
+                $patchLines[1] -cnotmatch '^\*\*\* (Add|Update|Delete) File: \S.*$') { throw "invalid patch envelope" }
+            foreach ($line in $patchLines[1..($patchLines.Count - 2)]) {
+                if (@("*** Begin Patch", "*** End Patch") -ccontains $line) { throw "invalid patch envelope" }
             }
-            if ($argKeys -ccontains "view_range") {
-                $range = $nativeArgs.view_range
-                if ($range -isnot [array] -or $range.Count -ne 2 -or
-                    @($range | Where-Object { $_ -isnot [int] -and $_ -isnot [long] }).Count -gt 0) {
-                    throw "invalid view range"
-                }
-            }
-            $payload = [pscustomobject]@{ tool_name = "read"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path } }
-        } elseif ($nativeName -ceq "create") {
-            if ($argKeys.Count -ne 2 -or ($argKeys -cnotcontains "file_text") -or
-                $nativeArgs.file_text -isnot [string]) { throw "invalid create arguments" }
-            $payload = [pscustomobject]@{ tool_name = "write"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path; content = $nativeArgs.file_text } }
+            $payload = [pscustomobject]@{ tool_name = "apply_patch"; tool_input = [pscustomobject]@{ command = $nativeArgs } }
         } else {
-            throw "unsupported Copilot tool"
+            if ($nativeArgs -is [string]) {
+                if ($nativeArgs -cnotmatch '\A[ \t\r\n]*\{') { throw "arguments must be an object" }
+                $nativeArgs = $nativeArgs | ConvertFrom-Json -ErrorAction Stop
+            }
+            if ($nativeName -isnot [string] -or $null -eq $nativeArgs -or
+                $nativeArgs -isnot [pscustomobject]) { throw "invalid Copilot call" }
+            $argKeys = @($nativeArgs.PSObject.Properties | ForEach-Object { $_.Name })
+            if (@("view", "create") -ccontains $nativeName -and (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
+                [string]::IsNullOrWhiteSpace($nativeArgs.path))) { throw "invalid Copilot path" }
+            if ($nativeName -ceq "bash") {
+                if (@($argKeys | Where-Object { @("command", "description") -cnotcontains $_ }).Count -gt 0 -or
+                    ($argKeys -cnotcontains "command") -or $nativeArgs.command -isnot [string] -or
+                    [string]::IsNullOrWhiteSpace($nativeArgs.command) -or
+                    (($argKeys -ccontains "description") -and $nativeArgs.description -isnot [string])) {
+                    throw "invalid bash arguments"
+                }
+                $payload = [pscustomobject]@{ tool_name = "bash"; tool_input = [pscustomobject]@{ command = $nativeArgs.command } }
+            } elseif ($nativeName -ceq "glob") {
+                if (@($argKeys | Where-Object { @("pattern", "path") -cnotcontains $_ }).Count -gt 0 -or
+                    ($argKeys -cnotcontains "pattern") -or $nativeArgs.pattern -isnot [string] -or
+                    [string]::IsNullOrWhiteSpace($nativeArgs.pattern) -or
+                    (($argKeys -ccontains "path") -and ($nativeArgs.path -isnot [string] -or [string]::IsNullOrWhiteSpace($nativeArgs.path)))) {
+                    throw "invalid glob arguments"
+                }
+                $payload = [pscustomobject]@{ tool_name = "glob"; tool_input = $nativeArgs }
+            } elseif ($nativeName -ceq "task") {
+                $taskKeys = @("description", "agent_type", "name", "mode", "prompt")
+                if ($argKeys.Count -ne $taskKeys.Count) { throw "invalid task arguments" }
+                foreach ($key in $taskKeys) {
+                    if (($argKeys -cnotcontains $key) -or $nativeArgs.$key -isnot [string] -or
+                        [string]::IsNullOrWhiteSpace($nativeArgs.$key)) { throw "invalid task arguments" }
+                }
+                $payload = [pscustomobject]@{ tool_name = "task"; tool_input = $nativeArgs }
+            } elseif ($nativeName -ceq "view") {
+                if (@($argKeys | Where-Object { @("path", "view_range") -cnotcontains $_ }).Count -gt 0) {
+                    throw "unsupported view arguments"
+                }
+                if ($argKeys -ccontains "view_range") {
+                    $range = $nativeArgs.view_range
+                    if ($range -isnot [array] -or $range.Count -ne 2 -or
+                        @($range | Where-Object { $_ -isnot [int] -and $_ -isnot [long] }).Count -gt 0) {
+                        throw "invalid view range"
+                    }
+                }
+                $payload = [pscustomobject]@{ tool_name = "read"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path } }
+            } elseif ($nativeName -ceq "create") {
+                if ($argKeys.Count -ne 2 -or ($argKeys -cnotcontains "file_text") -or
+                    $nativeArgs.file_text -isnot [string]) { throw "invalid create arguments" }
+                $payload = [pscustomobject]@{ tool_name = "write"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path; content = $nativeArgs.file_text } }
+            } else {
+                throw "unsupported Copilot tool"
+            }
         }
     } catch {
         Emit-Decision "deny" $MalformedMsg
@@ -1932,6 +2008,11 @@ try {
     $command = $null
     if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
 
+    # Read-only inspection cannot change protected files or grant approvals.
+    if (@('bash', 'shell', 'exec_command', 'exec') -contains $toolName -and (Test-ShellReadOnly $command)) {
+        Emit-Decision 'allow' $null
+    }
+
     # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
     # File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
     if (@("edit", "write", "multiedit") -contains $toolName) {
@@ -1946,7 +2027,7 @@ try {
     # apply_patch: check for SDD_SUDO targets.
     if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
         foreach ($line in ($command -split "`n")) {
-            $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+            $m = [regex]::Match($line, "^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$")
             if ($m.Success) {
                 if (Test-TargetPathIsSddSudo $m.Groups[2].Value.Trim()) { Emit-Decision "deny" $SddSudoWriteMsg }
             }
@@ -1964,9 +2045,14 @@ try {
 
     if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
         foreach ($line in ($command -split "`n")) {
-            $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+            $m = [regex]::Match($line, "^\*\*\* (Update File|Add File|Delete File|Move to): (.+)$")
             if ($m.Success) {
-                if (Test-IsProtectedGateFile $m.Groups[2].Value.Trim()) { Emit-Decision "deny" $GateProtectMsg }
+                $target = $m.Groups[2].Value.Trim()
+                # Renames can import approval/role content without added lines.
+                $guardedMove = $m.Groups[1].Value -ceq "Move to" -and (
+                    (Test-TasksMd $target) -or (Test-WfiPath $target) -or (Test-DomainContextMapPath $target) -or
+                    (Test-AgentRolePath $target) -or (Test-DesignMd $target))
+                if ((Test-IsProtectedGateFile $target) -or $guardedMove) { Emit-Decision "deny" $GateProtectMsg }
             }
         }
     }

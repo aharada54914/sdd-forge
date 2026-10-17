@@ -311,6 +311,12 @@ def require_compact_result(result_text, expected):
     require(result_text in (expected, expected + '\n'), 'compact verification result mismatch')
 
 
+def inputs_bound(data):
+    return data['stage'] in ('spec', 'impl') or any(
+        entry.get('path') == 'specs/' + data['feature'] + '/concept-test.json'
+        for entry in data.get('allowed_input_manifest', []))
+
+
 def receipt_control(data, receipt_text, invocation_path=None, *, root=None):
     match = re.fullmatch(
         r'REVIEW_CONTEXT_OK ([0-9a-f]{64}) sequence=([1-9][0-9]*) '
@@ -345,14 +351,13 @@ def receipt_control(data, receipt_text, invocation_path=None, *, root=None):
               data['host_session_id'], previous]
     if any(not isinstance(v, str) or any(c in v for c in '|\r\n\x00') for v in fields):
         raise ValueError('invalid record field')
+    record_text = '|'.join(fields)
     if data['stage'] == 'quality':
         scratch_binding = hashlib.sha256((data['feature'] + '\n' +
                                           data['scratch_root']).encode('utf-8')).hexdigest()
-        record_text = '|'.join(fields) + '|scratch-declaration-v1|' + scratch_binding
-    elif data['stage'] == 'task':
-        record_text = '|'.join(fields)
-    else:
-        record_text = '|'.join(fields) + '|allowed-inputs-v1|' + inputs_hash
+        record_text += '|scratch-declaration-v1|' + scratch_binding
+    if inputs_bound(data):
+        record_text += '|allowed-inputs-v1|' + inputs_hash
     if hashlib.sha256(record_text.encode('utf-8')).hexdigest() != digest:
         raise ValueError('receipt record hash mismatch')
     if root is not None:
@@ -476,10 +481,10 @@ def control_prompt(data, receipt_text, boundary_sha256, *, strict=False,
         + 'Independently reconstruct inputs_text from the ordered invocation entries as path TAB sha256 '
         'joined with LF, no terminal newline. Hash its exact UTF-8 bytes. Reconstruct record_text as '
         'sequence|stage|role|run_id|host_session_id|previous_record_sha256 followed by '
-        + ('|scratch-declaration-v1| and SHA-256 of feature LF scratch_root (no terminal newline). '
-           if data['stage'] == 'quality' else
-           'nothing else; the canonical task ledger uses the six-field record. '
-           if data['stage'] == 'task' else '|allowed-inputs-v1| and that input digest. ')
+        + ('|scratch-declaration-v1| and SHA-256 of feature LF scratch_root (no terminal newline), then '
+           if data['stage'] == 'quality' else '')
+        + ('|allowed-inputs-v1| and that input digest. '
+           if inputs_bound(data) else 'nothing else. ')
         + 'Hash its exact UTF-8 bytes. '
         'Use the two literal no-newline hash commands only after checking their text against this '
         'independent reconstruction. Caller-provided digests alone are not reviewer proof. '
@@ -703,7 +708,7 @@ def expected_prompt(root, invocation, receipt, *, strict=False, conditional_stat
         + ('permits no Bash commands. ' if fixed_inputs else
            'permits only the exact listed Bash commands. ')
         + 'Inspect admitted substantive inputs independently.\n'
-        if strict and data['stage'] in ('spec', 'impl') and conditional_state is not None else '')
+        if strict and conditional_state is not None else '')
     if fixed_inputs:
         return ('SDD independent ' + review_name + ' review; manifest-only, read-only.\n'
                 + binding + '\n'
@@ -813,7 +818,7 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
             ('record_sha256', control['record_sha256'])]
         if data['stage'] == 'quality':
             record_fields.append(('scratch_declaration_sha256', control['scratch_declaration_sha256']))
-        elif data['stage'] in ('spec', 'impl'):
+        if inputs_bound(data):
             record_fields.append(('allowed_inputs_sha256', control['inputs_sha256']))
         require(all(record.get(field) == value for field, value in record_fields),
             'reserved ledger record differs from invocation or receipt')

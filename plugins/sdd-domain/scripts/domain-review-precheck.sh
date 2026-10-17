@@ -66,10 +66,10 @@ fingerprint_path="${reports_base}/last-approved-fingerprint.json"
 declare -a canonical_paths=(
   "${domain_dir}/domain-story.md"
   "${domain_dir}/event-storming.md"
+  "${domain_dir}/concept-model.md"
   "${domain_dir}/ubiquitous-language.md"
   "${domain_dir}/context-map.md"
   "${domain_dir}/message-flow.md"
-  "${domain_dir}/c4-container.md"
   "${domain_contract}"
 )
 

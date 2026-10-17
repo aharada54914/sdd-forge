@@ -227,8 +227,8 @@ Templates for all three artifacts live in
 ### What sdd-domain reads
 
 - `domain/` artifacts it owns and regenerates itself: `domain-story.md`,
-  `event-storming.md`, `ubiquitous-language.md`, `context-map.md`,
-  `aggregates/*.md`, `message-flow.md`, `c4-container.md`,
+  `event-storming.md`, `concept-model.md`, `ubiquitous-language.md`, `context-map.md`,
+  `aggregates/*.md`, `message-flow.md`,
   `domain-contract.json`.
 - `investigate-codebase`'s `specs/<feature>/investigation.md` output, read
   only by `domain-reverse` to build a candidate seed — never written to.
@@ -244,13 +244,12 @@ repository root (one per project, not per feature, distinct from
 per-feature `specs/<feature>/`):
 
 - `domain/domain-contract.json` — machine-readable contract. MUST validate
-  against `contracts/domain-contract.v1.schema.json` (`schema` const
-  `domain-contract/v1`). Regenerated from the approved Markdown artifacts
+  against `contracts/domain-contract.v2.schema.json` (`schema` const
+  `domain-contract/v2`). Regenerated from the approved Markdown artifacts
   after every stage change.
-- `domain/domain-story.md`, `domain/event-storming.md`,
+- `domain/domain-story.md`, `domain/event-storming.md`, `domain/concept-model.md`,
   `domain/ubiquitous-language.md`, `domain/context-map.md`,
-  `domain/aggregates/*.md`, `domain/message-flow.md`,
-  `domain/c4-container.md` — the seven-stage Markdown artifact set, each
+  `domain/aggregates/*.md`, `domain/message-flow.md` — the seven-stage Markdown artifact set, each
   checkpointed to disk before the next stage begins (resumable on
   interruption).
 - A `Domain-Model-Status` field (Pending / Approved) inside `domain/`,
@@ -289,10 +288,10 @@ per-feature `specs/<feature>/`):
   blocks a workflow, and existing workflows produce byte-identical
   artifacts (AC-010).
 - Cross-plugin file ownership: sdd-domain never reads another plugin's
-  files by relative filesystem path at runtime. Where a technical-default
-  basis cites an existing file (e.g. `c4-container.template.md`),
-  sdd-domain ships its own adapted copy under its own skill's
-  `templates/` rather than reading across the plugin boundary.
+  files by relative filesystem path at runtime. Its seven stage templates
+  are local to domain-interviewer. C4 architecture diagrams use bootstrap
+  templates and feature design/infra artifacts; `domain/c4-container.md`
+  is deprecated and not a required domain checkpoint or review input.
 
 ---
 

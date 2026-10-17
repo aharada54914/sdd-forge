@@ -22,11 +22,11 @@ The orchestrator supplies an allowed-input manifest containing exactly:
 
 - `domain/domain-story.md`
 - `domain/event-storming.md`
+- `domain/concept-model.md`
 - `domain/ubiquitous-language.md`
 - `domain/context-map.md`
 - `domain/aggregates/<name>.md` (one entry per aggregate present)
 - `domain/message-flow.md`
-- `domain/c4-container.md`
 - `domain/domain-contract.json`
 - `reports/domain-review/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/domain-review/attempt-<M>/round-<N>/integrated-summary.json`

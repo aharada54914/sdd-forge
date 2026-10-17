@@ -308,9 +308,9 @@ sdd-domain は機能単位ではなくプロジェクト単位で運用します
 1. /sdd-domain:domain-model new|update|reverse
      seed（自由記述 / ローカル Markdown パス / Issue URL）から
      domain-interviewer が7段階を順にチェックポイントしながら生成:
-     ① Domain Story → ② Event Storming → ③ Ubiquitous Language →
-     ④ Context Map → ⑤ Domain Model (aggregates) → ⑥ Domain Message Flow →
-     ⑦ C4 Container
+     ① Domain Story → ② Event Storming → ③ Concept Model →
+     ④ Ubiquitous Language → ⑤ Context Map → ⑥ Domain Model (aggregates) →
+     ⑦ Domain Message Flow
      reverse モードでは investigate-codebase の investigation.md から
      候補シード（コンテキスト・用語・イベント/集約ヒント）を生成し、
      インタビューの出発点にできる（domain-reverse）。
@@ -333,7 +333,9 @@ sdd-domain は機能単位ではなくプロジェクト単位で運用します
 5. [人間] 承認   Domain-Model-Status を Approved に変更
      （エージェントは自己承認できない。sdd-hook-guard が拒否）。
    ↓
-6. domain-sync   承認済みモデルを検出すると、sdd-bootstrap-interviewer の
+6. concept-test → domain-sync   v2 モデルでは feature request を保存し、
+     Concept Test の提案と人間判断を記録する。非 FITS 判定は署名済み判断で
+     proceed/defer/rejected を確認してから同期する。承認済みモデルを検出すると、sdd-bootstrap-interviewer の
      Phase 1 に正準コンテキスト・用語を注入し（requirements.md に
      Bounded-Context: フィールド）、spec-reviewer-a/b・impl-reviewer-a/b
      に DOMAIN-CONFORMANCE 観点を追加する。
@@ -346,7 +348,7 @@ sdd-domain は機能単位ではなくプロジェクト単位で運用します
 
 ### 更新とドリフト
 
-`update` モードは編集した段階以降（N..7）を確認モードで再実行し、上流の段階（1..N-1）はバイト同一のまま保持し、完了時に `Domain-Model-Status` を Pending に戻します。承認後に `domain/` が人手で変更された場合も、次回レビュー起動時の precheck がドリフトを検知し、ステータスのリセットを要求します。
+`update` モードは編集した段階以降（N..7）を確認モードで再実行し、上流の段階（1..N-1）はバイト同一のまま保持し、再生成前に `Domain-Model-Status` を Pending に戻します（上流の Context Map はこの状態欄だけが例外）。承認後に `domain/` が人手で変更された場合も、次回レビュー起動時の precheck がドリフトを検知し、ステータスのリセットを要求します。
 
 ### 既存フローへの影響
 

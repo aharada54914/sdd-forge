@@ -3006,6 +3006,69 @@ else
     fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: ${PP_OUTPUT}"
 fi
 
+# Domain review has no feature tasks tree; its canonical model must reach the panel.
+D078="${WORK}/domain-review"
+mkdir -p "${D078}/domain/aggregates"
+write_tasks_with_consent "${D078}/consent.md" DM-001
+for doc in domain-story event-storming concept-model ubiquitous-language context-map message-flow; do
+    printf '# %s\nDOMAIN_MODEL_%s\n' "$doc" "$doc" > "${D078}/domain/${doc}.md"
+done
+printf '%s\n' '{"schema":"domain-contract/v2"}' > "${D078}/domain/domain-contract.json"
+printf '%s\n' 'DOMAIN_AGGREGATE' > "${D078}/domain/aggregates/Order.md"
+printf '%s\n' '$(printf PWNED)' >> "${D078}/domain/concept-model.md"
+printf '%s\n' 'UNRELATED_PRIVATE_NOTE' > "${D078}/domain/private-notes.md"
+printf '%s\n' 'LEGACY_C4_NOT_CANONICAL' > "${D078}/domain/c4-container.md"
+mkdir -p "${D078}/reports/implementation/sdd-domain-model"
+D078_PRIVATE_SHA="$(sha256_of "${D078}/domain/private-notes.md")"
+cat > "${D078}/reports/implementation/sdd-domain-model/DM-001.md" <<EOF
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| domain/private-notes.md | ${D078_PRIVATE_SHA} |
+EOF
+run_prepare --task DM-001 --feature sdd-domain-model --input "${D078}/domain" \
+    --tasks-file "${D078}/consent.md" --project-root "$D078" --out "${D078}/out.txt"
+if [ "$PP_EXIT" -eq 0 ] && grep -qF DOMAIN_MODEL_concept-model "${D078}/out.txt" &&
+   grep -qF domain-contract/v2 "${D078}/out.txt" && grep -qF DOMAIN_AGGREGATE "${D078}/out.txt"; then
+    ok "PP-078: domain canonical concepts, v2 contract and aggregates are bundled"
+else
+    fail "PP-078: expected domain content, got exit ${PP_EXIT}: ${PP_OUTPUT}"
+fi
+if ! grep -qE 'UNRELATED_PRIVATE_NOTE|LEGACY_C4_NOT_CANONICAL' "${D078}/out.txt" &&
+   grep -qF '$(printf PWNED)' "${D078}/out.txt"; then
+    ok "PP-079: noncanonical files excluded and embedded shell text remains data"
+else
+    fail "PP-079: domain bundle scope or literal content was changed"
+fi
+run_prepare --task DM-001 --feature sdd-domain-model --input "${D078}/domain" \
+    --tasks-file "${D078}/consent.md" --project-root "$D078" --max-bytes 100 --out "${D078}/too-small.txt"
+if [ "$PP_EXIT" -ne 0 ] && [ ! -e "${D078}/too-small.txt" ]; then
+    ok "PP-080: domain canonical evidence is never elided to fit the budget"
+else
+    fail "PP-080: domain input budget must fail without truncation"
+fi
+mv "${D078}/domain/concept-model.md" "${D078}/concept-model.md"
+run_prepare --task DM-001 --feature sdd-domain-model --input "${D078}/domain" \
+    --tasks-file "${D078}/consent.md" --project-root "$D078" --out "${D078}/missing.txt"
+if [ "$PP_EXIT" -eq 1 ] && [ ! -e "${D078}/missing.txt" ]; then
+    ok "PP-081: missing domain concept record cannot produce a success bundle"
+else
+    fail "PP-081: missing domain concept record must fail"
+fi
+ln -s "${D078}/concept-model.md" "${D078}/domain/concept-model.md"
+if [ -L "${D078}/domain/concept-model.md" ]; then
+    run_prepare --task DM-001 --feature sdd-domain-model --input "${D078}/domain" \
+        --tasks-file "${D078}/consent.md" --project-root "$D078" --out "${D078}/linked.txt"
+    if [ "$PP_EXIT" -eq 1 ] && [ ! -e "${D078}/linked.txt" ]; then
+        ok "PP-082: symlinked domain concept record is rejected"
+    else
+        fail "PP-082: symlinked domain concept record must fail"
+    fi
+else
+    echo "SKIP: PP-082 host does not create symlinks"
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================
