@@ -58,7 +58,9 @@ class ConceptTests(unittest.TestCase):
         self.save()
 
     def write(self, path, value):
-        (self.root / path).write_text(value if isinstance(value, str) else json.dumps(value), encoding='utf-8')
+        # Pin the same bytes before hashing and after Git's text normalization.
+        text = value if isinstance(value, str) else json.dumps(value)
+        (self.root / path).write_bytes(text.encode('utf-8'))
 
     def save(self):
         self.write('specs/example/concept-test.json', self.record)
@@ -256,9 +258,13 @@ class ConceptTests(unittest.TestCase):
         def git(*args):
             return subprocess.check_output(['git', '-C', str(self.root), *args], text=True).strip()
         git('init', '-q')
+        git('config', 'core.autocrlf', 'true')
         git('add', '.')
         git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Valid approval')
         revision = git('rev-parse', 'HEAD')
+        for item in self.record['inputs']:
+            committed = subprocess.check_output(['git', '-C', str(self.root), 'show', revision + ':' + item['path']])
+            self.assertEqual(item['sha256'], hashlib.sha256(committed).hexdigest(), item['path'])
         self.write('specs/example/concept-test.approval.json', {})
         self.write('sdd/approver-registry.yaml', 'invalid live registry')
         reject_all()
