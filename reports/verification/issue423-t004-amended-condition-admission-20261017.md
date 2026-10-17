@@ -114,3 +114,14 @@ bootstrap skill; its actual outcome is recorded below.
 `Ran 5 tests in 28.026s`, `OK`; all five stale-snapshot diagnostic/schema/
 no-partial-publication assertions also passed. These are new cloud results on
 the reconciled tree, distinct from the earlier user-reported macOS results.
+
+## Premature lifecycle correction
+
+The published independent PR review on `7e110ebb763d24b7ee7d73f383d774e8f935823b`
+[flags T-004's premature Implementation Complete state](https://github.com/aharada54914/sdd-forge/pull/535#discussion_r4301115053).
+The human amendment resolves the production-RED part of that historical concern,
+but the preserved report still fails formal admission as measured above. After
+preserving the concurrent remote changes, this context corrects only T-004 back
+to In Progress; it does not claim the independent finding is dismissed, restore
+other task states, close a review thread, or set Done. Lifecycle normalization
+preserves the task-stage body binding. PR #535 remains open and unmerged.

@@ -74,7 +74,7 @@ Done When:
 ## T-004 Compatibility and hybrid fallback
 
 Approval: Approved
-Status: Implementation Complete
+Status: In Progress
 Risk: high
 Risk Rationale: Compatibility behavior is shared by existing consumers; a regression could alter approval, evidence, or artifact semantics for legacy projects.
 Required Workflow: tdd
