@@ -46,6 +46,16 @@ function Test-CanonicalScratchRoot {
         -not $Path.EndsWith('/'))
 }
 
+function ConvertFrom-ReportScratchRoot([string]$Value) {
+    if ($Value.Length -ge 2 -and $Value.StartsWith('`') -and $Value.EndsWith('`')) {
+        $Value = $Value.Substring(1, $Value.Length - 2)
+    }
+    if ($Value -cmatch '[\x00-\x1f\x7f`]' -or -not (Test-CanonicalScratchRoot $Value)) {
+        return $null
+    }
+    return $Value
+}
+
 function Test-ScratchRootsOverlap {
     param([string]$Left, [string]$Right)
     $comparison = if ($Left -cmatch '^[A-Za-z]:/' -and $Right -cmatch '^[A-Za-z]:/') {
@@ -813,18 +823,18 @@ print("true" if result.stdout else "false")
         if (-not (Test-ReportBytesClean $implementationReport)) {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report contains forbidden control bytes'
         }
-        $implementationReportLines = @(Get-Content -LiteralPath $implementationReport -Encoding UTF8)
+        $implementationReportLines = @([IO.File]::ReadAllText($implementationReport).Replace("`r`n", "`n").Split("`n"))
         if ($implementationReportLines.Count -eq 0 -or
             $implementationReportLines[0] -cne "# Implementation Report: $($document.task_id)" -or
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
         }
         if ($document.ContainsKey('scratch_root')) {
-            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .+$' })
+            $scratchRootLines = @($implementationReportLines | Where-Object { $_ -cmatch '^- \*\*Scratch Root\*\*: .*$' })
             if ($scratchRootLines.Count -ne 1) {
                 Fail-ReviewContext 'PATH' 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
             }
-            $implementationScratchRoot = $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
+            $implementationScratchRoot = ConvertFrom-ReportScratchRoot $scratchRootLines[0].Substring('- **Scratch Root**: '.Length)
             if (-not (Test-CanonicalScratchRoot $implementationScratchRoot)) {
                 Fail-ReviewContext 'PATH' 'implementation Scratch Root is not a canonical absolute path'
             }
@@ -1295,6 +1305,14 @@ def canonical(value):
     return value.lower() if re.match(r"^[A-Za-z]:/", value) else value
 
 
+def report_root(value):
+    if len(value) >= 2 and value.startswith("`") and value.endswith("`"):
+        value = value[1:-1]
+    if re.search(r"[\x00-\x1f\x7f`]", value):
+        raise ValueError("scratch history contains invalid report path display")
+    return canonical(value)
+
+
 def overlap(left, right):
     left, right = canonical(left), canonical(right)
     return left == right or left.startswith(right + "/") or right.startswith(left + "/")
@@ -1332,11 +1350,11 @@ def check(root, invocation, ledger):
         safe_path(root, report)
         if not report.is_file():
             raise ValueError("implementation report is not a regular file")
-        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.+)$", report.read_text(encoding="utf-8"), re.M)
+        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.*)$", report.read_bytes().decode("utf-8").replace("\r\n", "\n"), re.M)
         if len(roots) > 1:
             raise ValueError("implementation report has duplicate scratch declarations")
         for other in roots:
-            if overlap(scratch, other):
+            if overlap(scratch, report_root(other)):
                 raise ValueError("evaluator scratch root overlaps a feature implementation root")
 
     records = [record for record in ledger["records"]

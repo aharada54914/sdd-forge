@@ -16,8 +16,8 @@ import re
 import sys
 
 path = sys.argv[1]
-with open(path, encoding="utf-8") as handle:
-    text = handle.read()
+with open(path, encoding="utf-8", newline="") as handle:
+    text = handle.read().replace("\r\n", "\n")
 
 schema_lines = re.findall(r"(?m)^Report Schema[^\n]*$", text)
 valid_schema_lines = re.findall(
@@ -297,6 +297,17 @@ if not none_fields:
         fail("invalid Escalation Attempt Number")
     if int(escalation_attempt) > int(attempt_count):
         fail("Escalation Attempt Number exceeds Task Attempt Count")
+
+# A report may use a single Markdown code span for this path, never shell quoting.
+scratch_lines = re.findall(r"(?m)^- \*\*Scratch Root\*\*: ([^\n]*)$", text)
+if scratch_lines:
+    if len(scratch_lines) != 1:
+        fail("duplicate Scratch Root")
+    scratch = scratch_lines[0]
+    if len(scratch) >= 2 and scratch.startswith("`") and scratch.endswith("`"):
+        scratch = scratch[1:-1]
+    if not scratch or re.search(r"[\x00-\x1f\x7f`]", scratch):
+        fail("invalid Scratch Root")
 
 for identity_label in ("Run ID", "Session ID", "Agent Instance ID"):
     label("Isolation Evidence", identity_label)

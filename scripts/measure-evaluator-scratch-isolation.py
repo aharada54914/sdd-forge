@@ -8,12 +8,22 @@ import json
 import re
 from pathlib import Path
 
-SCRATCH_LINE = re.compile(r"^- \*\*Scratch Root\*\*: (.+)$", re.MULTILINE)
+SCRATCH_LINE = re.compile(r"^- \*\*Scratch Root\*\*: (.*)$", re.MULTILINE)
 
 
 def normalized_for_comparison(value: str) -> str:
     if re.match(r"^[A-Za-z]:/", value):
         return value.casefold()
+    return value
+
+
+def report_root(value: str) -> str:
+    if len(value) >= 2 and value.startswith("`") and value.endswith("`"):
+        value = value[1:-1]
+    if (re.search(r"[\x00-\x1f\x7f`\\]", value)
+            or not re.fullmatch(r"(?:/|[A-Za-z]:/).+", value)
+            or any(part in ("", ".", "..") for part in value.split("/")[1:])):
+        raise ValueError("invalid implementation scratch root")
     return value
 
 
@@ -75,14 +85,18 @@ def measure(repository: Path, feature: str | None) -> dict[str, object]:
         complete = True
         for report in reports:
             try:
-                roots = SCRATCH_LINE.findall(report.read_text(encoding="utf-8"))
+                roots = SCRATCH_LINE.findall(report.read_bytes().decode("utf-8").replace("\r\n", "\n"))
             except (OSError, UnicodeDecodeError):
                 complete = False
                 break
             if len(roots) != 1:
                 complete = False
                 break
-            implementation_roots.append(roots[0])
+            try:
+                implementation_roots.append(report_root(roots[0]))
+            except ValueError:
+                complete = False
+                break
         if not complete:
             continue
         auditable += 1

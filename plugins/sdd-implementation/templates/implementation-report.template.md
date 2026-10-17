@@ -69,6 +69,12 @@ as output paths.
 - **Fallback Reason**: {{fallback_reason_or_none}}
 - **Handoff Reload Evidence Hash**: {{handoff_reload_evidence_hash_or_none}}
 
+Scratch Root, when declared, uses plain text or exactly one balanced
+single-backtick Markdown span for the same path; malformed spans, controls
+and duplicate declarations are invalid. A quality reservation additionally
+requires a canonical absolute path with forward slashes and no empty/dot/parent
+segments. Do not edit a frozen report to change its recorded root.
+
 Fresh-agent reports MUST use `None` for both fallback fields. The only allowed
 fallback is `same-session-file-reload`, whose exact reason is
 `host-does-not-support-implementation-subagents` and whose evidence is a

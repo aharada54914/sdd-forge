@@ -3,6 +3,8 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import subprocess
+import re
 import unittest
 
 
@@ -36,6 +38,43 @@ class MetricsTests(unittest.TestCase):
                 "evaluator_scratch_auditable": 1,
                 "evaluator_scratch_shared_with_implementation": 0,
             })
+            for value, auditable, shared in (
+                    ("`/tmp/evaluator`", 1, 1), ("`/tmp/evaluator/child`", 1, 1),
+                    ("`/tmp`", 1, 1), ("`/tmp/evaluator-more`", 1, 0),
+                    ("`/tmp/evaluator", 0, 0), ("``/tmp/evaluator``", 0, 0),
+                    ("/tmp/../evaluator", 0, 0), ("/tmp/eval\tuator", 0, 0),
+                    ("/tmp/eval\ruator", 0, 0), ("/tmp/eval\x00uator", 0, 0)):
+                with self.subTest(value=value):
+                    report.write_text("- **Scratch Root**: " + value + "\n")
+                    observed = MODULE.measure(root, None)["metrics"]
+                    self.assertEqual(observed["evaluator_scratch_auditable"], auditable)
+                    self.assertEqual(observed["evaluator_scratch_shared_with_implementation"], shared)
+
+
+
+class ReportScratchRootTests(unittest.TestCase):
+    def test_declared_root_display_is_validated_without_changing_report(self):
+        root = SOURCE.parents[1]
+        validator = root / "plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+        template = (root / "reports/implementation/agent-cost-context-isolation/T-008.md").read_text()
+        for value, valid in (
+                ("/tmp/implementation", True), ("`/tmp/implementation`", True),
+                ("`C:/fixture/implementation`", True),
+                ("`/tmp/implementation", False), ("/tmp/implementation`", False),
+                ("``/tmp/implementation``", False), ("`/tmp/im`pl`", False),
+                ("/tmp/impl\troot", False), ("/tmp/impl\rroot", False),
+                ("/tmp/impl\x00root", False), ("", False),
+                ("`tmp/implementation`", True), ("`/tmp/../implementation`", True),
+                ("`/tmp/implementation/`", True),
+                ("/tmp/implementation\n- **Scratch Root**: /tmp/second", False)):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                report = Path(directory) / "report.md"
+                report.write_text(re.sub(r"(?m)^- \*\*Scratch Root\*\*: .+$",
+                                         lambda _: "- **Scratch Root**: " + value, template))
+                before = report.read_bytes()
+                result = subprocess.run(["bash", str(validator), str(report)], capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, valid, result.stdout + result.stderr)
+                self.assertEqual(report.read_bytes(), before)
 
 
 if __name__ == "__main__":

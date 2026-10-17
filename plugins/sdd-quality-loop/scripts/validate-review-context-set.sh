@@ -128,6 +128,16 @@ is_canonical_scratch_root() {
       [[ "$path" =~ ^[A-Za-z]:/([^/]+/)*[^/]+$ ]]; }
 }
 
+report_scratch_root() {
+  local path=$1
+  if [[ "$path" == \`*\` && ${#path} -ge 2 ]]; then
+    path="${path:1:${#path}-2}"
+  fi
+  [[ "$path" != *\`* && ! "$path" =~ [[:cntrl:]] ]] &&
+    is_canonical_scratch_root "$path" || return 1
+  printf '%s' "$path"
+}
+
 scratch_roots_overlap() {
   local left=$1 right=$2
   if [[ "$left" =~ ^[A-Za-z]:/ && "$right" =~ ^[A-Za-z]:/ ]]; then
@@ -267,6 +277,11 @@ gate_report_output_is_declared() {
     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
 }
 
+read_implementation_report() {
+  # CRLF is a line ending, while an interior bare CR remains invalid path data.
+  sed $'s/\r$//' "$repository_root/$implementation_report_path"
+}
+
 # Bind the pinned implementation task manifest to its same-task report.
 verify_implementation_binding() {
   [[ -n "$implementation_manifest_path" ]] ||
@@ -286,17 +301,16 @@ verify_implementation_binding() {
     fail IDENTITY 'implementation manifest task/run/session is invalid'
   implementation_run=$(jq -r '.run_id' "$implementation_manifest")
   implementation_session=$(jq -r '.session_id' "$implementation_manifest")
-  implementation_report="$repository_root/$implementation_report_path"
-  [[ "$(grep -c '^Run ID: ' "$implementation_report" || true)" -eq 1 &&
-     "$(grep -c '^- \*\*Run ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
-     "$(grep -c '^- \*\*Session ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
-     "$(grep -Fxc -- "Run ID: $implementation_run" "$implementation_report" || true)" -eq 1 &&
-     "$(grep -Fxc -- "- **Run ID**: $implementation_run" "$implementation_report" || true)" -eq 1 &&
-     "$(grep -Fxc -- "- **Session ID**: $implementation_session" "$implementation_report" || true)" -eq 1 ]] ||
+  [[ "$(grep -c '^Run ID: ' <(read_implementation_report) || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Run ID\*\*: ' <(read_implementation_report) || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Session ID\*\*: ' <(read_implementation_report) || true)" -eq 1 &&
+     "$(grep -Fxc -- "Run ID: $implementation_run" <(read_implementation_report) || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Run ID**: $implementation_run" <(read_implementation_report) || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Session ID**: $implementation_session" <(read_implementation_report) || true)" -eq 1 ]] ||
     fail IDENTITY 'implementation report run/session does not match its manifest'
   manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
-  citation_line=$(grep '^Input manifest:' "$implementation_report" || true)
-  [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
+  citation_line=$(grep '^Input manifest:' <(read_implementation_report) || true)
+  [[ "$(grep -c '^Input manifest:' <(read_implementation_report) || true)" -eq 1 &&
      ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
        "$citation_line" == "$manifest_citation. "* ) ]] ||
     python3 -B "$(dirname "${BASH_SOURCE[0]}")/supplemental-delivery-inputs.py" --root "$repository_root" --manifest "$manifest" --verify-manifest-citation >/dev/null ||
@@ -794,16 +808,19 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
   done < <(jq -r '.allowed_input_manifest[].path' "$manifest" | tr -d '\r')
   [[ "$implementation_report_count" -eq 1 ]] ||
     fail PATH 'sdd-evaluator requires the current task implementation report'
-  [[ "$(sed -n '1p' "$repository_root/$implementation_report_path")" == "# Implementation Report: $task_id" ]] ||
+  [[ $(sed -n '/^- \*\*Scratch Root\*\*: /p' "$repository_root/$implementation_report_path" |
+    LC_ALL=C tr -d '\11\12\15\40-\176\200-\377' | LC_ALL=C wc -c) -eq 0 ]] ||
+    fail PATH 'implementation Scratch Root contains forbidden control bytes'
+  [[ "$(read_implementation_report | sed -n '1p')" == "# Implementation Report: $task_id" ]] ||
     fail PATH 'sdd-evaluator implementation report heading does not match task ID'
-  grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
+  grep -Fxq -- "- Task ID: $task_id" <(read_implementation_report) ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
   if [[ -n "$scratch_root" ]]; then
-    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .+$' "$repository_root/$implementation_report_path" || true)
+    implementation_scratch_count=$(grep -Ec '^- \*\*Scratch Root\*\*: .*$' <(read_implementation_report) || true)
     [[ "$implementation_scratch_count" -eq 1 ]] ||
       fail PATH 'sdd-evaluator requires exactly one implementation Scratch Root when scratch_root is declared'
-    implementation_scratch_root=$(sed -n 's/^- \*\*Scratch Root\*\*: //p' "$repository_root/$implementation_report_path")
-    is_canonical_scratch_root "$implementation_scratch_root" ||
+    implementation_scratch_root=$(read_implementation_report | sed -n 's/^- \*\*Scratch Root\*\*: //p')
+    implementation_scratch_root=$(report_scratch_root "$implementation_scratch_root") ||
       fail PATH 'implementation Scratch Root is not a canonical absolute path'
     if scratch_roots_overlap "$scratch_root" "$implementation_scratch_root"; then
       fail PATH 'evaluator scratch root overlaps the implementation scratch root'
@@ -1180,6 +1197,14 @@ def canonical(value):
     return value.lower() if re.match(r"^[A-Za-z]:/", value) else value
 
 
+def report_root(value):
+    if len(value) >= 2 and value.startswith("`") and value.endswith("`"):
+        value = value[1:-1]
+    if re.search(r"[\x00-\x1f\x7f`]", value):
+        raise ValueError("scratch history contains invalid report path display")
+    return canonical(value)
+
+
 def overlap(left, right):
     left, right = canonical(left), canonical(right)
     return left == right or left.startswith(right + "/") or right.startswith(left + "/")
@@ -1217,11 +1242,11 @@ def check(root, invocation, ledger):
         safe_path(root, report)
         if not report.is_file():
             raise ValueError("implementation report is not a regular file")
-        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.+)$", report.read_text(encoding="utf-8"), re.M)
+        roots = re.findall(r"^- \*\*Scratch Root\*\*: (.*)$", report.read_bytes().decode("utf-8").replace("\r\n", "\n"), re.M)
         if len(roots) > 1:
             raise ValueError("implementation report has duplicate scratch declarations")
         for other in roots:
-            if overlap(scratch, other):
+            if overlap(scratch, report_root(other)):
                 raise ValueError("evaluator scratch root overlaps a feature implementation root")
 
     records = [record for record in ledger["records"]
