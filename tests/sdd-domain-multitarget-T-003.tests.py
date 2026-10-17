@@ -539,7 +539,7 @@ class SelectedPlanTests(unittest.TestCase):
                 self.assertTrue(evaluator.validate_plan(changed, expected))
 
     def test_c3_lite_full_promotion_uses_summary_runner(self):
-        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text()
+        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('C3 PROMOTE_FULL', skill)
         self.assertIn('run-lite-gate.py', skill)
         self.assertIn('--full-gate-promotion', skill)
@@ -584,11 +584,11 @@ class SelectedPlanTests(unittest.TestCase):
             self.assertEqual(json.loads(run.stdout)['verdict'], 'FAIL')
 
     def test_quality_gate_and_both_runners_invoke_evaluator(self):
-        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text()
+        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('evaluate-selected-plan.py', skill)
         self.assertIn('--facet-manifest', skill)
         for name in ('run-all.sh', 'run-all.ps1'):
-            self.assertIn('sdd-domain-multitarget-T-003.tests.py', (ROOT / 'tests' / name).read_text())
+            self.assertIn('sdd-domain-multitarget-T-003.tests.py', (ROOT / 'tests' / name).read_text(encoding='utf-8'))
 
 
 class ResolverCliIntegrationTests(unittest.TestCase):
@@ -630,7 +630,8 @@ shared_paths: []
                 (repo / 'comp-a').mkdir()
                 (repo / 'comp-a/file.txt').write_text('changed\n')
                 head = helper.git_commit_all(repo, 'fixture component change')
-                result = subprocess.run(helper.t003_resolver_argv('sh', scripts, base, head),
+                launcher = 'ps1' if os.name == 'nt' else 'sh'
+                result = subprocess.run(helper.t003_resolver_argv(launcher, scripts, base, head),
                                         cwd=repo, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 manifest = repo / 'specs/example-feature/facet-manifest.yaml'

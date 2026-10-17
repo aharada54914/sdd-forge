@@ -157,6 +157,10 @@ jobs:
       - name: Install structural YAML parser
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
 
+      - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
+        shell: pwsh
+        run: python -B tests/sdd-domain-multitarget-T-003.tests.py
+
       - name: "[deterministic] Test Concept Test gate on native Windows"
         if: runner.os == 'Windows'
         shell: pwsh

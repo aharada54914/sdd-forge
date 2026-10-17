@@ -69,6 +69,29 @@ class RequiredChecksTests(unittest.TestCase):
                 shell = 'pwsh' if command.endswith('.ps1') else 'bash'
                 self.assertIn(f'        shell: {shell}', matches[0].splitlines())
 
+    def test_selected_plan_full_suite_runs_on_all_native_platforms(self):
+        blocks = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)
+        self.assertEqual(len(blocks), 1)
+        job = blocks[0]
+        self.assertIn('    runs-on: ${{ matrix.os }}', job.splitlines())
+        platforms = re.findall(r'^        os: \[([^\n]+)\]$', job, re.M)
+        self.assertEqual(len(platforms), 1)
+        self.assertEqual({item.strip() for item in platforms[0].split(',')},
+                         {'windows-latest', 'macos-latest', 'ubuntu-latest'})
+        steps = re.split(r'^      - ', job, flags=re.M)[1:]
+        suite = 'tests/sdd-domain-multitarget-T-003.tests.py'
+        consumers = [step for step in steps if suite in step]
+        self.assertEqual(len(consumers), 1, 'the full selected-plan suite needs a direct matrix step')
+        step = consumers[0]
+        self.assertNotRegex(step, r'(?m)^        (if|continue-on-error):')
+        self.assertIn('        shell: pwsh', step.splitlines())
+        self.assertIn(f'        run: python -B {suite}', step.splitlines())
+        installs = [step for step in steps
+                    if 'run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts' in step]
+        self.assertEqual(len(installs), 1)
+        self.assertNotRegex(installs[0], r'(?m)^        (if|continue-on-error):')
+        self.assertLess(steps.index(installs[0]), steps.index(consumers[0]))
+
     def test_transport_dependency_is_pinned_and_installed_first(self):
         job = re.findall(r'^  posix-regression:\n((?:^    .*\n|^\s*\n)*)',
                          self.workflow, re.M)[0]
