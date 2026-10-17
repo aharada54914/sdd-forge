@@ -1,6 +1,6 @@
 # Domain Story: {{domain_name}}
 
-Stage: 1 of 8 (Domain Story)
+Stage: 1 of 7 (Domain Story)
 Seed-Source: {{seed_source}}
 
 ## Actors

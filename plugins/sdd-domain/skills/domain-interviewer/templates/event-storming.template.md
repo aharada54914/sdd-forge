@@ -1,6 +1,6 @@
 # Event Storming: {{domain_name}}
 
-Stage: 2 of 8 (Event Storming)
+Stage: 2 of 7 (Event Storming)
 Seed-Source: {{seed_source}}
 
 ## Domain Events

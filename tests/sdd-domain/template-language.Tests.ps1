@@ -1,7 +1,7 @@
 #
 # T-002 domain-interviewer templates -- English-only conformance (AC-013)
 #
-# Verifies all eight domain-interviewer templates are English (AC-013:
+# Verifies all seven domain-interviewer templates are English (AC-013:
 # "Templates are English") by scanning for non-ASCII literal characters
 # (this repository's own PS1-hygiene convention treats non-ASCII presence
 # as the practical signal of non-English filler text; see the Global
@@ -38,8 +38,7 @@ $templateNames = @(
     "ubiquitous-language.template.md",
     "context-map.template.md",
     "aggregate.template.md",
-    "message-flow.template.md",
-    "c4-container.template.md"
+    "message-flow.template.md"
 )
 
 # A character is "ASCII" for this check when its code point is <= 0x7E
@@ -86,9 +85,9 @@ Describe "domain-interviewer templates are English (AC-013)" {
                 $text | Should Match "\{\{[a-z_0-9]+\}\}"
             }
 
-            It "declares which of the eight stages it belongs to" {
+            It "declares which of the seven stages it belongs to" {
                 $text = Get-Content -Raw -Encoding UTF8 -LiteralPath $templatePath
-                $text | Should Match "Stage: \d of 8"
+                $text | Should Match "Stage: \d of 7"
             }
 
             It "carries an Open Questions section" {
@@ -186,15 +185,15 @@ Describe "aggregate.template.md covers the Data Plan axes (design.md)" {
     }
 }
 
-Describe "c4-container.template.md is domain-interviewer's own adapted copy" {
+Describe "C4 template belongs to bootstrap architecture" {
 
     BeforeAll {
-        $script:c4Path = Join-Path $templatesDir "c4-container.template.md"
+        $script:c4Path = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md"
         $script:c4Text = Get-Content -Raw -Encoding UTF8 -LiteralPath $script:c4Path
     }
 
-    It "exists under domain-interviewer's own templates directory, not sdd-bootstrap's" {
-        $script:c4Path | Should Match ([regex]::Escape("plugins/sdd-domain/skills/domain-interviewer/templates/c4-container.template.md").Replace('/', '[/\\]'))
+    It "exists only in bootstrap architecture" {
+        $script:c4Path | Should Match ([regex]::Escape("plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md").Replace('/', '[/\\]'))
     }
 
     It "retains the generic C4Container mermaid structure it was adapted from" {
@@ -202,7 +201,7 @@ Describe "c4-container.template.md is domain-interviewer's own adapted copy" {
         $script:c4Text | Should Match "\{\{system_name\}\}|\{\{domain_name\}\}"
     }
 
-    It "adds domain-interviewer-specific traceability back to the Context Map stage" {
-        $script:c4Text | Should Match "Context-to-Container Mapping"
+    It "retains logical-domain to deployment traceability" {
+        $script:c4Text | Should Match "Logical-to-Deployment Mapping"
     }
 }

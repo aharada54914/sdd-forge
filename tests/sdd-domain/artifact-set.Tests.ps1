@@ -2,7 +2,7 @@
 # T-002 domain-interviewer skill -- acceptance-first Pester test
 #
 # Required Workflow for T-002 is "acceptance-first" (Risk: medium), not
-# strict TDD. domain-interviewer's actual eight-stage interview is
+# strict TDD. domain-interviewer's actual seven-stage interview is
 # agent-driven -- an LLM asks questions, records human answers, and writes
 # Markdown artifacts one stage at a time. There is no deterministic script
 # to execute for that conversational process, so this file does not (and
@@ -15,7 +15,7 @@
 #
 #   1. A worked fixture: a hand-authored example domain/ directory tree
 #      following domain-interviewer/SKILL.md's own documented conventions
-#      (the eight canonical Markdown paths from AC-002, one aggregate card,
+#      (the seven canonical Markdown paths from AC-002, one aggregate card,
 #      and a domain-contract.json). Assert the fixture's structure matches
 #      what SKILL.md promises, and that its domain-contract.json actually
 #      validates against contracts/domain-contract.v2.schema.json (this
@@ -50,8 +50,7 @@ $templateNames = @(
     "ubiquitous-language.template.md",
     "context-map.template.md",
     "aggregate.template.md",
-    "message-flow.template.md",
-    "c4-container.template.md"
+    "message-flow.template.md"
 )
 
 $validPattern = @(
@@ -110,7 +109,7 @@ Describe "domain-interviewer SKILL.md contract" {
         $script:skillText | Should Match "user-invocable: false"
     }
 
-    It "documents all eight canonical checkpoint paths from AC-002" {
+    It "documents all seven canonical checkpoint paths from AC-002" {
         $script:skillText | Should Match ([regex]::Escape("domain/domain-story.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/event-storming.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/concept-model.md"))
@@ -118,7 +117,6 @@ Describe "domain-interviewer SKILL.md contract" {
         $script:skillText | Should Match ([regex]::Escape("domain/context-map.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/aggregates/<name>.md"))
         $script:skillText | Should Match ([regex]::Escape("domain/message-flow.md"))
-        $script:skillText | Should Match ([regex]::Escape("domain/c4-container.md"))
     }
 
     It "documents the domain-contract.json regeneration step after every stage" {
@@ -148,18 +146,10 @@ Describe "domain-interviewer SKILL.md contract" {
         $script:skillText | Should Match "never invent"
     }
 
-    It "does not instruct reading the sdd-bootstrap c4-container template at runtime" {
-        # Global Constraints: sdd-domain ships its own copy, adapted, and
-        # never reads across the plugin boundary by relative filesystem path.
-        # SKILL.md is allowed to mention the sdd-bootstrap path in prose (to
-        # explain the adaptation and disclaim a runtime read of it); the
-        # invariant under test is that this skill's own Eight-Stage Sequence
-        # table -- the actual stage-to-template wiring the interview follows
-        # -- points only at its own templates/ directory, never at
-        # sdd-bootstrap's.
-        $script:skillText | Should Match ([regex]::Escape("not a runtime read"))
-        $script:skillText | Should Match ([regex]::Escape("| 8 | C4 Container | ``templates/c4-container.template.md`` |"))
-        $script:skillText | Should Not Match ([regex]::Escape("| 8 | C4 Container | ``plugins/sdd-bootstrap"))
+    It "does not make C4 a domain checkpoint" {
+        $script:skillText | Should Not Match '\| [0-9]+ \| C4 Container \|'
+        $script:skillText | Should Match "C4 architecture authoring belongs to bootstrap"
+        $script:skillText | Should Match 'absence does not block resume, update, completion or review'
     }
 }
 
@@ -185,7 +175,7 @@ Describe "Worked fixture: nine-artifact domain/ tree (AC-002)" {
         Set-Content -LiteralPath (Join-Path $script:domainDir "domain-story.md") -Encoding UTF8 -Value @'
 # Domain Story: widget-catalog
 
-Stage: 1 of 8 (Domain Story)
+Stage: 1 of 7 (Domain Story)
 Seed-Source: free text
 
 ## Actors
@@ -232,7 +222,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "event-storming.md") -Encoding UTF8 -Value @'
 # Event Storming: widget-catalog
 
-Stage: 2 of 8 (Event Storming)
+Stage: 2 of 7 (Event Storming)
 Seed-Source: free text
 
 ## Domain Events
@@ -286,7 +276,7 @@ None.
 
         Set-Content -LiteralPath (Join-Path $script:domainDir "concept-model.md") -Encoding UTF8 -Value @'
 # Concept Model: widget-catalog
-Stage: 3 of 8 (Concept Model)
+Stage: 3 of 7 (Concept Model)
 ## Concepts
 CONCEPT-ORDER: Order, context order-management.
 Definition: A shopper's purchase request. Essence: Records the purchase commitment.
@@ -306,7 +296,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "ubiquitous-language.md") -Encoding UTF8 -Value @'
 # Ubiquitous Language: widget-catalog
 
-Stage: 4 of 8 (Ubiquitous Language)
+Stage: 4 of 7 (Ubiquitous Language)
 Seed-Source: free text
 
 ## Terms
@@ -337,7 +327,7 @@ None.
 # Context Map: widget-catalog
 
 Domain-Model-Status: Pending
-Stage: 5 of 8 (Context Map)
+Stage: 5 of 7 (Context Map)
 Seed-Source: free text
 
 ## Bounded Contexts
@@ -372,7 +362,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:aggregatesDir "Order.md") -Encoding UTF8 -Value @'
 # Aggregate: Order
 
-Stage: 6 of 8 (Domain Model - Aggregates)
+Stage: 6 of 7 (Domain Model - Aggregates)
 Context: order-management
 Seed-Source: free text
 
@@ -426,7 +416,7 @@ None.
         Set-Content -LiteralPath (Join-Path $script:domainDir "message-flow.md") -Encoding UTF8 -Value @'
 # Domain Message Flow: widget-catalog
 
-Stage: 7 of 8 (Domain Message Flow)
+Stage: 7 of 7 (Domain Message Flow)
 Seed-Source: free text
 
 ## Message Catalog
@@ -467,54 +457,7 @@ None.
 None.
 '@
 
-        # --- Stage 7: C4 Container -------------------------------------------
-        Set-Content -LiteralPath (Join-Path $script:domainDir "c4-container.md") -Encoding UTF8 -Value @'
-# C4 Container: widget-catalog
-
-Stage: 8 of 8 (C4 Container)
-Seed-Source: free text
-
-## Diagram
-
-```mermaid
-C4Container
-    title Container Diagram - widget-catalog
-    Person(user, "Shopper", "Browses and orders widgets")
-    Container(app, "Ordering Service", "Node.js", "Handles order placement")
-    ContainerDb(db, "Orders DB", "PostgreSQL", "Stores orders")
-    System_Ext(ext1, "Billing", "Invoices orders")
-    Rel(user, app, "places order via", "HTTPS")
-    Rel(app, db, "reads/writes", "SQL")
-    Rel(app, ext1, "publishes OrderPlaced to", "events")
-```
-
-## Elements
-
-| Name | Type | Responsibility | Technology | Dependencies |
-|---|---|---|---|---|
-| Ordering Service | Container | Handles order placement | Node.js | Orders DB, Billing |
-| Orders DB | Database | Stores orders | PostgreSQL | - |
-
-## Context-to-Container Mapping
-
-| Container | Implements Context(s) | Aggregates Hosted |
-|---|---|---|
-| Ordering Service | order-management | Order |
-
-## Related ADRs
-
-- None.
-
-## Open Questions
-
-None.
-
-## Unknowns
-
-None.
-'@
-
-        # --- Ninth artifact: domain-contract.json ------------------------
+        # --- Eighth artifact: domain-contract.json ------------------------
         $script:contractFixture = @{
             schema = "domain-contract/v2"
             meta = @{
@@ -527,8 +470,7 @@ None.
                     "domain/ubiquitous-language.md",
                     "domain/context-map.md",
                     "domain/aggregates/Order.md",
-                    "domain/message-flow.md",
-                    "domain/c4-container.md"
+                    "domain/message-flow.md"
                 )
             }
             concepts = @(@{
@@ -584,7 +526,7 @@ None.
         }
     }
 
-    It "produces all eight canonical Markdown checkpoint paths from AC-002" {
+    It "produces all seven canonical Markdown checkpoint paths from AC-002" {
         Test-Path -LiteralPath (Join-Path $script:domainDir "domain-story.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "event-storming.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "concept-model.md") | Should Be $true
@@ -592,10 +534,10 @@ None.
         Test-Path -LiteralPath (Join-Path $script:domainDir "context-map.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:aggregatesDir "Order.md") | Should Be $true
         Test-Path -LiteralPath (Join-Path $script:domainDir "message-flow.md") | Should Be $true
-        Test-Path -LiteralPath (Join-Path $script:domainDir "c4-container.md") | Should Be $true
+        Test-Path -LiteralPath (Join-Path $script:domainDir "c4-container.md") | Should Be $false
     }
 
-    It "produces the ninth artifact domain-contract.json" {
+    It "produces the eighth artifact domain-contract.json" {
         Test-Path -LiteralPath (Join-Path $script:domainDir "domain-contract.json") | Should Be $true
     }
 
@@ -632,9 +574,9 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
         $script:resumeDomainDir = Join-Path $script:resumeFixtureDir "domain"
         New-Item -ItemType Directory -Path $script:resumeDomainDir -Force | Out-Null
 
-        $script:stage1Content = "# Domain Story: resume-fixture`n`nStage: 1 of 8 (Domain Story)`nSeed-Source: free text`n`nAlready checkpointed.`n"
-        $script:stage2Content = "# Event Storming: resume-fixture`n`nStage: 2 of 8 (Event Storming)`nSeed-Source: free text`n`nAlready checkpointed.`n"
-        $script:stage3Content = "# Concept Model: resume-fixture`n`nStage: 3 of 8 (Concept Model)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage1Content = "# Domain Story: resume-fixture`n`nStage: 1 of 7 (Domain Story)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage2Content = "# Event Storming: resume-fixture`n`nStage: 2 of 7 (Event Storming)`nSeed-Source: free text`n`nAlready checkpointed.`n"
+        $script:stage3Content = "# Concept Model: resume-fixture`n`nStage: 3 of 7 (Concept Model)`nSeed-Source: free text`n`nAlready checkpointed.`n"
 
         Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "domain-story.md") -Encoding UTF8 -Value $script:stage1Content
         Set-Content -LiteralPath (Join-Path $script:resumeDomainDir "event-storming.md") -Encoding UTF8 -Value $script:stage2Content
@@ -655,7 +597,7 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
     }
 
     # Simulates SKILL.md's documented detection-order algorithm: check the
-    # eight canonical paths in stage order; the resume point is the first
+    # seven canonical paths in stage order; the resume point is the first
     # stage whose canonical artifact is missing.
     function Get-ResumeStage {
         param([string]$DomainDir)
@@ -667,8 +609,7 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
             @{ Stage = 4; Path = Join-Path $DomainDir "ubiquitous-language.md" },
             @{ Stage = 5; Path = Join-Path $DomainDir "context-map.md" },
             @{ Stage = 6; Path = Join-Path $DomainDir "aggregates" },
-            @{ Stage = 7; Path = Join-Path $DomainDir "message-flow.md" },
-            @{ Stage = 8; Path = Join-Path $DomainDir "c4-container.md" }
+            @{ Stage = 7; Path = Join-Path $DomainDir "message-flow.md" }
         )
 
         foreach ($check in $stageChecks) {
@@ -720,12 +661,12 @@ Describe "Resume-on-interruption: worked scenario (stages 1-3 checkpointed)" {
         $hashAfter["concept-model.md"] | Should Be $script:hashBefore["concept-model.md"]
     }
 
-    It "a completed all-eight-stage tree reports no resume point (interview already complete)" {
+    It "a completed all-seven-stage tree reports no resume point (interview already complete)" {
         $completeDir = Join-Path ([IO.Path]::GetTempPath()) ("sdd-domain-t002-complete-" + [Guid]::NewGuid().ToString("N"))
         $completeAggregatesDir = Join-Path $completeDir "aggregates"
         New-Item -ItemType Directory -Path $completeAggregatesDir -Force | Out-Null
         try {
-            foreach ($name in @("domain-story.md", "event-storming.md", "concept-model.md", "ubiquitous-language.md", "context-map.md", "message-flow.md", "c4-container.md")) {
+            foreach ($name in @("domain-story.md", "event-storming.md", "concept-model.md", "ubiquitous-language.md", "context-map.md", "message-flow.md")) {
                 Set-Content -LiteralPath (Join-Path $completeDir $name) -Encoding UTF8 -Value "placeholder"
             }
             Set-Content -LiteralPath (Join-Path $completeAggregatesDir "Order.md") -Encoding UTF8 -Value "placeholder"

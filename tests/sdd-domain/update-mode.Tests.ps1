@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 #   1. Editing stage N (here N=5, Context Map) and re-running update leaves
 #      stages 1..N-1 (Domain Story, Event Storming, Concept Model, Ubiquitous Language)
 #      byte-identical -- content hashes captured before and after are equal.
-#   2. Stages N..8 (Context Map, Aggregates, Message Flow, C4 Container) are
+#   2. Stages N..7 (Context Map, Aggregates, Message Flow) are
 #      re-run in confirmation mode -- each is re-written (timestamps/confirm
 #      markers change) even where content is otherwise unchanged.
 #   3. Domain-Model-Status is reset to Pending in the fixture's
@@ -35,7 +35,6 @@ $stageFiles = @{
     4 = "ubiquitous-language.md"
     5 = "context-map.md"
     7 = "message-flow.md"
-    8 = "c4-container.md"
 }
 # Stage 6 (aggregates) lives under domain/aggregates/<name>.md -- handled
 # separately below since it is a directory of one-or-more files, not a
@@ -49,23 +48,23 @@ function New-FixtureDomainTree {
 
     Set-Content -LiteralPath (Join-Path $Root "domain-story.md") -Value @(
         "# Domain Story: fixture",
-        "Stage: 1 of 8 (Domain Story)",
+        "Stage: 1 of 7 (Domain Story)",
         "",
         "The fixture actor places an order."
     )
 
     Set-Content -LiteralPath (Join-Path $Root "event-storming.md") -Value @(
         "# Event Storming: fixture",
-        "Stage: 2 of 8 (Event Storming)",
+        "Stage: 2 of 7 (Event Storming)",
         "",
         "OrderPlaced (event)"
     )
 
-    Set-Content -LiteralPath (Join-Path $Root "concept-model.md") -Value "# Concept Model`nStage: 3 of 8 (Concept Model)`nCONCEPT-ORDER: records purchase commitment."
+    Set-Content -LiteralPath (Join-Path $Root "concept-model.md") -Value "# Concept Model`nStage: 3 of 7 (Concept Model)`nCONCEPT-ORDER: records purchase commitment."
 
     Set-Content -LiteralPath (Join-Path $Root "ubiquitous-language.md") -Value @(
         "# Ubiquitous Language: fixture",
-        "Stage: 4 of 8 (Ubiquitous Language)",
+        "Stage: 4 of 7 (Ubiquitous Language)",
         "",
         "| Canonical Term | JA | Forbidden Synonyms |",
         "|---|---|---|",
@@ -75,7 +74,7 @@ function New-FixtureDomainTree {
     Set-Content -LiteralPath (Join-Path $Root "context-map.md") -Value @(
         "# Context Map: fixture",
         "Domain-Model-Status: $InitialStatus",
-        "Stage: 5 of 8 (Context Map)",
+        "Stage: 5 of 7 (Context Map)",
         "",
         "| Context | Description | Core Terms | Aggregates |",
         "|---|---|---|---|",
@@ -84,23 +83,16 @@ function New-FixtureDomainTree {
 
     Set-Content -LiteralPath (Join-Path $Root "aggregates/Order.md") -Value @(
         "# Aggregate: Order",
-        "Stage: 6 of 8 (Domain Model)",
+        "Stage: 6 of 7 (Domain Model)",
         "",
         "Root entity: Order"
     )
 
     Set-Content -LiteralPath (Join-Path $Root "message-flow.md") -Value @(
         "# Message Flow: fixture",
-        "Stage: 7 of 8 (Domain Message Flow)",
+        "Stage: 7 of 7 (Domain Message Flow)",
         "",
         "OrderPlaced -> ConfirmOrder"
-    )
-
-    Set-Content -LiteralPath (Join-Path $Root "c4-container.md") -Value @(
-        "# C4 Container: fixture",
-        "Stage: 8 of 8 (C4 Container)",
-        "",
-        "Container: Ordering Service"
     )
 
     Set-Content -LiteralPath (Join-Path $Root "domain-contract.json") -Value (
@@ -121,7 +113,7 @@ function Get-FileHashHex {
 function Invoke-SimulatedUpdateMode {
     param([string]$DomainRoot, [int]$EditedStage)
 
-    $orderedStages = 1..8
+    $orderedStages = 1..7
 
     # Step 1: snapshot upstream stages 1..N-1 before touching anything.
     $upstreamStages = $orderedStages | Where-Object { $_ -lt $EditedStage }
@@ -132,7 +124,7 @@ function Invoke-SimulatedUpdateMode {
         $upstreamHashesBefore[$stage] = Get-FileHashHex -Path $path
     }
 
-    # Steps 2-4: re-run stage N and every downstream stage N..8 in
+    # Steps 2-4: re-run stage N and every downstream stage N..7 in
     # confirmation mode. Confirmation mode = re-present existing content,
     # append a confirmation marker, and re-write (even when unchanged).
     $downstreamStages = $orderedStages | Where-Object { $_ -ge $EditedStage }
@@ -194,7 +186,7 @@ Describe "Fixture: editing stage 5 (Context Map) and re-running update" {
     # can positively assert downstream stages DID change (were re-run),
     # not just that upstream stages did not.
     $preUpdateHashes = @{}
-    foreach ($stage in 1..8) {
+    foreach ($stage in 1..7) {
         if ($stage -eq 6) {
             $preUpdateHashes[6] = Get-FileHashHex -Path (Join-Path $fixtureRoot "aggregates/Order.md")
             continue
@@ -213,8 +205,8 @@ Describe "Fixture: editing stage 5 (Context Map) and re-running update" {
         ($result.UpstreamStages -join ",") | Should Be "1,2,3,4"
     }
 
-    It "identifies stages 5-8 as downstream (re-run) of edited stage 5" {
-        ($result.DownstreamStages -join ",") | Should Be "5,6,7,8"
+    It "identifies stages 5-7 as downstream (re-run) of edited stage 5" {
+        ($result.DownstreamStages -join ",") | Should Be "5,6,7"
     }
 
     foreach ($stage in @(1, 2, 3, 4)) {
@@ -227,7 +219,7 @@ Describe "Fixture: editing stage 5 (Context Map) and re-running update" {
         }
     }
 
-    foreach ($stage in @(5, 7, 8)) {
+    foreach ($stage in @(5, 7)) {
         It "stage $stage (downstream) was re-run: content hash changed" {
             $path = Join-Path $fixtureRoot $stageFiles[$stage]
             $postHash = Get-FileHashHex -Path $path

@@ -43,7 +43,7 @@ Seed or target: <seed | target, if applicable>
 
 | Mode | Default | Delegates to | Description |
 |---|---|---|---|
-| `new` | Yes (bare `/sdd-domain:domain-model` and `/sdd-domain:domain-model [seed]` both mean `new`) | `domain-interviewer` | Plain interview through the eight stages; accepts free text, a local Markdown path, or an issue URL as seed (or no seed, which begins an empty interview at stage 1) |
+| `new` | Yes (bare `/sdd-domain:domain-model` and `/sdd-domain:domain-model [seed]` both mean `new`) | `domain-interviewer` | Plain interview through the seven stages; accepts free text, a local Markdown path, or an issue URL as seed (or no seed, which begins an empty interview at stage 1) |
 | `reverse` | No | `domain-reverse`, then `domain-interviewer` | Seeds the interview from an existing codebase via `investigate-codebase` |
 | `update` | No | this skill's own targeted re-interview algorithm, then `domain-interviewer` per stage | Re-runs an edited stage plus every downstream stage in confirmation mode, leaves upstream stages byte-identical, resets `Domain-Model-Status` to `Pending` |
 
@@ -67,7 +67,7 @@ this plugin (never guess which of the three the human meant).
    Seed: <seed, or "(none)" if not supplied>
    ```
 
-3. `domain-interviewer` owns seed intake, the eight-stage sequence, stage
+3. `domain-interviewer` owns seed intake, the seven-stage sequence, stage
    checkpointing, resume-on-interruption, and `domain-contract.json`
    regeneration (T-002). This skill does not duplicate or second-guess any
    of that logic -- it only starts the call and relays `domain-interviewer`'s
@@ -115,9 +115,9 @@ once per stage that must be re-run; it never writes a `domain/` file itself.
 
 #### Preconditions
 
-1. All eight canonical stage artifacts must already exist (a complete
+1. All seven canonical stage artifacts must already exist (a complete
    interview has run at least once). If any canonical path from
-   `domain-interviewer`'s Eight-Stage Sequence table is missing, halt and
+   `domain-interviewer`'s Seven-Stage Sequence table is missing, halt and
    report that `update` mode requires a complete prior interview; suggest
    `new` mode instead.
 2. Determine which stage was edited by the human since the last completed
@@ -125,7 +125,7 @@ once per stage that must be re-run; it never writes a `domain/` file itself.
    it asks the human directly which stage's artifact they changed (or which
    stage they intend to change), because "edited" here means a deliberate,
    human-initiated content change, not an incidental filesystem timestamp
-   change. Accept a stage number (1-8) or a canonical stage name from the
+   change. Accept a stage number (1-7) or a canonical stage name from the
    table below.
 
 | Stage | Name | Canonical Path |
@@ -137,9 +137,8 @@ once per stage that must be re-run; it never writes a `domain/` file itself.
 | 5 | Context Map | `domain/context-map.md` |
 | 6 | Domain Model (aggregates) | `domain/aggregates/<name>.md` |
 | 7 | Domain Message Flow | `domain/message-flow.md` |
-| 8 | C4 Container | `domain/c4-container.md` |
 
-(Restated from `domain-interviewer/SKILL.md`'s Eight-Stage Sequence table so
+(Restated from `domain-interviewer/SKILL.md`'s Seven-Stage Sequence table so
 this skill has no cross-skill runtime read; the two tables must be kept in
 sync if either changes.)
 
@@ -155,7 +154,7 @@ Let `N` be the edited stage identified in the precondition step above.
    Reset the field in `domain/context-map.md`, regardless of its previous value.
    Never set Approved. This prevents a refreshed contract from retaining a
    previous model's approval while its content is changing.
-3. **Re-run stage N and every downstream stage N+1..8 in confirmation mode.**
+3. **Re-run stage N and every downstream stage N+1..7 in confirmation mode.**
    Visit them in order. Read the existing artifact, present its fields and ask
    the human to confirm or revise them; never blindly regenerate. Invoke
    `domain-interviewer` with `Mode: update (confirmation)`, the stage number,
@@ -194,13 +193,13 @@ discipline `domain-interviewer` already applies to blank fields during a
 
 After a `new` or `reverse` run, relay `domain-interviewer`'s own handoff
 report (stages checkpointed, `domain-contract.json` regeneration result,
-and -- once all eight stages are complete -- the reminder that only a human
+and -- once all seven stages are complete -- the reminder that only a human
 may edit `Domain-Model-Status: Approved`).
 
 After an `update` run, report:
 
 - Which stage was identified as edited (`N`) and its name.
-- Which stages were re-run in confirmation mode (`N..8`).
+- Which stages were re-run in confirmation mode (`N..7`).
 - Confirmation that stages `1..N-1` were verified byte-identical (or, if
   the verification failed, the discrepancy found).
 - The `domain/domain-contract.json` regeneration result.
