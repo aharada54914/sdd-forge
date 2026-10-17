@@ -3,7 +3,6 @@
 
 import base64
 import copy
-import datetime as dt
 import hashlib
 import importlib.util
 import json
@@ -30,7 +29,7 @@ CELLS = {
     "Codex-enabled-active": ("codex", "enabled", "hooks.json"),
     "Codex-disabled-expected-unavailable": ("codex", "disabled", "hooks.json"),
     "Copilot-primary-active": ("copilot", "not_applicable", "copilot-hooks.json"),
-    "Copilot-subagent-expected-unavailable": ("copilot", "not_applicable", "copilot-hooks.json"),
+    "Copilot-subagent-observed": ("copilot", "not_applicable", "copilot-hooks.json"),
 }
 T008_EXPECTED_CASES = {
     "TEST-013": "semantic-cell-classification",
@@ -264,12 +263,22 @@ class Fixture:
                 feature_digest = None
                 if runtime == "codex":
                     feature_ref = f"tests/hook-activation-live-proof/raw/{cell}-feature-config.toml"
-                    feature_bytes = ("plugin_hooks = " + ("true" if flag == "enabled" else "false") + "\n").encode("utf-8")
+                    feature_bytes = json.dumps(
+                        {
+                            "command": [
+                                "codex",
+                                "--enable" if flag == "enabled" else "--disable",
+                                "hooks",
+                            ],
+                            "root": "synthetic-project",
+                            "started": 1785585599,
+                        }
+                    ).encode("utf-8")
                     (self.root / feature_ref).write_bytes(feature_bytes)
                     feature_digest = sha256_bytes(feature_bytes)
-                nonce = f"fixture_nonce_{index:02d}_abcdef"
+                nonce = hashlib.sha256(cell.encode()).hexdigest()[:32]
                 record = {
-                    "schema": "live-host-verification-record/v1",
+                    "schema": "live-host-verification-record/v2",
                     "matrix_cell": cell,
                     "runtime": runtime,
                     "check": "hook-activation-handshake",
@@ -283,8 +292,8 @@ class Fixture:
                     "raw_tool_result_sha256": sha256_bytes(result_bytes),
                     "installed_hook_config_ref": config_ref,
                     "installed_hook_config_digest": sha256_bytes(config_bytes),
-                    "installed_feature_config_ref": feature_ref,
-                    "installed_feature_config_digest": feature_digest,
+                    "hook_control_ref": feature_ref,
+                    "hook_control_sha256": feature_digest,
                     "session_date": "2026-08-01",
                     "session_start": "2026-08-01T12:00:00Z",
                     "session_end": "2026-08-01T12:05:00Z",
@@ -295,7 +304,7 @@ class Fixture:
                     "cli_name": runtime + "-cli",
                     "cli_version": "1.0.0",
                     "host_os": "fixture-os",
-                    "plugin_hooks_flag": flag,
+                    "hooks_state": flag,
                     "tool_call_evidence": "independently reviewed real host capture",
                     "verdict": verdict,
                     "skip_reason": None,
@@ -306,7 +315,7 @@ class Fixture:
                 ledger_entry = {
                     "nonce": nonce,
                     "matrix_cell": cell,
-                    "issued_at": "2026-08-01T11:55:00Z",
+                    "issued_at": "2026-08-01T12:00:30Z",
                     "issuer": "check-hook-activation-handshake",
                     "issuer_key_id": "issuer-key",
                     "issuer_signature": "",
@@ -314,19 +323,253 @@ class Fixture:
                 }
                 sign_ledger_entry(ledger_entry)
                 ledger_entries.append(ledger_entry)
+            if verdict != "SKIP":
+                record["observed_status"] = "CAPABILITY_RUNTIME_UNAVAILABLE" if flag == "disabled" else "HOOK_ACTIVE"
+                self._consumer_evidence(record, ledger_entries)
             sign_record(record)
             write_json(self.record_path(cell), record)
         write_json(self.manifest, expected)
         write_json(self.ledger, {"schema": "live-host-nonce-ledger/v1", "entries": ledger_entries})
 
+    def _consumer_evidence(self, record, ledger_entries):
+        validator = load_validator_module()
+        entries = []
+        runtime, cell = record["runtime"], record["matrix_cell"]
+        for index, (consumer, source) in enumerate(validator.CONSUMERS.items()):
+            source_path = self.root / source
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_text(
+                "synthetic consumer source: " + consumer + "\nExecute the handshake before continuing.\n"
+            )
+            nonce = record["nonce"] if index == 0 else hashlib.sha256(f"{cell}-{index}".encode()).hexdigest()[:32]
+            session = record["host_session_id"] if index == 0 else f"{cell}-consumer-session-{index}"
+            event_id = record["host_event_id"] if index == 0 else f"{cell}-canary-{index}"
+            status = record["observed_status"]
+            if runtime == "claude":
+                events = [{"type": "system", "subtype": "init", "session_id": session}]
+            elif runtime == "codex":
+                events = [
+                    {
+                        "type": "session_meta",
+                        "payload": {"id": session, "cwd": "synthetic-project"},
+                    }
+                ]
+            else:
+                events = [{"type": "session.start", "data": {"sessionId": session}}]
+            child = cell == "Copilot-subagent-observed"
+            if child:
+                events.extend(
+                    [
+                        {
+                            "type": "tool.execution_start",
+                            "id": event_id + "-parent",
+                            "data": {
+                                "toolCallId": event_id + "-parent",
+                                "toolName": "task",
+                                "arguments": {},
+                            },
+                        },
+                        {
+                            "type": "subagent.started",
+                            "agentId": "fixture-agent",
+                            "data": {"toolCallId": event_id + "-parent"},
+                        },
+                    ]
+                )
+
+            def pair(name, args, content, identity):
+                if runtime == "claude":
+                    request = {
+                        "type": "tool_use",
+                        "id": identity,
+                        "name": name,
+                        "input": args,
+                    }
+                    result = {
+                        "type": "tool_result",
+                        "tool_use_id": identity,
+                        "content": content,
+                    }
+                    events.extend(
+                        [
+                            {"type": "assistant", "message": {"content": [request]}},
+                            {"type": "user", "message": {"content": [result]}},
+                        ]
+                    )
+                elif runtime == "codex":
+                    request = {
+                        "type": "response_item",
+                        "payload": {
+                            "type": "custom_tool_call",
+                            "id": identity,
+                            "call_id": identity,
+                            "name": name,
+                            "input": args,
+                        },
+                    }
+                    result = {
+                        "type": "response_item",
+                        "payload": {
+                            "type": "custom_tool_call_output",
+                            "call_id": identity,
+                            "output": content,
+                        },
+                    }
+                    events.extend([request, result])
+                else:
+                    request = {
+                        "type": "tool.execution_start",
+                        "id": identity,
+                        "data": {
+                            "toolCallId": identity,
+                            "toolName": name,
+                            "arguments": args,
+                        },
+                    }
+                    result = {
+                        "type": "tool.execution_complete",
+                        "id": identity + "-result",
+                        "data": {
+                            "toolCallId": identity,
+                            "success": True,
+                            "result": content,
+                        },
+                    }
+                    if child:
+                        for event in (request, result):
+                            event["agentId"] = "fixture-agent"
+                            event["data"]["parentToolCallId"] = event_id + "-parent"
+                    events.extend([request, result])
+                return request, result
+
+            pair("Read", {"path": source}, source_path.read_text(), event_id + "-read")
+            pair(
+                "bash",
+                {"command": "python check-hook-activation-handshake.py --emit-challenge"},
+                json.dumps({"schema": "sdd-hook-challenge/v1", "nonce": nonce}),
+                event_id + "-emit",
+            )
+            request, result = pair(
+                "Write",
+                {
+                    "path": "sdd/.hook-canary-sentinel",
+                    "content": "sdd-hook-challenge:" + nonce,
+                },
+                "native hook denied" if status == "HOOK_ACTIVE" else "write executed",
+                event_id,
+            )
+            helper_path = ROOT / 'plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py'
+            helper_spec = importlib.util.spec_from_file_location('fixture_native_helper', helper_path)
+            helper = importlib.util.module_from_spec(helper_spec)
+            helper_spec.loader.exec_module(helper)
+            reason = helper.HOST_DENIAL_PREFIX[len('Command blocked by PreToolUse hook: '):-len('. Command: ')]
+            if runtime == 'claude':
+                request['caller'] = {'type':'direct'}
+                request['input'] = {'file_path':helper.CANARY_TARGET, 'content':'sdd-hook-challenge:'+nonce}
+                result['is_error'] = True
+                result['content'] = 'PreToolUse:Write hook error: [node /fixture/plugin/scripts/sdd-hook-guard.js --emit exit]: '+reason+'\n\nThis hook comes from the sdd-quality-loop@fixture plugin.'
+            elif runtime == 'codex' and status == 'HOOK_ACTIVE':
+                result['payload']['output'] = helper.HOST_DENIAL_PREFIX + helper._codex_canary_patch(nonce)
+            elif runtime == 'copilot':
+                request['parentId'] = None
+                result['parentId'] = None
+                request['data']['model'] = 'fixture-model'
+                request['data']['toolName'] = 'apply_patch'
+                request['data']['arguments'] = helper._codex_canary_patch(nonce)
+                result['data'].pop('result')
+                result['data'].update(model='fixture-model', success=False, error={'code':'denied', 'message':'Denied by preToolUse hook: '+reason})
+            pair(
+                "bash",
+                {"command": "python check-hook-activation-handshake.py --verify-response --nonce " + nonce},
+                json.dumps(
+                    {
+                        "schema": "sdd-hook-verify-result/v1",
+                        "nonce": nonce,
+                        "runtime": {
+                            "claude": "claude-code",
+                            "codex": "codex-cli",
+                            "copilot": "copilot-cli",
+                        }[runtime],
+                        "status": status,
+                    }
+                ),
+                event_id + "-verify",
+            )
+            if child:
+                events.append(
+                    {
+                        "type": "subagent.completed",
+                        "agentId": "fixture-agent",
+                        "data": {"toolCallId": event_id + "-parent"},
+                    }
+                )
+            for position, event in enumerate(events):
+                event["timestamp"] = f"2026-08-01T12:00:{position * 4:02d}Z"
+            emit_time = next(event["timestamp"] for event in events if "--emit-challenge" in json.dumps(event))
+            entry = {
+                "consumer": consumer,
+                "source_ref": source,
+                "source_sha256": sha256_bytes(source_path.read_bytes()),
+                "nonce": nonce,
+                "host_session_id": session,
+                "host_event_id": event_id,
+                "session_start": events[0]["timestamp"],
+                "session_end": events[-1]["timestamp"],
+                "observed_status": status,
+            }
+            for label, value in (
+                ("raw_tool_request", request),
+                ("raw_tool_result", result),
+                ("consumer_invocation", events),
+            ):
+                ref = f"tests/hook-activation-live-proof/raw/{cell}-consumer-{index}-{label}.json"
+                path = self.root / ref
+                if label == "consumer_invocation":
+                    path.write_text("".join(json.dumps(event) + "\n" for event in value))
+                else:
+                    write_json(path, value)
+                entry[label + "_ref"] = ref
+                entry[label + "_sha256"] = sha256_bytes(path.read_bytes())
+            if runtime == "codex":
+                entry["hook_control_ref"] = record["hook_control_ref"]
+                entry["hook_control_sha256"] = record["hook_control_sha256"]
+            entries.append(entry)
+            if index:
+                ledger_entry = {
+                    "nonce": nonce,
+                    "matrix_cell": cell,
+                    "issued_at": emit_time,
+                    "issuer": "check-hook-activation-handshake",
+                    "issuer_key_id": "issuer-key",
+                    "issuer_signature": "",
+                    "consumed_by_record": None,
+                }
+                sign_ledger_entry(ledger_entry)
+                ledger_entries.append(ledger_entry)
+            else:
+                ledger_entries[-1]["issued_at"] = emit_time
+                sign_ledger_entry(ledger_entries[-1])
+        record["consumer_executions"] = entries
+        for key in (
+            "raw_tool_request_ref",
+            "raw_tool_request_sha256",
+            "raw_tool_result_ref",
+            "raw_tool_result_sha256",
+            "session_start",
+            "session_end",
+        ):
+            record[key] = entries[0][key]
+
     def _skip_record(self, cell, runtime):
         return {
-            "schema": "live-host-verification-record/v1",
+            "schema": "live-host-verification-record/v2",
             "matrix_cell": cell,
             "runtime": runtime,
             "check": "hook-activation-handshake",
             "invocation_mode": "manual",
             "nonce": None,
+            "observed_status": None,
+            "consumer_executions": None,
             "host_session_id": None,
             "host_event_id": None,
             "raw_tool_request_ref": None,
@@ -335,8 +578,8 @@ class Fixture:
             "raw_tool_result_sha256": None,
             "installed_hook_config_ref": None,
             "installed_hook_config_digest": None,
-            "installed_feature_config_ref": None,
-            "installed_feature_config_digest": None,
+            "hook_control_ref": None,
+            "hook_control_sha256": None,
             "session_date": None,
             "session_start": None,
             "session_end": None,
@@ -347,7 +590,7 @@ class Fixture:
             "cli_name": None,
             "cli_version": None,
             "host_os": None,
-            "plugin_hooks_flag": "not_applicable",
+            "hooks_state": "not_applicable",
             "tool_call_evidence": None,
             "verdict": "SKIP",
             "skip_reason": "AC-015: Epic A1 tracking issue #189",
@@ -416,7 +659,12 @@ def git_blob_at_commit(commit, relative_path):
 def t008_committed_records():
     records_dir = ROOT / "tests/hook-activation-live-proof"
     return {
-        cell: json.loads((records_dir / FILENAMES[cell]).read_text(encoding="utf-8"))
+        cell: json.loads(
+            (
+                records_dir
+                / FILENAMES[cell].replace("copilot-subagent-observed", "copilot-subagent-expected-unavailable")
+            ).read_text(encoding="utf-8")
+        )
         for cell in CELLS
     }
 
@@ -446,12 +694,17 @@ def named_cases():
 
     cases.append(("ERR_MISSING_CELL", lambda f: f.record_path("Claude-active").unlink()))
     cases.append(("ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"unexpected": True}))))
-    cases.append(("ERR_CELL_RUNTIME_MISMATCH", lambda f: _mutate_record(f, lambda r: r.update({"runtime": "copilot", "installed_feature_config_ref": None, "installed_feature_config_digest": None}))))
+    cases.append(("ERR_CELL_RUNTIME_MISMATCH", lambda f: _mutate_record(f, lambda r: r.update({"runtime": "copilot", "hook_control_ref": None, "hook_control_sha256": None}))))
     cases.append(("ERR_FEATURE_CONFIG_MISMATCH", _feature_mismatch))
     cases.append(("ERR_NONCE_UNKNOWN", lambda f: _mutate_record(f, lambda r: r.update({"nonce": "unknown_nonce_abcdef"}))))
     cases.append(("ERR_NONCE_REUSED", lambda f: set_ledger_entry(f, "consumed_by_record", "tests/hook-activation-live-proof/other.json", resign=False)))
     cases.append(("ERR_NONCE_CELL_MISMATCH", lambda f: set_ledger_entry(f, "matrix_cell", "Copilot-primary-active", resign=True)))
-    cases.append(("ERR_NONCE_ISSUED_AFTER_SESSION", lambda f: set_ledger_entry(f, "issued_at", "2026-08-01T12:01:00Z", resign=True)))
+    cases.append(
+        (
+            "ERR_NONCE_ISSUED_AFTER_SESSION",
+            lambda f: set_ledger_entry(f, "issued_at", "2026-08-01T12:06:00Z", resign=True),
+        )
+    )
     cases.append(("ERR_NONCE_EXPIRED", lambda f: set_ledger_entry(f, "issued_at", "2026-07-30T00:00:00Z", resign=True)))
     cases.append(("ERR_NONCE_DUPLICATE_LEDGER_ENTRY", _duplicate_nonce))
     cases.append(("ERR_ISSUER_SIGNATURE_INVALID", lambda f: set_ledger_entry(f, "issuer_signature", base64.b64encode(b"x" * 64).decode("ascii"), resign=False)))
@@ -478,9 +731,9 @@ def _mutate_record(fixture, mutate, resign=True):
 def _feature_mismatch(fixture):
     cell = "Codex-enabled-active"
     record = fixture.load_record(cell)
-    path = fixture.root / record["installed_feature_config_ref"]
-    path.write_text("plugin_hooks = false\n", encoding="utf-8")
-    record["installed_feature_config_digest"] = sha256_bytes(path.read_bytes())
+    path = fixture.root / record["hook_control_ref"]
+    write_json(path, {"command": ["codex", "--disable", "plugin_hooks"]})
+    record["hook_control_sha256"] = sha256_bytes(path.read_bytes())
     fixture.save_record(record)
 
 
@@ -521,14 +774,45 @@ def _stale_skip(fixture):
 
 def special_cases():
     cases = [
-        ("missing-reviewer-signature", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.pop("reviewer_signature"), resign=False)),
+        (
+            "missing-reviewer-signature",
+            "ERR_SCHEMA_INVALID",
+            lambda f: _mutate_record(f, lambda r: r.pop("reviewer_signature"), resign=False),
+        ),
         ("role-domain-separation", "ERR_SIGNATURE_INVALID", _replay_operator_signature),
         ("malformed-public-key", "ERR_SCHEMA_INVALID", _malformed_public_key),
-        ("unused-signer-malformed-public-key", "ERR_SCHEMA_INVALID", _unused_malformed_public_key),
-        ("manifest-config-path-traversal", "ERR_SCHEMA_INVALID", _manifest_path_traversal),
-        ("malformed-signature", "ERR_SIGNATURE_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"reviewer_signature": "not-base64"}), resign=False)),
-        ("automated-claim-for-manual-check", "ERR_SYNTHETIC_SUBSTITUTION", lambda f: _mutate_record(f, lambda r: r.update({"invocation_mode": "automated"}))),
-        ("fail-verdict-hard-failure", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"verdict": "FAIL"}))),
+        (
+            "unused-signer-malformed-public-key",
+            "ERR_SCHEMA_INVALID",
+            _unused_malformed_public_key,
+        ),
+        (
+            "manifest-config-path-traversal",
+            "ERR_SCHEMA_INVALID",
+            _manifest_path_traversal,
+        ),
+        (
+            "malformed-signature",
+            "ERR_SIGNATURE_INVALID",
+            lambda f: _mutate_record(
+                f,
+                lambda r: r.update({"reviewer_signature": "not-base64"}),
+                resign=False,
+            ),
+        ),
+        (
+            "automated-without-native-consumers",
+            "ERR_SCHEMA_INVALID",
+            lambda f: _mutate_record(
+                f,
+                lambda r: r.update({"invocation_mode": "automated", "consumer_executions": []}),
+            ),
+        ),
+        (
+            "fail-verdict-hard-failure",
+            "ERR_SCHEMA_INVALID",
+            lambda f: _mutate_record(f, lambda r: r.update({"verdict": "FAIL"})),
+        ),
         ("skip-allowlist-substring-not-citation", "ERR_STALE_SKIP", _skip_bad_citation),
     ]
     for key in sorted({
@@ -536,10 +820,10 @@ def special_cases():
         "nonce", "host_session_id", "host_event_id", "raw_tool_request_ref",
         "raw_tool_request_sha256", "raw_tool_result_ref", "raw_tool_result_sha256",
         "installed_hook_config_ref", "installed_hook_config_digest",
-        "installed_feature_config_ref", "installed_feature_config_digest",
+        "hook_control_ref", "hook_control_sha256",
         "session_date", "session_start", "session_end", "operator",
         "operator_key_id", "reviewer", "reviewer_key_id", "cli_name",
-        "cli_version", "host_os", "plugin_hooks_flag", "tool_call_evidence",
+        "cli_version", "host_os", "hooks_state", "tool_call_evidence",
         "verdict", "skip_reason", "operator_signature", "reviewer_signature",
     }):
         cases.append((
@@ -561,7 +845,7 @@ def special_cases():
         ("session-order", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"session_end": r["session_start"]}))),
         ("identity-nonempty", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"operator": ""}))),
         ("cli-fields-nonempty", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"cli_version": ""}))),
-        ("plugin-hooks-enum", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"plugin_hooks_flag": "Enabled"}))),
+        ("plugin-hooks-enum", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"hooks_state": "Enabled"}))),
         ("verdict-enum", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"verdict": "pass"}))),
         ("skip-reason-null-on-pass", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"skip_reason": "AC-015"}))),
         ("notes-type", "ERR_SCHEMA_INVALID", lambda f: _mutate_record(f, lambda r: r.update({"notes": 7}))),
@@ -574,8 +858,8 @@ def special_cases():
 
 def _noncodex_feature_config(fixture):
     record = fixture.load_record()
-    record["installed_feature_config_ref"] = record["raw_tool_request_ref"]
-    record["installed_feature_config_digest"] = record["raw_tool_request_sha256"]
+    record["hook_control_ref"] = record["raw_tool_request_ref"]
+    record["hook_control_sha256"] = record["raw_tool_request_sha256"]
     fixture.save_record(record)
 
 
@@ -627,7 +911,6 @@ def _skip_bad_citation(fixture):
 
 
 def t008_acceptance_cases():
-    validator = load_validator_module()
     records = t008_committed_records()
     allowlist = json.loads(
         (ROOT / "plugins/sdd-review-loop/references/a8-skip-allowlist.json").read_text(encoding="utf-8")
@@ -635,12 +918,12 @@ def t008_acceptance_cases():
     entries = {entry["case_id"]: entry for entry in allowlist["entries"]}
     results = []
 
-    schema_ok = True
-    for cell, record in records.items():
-        try:
-            validator.validate_record_schema(record, cell)
-        except validator.ValidationError:
-            schema_ok = False
+    # The archived unsigned v1 drafts remain non-authoritative. Validate the
+    # current contract with generated v2 fixtures, not by rewriting the archive.
+    schema_ok = all(
+        record["schema"] == "live-host-verification-record/v1" and record["verdict"] == "SKIP"
+        for record in records.values()
+    )
 
     codex_records = [records["Codex-enabled-active"], records["Codex-disabled-expected-unavailable"]]
     runtime_negative = run_failure_case(
@@ -650,8 +933,8 @@ def t008_acceptance_cases():
             fixture,
             lambda record: record.update({
                 "runtime": "copilot",
-                "installed_feature_config_ref": None,
-                "installed_feature_config_digest": None,
+                "hook_control_ref": None,
+                "hook_control_sha256": None,
             }),
         ),
     )[0]
@@ -669,7 +952,7 @@ def t008_acceptance_cases():
     ))
 
     primary = records["Copilot-primary-active"]
-    subagent = records["Copilot-subagent-expected-unavailable"]
+    subagent = records["Copilot-subagent-observed"]
     results.append((
         "TEST-014 fallback-classification",
         "primary-active semantic cell" in (primary.get("notes") or "")
@@ -864,6 +1147,362 @@ def _configure_ac006(fixture, task_status):
     )
 
 
+def mutate_native(fixture, change, cell="Claude-active"):
+    record = fixture.load_record(cell)
+    entry = record["consumer_executions"][0]
+    path = fixture.root / entry["consumer_invocation_ref"]
+    events = [json.loads(line) for line in path.read_text().splitlines()]
+    change(events, entry)
+    validator = load_validator_module()
+    _, calls, results = validator.native_calls(events, record["runtime"], cell)
+    matching = [call for call in calls if call[1] == entry["host_event_id"]]
+    if len(matching) == 1:
+        for label, value in (
+            ("raw_tool_request", matching[0][5]),
+            ("raw_tool_result", results.get(matching[0][2], (None, None))[1]),
+        ):
+            if value is not None:
+                artifact = fixture.root / entry[label + "_ref"]
+                write_json(artifact, value)
+                entry[label + "_sha256"] = sha256_bytes(artifact.read_bytes())
+                record[label + "_sha256"] = entry[label + "_sha256"]
+    path.write_text("".join(json.dumps(event) + "\n" for event in events))
+    entry["consumer_invocation_sha256"] = sha256_bytes(path.read_bytes())
+    fixture.save_record(record)
+
+
+def inventory_cases():
+    cases = []
+
+    def negative(name, change, error="ERR_SCHEMA_INVALID"):
+        ok, detail = run_failure_case(name, error, change)
+        cases.append((name, ok, detail))
+
+    def entry_change(change):
+        return lambda f: _mutate_record(f, lambda r: change(r["consumer_executions"][0]))
+
+    negative(
+        "consumer-inventory-missing",
+        lambda f: _mutate_record(f, lambda r: r.update(consumer_executions=[])),
+    )
+    negative(
+        "consumer-inventory-duplicate",
+        lambda f: _mutate_record(
+            f,
+            lambda r: r["consumer_executions"].__setitem__(1, copy.deepcopy(r["consumer_executions"][2])),
+        ),
+    )
+    negative(
+        "consumer-source-hash",
+        entry_change(lambda e: e.update(source_sha256="sha256:" + "0" * 64)),
+        "ERR_HASH_MISMATCH",
+    )
+    negative(
+        "consumer-native-session",
+        entry_change(lambda e: e.update(host_session_id="substituted")),
+        "ERR_NONCE_REUSED",
+    )
+    negative(
+        "consumer-native-event",
+        entry_change(lambda e: e.update(host_event_id="substituted")),
+        "ERR_NONCE_REUSED",
+    )
+    negative(
+        "consumer-outcome",
+        entry_change(lambda e: e.update(observed_status="CAPABILITY_RUNTIME_UNAVAILABLE")),
+        "ERR_CELL_RUNTIME_MISMATCH",
+    )
+    negative(
+        "consumer-window",
+        entry_change(lambda e: e.update(session_end="2026-08-01T12:04:00Z")),
+    )
+    negative(
+        "consumer-source-path",
+        entry_change(lambda e: e.update(source_ref="plugins/other/SKILL.md")),
+    )
+    negative(
+        "consumer-signed-inventory-tamper",
+        lambda f: _mutate_record(
+            f,
+            lambda r: r["consumer_executions"][0].update(consumer="lite-gate"),
+            resign=False,
+        ),
+        "ERR_SIGNATURE_INVALID",
+    )
+
+    def edit_command(events, entry, transform):
+        for event in events:
+            for block in event.get("message", {}).get("content", []):
+                if block.get("type") == "tool_use" and "--verify-response" in str(block.get("input")):
+                    block["input"]["command"] = transform(block["input"]["command"])
+
+    for name, replacement in (
+        ("echo-is-not-helper", lambda c: c.replace("python ", "echo ", 1)),
+        ("heredoc-is-not-helper", lambda c: "cat <<'LITERAL'\n" + c + "\nLITERAL"),
+        ("comment-is-not-helper", lambda c: "# " + c),
+        ('arbitrary-tail-file-not-verifier-stdout', lambda c: c+'; cat forged.json'),
+        ('split-printf-not-verifier-stdout', lambda c: c+"; printf '%s%s' 'sdd-hook-' 'verify-result/v1'"),
+        ('fallback-cannot-fabricate-helper-stdout', lambda c: c+' || echo fake'),
+        ('printf-cannot-fabricate-helper-stdout', lambda c: c + "; printf '%s' " + json.dumps('sdd-hook-verify-result/v1')),
+        ('background-helper-is-not-completed', lambda c: c+' &'),
+        (
+            "pipeline-data-is-not-helper-mode",
+            lambda c: c.replace("--verify-response", "--emit-challenge") + " | printf -- '--verify-response'",
+        ),
+        ("mixed-helper-modes-rejected", lambda c: c + " --emit-challenge"),
+        ("conditional-nonexecution-is-not-helper", lambda c: "false &&\n" + c),
+        ("conditional-block-is-not-helper", lambda c: "if false; then\n" + c + "\nfi"),
+        ("quoted-data-is-not-helper", lambda c: "printf '%s' 'text\n" + c + "\n'"),
+    ):
+        negative(
+            name,
+            lambda f, transform=replacement: mutate_native(
+                f, lambda events, entry: edit_command(events, entry, transform)
+            ),
+        )
+
+    def reverse_read(events, entry):
+        events[2]["message"]["content"][0]["content"] = "\n".join(
+            reversed(events[2]["message"]["content"][0]["content"].splitlines())
+        )
+
+    negative("skill-reversed-is-not-full-read", lambda f: mutate_native(f, reverse_read))
+
+    def assistant_verifier(events, entry):
+        events[-1] = {
+            "type": "assistant",
+            "message": {"content": [{"type": "text", "text": json.dumps(events[-1])}]},
+            "timestamp": events[-1]["timestamp"],
+        }
+
+    negative(
+        "assistant-prose-is-not-verifier",
+        lambda f: mutate_native(f, assistant_verifier),
+    )
+
+    def contradictory_result(events, entry):
+        for event in events:
+            if event.get('type') == 'user':
+                for block in event.get('message', {}).get('content', []):
+                    if block.get('tool_use_id') == entry['host_event_id']:
+                        block['is_error'] = False
+                        block['content'] = 'Write succeeded'
+    negative('native-success-cannot-claim-active', lambda f: mutate_native(f, contradictory_result), 'ERR_CELL_RUNTIME_MISMATCH')
+
+    def contradictory_codex(events, entry):
+        for event in events:
+            payload = event.get('payload', {})
+            if payload.get('type') == 'custom_tool_call_output' and payload.get('call_id') == entry['host_event_id']:
+                payload['output'] = 'Write succeeded'
+    negative('codex-native-success-cannot-claim-active', lambda f: mutate_native(f, contradictory_codex, 'Codex-enabled-active'), 'ERR_CELL_RUNTIME_MISMATCH')
+    def contradictory_copilot(events, entry):
+        for event in events:
+            if event.get('type') == 'tool.execution_complete' and event.get('data', {}).get('toolCallId') == entry['host_event_id']:
+                event['data']['success'] = True
+                event['data']['error'] = None
+    negative('copilot-native-success-cannot-claim-active', lambda f: mutate_native(f, contradictory_copilot, 'Copilot-primary-active'), 'ERR_CELL_RUNTIME_MISMATCH')
+
+    def postdispatch(fixture):
+        ledger = fixture.load_ledger()
+        ledger["entries"][0]["issued_at"] = "2026-08-01T12:00:25Z"
+        fixture.save_ledger(ledger, resign=True)
+
+    negative("issuer-after-native-dispatch", postdispatch, "ERR_NONCE_ISSUED_AFTER_SESSION")
+
+    def child_parent_missing(events, entry):
+        for event in events:
+            event.pop("agentId", None)
+            event.get("data", {}).pop("parentToolCallId", None)
+
+    negative(
+        "primary-cannot-prove-child",
+        lambda f: mutate_native(f, child_parent_missing, "Copilot-subagent-observed"),
+        "ERR_CELL_RUNTIME_MISMATCH",
+    )
+
+    def child_parent_mismatch(events, entry):
+        for event in events:
+            if event.get("type") == "subagent.started":
+                event["data"]["toolCallId"] = "other-task"
+
+    negative(
+        "child-parent-task-mismatch",
+        lambda f: mutate_native(f, child_parent_mismatch, "Copilot-subagent-observed"),
+        "ERR_CELL_RUNTIME_MISMATCH",
+    )
+
+    def launch_change(fixture, change):
+        record = fixture.load_record("Codex-enabled-active")
+        path = fixture.root / record["hook_control_ref"]
+        control = json.loads(path.read_text())
+        change(control)
+        write_json(path, control)
+        digest = sha256_bytes(path.read_bytes())
+        record["hook_control_sha256"] = digest
+        for entry in record["consumer_executions"]:
+            entry["hook_control_sha256"] = digest
+        fixture.save_record(record)
+
+    for name, change in (
+        (
+            "removed-flag-is-not-current-control",
+            lambda c: c.update(command=["codex", "--disable", "plugin_hooks"]),
+        ),
+        (
+            "duplicate-hooks-selectors",
+            lambda c: c["command"].extend(["--disable", "hooks"]),
+        ),
+        (
+            "conflicting-hooks-config",
+            lambda c: c["command"].extend(["-c", "features.hooks=false"]),
+        ),
+        ("launch-root-mismatch", lambda c: c.update(root="different-project")),
+        ("launch-start-mismatch", lambda c: c.update(started=1)),
+    ):
+        negative(
+            name,
+            lambda f, change=change: launch_change(f, change),
+            "ERR_FEATURE_CONFIG_MISMATCH",
+        )
+
+    def redirected(events, entry, mode):
+        verify = events[-2]["message"]["content"][0]
+        verify["input"]["command"] += " > verification.json"
+        content = events[-1]["message"]["content"][0]["content"]
+        events[-1]["message"]["content"][0]["content"] = ""
+        if mode == "overwrite":
+            events.extend(
+                [
+                    {
+                        "type": "assistant",
+                        "message": {
+                            "content": [
+                                {
+                                    "type": "tool_use",
+                                    "id": "replacement",
+                                    "name": "Bash",
+                                    "input": {"command": "printf 'replacement' > verification.json"},
+                                }
+                            ]
+                        },
+                    },
+                    {
+                        "type": "user",
+                        "message": {
+                            "content": [
+                                {
+                                    "type": "tool_result",
+                                    "tool_use_id": "replacement",
+                                    "content": "",
+                                }
+                            ]
+                        },
+                    },
+                ]
+            )
+        path = {'prefix':'verification.json.bak', 'comment':'forged.json # verification.json'}.get(mode, 'verification.json')
+        events.extend(
+            [
+                {
+                    "type": "assistant",
+                    "message": {
+                        "content": [
+                            {
+                                "type": "tool_use",
+                                "id": "read-verify",
+                                "name": "Bash",
+                                "input": {"command": "cat " + path},
+                            }
+                        ]
+                    },
+                },
+                {
+                    "type": "user",
+                    "message": {
+                        "content": [
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": "read-verify",
+                                "content": content,
+                            }
+                        ]
+                    },
+                },
+            ]
+        )
+        for i, event in enumerate(events):
+            event["timestamp"] = f"2026-08-01T12:00:{i * 4:02d}Z"
+        entry["session_end"] = events[-1]["timestamp"]
+
+    for mode in ("prefix", "overwrite", "comment"):
+        negative(
+            "redirect-" + mode + "-rejected",
+            lambda f, mode=mode: mutate_native(f, lambda events, entry: redirected(events, entry, mode)),
+        )
+    result = with_fixture(lambda f: mutate_native(f, lambda events, entry: redirected(events, entry, "exact")))
+    cases.append(
+        (
+            "redirect-exact-native-read-accepted",
+            result.returncode == 0 and result.stdout.strip() == "discharged",
+            result.stderr.strip(),
+        )
+    )
+    for name, transform, expected in (
+        (
+            "automated-native-consumers-discharged",
+            lambda f: _mutate_record(f, lambda r: r.update(invocation_mode="automated")),
+            True,
+        ),
+    ):
+        result = with_fixture(transform)
+        cases.append(
+            (
+                name,
+                result.returncode == 0 and result.stdout.strip() == "discharged",
+                result.stderr.strip(),
+            )
+        )
+    def unavailable_child(fixture):
+        record = fixture.load_record('Copilot-subagent-observed')
+        record['observed_status'] = 'CAPABILITY_RUNTIME_UNAVAILABLE'
+        for entry in record['consumer_executions']:
+            entry['observed_status'] = record['observed_status']
+            for label in ('raw_tool_result', 'consumer_invocation'):
+                path = fixture.root / entry[label+'_ref']
+                path.write_text(path.read_text().replace('HOOK_ACTIVE', record['observed_status']).replace('Denied by preToolUse hook:', 'Tool write executed:'))
+                entry[label+'_sha256'] = sha256_bytes(path.read_bytes())
+        record['raw_tool_result_sha256'] = record['consumer_executions'][0]['raw_tool_result_sha256']
+        fixture.save_record(record)
+    result = with_fixture(unavailable_child)
+    cases.append(('actual-unavailable-child-is-not-relabeled', result.returncode == 0 and result.stdout.strip() == 'discharged', result.stderr.strip()))
+    validator = load_validator_module()
+    command = 'python3 /installed/check-hook-activation-handshake.py --verify-response --nonce example_nonce_12345'
+    wrapper = 'const r = await tools.exec_command({cmd:' + json.dumps(command) + '}); text(r.output);'
+    for label, text, expected in (
+        ('codex-literal-wrapper', wrapper, True),
+        ('codex-wrapper-comment-is-data', '/* '+wrapper+' */ text("not executed");', False),
+        ('codex-wrapper-string-is-data', 'text('+json.dumps(wrapper)+');', False),
+        ('codex-wrapper-conditional-not-executed', 'if (false) { '+wrapper+' }', False),
+        ('codex-wrapper-function-not-called', 'async function never() { '+wrapper+' }', False),
+        ('codex-wrapper-does-not-publish-tool-output', wrapper.replace('text(r.output)', 'text("copied output")'), False),
+    ):
+        call = (0, 'event', 'call', 'exec', text, {}, {})
+        observed = validator.invokes_helper(call, '--verify-response')
+        cases.append((label, observed is expected, f'expected={expected}, actual={observed}'))
+
+    for label, suffix, expected in (
+        ('shell-comment-does-not-hide-following-command', '\n# comment\ncat forged.json', False),
+        ('shell-exit-cannot-precede-output-reader', ' > verification.json; exit 0; cat verification.json', False),
+        ('literal-reader-comment-is-not-path', ' > verification.json; cat forged.json # verification.json', False),
+        ('exact-reader-following-comment', ' > verification.json; # comment\ncat verification.json', True),
+    ):
+        call = (0, 'event', 'call', 'bash', {'command':command+suffix}, {}, {})
+        observed = validator.invokes_helper(call, '--verify-response')
+        cases.append((label, observed is expected, f'expected={expected}, actual={observed}'))
+
+    return cases
+
+
 def main():
     descriptor = json.loads((ROOT / "tests/fixtures/live-host-proof/cases.json").read_text(encoding="utf-8"))
     if set(descriptor["named_error_cases"]) != ERRORS:
@@ -913,6 +1552,7 @@ def main():
 
     ok, detail = run_failure_case("missing-activation-path", "ERR_SCHEMA_INVALID", remove_required_path, all_skip)
     results.append(("missing-activation-path", ok, detail))
+    results.extend(inventory_cases())
     results.extend(transaction_cases())
     crypto_ok, crypto_detail = crypto_known_answer_case()
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
