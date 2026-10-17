@@ -1943,9 +1943,10 @@ async function main() {
           throw new Error('invalid Copilot path');
         }
         if (name === 'bash') {
-          if (Object.keys(args).some(k => !['command', 'description'].includes(k)) ||
+          if (Object.keys(args).some(k => !['command', 'description', 'initial_wait'].includes(k)) ||
               typeof args.command !== 'string' || !args.command.trim() ||
-              (Object.prototype.hasOwnProperty.call(args, 'description') && typeof args.description !== 'string')) {
+              (Object.prototype.hasOwnProperty.call(args, 'description') && typeof args.description !== 'string') ||
+              (Object.prototype.hasOwnProperty.call(args, 'initial_wait') && !Number.isFinite(args.initial_wait))) {
             throw new Error('invalid bash arguments');
           }
           payload = { tool_name: 'bash', tool_input: { command: args.command } };

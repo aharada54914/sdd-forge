@@ -2013,9 +2013,12 @@ def main():
                 if name in ("view", "create") and (not isinstance(path, str) or not path.strip()):
                     raise ValueError("invalid Copilot path")
                 if name == "bash":
-                    if (set(args) - {"command", "description"}
+                    if (set(args) - {"command", "description", "initial_wait"}
                         or not isinstance(args.get("command"), str) or not args["command"].strip()
-                        or ("description" in args and not isinstance(args["description"], str))):
+                        or ("description" in args and not isinstance(args["description"], str))
+                        or ("initial_wait" in args and (isinstance(args["initial_wait"], bool)
+                            or not isinstance(args["initial_wait"], (int, float))
+                            or not math.isfinite(args["initial_wait"])))):
                         raise ValueError("invalid bash arguments")
                     payload = {"tool_name": "bash", "tool_input": {"command": args["command"]}}
                 elif name == "glob":
@@ -2045,7 +2048,7 @@ def main():
                     payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
                 else:
                     raise ValueError("unsupported Copilot tool")
-        except (ValueError, TypeError, KeyError):
+        except (ValueError, TypeError, KeyError, OverflowError):
             emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
             return
 
