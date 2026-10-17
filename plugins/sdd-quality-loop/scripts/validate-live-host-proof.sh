@@ -1,14 +1,10 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+. "$SCRIPT_DIR/lib/py-dispatch.sh"
 
-if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$SCRIPT_DIR/validate-live-host-proof.py" "$@"
-fi
-if command -v python >/dev/null 2>&1; then
-  exec python "$SCRIPT_DIR/validate-live-host-proof.py" "$@"
-fi
-
-printf 'ERR_SCHEMA_INVALID: Python runtime unavailable\n' >&2
-exit 3
+sdd_py_dispatch \
+  "$SCRIPT_DIR/validate-live-host-proof.py" \
+  "validate-live-host-proof: ERR_SCHEMA_INVALID" \
+  "$@"
