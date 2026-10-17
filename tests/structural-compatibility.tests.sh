@@ -26,6 +26,7 @@ assert_true() { local label="$1"; shift; if "$@"; then pass "$label"; else fail 
 
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/structural-compat.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
+: > "$tmp/emitted-skips.log"
 
 required=("$CANON" "$BOOTSTRAP_SKILL" "$LITE_SKILL" "$DESIGN" "$ACCEPTANCE" "$CORPUS/f1-full.json" "$CORPUS/f2-lite.json" "$CORPUS/f3-advisory.json" "$CORPUS/f4-required.json")
 missing=0
@@ -298,8 +299,22 @@ elif (( $? == 1 )); then
 else
   fail 'F3 activation evidence is unavailable or invalid'
 fi
-emit_compound_skip F5
-emit_compound_skip F6
+if skip_allowlist_condition "$SKIP_MANIFEST" AC-043 "$EVIDENCE_REPO" origin/main; then
+  for fixture in F5 F6; do
+    printf '%s\n' "AC-043 active: checking $fixture Context-present Lite artifacts"
+    if python3 "$REPO_ROOT/tests/lib/structural-context-lite.py" --state "$fixture" --runtime sh --output "$tmp/$fixture.json"; then
+      pass "$fixture real Resolver preserves its Context state and human Markdown"
+      validate_track lite "$tmp/$fixture.json"
+    else
+      fail "$fixture real Context-present Lite invocation succeeds"
+    fi
+  done
+elif (( $? == 1 )); then
+  emit_compound_skip F5
+  emit_compound_skip F6
+else
+  fail 'F5/F6 activation evidence is unavailable or invalid'
+fi
 
 # Formatting assertions alone cannot prove that a dependency is still absent.
 # Audit the lines actually emitted; never turn an obsolete skip into success.

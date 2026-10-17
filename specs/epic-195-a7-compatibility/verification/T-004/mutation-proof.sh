@@ -56,6 +56,7 @@ copy_surface() {
     tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 \
     tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 \
     tests/lib/markdown-ast-canonicalizer.mjs tests/fixtures/structural-frontmatter-cases.json \
+    tests/lib/structural-context-lite.py tests/resolve-project-context-block-check.py \
     mcp/sdd-forge-mcp/package.json mcp/sdd-forge-mcp/package-lock.json \
     tests/lib/skip-allowlist-evaluator.sh tests/lib/skip-allowlist-evaluator.ps1 \
     tests/fixtures/skip-allowlist-manifest.json \
@@ -67,6 +68,12 @@ copy_surface() {
     mkdir -p "$destination/$(dirname "$relative")"
     cp "$ROOT/$relative" "$destination/$relative"
   done
+  # F5/F6 drive current Context/Resolver publication after A1+A6 activation.
+  # Preserve the complete live dependency surface in every isolated control.
+  mkdir -p "$destination/contracts" "$destination/plugins/sdd-quality-loop/scripts" "$destination/plugins/sdd-quality-loop/references"
+  cp -R "$ROOT/contracts/." "$destination/contracts"
+  cp -R "$ROOT/plugins/sdd-quality-loop/scripts/." "$destination/plugins/sdd-quality-loop/scripts"
+  cp -R "$ROOT/plugins/sdd-quality-loop/references/." "$destination/plugins/sdd-quality-loop/references"
   # Parser code is isolated and mutable; its locked dependencies are read-only.
   ln -s "$ROOT/mcp/sdd-forge-mcp/node_modules" "$destination/mcp/sdd-forge-mcp/node_modules"
   cp -R "$ROOT/tests/fixtures/structural-fixture-corpus" "$destination/tests/fixtures/"
@@ -79,6 +86,15 @@ update_json() {
   local target="$1"; shift
   jq "$@" "$target" > "$target.next"
   mv "$target.next" "$target"
+}
+
+# Exercise inactive skip branches independently of genuine merged dependencies.
+# The synthetic child of main is deliberately not an ancestor of main.
+deactivate_dependency_for_mutation() {
+  local target_root="$1" assertion="$2" inactive_tree inactive_commit
+  inactive_tree="$(git -C "$ROOT" rev-parse origin/main^{tree})"
+  inactive_commit="$(printf 'T-004 inactive activation fixture\n' | git -C "$ROOT" -c user.name=mutation -c user.email=mutation@example.invalid commit-tree "$inactive_tree" -p origin/main)"
+  update_json "$target_root/tests/fixtures/skip-allowlist-manifest.json" --arg commit "$inactive_commit" --arg assertion "$assertion" '(.[] | select(.assertion_id == $assertion) | .dependencies[0].merged_commit) = $commit'
 }
 
 require_source_change() {
@@ -192,15 +208,22 @@ mutate_case() {
       perl -0pi -e 's/    \[Array\]::Sort\(\$ReorderedPaths, \[StringComparer\]::Ordinal\)\n//' "$target_root/tests/structural-compatibility.tests.ps1"
       require_source_change "$before" "$target_root/tests/structural-compatibility.tests.sh"
       ;;
-    f3-skip) update_json "$corpus/f3-advisory.json" '.skip.dependencies = []' ;;
+    f3-skip)
+      deactivate_dependency_for_mutation "$target_root" AC-042
+      update_json "$corpus/f3-advisory.json" '.skip.dependencies = []'
+      ;;
     f4-skip)
-      inactive_tree="$(git -C "$ROOT" rev-parse origin/main^{tree})"
-      inactive_commit="$(printf 'T-004 inactive activation fixture\n' | git -C "$ROOT" -c user.name=mutation -c user.email=mutation@example.invalid commit-tree "$inactive_tree" -p origin/main)"
-      update_json "$target_root/tests/fixtures/skip-allowlist-manifest.json" --arg commit "$inactive_commit" '(.[] | select(.assertion_id == "AC-007") | .dependencies[0].merged_commit) = $commit'
+      deactivate_dependency_for_mutation "$target_root" AC-007
       update_json "$corpus/f4-required.json" '.skip.dependencies = []'
       ;;
-    compound-without-a1) perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
-    compound-without-a6) perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md" ;;
+    compound-without-a1)
+      deactivate_dependency_for_mutation "$target_root" AC-043
+      perl -pi -e 'if (/^\| AC-043 /) { s/\bA1\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md"
+      ;;
+    compound-without-a6)
+      deactivate_dependency_for_mutation "$target_root" AC-043
+      perl -pi -e 'if (/^\| AC-043 /) { s/\bA6\b/A9/g }' "$target_root/specs/epic-195-a7-compatibility/acceptance-tests.md"
+      ;;
     runner-sh) perl -0pi -e 's/^tests\/structural-compatibility\.tests\.sh\n//m' "$target_root/tests/suite-inventory.posix" ;;
     runner-ps1) perl -0pi -e "s/^\\s*['\"]tests\\/structural-compatibility\\.tests\\.ps1['\"],?\\r?\\n//m" "$target_root/tests/run-all.ps1" ;;
     *) printf 'unknown mutation: %s\n' "$id" >&2; exit 2 ;;
