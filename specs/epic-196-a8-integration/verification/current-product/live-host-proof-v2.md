@@ -102,3 +102,35 @@ conflicting feature selectors, false helper invocations, shuffled source
 reads, redirected-result replacement, and native child ownership. Positive
 cases retain manual and automated execution and exact redirected reads.
 Historical unsigned v1 records remain explicit incomplete evidence.
+
+## Handoff completion and downstream revalidation
+
+When AC-006 is active, the live cross-runtime handoff drivers validate the
+signed five-cell aggregate after both real handoffs succeed. The Bash
+`--live-host-proof-dir` and PowerShell `-LiveHostProofDir` options select its
+records directory; the default is the repository's live-host-proof directory.
+Trusted signers, expected configuration digests, the skip allowlist, and the
+verifier remain those of the current checkout. The captured five consumer
+sources must match that checkout even when the proof is stored elsewhere.
+
+Only a successful `discharged` result produces `canary_case.result: PASS`
+and `coverage_complete: true`. Missing, unsigned, stale, or invalid proof
+does not produce a successful trace. Fixture-only and pre-activation runs
+remain incomplete coverage; manual result fields cannot replace validation.
+The private trace binds the five original records, the consumed nonce ledger,
+current policy/source hashes, and original validator output in
+`canary_case.proof` (`cross-runtime-live-proof/v1`). These artifacts may contain
+sensitive host information and must not be published as raw evidence.
+Artifact references for records and the ledger are relative to the selected
+records directory; current verifier, consumer, and policy references are
+repository-relative. The stdout reference is relative to the trace evidence
+directory. `records_dir` is an original collection locator, not an immutable
+identity: transporting the original evidence preserves the relative references
+and hashes, and revalidation uses the explicitly selected proof root.
+
+Downstream promotion uses the same validator through the read-only
+`read_only_proof` helper. It requires an already completed consumption receipt
+for each exact record, rechecks all original signatures and evidence, and
+leaves ledger bytes unchanged. It does not reset consumed nonces or turn an
+unconsumed issuance into completed proof. The validator CLI still consumes
+valid nonces by default.

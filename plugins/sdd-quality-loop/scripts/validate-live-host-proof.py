@@ -1506,7 +1506,7 @@ def parser():
     return result
 
 
-def run(args):
+def run(args, *, consume=True):
     records_dir = args.records_dir.resolve()
     root = records_dir.parent.parent
     registry = load_json(args.trusted_signers, "trusted-signer registry")
@@ -1535,7 +1535,8 @@ def run(args):
         else:
             proposals.append(validate_pass_record(record, root, manifest, ledger_by_nonce, cell))
             proposals.extend(validate_consumer_executions(record, root, ledger_by_nonce, cell))
-    publish_consumption(args.nonce_ledger, ledger, proposals, original_ledger)
+    if consume:
+        publish_consumption(args.nonce_ledger, ledger, proposals, original_ledger)
     print("pending" if pending else "discharged")
     return 0
 

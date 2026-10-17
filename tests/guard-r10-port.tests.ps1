@@ -186,6 +186,7 @@ $rollbackPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/
 Assert-Parity 'r10 A9 rollback admission' 2 $rollbackPayload
 
 # The domain finalizer's Python master and both packaged wrappers are gates.
+Assert-Parity "r10 signed handoff proof verifier" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/lib/cross-runtime-consumer-evidence.py","content":"replacement"}}'
 foreach ($suffix in @('py', 'sh', 'ps1')) {
     $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"
     $payload = @{ tool_name = 'write'; tool_input = @{ file_path = $finalizerPath; content = 'replacement' } } | ConvertTo-Json -Compress

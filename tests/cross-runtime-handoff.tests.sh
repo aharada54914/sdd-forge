@@ -3,24 +3,27 @@
 set -euo pipefail
 
 usage() {
-  printf 'Usage: %s [--fixture <directory>] [--trace-file <path>] [--self-test-activation]\n' "$0" >&2
+  printf 'Usage: %s [--fixture <directory>] [--trace-file <path>] [--live-host-proof-dir <directory>] [--live-e2e] [--self-test-activation]\n' "$0" >&2
 }
 fixture_dir=""
 trace_file=""
 self_test=0
 live_e2e=0
+live_host_proof_dir=""
 while (($#)); do
   case "$1" in
     --fixture) (($# >= 2)) || { usage; exit 2; }; fixture_dir=$2; shift 2 ;;
     --trace-file) (($# >= 2)) || { usage; exit 2; }; trace_file=$2; shift 2 ;;
     --self-test-activation) self_test=1; shift ;;
     --live-e2e) live_e2e=1; shift ;;
+    --live-host-proof-dir) (($# >= 2)) || { usage; exit 2; }; live_host_proof_dir=$2; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage; exit 2 ;;
   esac
 done
 
 repo_root=$(git rev-parse --show-toplevel)
+[[ -n "$live_host_proof_dir" ]] || live_host_proof_dir="$repo_root/tests/hook-activation-live-proof"
 default_fixture="$repo_root/tests/fixtures/cross-runtime-handoff"
 [[ -n "$fixture_dir" ]] || fixture_dir=$default_fixture
 tasks_file=$(printenv SDD_CROSS_RUNTIME_TASKS_PATH 2>/dev/null || true)
@@ -227,12 +230,14 @@ actual_output_sha=$(sha256_file "$output_file")
 model_evidence=$(python3 "$repo_root/tests/lib/cross-runtime-consumer-evidence.py" observe "$SDD_A8_COPILOT_MODEL" "$evidence_dir/copilot-consumer.log" "$tmp" "$evidence_dir/copilot-before.json" "$expected_output_sha") || fail "Copilot native model observation failed"
 
 status=$(task_status "$tasks_file") || fail "could not read T-005 lifecycle status"
+proof_evidence=null
 if canary_activated "$status"; then
-  canary_result=FAIL
-  coverage_complete=false
-  top_result=FAIL
-  skip_reason="T-005 status '$status' and Epic A1 handshake files on main activate AC-006; live-host proof remains owned by T-005 (#189/#187)."
-  exit_code=1
+  proof_evidence=$(python3 "$repo_root/tests/lib/cross-runtime-consumer-evidence.py" proof "$live_host_proof_dir" "$evidence_dir") || fail "active AC-006 requires discharged signed live-host proof"
+  canary_result=PASS
+  coverage_complete=true
+  top_result=PASS
+  skip_reason=""
+  exit_code=0
 else
   rc=$?
   [[ $rc -eq 1 ]] || fail "failed closed while evaluating AC-006 activation gate"
@@ -243,11 +248,11 @@ else
   exit_code=0
 fi
 
-python3 - "$initial01_sha" "$actual01_sha" "$nonce1" "$initial02_sha" "$actual02_sha" "$nonce2" "$codex_first_output" "$evidence_dir/claude-producer.log" "$evidence_dir/codex-producer.log" "$evidence_dir/copilot-consumer.log" "$expected_output_sha" "$canary_result" "$coverage_complete" "$top_result" "$skip_reason" "$evidence_dir/trace.json" "$model_evidence" <<'PY'
+python3 - "$initial01_sha" "$actual01_sha" "$nonce1" "$initial02_sha" "$actual02_sha" "$nonce2" "$codex_first_output" "$evidence_dir/claude-producer.log" "$evidence_dir/codex-producer.log" "$evidence_dir/copilot-consumer.log" "$expected_output_sha" "$canary_result" "$coverage_complete" "$top_result" "$skip_reason" "$evidence_dir/trace.json" "$model_evidence" "$proof_evidence" <<'PY'
 import json, sys
 (initial1, final1, nonce1, initial2, final2, nonce2, log_codex_consumer,
  log_claude, log_codex_producer, log_copilot, output_sha, canary_result,
- coverage, result, skip_reason, out, model_evidence)=sys.argv[1:]
+ coverage, result, skip_reason, out, model_evidence, proof_evidence)=sys.argv[1:]
 trace={
   "schema":"cross-runtime-handoff-trace/v1",
   "fixture_id":"cross-runtime-handoff",
@@ -265,7 +270,7 @@ trace={
     {"producer_runtime":"claude","consumer_runtime":"codex","artifact_path":"tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml","artifact_initial_sha256":"sha256:"+initial1,"artifact_final_sha256":"sha256:"+final1,"mutation_nonce":nonce1,"consumer_observable":{"kind":"stdout_substring","expected":"HANDOFF-01:"+nonce1},"invocation_mode":"automated","result":"PASS","evidence_refs":[log_claude,log_codex_consumer]},
     {"producer_runtime":"codex","consumer_runtime":"copilot","artifact_path":"tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md","artifact_initial_sha256":"sha256:"+initial2,"artifact_final_sha256":"sha256:"+final2,"mutation_nonce":nonce2,"consumer_observable":{"kind":"generated_file_hash","expected":"sha256:"+output_sha},"invocation_mode":"automated","result":"PASS","evidence_refs":[log_codex_producer,log_copilot]}
   ],
-  "canary_case":{"present":True,"result":canary_result,"skip_reason":skip_reason}
+  "canary_case":{"present":True,"result":canary_result,"skip_reason":skip_reason or None,"proof":json.loads(proof_evidence)}
 }
 with open(out,"w",encoding="utf-8",newline="\n") as f: json.dump(trace,f,ensure_ascii=False,indent=2); f.write("\n")
 PY

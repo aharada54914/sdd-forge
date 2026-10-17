@@ -149,6 +149,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-domain/scripts/finalize-domain-review.py",
     "plugins/sdd-domain/scripts/finalize-domain-review.sh",
     "plugins/sdd-domain/scripts/finalize-domain-review.ps1",
+    "tests/lib/cross-runtime-consumer-evidence.py",
     "plugins/sdd-domain/scripts/record-upstream-concept-issue.py",
     "plugins/sdd-domain/scripts/validate-domain-contract.sh",
     "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
