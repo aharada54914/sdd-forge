@@ -231,7 +231,9 @@ PROJECTIONS = tuple(QUALITY_SCRIPTS + 'generated/' + name for name in (
 GUARDS = tuple(QUALITY_SCRIPTS + 'sdd-hook-guard.' + ext
                for ext in ('py', 'js', 'ps1', 'sh'))
 FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WORKFLOW)
-# Pin all unrelated keys and memberships to the admitted T-003 baseline.
+# Keep the admitted T-003 baseline pinned. Later reviewed additions must be
+# explicit and present exactly once; they do not loosen unrelated membership.
+ADDITIONAL_PROTECTIONS = ('plugins/sdd-bootstrap/scripts/resolve-design-sync.py',)
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
     r'^        run: python3 -B tests/quality-nontty-transport[.]tests[.]py[ \t]*$',
@@ -341,9 +343,13 @@ class ProtectedEntrypointTests(unittest.TestCase):
                                     str(self.root / name))
 
     def assert_unrelated_unchanged(self, data):
+        for path in ADDITIONAL_PROTECTIONS:
+            self.assertEqual(data['protected_gate_suffixes'].count(path), 1,
+                             'reviewed additive protection missing or duplicated: ' + path)
         unrelated = dict(data)
         unrelated['protected_gate_suffixes'] = [
-            path for path in data['protected_gate_suffixes'] if path not in ENTRYPOINTS]
+            path for path in data['protected_gate_suffixes']
+            if path not in ENTRYPOINTS + ADDITIONAL_PROTECTIONS]
         digest = hashlib.sha256(json.dumps(unrelated, sort_keys=True,
                                separators=(',', ':')).encode()).hexdigest()
         self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
@@ -367,6 +373,20 @@ class ProtectedEntrypointTests(unittest.TestCase):
         mutated = dict(data, sudo_signature_hex_length=-1)
         with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
             self.assert_unrelated_unchanged(mutated)
+        mutated = json.loads(json.dumps(data))
+        mutated['protected_gate_suffixes'].append('unreviewed-extra.py')
+        with self.assertRaisesRegex(AssertionError, 'unrelated invariant keys or membership changed'):
+            self.assert_unrelated_unchanged(mutated)
+        for path in ADDITIONAL_PROTECTIONS:
+            for change in ('remove', 'duplicate'):
+                with self.subTest(path=path, change=change):
+                    mutated = json.loads(json.dumps(data))
+                    if change == 'remove':
+                        mutated['protected_gate_suffixes'].remove(path)
+                    else:
+                        mutated['protected_gate_suffixes'].append(path)
+                    with self.assertRaisesRegex(AssertionError, 'reviewed additive protection missing or duplicated'):
+                        self.assert_unrelated_unchanged(mutated)
         self.assert_unrelated_unchanged(data)
 
     def assert_transport_registered(self):
