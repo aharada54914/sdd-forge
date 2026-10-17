@@ -6,7 +6,7 @@ a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427  plugins/sdd-qu
 d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d  plugins/sdd-ship/skills/ship/SKILL.md
-52d428aad3af3eabf65a6ba1380aa1cab3b5a8dc4b029a3c056557041ff81cd6  plugins/sdd-lite/skills/lite-spec/SKILL.md
+4896ab43ccb4dda0670c2253fdf2fac1dd600416ec7c6aa7396eaed5c2498570  plugins/sdd-lite/skills/lite-spec/SKILL.md
 93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
 2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
 9de07ed02e8abc05e15d634fa0d522df4a0e71b7534a13295d0130fdb3ee6871  plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py

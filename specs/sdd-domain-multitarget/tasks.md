@@ -33,7 +33,7 @@ Done When:
 ## T-002 Ownership and contract boundary fixtures
 
 Approval: Approved
-Status: Blocked
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: Ownership and provider-neutral contract rules protect shared Core policy from provider leakage.
 Required Workflow: acceptance-first
@@ -52,7 +52,7 @@ Done When:
 ## T-003 Target capability resolution and verification obligations
 
 Approval: Approved
-Status: Done
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Resolver output controls required checks and fail-closed behavior at a trust boundary; an incorrect obligation can permit an unverified target.
 Required Workflow: tdd
@@ -74,7 +74,7 @@ Done When:
 ## T-004 Compatibility and hybrid fallback
 
 Approval: Approved
-Status: In Progress
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Compatibility behavior is shared by existing consumers; a regression could alter approval, evidence, or artifact semantics for legacy projects.
 Required Workflow: tdd
@@ -95,7 +95,7 @@ Done When:
 ## T-005 UI provider boundary and consent-safe fallback
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Provider extraction crosses an egress and consent boundary; a routing error could send design data without configured consent.
 Required Workflow: tdd
@@ -116,7 +116,7 @@ Done When:
 ## T-006 Provider evidence, host conformance, and release evidence
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: Evidence and host adapters must agree on the same obligations; a missing host mapping can make a correct resolver result unenforced.
 Required Workflow: acceptance-first

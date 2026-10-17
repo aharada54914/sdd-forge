@@ -163,3 +163,4 @@ tests/cross-runtime-handoff.tests.sh
 tests/check-installed-plugin-drift.tests.sh
 tests/check-a8-process-integrity.tests.sh
 tests/sdd-domain-multitarget-T-004.tests.sh
+tests/design-sync-policy.tests.sh

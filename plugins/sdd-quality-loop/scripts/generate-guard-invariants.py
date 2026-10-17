@@ -143,6 +143,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-implementation/scripts/select-agent-model.sh",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
     "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+    "plugins/sdd-bootstrap/scripts/resolve-design-sync.py",
     "plugins/sdd-domain/scripts/domain-review-precheck.sh",
     "plugins/sdd-lite/scripts/check-task-state-lite.sh",
     # Sourced libraries that carry the gate logic for protected scripts above

@@ -120,7 +120,8 @@ design catch-all.
   contract plus the design iteration loop) or `none` (no design-system
   integration). Record the choice as `ds_profile: <value>` in the
   `Design Tokens` section of `ux-spec.md`. On `custom`, run the
-  `design-sync-loop` skill: it ensures `design-system/` exists (seeding it
+  `design-sync-loop` skill and its `resolve-design-sync.py` decision boundary
+  before provider operations: it ensures `design-system/` exists (seeding it
   when absent), pulls design-system context from claude.ai/design, generates
   token-driven disposable HTML mockups under `specs/<feature>/mockups/`,
   resolves egress consent scoped to this feature and session before any
