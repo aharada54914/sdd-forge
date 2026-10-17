@@ -144,6 +144,13 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
     "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
     "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+    "plugins/sdd-domain/scripts/record-upstream-concept-issue.py",
+    "plugins/sdd-domain/scripts/validate-domain-contract.sh",
+    "plugins/sdd-domain/scripts/validate-domain-contract.ps1",
+    "plugins/sdd-domain/scripts/validate-concept-test.sh",
+    "plugins/sdd-domain/scripts/validate-concept-test.ps1",
+    "plugins/sdd-domain/scripts/validate-concept-test.py",
+    "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
     "plugins/sdd-lite/scripts/check-task-state-lite.sh",
     # Sourced libraries that carry the gate logic for protected scripts above
     # (require_persisted_pass, panelist consent/signature helpers). Leaving one

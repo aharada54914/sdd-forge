@@ -620,6 +620,21 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
 # suite runner or a SKILL invokes matched no protected suffix. Enumeration
 # drifts silently, because a missing entry presents as "allowed" rather than as
 # an error. This is the check that makes the next omission fail loudly.
+# Concept review's executable enforcement chain must resist direct replacement,
+# including wrappers mentioned through brace syntax in skill documentation.
+for domain_gate in \
+    plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
+    plugins/sdd-domain/scripts/record-upstream-concept-issue.py \
+    plugins/sdd-domain/scripts/validate-domain-contract.sh \
+    plugins/sdd-domain/scripts/validate-domain-contract.ps1 \
+    plugins/sdd-domain/scripts/validate-concept-test.sh \
+    plugins/sdd-domain/scripts/validate-concept-test.ps1 \
+    plugins/sdd-domain/scripts/validate-concept-test.py \
+    plugins/sdd-domain/scripts/domain-review-precheck.ps1; do
+    parity_check "concept enforcement: $domain_gate" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$domain_gate\",\"content\":\"replacement\"}}"
+done
+
 wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
 import glob, importlib.util, os
 spec = importlib.util.spec_from_file_location(
