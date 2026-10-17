@@ -112,7 +112,9 @@ class FixedLaunchTests(unittest.TestCase):
         self.inventory = self.helper.materialize(self.root, commit, self.selected, self.snapshot)
         self.record = self.base / 'record.json'
         self.record.write_text(json.dumps(self.inventory))
+        session = str(uuid.uuid4())
         self.data = {'stage': 'impl', 'role': 'impl-reviewer-a', 'feature': 'demo',
+                     'run_id': session, 'host_session_id': session,
                      'allowed_input_manifest': [{'path': p, 'sha256': self.transport.sha(self.root / p)}
                                                 for p in self.selected]}
         self.invocation = self.root / 'invocation.json'
