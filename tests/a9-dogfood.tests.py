@@ -255,6 +255,13 @@ class ResolverIntegrationTests(unittest.TestCase):
             if not lite:
                 self.assertEqual(artifact["affected_components"], expected_ownership["affected_components"])
                 self.assertEqual(artifact["resolved_gates"], [])
+            if not lite:
+                for name, tail in [("validate-facet-manifest", ["--manifest", "specs/fixture/facet-manifest.yaml"]),
+                                   ("validate-resolver-evidence", ["--evidence", "specs/fixture/resolver-evidence.yaml",
+                                    "--manifest", "specs/fixture/facet-manifest.yaml", "--registry", "contracts/capability-registry.json"])]:
+                    check = subprocess.run([sys.executable, str(root / "plugins/sdd-quality-loop/scripts" / (name + ".py"))] + tail,
+                                           cwd=root, capture_output=True, text=True)
+                    self.assertEqual(check.returncode, 0, check.stdout + check.stderr)
             # Re-running against unchanged source must remain stable after output publication.
             second = subprocess.run(command, cwd=root, capture_output=True, text=True)
             self.assertEqual(second.returncode, 0, second.stderr)
@@ -281,6 +288,16 @@ class ResolverIntegrationTests(unittest.TestCase):
 
     def test_projection_schema_rejects_missing_override_contract(self):
         self.run_pipeline(["plugins/sdd-bootstrap/example.py"], projection_schema_mutation=True)
+
+    def test_json_shaped_yaml_rejects_duplicate_or_malformed_json(self):
+        validator = load("validate-facet-manifest")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "facet-manifest.yaml"
+            for text in ('{"schema":"first","schema":"second"}', '{"schema": invalid}'):
+                with self.subTest(text=text):
+                    path.write_text(text)
+                    with self.assertRaises(validator.CanonicalizerError):
+                        validator.load_manifest(str(path))
 
     def test_component_owned_projection_cannot_pass_publication(self):
         self.run_pipeline(["plugins/sdd-bootstrap/example.py"], output_ownership_mutation=True)

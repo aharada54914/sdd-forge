@@ -52,7 +52,7 @@ additional or misclassified components instead of hiding inventory drift.
 
 - Initial new regressions failed on the original schema/Registry/validator:
   the approved overrides were not accepted and both Pack capabilities were absent.
-- New Python regression suite: 15 tests passed, including subcases for malformed
+- New Python regression suite: 16 tests passed, including subcases for malformed
   overrides, classification and inventory mutations, and real approval-content
   admission. The PowerShell entry point passed the same suite on Linux.
 - Existing Project Context schema: 44 passed, 0 failed.
@@ -83,6 +83,14 @@ advisory fixture runs preserve their input track; the Lite run produces its
 Summary without a Full Manifest/Projection. Removing either the override output
 contract or the cross-cutting projection rule reproduces its corresponding
 failure, and the failed publication leaves no successful Manifest.
+
+The actual repository advisory run also exposed a consumer boundary defect:
+Resolver outputs canonical JSON under `facet-manifest.yaml`, but the Manifest
+validator selected restricted YAML solely from the extension. The validator now
+selects strict JSON canonicalization for JSON object bytes and retains restricted
+YAML for block YAML. Both use the existing canonicalizer; malformed or duplicate
+JSON fields fail rather than falling back. The real pipeline regression now runs
+both independent Manifest and Evidence consumers on its published artifacts.
 
 Additional verification after integration: the existing Resolver block suite
 passed 407 checks; Context schema passed 44; Facet Manifest schema passed 57;
