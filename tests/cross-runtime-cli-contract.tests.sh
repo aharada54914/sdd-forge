@@ -15,8 +15,8 @@ for suffix in ('sh', 'ps1'):
         live = source.split('\nfunction Invoke-LiveE2E {', 1)[1].split('\nif ($SelfTestActivation)', 1)[0]
     assert valid(live), suffix + ': invalid native live CLI contract'
     tool_arguments = {
-        'sh': [('--available-' + "tools='view,create'"), ('--allow-' + 'tool=' + '"write($output_file)"')],
-        'ps1': [('--available-' + 'tools=view,create'), ('--allow-' + 'tool=write($output)')],
+        'sh': [('--available-' + "tools='view,apply_patch'"), ('--allow-' + 'tool=' + '"write($output_file)"')],
+        'ps1': [('--available-' + 'tools=view,apply_patch'), ('--allow-' + 'tool=write($output)')],
     }[suffix]
     for argument in tool_arguments:
         assert live.count(argument) == 1, suffix + ': missing or ambiguous scoped Copilot tool argument: ' + argument
@@ -32,12 +32,12 @@ for suffix in ('sh', 'ps1'):
     if suffix == 'sh':
         guards = [line for line in live.splitlines() if line.startswith('[[ ') and required[3] in line]
         assert len(guards) == 1, 'missing or ambiguous Copilot model guard'
-        for model in ('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6'):
+        for model in ('auto', 'Auto', 'AUTO', 'claude-sonnet-4.6', '', ' ', ' auto', '--model=auto', 'auto;echo'):
             result = subprocess.run(['bash', '-c', 'fail() { return 1; }; ' + guards[0]],
                                     env={**os.environ, required[3]: model}, capture_output=True)
-            assert (result.returncode == 0) == (model == 'claude-sonnet-4.6'), 'Copilot model guard accepted unpinned selection: ' + repr(model)
+            assert (result.returncode == 0) == (model in ('auto', 'Auto', 'AUTO', 'claude-sonnet-4.6')), 'Copilot model selection guard mismatch: ' + repr(model)
     for token in required:
         assert not valid(live.replace(token, 'REMOVED')), suffix + ': insensitive live-token mutation'
 print('ok: native live CLI contract and all eight missing-token mutations')
-print('ok: Bash live Copilot model guard rejects empty and case-variant automatic selections')
+print('ok: Bash live Copilot model guard accepts explicit Auto and rejects missing/invalid selections')
 PY

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Current consumer contract: reports/verification/copilot-auto-handoff-contract-20261017.md
 set -euo pipefail
 
 usage() {
@@ -125,7 +126,7 @@ with tempfile.TemporaryDirectory(prefix='sdd-a8-pseudo-cli-') as raw:
     assert f'HANDOFF-01:{nonce1}' in pseudo_codex_stdout
     two.write_bytes(two.read_bytes().replace(b'PLACEHOLDER', nonce2.encode()))
     assert two.read_bytes() == f'<!-- nonce: {nonce2} -->\n'.encode()
-    pseudo_copilot_output = f'COPILOT-CONSUMED:{nonce2}'.encode()
+    pseudo_copilot_output = f'COPILOT-CONSUMED:{nonce2}\n'.encode()
     expected_output_hash = hashlib.sha256(pseudo_copilot_output).hexdigest()
     output = root / 'handoff-02-output.txt'; output.write_bytes(pseudo_copilot_output)
     assert hashlib.sha256(output.read_bytes()).hexdigest() == expected_output_hash
@@ -157,6 +158,7 @@ PY
 
 if ((!live_e2e)); then
   self_test_contract
+  python3 "$repo_root/tests/cross-runtime-live-driver.tests.py" --runtime bash || fail "live driver regression failed"
   self_test_activation
   printf 'Live CLI E2E not run; set --live-e2e and SDD_A8_ALLOW_LIVE_CLI=1 for explicit authenticated sessions.\n'
   exit 0
@@ -193,7 +195,9 @@ require_cli claude
 codex_bin=${SDD_A8_CODEX_BIN:-codex}
 require_cli "$codex_bin"
 require_cli copilot
-[[ -n "${SDD_A8_COPILOT_MODEL:-}" && ! "${SDD_A8_COPILOT_MODEL}" =~ ^[aA][uU][tT][oO]$ ]] || fail "live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence"
+[[ "${SDD_A8_COPILOT_MODEL:-}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || fail "live Copilot requires an explicit model ID or Auto in SDD_A8_COPILOT_MODEL"
+copilot_model=$SDD_A8_COPILOT_MODEL
+case "$copilot_model" in [aA][uU][tT][oO]) copilot_model=auto ;; esac
 
 prompt="In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. To satisfy any edit gate, you may search for references to that fixture only within this isolated workspace using the native read-only Grep tool; present the requested facts and retry the edit. Do not modify any other file or run shell commands. End with a short confirmation."
 (cd "$tmp" && claude --print --model sonnet --output-format text --permission-mode acceptEdits --allowedTools 'Read,Edit,Grep' -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
@@ -211,13 +215,16 @@ grep -Fq "CODEX-PRODUCED:$nonce2" "$evidence_dir/codex-producer.log" || fail "Co
 actual02_sha=$(sha256_file "$fixture02")
 [[ "$actual02_sha" == "$expected02_sha" ]] || fail "Codex-produced handoff-02 bytes/hash mismatch"
 
-prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network."
+prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> followed by exactly one LF byte (no CR or other bytes), using apply_patch. Do not run shell commands or access the network."
 output_file="$tmp/tests/fixtures/cross-runtime-handoff/handoff-02-output.txt"
-copilot --model "$SDD_A8_COPILOT_MODEL" -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
+python3 "$repo_root/tests/lib/cross-runtime-consumer-evidence.py" snapshot "$tmp" "$evidence_dir/copilot-before.json" || fail "Copilot workspace snapshot failed"
+copilot --model "$copilot_model" --output-format json -p "$prompt" -C "$tmp" --disable-builtin-mcps --no-ask-user --available-tools='view,apply_patch' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
 [[ -f "$output_file" ]] || fail "Copilot did not produce handoff-02-output.txt"
-expected_output_sha=$(printf 'COPILOT-CONSUMED:%s' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
+expected_output_sha=$(printf 'COPILOT-CONSUMED:%s\n' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
 actual_output_sha=$(sha256_file "$output_file")
 [[ "$actual_output_sha" == "$expected_output_sha" ]] || fail "Copilot-generated file hash mismatch"
+[[ "$(sha256_file "$fixture01")" == "$expected01_sha" && "$(sha256_file "$fixture02")" == "$expected02_sha" ]] || fail "Copilot modified a producer artifact"
+model_evidence=$(python3 "$repo_root/tests/lib/cross-runtime-consumer-evidence.py" observe "$SDD_A8_COPILOT_MODEL" "$evidence_dir/copilot-consumer.log" "$tmp" "$evidence_dir/copilot-before.json" "$expected_output_sha") || fail "Copilot native model observation failed"
 
 status=$(task_status "$tasks_file") || fail "could not read T-005 lifecycle status"
 if canary_activated "$status"; then
@@ -236,11 +243,11 @@ else
   exit_code=0
 fi
 
-python3 - "$initial01_sha" "$actual01_sha" "$nonce1" "$initial02_sha" "$actual02_sha" "$nonce2" "$codex_first_output" "$evidence_dir/claude-producer.log" "$evidence_dir/codex-producer.log" "$evidence_dir/copilot-consumer.log" "$expected_output_sha" "$canary_result" "$coverage_complete" "$top_result" "$skip_reason" "$evidence_dir/trace.json" <<'PY'
+python3 - "$initial01_sha" "$actual01_sha" "$nonce1" "$initial02_sha" "$actual02_sha" "$nonce2" "$codex_first_output" "$evidence_dir/claude-producer.log" "$evidence_dir/codex-producer.log" "$evidence_dir/copilot-consumer.log" "$expected_output_sha" "$canary_result" "$coverage_complete" "$top_result" "$skip_reason" "$evidence_dir/trace.json" "$model_evidence" <<'PY'
 import json, sys
 (initial1, final1, nonce1, initial2, final2, nonce2, log_codex_consumer,
  log_claude, log_codex_producer, log_copilot, output_sha, canary_result,
- coverage, result, skip_reason, out)=sys.argv[1:]
+ coverage, result, skip_reason, out, model_evidence)=sys.argv[1:]
 trace={
   "schema":"cross-runtime-handoff-trace/v1",
   "fixture_id":"cross-runtime-handoff",
@@ -248,6 +255,7 @@ trace={
   "coverage_complete":coverage=="true",
   "skip_allowlist_version":"a8-skip-allowlist/v1",
   "upstream_commit":None,
+  "copilot_model":json.loads(model_evidence),
   "headless_contracts":[
     {"runtime":"claude","status":"confirmed","invocation":"claude --print","evidence":"https://docs.anthropic.com/en/docs/claude-code/cli-usage"},
     {"runtime":"codex","status":"confirmed","invocation":"codex exec","evidence":"https://github.com/openai/codex/blob/main/codex-rs/exec/src/cli.rs"},
