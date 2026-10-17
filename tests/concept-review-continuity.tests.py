@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -253,6 +254,61 @@ class LateStageAdmission(unittest.TestCase):
                         else:
                             with self.assertRaises(ValueError):
                                 launcher.required_dependencies(self.root, invocation)
+
+
+class DomainInputManifest(unittest.TestCase):
+    def test_documented_domain_inputs_form_a_reservable_unique_manifest(self):
+        author = (ROOT / 'plugins/sdd-domain/skills/domain-interviewer/SKILL.md').read_text()
+        canonical = re.findall(r'^\| [1-7] \|.*?`(domain/[^`]+)`', author, re.M)
+        self.assertEqual(len(canonical), 7)
+        skill = (ROOT / 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md').read_text()
+        step = skill.split('1. Build a stage `domain`', 1)[1].split('\n2.', 1)[0]
+        additional = re.findall(r'`((?:domain|plugins)/[^`]+\.(?:md|json))`', step)
+        precheck = 'reports/domain-review/attempt-1/round-1/precheck-result.json'
+        paths = [p.replace('<name>', 'Order') for p in canonical] + additional + [precheck]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in paths:
+                if name == precheck:
+                    continue
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text('Domain-Model-Status: Pending\n' if name == 'domain/context-map.md'
+                                  else '{}\n' if name.endswith('.json') else '# Domain fixture\n')
+            script = root / 'plugins/sdd-domain/scripts/domain-review-precheck.sh'
+            script.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / script.relative_to(root), script)
+            (root / 'reports').mkdir(exist_ok=True)
+            checked = subprocess.run(['bash', str(script), '1', '1'], capture_output=True, text=True)
+            self.assertEqual(checked.returncode, 0, checked.stdout + checked.stderr)
+            entries = [dict(path=p, sha256=hashlib.sha256((root / p).read_bytes()).hexdigest()) for p in paths]
+            ledger = root / 'reports/review-context/identity-ledger.json'
+            ledger.parent.mkdir(parents=True)
+            initial = dict(sequence=1, stage='implementation', role='implementer', run_id='fixture-host',
+                           host_session_id='fixture-host-session', previous_record_sha256='')
+            initial['record_sha256'] = hashlib.sha256(
+                b'1|implementation|implementer|fixture-host|fixture-host-session|').hexdigest()
+            before = json.dumps(dict(schema='review-identity-ledger/v1', records=[initial])).encode()
+            invocation = dict(schema='review-context-invocation/v2', input_mode='file-manifest', fallback_mode='none',
+                              read_only=True, stage='domain', role='domain-reviewer-a', feature='sdd-domain-model',
+                              run_id='fixture-review', host_session_id='fixture-review-session', sequence=2,
+                              identity_ledger_path='reports/review-context/identity-ledger.json',
+                              identity_ledger_sha256=hashlib.sha256(before).hexdigest(),
+                              previous_record_sha256=initial['record_sha256'], allowed_input_manifest=entries)
+            manifest = root / 'invocation.json'
+            manifest.write_text(json.dumps(invocation))
+            for runtime in ('bash', 'pwsh'):
+                with self.subTest(runtime=runtime):
+                    ledger.write_bytes(before)
+                    validator = ROOT / 'plugins/sdd-quality-loop/scripts/validate-review-context-set'
+                    command = (['bash', str(validator) + '.sh', str(manifest), str(root), '--reserve']
+                               if runtime == 'bash' else ['pwsh', '-NoProfile', '-File', str(validator) + '.ps1',
+                                                         '-Manifest', str(manifest), '-RepositoryRoot', str(root), '-Reserve'])
+                    result = subprocess.run(command, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn('REVIEW_CONTEXT_OK', result.stdout)
+                    self.assertEqual(len(json.loads(ledger.read_bytes())['records']), 2)
+            self.assertEqual(len(paths), len(set(paths)))
 
 
 if __name__ == '__main__':
