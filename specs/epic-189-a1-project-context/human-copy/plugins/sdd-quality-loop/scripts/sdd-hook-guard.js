@@ -1963,7 +1963,9 @@ async function main() {
           }
           payload = { tool_name: 'task', tool_input: args };
         } else if (name === 'view') {
-          if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
+          if (Object.keys(args).some(k => !['path', 'view_range', 'forceReadLargeFiles'].includes(k)) ||
+              (Object.prototype.hasOwnProperty.call(args, 'forceReadLargeFiles') &&
+               typeof args.forceReadLargeFiles !== 'boolean') ||
               (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
                (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
                 args.view_range.some(n => !Number.isInteger(n))))) {

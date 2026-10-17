@@ -1,3 +1,4 @@
+# Current consumer contract: reports/verification/copilot-auto-handoff-contract-20261017.md
 [CmdletBinding()]
 param(
     [string]$Fixture,
@@ -77,9 +78,9 @@ function Invoke-ContractSelfTest {
         $live = $source.Substring($start, $finish - $start)
         if ($live.Contains('--permission-' + 'prompts')) { Stop-Test 'removed Claude CLI option' }
         $toolArguments = if ($suffix -ceq 'sh') {
-            @(('--available-' + "tools='view,create'"), ('--allow-' + 'tool=' + '"write($output_file)"'))
+            @(('--available-' + "tools='view,apply_patch'"), ('--allow-' + 'tool=' + '"write($output_file)"'))
         } else {
-            @(('--available-' + 'tools=view,create'), ('--allow-' + 'tool=write($output)'))
+            @(('--available-' + 'tools=view,apply_patch'), ('--allow-' + 'tool=write($output)'))
         }
         foreach ($argument in $toolArguments) {
             if ($live.IndexOf($argument, [StringComparison]::Ordinal) -lt 0 -or
@@ -104,13 +105,13 @@ function Invoke-ContractSelfTest {
     if ($parseErrors.Count -or $guards.Count -ne 1) { Stop-Test 'missing or ambiguous Copilot model guard' }
     $originalModel = $env:SDD_A8_COPILOT_MODEL
     try {
-        foreach ($model in @('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6')) {
+        foreach ($model in @('auto', 'Auto', 'AUTO', 'claude-sonnet-4.6', '', ' ', ' auto', '--model=auto', 'auto;echo')) {
             $env:SDD_A8_COPILOT_MODEL = $model
             $rejected = & ([scriptblock]::Create($guards[0].Clauses[0].Item1.Extent.Text))
-            if ([bool]$rejected -ne ($model -cne 'claude-sonnet-4.6')) { Stop-Test 'Copilot model guard accepted unpinned selection' }
+            if ([bool]$rejected -ne ($model -cnotin @('auto', 'Auto', 'AUTO', 'claude-sonnet-4.6'))) { Stop-Test 'Copilot model selection guard mismatch' }
         }
     } finally { $env:SDD_A8_COPILOT_MODEL = $originalModel }
-    [Console]::Out.WriteLine('ok: PowerShell live Copilot model guard rejects empty and case-variant automatic selections')
+    [Console]::Out.WriteLine('ok: PowerShell live Copilot model guard accepts explicit Auto and rejects missing/invalid selections')
     $one = Join-Path $Fixture 'handoff-01-claude-to-codex.yaml'
     $two = Join-Path $Fixture 'handoff-02-codex-to-copilot.md'
     $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + $fixtureNewline)
@@ -151,8 +152,8 @@ function Invoke-ContractSelfTest {
     [IO.File]::WriteAllText($copyTwo, $textTwo, [Text.UTF8Encoding]::new($false))
     if ([IO.File]::ReadAllText($copyTwo) -cne ('<!-- nonce: ' + $nonce2 + ' -->' + $fixtureNewline)) { Stop-Test 'pseudo Codex producer changed unexpected handoff-02 bytes' }
     $output = Join-Path $work 'handoff-02-output.txt'
-    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))
-    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))).ToLowerInvariant()
+    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2 + $fixtureNewline))
+    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2 + $fixtureNewline))).ToLowerInvariant()
     if ((Get-Sha256 $output) -cne $expectedOutputHash) { Stop-Test 'pseudo Copilot generated-file hash mismatch' }
     if ($initialOne -cne ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($expectedOne))).ToLowerInvariant()) { Stop-Test 'handoff-01 initial hash mismatch' }
     if ($initialTwo -cne ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($expectedTwo))).ToLowerInvariant()) { Stop-Test 'handoff-02 initial hash mismatch' }
@@ -172,7 +173,9 @@ function Invoke-Cli([string]$Name, [string[]]$Arguments, [string]$WorkingDirecto
 }
 function Invoke-LiveE2E {
     $codexBin = if ($env:SDD_A8_CODEX_BIN) { $env:SDD_A8_CODEX_BIN } else { 'codex' }
-    if (-not $env:SDD_A8_COPILOT_MODEL -or $env:SDD_A8_COPILOT_MODEL -ieq 'auto') { Stop-Test 'live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence' }
+    if ($env:SDD_A8_COPILOT_MODEL -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$') { Stop-Test 'live Copilot requires an explicit model ID or Auto in SDD_A8_COPILOT_MODEL' }
+    $copilotModel = $env:SDD_A8_COPILOT_MODEL
+    if ($copilotModel -ieq 'auto') { $copilotModel = 'auto' }
     $work = Join-Path $evidenceDir 'work'
     $fixtureWork = Join-Path $work 'tests/fixtures/cross-runtime-handoff'
     [void](New-Item -ItemType Directory -Force -Path $fixtureWork)
@@ -197,13 +200,19 @@ function Invoke-LiveE2E {
     $codexProducer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
     if (-not $codexProducer.Contains('CODEX-PRODUCED:' + $nonce2)) { Stop-Test 'Codex producer did not attest its nonce' }
     if ((Get-Sha256 $two) -cne $expected2) { Stop-Test 'Codex-produced handoff-02 bytes/hash mismatch' }
-    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'
+    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> followed by exactly one LF byte (no CR or other bytes), using apply_patch. Do not run shell commands or access the network.'
     $output = Join-Path $fixtureWork 'handoff-02-output.txt'
-    [void](Invoke-Cli 'copilot' @('--model', $env:SDD_A8_COPILOT_MODEL, '-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=view,create', ("--allow-tool=write($output)")) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
+    & python3 (Join-Path $repoRoot 'tests/lib/cross-runtime-consumer-evidence.py') snapshot $work (Join-Path $evidenceDir 'copilot-before.json')
+    if ($LASTEXITCODE -ne 0) { Stop-Test 'Copilot workspace snapshot failed' }
+    [void](Invoke-Cli 'copilot' @('--model', $copilotModel, '--output-format', 'json', '-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--no-ask-user', '--available-tools=view,apply_patch', ("--allow-tool=write($output)")) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
     if (-not (Test-Path -LiteralPath $output -PathType Leaf)) { Stop-Test 'Copilot did not produce handoff-02-output.txt' }
-    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2)
+    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2 + $fixtureNewline)
     $expectedOutput = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($outputBytes)).ToLowerInvariant()
     if ((Get-Sha256 $output) -cne $expectedOutput) { Stop-Test 'Copilot-generated file hash mismatch' }
+    if ((Get-Sha256 $one) -cne $expected1 -or (Get-Sha256 $two) -cne $expected2) { Stop-Test 'Copilot modified a producer artifact' }
+    $modelJson = & python3 (Join-Path $repoRoot 'tests/lib/cross-runtime-consumer-evidence.py') observe $env:SDD_A8_COPILOT_MODEL (Join-Path $evidenceDir 'copilot-consumer.log') $work (Join-Path $evidenceDir 'copilot-before.json') $expectedOutput
+    if ($LASTEXITCODE -ne 0) { Stop-Test 'Copilot native model observation failed' }
+    $modelEvidence = $modelJson | ConvertFrom-Json
     $status = Get-TaskStatus $tasksFile
     $activated = Test-CanaryActivated $status
     $canaryResult = if ($activated) { 'FAIL' } else { 'SKIP' }
@@ -212,6 +221,7 @@ function Invoke-LiveE2E {
     $trace = [ordered]@{
         schema = 'cross-runtime-handoff-trace/v1'; fixture_id = 'cross-runtime-handoff'; result = $topResult
         coverage_complete = $false; skip_allowlist_version = 'a8-skip-allowlist/v1'; upstream_commit = $null
+        copilot_model = $modelEvidence
         headless_contracts = @(
             @{ runtime = 'claude'; status = 'confirmed'; invocation = 'claude --print'; evidence = 'https://docs.anthropic.com/en/docs/claude-code/cli-usage' },
             @{ runtime = 'codex'; status = 'confirmed'; invocation = 'codex exec'; evidence = 'https://github.com/openai/codex/blob/main/codex-rs/exec/src/cli.rs' },
@@ -233,6 +243,8 @@ if ($SelfTestActivation) { Invoke-ActivationSelfTest; exit 0 }
 if (-not (Test-Path -LiteralPath $allowlist -PathType Leaf)) { Stop-Test 'missing AC-006 allowlist' }
 if (-not $LiveE2E) {
     Invoke-ContractSelfTest
+    & python3 (Join-Path $repoRoot 'tests/cross-runtime-live-driver.tests.py') --runtime (Get-Process -Id $PID).Path
+    if ($LASTEXITCODE -ne 0) { Stop-Test 'live driver regression failed' }
     Invoke-ActivationSelfTest
     [Console]::Out.WriteLine('Live CLI E2E not run; pass -LiveE2E and set SDD_A8_ALLOW_LIVE_CLI=1 for explicit authenticated sessions.')
     exit 0
