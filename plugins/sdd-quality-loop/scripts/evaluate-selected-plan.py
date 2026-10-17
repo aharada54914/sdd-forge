@@ -8,8 +8,10 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
+import tempfile
 from types import ModuleType
 from typing import Any
 
@@ -168,6 +170,40 @@ def evaluate(registry_path: Path, manifest_path: Path, contract_path: Path,
     return plan, legacy_errors
 
 
+def validate_output(output: Path, root: Path, plan: dict[str, Any]) -> Path:
+    """Only publish to the task's canonical, symlink-free verification directory."""
+    if '..' in output.parts:
+        raise ValueError('output-path-traversal')
+    destination = Path(os.path.abspath(output))
+    expected = (Path(os.path.abspath(root)) / 'specs' / plan['feature'] /
+                'verification' / plan['task_id'] / 'selected-plan.json')
+    if destination != expected:
+        raise ValueError('output-outside-task-verification-directory')
+    for path in (destination, *destination.parents):
+        if path.is_symlink():
+            raise ValueError('output-path-symlink')
+    if not destination.parent.is_dir():
+        raise ValueError('task-verification-directory-missing')
+    return destination
+
+
+def write_plan(output: Path, root: Path, plan: dict[str, Any]) -> None:
+    destination = validate_output(output, root, plan)
+    fd, temporary = tempfile.mkstemp(prefix='.selected-plan-', dir=destination.parent)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
+            stream.write(json.dumps(plan, indent=2) + '\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Recheck before publishing. Replacing the entry also avoids following
+        # hardlinks at an existing output into another repository file.
+        validate_output(output, root, plan)
+        os.replace(temporary, destination)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('repo-root', 'registry', 'facet-manifest', 'contract', 'output'):
@@ -175,10 +211,11 @@ def main() -> int:
     args = parser.parse_args()
     try:
         inputs = (args.registry, args.facet_manifest, args.contract)
-        if args.output.resolve() in {path.resolve() for path in inputs}:
-            raise ValueError('output must not overwrite a policy input')
         plan, errors = evaluate(*inputs, args.repo_root)
-        args.output.write_text(json.dumps(plan, indent=2) + '\n', encoding='utf-8')
+        destination = validate_output(args.output, args.repo_root, plan)
+        if destination in {path.resolve() for path in inputs}:
+            raise ValueError('output must not overwrite a policy input')
+        write_plan(destination, args.repo_root, plan)
         if validate_plan(json.loads(args.output.read_text(encoding='utf-8')), plan):
             raise ValueError('selected-plan-readback-mismatch')
         for error in errors:

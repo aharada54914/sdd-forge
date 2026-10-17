@@ -4,6 +4,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -115,17 +116,19 @@ class SelectedPlanTests(unittest.TestCase):
     def evaluate(self, registry, manifest, contract, verifier=True, evaluator=EVALUATOR):
         self.assertTrue(evaluator.is_file(), 'T-003 selected-plan evaluator is not implemented')
         with tempfile.TemporaryDirectory(prefix='t003-') as folder:
-            root = Path(folder)
+            root = Path(folder).resolve()
             for name, value in [('registry.json', registry), ('manifest.json', manifest), ('contract.json', contract)]:
                 (root / name).write_text(json.dumps(value), encoding='utf-8')
+            output = root / 'specs' / manifest.get('feature', 'example') / 'verification/T-003/selected-plan.json'
+            output.parent.mkdir(parents=True)
             if verifier:
                 (root / 'verifier.py').write_text('pass\n', encoding='utf-8')
             (root / 'evidence.log').write_text('Synthetic fixture verification succeeded.\n', encoding='utf-8')
             result = subprocess.run([sys.executable, str(evaluator), '--repo-root', str(root),
                 '--registry', str(root / 'registry.json'), '--facet-manifest', str(root / 'manifest.json'),
-                '--contract', str(root / 'contract.json'), '--output', str(root / 'plan.json')],
+                '--contract', str(root / 'contract.json'), '--output', str(output)],
                 capture_output=True, text=True, check=False, cwd=root)
-            plan = json.loads((root / 'plan.json').read_text()) if (root / 'plan.json').exists() else None
+            plan = json.loads(output.read_text()) if output.exists() else None
             hashes = {key: hashlib.sha256((root / name).read_bytes()).hexdigest() for key, name in [
                 ('facet_manifest_sha256', 'manifest.json'), ('registry_sha256', 'registry.json'),
                 ('verification_contract_sha256', 'contract.json')]}
@@ -272,7 +275,7 @@ class SelectedPlanTests(unittest.TestCase):
 
     def test_legacy_fixture_control(self):
         with tempfile.TemporaryDirectory(prefix='t003-control-') as folder:
-            root = Path(folder)
+            root = Path(folder).resolve()
             path = root / 'contract.json'
             (root / 'evidence.log').write_text('Synthetic fixture success.\n', encoding='utf-8')
             path.write_text(json.dumps(passing_fixture('ui')[2]), encoding='utf-8')
@@ -335,6 +338,50 @@ class SelectedPlanTests(unittest.TestCase):
                         evaluator=package / 'scripts' / EVALUATOR.name)
                     self.assert_blocked(result, plan)
                     self.assertIn('schema-identity-invalid', result.stderr)
+
+    def test_output_paths_cannot_modify_other_files(self):
+        for attack in ('leaf-link', 'leaf-loop', 'parent-link', 'outside', 'wrong-feature', 'wrong-task', 'traversal', 'hardlink'):
+            with self.subTest(attack=attack), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory).resolve()
+                registry, manifest, contract = passing_fixture('ui')
+                for name, data in [('registry.json', registry), ('manifest.json', manifest), ('contract.json', contract)]:
+                    (root / name).write_text(json.dumps(data))
+                (root / 'verifier.py').write_text('pass')
+                (root / 'evidence.log').write_text('synthetic success')
+                protected = root / 'protected.py'
+                protected.write_text('protected original bytes')
+                output = root / 'specs/example/verification/T-003/selected-plan.json'
+                output.parent.mkdir(parents=True)
+                if attack == 'leaf-link':
+                    output.symlink_to(protected)
+                elif attack == 'leaf-loop':
+                    output.symlink_to(output.name)
+                elif attack == 'parent-link':
+                    output.parent.rmdir()
+                    destination = root / 'other'
+                    destination.mkdir()
+                    (destination / output.name).write_text('protected original bytes')
+                    protected = destination / output.name
+                    output.parent.symlink_to(destination, target_is_directory=True)
+                elif attack == 'outside':
+                    output = protected
+                elif attack == 'wrong-feature':
+                    output = root / 'specs/other/verification/T-003/selected-plan.json'
+                    output.parent.mkdir(parents=True)
+                elif attack == 'wrong-task':
+                    output = root / 'specs/example/verification/T-999/selected-plan.json'
+                    output.parent.mkdir(parents=True)
+                elif attack == 'traversal':
+                    output = output.parent / '..' / 'T-003' / output.name
+                else:
+                    os.link(protected, output)
+                run = subprocess.run([sys.executable, str(EVALUATOR), '--repo-root', str(root),
+                    '--registry', str(root / 'registry.json'), '--facet-manifest', str(root / 'manifest.json'),
+                    '--contract', str(root / 'contract.json'), '--output', str(output)],
+                    capture_output=True, text=True, cwd=root)
+                self.assertEqual(protected.read_text(), 'protected original bytes')
+                self.assertEqual(run.returncode, 0 if attack == 'hardlink' else 1, run.stdout + run.stderr)
+                self.assertNotIn('Traceback', run.stderr)
 
     def test_output_identity_and_bindings(self):
         _, plan, hashes = self.evaluate(*fixture('cli-library'))
@@ -480,6 +527,39 @@ class SelectedPlanTests(unittest.TestCase):
                 node[path[-1]] = value
                 self.assertTrue(evaluator.validate_plan(changed, expected))
 
+    def test_c3_lite_full_promotion_uses_summary_runner(self):
+        skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text()
+        self.assertIn('C3 PROMOTE_FULL', skill)
+        self.assertIn('run-lite-gate.py', skill)
+        self.assertIn('spec_profile: full', skill)
+        runner = ROOT / 'plugins/sdd-lite/lib/run-lite-gate.py'
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            (root / 'scripts').mkdir()
+            summary = root / 'capability-summary.json'
+            summary.write_text(json.dumps({'schema': 'sdd-capability-summary/v1', 'feature': 'example',
+                'track': 'lite', 'capabilities': ['ui'], 'required_lite_checks': ['installer-dry-run'],
+                'full_upgrade_required': False}))
+            runtime = 'powershell' if os.name == 'nt' else 'posix'
+            for extension in ('sh', 'ps1'):
+                (root / ('scripts/installer-dry-run.' + extension)).write_text('echo synthetic-check\nexit 0\n')
+            shell = root / ('scripts/installer-dry-run.' + ('ps1' if os.name == 'nt' else 'sh'))
+            argv = [sys.executable, str(runner), '--repo-root', str(root), '--summary', str(summary),
+                    '--enforcement', 'required', '--runtime', runtime]
+            run = subprocess.run(argv, capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            result = json.loads(run.stdout)
+            self.assertEqual(result['verdict'], 'PASS')
+            self.assertEqual(result['checks'][0]['exit_code'], 0)
+            shell.write_text('echo synthetic-failure\nexit 7\n')
+            run = subprocess.run(argv, capture_output=True, text=True)
+            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+            self.assertEqual(json.loads(run.stdout)['checks'][0]['exit_code'], 7)
+            summary.unlink()
+            run = subprocess.run(argv, capture_output=True, text=True)
+            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+            self.assertEqual(json.loads(run.stdout)['verdict'], 'FAIL')
+
     def test_quality_gate_and_both_runners_invoke_evaluator(self):
         skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text()
         self.assertIn('evaluate-selected-plan.py', skill)
@@ -532,15 +612,17 @@ shared_paths: []
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 manifest = repo / 'specs/example-feature/facet-manifest.yaml'
                 original = manifest.read_bytes()
+                output = repo / 'specs/example-feature/verification/T-003/selected-plan.json'
+                output.parent.mkdir(parents=True)
                 argv = [sys.executable, str(EVALUATOR), '--repo-root', str(repo),
                         '--registry', 'contracts/capability-registry.json',
                         '--facet-manifest', 'specs/example-feature/facet-manifest.yaml',
-                        '--contract', 'contract.json', '--output', 'plan.json']
+                        '--contract', 'contract.json', '--output', str(output)]
 
                 def evaluate():
-                    (repo / 'plan.json').unlink(missing_ok=True)
+                    output.unlink(missing_ok=True)
                     run = subprocess.run(argv, cwd=repo, capture_output=True, text=True)
-                    plan_path = repo / 'plan.json'
+                    plan_path = output
                     return run, json.loads(plan_path.read_text()) if plan_path.exists() else None
 
                 run, plan = evaluate()

@@ -67,12 +67,17 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
      `red_evidence` + `green_evidence` for every test-type check.
-   - For an active Project Context, additionally run
+   - For an active Project Context with `spec_profile: full`, whose approved
+     Resolver invocation publishes a Facet Manifest, additionally run
      `python3 scripts/evaluate-selected-plan.py --repo-root <project-root>
      --registry <protected-registry> --facet-manifest <current-resolver-manifest>
-     --contract <task-contract> --output <task-verification>/selected-plan.json`
+     --contract <task-contract>
+     --output <project-root>/specs/<feature>/verification/<task-id>/selected-plan.json`
      (script path relative to this plugin; on Windows use `python`). First
      complete the existing context approval, Resolver and staleness checks;
+     create the task verification directory before invocation. The output and
+     every parent must be real paths without symlinks; other output locations
+     are rejected. The feature/task identity comes from the evaluated inputs;
      supply their current manifest, never a hand-authored selection. Record
      the command, exit code and versioned plan as gate evidence. Nonzero or
      missing execution blocks acceptance; only a freshly emitted `PASS` may
@@ -81,6 +86,23 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      `BLOCKED`; only originally optional, target-unselected checks may be
      reasoned N/A. An absent Project Context retains the legacy path and
      does not activate this evaluator from manifest file presence alone.
+   - For C3 PROMOTE_FULL (`spec_profile: lite` plus `--full`), the gate is
+     promoted but the Resolver output remains `capability-summary.yaml`.
+     Do not pass that summary to `--facet-manifest`, fabricate a Facet Manifest,
+     or select this branch merely because a manifest file is missing. Retain
+     all preceding full-gate checks, context approval and Resolver checks, and
+     additionally invoke `python3 plugins/sdd-lite/lib/run-lite-gate.py
+     --summary <current-resolver-summary> --enforcement <advisory|required>
+     --repo-root <project-root> --runtime <posix|powershell>` (locate the
+     installed sdd-lite plugin; on Windows use `python`). This existing adapter
+     validates the Summary and executes its Registry-sourced required Lite
+     checks using the Lite command-discovery contract. Its baseline no-ops
+     require the corresponding full-gate observations already executed above.
+     Missing/invalid Summary, unavailable adapter, required-check failure, or
+     nonzero execution blocks acceptance. Record the real command, exit code
+     and JSON result. This branch emits no selected-plan claim and does not
+     change the project's profile; a full-profile context with a missing or
+     invalid Facet Manifest still blocks at the preceding evaluator step.
    - `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
      the Reverse Coverage Gate. Always runs to completion and always emits
      a `check-component-coverage-verdict/v1` evidence record. Derives one
