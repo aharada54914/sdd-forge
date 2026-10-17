@@ -243,6 +243,9 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-domain/scripts/validate-concept-test.ps1',
     'plugins/sdd-domain/scripts/validate-concept-test.py',
     'plugins/sdd-domain/scripts/domain-review-precheck.ps1',
+    'plugins/sdd-domain/scripts/finalize-domain-review.py',
+    'plugins/sdd-domain/scripts/finalize-domain-review.sh',
+    'plugins/sdd-domain/scripts/finalize-domain-review.ps1',
 )
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
