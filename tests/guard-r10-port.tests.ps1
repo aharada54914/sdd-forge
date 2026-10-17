@@ -255,6 +255,51 @@ Assert-CopilotParity "copilot-emit: r10 write to guard -> deny" "deny"  '{"tool_
 Assert-CopilotParity "copilot-emit: cd+rm guard -> deny"        "deny"  '{"tool_name":"bash","tool_input":{"command":"cd plugins/sdd-quality-loop/scripts && rm sdd-hook-guard.py"}}'
 Assert-CopilotParity "copilot-emit: write src/main.py -> allow" "allow" '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
 
+# Native lower-case Copilot input: exact names, typed args, one final decision.
+$native = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "view"; toolArgs = @{ path = "src/main.py" } }
+Assert-CopilotParity "native view object -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = '{"path":"src/main.py"}'
+Assert-CopilotParity "native view JSON string -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "create"
+$native.toolArgs = @{ path = "src/main.py"; file_text = "safe" }
+Assert-CopilotParity "native create safe write -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"; file_text = "x" }
+Assert-CopilotParity "native create protected -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "specs/feat-noverdict/tasks.md"; file_text = "Approval: Approved" }
+Assert-CopilotParity "native create approval increase -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py"; content = "x" }
+Assert-CopilotParity "native create wrong content key -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py"; file_text = 1 }
+Assert-CopilotParity "native create wrong file_text type -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ file_text = "x" }
+Assert-CopilotParity "native create missing path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = 1; file_text = "x" }
+Assert-CopilotParity "native create nonstring path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "View"
+$native.toolArgs = @{ path = "src/main.py" }
+Assert-CopilotParity "native miscased name -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "edit"
+Assert-CopilotParity "native unknown tool -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolName = "view"
+$native.toolArgs = '[{"path":"src/main.py"}]'
+Assert-CopilotParity "native array args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = '{bad-json'
+Assert-CopilotParity "native malformed JSON args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.toolArgs = @{ path = "src/main.py" }
+$nativeJson = $native | ConvertTo-Json -Compress -Depth 6
+Assert-CopilotParity "native singleton envelope array -> deny" "deny" ("[" + $nativeJson + "]")
+foreach ($number in @("NaN", "Infinity", "-Infinity", "1e400")) {
+    $invalidTimestamp = '{"sessionId":"synthetic","timestamp":' + $number + ',"cwd":".","toolName":"view","toolArgs":{"path":"src/main.py"}}'
+    Assert-CopilotParity "native nonfinite timestamp $number -> deny" "deny" $invalidTimestamp
+}
+$native["correlationId"] = "metadata-only"
+Assert-CopilotParity "native extra metadata -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
+$native.timestamp = "2026-10-01T00:00:00Z"
+Assert-CopilotParity "native ISO timestamp is wrong format -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
+Assert-CopilotParity "internal batch envelope only -> deny" "deny" '{"cwd":".","sessionId":"synthetic","toolCalls":[{"name":"view","args":{"path":"src/main.py"}}]}'
+Assert-CopilotParity "legacy plus batch envelope -> deny" "deny" '{"tool_name":"read","tool_input":{"file_path":"src/main.py"},"toolCalls":[{"name":"create","args":{"path":"specs/feat-noverdict/tasks.md","file_text":"Approval: Approved"}}]}'
+Assert-CopilotParity "ambiguous native and legacy -> deny" "deny" '{"sessionId":"synthetic","timestamp":1,"cwd":".","toolName":"view","toolArgs":{"path":"src/main.py"},"tool_name":"read","tool_input":{"file_path":"src/main.py"}}'
+
 # Non-protected writes (allow 0).
 Assert-Parity "allow: write src/main.py"                   0 '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
 Assert-Parity "allow: edit README.md"                      0 '{"tool_name":"edit","tool_input":{"file_path":"README.md","old_string":"a","new_string":"b"}}'

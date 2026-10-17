@@ -90,6 +90,11 @@ function Test-ProcessExited {
     param([int]$ProcessId)
     for ($attempt = 0; $attempt -lt 20; $attempt++) {
         if (-not (Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)) { return $true }
+        # A container's PID 1 may leave terminated descendants unreaped.
+        if ($IsLinux) {
+            $state = Get-Content -Raw -LiteralPath "/proc/$ProcessId/stat" -ErrorAction SilentlyContinue
+            if ($state -cmatch '(?s)^\d+ \(.*\) Z ') { return $true }
+        }
         Start-Sleep -Milliseconds 100
     }
     return -not [bool](Get-Process -Id $ProcessId -ErrorAction SilentlyContinue)
@@ -776,12 +781,10 @@ $panelistRunners = @(
             $stage = if (Test-Path -LiteralPath $stageFile) { "$(Get-Content -Raw -LiteralPath $stageFile)".Trim() } else { 'missing' }
             Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration last_stage=$stage"
             if (Test-Path -LiteralPath $phaseFile) {
-                $phaseText = [string](Get-Content -Raw -LiteralPath $phaseFile)
-                $waitRecords = [regex]::Matches($phaseText, '(?m)^wait_end=([0-9]+)\r?$')
-                if ($waitRecords.Count -eq 1) { $waitEnd = [long]$waitRecords[0].Groups[1].Value }
-                $outputRecords = [regex]::Matches($phaseText, '(?m)^output_end=([0-9]+)\r?$')
-                if ($outputRecords.Count -eq 1) { $outputEnd = [long]$outputRecords[0].Groups[1].Value }
-                foreach ($phase in Get-Content -LiteralPath $phaseFile) {
+                $phases = Read-BoundaryPhases $phaseFile
+                $waitEnd = $phases.wait_end
+                $outputEnd = $phases.output_end
+                foreach ($phase in $phases.text -split '\r?\n') {
                     if ($phase -cmatch '^(wait_end|output_end|receipt_end|console_ready|write_start|write_end|flush_start|flush_end|phase_persist)=[0-9]+$') {
                         Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration $phase"
                     }
