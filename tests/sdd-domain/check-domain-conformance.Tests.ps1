@@ -112,7 +112,7 @@ function Invoke-CheckDomainConformance {
         $argList = @("-ProjectRoot", $ProjectRoot)
         if ($RequirementsMd -ne "") { $argList += @("-RequirementsMd", $RequirementsMd) }
         if ($DesignMd -ne "") { $argList += @("-DesignMd", $DesignMd) }
-        $output = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $checkPs1 @argList 2>&1 | Out-String
+        $output = & (Get-Process -Id $PID).Path -NoProfile -ExecutionPolicy Bypass -File $checkPs1 @argList 2>&1 | Out-String
         return @{ Output = $output; ExitCode = $LASTEXITCODE }
     } finally {
         if ($null -ne $envBackup) { $env:SDD_DOMAIN_ENFORCE = $envBackup } else { Remove-Item Env:SDD_DOMAIN_ENFORCE -ErrorAction SilentlyContinue }
