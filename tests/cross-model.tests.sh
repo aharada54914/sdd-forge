@@ -422,6 +422,27 @@ if [ "\${1:-}" = +%s ] && [ -n "\${STUB_DEADLINE_FILE:-}" ]; then
         printf '%s\n' "\$(( (_clock_now + SDD_PANELIST_TIMEOUT + 1) * 1000 ))" > "\$STUB_DEADLINE_FILE"
     elif [ "\$_clock_now" -ge "\$(( \$(cat "\$STUB_DEADLINE_FILE") / 1000 ))" ]; then
         printf '%s\n' "\$(( _clock_now * 1000 ))" > "\$STUB_EXPIRY_FILE"
+        if [ -n "\${STUB_RECHECK:-}" ]; then
+            # Pause only the test observer after real expiry. Wait for the
+            # actual supervisor's atomic status publication, never synthesize it.
+            _receipt_limit=\$(( _clock_now + 10 ))
+            while :; do
+                if [ -s "\$STUB_STATUS_PATH_FILE" ]; then
+                    _status_path=\$(cat "\$STUB_STATUS_PATH_FILE")
+                    if [ -s "\$_status_path" ]; then
+                        printf '%s\n' "\$(cat "\$_status_path")" > "\$STUB_RECHECK_STATUS_FILE"
+                        break
+                    fi
+                fi
+                if [ "\$("$PANELIST_REAL_DATE" +%s)" -ge "\$_receipt_limit" ]; then
+                    printf 'test observer: no real supervisor status within bound\n' >&2
+                    # Return the observed clock so production enforces expiry;
+                    # missing recheck-status still makes the fixture fail.
+                    break
+                fi
+                sleep 0.01
+            done
+        fi
     fi
 fi
 printf '%s\n' "\$_clock_now"
@@ -431,7 +452,11 @@ EOF
 cat > "${PANELIST_STUBS}/python3" <<EOF
 #!/bin/sh
 case "\${3:-}" in
-    */bounded-status) sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
+    */bounded-status)
+        if [ -n "\${STUB_STATUS_PATH_FILE:-}" ]; then
+            printf '%s\n' "\$3" > "\$STUB_STATUS_PATH_FILE"
+        fi
+        sleep "\${STUB_SUPERVISOR_DELAY:-0}" ;;
 esac
 exec "$PANELIST_REAL_PYTHON" "\$@"
 EOF
@@ -482,12 +507,17 @@ PYEOF
         ;;
 esac
 sleep "\${STUB_OUTPUT_DELAY:-0}"
+if [ "\${STUB_OUTPUT_MODE:-complete}" = incomplete ]; then
+    printf '{\n'
+else
 cat <<JSON
 {"schema":"cross-model-verdict/v1","task_id":"T-901","feature":"timeout-test","vendor":"${vendor}","model":"stub-model","verdict":"PASS","findings":[],"blind":true,"input_digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","consent":{"kind":"human-flag","ref":"test"}}
 JSON
+fi
 if [ -n "\${STUB_PHASE_FILE:-}" ]; then
     python3 -c 'import os, time; open(os.environ["STUB_PHASE_FILE"], "a").write(f"output_end={time.time_ns() // 1_000_000}\n")'
 fi
+exit "\${STUB_EXIT_CODE:-0}"
 EOF
     chmod +x "$path"
 }
@@ -563,6 +593,7 @@ print(f'measurement: completion runner={runner} mode={mode} deadline_epoch_ms={d
 assert started <= wait_end and output_end - wait_end >= 500
 if mode == 'recheck':
     assert expiry.is_file() and wait_end >= int(expiry.read_text()) and output_end > deadline
+    assert (root / 'recheck-status').read_text().strip() == '0'
 else:
     assert not expiry.exists() and output_end <= deadline
     if mode == 'normal':
@@ -720,8 +751,11 @@ for runner_kind in gpt gemini; do
     fi
 done
 
-# TEST-004(c2): wait for the real expiry check, then publish after 500ms.
-# Success therefore needs the helper's one-second settling re-check.
+# TEST-004(c2): wait for real expiry, then publish after 500ms. Coordinate
+# the observer until the real supervisor finishes, like the PowerShell debugger
+# fixture. No clock, status or exit value is fabricated; deleting the production
+# post-expiry re-check must still fail every iteration. This removes the race
+# between fixture startup/cleanup scheduling and the one-second observation.
 for runner_kind in gpt gemini; do
     runner=$(runner_path "$runner_kind")
     for iteration in 1 2 3 4 5; do
@@ -732,6 +766,7 @@ for runner_kind in gpt gemini; do
         started=$(monotonic_ms)
         run_panelist "$runner" set 2 "$case_dir" \
             STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_RECHECK=1 STUB_OUTPUT_DELAY=0.5 \
+            STUB_STATUS_PATH_FILE="$case_dir/status-path" STUB_RECHECK_STATUS_FILE="$case_dir/recheck-status" \
             STUB_DEADLINE_FILE="$case_dir/deadline" STUB_EXPIRY_FILE="$case_dir/expiry" \
             STUB_PHASE_FILE="$case_dir/phases" STUB_PID_FILE="$case_dir/stub.pid"
         finished=$(monotonic_ms)
@@ -741,6 +776,33 @@ for runner_kind in gpt gemini; do
             ok "TEST-004(c2) ${runner_kind}/${iteration}: post-deadline re-check rescues a completing child"
         else
             fail "TEST-004(c2) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+        fi
+    done
+done
+
+# Completed nonzero and incomplete-output children must never become PASS just
+# because the expiry observer saw their real completion marker.
+for runner_kind in gpt gemini; do
+    for control in nonzero incomplete; do
+        case_dir="${WORK}/recheck-${runner_kind}-${control}"
+        mkdir -p "$case_dir"
+        cli_exit=0; output_mode=complete
+        if [ "$control" = nonzero ]; then cli_exit=7; else output_mode=incomplete; fi
+        run_panelist "$(runner_path "$runner_kind")" set 2 "$case_dir" \
+            STUB_CALLED_FILE="$case_dir/called" STUB_MODE=success STUB_RECHECK=1 STUB_OUTPUT_DELAY=0.5 \
+            STUB_EXIT_CODE="$cli_exit" STUB_OUTPUT_MODE="$output_mode" \
+            STUB_STATUS_PATH_FILE="$case_dir/status-path" STUB_RECHECK_STATUS_FILE="$case_dir/recheck-status" \
+            STUB_DEADLINE_FILE="$case_dir/deadline" STUB_EXPIRY_FILE="$case_dir/expiry" \
+            STUB_PHASE_FILE="$case_dir/phases" STUB_PID_FILE="$case_dir/stub.pid"
+        verdict="$case_dir/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
+        if [ "$PANELIST_EXIT" = 1 ] && [ ! -e "$verdict" ] && \
+                [ -s "$case_dir/stub.pid" ] && process_is_dead "$(cat "$case_dir/stub.pid")" && \
+                [ -s "$case_dir/expiry" ] && [ -s "$case_dir/recheck-status" ] && \
+                [ "$(cat "$case_dir/recheck-status")" = "$cli_exit" ] && \
+                [[ "$PANELIST_OUTPUT" != *"exceeded SDD_PANELIST_TIMEOUT"* ]]; then
+            ok "TEST-004(c2) ${runner_kind}/${control}: completed child remains failed with no verdict"
+        else
+            fail "TEST-004(c2) ${runner_kind}/${control}: completion/exit/output rejection contract"
         fi
     done
 done
