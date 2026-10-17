@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """A9 candidate, scoped overrides and minimal Pack behavioral regressions."""
 import copy
+import contextlib
+import io
 import importlib.util
 import json
 import hashlib
@@ -10,6 +12,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
@@ -308,6 +311,224 @@ class ResolverIntegrationTests(unittest.TestCase):
             with self.subTest(profile=profile):
                 self.run_pipeline(["plugins/sdd-bootstrap/example.py"], context_mutation=lambda doc:
                     doc["workflow"].update(spec_profile=profile, artifact_layout=layout, capability_enforcement=enforcement))
+
+
+class PromotionPreflightTests(unittest.TestCase):
+    """Synthetic evidence tests: these never authorize a real promotion."""
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("a9_promotion", ROOT / "scripts/validate-a9-candidate.py")
+        self.checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.checker)
+        self.baseline = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
+        self.candidate = copy.deepcopy(self.baseline)
+        self.candidate["workflow"].update(artifact_layout="facet-hybrid", capability_enforcement="required")
+        self.tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
+        folder = ROOT / "specs/epic-197-a9-dogfood/verification/advisory-observation-20261017"
+        self.registry = json.loads((ROOT / "contracts/capability-registry.json").read_text())
+        self.evidence = json.loads((folder / "resolver-evidence.yaml").read_text())
+        self.manifest = json.loads((folder / "facet-manifest.yaml").read_text())
+        ownership = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(self.baseline), self.tracked)
+        for document in (self.evidence, self.manifest):
+            document["context_binding"]["full_context_revision"] = OWNERSHIP.canonical_digest(self.baseline)
+            document["context_binding"]["ownership_digest"] = ownership["context_binding"]["ownership_digest"]
+        self.head = "b" * 40
+        self.commit = "c" * 40
+        self.cycle = {"schema": "a9-release-cycle/v1", "base_sha": "a" * 40, "head_sha": self.commit,
+            "release": {"tag_name": "synthetic-release", "draft": False, "prerelease": False,
+                        "published_at": "2026-10-01T00:00:00Z"},
+            "required_checks": {"linux": ["tests (ubuntu-latest)"], "macos": ["tests (macos-latest)"],
+                                "windows": ["tests (windows-latest)"]},
+            "advisory_check": "capability-mode Gate (advisory)",
+            "pull_requests": [{"number": 1, "head_sha": self.head, "merge_commit_sha": self.commit,
+                "check_runs": [{"id": i + 1, "name": name, "head_sha": self.head,
+                    "status": "completed", "conclusion": "success"}
+                    for i, name in enumerate(["capability-mode Gate (advisory)", "tests (ubuntu-latest)",
+                                              "tests (macos-latest)", "tests (windows-latest)"])]}]}
+
+    def check(self):
+        return self.checker.validate_promotion(self.candidate, self.baseline, self.tracked,
+            self.registry, self.evidence, self.manifest, self.cycle, [self.commit])
+
+    def test_complete_scoped_preflight(self):
+        self.assertEqual(self.check(), [])
+
+    def test_phase2_cli_consumes_real_formats_and_git_without_authorizing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            root = base / "repo"
+            root.mkdir()
+            shutil.copytree(ROOT / "contracts", root / "contracts")
+            for relative in ("plugins/sdd-quality-loop/scripts", "plugins/sdd-quality-loop/references"):
+                shutil.copytree(ROOT / relative, root / relative, ignore=shutil.ignore_patterns("__pycache__"))
+            for path in ["plugins/" + name + "/fixture.py" for name in self.checker.PLUGIN_IDS] + ["mcp/fixture.py", "install.sh"]:
+                destination = root / path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.touch()
+            def git(*args):
+                return subprocess.check_output(["git", *args], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+            git("init", "-q")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "base")
+            self.cycle["base_sha"] = git("rev-parse", "HEAD")
+            (root / "install.sh").write_text("# synthetic release fixture\n")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "release")
+            self.cycle["head_sha"] = git("rev-parse", "HEAD")
+            self.cycle["pull_requests"][0]["merge_commit_sha"] = self.cycle["head_sha"]
+            git("tag", "synthetic-release")
+            tracked = git("ls-files").splitlines()
+            ownership = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(self.baseline), tracked)
+            for document in (self.evidence, self.manifest):
+                document["context_binding"]["ownership_digest"] = ownership["context_binding"]["ownership_digest"]
+            args = ["validate-a9-candidate.py", "--phase", "phase2"]
+            for flag, document in (("candidate", self.candidate), ("baseline", self.baseline),
+                                   ("registry", self.registry), ("resolver-evidence", self.evidence),
+                                   ("manifest", self.manifest), ("release-evidence", self.cycle)):
+                path = base / (flag + ".yaml")
+                path.write_text(json.dumps(document))
+                args.extend(["--" + flag, str(path)])
+            output = io.StringIO()
+            with patch.object(self.checker, "ROOT", root), patch.object(sys, "argv", args), contextlib.redirect_stdout(output):
+                self.assertEqual(self.checker.main(), 0, output.getvalue())
+            result = json.loads(output.getvalue())
+            self.assertTrue(result["candidate_valid"])
+            self.assertEqual(result["release_cycle_evidence"], "consistency_checked")
+            self.assertFalse(result["promotion_authorized"])
+            self.assertFalse((root / "sdd").exists())
+
+    def test_rejects_partial_transition_and_unrelated_context_change(self):
+        for layout, enforcement in [("legacy-seven-layer", "required"), ("facet-hybrid", "advisory")]:
+            with self.subTest(layout=layout):
+                self.candidate = copy.deepcopy(self.baseline)
+                self.candidate["workflow"].update(artifact_layout=layout, capability_enforcement=enforcement)
+                self.assertTrue(self.check())
+        self.candidate = copy.deepcopy(self.baseline)
+        self.candidate["workflow"].update(artifact_layout="facet-hybrid", capability_enforcement="required")
+        self.candidate["shared_paths"].reverse()
+        self.assertTrue(self.check())
+
+    def test_rejects_stale_resolver_bindings_and_missing_pack(self):
+        original = copy.deepcopy(self.evidence)
+        for field in ("full_context_revision", "ownership_digest", "registry_digest"):
+            self.evidence = copy.deepcopy(original)
+            self.evidence["context_binding"][field] = "sha256:" + "0" * 64
+            with self.subTest(field=field): self.assertTrue(self.check())
+        self.evidence = original
+        self.evidence["resolver"]["version"] = "stale"
+        self.assertTrue(self.check())
+        self.evidence["resolver"]["version"] = RESOLVER.RESOLVER_VERSION
+        self.registry["capabilities"] = []
+        self.assertTrue(self.check())
+
+    def test_coherent_stale_registry_repin_is_rejected(self):
+        original = copy.deepcopy(self.registry)
+        for change in (lambda r: r.update(version="stale"),
+                       lambda r: r["gates"][0].update(blocking=False)):
+            self.registry = copy.deepcopy(original)
+            change(self.registry)
+            digest = load("validate-resolver-evidence").whole_registry_digest(self.registry)
+            for document in (self.evidence, self.manifest):
+                document["context_binding"]["registry_digest"] = digest
+            self.assertTrue(self.check())
+
+    def test_manifest_cannot_drop_selected_facets_or_change_feature(self):
+        original = copy.deepcopy(self.manifest)
+        for field, value in (("required_facets", []), ("feature", "another-feature"), ("capabilities", [])):
+            self.manifest = copy.deepcopy(original)
+            self.manifest[field] = value
+            with self.subTest(field=field): self.assertTrue(self.check())
+
+    def test_release_roster_must_cover_exact_git_commits(self):
+        for mutate in (lambda c: c.update(pull_requests=[]),
+                       lambda c: c["pull_requests"].append(copy.deepcopy(c["pull_requests"][0])),
+                       lambda c: c["pull_requests"][0].update(merge_commit_sha="d" * 40),
+                       lambda c: c["release"].update(draft=True),
+                       lambda c: c["release"].update(published_at=None)):
+            original = copy.deepcopy(self.cycle)
+            mutate(self.cycle)
+            self.assertTrue(self.check())
+            self.cycle = original
+
+    def test_current_success_on_every_platform_and_gate_required(self):
+        original = copy.deepcopy(self.cycle)
+        for index in range(4):
+            for field, value in (("head_sha", "d" * 40), ("status", "in_progress"),
+                                 ("conclusion", "failure"), ("conclusion", "skipped")):
+                self.cycle = copy.deepcopy(original)
+                self.cycle["pull_requests"][0]["check_runs"][index][field] = value
+                with self.subTest(index=index, field=field, value=value): self.assertTrue(self.check())
+            self.cycle = copy.deepcopy(original)
+            self.cycle["pull_requests"][0]["check_runs"].pop(index)
+            self.assertTrue(self.check())
+        self.cycle = copy.deepcopy(original)
+        self.cycle["required_checks"].pop("macos")
+        self.assertTrue(self.check())
+
+    def test_old_green_cannot_hide_latest_failure(self):
+        latest = copy.deepcopy(self.cycle["pull_requests"][0]["check_runs"][1])
+        latest.update(id=100, conclusion="failure")
+        self.cycle["pull_requests"][0]["check_runs"].append(latest)
+        self.assertTrue(self.check())
+        latest["conclusion"] = "success"
+        self.assertEqual(self.check(), [])
+
+    def test_missing_or_malformed_evidence_fails_closed(self):
+        for value in ({}, None, [], {"schema": "a9-release-cycle/v1"}):
+            self.cycle = value
+            with self.subTest(value=value): self.assertTrue(self.check())
+
+
+class PromotionGitBoundaryTests(unittest.TestCase):
+    def test_real_git_release_boundary_and_tag_binding(self):
+        spec = importlib.util.spec_from_file_location("a9_git_boundary", ROOT / "scripts/validate-a9-candidate.py")
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def git(*args):
+                return subprocess.check_output(["git", *args], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+            git("init", "-q")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-qm", "base")
+            base = git("rev-parse", "HEAD")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--allow-empty", "-qm", "release")
+            head = git("rev-parse", "HEAD")
+            git("tag", "synthetic-release")
+            cycle = {"base_sha": base, "head_sha": head, "release": {"tag_name": "synthetic-release"}}
+            with patch.object(checker, "ROOT", root):
+                self.assertEqual(checker.release_commits(cycle), [head])
+                git("tag", "-f", "synthetic-release", base)
+                with self.assertRaises(ValueError): checker.release_commits(cycle)
+                cycle["head_sha"] = "--help"
+                with self.assertRaises(ValueError): checker.release_commits(cycle)
+
+    def test_reads_real_resolver_json_in_yaml_and_rejects_corrupt_objects(self):
+        spec = importlib.util.spec_from_file_location("a9_reader", ROOT / "scripts/validate-a9-candidate.py")
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        folder = ROOT / "specs/epic-197-a9-dogfood/verification/advisory-observation-20261017"
+        for name in ("facet-manifest.yaml", "resolver-evidence.yaml"):
+            with self.subTest(name=name):
+                self.assertEqual(checker.read_document(folder / name), json.loads((folder / name).read_text()))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "artifact.yaml"
+            for content in ('{"schema":"first","schema":"second"}', '{"schema": invalid}'):
+                path.write_text(content)
+                with self.subTest(content=content), self.assertRaises(ValueError): checker.read_document(path)
+
+    def test_cli_missing_or_duplicate_documents_reject_without_activation(self):
+        command = [sys.executable, str(ROOT / "scripts/validate-a9-candidate.py")]
+        result = subprocess.run(command + ["--phase", "phase2"], capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("requires baseline", result.stderr)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / "candidate.json"
+            candidate.write_text('{"schema":"first","schema":"second"}')
+            result = subprocess.run(command + ["--candidate", str(candidate)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn("Traceback", result.stderr)
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(json.loads(result.stdout)["promotion_authorized"])
 
 
 if __name__ == "__main__":

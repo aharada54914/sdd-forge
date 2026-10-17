@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Validate A9's unpublished Context and tracked ownership; never activate it."""
+"""Validate A9 candidates and optional release/CI consistency; never authorize activation."""
 import argparse
+from datetime import datetime, timezone
 import importlib.util
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -24,13 +26,16 @@ PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-qua
               "sdd-ship", "sdd-lite", "sdd-domain"}
 
 
-def validate(document, tracked_paths):
+def validate(document, tracked_paths, phase="phase1"):
     errors = []
     if not RESOLVER._project_context_valid(document, ROOT):
         return ["Context schema or scoped characteristic validation failed"], None
-    if document["workflow"] != {"spec_profile": "full", "artifact_layout": "legacy-seven-layer",
-                                "capability_enforcement": "advisory"}:
-        errors.append("candidate must retain the full/legacy-seven-layer/advisory phase-1 tuple")
+    expected = {"phase1": {"spec_profile": "full", "artifact_layout": "legacy-seven-layer",
+                           "capability_enforcement": "advisory"},
+                "phase2": {"spec_profile": "full", "artifact_layout": "facet-hybrid",
+                           "capability_enforcement": "required"}}[phase]
+    if document["workflow"] != expected:
+        errors.append("candidate must use the exact " + phase + " workflow tuple")
     components = document.get("components", [])
     identities = [c["id"] for c in components]
     if len(identities) != 9 or set(identities) != PLUGIN_IDS | {"mcp", "installer"}:
@@ -90,21 +95,171 @@ def validate(document, tracked_paths):
     return errors, ownership
 
 
+def validate_release_cycle(cycle, commits):
+    """Check trusted exports against Git; this does not authenticate GitHub exports."""
+    try:
+        if cycle["schema"] != "a9-release-cycle/v1":
+            raise ValueError("unknown release evidence schema")
+        for field in ("base_sha", "head_sha"):
+            if not isinstance(cycle[field], str) or not re.fullmatch(r"[0-9a-f]{40}", cycle[field]):
+                raise ValueError("release boundaries must be full commit IDs")
+        if cycle["base_sha"] == cycle["head_sha"] or not commits or commits[0] != cycle["head_sha"]:
+            raise ValueError("release cycle must contain the bounded Git history")
+        release = cycle["release"]
+        if release["draft"] is not False or release["prerelease"] is not False or not release["tag_name"]:
+            raise ValueError("a published final release is required")
+        published = datetime.fromisoformat(release["published_at"].replace("Z", "+00:00"))
+        if published.tzinfo is None or published > datetime.now(timezone.utc):
+            raise ValueError("release publication needs a past, timezone-qualified timestamp")
+        lanes = cycle["required_checks"]
+        if set(lanes) != {"linux", "macos", "windows"}:
+            raise ValueError("required checks must cover all three platforms")
+        for names in lanes.values():
+            if not isinstance(names, list) or not names or any(not isinstance(n, str) or not n.strip() for n in names):
+                raise ValueError("each platform needs named CI checks")
+        all_names = [name for names in lanes.values() for name in names]
+        if len(set(all_names)) != len(all_names):
+            raise ValueError("platform checks must be distinct")
+        gate = cycle["advisory_check"]
+        if not isinstance(gate, str) or not gate.strip() or gate in all_names:
+            raise ValueError("the advisory Gate needs a distinct check name")
+        required = set(all_names) | {gate}
+        prs = cycle["pull_requests"]
+        numbers = [pr["number"] for pr in prs]
+        merges = [pr["merge_commit_sha"] for pr in prs]
+        if (not prs or any(type(n) is not int or n <= 0 for n in numbers)
+                or len(set(numbers)) != len(numbers) or len(set(merges)) != len(merges)
+                or set(merges) != set(commits)):
+            raise ValueError("PR roster must cover every first-parent release commit exactly once")
+        for pr in prs:
+            if not isinstance(pr["head_sha"], str) or not re.fullmatch(r"[0-9a-f]{40}", pr["head_sha"]):
+                raise ValueError("PR head must be a full commit ID")
+            latest, ids = {}, set()
+            for check in pr["check_runs"]:
+                if type(check["id"]) is not int or check["id"] <= 0 or check["id"] in ids:
+                    raise ValueError("check run IDs must be unique positive integers")
+                ids.add(check["id"])
+                if check["head_sha"] != pr["head_sha"]:
+                    raise ValueError("CI evidence must reference the PR's final head")
+                name = check["name"]
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError("check run needs a name")
+                if name not in latest or check["id"] > latest[name]["id"]:
+                    latest[name] = check
+            if not required <= latest.keys():
+                raise ValueError("advisory Gate or required platform CI is missing")
+            if any(c["status"] != "completed" or c["conclusion"] != "success" for c in latest.values()):
+                raise ValueError("latest recorded checks must all complete successfully")
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
+        return ["release/CI evidence rejected: " + str(exc)]
+    return []
+
+
+def validate_promotion(candidate, baseline, tracked_paths, registry, evidence, manifest, cycle, commits):
+    """Read-only transition/evidence consistency preflight, never an authorization."""
+    errors, _ = validate(candidate, tracked_paths, "phase2")
+    baseline_errors, ownership = validate(baseline, tracked_paths)
+    errors.extend("baseline: " + item for item in baseline_errors)
+    if {k: v for k, v in candidate.items() if k != "workflow"} != {k: v for k, v in baseline.items() if k != "workflow"}:
+        errors.append("promotion must only change the workflow tuple")
+    try:
+        if not {"developer-tooling", "cli-library"} <= {c["id"] for c in registry["capabilities"]}:
+            errors.append("both initial Pack capabilities are required")
+        if load("validate-facet-manifest").validate_document(manifest):
+            errors.append("existing Facet Manifest validator rejected the manifest")
+        validator = load("validate-resolver-evidence")
+        current_registry_path = ROOT / "contracts/capability-registry.json"
+        current_registry = read_document(current_registry_path)
+        if validator.whole_registry_digest(registry) != validator.whole_registry_digest(current_registry):
+            errors.append("supplied Registry does not match the current canonical Registry")
+        registry_schema = read_document(ROOT / "contracts/capability-registry.schema.json")
+        if not RESOLVER._draft7_conforms(registry, registry_schema):
+            errors.append("Registry schema validation failed")
+        if load("validate-capability-registry").run(str(current_registry_path), ROOT):
+            errors.append("current canonical Registry semantic validation failed")
+        if validator.validate_document(evidence, registry, "promotion registry", manifest, None):
+            errors.append("existing Resolver Evidence validator rejected the evidence")
+        if evidence["state"] != "advisory" or evidence["diagnostics"]:
+            errors.append("the baseline Resolver observation must be clean advisory evidence")
+        expected = {"full_context_revision": OWNERSHIP.canonical_digest(baseline),
+                    "ownership_digest": ownership["context_binding"]["ownership_digest"]}
+        if any(evidence["context_binding"][k] != value for k, value in expected.items()):
+            errors.append("Resolver observation is stale for the baseline Context or tracked ownership")
+        if manifest["context_binding"] != evidence["context_binding"] or manifest["resolver"] != evidence["resolver"]:
+            errors.append("Manifest and Resolver observation must share exact bindings")
+        expected_manifest = RESOLVER._assemble_facet_manifest(evidence["feature"], manifest["affected_components"],
+            registry, evidence["capability_evaluations"], evidence["context_binding"], evidence["resolver"])
+        if manifest != expected_manifest:
+            errors.append("Manifest does not match the observed capability selection")
+        if evidence["resolver"] != RESOLVER._resolver_block():
+            errors.append("Resolver observation uses a stale runtime version or rule set")
+    except (KeyError, TypeError, ValueError) as exc:
+        errors.append("Pack/Resolver evidence rejected: " + str(exc))
+    errors.extend(validate_release_cycle(cycle, commits))
+    return errors
+
+
+def read_document(path):
+    """Use the same canonical JSON/YAML reader as the Resolver."""
+    try:
+        # Resolver publications use JSON object bytes even with a .yaml suffix.
+        # Select once from the bytes; malformed JSON must never retry as YAML.
+        input_format = "json" if path.suffix == ".json" or path.read_bytes().lstrip().startswith(b"{") else "yaml"
+        return RESOLVER._canonicalize(str(path), input_format)[1]
+    except (RESOLVER.CanonicalizerFailed, RESOLVER.CanonicalizerOutputMalformed) as exc:
+        raise ValueError("document canonicalization failed") from exc
+
+
+def release_commits(cycle):
+    # Commit operands are validated before they reach Git; no arbitrary revisions.
+    if not isinstance(cycle, dict) or any(not isinstance(cycle.get(k), str) or
+            not re.fullmatch(r"[0-9a-f]{40}", cycle[k]) for k in ("base_sha", "head_sha")):
+        raise ValueError("invalid release boundaries")
+    subprocess.check_call(["git", "merge-base", "--is-ancestor", cycle["base_sha"], cycle["head_sha"]], cwd=ROOT)
+    commits = subprocess.check_output(["git", "rev-list", "--first-parent",
+        cycle["base_sha"] + ".." + cycle["head_sha"]], cwd=ROOT, text=True).splitlines()
+    tag = cycle["release"]["tag_name"]
+    subprocess.check_call(["git", "check-ref-format", "refs/tags/" + tag], cwd=ROOT)
+    tag_head = subprocess.check_output(["git", "rev-parse", "--verify", "refs/tags/" + tag + "^{commit}"],
+        cwd=ROOT, text=True).strip()
+    if tag_head != cycle["head_sha"]:
+        raise ValueError("published release tag does not resolve to the recorded cycle head")
+    return commits
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml")
+    parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
+    for name in ("baseline", "registry", "resolver-evidence", "manifest", "release-evidence"):
+        parser.add_argument("--" + name, type=Path)
     args = parser.parse_args()
+    if args.phase == "phase2" and any(getattr(args, name) is None for name in
+            ("baseline", "registry", "resolver_evidence", "manifest", "release_evidence")):
+        parser.error("phase2 requires baseline, registry, resolver-evidence, manifest and release-evidence")
     try:
-        document = OWNERSHIP.parse_minimal_yaml(args.candidate.read_text(encoding="utf-8"))
+        document = read_document(args.candidate)
         paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode("utf-8").split("\0")
-        errors, ownership = validate(document, [path for path in paths if path])
-    except (OSError, ValueError, subprocess.CalledProcessError) as exc:
+        tracked = [path for path in paths if path]
+        errors, ownership = validate(document, tracked, args.phase)
+        if args.phase == "phase2":
+            cycle = read_document(args.release_evidence)
+            commits = release_commits(cycle)
+            errors = validate_promotion(document, read_document(args.baseline), tracked,
+                read_document(args.registry), read_document(args.resolver_evidence),
+                read_document(args.manifest), cycle, commits)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as exc:
         print("candidate validation failed: " + type(exc).__name__, file=sys.stderr)
         return 1
     print(json.dumps({"candidate_valid": not errors, "diagnostics": errors,
                       "ownership_digest": ownership["context_binding"]["ownership_digest"] if ownership else None,
                       "live_activation": "not_attempted", "signed_approval": "not_issued",
-                      "release_cycle_evidence": "not_collected"}, sort_keys=True))
+                      "release_cycle_evidence": "consistency_checked" if args.phase == "phase2" and not errors else ("not_collected" if args.phase == "phase1" else "not_validated"),
+                      "promotion_authorized": False,
+                      "preflight_scope": "candidate_transition_and_release_ci_consistency" if args.phase == "phase2" else "phase1_candidate",
+                      "unchecked_requirements": ["export authenticity and required-check policy", "human promotion approval",
+                          "false-positive triage and unresolved findings", "signed end-to-end rollback rehearsal",
+                          "post-promotion real feature workflow"]}, sort_keys=True))
     return 1 if errors else 0
 
 
