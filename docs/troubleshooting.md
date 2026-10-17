@@ -189,9 +189,11 @@ Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は
 **症状：** AGENT_STOP ファイルを作成してもエージェントが停止しない、または承認ガードが動作しない。
 
 **原因：**
-- Codex では `plugin_hooks` フラグが無効に設定されている
-- Copilot のサブエージェント内では hook が発火しない場合がある（既知の制限）
+- Codex の現行 `hooks` 制御が無効、または必要なフックが未装着
+- Copilot の実行経路で必要な hook が未装着・非発火
 - Claude Code の環境で Node.js が利用不可
+
+Codex CLI 0.159.2 では `--enable hooks` / `--disable hooks` が実際の制御です。旧 `plugin_hooks` の切替を稼働・非発火の証拠には使いません。Copilot CLI 1.0.98 では親・サブエージェント双方の稼働を実測しており、どちらも実 canary の結果で判断します。
 
 **代替手段：**
 1. hook が無効な場合、手動で `check-task-state`、`check-contract`、`check-evidence-bundle` を実行して同じ不変条件を確認してください：
@@ -201,6 +203,8 @@ Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は
    sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh specs/<feature>/verification/<task-id>.evidence.json
    ```
 2. AGENT_STOP の代わりに、セッションを手動で終了してください
+
+手動検査は診断用です。Capability Mode は実 canary の拒否を確認できなければ `CAPABILITY_RUNTIME_UNAVAILABLE` で停止し、手動検査の成功や暗黙の legacy fallback では継続しません。
 
 ### AGENT_STOP が効かない
 

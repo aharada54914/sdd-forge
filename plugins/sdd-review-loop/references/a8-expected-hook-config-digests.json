@@ -5,11 +5,11 @@
   },
   "Codex-disabled-expected-unavailable": {
     "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
-    "expected_sha256": "sha256:ae679756447145cd053e09dc1d29c1f6078d64935d95ca5d301ef2d2141f9501"
+    "expected_sha256": "sha256:9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
   },
   "Codex-enabled-active": {
     "config_path": "plugins/sdd-quality-loop/hooks/hooks.json",
-    "expected_sha256": "sha256:ae679756447145cd053e09dc1d29c1f6078d64935d95ca5d301ef2d2141f9501"
+    "expected_sha256": "sha256:9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40"
   },
   "Copilot-primary-active": {
     "config_path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
