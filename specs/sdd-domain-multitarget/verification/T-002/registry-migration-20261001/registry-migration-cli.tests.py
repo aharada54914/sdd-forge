@@ -146,7 +146,15 @@ class MigrationCLI(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(evidence["diagnostics"], [])
-        self.assertEqual(evidence["capability_evaluations"], [])
+        evaluations = evidence["capability_evaluations"]
+        expected_ids = sorted(capability["id"] for capability in json.loads(REGISTRY.read_text())["capabilities"])
+        self.assertIn("cli-library", expected_ids)
+        self.assertIn("developer-tooling", expected_ids)
+        self.assertEqual([item["capability_id"] for item in evaluations], expected_ids)
+        for item in evaluations:
+            self.assertIs(item["matched"], False)
+            self.assertEqual([trigger["component_id"] for trigger in item["trigger_evaluations"]], ["app"])
+            self.assertTrue(all(trigger["result"] is False for trigger in item["trigger_evaluations"]))
         self.assertEqual(summary, {
             "schema": "sdd-capability-summary/v1",
             "feature": "example-feature",
