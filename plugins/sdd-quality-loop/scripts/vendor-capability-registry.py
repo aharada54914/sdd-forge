@@ -42,6 +42,8 @@ ARTIFACTS = (
     "capability-registry.json",
     "capability-registry.schema.json",
     "lite-upgrade-reason-catalog.json",
+    "lite-check-catalog.json",
+    "lite-check-catalog.schema.json",
     # epic-192-a4-facet-manifest T-005 (REQ-006, design.md Deployment / CI
     # Plan: "reuses Epic A2's already-CI-wired vendored-copy `--check` mode
     # ... extended to cover three more filenames, not a new mechanism").

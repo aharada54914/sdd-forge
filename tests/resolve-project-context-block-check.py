@@ -461,6 +461,7 @@ def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, regist
     contracts = repo / "contracts"
     shutil.copy2(REGISTRY_SCHEMA_REAL, contracts / "capability-registry.schema.json")
     shutil.copy2(LITE_CATALOG_REAL, contracts / "lite-upgrade-reason-catalog.json")
+    shutil.copy2(ROOT / "contracts/lite-check-catalog.json", contracts / "lite-check-catalog.json")
     if registry_capabilities_path is not None:
         shutil.copy2(registry_capabilities_path, contracts / "capability-registry.json")
     # T-004 (step 12): every governing output schema this stage may

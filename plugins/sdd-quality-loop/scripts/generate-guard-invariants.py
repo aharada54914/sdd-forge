@@ -183,6 +183,8 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json",
     "plugins/sdd-review-loop/references/a8-skip-allowlist.json",
     "tests/hook-activation-live-proof/nonce-ledger.json",
+    'contracts/lite-check-catalog.json',
+    'contracts/lite-check-catalog.schema.json',
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

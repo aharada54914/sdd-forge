@@ -2,7 +2,7 @@
 """validate-capability-registry: the Registry validator (T-004, REQ-003).
 
 Usage: validate-capability-registry.py --registry <path>
-Exit 0 when all nine independently identifiable checks (a-i) pass; exit 1
+Exit 0 when all ten independently identifiable checks (a-j) pass; exit 1
 with one diagnostic line per failed check on stdout, in the style of
 check-sdd-structure.sh's `missing: <item>` lines: `registry: <check-id>: <detail>`.
 
@@ -18,15 +18,17 @@ Checks (diagnostic ID):
   (g) provider-name-detected       -- provider-name contamination scan (ADR-0018)
   (h) unknown-upgrade-reason       -- lite_policy.upgrade_reasons vs the versioned catalog
   (i) capability-id-duplicate      -- Capability-ID uniqueness, top-level capabilities[], independent of (a)
+  (j) unknown-lite-check           -- required_lite_checks vs the versioned catalog
 """
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from registry_discovery import discover_artifact, resolve_git_root, DiscoveryError  # noqa: E402
+from registry_discovery import discover_artifact, resolve_git_root, DiscoveryError, check_lite_check_catalog  # noqa: E402
 
 
 def _emit_stdout(line: str) -> None:
@@ -197,6 +199,37 @@ def check_h_catalog_conformance(registry: Dict[str, Any], diagnostics: List[str]
     return ok
 
 
+def check_j_lite_check_conformance(registry: Dict[str, Any], diagnostics: List[str]) -> bool:
+    try:
+        catalog = _load_json(discover_artifact("lite-check-catalog.json"))
+    except (DiscoveryError, OSError, json.JSONDecodeError):
+        diagnostics.append("registry: unknown-lite-check: cannot locate/read/verify catalog")
+        return False
+    if not check_lite_check_catalog(catalog):
+        diagnostics.append("registry: unknown-lite-check: invalid catalog")
+        return False
+    known = set(catalog["checks"])
+    ok = True
+    for capability in registry.get("capabilities", []):
+        if not isinstance(capability, dict):
+            continue
+        policy = capability.get("lite_policy")
+        if not isinstance(policy, dict) or "required_lite_checks" not in policy:
+            continue
+        checks = policy["required_lite_checks"]
+        if (not isinstance(checks, list)
+                or not all(isinstance(item, str) and re.fullmatch(r"[a-z0-9][a-z0-9-]*", item) for item in checks)
+                or len(checks) != len(set(checks))):
+            diagnostics.append(f"registry: unknown-lite-check: {capability.get('id', '?')}: invalid required_lite_checks")
+            ok = False
+            continue
+        for item in checks:
+            if item not in known:
+                diagnostics.append(f"registry: unknown-lite-check: {capability.get('id', '?')}: {item}")
+                ok = False
+    return ok
+
+
 def check_c_unregistered_script(
     registry: Dict[str, Any], repo_root: Path, diagnostics: List[str]
 ) -> bool:
@@ -272,6 +305,7 @@ def run(registry_path: str, repo_root: Path) -> List[str]:
         diagnostics.append(f"registry: provider-name-detected: cannot read provider-terms.json: {exc}")
     check_h_catalog_conformance(registry, diagnostics)
     check_i_capability_id_uniqueness(registry, diagnostics)
+    check_j_lite_check_conformance(registry, diagnostics)
 
     return diagnostics
 
@@ -308,7 +342,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         for line in diagnostics:
             _emit_stdout(line)
         return 1
-    _emit_stdout("validate-capability-registry: all 9 checks passed.")
+    _emit_stdout("validate-capability-registry: all 10 checks passed.")
     return 0
 
 

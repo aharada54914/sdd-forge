@@ -67,11 +67,14 @@ def is_conditional_facet:
 
 def is_lite_policy:
   type == "object" and
-  keys_within(["eligible","upgrade_reasons"]) and
+  keys_within(["eligible","upgrade_reasons","required_lite_checks"]) and
   has_all(["eligible"]) and
   (.eligible | type == "boolean") and
   (if has("upgrade_reasons") then
     (.upgrade_reasons | type == "array" and all(.[]; type == "string" and length > 0))
+  else true end) and
+  (if has("required_lite_checks") then
+    (.required_lite_checks | type == "array" and length == (unique | length) and all(.[]; type == "string" and test("^[a-z0-9][a-z0-9-]*$")))
   else true end);
 
 def is_delivery_strategy:

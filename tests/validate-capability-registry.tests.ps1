@@ -1,4 +1,4 @@
-# TDD suite for the Registry validator (T-004, REQ-003, nine checks a-i)
+# TDD suite for the Registry validator (T-004, REQ-003, ten checks a-j)
 # -- PowerShell twin.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -145,10 +145,10 @@ Assert-Contains 'TEST-039: combined fixture -- capability-id-duplicate surfaces 
 # Fully-clean fixture: proves a negative
 # =====================================================================
 $inv = Invoke-Validate -Fixture 'validate-registry-fully-clean'
-if ($inv.Rc -eq 0 -and $inv.Out -match 'all 9 checks passed') {
-  Ok 'fully-clean fixture: all 9 checks pass on valid input (negative proof)'
+if ($inv.Rc -eq 0 -and $inv.Out -match 'all 10 checks passed') {
+  Ok 'fully-clean fixture: all 10 checks pass on valid input (negative proof)'
 } else {
-  Fail "fully-clean fixture: expected exit 0 + all-9-checks-passed message -- actual (rc=$($inv.Rc)): $($inv.Out)"
+  Fail "fully-clean fixture: expected exit 0 + all-10-checks-passed message -- actual (rc=$($inv.Rc)): $($inv.Out)"
 }
 
 # =====================================================================
@@ -194,6 +194,15 @@ if (Test-Path -LiteralPath $stagedWorkflow) {
   }
 } else {
   Fail 'human-copy: staged .github/workflows/test.yml candidate missing'
+}
+
+$python = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
+if (-not $python) { Fail 'Lite Registry contract: Python unavailable' }
+else {
+  & $python.Source -B (Join-Path $root 'tests/lite-registry-contract.tests.py') --runtime powershell
+  if ($LASTEXITCODE -eq 0) { Ok 'Lite Registry contract: schema, catalog, opt-in and CLI boundaries' }
+  else { Fail 'Lite Registry contract regressions failed' }
 }
 
 Write-Host ("---- summary: pass={0} fail={1} ----" -f $script:PassCount, $script:FailCount)

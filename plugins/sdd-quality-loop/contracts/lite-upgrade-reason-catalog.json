@@ -1,11 +1,18 @@
 {
   "schema": "lite-upgrade-reason-catalog/v1",
-  "catalog_version": 1,
+  "catalog_version": 2,
   "reasons": [
     "public_distribution",
     "production_cloud_runtime",
     "durable_workflow",
     "external_identity",
-    "pii"
+    "pii",
+    "public_package_registry",
+    "store_distribution",
+    "auto_update",
+    "code_signing",
+    "payments",
+    "multi_tenant",
+    "high_risk_migration"
   ]
 }

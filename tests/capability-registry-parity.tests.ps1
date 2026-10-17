@@ -151,6 +151,7 @@ def populate_shared(root):
         repo_contracts / "lite-upgrade-reason-catalog.json",
         packaged / "lite-upgrade-reason-catalog.json",
     )
+    shutil.copyfile(repo_contracts / "lite-check-catalog.json", packaged / "lite-check-catalog.json")
     shutil.copyfile(
         source_dir.parent / "references" / "provider-terms.json",
         references / "provider-terms.json",
