@@ -748,7 +748,21 @@ function shellPatchApplyHitsProtected(cmd) {
   return false;
 }
 
-function commandReferencesProtectedPath(cmd) {
+function readonlyInputIndices(tokens, directories) {
+  try {
+    const first = tokens.find(([kind]) => kind === 'word');
+    if (!first || !['python', 'python3'].includes(first[1])) return new Set();
+    const result = require('child_process').spawnSync(first[1], [path.join(__dirname, 'classify-readonly-inputs.py')], {
+      input: JSON.stringify({tokens, directories}), encoding: 'utf8', timeout: 3000, maxBuffer: 65536,
+    });
+    if (result.error || result.status !== 0) return new Set();
+    const indices = JSON.parse(result.stdout);
+    if (!Array.isArray(indices) || indices.some(i => !Number.isInteger(i) || i < 0 || i >= tokens.length || tokens[i][0] !== 'word')) return new Set();
+    return new Set(indices);
+  } catch (_) { return new Set(); }
+}
+
+function commandReferencesProtectedPath(cmd, directories = []) {
   // R-10 pre-filter: true when a protected path appears as a shell TOKEN
   // (a path-shaped word, or a redirect token's target), not merely as a
   // substring of the raw command text. Prose inside a quoted argument — e.g.
@@ -792,8 +806,27 @@ function commandReferencesProtectedPath(cmd) {
       return cmdLower.includes(slRel) || cmdNorm.includes(slRel);
     });
   }
-  for (const [kind, text] of tokens) {
-    if (kind !== 'word') continue;
+  // A direct Python/POSIX-shell file operand is executable input, not a write target.
+  // Only the first bare interpreter has no preceding command that can rebind it.
+  // Keep dynamic syntax and directory transitions on the conservative path.
+  const literalContext = !tokens.some(([kind, text]) => kind === 'word' &&
+    (SHELL_UNSAFE_TOKEN_CHARS.some(c => text.includes(c)) || text.startsWith('#') ||
+     [...SHELL_CD_CMDS, 'popd'].includes(shellTokenBasename(text))));
+  const inputs = literalContext ? readonlyInputIndices(tokens, directories) : new Set();
+  let position = 0;
+  let verb = '';
+  let firstCommand = true;
+  for (const [index, [kind, text]] of tokens.entries()) {
+    if (kind !== 'word') {
+      if (position > 0) firstCommand = false;
+      position = 0; verb = ''; continue;
+    }
+    const scriptInput = literalContext && firstCommand && position === 1 && !text.startsWith('-') && !text.startsWith('~') &&
+      ((['python', 'python3'].includes(verb) && text.endsWith('.py')) ||
+       (['bash', 'sh'].includes(verb) && text.endsWith('.sh'))) && !text.includes('>') && !text.includes('<');
+    if (position === 0) verb = text;
+    position += 1;
+    if (scriptInput || inputs.has(index)) continue;
     let candidate = text;
     if (text.includes('>')) {
       const m = text.match(SHELL_REDIRECT_TOKEN_RE);
@@ -809,7 +842,7 @@ function commandReferencesProtectedPath(cmd) {
   return false;
 }
 
-function shellTargetsProtectedGateFile(cmd) {
+function shellTargetsProtectedGateFile(cmd, directories = []) {
   // R-10: Deny shell commands that WRITE to protected gate files.
   // Token-based pre-filter (a protected path appears as a shell token or
   // redirect target) combined with
@@ -826,7 +859,7 @@ function shellTargetsProtectedGateFile(cmd) {
   // WFI-048: a patch applier names its target inside the file it is given,
   // so neither the pre-filter nor the write vocabulary can decide it.
   if (shellPatchApplyHitsProtected(cmd)) return true;
-  const hasProtectedPath = commandReferencesProtectedPath(cmd);
+  const hasProtectedPath = commandReferencesProtectedPath(cmd, directories);
   if (!hasProtectedPath) return false;
   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
@@ -1907,6 +1940,9 @@ async function main() {
     return;
   }
 
+  const directories = [payload, payload.tool_input].filter(obj => obj && typeof obj === 'object' && !Array.isArray(obj))
+    .flatMap(obj => ['cwd', 'workdir'].filter(key => Object.prototype.hasOwnProperty.call(obj, key)).map(key => obj[key]));
+
   // Native lower-case Copilot preToolUse is one camelCase call, not toolCalls[].
   if (mode === 'copilot' && Object.prototype.hasOwnProperty.call(payload, 'toolCalls')) {
     emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
@@ -2053,7 +2089,7 @@ async function main() {
     }
 
     if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
-      if (shellTargetsProtectedGateFile(toolInput.command)) {
+      if (shellTargetsProtectedGateFile(toolInput.command, directories)) {
         emitDecision('deny', GATE_PROTECT_MSG, mode);
         return;
       }

@@ -66,6 +66,39 @@ def exercise(source, runtime, case):
                 text = "2|quality|sdd-evaluator|prior|prior-session|" + first["record_sha256"]
                 previous["record_sha256"] = digest((text + "|scratch-declaration-v1|" + previous["scratch_declaration_sha256"]).encode())
             expected = 0 if case in ("prior-prefix", "legacy-missing") else 1
+        if case.startswith("display-"):
+            values = {"display-plain": "/tmp/impl-one", "display-quoted": "`/tmp/impl-one`", "display-crlf": "`/tmp/impl-one`",
+                      "display-open": "`/tmp/impl-one", "display-close": "/tmp/impl-one`",
+                      "display-double": "``/tmp/impl-one``", "display-inner": "`/tmp/im`pl`",
+                      "display-control": "/tmp/impl\troot", "display-cr": "/tmp/impl\rroot",
+                      "display-nul": "/tmp/impl\x00root", "display-relative": "`tmp/impl`",
+                      "display-parent": "`/tmp/../impl`", "display-duplicate": "/tmp/impl-one"}
+            value = values[case]
+            text = report.read_text().replace("/tmp/impl-one", value)
+            if case == "display-duplicate":
+                text += "- **Scratch Root**: /tmp/second\n"
+            if case == "display-crlf":
+                report.write_bytes(text.replace("\n", "\r\n").encode())
+            else:
+                report.write_text(text)
+            expected = 0 if case in ("display-plain", "display-quoted", "display-crlf") else 1
+        if case.startswith("quoted-other-"):
+            other = report.with_name("T-002.md")
+            other.write_text("# Implementation Report: T-002\n- Task ID: T-002\n"
+                             "- **Scratch Root**: `/opt/feature/impl-two`\n")
+            scratch = {"quoted-other-equal": "/opt/feature/impl-two",
+                       "quoted-other-child": "/opt/feature/impl-two/child",
+                       "quoted-other-parent": "/opt/feature",
+                       "quoted-other-prefix": "/opt/feature/impl-two-more"}[case]
+            expected = 0 if case == "quoted-other-prefix" else 1
+        if case in ("history-cr", "history-nul", "history-duplicate", "history-crlf"):
+            other = report.with_name("T-002.md")
+            value = {"history-cr": "`/tmp/impl\rroot`", "history-nul": "`/tmp/impl\x00root`",
+                     "history-duplicate": "/tmp/other\n- **Scratch Root**: ",
+                     "history-crlf": "`/tmp/other`"}[case]
+            text = "- **Scratch Root**: " + value + "\n"
+            other.write_bytes(text.replace("\n", "\r\n").encode() if case == "history-crlf" else text.encode())
+            expected = 0 if case == "history-crlf" else 1
         write_json(ledger, dict(schema="review-identity-ledger/v1", records=records))
         invocation = dict(schema="review-context-invocation/v2", input_mode="file-manifest",
                           fallback_mode="none", read_only=True, stage="quality", role="sdd-evaluator",
@@ -84,6 +117,7 @@ def exercise(source, runtime, case):
                    ["pwsh", "-NoProfile", "-File", str(scripts / "validate-review-context-set.ps1"),
                     "-Manifest", str(manifest), "-RepositoryRoot", str(root), "-Reserve"])
         before = ledger.read_bytes()
+        report_before = report.read_bytes()
         result = subprocess.run(command, capture_output=True, text=True, timeout=40)
         passed = (result.returncode == expected and
                   (expected == 0 or (ledger.read_bytes() == before and "REVIEW_CONTEXT_PATH" in result.stderr)))
@@ -121,7 +155,7 @@ def exercise(source, runtime, case):
                 reuse = subprocess.run(command, capture_output=True, text=True, timeout=40)
                 passed = passed and reuse.returncode == 1 and ledger.read_bytes() == after
                 print(f"{'ok' if passed else 'not ok'}: {runtime} {case}: later reuse exit={reuse.returncode}, expected=1")
-        return passed
+        return passed and report.read_bytes() == report_before
 
 
 def main():
@@ -134,6 +168,10 @@ def main():
     cases = ["clean", "other-equal", "other-child", "other-parent", "other-prefix",
              "prior-equal", "prior-child", "prior-parent", "prior-prefix", "prior-missing",
              "legacy-missing", "snapshot-tampered", "snapshot-deleted"]
+    cases += ["display-plain", "display-quoted", "display-crlf", "display-open", "display-close", "display-double",
+              "display-inner", "display-control", "display-cr", "display-nul", "display-relative", "display-parent", "display-duplicate",
+              "history-cr", "history-nul", "history-duplicate", "history-crlf",
+              "quoted-other-equal", "quoted-other-child", "quoted-other-parent", "quoted-other-prefix"]
     results = [exercise(args.repo, runtime, case) for runtime in ("bash", "pwsh") for case in cases]
     print(f"PASS: {sum(results)}; FAIL: {len(results) - sum(results)}")
     raise SystemExit(0 if all(results) else 1)

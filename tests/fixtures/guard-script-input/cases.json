@@ -1,0 +1,182 @@
+[
+  [
+    "python-file-stdout",
+    0,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py --emit-challenge"
+  ],
+  [
+    "python-file-output",
+    0,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py --emit-challenge > .rehearsal/challenge.json && cat .rehearsal/challenge.json"
+  ],
+  [
+    "python-quoted-input",
+    0,
+    "python \"plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py\" --emit-challenge > output.json"
+  ],
+  [
+    "python-file-fd-dup",
+    0,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json 2>&1"
+  ],
+  [
+    "bash-file-output",
+    0,
+    "bash plugins/sdd-quality-loop/scripts/check-task-state.sh --help > output.txt"
+  ],
+  [
+    "sh-file-output",
+    0,
+    "sh plugins/sdd-quality-loop/scripts/check-task-state.sh --help > output.txt"
+  ],
+  [
+    "same-input-overwrite",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "same-input-append",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py >>plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "protected-data-output",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > .github/workflows/test.yml"
+  ],
+  [
+    "protected-data-stderr",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py 2>.github/workflows/test.yml"
+  ],
+  [
+    "protected-data-argument",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py --output .github/workflows/test.yml > output.json"
+  ],
+  [
+    "protected-shell-output",
+    2,
+    "bash plugins/sdd-quality-loop/scripts/check-task-state.sh > plugins/sdd-quality-loop/scripts/check-task-state.sh"
+  ],
+  [
+    "later-protected-write",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json && rm plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "later-relative-write",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json && cd plugins/sdd-quality-loop/scripts && rm check-hook-activation-handshake.py"
+  ],
+  [
+    "changed-cwd",
+    2,
+    "cd . && python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json"
+  ],
+  [
+    "variable-context",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > \"$OUTPUT\""
+  ],
+  [
+    "dynamic-input",
+    2,
+    "python3 \"$PREFIX/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py\" > output.json"
+  ],
+  [
+    "inline-python",
+    2,
+    "python3 -c \"open('plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py','w')\""
+  ],
+  [
+    "module-python",
+    2,
+    "python3 -m runner plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json"
+  ],
+  [
+    "inline-shell",
+    2,
+    "bash -c \"plugins/sdd-quality-loop/scripts/check-task-state.sh\" > output.txt"
+  ],
+  [
+    "script-argument-not-input",
+    2,
+    "python3 runner.py plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json"
+  ],
+  [
+    "argument-not-command",
+    2,
+    "echo python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ],
+  [
+    "quoted-command-not-command",
+    2,
+    "\"python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py\" > .github/workflows/test.yml"
+  ],
+  [
+    "comment-not-command",
+    2,
+    "# python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py\nrm plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "interpreter-option",
+    2,
+    "python3 -I plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ],
+  [
+    "attached-redirect-unknown",
+    2,
+    "python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py>output.txt"
+  ],
+  [
+    "tilde-input-unknown",
+    2,
+    "python3 ~/plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.json"
+  ],
+  [
+    "alias-rebinding",
+    2,
+    "shopt -s expand_aliases\nalias python3=rm\npython3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "shell-alias-rebinding",
+    2,
+    "shopt -s expand_aliases\nalias bash=rm\nbash plugins/sdd-quality-loop/scripts/check-task-state.sh > output.txt"
+  ],
+  [
+    "hash-rebinding",
+    2,
+    "hash -p /bin/rm python3\npython3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "path-rebinding",
+    2,
+    "cp /bin/rm /tmp/python3; export PATH=/tmp:/usr/bin; python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+  ],
+  [
+    "later-script-command",
+    2,
+    "echo start && python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ],
+  [
+    "absolute-named-interpreter",
+    2,
+    "/tmp/python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ],
+  [
+    "relative-named-interpreter",
+    2,
+    "./python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ],
+  [
+    "absolute-shell-interpreter",
+    2,
+    "/tmp/bash plugins/sdd-quality-loop/scripts/check-task-state.sh > output.txt"
+  ],
+  [
+    "assignment-prefix",
+    2,
+    "PATH=/tmp python3 plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py > output.txt"
+  ]
+]

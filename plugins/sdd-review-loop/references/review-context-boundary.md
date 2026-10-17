@@ -20,9 +20,9 @@ wins and this document is the defect.
 `--reserve` runs in this order:
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
-   ledger **as it stands before the reservation** (`:728`, and again under the
-   reservation lock at `:1323`).
-2. Append the reserved record to the ledger (`:1333-1345`).
+   ledger **as it stands before the reservation** (`:744`, and again under the
+   reservation lock at `:1350`).
+2. Append the reserved record to the ledger (`:1360-1372`).
 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
    chain facts the validator proved before printing (WFI-037):
    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
@@ -39,20 +39,20 @@ and the appended record is the *extension*.
 
 | Field | Validator checks | Reviewer re-verifies? |
 |---|---|---|
-| `schema` | must equal `review-context-invocation/v2` (`:488`) | **yes** — cheap, and a wrong schema means a wrong contract |
-| `input_mode` | must equal `file-manifest` (`:489`) | **yes** |
-| `fallback_mode` | must equal `none` (`:490`) | **yes** |
-| `read_only` | must equal `true` (`:491`) | **yes** |
-| `stage`, `role` | must be an authorized pair (`:539-541`) | **yes** — confirm they match the role you actually are |
-| `feature` | charset only (`:492`) | **yes** — confirm it is the feature you were asked to review |
-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:493`, `:730`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:730`) | **yes** — via the caller-quoted line; this is the chain |
-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:494`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:495`); equality against the ledger **before** the append (`:728`, `:1323`) | **NO — see below** |
-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:965-981`) | **yes** — and read nothing outside it |
-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:1048-1051`) | **yes** — this is the substantive integrity check |
-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:465`, `:785-798`) | **yes** |
-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:472-477`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:816-832`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:262-267`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+| `schema` | must equal `review-context-invocation/v2` (`:502`) | **yes** — cheap, and a wrong schema means a wrong contract |
+| `input_mode` | must equal `file-manifest` (`:503`) | **yes** |
+| `fallback_mode` | must equal `none` (`:504`) | **yes** |
+| `read_only` | must equal `true` (`:505`) | **yes** |
+| `stage`, `role` | must be an authorized pair (`:555-557`) | **yes** — confirm they match the role you actually are |
+| `feature` | charset only (`:506`) | **yes** — confirm it is the feature you were asked to review |
+| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:507`, `:746`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+| `previous_record_sha256` | must equal the last record's `record_sha256` (`:746`) | **yes** — via the caller-quoted line; this is the chain |
+| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:508`) | **yes** — it is a constant |
+| `identity_ledger_sha256` | hex-format (`:509`); equality against the ledger **before** the append (`:744`, `:1350`) | **NO — see below** |
+| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:984-1000`) | **yes** — and read nothing outside it |
+| `allowed_input_manifest[].sha256` | equality against the file on disk (`:1067-1070`) | **yes** — this is the substantive integrity check |
+| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:479`, `:801-817`) | **yes** |
+| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:486-491`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:835-851`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:272-277`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
 
 ## Supplemental evaluator inputs
 
@@ -118,7 +118,7 @@ quoted line and its own manifest — with no file read outside the manifest:
 3. `<record_sha256>` recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
    from your manifest's own fields — the same construction the validator
-   uses at `:620` and `:1310`. (evidence: caller-quoted line + manifest)
+   uses at `:636` and `:1337`. (evidence: caller-quoted line + manifest)
    For new scratch-bound quality reservations, compute the declaration digest as
    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
    `|scratch-declaration-v1|<declaration digest>` to the original chain text before
@@ -336,7 +336,11 @@ Closed, and listed here so they are not re-derived from an old copy of this file
 
 For quality invocations declaring `scratch_root`, both validators require Python
 3 and check every declared Scratch Root in the feature's implementation reports,
-plus the original invocation evidence for prior evaluator reservations. Equal,
+plus the original invocation evidence for prior evaluator reservations. Report
+Scratch Root values may be plain canonical absolute paths or one balanced
+single-backtick Markdown span around that same path. Decode only this display
+span before canonical validation and overlap comparison; malformed spans,
+controls, relative paths and dot/parent segments fail. Equal,
 ancestor and descendant roots are rejected; sibling names sharing only a string
 prefix are allowed. Missing bound history or conflicting declarations block launch.
 Legacy invocations without a declared root do not assert a historical root.
@@ -358,7 +362,9 @@ of operating-system isolation or of live host activation.
 For a new quality reservation, `implementation_manifest` must name a pinned,
 admitted `task-input-manifest/v1`. Its task, run and session must agree with the
 implementation report, and the evaluator identity must differ from the
-implementation identity. The implementation manifest's `allowed_inputs` prove
+implementation identity. Its location must be a canonical repository-relative
+file path; no directory or filename convention grants authority. The
+implementation manifest's `allowed_inputs` prove
 what the implementation was allowed to read; they do not authorize evaluator
 reads. Evaluator input authority remains the invocation's exact
 `allowed_input_manifest` plus any existing post-fix declaration.

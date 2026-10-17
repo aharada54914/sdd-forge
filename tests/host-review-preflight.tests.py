@@ -234,6 +234,9 @@ FIXTURE_INPUTS = ENTRYPOINTS + PROJECTIONS + GUARDS + (CANONICAL, GENERATOR, WOR
 # Keep the admitted T-003 baseline pinned. Later reviewed additions must be
 # explicit and present exactly once; they do not loosen unrelated membership.
 ADDITIONAL_PROTECTIONS = (
+    "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+    "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+    "tests/guard-readonly-inputs.tests.py",
     'contracts/lite-check-catalog.json',
     'contracts/lite-check-catalog.schema.json',
     'scripts/validate-a9-rollback-receipt.py',

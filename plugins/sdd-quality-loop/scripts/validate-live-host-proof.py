@@ -799,6 +799,8 @@ def native_commands(call):
         outputs = {
             f'text({variable}.output)', f'text(JSON.stringify({variable}))',
             f'text({variable}.output);text(`EXIT:${{{variable}.exit_code}}`)',
+            f'text({variable}.output);text(`EXIT_CODE=${{{variable}.exit_code}}`)',
+            f'text({variable}.output);text(`\\n__EXIT_CODE__=${{{variable}.exit_code}}`)',
             f'text(JSON.stringify({{exit_code:{variable}.exit_code,output:{variable}.output}}))',
             f'text(JSON.stringify({{wrapper_exit_code:{variable}.exit_code,output:{variable}.output}}))',
         }

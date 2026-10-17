@@ -45,6 +45,7 @@ import math
 import os
 import re
 import stat
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -1634,7 +1635,24 @@ def _shell_patch_apply_hits_protected(cmd):
     return False
 
 
-def _command_references_protected_path(cmd):
+def _readonly_input_indices(tokens, directories):
+    try:
+        first = next((text for kind, text in tokens if kind == "word"), "")
+        if first not in ("python", "python3"):
+            return set()
+        result = subprocess.run([first, str(Path(__file__).with_name("classify-readonly-inputs.py"))],
+                                input=json.dumps({"tokens": tokens, "directories": directories}),
+                                text=True, capture_output=True, timeout=3, check=True)
+        indices = json.loads(result.stdout)
+        if not isinstance(indices, list) or any(type(i) is not int or i < 0 or i >= len(tokens)
+                                               or tokens[i][0] != "word" for i in indices):
+            return set()
+        return set(indices)
+    except Exception:
+        return set()
+
+
+def _command_references_protected_path(cmd, directories=()):
     """R-10 pre-filter: True when a protected path appears as a shell TOKEN
     (a path-shaped word, or a redirect token's target), not merely as a
     substring of the raw command text. Prose inside a quoted argument — e.g.
@@ -1673,8 +1691,30 @@ def _command_references_protected_path(cmd):
                 s.lower().lstrip("/") in cmd_lower or
                 s.lower().lstrip("/") in cmd_norm
                 for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
-    for kind, text in tokens:
+    # A direct Python/POSIX-shell file operand is executable input, not a write target.
+    # Only the first bare interpreter has no preceding command that can rebind it.
+    # Keep dynamic syntax and directory transitions on the conservative path.
+    literal_context = not any(
+        kind == "word" and (any(c in text for c in _SHELL_UNSAFE_TOKEN_CHARS)
+                            or text.startswith("#")
+                            or _shell_token_basename(text) in _SHELL_CD_CMDS + ("popd",))
+        for kind, text in tokens)
+    inputs = _readonly_input_indices(tokens, list(directories)) if literal_context else set()
+    position, verb, first_command = 0, "", True
+    for index, (kind, text) in enumerate(tokens):
         if kind != "word":
+            if position:
+                first_command = False
+            position, verb = 0, ""
+            continue
+        script_input = (literal_context and first_command and position == 1 and not text.startswith(("-", "~"))
+                        and ((verb in ("python", "python3") and text.endswith(".py"))
+                             or (verb in ("bash", "sh") and text.endswith(".sh")))
+                        and ">" not in text and "<" not in text)
+        if position == 0:
+            verb = text
+        position += 1
+        if script_input or index in inputs:
             continue
         candidate = text
         if ">" in text:
@@ -1692,7 +1732,7 @@ def _command_references_protected_path(cmd):
     return False
 
 
-def _shell_targets_protected_gate_file(cmd):
+def _shell_targets_protected_gate_file(cmd, directories=()):
     """R-10: Deny shell commands that WRITE to protected gate files.
     Uses a token-based pre-filter (a protected path appears as a shell token
     or redirect target) combined with
@@ -1718,7 +1758,7 @@ def _shell_targets_protected_gate_file(cmd):
     # so neither the pre-filter nor the write vocabulary can decide it.
     if _shell_patch_apply_hits_protected(cmd):
         return True
-    has_protected_path = _command_references_protected_path(cmd)
+    has_protected_path = _command_references_protected_path(cmd, directories)
     if not has_protected_path:
         return False
     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
@@ -1974,6 +2014,9 @@ def main():
         emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
         return
 
+    directories = [obj[key] for obj in (payload, payload.get("tool_input", {}))
+                   if isinstance(obj, dict) for key in ("cwd", "workdir") if key in obj]
+
     # Native lower-case Copilot preToolUse is a single camelCase call.
     # Never interpret the internal toolCalls event envelope as hook stdin.
     if mode == "copilot" and "toolCalls" in payload:
@@ -2109,7 +2152,7 @@ def main():
         if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
             tool_input.get("command"), str
         ):
-            if _shell_targets_protected_gate_file(tool_input["command"]):
+            if _shell_targets_protected_gate_file(tool_input["command"], directories):
                 emit("deny", _GATE_PROTECT_MSG, mode)
                 return
 

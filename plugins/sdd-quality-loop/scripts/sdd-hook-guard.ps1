@@ -1252,6 +1252,42 @@ function Test-ShellPatchApplyHitsProtected {
     return $false
 }
 
+function Get-ReadonlyInputIndices {
+    param($Tokens, $Directories)
+    $process = $null
+    try {
+        $first = @($Tokens | Where-Object { $_[0] -eq "word" })[0]
+        if (@("python", "python3") -cnotcontains $first[1]) { return @() }
+        $helper = Join-Path $PSScriptRoot "classify-readonly-inputs.py"
+        if ($helper.Contains('"')) { return @() }
+        $start = New-Object System.Diagnostics.ProcessStartInfo
+        $start.FileName = $first[1]
+        $start.Arguments = '"' + $helper + '"'
+        $start.UseShellExecute = $false
+        $start.CreateNoWindow = $true
+        $start.RedirectStandardInput = $true
+        $start.RedirectStandardOutput = $true
+        $start.RedirectStandardError = $true
+        $process = New-Object System.Diagnostics.Process
+        $process.StartInfo = $start
+        if (-not $process.Start()) { return @() }
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $process.StandardInput.Write((@{ tokens = @($Tokens); directories = @($Directories) } | ConvertTo-Json -Depth 10 -Compress))
+        $process.StandardInput.Close()
+        if (-not $process.WaitForExit(3000)) { $process.Kill(); return @() }
+        if ($process.ExitCode -ne 0) { return @() }
+        $rawResult = $stdout.GetAwaiter().GetResult()
+        if ($rawResult -notmatch '^\s*\[') { return @() }
+        $indices = @($rawResult | ConvertFrom-Json -ErrorAction Stop)
+        foreach ($index in $indices) {
+            if (($index -isnot [int] -and $index -isnot [long]) -or $index -lt 0 -or $index -ge $Tokens.Count -or $Tokens[$index][0] -ne "word") { return @() }
+        }
+        return $indices
+    } catch { return @() }
+    finally { if ($null -ne $process) { $process.Dispose() } }
+}
+
 function Test-CommandReferencesProtectedPath {
     # R-10 pre-filter: True when a protected path appears as a shell TOKEN
     # (a path-shaped word, or a redirect token's target), not merely as a
@@ -1261,7 +1297,7 @@ function Test-CommandReferencesProtectedPath {
     # whose full text does not END with the protected suffix. Falls back to
     # the raw substring scan when the tokenizer cannot model the command
     # (fail closed).
-    param([string]$Cmd)
+    param([string]$Cmd, $Directories = @())
     $res = Tokenize-ShellCommand $Cmd
     if ($null -eq $res) {
         # The registry stores POSIX-separator suffixes, so the fallback scan
@@ -1300,9 +1336,37 @@ function Test-CommandReferencesProtectedPath {
         }
         return $false
     }
+    # A direct Python/POSIX-shell file operand is executable input, not a write target.
+    # Only the first bare interpreter has no preceding command that can rebind it.
+    # Keep dynamic syntax and directory transitions on the conservative path.
+    $literalContext = $true
     foreach ($t in $res.Tokens) {
-        if ($t[0] -ne "word") { continue }
-        $candidate = [string]$t[1]
+        if ($t[0] -eq "word" -and ((Test-HasUnsafeChar $t[1]) -or
+            ([string]$t[1]).StartsWith("#") -or
+            (@($ShellCdCmds) + @("popd")) -contains (Get-ShellTokenBasename $t[1]))) {
+            $literalContext = $false
+        }
+    }
+    $inputs = @()
+    if ($literalContext) { $inputs = @(Get-ReadonlyInputIndices ($res.Tokens.ToArray()) $Directories) }
+    $position = 0
+    $verb = ""
+    $firstCommand = $true
+    for ($index = 0; $index -lt $res.Tokens.Count; $index++) {
+        $t = $res.Tokens[$index]
+        if ($t[0] -ne "word") {
+            if ($position -gt 0) { $firstCommand = $false }
+            $position = 0; $verb = ""; continue
+        }
+        $text = [string]$t[1]
+        $scriptInput = $literalContext -and $firstCommand -and $position -eq 1 -and -not $text.StartsWith("-") -and -not $text.StartsWith("~") -and
+            (((@("python", "python3") -ccontains $verb) -and $text.EndsWith(".py")) -or
+             ((@("bash", "sh") -ccontains $verb) -and $text.EndsWith(".sh"))) -and
+            -not $text.Contains(">") -and -not $text.Contains("<")
+        if ($position -eq 0) { $verb = $text }
+        $position += 1
+        if ($scriptInput -or $inputs -contains $index) { continue }
+        $candidate = $text
         if ($candidate.Contains(">")) {
             $m = [regex]::Match($candidate, $ShellRedirectTokenRe)
             if ($m.Success -and $m.Groups[2].Value) { $candidate = $m.Groups[2].Value }
@@ -1326,7 +1390,7 @@ function Test-ShellTargetsProtectedGateFile {
     # compound operators, command starts with a read-only verb, and no write
     # verb/redirect appears anywhere. REQ-002 (issue #110): a working-directory-
     # aware pass additionally resolves write targets across cd/pushd transitions.
-    param([string]$Cmd)
+    param([string]$Cmd, $Directories = @())
     if ([string]::IsNullOrEmpty($Cmd)) { return $false }
     # REQ-002: cd/pushd-aware resolution catches protected writes that never spell
     # the full protected path literally. Read-only segments never hit, so this is
@@ -1335,7 +1399,7 @@ function Test-ShellTargetsProtectedGateFile {
     # WFI-048: a patch applier names its target inside the file it is given,
     # so neither the pre-filter nor the write vocabulary can decide it.
     if (Test-ShellPatchApplyHitsProtected $Cmd) { return $true }
-    $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd
+    $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd $Directories
     if (-not $hasProtectedPath) { return $false }
     $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $hasCompound = [regex]::IsMatch($Cmd, $ShellCompoundRe)
@@ -1967,6 +2031,15 @@ try {
     Emit-Decision "deny" $MalformedMsg
 }
 
+$executionDirectories = @()
+foreach ($obj in @($payload, $payload.tool_input)) {
+    if ($obj -is [pscustomobject]) {
+        foreach ($key in @("cwd", "workdir")) {
+            if ($obj.PSObject.Properties.Name -ccontains $key) { $executionDirectories += ,$obj.$key }
+        }
+    }
+}
+
 # Native lower-case Copilot preToolUse has one camelCase call. The internal
 # toolCalls[] event envelope is not a command-hook input contract.
 $payloadKeys = @()
@@ -2123,7 +2196,7 @@ try {
     }
 
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
-        if (Test-ShellTargetsProtectedGateFile $command) { Emit-Decision "deny" $GateProtectMsg }
+        if (Test-ShellTargetsProtectedGateFile $command $executionDirectories) { Emit-Decision "deny" $GateProtectMsg }
     }
 
     if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {

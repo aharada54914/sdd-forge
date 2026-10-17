@@ -161,6 +161,40 @@ def agent_tools(stage):
     return ['Read', 'Bash', 'StructuredOutput'] if stage in JSON_REVIEW_STAGES else ['Read', 'Bash']
 
 
+def native_messages(rows, session):
+    """Select executed conversation events, never API-request replay payloads."""
+    selected, used, pending = [], set(), set()
+    for row in rows:
+        require(isinstance(row, dict) and
+                (row.get('sessionId') == session or
+                 (row.get('type') == 'file-history-snapshot' and 'sessionId' not in row)),
+                'native transcript contains a different session')
+        kind = row.get('type')
+        if kind not in ('assistant', 'user'):
+            continue
+        message = row.get('message')
+        require(isinstance(message, dict), 'native conversation message is malformed')
+        content = message.get('content')
+        for block in content if isinstance(content, list) else []:
+            if not isinstance(block, dict):
+                continue
+            if block.get('type') == 'tool_use':
+                require(kind == 'assistant', 'native tool use outside assistant turn')
+                tool_id = block.get('id')
+                require(isinstance(tool_id, str) and bool(tool_id) and tool_id not in used,
+                        'native tool-use identity missing or repeated')
+                used.add(tool_id)
+                pending.add(tool_id)
+            elif block.get('type') == 'tool_result':
+                require(kind == 'user', 'native tool result outside user turn')
+                tool_id = block.get('tool_use_id')
+                require(isinstance(tool_id, str) and tool_id in pending,
+                        'native tool result lacks matching pending use')
+                pending.remove(tool_id)
+        selected.append(row)
+    return selected
+
+
 def require_probe_tool_sequence(actual, expected, stage):
     final = [('StructuredOutput', None)] if stage in JSON_REVIEW_STAGES else []
     require(actual == expected + final, 'native probe tool sequence differs')
@@ -688,6 +722,7 @@ def expected_prompt(root, invocation, receipt, *, strict=False, conditional_stat
                          receipt_text) is not None, 'invalid reservation receipt text')
     relative = invocation.resolve().relative_to(root.resolve()).as_posix()
     binding = json.dumps({'role': data['role'], 'invocation': relative,
+                          'run_id': data['run_id'], 'host_session_id': data['host_session_id'],
                           'invocation_sha256': sha(invocation),
                           'receipt': receipt_text.rstrip('\n')},
                          ensure_ascii=True, sort_keys=True)
@@ -827,11 +862,8 @@ def native_delivery(root, invocation, transcript, prompt, wrapper, receipt, *, s
     result = load(wrapper)
     require(result.get('session_id') == session and result.get('is_error') is False and
             result.get('type') == 'result', 'host result did not accept proposed session')
-    messages = [json.loads(line) for line in transcript.read_text().splitlines() if line.strip()]
-    require(all(item.get('sessionId') == session or
-                (item.get('type') == 'file-history-snapshot' and 'sessionId' not in item)
-                for item in messages),
-            'native transcript contains a different session')
+    rows = [json.loads(line) for line in transcript.read_text().splitlines() if line.strip()]
+    messages = native_messages(rows, session)
     if enforced:
         allowed_reads = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)}
         allowed_bash = set() if fixed_inputs else set(control['hash_commands'])
@@ -1059,7 +1091,7 @@ def postflight(root, invocation, transcript, prompt, wrapper, receipt, *, strict
                             for line in lines), 'evaluator PASS has blocking findings')
             admitted = {p.resolve() for p in review_read_paths(root, invocation, data, fixed_inputs)[2:]}
             observed_reads = [block.get('input', {}).get('file_path')
-                              for item in messages
+                              for item in messages if item.get('type') == 'assistant'
                               for block in item.get('message', {}).get('content', [])
                               if isinstance(block, dict) and block.get('type') == 'tool_use'
                               and block.get('name') == 'Read'

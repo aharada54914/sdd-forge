@@ -1,5 +1,7 @@
 # Requirements: {{feature_name}}
 
+Spec-Review-Status: Pending
+
 ## Overview
 
 {{overview}}

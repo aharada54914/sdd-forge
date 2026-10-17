@@ -368,6 +368,14 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `validate-review-context-set` | sh / ps1 | レビュアー / 評価者の起動を時系列で1件ずつ検証（`--reserve` で予約）。コンテキスト独立性の強制点 |
 | `validate_path` | py | 共有パス検証ユーティリティ（`validate_evidence_path()`）。現在 import しているのは `check-contract.py` のみ。import 失敗時、呼び出し側は exit 1 でフェイルクローズしなければならない |
 
+フックは、同じ配布の `validate-approval-sidecar.py`、`validate-capability-registry.py`、
+`canonicalize-sdd-yaml.py` の公開引数契約を確認し、保護ファイルを読み取り入力として
+渡す直接の `python` / `python3` 呼び出しを許可します。共有の
+`readonly-input-contracts.json` が入力引数と通常モードを定義します。
+未知の引数、別配布のスクリプト、不明な実行ディレクトリではこの判定を適用しません。
+保護先へのリダイレクトや後続の書き込みは引き続き拒否します。
+予約・発行・適用を行うCLIを一律に読み取り専用とは扱いません。
+
 **解決・正規化系（6本）** — 判定を返さず、正規化された事実や候補集合を返します。
 
 | スクリプト名 | 提供ランタイム | 目的 |

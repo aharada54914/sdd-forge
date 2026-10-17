@@ -441,13 +441,19 @@ class QualityTransport(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'lacks observed admitted input inspection'):
                     TRANSPORT.postflight(root, invocation, transcript,
                                          prompt, wrapper, receipt)
-            reads = [{'message': {'content': [{'type': 'tool_use', 'name': 'Read',
+            reads = [{'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'name': 'Read',
                                                'input': {'file_path': str(input_path)}}]}}]
             with mock.patch.object(TRANSPORT, 'native_delivery',
                                    return_value=(data, {'result': clean_pass}, reads)):
                 self.assertEqual(TRANSPORT.postflight(root, invocation, transcript,
                                                        prompt, wrapper, receipt)['status'],
                                  'DELIVERY_OK')
+            replay_reads = [dict(row, type='api-request-blob') for row in reads]
+            with mock.patch.object(TRANSPORT, 'native_delivery',
+                                   return_value=(data, {'result': clean_pass}, replay_reads)):
+                with self.assertRaisesRegex(ValueError, 'lacks observed admitted input inspection'):
+                    TRANSPORT.postflight(root, invocation, transcript,
+                                        prompt, wrapper, receipt)
 
     def test_scratch_record_and_read_hash_only_permissions(self):
         session = str(uuid.uuid4())

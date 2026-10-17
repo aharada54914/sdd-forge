@@ -375,7 +375,9 @@ class LaunchOrderTests(unittest.TestCase):
             receipt.write_text('REVIEW_CONTEXT_OK ' + 'b' * 64 + ' sequence=2 '
                                'previous_record_sha256=' + 'a' * 64 +
                                ' pre_append_tip_sequence=1 identity_unique=yes\n')
+            session = str(uuid.uuid4())
             data = {'stage': 'impl', 'role': 'impl-reviewer-a', 'feature': 'demo',
+                    'run_id': session, 'host_session_id': session,
                     'allowed_input_manifest': []}
             state = launcher.required_dependencies(root, data)
             with patch.object(launcher.transport, 'manifest', return_value=(data, {})), \

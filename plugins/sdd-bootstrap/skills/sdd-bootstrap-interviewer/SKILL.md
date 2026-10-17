@@ -202,6 +202,11 @@ The seven Markdown files under `specs/<feature>/` above are mandatory Phase 1
 outputs for the full profile. Create layer files from the matching templates in
 `templates/`. Existing layer files remain unchanged under the create-only rule.
 
+New `requirements.md` must retain the template's bare
+`Spec-Review-Status: Pending` header; new `design.md` must retain
+`Impl-Review-Status: Pending`. These statuses belong to their respective files.
+Only the corresponding review gate may advance its status to `Passed`.
+
 Phase 2 outputs (generated after impl-review-loop passes):
 
 - `specs/<feature>/tasks.md`
