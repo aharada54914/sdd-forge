@@ -11,4 +11,5 @@ else
   exit 1
 fi
 "$python_bin" "$root/tests/a9-dogfood.tests.py"
-exec "$python_bin" "$root/tests/a9-advisory-evidence.tests.py"
+"$python_bin" "$root/tests/a9-advisory-evidence.tests.py"
+exec "$python_bin" "$root/tests/a9-rollback-receipt.tests.py"

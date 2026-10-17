@@ -19,3 +19,8 @@ if ($LASTEXITCODE -ne 0) {
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
+
+& $python.Source (Join-Path $PSScriptRoot 'a9-rollback-receipt.tests.py')
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}

@@ -634,6 +634,7 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
 # Concept review's executable enforcement chain must resist direct replacement,
 # including wrappers mentioned through brace syntax in skill documentation.
 for domain_gate in \
+    scripts/validate-a9-rollback-receipt.py \
     plugins/sdd-quality-loop/scripts/initialize-review-identity.py \
     plugins/sdd-domain/scripts/record-upstream-concept-issue.py \
     plugins/sdd-domain/scripts/validate-domain-contract.sh \

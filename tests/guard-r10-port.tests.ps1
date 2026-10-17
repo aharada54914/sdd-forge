@@ -181,6 +181,10 @@ Assert-Parity "r10 file-write: claude-hooks.json"          2 '{"tool_name":"writ
 Assert-Parity "r10 apply_patch: sdd-hook-guard.py"         2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+x\n*** End Patch"}}'
 Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"write","tool_input":{"file_path":"foo/../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
 
+# A9 publication admission must remain protected in all three guard runtimes.
+$rollbackPayload = @{ tool_name = 'write'; tool_input = @{ file_path = 'scripts/validate-a9-rollback-receipt.py'; content = 'replacement' } } | ConvertTo-Json -Compress
+Assert-Parity 'r10 A9 rollback admission' 2 $rollbackPayload
+
 # The domain finalizer's Python master and both packaged wrappers are gates.
 foreach ($suffix in @('py', 'sh', 'ps1')) {
     $finalizerPath = "plugins/sdd-domain/scripts/finalize-domain-review.$suffix"
