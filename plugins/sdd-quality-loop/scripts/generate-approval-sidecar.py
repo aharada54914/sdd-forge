@@ -46,6 +46,7 @@ import hmac
 import importlib.util
 import json
 import os
+import re
 import secrets
 import shutil
 import subprocess
@@ -86,6 +87,7 @@ CATEGORY_EXIT_CODES = {
 # enum) -> the basename every sibling artifact (live sidecar, approved-context
 # anchor, staged candidate/snapshot) shares, per design.md's Data Plan.
 SCHEMA_BASENAMES = {
+    "sdd-concept-test-approval/v1": "concept-test",
     "sdd-project-context-approval/v1": "project-context",
     "sdd-provider-bindings-approval/v1": "provider-bindings",
 }
@@ -196,10 +198,10 @@ def _run_canonicalizer(data_bytes, input_format, hash_only, failure_category):
     return proc.stdout
 
 
-def _hash_content_file(content_bytes):
+def _hash_content_file(content_bytes, input_format="yaml"):
     """context_sha256 (REQ-003 against the live content file's bytes)."""
     stdout = _run_canonicalizer(
-        content_bytes, input_format="yaml", hash_only=True,
+        content_bytes, input_format=input_format, hash_only=True,
         failure_category="CONTENT_CANONICALIZATION_FAILED",
     )
     return stdout.decode("ascii").strip()
@@ -433,8 +435,13 @@ LIVE_SIDECAR_DIR = "sdd"
 LIVE_ANCHOR_DIR = "sdd/.approved-context"
 
 
-def _live_target_paths(schema_id):
+def _live_target_paths(schema_id, feature=None):
     """(sidecar, snapshot) repo-relative LIVE paths for this schema id."""
+    if schema_id == "sdd-concept-test-approval/v1":
+        if not isinstance(feature, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", feature):
+            raise GenerateApprovalSidecarError("USAGE_ERROR", "concept-test requires a valid --feature")
+        return (f"specs/{feature}/concept-test.approval.json",
+                f"specs/{feature}/concept-test.approved.json")
     basename = SCHEMA_BASENAMES[schema_id]
     return (
         f"{LIVE_SIDECAR_DIR}/{basename}.approval.json",
@@ -442,7 +449,7 @@ def _live_target_paths(schema_id):
     )
 
 
-def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonce, simulate_failure=None):
+def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonce, simulate_failure=None, feature=None):
     """Writes the signed candidate, the byte-exact approved-context snapshot,
     and MANIFEST.sha256 to a TEMPORARY sibling directory, re-hashes every
     file from disk, then commits with ONE atomic directory rename into
@@ -489,7 +496,7 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
     a permission error, etc.) is wrapped as `GenerateApprovalSidecarError`
     (`STAGING_IO_ERROR`), never left to propagate as a raw, undocumented
     traceback (quality-gate seq0350 Major remedy)."""
-    sidecar_live_path, snapshot_live_path = _live_target_paths(schema_id)
+    sidecar_live_path, snapshot_live_path = _live_target_paths(schema_id, feature)
     sidecar_bytes = (json.dumps(sidecar_obj, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
     stage_dir = stage_dir.rstrip("/").rstrip(os.sep)
@@ -736,9 +743,10 @@ def main(argv=None):
     try:
         if args.schema == FIXED_SCHEMA:
             return _issue_fixed_approval(args)
-        if any(getattr(args, name) is not None for name in ("repo", "inventory", "feature", "stage", "task_id")):
+        concept = args.schema == "sdd-concept-test-approval/v1"
+        if any(getattr(args, name) is not None for name in ("repo", "inventory", "stage", "task_id")) or (args.feature is not None and not concept):
             raise GenerateApprovalSidecarError("USAGE_ERROR", "fixed-review arguments require the fixed-review schema")
-        _require(args, ["schema", "content", "approver", "status", "live_sidecar"])
+        _require(args, ["schema", "content", "approver", "status"] + ([] if concept else ["live_sidecar"]))
 
         if args.status != "Approved":
             raise GenerateApprovalSidecarError(
@@ -759,11 +767,24 @@ def main(argv=None):
         except OSError as exc:
             raise GenerateApprovalSidecarError("USAGE_ERROR", f"cannot read --content {args.content!r}: {exc}") from exc
 
-        context_sha256 = _hash_content_file(content_bytes)
+        if concept:
+            _live_target_paths(args.schema, args.feature)
+            try:
+                record = json.loads(content_bytes)
+                if record.get("feature") != args.feature or record.get("schema") != "concept-test/v1":
+                    raise ValueError("wrong feature or record schema")
+            except (ValueError, AttributeError) as exc:
+                raise GenerateApprovalSidecarError("USAGE_ERROR", "invalid concept-test content") from exc
 
-        predecessor_context_sha256, weakening_verdict, approval_epoch = _resolve_provenance(
-            args.live_sidecar, args.content,
-        )
+        context_sha256 = _hash_content_file(content_bytes, "json" if concept else "yaml")
+
+        # Concept decisions approve an immutable evidence snapshot, not a policy transition.
+        if concept:
+            predecessor_context_sha256, weakening_verdict, approval_epoch = None, None, 1
+        else:
+            predecessor_context_sha256, weakening_verdict, approval_epoch = _resolve_provenance(
+                args.live_sidecar, args.content,
+            )
 
         key_bytes = resolve_context_key()
         if key_bytes is None:
@@ -802,7 +823,7 @@ def main(argv=None):
 
         _write_staged_outputs(
             stage_dir, args.schema, sidecar, content_bytes, nonce,
-            simulate_failure=args.simulate_mid_write_failure,
+            simulate_failure=args.simulate_mid_write_failure, feature=args.feature,
         )
 
         print(f"staged: {stage_dir}")

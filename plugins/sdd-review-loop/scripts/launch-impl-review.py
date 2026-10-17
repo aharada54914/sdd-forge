@@ -19,7 +19,7 @@ spec.loader.exec_module(transport)
 
 def runtime_files(root, stage, fixed_inputs=False):
     if not fixed_inputs:
-        return {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop')
+        return {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop', 'plugins/sdd-domain', 'contracts')
                 for p in (root / folder).rglob('*') if p.is_file()}
     review = 'plugins/sdd-review-loop/'
     quality = 'plugins/sdd-quality-loop/scripts/'
@@ -31,11 +31,12 @@ def runtime_files(root, stage, fixed_inputs=False):
                   quality + 'validate-review-context-set.sh',
                   quality + 'validate-approval-sidecar.py',
                   quality + 'supplemental-delivery-inputs.py'))
-    if stage != 'task':
-        names.update(quality + name for name in (
-            'review-conditional-inputs.py', 'validate-facet-manifest.py'))
-        names.update('contracts/domain-contract.' + version + '.schema.json'
-                     for version in ('v1', 'v2'))
+    names.update(quality + name for name in (
+        'review-conditional-inputs.py', 'validate-facet-manifest.py'))
+    names.update('contracts/domain-contract.' + version + '.schema.json'
+                 for version in ('v1', 'v2'))
+    names.update(('contracts/concept-test.v1.schema.json',
+                  'plugins/sdd-domain/scripts/validate-concept-test.py'))
     if stage == 'quality':
         names.add(quality + 'preflight-evaluator-delivery.py')
     else:
@@ -66,8 +67,6 @@ def run(root, command, destination, prompt=None):
 
 def required_dependencies(root, data, fixed_inputs=None):
     """Require canonical conditional inputs before any reservation."""
-    if data['stage'] == 'task':
-        return {'inputs': []}
     helper_spec = importlib.util.spec_from_file_location(
         'conditional_inputs', Path(__file__).parents[2] /
         'sdd-quality-loop/scripts/review-conditional-inputs.py')
@@ -302,7 +301,7 @@ def launch(root, invocation, output, manifest_sha256=None, *,
         round_dir = root / 'reports/quality-gate'
         role_path = root / 'plugins/sdd-quality-loop/agents/evaluator.md'
         verify = None
-        dependency_presence = None
+        dependency_presence = required_dependencies(root, data, fixed_inputs)
     else:
         pattern = re.compile(r'reports/' + stage + r'-review/' + re.escape(feature) +
                              r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/precheck-result.json')
@@ -439,9 +438,8 @@ def launch(root, invocation, output, manifest_sha256=None, *,
                       proof.get('source_invocation_sha256') == pins[str(invocation)] and
                       proof.get('admitted_paths') == [e['path'] for e in data['allowed_input_manifest']],
                       'native permission proof incomplete or for different inputs')
-    if stage != 'quality':
-        transport.require(required_dependencies(root, data, fixed_inputs) == dependency_presence,
-                          'conditional dependency presence changed')
+    transport.require(required_dependencies(root, data, fixed_inputs) == dependency_presence,
+                      'conditional dependency presence changed')
     transport.require(all(transport.sha(Path(p)) == digest for p, digest in pins.items()),
                       'dependency changed during native preflight')
     transport.preflight(root, invocation, transcript)

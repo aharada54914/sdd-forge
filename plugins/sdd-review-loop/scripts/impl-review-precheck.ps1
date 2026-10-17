@@ -340,7 +340,7 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     $anchorMatch = [Text.RegularExpressions.Regex]::Match(
-      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|domain/(context-map\.md|domain-contract\.json|aggregates/[^/]+\.md)|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
     if (-not $anchorMatch.Success) { return $null }
     $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
@@ -378,15 +378,15 @@ function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [st
   }
 }
 function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$FeatureName, [string]$RepoRoot) {
-  if ($Stage -cnotin @('spec', 'impl')) { return @() }
+  if ($Stage -cnotin @('spec', 'impl', 'task')) { return @() }
   $entries = @($Contract.reviewers | ForEach-Object { $_.allowed_input_manifest })
-  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch '^(domain|design-system)/' }).Count) { return @() }
+  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/concept-test') }).Count) { return @() }
   $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage
   if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
   $selected = @(($raw | ConvertFrom-Json).inputs)
   foreach ($entry in $entries) {
     $relative = Get-ManifestRelativePath $entry.path $RepoRoot
-    if ($relative -cmatch '^(domain|design-system)/') {
+    if ($relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/concept-test')) {
       if (-not @($selected | Where-Object { $_.path -ceq $relative -and $_.sha256 -ceq $entry.sha256 }).Count) {
         Fail 'persisted conditional input is outside selection or its hash changed'
       }
@@ -414,7 +414,7 @@ function Test-AllowedManifestPath(
     $CalibrationPath,
     "$roundRoot/precheck-result.json"
   )
-  if ($Stage -cin @('spec', 'impl')) { $allowed += $ConditionalPaths }
+  if ($Stage -cin @('spec', 'impl', 'task')) { $allowed += $ConditionalPaths }
   if (Test-OrdinalEqual $Stage 'spec') {
     $allowed += "specs/$FeatureName/investigation.md"
     if (Test-OrdinalEqual $Role $roleB) { $allowed += "$roundRoot/integrated-summary.json" }

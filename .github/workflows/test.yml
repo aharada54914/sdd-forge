@@ -68,6 +68,8 @@ jobs:
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
+          python3 -B tests/concept-test.tests.py
+          python3 -B tests/concept-review-continuity.tests.py
           python3 -B tests/fixed-review-inputs.tests.py
           python3 -B tests/fixed-review-state.tests.py
           python3 -B tests/fixed-review-launch.tests.py
@@ -82,6 +84,12 @@ jobs:
           python3 -B tests/task-structured-output.tests.py
           python3 -B tests/supplemental-delivery-declaration.tests.py
           python3 -B tests/t001-evaluation-preparation.tests.py
+      - name: Install pinned domain regression test runner
+        shell: pwsh
+        run: Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
+      - name: Test domain concept modeling and review contracts
+        shell: pwsh
+        run: ./tests/sdd-domain.tests.ps1
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -143,6 +151,11 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+
+      - name: "[deterministic] Test Concept Test gate on native Windows"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -B tests/concept-test.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'

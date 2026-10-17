@@ -7,6 +7,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $powerShell = (Get-Process -Id $PID).Path
 $tests = @(
     'tests/validate-repository.ps1',
+    'tests/sdd-domain.tests.ps1',
     'tests/scripts.tests.ps1',
     'tests/wfi-058-outputs-anchor.tests.ps1',
     'tests/wfi-059-evidence-path-base.tests.ps1',

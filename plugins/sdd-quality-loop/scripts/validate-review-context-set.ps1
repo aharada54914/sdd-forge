@@ -621,7 +621,7 @@ try {
         $inputBoundRecord = $record -is [hashtable] -and $record.ContainsKey('allowed_inputs_sha256')
         if ($inputBoundRecord) {
             $allowedRecordKeys += 'allowed_inputs_sha256'
-            if (($record.stage -cne 'spec' -and $record.stage -cne 'impl') -or
+            if ($record.stage -cnotin @('spec','impl','task','quality') -or
                 $record.allowed_inputs_sha256 -isnot [string] -or
                 $record.allowed_inputs_sha256 -cnotmatch '^[0-9a-f]{64}$') {
                 Fail-ReviewContext 'IDENTITY' 'invalid input binding in identity ledger'
@@ -665,7 +665,9 @@ try {
     }
     # Same ordered ASCII path<TAB>hash lines as Bash, without a final newline.
     $inputBinding = ''
-    if ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl') {
+    $conceptInputPath = "specs/$($document.feature)/concept-test.json"
+    if ($document.stage -cin @('spec','impl') -or
+        @($document.allowed_input_manifest | Where-Object { $_.path -ceq $conceptInputPath }).Count -eq 1) {
         $inputText = @($document.allowed_input_manifest | ForEach-Object { "$($_.path)`t$($_.sha256)" }) -join "`n"
         $inputBinding = Get-Sha256Text $inputText
     }
@@ -947,7 +949,7 @@ print("true" if result.stdout else "false")
     $implPrechecks = [Collections.Generic.List[object]]::new()
     $verifiedAdrInputs = $null
     $conditionalInputs = $null
-    if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl')) {
+    if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl','task','quality')) {
         $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
         if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
@@ -977,8 +979,9 @@ print("true" if result.stdout else "false")
         if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
             Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
         }
-        $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$' -and
-            $input.path -cmatch '^(domain|design-system)/'
+        $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$' -and
+            ($input.path -cmatch '^(domain|design-system)/' -or
+             $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
         $isAdrInput = $document.stage -ceq 'impl' -and
             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
         if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
@@ -991,15 +994,26 @@ print("true" if result.stdout else "false")
             $verifiedAdrInputs.ContainsKey($input.path) -and
             $verifiedAdrInputs[$input.path] -ceq $input.sha256
         } elseif ($isConditionalInput) {
-            $allowedConditionalPaths = if ($document.stage -ceq 'spec') {
+            $allowedConditionalPaths = if ($document.stage -cne 'impl') {
                 @('domain/context-map.md', 'domain/domain-contract.json')
             } else {
                 @('domain/context-map.md', 'domain/domain-contract.json',
                   'design-system/design-tokens.json', 'design-system/design-system.md',
                   'design-system/ui-patterns.md')
             }
+            $conceptRecordPath = "specs/$($document.feature)/concept-test.json"
+            $conceptDeclared = $false
+            if (@($inputs | Where-Object { $_.path -ceq $conceptRecordPath }).Count -eq 1) {
+                try {
+                    $conceptRecord = Get-Content -Raw -LiteralPath (Join-Path $root $conceptRecordPath) | ConvertFrom-Json -AsHashtable
+                    $conceptPath = $input.path
+                    $conceptHash = $input.sha256
+                    $conceptDeclared = @($conceptRecord.inputs | Where-Object { $_.path -ceq $conceptPath -and $_.sha256 -ceq $conceptHash }).Count -eq 1
+                } catch { $conceptDeclared = $false }
+            }
             if ($allowedConditionalPaths -cnotcontains $input.path -and
-                -not ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$')) {
+                -not ($conceptDeclared -or ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$') -or
+                      $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))) {
                 $false
             } elseif ($null -ne $persistedMatch) {
                 $persistedMatch.ContainsKey('allowed_inputs_sha256')

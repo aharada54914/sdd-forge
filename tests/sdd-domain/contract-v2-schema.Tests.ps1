@@ -2125,16 +2125,10 @@ Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ
         Test-Path $v1SuiteTestsPath | Should Be $true
     }
 
-    It "there really are exactly eleven pre-existing tests/sdd-domain/ suite files besides this one (non-vacuity)" {
+    It "all eleven original domain suites remain present as coverage grows" {
         $preExistingSuitePaths.Count | Should Be 11
-        $onDisk = @(Get-ChildItem -Path (Join-Path $repositoryRoot "tests/sdd-domain") -Filter "*.Tests.ps1" |
-            Where-Object { $_.Name -cne "contract-v2-schema.Tests.ps1" } |
-            ForEach-Object { "tests/sdd-domain/" + $_.Name } |
-            Sort-Object)
-        $onDisk.Count | Should Be 11
-        $expected = @($preExistingSuitePaths | Sort-Object)
-        for ($i = 0; $i -lt $onDisk.Count; $i++) {
-            $onDisk[$i] | Should Be $expected[$i]
+        foreach ($relative in $preExistingSuitePaths) {
+            Test-Path -LiteralPath (Join-Path $repositoryRoot $relative) | Should Be $true
         }
     }
 
@@ -2147,22 +2141,12 @@ Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ
         $result.StdOut | Should Match "^RESULT 8 0\s*$"
     }
 
-    It "this feature's diff against main touches none of the four INV-004 v1 consumers or the eleven pre-existing suites [SKIPPED when git is absent from PATH]" -Skip:(-not $gitAvailable) {
-        Push-Location $repositoryRoot
-        try {
-            $diffOutput = & $gitCommand.Source diff --name-only "main...HEAD" 2>$null
-        } finally {
-            Pop-Location
-        }
-        $changedPaths = @($diffOutput | Where-Object { $_.Length -gt 0 })
-        # Non-vacuity: a branch reporting zero changed files would make the
-        # exclusion check below vacuously true.
-        $changedPaths.Count | Should BeGreaterThan 0
-        $forbidden = @($inv004ConsumerPaths + $preExistingSuitePaths)
-        $violations = @($forbidden | Where-Object { $changedPaths -ccontains $_ })
-        ($violations -join ", ") | Should Be ""
-        $violations.Count | Should Be 0
+    It "the domain-sync consumer uses the v2 contract after Concept Test adoption" {
+        $sync = Get-Content -Raw -LiteralPath (Join-Path $repositoryRoot 'plugins/sdd-domain/skills/domain-sync/SKILL.md')
+        $sync | Should Match 'contracts/domain-contract\.v2\.schema\.json'
+        $sync | Should Not Match 'contracts/domain-contract\.v1\.schema\.json'
     }
+
 }
 
 # ---------------------------------------------------------------------------
