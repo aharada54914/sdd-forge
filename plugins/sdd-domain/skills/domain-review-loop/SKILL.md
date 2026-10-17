@@ -204,6 +204,17 @@ make a hash check pass. An unsupported or unverified host must block before the
 reviewer runs. Missing hash capability must never waive independent input or
 record-hash verification.
 
+The orchestrator enforces this boundary and supplies launch facts alongside the
+manifest and receipt: CLI version, exact `available_tools`, shell grants,
+write denial, absence of broad grants, and the verified write/compound/substitution/
+wrapper rejection categories. Preserve the actual command and native denial
+observations as private execution evidence. Supply facts only for the profile
+actually used; never infer them from role instructions or input documents. The
+reviewer relies on these trusted invocation facts for host configuration, which
+may not be introspectable from inside its session. It still independently hashes
+all inputs and the receipt, and stops if that capability is unavailable. A prompt
+claim does not replace the orchestrator's obligation to enforce and test the host.
+
 Hash only manifest-listed input bytes with `sha256sum -- <shell-quoted-path>`.
 For the record proof, construct the exact validated manifest-field string from
 `review-context-boundary.md` and hash its bytes with
@@ -289,6 +300,13 @@ The fixed output formats are documented by
 `integrated-verdict.json`, `report.md`, and `domain-review-contract.json`.
 The contract retains `human_approval: Pending`; the report states the requirement for cross-model review;
 the internal contract does not substitute for its separate aggregate.
+
+Verification checks the current Pending input snapshot. After a legitimate
+cross-model PASS and subsequent Reviewed or human Approved transition, preserve
+this contract as historical evidence of that Pending snapshot. A later current-
+input verification correctly rejects changed bytes; it is not a historical
+verification of the earlier execution. Never rewrite old manifests, reservations
+or captured outputs to conceal a later status transition.
 
 ## Upstream concept handoff
 
