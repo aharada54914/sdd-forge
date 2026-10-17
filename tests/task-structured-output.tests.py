@@ -49,6 +49,49 @@ class TaskStructuredOutputTests(unittest.TestCase):
                                               'receipt', 'c' * 64, strict=False)
             self.assertNotIn('1.\n```sh', legacy)
 
+    def test_prompt_exposes_exact_manifest_run_and_session_identities(self):
+        # The compact verifier exposes digests, which are not reviewer identities.
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            ledger = root / 'reports/review-context/identity-ledger.json'
+            ledger.parent.mkdir(parents=True)
+            ledger.write_text(json.dumps({'schema': 'review-identity-ledger/v1', 'records': []}))
+            boundary = root / transport.BOUNDARY_PATH
+            boundary.parent.mkdir(parents=True)
+            boundary.write_text('boundary')
+            artifact = root / 'input.md'
+            artifact.write_text('review input')
+            invocation, receipt = root / 'invocation.json', root / 'receipt.txt'
+            receipt.write_text('REVIEW_CONTEXT_OK ' + 'a' * 64 +
+                              ' sequence=1 previous_record_sha256=- '
+                              'pre_append_tip_sequence=0 identity_unique=yes\n')
+            for stage, role in (('spec', 'spec-reviewer-b'), ('impl', 'impl-reviewer-b'),
+                                ('task', 'task-reviewer-b'), ('quality', 'sdd-evaluator')):
+                session = str(uuid.uuid4())
+                data = {'schema': 'review-context-invocation/v2', 'stage': stage, 'role': role,
+                        'feature': 'example', 'run_id': session, 'host_session_id': session,
+                        'read_only': True, 'input_mode': 'file-manifest', 'fallback_mode': 'none',
+                        'identity_ledger_path': ledger.relative_to(root).as_posix(),
+                        'allowed_input_manifest': [{'path': 'input.md', 'sha256': transport.sha(artifact)}]}
+                if stage == 'quality':
+                    data.update(task_id='T-001', scratch_root=str(root / 'scratch'))
+                invocation.write_text(json.dumps(data))
+                with self.subTest(stage=stage), mock.patch.object(
+                        transport, 'control_prompt', return_value='canonical control remains required\n'):
+                    for fixed in (None, {'snapshot': str(root), 'inventory': {'inputs': []}}):
+                        with self.subTest(fixed=bool(fixed)):
+                            prompt = transport.expected_prompt(
+                                root, invocation, receipt, strict=True, fixed_inputs=fixed)
+                            binding = json.loads(prompt.decode().splitlines()[1])
+                            self.assertEqual(binding['run_id'], session)
+                            self.assertEqual(binding['host_session_id'], session)
+                            self.assertEqual(binding['invocation_sha256'], transport.sha(invocation))
+                            self.assertNotEqual(binding['run_id'], 'a' * 64)
+                            self.assertNotEqual(binding['host_session_id'], invocation.name)
+                    invocation.write_text(json.dumps(dict(data, run_id=str(uuid.uuid4()))))
+                    with self.assertRaisesRegex(ValueError, 'alias run_id'):
+                        transport.expected_prompt(root, invocation, receipt, strict=True)
+
     def test_native_events_ignore_replay_data_but_keep_real_identity_and_order(self):
         session = str(uuid.uuid4())
         def row(kind, block, **changes):
@@ -444,7 +487,8 @@ for (const [schema, value, expected] of cases) {
             for stage, role, output_stage, output_role in (
                     ('spec', 'spec-reviewer-a', 'spec', 'spec-reviewer-a'),
                     ('impl', 'impl-reviewer-a', 'impl', 'impl-reviewer-a'),
-                    ('task', 'task-reviewer-a', 'task-review', 'reviewer-a')):
+                    ('task', 'task-reviewer-a', 'task-review', 'reviewer-a'),
+                    ('task', 'task-reviewer-b', 'task', 'task-reviewer-b')):
                 data = {'stage': stage, 'role': role, 'host_session_id': 'session'}
                 output = {'stage': output_stage, 'role': output_role,
                           'run_id': 'session', 'host_session_id': 'session'}
@@ -452,7 +496,10 @@ for (const [schema, value, expected] of cases) {
                         (json.dumps(output), output, True),
                         ('```json\n' + json.dumps(output) + '\n```', output, False),
                         (json.dumps(output), {'different': True}, False),
-                        (json.dumps(output), None, False)):
+                        (json.dumps(output), None, False),
+                        (json.dumps(dict(output, run_id='a' * 64)), dict(output, run_id='a' * 64), False),
+                        (json.dumps(dict(output, host_session_id='invocation.json')),
+                         dict(output, host_session_id='invocation.json'), False)):
                     with self.subTest(stage=stage, raw=raw[:20], structured=structured), \
                             mock.patch.object(transport, 'native_delivery', return_value=(
                                 data, {'result': raw, 'structured_output': structured}, [])):

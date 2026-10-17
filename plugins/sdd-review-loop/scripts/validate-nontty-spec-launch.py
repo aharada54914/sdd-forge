@@ -722,6 +722,7 @@ def expected_prompt(root, invocation, receipt, *, strict=False, conditional_stat
                          receipt_text) is not None, 'invalid reservation receipt text')
     relative = invocation.resolve().relative_to(root.resolve()).as_posix()
     binding = json.dumps({'role': data['role'], 'invocation': relative,
+                          'run_id': data['run_id'], 'host_session_id': data['host_session_id'],
                           'invocation_sha256': sha(invocation),
                           'receipt': receipt_text.rstrip('\n')},
                          ensure_ascii=True, sort_keys=True)
