@@ -3,10 +3,9 @@
 # STAGED guard-invariants registration batch under
 # specs/epic-189-a1-project-context/human-copy/.
 #
-# This suite deliberately asserts against the STAGED candidates only. The
-# live inventory cannot be asserted until a human has applied the batch
-# (tasks.md T-009 "Human apply step"), so every check below is either a
-# staged-tree check or a live-tree NON-MUTATION check.
+# The staged archive stays immutable. Live files may also evolve by adding
+# protected paths while retaining its policy and generator behavior; the
+# independent archived renderer checks every current runtime projection.
 #
 # TEST-021 staged-inventory conformance + manifest-derived count +
 #   staged-tree --check pass (AC-021): PROTECTED-MANIFEST.md is parsed as
@@ -25,15 +24,10 @@
 #   make --check fail -- a dropped JSON entry, a dropped EPIC_A1_TARGETS
 #   entry, and a stale generated output. Without these, a --check that
 #   passed vacuously would look identical to one that passed meaningfully.
-# TEST-022 live-file non-mutation (AC-022): each of the six LIVE
-#   guard-invariants files must be in EXACTLY ONE of two allowed states --
-#   the pre-apply baseline digest recorded before T-009's agent commit, or
-#   the digest of this batch's own staged candidate (i.e. the human apply
-#   landed precisely the reviewed bytes). Any third value means the live
-#   file drifted to something nobody reviewed, and fails closed. This
-#   phrasing is what lets one assertion express AC-022 both before and
-#   after the human apply step, instead of a pinned digest that would go
-#   red the moment the batch is legitimately applied.
+# TEST-022 live-file continuity (AC-022): historical pre-apply and applied
+# digests remain accepted. Additive protection changes must pass the archived
+# validator/renderer, preserve all old paths in order, and leave policy and
+# generator logic unchanged. Negative mutations exercise each restriction.
 # TEST-038 reservation inventory (AC-038): both RESERVED groups
 #   (resolve-project-context.{py,sh,ps1}, generated/project-context
 #   .resolved.json) are present in the staged candidate, and all six
@@ -252,6 +246,18 @@ else
   fail "TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)"
 fi
 
+# Validate the complete six-file live contract before accepting any evolution.
+LIVE_EVOLUTION_OK=no
+if "$PY" "$ROOT/tests/lib/guard-invariants-evolution.py" "$STAGED_LOOP" "$LIVE_LOOP" >"$WORK/evolution.log" 2>&1; then
+  LIVE_EVOLUTION_OK=yes
+  if "$PY" "$ROOT/tests/lib/guard-invariants-evolution.py" "$STAGED_LOOP" "$LIVE_LOOP" --self-test >"$WORK/evolution-mutations.log" 2>&1; then
+    pass "TEST-022-MUT: additive evolution accepted; removed protections, weakened policy, changed generator and stale projections rejected"
+  else
+    fail "TEST-022-MUT: live evolution mutation checks"
+    cat "$WORK/evolution-mutations.log"
+  fi
+fi
+
 # protected_gate_suffixes, asserted across the human-apply boundary.
 "$PY" - "$LIVE_JSON" >"$WORK/live_protected.txt" <<'PYEOF'
 import json, sys
@@ -264,16 +270,15 @@ import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 sys.stdout.write("".join(v + "\n" for v in data["protected_gate_suffixes"]))
 PYEOF
-# Two allowed states, mirroring TEST-022: BEFORE the human apply the staged
-# list is the live list plus the 28 manifest paths; AFTER it, the live list
-# IS the staged list. Anything else fails closed. A one-sided "live + 28"
-# assertion is correct only until the batch is legitimately applied.
+# The historical apply states and verified additive live evolution are valid.
 if diff -q "$WORK/expect_protected.txt" "$WORK/staged_protected.txt" >/dev/null 2>&1; then
   pass "TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths (pre-apply)"
 elif diff -q "$WORK/live_protected.txt" "$WORK/staged_protected.txt" >/dev/null 2>&1; then
   pass "TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)"
+elif [ "$LIVE_EVOLUTION_OK" = yes ]; then
+  pass "TEST-021: live inventory retains all staged protections with verified additions"
 else
-  fail "TEST-021: staged protected_gate_suffixes is neither live-plus-manifest nor live itself"
+  fail "TEST-021: staged/live protected inventories violate the apply or additive-evolution contract"
 fi
 
 # Apply-state INDEPENDENT, and the stronger of the two: the staged list's
@@ -307,7 +312,7 @@ else
   fail "TEST-021: staged generator EPIC_A1_TARGETS equals the manifest exactly (ordered)"
 fi
 
-# Frozen constants must be byte-for-byte the live ones (Out of Scope).
+# Archived constants remain frozen; live baseline additions require the full evolution check.
 for name in PHASE2_TARGETS BASELINE_SUFFIXES; do
   "$PY" - "$LIVE_GEN" "$name" >"$WORK/live_$name.txt" <<'PYEOF'
 import importlib.util, sys
@@ -325,6 +330,8 @@ sys.stdout.write("".join(v + "\n" for v in getattr(module, sys.argv[2])))
 PYEOF
   if diff -u "$WORK/live_$name.txt" "$WORK/staged_$name.txt" >/dev/null 2>&1; then
     pass "TEST-021: frozen constant untouched in the staged generator: $name"
+  elif [ "$name" = BASELINE_SUFFIXES ] && [ "$LIVE_EVOLUTION_OK" = yes ]; then
+    pass "TEST-021: live baseline retains the frozen staged constant with verified additions"
   else
     fail "TEST-021: frozen constant untouched in the staged generator: $name"
   fi
@@ -491,7 +498,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# TEST-022: LIVE files are untouched by this task's agent commit
+# TEST-022: historical apply states or strictly additive live protection evolution
 # ---------------------------------------------------------------------------
 
 check_live() {
@@ -504,8 +511,10 @@ check_live() {
     pass "TEST-022: live $label is at the pre-apply baseline (agent commit changed nothing)"
   elif [ -f "$staged_path" ] && [ "$actual" = "$(sha256_of "$staged_path")" ]; then
     pass "TEST-022: live $label equals this batch's reviewed staged candidate (human apply landed)"
+  elif [ "$LIVE_EVOLUTION_OK" = yes ]; then
+    pass "TEST-022: live $label preserves the staged policy with verified additive protections"
   else
-    fail "TEST-022: live $label is neither the pre-apply baseline nor the staged candidate (got $actual)"
+    fail "TEST-022: live $label violates the historical apply or additive-evolution contract (got $actual)"
   fi
 }
 
