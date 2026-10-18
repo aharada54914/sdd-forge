@@ -911,10 +911,15 @@ class Contracts(unittest.TestCase):
                 self.both(bad, False)
         for field, value in [("workspace_anchor", "HOME"), ("task_id", "T-2"),
                              ("artifact_root", "../escape"), ("feature", "a/b"),
-                             ("unit_roots", []), ("unit_roots", ["bundle/unit"] * 2)]:
+                             ("unit_roots", [])]:
             bad = copy.deepcopy(request)
             bad["local_context"][field] = value
             self.both(bad, False)
+
+        bad = copy.deepcopy(request)
+        bad["local_context"]["unit_roots"] *= 2
+        self.rejects(bad)  # existing structural oracle does not implement uniqueItems
+        self.assertTrue(self.schema(request["schema"])["properties"]["local_context"]["properties"]["unit_roots"]["uniqueItems"])
 
     def test_repair_discovery_and_honest_unpublished_errors(self):
         for owner in (None, "terraform", "sam", "cloudformation", "azd", "bicep", "cdk"):
@@ -980,6 +985,119 @@ class Contracts(unittest.TestCase):
         with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(link)}):
             with self.assertRaises(self.c.ContractError):
                 self.c.workspace_root()
+
+
+
+    def test_repair_workspace_control_bytes_are_typed_blocked(self):
+        from unittest.mock import patch
+        for value in (str(self.root) + "\x00", str(self.root) + "\n", "/", str(self.root) + "//"):
+            with self.subTest(value=repr(value)), patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": value}):
+                with self.assertRaises(self.c.ContractError):
+                    self.c.workspace_root()
+
+    def test_repair_context_cross_artifact_controls(self):
+        from unittest.mock import patch
+        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
+        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
+            # Rehash edited bodies so these exercise semantic checks, not stale outer hashes.
+            for body_field, mutation in [
+                ("policy", lambda b: b["allowed_scopes"][0].update(region="wrong")),
+                ("verification_profile", lambda b: b.update(id="wrong")),
+                ("verification_profile", lambda b: b.update(required_check_ids=["network"])),
+                ("ownership", lambda b: b["owners"][0].update(root="outside")),
+                ("ownership", lambda b: b["owners"].append(dict(owner="terraform", root="bundle/unit"))),
+            ]:
+                bad = copy.deepcopy(request)
+                container = bad["local_context"] if body_field == "ownership" else bad
+                dest = self.root / container[body_field]["path"]
+                original = dest.read_bytes()
+                value = json.loads(original)
+                mutation(value)
+                raw = encode(value)
+                dest.write_bytes(raw)
+                container[body_field]["sha256"] = hashlib.sha256(raw).hexdigest()
+                with self.subTest(body=body_field), self.assertRaises(self.c.ContractError):
+                    self.c.verify_local_context(self.root, bad, execution=True)
+                dest.write_bytes(original)
+            for field in ("policy", "dependency_lock", "verification_profile"):
+                bad = copy.deepcopy(request)
+                data = (self.root / bad[field]["path"]).read_bytes()
+                (self.root / "outside.json").write_bytes(data)
+                bad[field]["path"] = "outside.json"
+                with self.subTest(ref=field), self.assertRaises(self.c.ContractError):
+                    self.c.verify_local_context(self.root, bad)
+            # Recursive dependency references are not exempt from the declared artifact root.
+            bad = copy.deepcopy(request)
+            lock_path = self.root / bad["dependency_lock"]["path"]
+            original = lock_path.read_bytes()
+            lock = json.loads(original)
+            lock["upstream"][0]["root"] = "outside"
+            for f in lock["upstream"][0]["files"]:
+                f["path"] = f["path"].replace("bundle/upstream", "outside")
+                f["references"] = [r.replace("bundle/upstream", "outside") for r in f["references"]]
+                dest = self.root / f["path"]
+                dest.parent.mkdir(exist_ok=True)
+                dest.write_bytes(b"fixture")
+            lock_path.write_bytes(encode(lock))
+            bad["dependency_lock"]["sha256"] = hashlib.sha256(encode(lock)).hexdigest()
+            with self.assertRaises(self.c.ContractError):
+                self.c.verify_local_context(self.root, bad)
+            lock_path.write_bytes(original)
+            # Existing evidence ancestors and scan directories cannot be links.
+            evidence = self.root / request["local_context"]["evidence_directory"]
+            evidence.rmdir()
+            evidence.symlink_to(self.root / "bundle", target_is_directory=True)
+            with self.assertRaises(self.c.ContractError):
+                self.c.verify_local_context(self.root, request)
+            evidence.unlink()
+            link = self.root / "bundle/unit/nested-link"
+            link.symlink_to(self.root / "bundle", target_is_directory=True)
+            with self.assertRaises(self.c.ContractError):
+                self.c.verify_local_context(self.root, request)
+            link.unlink()
+            link = self.root / "bundle/unit/linked-file"
+            os.link(self.root / "bundle/unit/source.bin", link)
+            with self.assertRaises(self.c.ContractError):
+                self.c.verify_local_context(self.root, request)
+
+    def test_repair_phase_receipt_and_evidence_path_controls(self):
+        from unittest.mock import patch
+        request = install_local_context(self.root, fixtures()["cloud-run-request/v1"])
+        rr = self.put("request.json", request)
+        evidence = request["local_context"]["evidence_directory"]
+        changes = self.put(evidence + "/changes.json", {"synthetic": True})
+        preview = dict(fixtures()["cloud-preview/v1"], request=rr,
+            dependency_lock=request["dependency_lock"], policy=request["policy"],
+            verification_profile={k: request["verification_profile"][k] for k in ("path", "sha256")},
+            changes=changes, semantic_sha256=changes["sha256"])
+        pr = self.put(evidence + "/preview.json", preview)
+        receipt = dict(fixtures()["cloud-authorization-receipt/v1"], request=rr, preview=pr,
+            dependency_lock=request["dependency_lock"], policy=request["policy"],
+            verification_profile=preview["verification_profile"])
+        receipt["ci"]["environment"] = "sandbox-apply"
+        ar = self.put(evidence + "/receipt.json", receipt)
+        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(self.root)}):
+            self.c.verify_binding(self.root, rr, pr, ar, now=NOW, operation="apply")
+            with self.assertRaises(self.c.ContractError):
+                self.c.verify_binding(self.root, rr, pr, ar, now=NOW)  # no implicit bound phase
+            for case in ("stage", "preview-path", "receipt-path", "changes-path", "request-digest"):
+                changed_pr, changed_ar = pr, ar
+                if case == "stage":
+                    changed_ar = self.put(evidence + "/wrong-stage.json", dict(receipt, operation="prepare"))
+                elif case == "preview-path":
+                    changed_pr = self.put("outside-preview.json", preview)
+                    changed_ar = None
+                elif case == "receipt-path":
+                    changed_ar = self.put("outside-receipt.json", receipt)
+                elif case == "changes-path":
+                    changed = self.put("outside-changes.json", {"synthetic": True})
+                    changed_pr = self.put(evidence + "/wrong-changes.json", dict(preview, changes=changed))
+                    changed_ar = None
+                else:
+                    changed_pr = self.put(evidence + "/wrong-request.json", dict(preview, request=dict(rr, sha256="b" * 64)))
+                    changed_ar = None
+                with self.subTest(case=case), self.assertRaises(self.c.ContractError):
+                    self.c.verify_binding(self.root, rr, changed_pr, changed_ar, now=NOW, operation="apply")
 
 
 if __name__ == "__main__":
