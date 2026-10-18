@@ -1,0 +1,34 @@
+test_fresh_prepare_dispatch_after_unknown_publication_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_publication_is_fenced) ... FAIL
+test_fresh_prepare_dispatch_after_unknown_create_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_create_is_fenced) ... FAIL
+test_fixture_supports_actual_new_run_and_native_role_session (__main__.AwsExecution.test_fixture_supports_actual_new_run_and_native_role_session) ... ok
+
+======================================================================
+FAIL: test_fresh_prepare_dispatch_after_unknown_publication_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_publication_is_fenced)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2596, in test_fresh_prepare_dispatch_after_unknown_publication_is_fenced
+    self.prepare_replay('PutObject')
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2584, in prepare_replay
+    self.assertEqual(result['result'],'UNKNOWN',result)
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'PASS', 'state': 'PREVIEW_READY', 'error_code': None, 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/fresh.json.manifest.json'}
+
+======================================================================
+FAIL: test_fresh_prepare_dispatch_after_unknown_create_is_fenced (__main__.AwsExecution.test_fresh_prepare_dispatch_after_unknown_create_is_fenced)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2599, in test_fresh_prepare_dispatch_after_unknown_create_is_fenced
+    self.prepare_replay('CreateChangeSet')
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 2584, in prepare_replay
+    self.assertEqual(result['result'],'UNKNOWN',result)
+AssertionError: 'BLOCKED' != 'UNKNOWN'
+- BLOCKED
++ UNKNOWN
+ : {'schema': 'cloud-operation-result/v1', 'run_id': 'synthetic-run', 'unit_id': 'synthetic-unit', 'provider': 'aws', 'operation': 'prepare', 'result': 'BLOCKED', 'state': 'BLOCKED', 'error_code': 'AWS_EXECUTION_BLOCKED', 'message': 'Native execution only; workload health is not verified.', 'input_manifest_sha256': '6fd2d502e01d1d5e93708e24157abdeaa7d64602a91795f559b2e968c44ea23e', 'evidence_manifest_path': 'specs/cloud-orchestration/verification/T-005/cloud/synthetic-run/synthetic-unit/fresh.json.manifest.json'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.749s
+
+FAILED (failures=2)

@@ -2516,6 +2516,100 @@ class AwsExecution(unittest.TestCase):
         self.late_revocation('execute', 'apply', 'Action=GetTemplate')
 
 
+    def test_create_response_loss_recovers_original_named_change_set_read_only(self):
+        original = self.native.request
+        def lose(method,url,headers,body=None):
+            response=original(method,url,headers,body)
+            if body and b'Action=CreateChangeSet&' in body:
+                raise TimeoutError('synthetic lost create response')
+            return response
+        with patch.object(self.native,'request',side_effect=lose):
+            result=self.executor.prepare(self.directory+'/prepare.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        original_journal=self.executor.submission
+        recovery=self.stage('apply')
+        result=recovery.reconcile(original_journal,self.directory+'/recovered-create.json')
+        self.assertEqual(result['result'],'PASS',result)
+        self.assertEqual(result['native_operation_id'],self.native.arn)
+        self.assertEqual(self.native.writes,['PutObject','CreateChangeSet'])
+
+    def test_lost_asset_version_cannot_be_replaced_with_latest_or_republished(self):
+        original=self.native.request
+        def lose(method,url,headers,body=None):
+            response=original(method,url,headers,body)
+            if method=='PUT':raise TimeoutError('synthetic lost version header')
+            return response
+        with patch.object(self.native,'request',side_effect=lose):
+            result=self.executor.prepare(self.directory+'/prepare.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        recovery=self.stage('apply')
+        before=len(self.native.calls)
+        result=recovery.reconcile(self.executor.submission,self.directory+'/unknown-version.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        self.assertEqual(result['native_operation_id'],self.executor.native_id)
+        self.assertEqual(self.native.writes,['PutObject'])
+        self.assertEqual(len(self.native.calls),before)
+
+    def test_create_pending_status_poll_is_bounded(self):
+        self.native.override=dict(Status='CREATE_IN_PROGRESS',ExecutionStatus='UNAVAILABLE')
+        result=self.executor.prepare(self.directory+'/pending.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        self.assertEqual(self.native.describes,8)
+        self.assertEqual(self.native.writes,['PutObject','CreateChangeSet'])
+
+
+    def prepare_replay(self, lost_action):
+        original=self.native.request
+        def lose(method,url,headers,body=None):
+            response=original(method,url,headers,body)
+            if (lost_action=='PutObject' and method=='PUT') or (lost_action=='CreateChangeSet' and body and b'Action=CreateChangeSet&' in body):
+                raise TimeoutError('synthetic response loss')
+            return response
+        with patch.object(self.native,'request',side_effect=lose):
+            result=self.executor.prepare(self.directory+'/prepare.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        prior=copy.deepcopy(self.auths[-1].run)
+        prior.update(status='completed',conclusion='failure')
+        import shutil
+        # A new runner downloads the immutable original archive, not a consumed journal.
+        shutil.rmtree(self.root/self.directory)
+        (self.root/self.directory).mkdir()
+        fresh=self.stage('prepare')
+        transport=self.auths[-1]
+        transport.claims['run_id']='456'
+        transport.run['id']=456
+        transport.history=[prior,transport.run]
+        before=list(self.native.writes)
+        result=fresh.prepare(self.directory+'/fresh.json')
+        self.assertEqual(result['result'],'UNKNOWN',result)
+        self.assertEqual(self.native.writes,before)
+        # Original upload identity remains exact even without a returned version ID.
+        self.assertTrue(result['native_operation_id'].startswith('https://'+self.native.control.bucket+'.s3.'))
+        recovery=self.stage('apply')
+        recovery_auth=self.auths[-1]
+        recovery_auth.history=[prior,recovery_auth.run]
+        recovered=recovery.reconcile(fresh.submission,self.directory+'/recovered-fence.json')
+        self.assertEqual(recovered['result'],'UNKNOWN',recovered)
+        self.assertEqual(self.native.writes,before)
+
+    def test_fresh_prepare_dispatch_after_unknown_publication_is_fenced(self):
+        self.prepare_replay('PutObject')
+
+    def test_fresh_prepare_dispatch_after_unknown_create_is_fenced(self):
+        self.prepare_replay('CreateChangeSet')
+
+    def test_fixture_supports_actual_new_run_and_native_role_session(self):
+        transport=self.auths[-1]
+        transport.claims['run_id']='456'
+        transport.run['id']=456
+        result=self.executor.prepare(self.directory+'/new456.json')
+        self.assertEqual(result['result'],'PASS',result)
+        calls=[parse_qs(body.decode()) for method,url,headers,body in transport.calls
+               if url=='https://sts.amazonaws.com/' and body and b'Action=AssumeRoleWithWebIdentity' in body]
+        self.assertTrue(calls)
+        self.assertTrue(all(v['RoleSessionName']==['sdd-456'] for v in calls))
+
+
 class AwsAuthFixture(DeterministicTransport):
     def __init__(self, stage, account):
         super().__init__("aws", stage)
@@ -2529,15 +2623,34 @@ class AwsAuthFixture(DeterministicTransport):
                 raise OSError("synthetic unavailable history")
             history = self.history if self.history is not None else [self.run]
             return encode(dict(total_count=len(history), workflow_runs=history))
-        old = "123456789012"
-        sent = (
-            body.replace(self.actual_account.encode(), old.encode()) if body else body
-        )
-        return (
-            super()
-            .request(method, url, headers, sent)
-            .replace(old.encode(), self.actual_account.encode())
-        )
+        current = self.claims["run_id"]
+        if url == "https://sts.amazonaws.com/":
+            self.calls.append((method,url,headers,body))
+            assert method == 'POST' and body is not None
+            args = parse_qs(body.decode())
+            assert args['Version'] == ['2011-06-15']
+            principal = f"arn:aws:sts::{self.actual_account}:assumed-role/cloud-{self.stage}/sdd-{current}"
+            if args['Action'] == ['AssumeRoleWithWebIdentity']:
+                assert args['RoleArn'] == [f"arn:aws:iam::{self.actual_account}:role/cloud-{self.stage}"]
+                assert args['RoleSessionName'] == ['sdd-' + current]
+                assert args['WebIdentityToken'] == [jwt(self.claims)]
+                return (f'<AssumeRoleWithWebIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
+                    f'<AssumeRoleWithWebIdentityResult><SubjectFromWebIdentityToken>{self.subject}</SubjectFromWebIdentityToken>'
+                    f'<Audience>sts.amazonaws.com</Audience><Provider>https://token.actions.githubusercontent.com</Provider>'
+                    f'<AssumedRoleUser><Arn>{principal}</Arn></AssumedRoleUser><Credentials>'
+                    f'<AccessKeyId>SYNTHETICKEY</AccessKeyId><SecretAccessKey>synthetic-secret</SecretAccessKey>'
+                    f'<SessionToken>synthetic-session</SessionToken><Expiration>{utc(self.lease_end)}</Expiration>'
+                    '</Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>').encode()
+            assert args['Action'] == ['GetCallerIdentity']
+            assert headers['Authorization'].startswith('AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/')
+            return (f'<GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
+                f'<GetCallerIdentityResult><Account>{self.actual_account}</Account><Arn>{principal}</Arn>'
+                f'<UserId>SYNTHETIC:sdd-{current}</UserId></GetCallerIdentityResult></GetCallerIdentityResponse>').encode()
+        if current != '123' and f'/actions/runs/{current}' in url:
+            self.calls.append((method,url,headers,body))
+            url = url.replace(f'/actions/runs/{current}', '/actions/runs/123')
+        return super().request(method, url, headers, body)
+
 
 
 class AwsWireFixture:
