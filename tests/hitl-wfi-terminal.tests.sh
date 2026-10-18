@@ -335,7 +335,7 @@ else
   fail "TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh and/or test.yml"
 fi
 
-if grep -q 'tests/hitl-wfi-terminal\.tests\.ps1' "$RUN_ALL_PS1" 2>/dev/null \
+if { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q 'tests/hitl-wfi-terminal\.tests\.ps1' <<< "$registered_ps1"; } \
    && grep -q 'hitl-wfi-terminal\.tests\.ps1' "$TEST_YML" 2>/dev/null; then
   ok "TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1 and test.yml"
 else

@@ -367,7 +367,7 @@ foreach ($mutation in @('missing', 'near-match', 'case', 'failed-list')) {
     }
 }
 function Test-RegisteredPs1([string]$Basename) {
-    $inRunAll = (Select-String -LiteralPath $runAllPs1 -Pattern ([regex]::Escape("tests/$Basename.ps1")) -Quiet -ErrorAction SilentlyContinue)
+    $inRunAll = (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/$Basename.ps1")
     $inYml = (Select-String -LiteralPath $testYml -Pattern ([regex]::Escape("$Basename.ps1")) -Quiet -ErrorAction SilentlyContinue)
     return ($inRunAll -and $inYml)
 }

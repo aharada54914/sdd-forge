@@ -377,7 +377,7 @@ $SixSuites = @('facet-manifest-schema', 'facet-manifest-semantics', 'capability-
 # Query the external inventory rather than the runner's source text.
 $RunAllSh = @(& bash (Join-Path $RepoRoot 'tests/run-all.sh') --list)
 $RunAllShExit = $LASTEXITCODE
-$RunAllPs1 = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
+$RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $RepoRoot 'tests/run-all.ps1'))
 foreach ($suite in $SixSuites) {
     if ($RunAllShExit -eq 0 -and $RunAllSh -ccontains "tests/$suite.tests.sh") {
         Ok "TEST-033: tests/run-all.sh registers tests/$suite.tests.sh"

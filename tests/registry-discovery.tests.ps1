@@ -210,7 +210,7 @@ if ($LASTEXITCODE -eq 0 -and $runAllSh -ccontains 'tests/registry-discovery.test
 } else {
   Fail 'self-registration: registry-discovery.tests.sh NOT registered in tests/run-all.sh'
 }
-$runAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.ps1')
+$runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
 if ($runAllPs1 -match [regex]::Escape('tests/registry-discovery.tests.ps1')) {
   Ok 'self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1'
 } else {

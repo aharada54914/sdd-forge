@@ -587,8 +587,9 @@ class SelectedPlanTests(unittest.TestCase):
         skill = (ROOT / 'plugins/sdd-quality-loop/skills/quality-gate/SKILL.md').read_text(encoding='utf-8')
         self.assertIn('evaluate-selected-plan.py', skill)
         self.assertIn('--facet-manifest', skill)
-        for name in ('run-all.sh', 'run-all.ps1'):
-            self.assertIn('sdd-domain-multitarget-T-003.tests.py', (ROOT / 'tests' / name).read_text(encoding='utf-8'))
+        for profile in ('local-posix', 'local-powershell'):
+            listed = subprocess.check_output([sys.executable, str(ROOT / 'tests/verification.py'), '--profile', profile, '--list'], text=True).splitlines()
+            self.assertIn('tests/sdd-domain-multitarget-T-003.tests.py', listed)
 
 
 class ResolverCliIntegrationTests(unittest.TestCase):

@@ -525,7 +525,7 @@ if ($LASTEXITCODE -eq 0 -and $RunAllSh -ccontains 'tests/check-hook-activation-h
 } else {
   Test-Fail 'self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh'
 }
-$RunAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')
+$RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))
 if ($RunAllPs1 -match 'check-hook-activation-handshake\.tests\.ps1') {
   Test-Pass 'self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1'
 } else {

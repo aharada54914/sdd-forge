@@ -97,7 +97,7 @@ if ($MissingScenarioNames.Count -eq 0) {
 
 $RunAllSh = @(& bash (Join-Path $RepoRoot 'tests/run-all.sh') --list)
 $RunAllShExit = $LASTEXITCODE
-$RunAllPs1 = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
+$RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $RepoRoot 'tests/run-all.ps1'))
 $ShT001 = [Array]::IndexOf([string[]]$RunAllSh, 'tests/human-copy-runner-contract.tests.sh')
 $ShT002 = [Array]::IndexOf([string[]]$RunAllSh, 'tests/check-risk-upgrade-byte-identical.tests.sh')
 $Ps1T001 = $RunAllPs1.IndexOf('tests/human-copy-runner-contract.tests.ps1', [StringComparison]::Ordinal)

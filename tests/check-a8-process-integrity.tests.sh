@@ -166,9 +166,9 @@ expect_reject "TEST-030 uncited factual-claim mutation" \
 if true; then
   # POSIX aggregation is inventory-driven; PowerShell aggregation is an
   # explicit list. Check this task's suite in each authoritative source.
-  grep -qx 'tests/check-a8-process-integrity.tests.sh' "$ROOT/tests/suite-inventory.posix" \
+  { registered_sh="$(bash "$ROOT/tests/run-all.sh" --list)" && grep -Fxq 'tests/check-a8-process-integrity.tests.sh' <<< "$registered_sh"; } \
     || { printf 'FAIL: POSIX inventory missing check-a8-process-integrity\n'; failed=$((failed + 1)); }
-  count="$(grep -c "tests/check-a8-process-integrity\.tests\.ps1" "$ROOT/tests/run-all.ps1" || true)"
+  count="$({ registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -c "tests/check-a8-process-integrity\.tests\.ps1" <<< "$registered_ps1"; } || true)"
   [[ "$count" == 1 ]] || { printf 'FAIL: PowerShell registration count=%s\n' "$count"; failed=$((failed + 1)); }
   workflow="$FEATURE/human-copy/.github/workflows/test.yml"
   grep -q 'tests/check-a8-process-integrity.tests.sh' "$workflow" \

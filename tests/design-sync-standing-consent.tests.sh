@@ -741,7 +741,7 @@ fi
 
 if registered_suites="$(bash "$RUN_ALL_SH" --list)" \
   && grep -Fx 'tests/design-sync-standing-consent.tests.sh' <<< "$registered_suites" >/dev/null \
-  && grep -Fq 'tests/design-sync-standing-consent.tests.ps1' "$RUN_ALL_PS1"; then
+  && { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -Fq 'tests/design-sync-standing-consent.tests.ps1' <<< "$registered_ps1"; }; then
   pass "TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)"
 else
   fail "TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)"

@@ -280,7 +280,7 @@ $runAllSh = @(& bash (Join-Path $root 'tests/run-all.sh') --list)
 if ($LASTEXITCODE -ne 0 -or $runAllSh -cnotcontains 'tests/capability-registry-schema.tests.sh') {
   Fail 'suite not registered in tests/run-all.sh'
 }
-$runAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/run-all.ps1')
+$runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
 if ($runAllPs1 -notmatch [regex]::Escape('tests/capability-registry-schema.tests.ps1')) {
   Fail 'suite not registered in tests/run-all.ps1'
 }

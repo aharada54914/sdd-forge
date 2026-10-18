@@ -13,7 +13,9 @@ v1.18.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD�
 /sdd-ship:ship specs/<feature>/tasks.md
 ```
 
-> **lite トラック（社内アプリ向け）**: `/sdd-bootstrap:bootstrap feature --lite <source>` → `/sdd-ship:ship --lite specs/<feature>/tasks.md`
+> **lite トラック（限定された通常の不具合修正・社内アプリ向け）**: `/sdd-bootstrap:bootstrap feature --lite <source>` → `/sdd-ship:ship --lite specs/<feature>/tasks.md`
+> 通常の不具合修正は `bootstrap bugfix --lite <source>` から開始できます。短い受け入れ条件を定め、実装後に一度の独立レビューと関連回帰を確認します。既存のリスク昇格と full プロファイルの保護は維持され、重大な変更や影響不明な変更を自動で Lite に降格しません。
+
 
 ```mermaid
 flowchart TD

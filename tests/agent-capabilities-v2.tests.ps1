@@ -264,7 +264,7 @@ foreach ($probe in @(
     }
 }
 if ((Test-Path -LiteralPath $runAllPs1) -and
-    (Select-String -LiteralPath $runAllPs1 -Pattern "agent-capabilities-v2\.tests\.ps1" -CaseSensitive -Quiet)) {
+    (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/agent-capabilities-v2.tests.ps1")) {
     Ok "self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1"
 } else {
     Fail "self-registration: agent-capabilities-v2.tests.ps1 NOT registered in tests/run-all.ps1"

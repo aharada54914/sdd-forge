@@ -206,7 +206,7 @@ if ($nonUtf8LineCount -eq 1) {
 }
 
 # self-registration
-$runAll = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
+$runAll = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $RepoRoot 'tests/run-all.ps1'))
 if ($runAll.Contains('tests/capability-summary-schema.tests.ps1')) {
     Write-Host 'ok: self-registration: tests/run-all.ps1 lists this suite'; $script:Pass++
 } else {

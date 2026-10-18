@@ -196,7 +196,7 @@ suite_list="$(bash "$ROOT/tests/run-all.sh" --list)" ||
   fail "unable to list suites from tests/run-all.sh"
 grep -Fx 'tests/capability-registry-schema.tests.sh' <<< "$suite_list" >/dev/null ||
   fail "suite not registered in tests/run-all.sh"
-grep -q 'tests/capability-registry-schema.tests.ps1' "$ROOT/tests/run-all.ps1" ||
+{ registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -q 'tests/capability-registry-schema.tests.ps1' <<< "$registered_ps1"; } ||
   fail "suite not registered in tests/run-all.ps1"
 
 # Human-copy staged CI candidate + MANIFEST (Protected-File Statement /

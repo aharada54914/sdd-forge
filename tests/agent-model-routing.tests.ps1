@@ -1026,7 +1026,7 @@ Status: Planned
     if ($LASTEXITCODE -ne 0 -or $posixEntries -cnotcontains 'tests/agent-model-routing.tests.sh') {
         Fail 'TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh'
     }
-    if (-not (Select-String -LiteralPath $RunAllPs1 -Pattern 'tests/agent-model-routing\.tests\.ps1' -CaseSensitive -Quiet)) {
+    if (-not (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $RunAllPs1) -split "`n") -ccontains "tests/agent-model-routing.tests.ps1")) {
         Fail 'TEST-027 tests/agent-model-routing.tests.ps1 not registered in tests/run-all.ps1'
     }
 

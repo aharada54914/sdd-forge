@@ -498,8 +498,16 @@ def main():
     run_journal_pair_check(counts)
     run_wrapper_shape_check(counts)
 
-    sh_registered = f"tests/{VALIDATOR_STEM}.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
-    ps_registered = f"tests/{VALIDATOR_STEM}.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
+    sh_registered = f"tests/{VALIDATOR_STEM}.tests.sh" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-posix", "--list"],
+        text=True,
+    ).splitlines()
+    ps_registered = f"tests/{VALIDATOR_STEM}.tests.ps1" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-powershell", "--list"],
+        text=True,
+    ).splitlines()
     counts.check(sh_registered, "POSIX suite registered in tests/run-all.sh")
     counts.check(ps_registered, "PowerShell suite registered in tests/run-all.ps1")
 

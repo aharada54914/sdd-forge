@@ -209,7 +209,7 @@ function Test-010 {
         Fail "TEST-010 (AC-010): loop-gate job slice unexpectedly carries a strategy:/matrix: key"
     }
 
-    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
+    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
     $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
     if ($runAllPs1Content.Contains("release-loop-gate.tests.ps1") -and $testYmlContent.Contains("release-loop-gate.tests.ps1")) {
         Ok "TEST-010 (AC-010): release-loop-gate.tests.ps1 is registered in tests/run-all.ps1 and .github/workflows/test.yml"

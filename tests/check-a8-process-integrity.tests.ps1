@@ -108,8 +108,8 @@ try {
     Expect-Reject 'TEST-030 uncited factual-claim mutation' $citation @((Join-Path $feature 'investigation.md'), (Join-Path $feature 'requirements.md'), $designUncited)
 
     if ($true) {
-        $runAllInventory = [IO.File]::ReadAllText((Join-Path $root 'tests/suite-inventory.posix'))
-        $runAllPs1 = [IO.File]::ReadAllText((Join-Path $root 'tests/run-all.ps1'))
+        $runAllInventory = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.sh'))
+        $runAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
         if ($runAllInventory -notmatch '(?m)^tests/check-a8-process-integrity\.tests\.sh$') {
             Write-Output 'FAIL: POSIX inventory missing check-a8-process-integrity'; $script:failed++
         }
