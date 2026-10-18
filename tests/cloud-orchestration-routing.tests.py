@@ -264,6 +264,23 @@ class AzureRouting(unittest.TestCase):
                 self.assertIsNone(result["evidence_manifest_path"])
 
 
+    def test_missing_installed_runtime_and_unknown_config_are_typed_denials(self):
+        self.put("request.json", self.req)
+        proc = subprocess.run([sys.executable, "-B", str(CLI), "route", "--request", str(self.root/"request.json"),
+            "--output", str(self.root/self.evidence/"missing.json")],
+            env={"PATH": os.defpath, "CLOUD_SHARED_RUNTIME_ROOT": str(self.root/"missing")}, capture_output=True, timeout=15)
+        self.assertEqual(proc.returncode, 2)
+        self.assertEqual(self.contracts.parse_artifact(proc.stdout)["error_code"], "SHARED_RUNTIME_UNAVAILABLE")
+        self.config["unknown"] = True
+        self.refresh()
+        self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
+
+    def test_secret_marker_publication_is_denied(self):
+        self.owner["existing_resources"] = [dict(resource_id="synthetic-" + "secret" + "-canary", owner="terraform", attachments=[])]
+        self.refresh()
+        self.assertEqual(self.invoke(expected=2)["error_code"], "SECRET_SCAN_FAILED")
+        self.assertFalse(list((self.root/self.evidence).iterdir()))
+
 
 class AzureNativePreparation(AzureRouting):
     """Actual compiler when explicitly installed; no compiler or provider mocks."""
@@ -528,6 +545,17 @@ resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
                 self.assertEqual(result["error_code"], expected)
                 self.assertFalse(list((self.root/"bundle/generated").iterdir()))
 
+
+    def test_commented_unlocked_compiler_reads_fail_closed(self):
+        # Whitespace/comments must not hide an absolute compiler dependency.
+        additions = ["\nmodule /* gap */ other '/outside/main.bicep' = { name: 'no' }\n",
+                     "\nvar hidden = loadTextContent(/* gap */ '/etc/hosts')\n"]
+        original = (self.root/self.source["path"]).read_bytes()
+        for extra in additions:
+            self.source = self.put("bundle/unit/main.bicep", original + extra.encode())
+            self.write_parameters()
+            self.assertEqual(self.invoke("plan", expected=2)["error_code"], "UNLOCKED_SOURCE")
+
     def test_unsupported_filesystem_subprocess(self):
         self.put("request.json", self.req)
         bootstrap = "import os,runpy,sys; os.supports_dir_fd=set(); sys.argv=sys.argv[1:]; runpy.run_path(sys.argv[0],run_name='__main__')"
@@ -535,7 +563,7 @@ resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
             "--output", str(self.root/self.evidence/"unsupported.json")],
             env={"PATH": os.defpath, "CLOUD_WORKSPACE_ROOT": str(self.root)}, capture_output=True, timeout=15)
         self.assertEqual(proc.returncode, 2)
-        self.assertEqual(self.contracts.parse_artifact(proc.stdout)["schema"], "cloud-input-error/v1")
+        self.assertEqual(self.contracts.parse_artifact(proc.stdout)["error_code"], "UNSUPPORTED_FILESYSTEM")
         self.assertFalse((self.root/self.evidence/"unsupported.json").exists())
 
 
