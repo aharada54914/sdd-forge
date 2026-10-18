@@ -831,6 +831,7 @@ def observation_config(provider: str) -> dict:
         + "/providers/Microsoft.Insights/dataCollectionRuleAssociations/monitor",
         data_collection_rule_id=prefix
         + "Microsoft.Insights/dataCollectionRules/workload",
+        monitoring_workspace_id=prefix + "Microsoft.OperationalInsights/workspaces/monitor",
         workload_metric=dict(
             namespace="Workload", name="Healthy", minimum=1, maximum=1
         ),
@@ -1874,6 +1875,7 @@ class AzureObservationOrchestration(unittest.TestCase):
                 "Microsoft.Insights/dataCollectionRuleAssociations"
             ],
             data_collection_rule_id=params["dataCollectionRuleId"],
+            monitoring_workspace_id=resources["Microsoft.Compute/virtualMachines"].split("/providers/")[0] + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
             workload_metric=dict(
                 namespace="Workload", name="Healthy", minimum=1, maximum=1
             ),

@@ -1,0 +1,931 @@
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... 
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='matched') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='id') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='location') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='kind') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='state') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='source') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='counter') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='stream') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='destination') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='flow') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='transform') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='denied') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='missing') ... ERROR
+  test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='pagination') ... ERROR
+test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol) ... ERROR
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... 
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='group') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='scope') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='condition') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='wildcard') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='data') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='notActions') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='role-id') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='assignment-id') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='pagination') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='denied') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='empty') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='caller-disagrees') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='principal') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='group') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='scope') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='condition') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='wildcard') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='data') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='notActions') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='role-id') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='assignment-id') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='pagination') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='denied') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='empty') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='caller-disagrees') ... ERROR
+  test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='drift') ... ERROR
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='matched')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='location')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='kind')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='state')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='counter')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='interval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='stream')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='destination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='flow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='transform')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) (variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 945, in test_dcr_readback_and_mismatches
+    collector, fixture = self.collector()
+                         ^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 897, in test_native_positive_permission_closure_protocol
+    collector, fixture = self.collector(native=True)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='group')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='condition')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='wildcard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='data')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='notActions')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='role-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='assignment-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='caller-disagrees')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=False, variant='drift')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='principal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='group')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='scope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='condition')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='wildcard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='data')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='notActions')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='role-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='assignment-id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='pagination')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='denied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='caller-disagrees')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+ERROR: test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) (native=True, variant='drift')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 910, in test_permission_closure_mismatches
+    collector, fixture = self.collector(native=native)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 891, in collector
+    collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 148, in __init__
+    configuration(cfg)
+  File "/workspace/sdd-forge/plugins/sdd-azure-cloud/scripts/azure_observation.py", line 50, in configuration
+    c._record(
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.023s
+
+FAILED (errors=44)
