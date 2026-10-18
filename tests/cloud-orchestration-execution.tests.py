@@ -35,9 +35,7 @@ CLIENT = "00000000-0000-0000-0000-000000000003"
 OBJECT = "00000000-0000-0000-0000-000000000004"
 APPLY_CLIENT = "00000000-0000-0000-0000-000000000005"
 APPLY_OBJECT = "00000000-0000-0000-0000-000000000006"
-OIDC_URL = (
-    "https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0"
-)
+OIDC_URL = "https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0"
 
 
 def encode(value):
@@ -46,11 +44,7 @@ def encode(value):
 
 def jwt(claims):
     # Synthetic token; only the deterministic HTTPS double returns this value.
-    return (
-        "synthetic."
-        + base64.urlsafe_b64encode(encode(claims)).decode().rstrip("=")
-        + ".synthetic"
-    )
+    return "synthetic." + base64.urlsafe_b64encode(encode(claims)).decode().rstrip("=") + ".synthetic"
 
 
 def utc(epoch):
@@ -67,9 +61,7 @@ class DeterministicTransport:
         self.claims = dict(
             iss="https://token.actions.githubusercontent.com",
             sub=self.subject,
-            aud="sts.amazonaws.com"
-            if provider == "aws"
-            else "api://AzureADTokenExchange",
+            aud="sts.amazonaws.com" if provider == "aws" else "api://AzureADTokenExchange",
             repository=REPO,
             repository_id="42",
             workflow_ref=f"{REPO}/{WORKFLOW}@refs/heads/main",
@@ -104,16 +96,12 @@ class DeterministicTransport:
             id=99,
             name=self.environment,
             can_admins_bypass=False,
-            deployment_branch_policy=dict(
-                protected_branches=True, custom_branch_policies=False
-            ),
+            deployment_branch_policy=dict(protected_branches=True, custom_branch_policies=False),
             protection_rules=[
                 dict(
                     type="required_reviewers",
                     prevent_self_review=True,
-                    reviewers=[
-                        dict(type="User", reviewer=dict(id=8, login="reviewer"))
-                    ],
+                    reviewers=[dict(type="User", reviewer=dict(id=8, login="reviewer"))],
                 )
             ],
         )
@@ -137,9 +125,7 @@ class DeterministicTransport:
             nbf=NOW - 10,
             exp=NOW + 300,
         )
-        self.subscription = dict(
-            subscriptionId=SUBSCRIPTION, tenantId=TENANT, state="Enabled"
-        )
+        self.subscription = dict(subscriptionId=SUBSCRIPTION, tenantId=TENANT, state="Enabled")
         self.calls = []
         self.fail_suffix = None
         self.raw_approvals = None
@@ -149,10 +135,7 @@ class DeterministicTransport:
         if self.fail_suffix and self.fail_suffix in url:
             raise OSError("synthetic-private-error")
         if url.startswith(OIDC_URL + "&audience="):
-            assert (
-                method == "GET"
-                and headers["Authorization"] == "Bearer synthetic-oidc-bearer"
-            )
+            assert method == "GET" and headers["Authorization"] == "Bearer synthetic-oidc-bearer"
             return encode(dict(value=jwt(self.claims)))
         base = f"https://api.github.com/repos/{REPO}"
         if url.startswith(base):
@@ -163,11 +146,7 @@ class DeterministicTransport:
             if url == base + "/actions/runs/123":
                 return encode(self.run)
             if url == base + "/actions/runs/123/approvals":
-                return (
-                    self.raw_approvals
-                    if self.raw_approvals is not None
-                    else encode(self.approvals)
-                )
+                return self.raw_approvals if self.raw_approvals is not None else encode(self.approvals)
             if url == base + "/environments/" + self.environment:
                 return encode(self.environment_response)
         if url == "https://sts.amazonaws.com/":
@@ -175,9 +154,7 @@ class DeterministicTransport:
             args = parse_qs(body.decode())
             assert args["Version"] == ["2011-06-15"]
             if args["Action"] == ["AssumeRoleWithWebIdentity"]:
-                assert args["RoleArn"] == [
-                    f"arn:aws:iam::123456789012:role/cloud-{self.stage}"
-                ]
+                assert args["RoleArn"] == [f"arn:aws:iam::123456789012:role/cloud-{self.stage}"]
                 assert args["RoleSessionName"] == ["sdd-123"]
                 assert args["WebIdentityToken"] == [jwt(self.claims)]
                 return (
@@ -190,9 +167,7 @@ class DeterministicTransport:
                     "</Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>"
                 ).encode()
             assert args["Action"] == ["GetCallerIdentity"]
-            assert headers["Authorization"].startswith(
-                "AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/"
-            )
+            assert headers["Authorization"].startswith("AWS4-HMAC-SHA256 Credential=SYNTHETICKEY/")
             assert headers["X-Amz-Security-Token"] == "synthetic-session"
             return (
                 f'<GetCallerIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">'
@@ -206,35 +181,19 @@ class DeterministicTransport:
                 client_id=[self.azure_claims["appid"]],
                 grant_type=["client_credentials"],
                 scope=["https://management.azure.com/.default"],
-                client_assertion_type=[
-                    "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-                ],
+                client_assertion_type=["urn:ietf:params:oauth:client-assertion-type:jwt-bearer"],
                 client_assertion=[jwt(self.claims)],
             )
-            return encode(
-                dict(
-                    token_type="Bearer",
-                    expires_in=300,
-                    access_token=jwt(self.azure_claims),
-                )
-            )
-        if (
-            url
-            == f"https://management.azure.com/subscriptions/{SUBSCRIPTION}?api-version=2022-12-01"
-        ):
-            assert method == "GET" and headers["Authorization"] == "Bearer " + jwt(
-                self.azure_claims
-            )
+            return encode(dict(token_type="Bearer", expires_in=300, access_token=jwt(self.azure_claims)))
+        if url == f"https://management.azure.com/subscriptions/{SUBSCRIPTION}?api-version=2022-12-01":
+            assert method == "GET" and headers["Authorization"] == "Bearer " + jwt(self.azure_claims)
             return encode(self.subscription)
         raise AssertionError("Unexpected deterministic transport request: " + url)
 
 
 class Admission(unittest.TestCase):
     def setUp(self):
-        self.assertTrue(
-            (SCRIPTS / "cloud_authorization.py").is_file(),
-            "T-003 admission boundary is absent",
-        )
+        self.assertTrue((SCRIPTS / "cloud_authorization.py").is_file(), "T-003 admission boundary is absent")
         import cloud_authorization
 
         self.a = cloud_authorization
@@ -251,20 +210,9 @@ class Admission(unittest.TestCase):
 
     def put(self, path, value):
         if self.local_mode:
-            if path in (
-                "source.bin",
-                "compiled.bin",
-                "asset.bin",
-                "parameters.bin",
-                "module.bin",
-            ):
+            if path in ("source.bin", "compiled.bin", "asset.bin", "parameters.bin", "module.bin"):
                 path = "bundle/unit/" + path
-            elif path in (
-                "policy.json",
-                "profile.json",
-                "lock.json",
-                "tool.json",
-            ) or path.startswith("upstream/"):
+            elif path in ("policy.json", "profile.json", "lock.json", "tool.json") or path.startswith("upstream/"):
                 path = "bundle/" + path
             elif path in ("preview.json", "changes.json"):
                 path = self.request["local_context"]["evidence_directory"] + "/" + path
@@ -301,9 +249,7 @@ class Admission(unittest.TestCase):
         )
         if provider == "azure":
             request.update(owner="bicep", route="azure-bicep")
-            request["scope"].update(
-                account_id=SUBSCRIPTION, region="eastus", deployment_scope="group-1"
-            )
+            request["scope"].update(account_id=SUBSCRIPTION, region="eastus", deployment_scope="group-1")
         for item in request["input_artifacts"]:
             self.put(item["path"], b"fixture")
         module.install_local_context(self.root, request)
@@ -311,9 +257,7 @@ class Admission(unittest.TestCase):
         self.evidence = self.root / request["local_context"]["evidence_directory"]
         policy_ref = request["policy"]
         lock_ref = request["dependency_lock"]
-        profile_ref = {
-            k: request["verification_profile"][k] for k in ("path", "sha256")
-        }
+        profile_ref = {k: request["verification_profile"][k] for k in ("path", "sha256")}
         self.request = request
         self.request_ref = self.put("request.json", request)
         self.preview_ref = None
@@ -362,15 +306,9 @@ class Admission(unittest.TestCase):
             azure_client=CLIENT if stage == "prepare" else APPLY_CLIENT,
             azure_principal=OBJECT if stage == "prepare" else APPLY_OBJECT,
         )
-        self.runtime = self.a.Runtime(
-            "synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer"
-        )
+        self.runtime = self.a.Runtime("synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer")
         self.boundary = self.a.WriteBoundary(
-            self.policy,
-            self.runtime,
-            self.evidence,
-            transport=self.transport,
-            clock=lambda: NOW,
+            self.policy, self.runtime, self.evidence, transport=self.transport, clock=lambda: NOW
         )
 
     def write(self, boundary=None, mutation="submit"):
@@ -397,20 +335,9 @@ class Admission(unittest.TestCase):
                     for p in self.evidence.glob("*.authorization.json"):
                         p.unlink()
                     ref, _ = self.write()
-                    receipt = contracts.parse_artifact(
-                        contracts.read_verified(self.root, ref)
-                    )
-                    self.assertEqual(
-                        receipt["schema"], "cloud-authorization-receipt/v1"
-                    )
-                    for field in (
-                        "run_id",
-                        "unit_id",
-                        "provider",
-                        "scope",
-                        "dependency_lock",
-                        "policy",
-                    ):
+                    receipt = contracts.parse_artifact(contracts.read_verified(self.root, ref))
+                    self.assertEqual(receipt["schema"], "cloud-authorization-receipt/v1")
+                    for field in ("run_id", "unit_id", "provider", "scope", "dependency_lock", "policy"):
                         self.assertEqual(receipt[field], self.request[field])
                     self.assertEqual(receipt["request"], self.request_ref)
                     self.assertEqual(receipt["preview"], self.preview_ref)
@@ -430,22 +357,15 @@ class Admission(unittest.TestCase):
                         ),
                     )
                     self.assertEqual(receipt["subject"], self.transport.subject)
+                    self.assertEqual(receipt["issuer"], "https://token.actions.githubusercontent.com")
                     self.assertEqual(
-                        receipt["issuer"], "https://token.actions.githubusercontent.com"
-                    )
-                    self.assertEqual(
-                        receipt["principal"],
-                        self.transport.principal
-                        if provider == "aws"
-                        else self.transport.azure_claims["oid"],
+                        receipt["principal"], self.transport.principal if provider == "aws" else self.transport.azure_claims["oid"]
                     )
                     self.assertEqual(
                         receipt["approval_evidence"],
                         dict(
                             locator=f"https://api.github.com/repos/{REPO}/actions/runs/123/approvals",
-                            sha256=hashlib.sha256(
-                                encode(self.transport.approvals)
-                            ).hexdigest(),
+                            sha256=hashlib.sha256(encode(self.transport.approvals)).hexdigest(),
                         ),
                     )
                     self.assertNotIn(b"synthetic-secret", encode(receipt))
@@ -454,9 +374,7 @@ class Admission(unittest.TestCase):
     def test_local_flags_receipts_and_missing_runtime_never_authorize(self):
         self.setup_case()
         self.put("approved.json", dict(approved=True))
-        with patch.dict(
-            os.environ, {"GITHUB_ACTIONS": "true", "CLOUD_APPROVED": "true"}
-        ):
+        with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "CLOUD_APPROVED": "true"}):
             self.boundary = self.a.WriteBoundary(
                 self.policy,
                 self.a.Runtime("", "", ""),
@@ -618,11 +536,7 @@ class Admission(unittest.TestCase):
         with self.assertRaises(self.a.AdmissionDenied):
             self.write()
         other = self.a.WriteBoundary(
-            self.policy,
-            self.runtime,
-            self.evidence,
-            transport=self.transport,
-            clock=lambda: NOW,
+            self.policy, self.runtime, self.evidence, transport=self.transport, clock=lambda: NOW
         )
         with self.assertRaises(self.a.AdmissionDenied):
             self.write(other)
@@ -642,12 +556,7 @@ class Admission(unittest.TestCase):
 
         with self.assertRaises(TimeoutError):
             self.boundary.write(
-                self.root,
-                self.request_ref,
-                None,
-                mutation_id="submit",
-                submit=submit,
-                scan=lambda b: True,
+                self.root, self.request_ref, None, mutation_id="submit", submit=submit, scan=lambda b: True
             )
         with self.assertRaises(self.a.AdmissionDenied):
             self.write()
@@ -663,13 +572,9 @@ class Admission(unittest.TestCase):
         self.assertEqual(self.writes, ["write"])
         self.writes.clear()
         self.setup_case()
-        self.request["predecessor_receipts"] = [
-            dict(unit_id="prior", **self.put("prior.json", b"fixture"))
-        ]
+        self.request["predecessor_receipts"] = [dict(unit_id="prior", **self.put("prior.json", b"fixture"))]
         self.request_ref = self.put("request.json", self.request)
-        self.transport.run["display_title"] = (
-            "cloud:" + self.request_ref["sha256"] + ":none"
-        )
+        self.transport.run["display_title"] = "cloud:" + self.request_ref["sha256"] + ":none"
         self.denied()
 
     def test_untrusted_endpoint_and_publication_failure_have_zero_writes(self):
@@ -704,12 +609,7 @@ class Admission(unittest.TestCase):
         self.setup_case()
         key = self.a.concurrency_key(self.policy)
         self.assertEqual(key, "cloud-aws-123456789012-us-east-1")
-        self.assertEqual(
-            key,
-            self.a.concurrency_key(
-                replace(self.policy, deployment_scope="another-stack")
-            ),
-        )
+        self.assertEqual(key, self.a.concurrency_key(replace(self.policy, deployment_scope="another-stack")))
         self.boundary = self.a.WriteBoundary(
             replace(self.policy, exclusive_repository="other/repo"),
             self.runtime,
@@ -723,15 +623,10 @@ class Admission(unittest.TestCase):
         self.assertTrue(
             issubclass(
                 self.a.NoRedirect,
-                __import__(
-                    "urllib.request", fromlist=["HTTPRedirectHandler"]
-                ).HTTPRedirectHandler,
+                __import__("urllib.request", fromlist=["HTTPRedirectHandler"]).HTTPRedirectHandler,
             )
         )
-        with patch(
-            "urllib.request.OpenerDirector.open",
-            side_effect=OSError("synthetic-sensitive-error"),
-        ):
+        with patch("urllib.request.OpenerDirector.open", side_effect=OSError("synthetic-sensitive-error")):
             with self.assertRaises(self.a.AdmissionDenied) as caught:
                 self.a.HttpsTransport().request("GET", "https://api.github.com/", {})
         self.assertNotIn("sensitive", str(caught.exception))
@@ -744,12 +639,8 @@ class Admission(unittest.TestCase):
             self.assertNotIn("${{", workflow["concurrency"]["group"])
             self.assertIn("sandbox-prepare", content)
             self.assertIn("sandbox-apply", content)
-            self.assertEqual(
-                workflow["jobs"]["prepare"]["permissions"]["id-token"], "write"
-            )
-            self.assertEqual(
-                workflow["jobs"]["apply"]["permissions"]["id-token"], "write"
-            )
+            self.assertEqual(workflow["jobs"]["prepare"]["permissions"]["id-token"], "write")
+            self.assertEqual(workflow["jobs"]["apply"]["permissions"]["id-token"], "write")
             self.assertIn("inputs.request_sha256", content)
             self.assertIn("inputs.preview_sha256", content)
             self.assertIn("exclusive", content)
@@ -777,9 +668,7 @@ class Admission(unittest.TestCase):
                                 self.boundary.clock = lambda: NOW + elapsed
                             return result
 
-                        with patch.object(
-                            contracts, "verify_binding", side_effect=verify
-                        ):
+                        with patch.object(contracts, "verify_binding", side_effect=verify):
                             if elapsed < 110:
                                 self.write()
                                 self.assertEqual(self.writes, ["write"])
@@ -788,9 +677,7 @@ class Admission(unittest.TestCase):
                                     self.write()
                                 self.assertEqual(self.writes, [])
                         self.assertEqual(len(calls), 3)
-                        self.assertEqual(
-                            len(list(self.evidence.glob("*.authorization.json"))), 1
-                        )
+                        self.assertEqual(len(list(self.evidence.glob("*.authorization.json"))), 1)
 
     def test_preview_expiry_after_final_binding_denies_and_retains_receipt(self):
         for provider in ("aws", "azure"):
@@ -800,16 +687,11 @@ class Admission(unittest.TestCase):
                     self.writes.clear()
                     for receipt in self.evidence.glob("*.authorization.json"):
                         receipt.unlink()
-                    preview = contracts.read_artifact(
-                        self.root, self.preview_ref, "cloud-preview/v1"
-                    )
+                    preview = contracts.read_artifact(self.root, self.preview_ref, "cloud-preview/v1")
                     preview["expires_at"] = utc(NOW + 1)
                     self.preview_ref = self.put("preview.json", preview)
                     self.transport.run["display_title"] = (
-                        "cloud:"
-                        + self.request_ref["sha256"]
-                        + ":"
-                        + self.preview_ref["sha256"]
+                        "cloud:" + self.request_ref["sha256"] + ":" + self.preview_ref["sha256"]
                     )
                     original = contracts.verify_binding
                     calls = []
@@ -832,9 +714,7 @@ class Admission(unittest.TestCase):
                     self.assertEqual(len(calls), 3)
                     receipts = list(self.evidence.glob("*.authorization.json"))
                     self.assertEqual(len(receipts), 1)
-                    self.assertEqual(
-                        json.loads(receipts[0].read_bytes())["expires_at"], utc(NOW + 1)
-                    )
+                    self.assertEqual(json.loads(receipts[0].read_bytes())["expires_at"], utc(NOW + 1))
 
     def test_expiry_or_artifact_swap_during_scan_denies_before_submit(self):
         for case in ("expiry", "swap", "revoked"):
@@ -898,17 +778,14 @@ class Admission(unittest.TestCase):
                         def transport(method, url, headers, body=None):
                             data = original(method, url, headers, body)
                             if (
-                                provider == "aws"
-                                and b"GetCallerIdentity" in (body or b"")
+                                provider == "aws" and b"GetCallerIdentity" in (body or b"")
                             ) or url.startswith("https://management.azure.com/"):
                                 if case == "missing":
                                     return b"{}"
                                 self.transport.approvals = []
                             return data
 
-                        with patch.object(
-                            self.transport, "request", side_effect=transport
-                        ):
+                        with patch.object(self.transport, "request", side_effect=transport):
                             self.denied()
 
     def test_any_denied_or_unexpected_environment_history_requires_fresh_dispatch(self):
@@ -928,14 +805,10 @@ class Admission(unittest.TestCase):
                 del self.transport.claims[key]
                 self.denied()
         self.setup_case()
-        self.transport.environment_response["protection_rules"][0][
-            "prevent_self_review"
-        ] = False
+        self.transport.environment_response["protection_rules"][0]["prevent_self_review"] = False
         self.denied()
         self.setup_case()
-        self.transport.environment_response["protection_rules"][0]["reviewers"][0][
-            "type"
-        ] = "Team"
+        self.transport.environment_response["protection_rules"][0]["reviewers"][0]["type"] = "Team"
         self.denied()
         self.setup_case()
         self.boundary.clock = lambda: NOW + 120
@@ -950,49 +823,32 @@ class Admission(unittest.TestCase):
             def geturl(self):
                 return "https://api.github.com/"
 
-        with patch(
-            "urllib.request.OpenerDirector.open", return_value=Response(b"{}")
-        ) as opened:
-            self.assertEqual(
-                self.a.HttpsTransport().request("GET", "https://api.github.com/", {}),
-                b"{}",
-            )
+        with patch("urllib.request.OpenerDirector.open", return_value=Response(b"{}")) as opened:
+            self.assertEqual(self.a.HttpsTransport().request("GET", "https://api.github.com/", {}), b"{}")
             self.assertEqual(opened.call_args.kwargs["timeout"], 20)
         with self.assertRaises(self.a.AdmissionDenied):
-            self.a.NoRedirect().redirect_request(
-                None, None, 302, "redirect", {}, "https://example.invalid/"
-            )
+            self.a.NoRedirect().redirect_request(None, None, 302, "redirect", {}, "https://example.invalid/")
         with patch(
-            "urllib.request.OpenerDirector.open",
-            return_value=Response(b"x" * (self.a.MAX_RESPONSE + 1)),
+            "urllib.request.OpenerDirector.open", return_value=Response(b"x" * (self.a.MAX_RESPONSE + 1))
         ):
             with self.assertRaises(self.a.AdmissionDenied):
                 self.a.HttpsTransport().request("GET", "https://api.github.com/", {})
 
     def test_iam_templates_restrict_native_subjects_and_stage_actions(self):
         for stage in ("prepare", "apply"):
-            trust = json.loads(
-                (ROOT / f"templates/cloud/iam/aws-{stage}-trust.json").read_bytes()
-            )
+            trust = json.loads((ROOT / f"templates/cloud/iam/aws-{stage}-trust.json").read_bytes())
             statement = trust["Statement"][0]
             self.assertEqual(statement["Action"], "sts:AssumeRoleWithWebIdentity")
             condition = statement["Condition"]["StringEquals"]
-            self.assertEqual(
-                condition["token.actions.githubusercontent.com:aud"],
-                "sts.amazonaws.com",
-            )
+            self.assertEqual(condition["token.actions.githubusercontent.com:aud"], "sts.amazonaws.com")
             self.assertIn(
                 ":environment:sandbox-" + stage + ":workflow_ref:",
                 condition["token.actions.githubusercontent.com:sub"],
             )
             permissions = json.loads(
-                (
-                    ROOT / f"templates/cloud/iam/aws-{stage}-permissions.json"
-                ).read_bytes()
+                (ROOT / f"templates/cloud/iam/aws-{stage}-permissions.json").read_bytes()
             )
-            actions = {
-                a for statement in permissions["Statement"] for a in statement["Action"]
-            }
+            actions = {a for statement in permissions["Statement"] for a in statement["Action"]}
             if stage == "prepare":
                 self.assertIn("s3:PutObject", actions)
                 self.assertIn("cloudformation:CreateChangeSet", actions)
@@ -1007,23 +863,14 @@ class Admission(unittest.TestCase):
                 condition["token.actions.githubusercontent.com:sub"],
             )
             federation = json.loads(
-                (
-                    ROOT / f"templates/cloud/iam/azure-{stage}-federation.json"
-                ).read_bytes()
+                (ROOT / f"templates/cloud/iam/azure-{stage}-federation.json").read_bytes()
             )
             self.assertEqual(federation["audiences"], ["api://AzureADTokenExchange"])
-            self.assertIn(
-                ":environment:sandbox-" + stage + ":workflow_ref:",
-                federation["subject"],
-            )
-            role = json.loads(
-                (ROOT / f"templates/cloud/iam/azure-{stage}-role.json").read_bytes()
-            )
-            self.assertEqual(
-                "Microsoft.Resources/deployments/write" in role["Actions"],
-                stage == "apply",
-            )
+            self.assertIn(":environment:sandbox-" + stage + ":workflow_ref:", federation["subject"])
+            role = json.loads((ROOT / f"templates/cloud/iam/azure-{stage}-role.json").read_bytes())
+            self.assertEqual("Microsoft.Resources/deployments/write" in role["Actions"], stage == "apply")
             self.assertNotIn("*", role["Actions"])
+
 
     def test_repair_same_request_prepare_preview_apply_separate_policies(self):
         for provider in ("aws", "azure"):
@@ -1037,89 +884,35 @@ class Admission(unittest.TestCase):
             prepare_receipt = contracts.read_artifact(self.root, prepare_ref)
             self.assertEqual(prepare_receipt["operation"], "prepare")
             # Separate protected apply identity; never rewrite the frozen request.
-            self.policy = replace(
-                self.policy,
-                operation="apply",
-                environment="sandbox-apply",
+            self.policy = replace(self.policy, operation="apply", environment="sandbox-apply",
                 aws_role_arn="arn:aws:iam::123456789012:role/cloud-apply",
-                azure_client=APPLY_CLIENT,
-                azure_principal=APPLY_OBJECT,
-            )
+                azure_client=APPLY_CLIENT, azure_principal=APPLY_OBJECT)
             self.transport = DeterministicTransport(provider, "apply")
             changes = self.put("changes.json", b"synthetic-preview")
-            preview = dict(
-                schema="cloud-preview/v1",
-                **{
-                    k: self.request[k]
-                    for k in (
-                        "run_id",
-                        "unit_id",
-                        "provider",
-                        "scope",
-                        "policy",
-                        "dependency_lock",
-                    )
-                },
-                request=self.request_ref,
-                verification_profile={
-                    k: self.request["verification_profile"][k]
-                    for k in ("path", "sha256")
-                },
-                preview_identity="synthetic-preview",
-                changes=changes,
-                semantic_sha256=changes["sha256"],
-                replacements=[],
-                deletes=[],
-                created_at=utc(NOW),
-                expires_at=utc(NOW + 300),
-            )
+            preview = dict(schema="cloud-preview/v1",
+                **{k: self.request[k] for k in ("run_id", "unit_id", "provider", "scope", "policy", "dependency_lock")},
+                request=self.request_ref, verification_profile={k: self.request["verification_profile"][k] for k in ("path", "sha256")},
+                preview_identity="synthetic-preview", changes=changes, semantic_sha256=changes["sha256"],
+                replacements=[], deletes=[], created_at=utc(NOW), expires_at=utc(NOW + 300))
             self.preview_ref = self.put("preview.json", preview)
-            self.transport.run["display_title"] = (
-                f"cloud:{request_ref['sha256']}:{self.preview_ref['sha256']}"
-            )
-            self.boundary = self.a.WriteBoundary(
-                self.policy,
-                self.runtime,
-                self.evidence,
-                transport=self.transport,
-                clock=lambda: NOW,
-            )
+            self.transport.run["display_title"] = f"cloud:{request_ref['sha256']}:{self.preview_ref['sha256']}"
+            self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
+                transport=self.transport, clock=lambda: NOW)
             apply_ref, _ = self.write(mutation="apply-exact-preview")
             apply_receipt = contracts.read_artifact(self.root, apply_ref)
             self.assertEqual(apply_receipt["operation"], "apply")
-            self.assertNotEqual(
-                prepare_receipt["ci"]["environment"], apply_receipt["ci"]["environment"]
-            )
+            self.assertNotEqual(prepare_receipt["ci"]["environment"], apply_receipt["ci"]["environment"])
             self.assertEqual(prepare_policy.policy_sha256, self.policy.policy_sha256)
             self.assertNotEqual(prepare_receipt["subject"], apply_receipt["subject"])
-            self.assertNotEqual(
-                prepare_receipt["principal"], apply_receipt["principal"]
-            )
+            self.assertNotEqual(prepare_receipt["principal"], apply_receipt["principal"])
             self.assertEqual(prepare_receipt["request"], apply_receipt["request"])
-            self.assertEqual(
-                request_bytes, (self.root / request_ref["path"]).read_bytes()
-            )
-            contracts.verify_binding(
-                self.root,
-                request_ref,
-                self.preview_ref,
-                apply_ref,
-                now=utc(NOW),
-                operation="apply",
-            )
+            self.assertEqual(request_bytes, (self.root / request_ref["path"]).read_bytes())
+            contracts.verify_binding(self.root, request_ref, self.preview_ref, apply_ref,
+                now=utc(NOW), operation="apply")
         self.assertEqual(len(self.writes), 4)
 
     def test_repair_stage_target_context_and_digest_controls_zero_submissions(self):
-        for case in (
-            "phase",
-            "target",
-            "protected",
-            "digest",
-            "missing-context",
-            "missing-anchor",
-            "evidence-root",
-            "preview",
-        ):
+        for case in ("phase", "target", "protected", "digest", "missing-context", "missing-anchor", "evidence-root", "preview"):
             with self.subTest(case=case):
                 self.setup_case(stage="apply")
                 if case == "phase":
@@ -1139,13 +932,8 @@ class Admission(unittest.TestCase):
                     self.evidence = self.root
                 else:
                     self.preview_ref = None
-                self.boundary = self.a.WriteBoundary(
-                    self.policy,
-                    self.runtime,
-                    self.evidence,
-                    transport=self.transport,
-                    clock=lambda: NOW,
-                )
+                self.boundary = self.a.WriteBoundary(self.policy, self.runtime, self.evidence,
+                    transport=self.transport, clock=lambda: NOW)
                 self.denied()
 
 
@@ -1528,8 +1316,12 @@ class AzureExecution(unittest.TestCase):
         self.assertEqual(self.arm.submissions, 1)
 
     def test_admission_deadline_crossed_in_final_local_work_never_sends(self):
-        for stage, limit in (("prepare", "policy"), ("apply", "policy"),
-                             ("apply", "provider"), ("apply", "preview")):
+        for stage, limit in (
+            ("prepare", "policy"),
+            ("apply", "policy"),
+            ("apply", "provider"),
+            ("apply", "preview"),
+        ):
             with self.subTest(stage=stage, limit=limit):
                 self.setUp()
                 if stage == "apply":
@@ -1546,22 +1338,210 @@ class AzureExecution(unittest.TestCase):
                     preview = json.loads(path.read_bytes())
                     preview["expires_at"] = utc(NOW + 20)
                     path.write_bytes(encode(preview))
-                    self.preview_ref["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
-                    self.auths[-1].run["display_title"] = "cloud:" + self.request_ref["sha256"] + ":" + self.preview_ref["sha256"]
+                    self.preview_ref["sha256"] = hashlib.sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    self.auths[-1].run["display_title"] = (
+                        "cloud:"
+                        + self.request_ref["sha256"]
+                        + ":"
+                        + self.preview_ref["sha256"]
+                    )
                     deadline = NOW + 20
                 original = self.executor.audit
+
                 def slow_publication(path, value):
                     ref = original(path, value)
-                    if path.endswith("deployment-submission.json") or stage == "prepare" and path.endswith("prepare-what-if-submission.json"):
+                    if (
+                        path.endswith("deployment-submission.json")
+                        or stage == "prepare"
+                        and path.endswith("prepare-what-if-submission.json")
+                    ):
                         now[0] = deadline
                     return ref
+
                 self.executor.audit = slow_publication
-                result = (self.executor.prepare(self.directory + "/expiry.json") if stage == "prepare"
-                          else self.apply("expiry.json"))
+                result = (
+                    self.executor.prepare(self.directory + "/expiry.json")
+                    if stage == "prepare"
+                    else self.apply("expiry.json")
+                )
                 self.assertEqual(result["result"], "BLOCKED")
                 self.assertEqual(self.arm.submissions, 0)
                 if stage == "prepare":
                     self.assertFalse(any(call[0] == "POST" for call in self.arm.calls))
+
+    def test_real_caller_acquisition_prepare_apply_uses_identical_manifest_bytes(self):
+        import io
+        import zipfile
+        from dataclasses import asdict
+        import azure_governed as governed
+        from cloud_authorization import WriteBoundary
+
+        self.request_ref["path"] = "request.json"
+        (self.root / "request.json").write_bytes(self.request_bytes)
+        self.executor = self.stage("prepare")
+
+        def archive_of(root):
+            stream = io.BytesIO()
+            with zipfile.ZipFile(stream, "w") as archive:
+                for path in root.rglob("*"):
+                    if path.is_file():
+                        archive.write(path, path.relative_to(root).as_posix())
+            return stream.getvalue()
+
+        (self.root / "request.json").write_bytes(self.request_bytes)
+        data = archive_of(self.root)
+        original_root = self.root
+        results = []
+        for stage in ("prepare", "apply"):
+            with self.subTest(stage=stage):
+                dest = original_root / ("acquired-" + stage)
+                auth = self.auths[-1]
+                policy = self.executor.boundary.policy
+                env = dict(
+                    AZURE_CONTROL_POLICY=json.dumps(asdict(policy)),
+                    GH_TOKEN="synthetic-github-bearer",
+                    ACTIONS_ID_TOKEN_REQUEST_URL=OIDC_URL,
+                    ACTIONS_ID_TOKEN_REQUEST_TOKEN="synthetic-oidc-bearer",
+                    ARTIFACT_REPOSITORY="synthetic/plans",
+                    ARTIFACT_ID="11",
+                    ARTIFACT_RUN_ID="12",
+                    ARTIFACT_TOKEN="synthetic-read-token",
+                    REQUEST_SHA256=self.request_ref["sha256"],
+                    PREVIEW_SHA256="none"
+                    if stage == "prepare"
+                    else self.preview_ref["sha256"],
+                )
+
+                def boundary(p, r, evidence):
+                    return WriteBoundary(
+                        p, r, evidence, transport=auth, clock=lambda: NOW
+                    )
+
+                def executor(root, ref, b):
+                    return self.e.AzureExecutor(
+                        root,
+                        ref,
+                        b,
+                        arm=self.arm,
+                        clock=lambda: NOW,
+                        sleep=lambda _: None,
+                    )
+
+                with (
+                    patch.dict(os.environ, env),
+                    patch.object(
+                        governed,
+                        "ArtifactHttps",
+                        return_value=ArtifactFixture(governed, data),
+                    ),
+                    patch.object(governed, "WriteBoundary", side_effect=boundary),
+                    patch.object(governed, "AzureExecutor", side_effect=executor),
+                ):
+                    result = governed.main([stage, "--workspace", str(dest)])
+                self.assertEqual(result["result"], "PASS", result)
+                self.assertEqual(
+                    (dest / "request.json").read_bytes(), self.request_bytes
+                )
+                results.append(result)
+                if stage == "prepare":
+                    self.root = dest
+                    self.preview_ref = json.loads(
+                        (dest / result["evidence_manifest_path"]).read_bytes()
+                    )["preview"]
+                    self.executor = self.stage("apply", self.preview_ref)
+                    data = archive_of(dest)
+        self.assertEqual(self.arm.submissions, 1)
+        self.assertEqual(
+            results[0]["input_manifest_sha256"], results[1]["input_manifest_sha256"]
+        )
+
+    def test_unknown_semantics_at_real_callsite_blocks_zero_apply(self):
+        self.prepare()
+        self.arm.changes[0]["changeType"] = "Unsupported"
+        result = self.apply()
+        self.assertEqual(result["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_revocation_between_fresh_preview_and_put_blocks(self):
+        self.prepare()
+        original = self.arm.request
+
+        def revoke(method, url, headers, body=None):
+            response = original(method, url, headers, body)
+            if method == "POST":
+                self.auths[-1].approvals[0]["state"] = "rejected"
+            return response
+
+        self.arm.request = revoke
+        self.assertEqual(self.apply()["result"], "BLOCKED")
+        self.assertEqual(self.arm.submissions, 0)
+
+    def test_readonly_reconcile_missing_state_and_error_preserves_unknown_identity(
+        self,
+    ):
+        self.prepare()
+        self.arm.timeout = True
+        initial = self.apply()
+        ref = json.loads((self.root / initial["evidence_manifest_path"]).read_bytes())[
+            "submission"
+        ]
+        self.arm.timeout = False
+        self.arm.state = "NewUnknownState"
+        result = self.executor.reconcile(
+            ref, self.directory + "/unknown-reconcile.json"
+        )
+        self.assertEqual(result["result"], "UNKNOWN")
+        self.assertEqual(result["native_operation_id"], initial["native_operation_id"])
+        self.assertEqual(self.arm.submissions, 1)
+
+    def test_output_outside_evidence_is_not_published(self):
+        result = self.executor.prepare("bundle/should-not-write.json")
+        self.assertEqual(result["result"], "BLOCKED")
+        self.assertFalse((self.root / "bundle/should-not-write.json").exists())
+        self.assertEqual(self.arm.calls, [])
+
+    def test_production_https_preserves_202_headers_and_does_not_retry(self):
+        from azure_arm import HttpsTransport
+        from unittest.mock import MagicMock
+
+        response = MagicMock()
+        response.__enter__.return_value = response
+        url = self.executor.client.url.replace("?", "/whatIf?")
+        location = self.executor.client.url.replace("?", "/operations/native?")
+        response.status = 202
+        response.geturl.return_value = url
+        response.headers.items.return_value = [
+            ("Location", location),
+            ("Retry-After", "1"),
+        ]
+        response.read.return_value = b""
+        opener = MagicMock()
+        opener.open.return_value = response
+        with patch("urllib.request.build_opener", return_value=opener):
+            native = HttpsTransport().request(
+                "POST", url, {"Authorization": "Bearer synthetic"}, b"{}"
+            )
+        self.assertEqual(native.status, 202)
+        self.assertEqual(native.headers["Location"], location)
+        self.assertEqual(opener.open.call_count, 1)
+        self.assertEqual(opener.open.call_args.kwargs["timeout"], 20)
+
+    def test_post_submit_evidence_failure_retains_unknown_original_id(self):
+        self.prepare()
+        original = self.executor.audit
+        def fail_final_manifest(path, value):
+            if path.endswith("apply.json.manifest.json"):
+                raise OSError("synthetic evidence storage failure")
+            return original(path, value)
+        self.executor.audit = fail_final_manifest
+        result = self.apply()
+        self.assertEqual(result["result"], "UNKNOWN")
+        self.assertEqual(result["native_operation_id"], self.executor.client.native_id)
+        self.assertEqual(result["evidence_manifest_path"], self.directory + "/deployment-submission.json")
+        self.assertEqual(self.arm.submissions, 1)
+        self.assertTrue((self.root / result["evidence_manifest_path"]).is_file())
 
     def test_prepare_admission_missing_is_zero_native_posts(self):
         self.auths[-1].approvals = []

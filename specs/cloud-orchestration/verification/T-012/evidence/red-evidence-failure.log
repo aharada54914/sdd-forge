@@ -1,0 +1,17 @@
+test_post_submit_evidence_failure_retains_unknown_original_id (__main__.AzureExecution.test_post_submit_evidence_failure_retains_unknown_original_id) ... FAIL
+
+======================================================================
+FAIL: test_post_submit_evidence_failure_retains_unknown_original_id (__main__.AzureExecution.test_post_submit_evidence_failure_retains_unknown_original_id)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-execution.tests.py", line 1540, in test_post_submit_evidence_failure_retains_unknown_original_id
+    self.assertEqual(result["result"], "UNKNOWN")
+AssertionError: 'PASS' != 'UNKNOWN'
+- PASS
++ UNKNOWN
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.139s
+
+FAILED (failures=1)
