@@ -1,0 +1,35 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-011",
+  "run_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "session_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "agent_instance_id": "01a15001-1554-7b30-a10d-2104952bfd18",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T17:20:03Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "initial/docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml",
+      "sha256": "0c6905dea943f946854120116ae410b80f1b087f240eaca7efc2917b0be57cf0"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "4c43639cd9b90b2c7c4ac83d80b41b3808ad9f865550e465cb1db63743a523ae"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "a08c294f2a7fcfb0e9c574feda16db135a0d4f50509da98661769a6ddcee4aeb"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "specs/cloud-orchestration/verification/T-011/routing-guard-fix/",
+    "reports/implementation/cloud-orchestration/T-011-routing-guard-fix.md"
+  ]
+}

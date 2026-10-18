@@ -139,3 +139,11 @@ Populate this section before ending a session mid-task.
 
 `Current Status` is one of `In Progress`, `Implementation Complete`, or
 `Blocked`. Only the independent quality gate may set a task to `Done`.
+
+### Generator counterpart preflight (before generator edit)
+
+`protected_gate_suffixes` must equal the generator's ordered baseline/inventory
+union. JSON-only insertion was rejected by the real generator; initial-generate.log
+records that mismatch. generator-preflight.md and supplemental-task-input-manifest.json
+bind the necessary five-member baseline update before changing the generator.
+The committed consumer Red remains the guard execution evidence.
