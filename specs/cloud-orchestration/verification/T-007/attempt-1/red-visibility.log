@@ -1,0 +1,26 @@
+test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills) ... FAIL
+
+======================================================================
+FAIL: test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/install-cloud.tests.py", line 427, in test_real_export_consumer_ignores_upstream_reference_skills
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : Exception: /tmp/cloud-skill-exports-kau_j83h/boundary.ps1:157
+Line |
+ 157 |      throw "Expected $($expectedSkills.Count) public skills but found  …
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Expected 29 public skills but found 30: orchestrate, aws-cdk,
+     | orchestrate, ship, task-review-loop, spec-review-loop, impl-review-loop,
+     | workflow-retrospective, wfi-audit-cycle, sdd-sudo, quality-gate,
+     | fix-by-review-ticket, cross-model-verify, lite-spec, lite-gate,
+     | visual-verify-loop, implement-tasks, implement-task, diagnose,
+     | domain-sync, domain-review-loop, domain-reverse, domain-model,
+     | domain-interviewer, concept-test, sdd-bootstrap-interviewer, sdd-adopt,
+     | investigate-codebase, design-sync-loop, bootstrap
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.613s
+
+FAILED (failures=1)

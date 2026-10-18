@@ -63,3 +63,13 @@ validation. Existing predecessor and registry behavior is consumed, not replaced
 Report evidence identity/hash fields use existing manifest/report validators.
 Live provider acceptance, host-model trial, independent review and quality gate
 remain separate/root-owned; no PASS or Done claim is made here.
+
+## Additional executed visibility Red before validator repair
+
+`SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills`
+fails in `red-visibility.log` (exit 1): validator counts 30 skills instead of 29,
+including the existing pinned AWS reference skill outside exported skills/.
+Field: public skill inventory/count; counterpart: manifest-exported skills roots,
+not arbitrary SKILL.md files under references/. The test calls the real export
+consumer block with actual populated provider packages. This is not missing
+setup. Commit this failing test before narrowing discovery to exported roots.

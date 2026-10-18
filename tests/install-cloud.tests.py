@@ -6,7 +6,7 @@ not these isolated manifest mutations. No provider credentials or writes.
 """
 from __future__ import annotations
 
-import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -94,6 +94,9 @@ def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[st
 
 
 class ManifestBoundary(unittest.TestCase):
+    temp: tempfile.TemporaryDirectory[str]
+    root: Path
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.temp = tempfile.TemporaryDirectory(prefix='cloud-package-fields-')
@@ -173,6 +176,268 @@ class ManifestBoundary(unittest.TestCase):
                     finally:
                         path.write_bytes(raw)
 
+
+
+def local_request(root: Path, provider: str) -> dict:
+    def put(path: str, value: object) -> dict[str, str]:
+        data = value if isinstance(value, bytes) else (json.dumps(value, sort_keys=True) + '\n').encode()
+        dest = root / path
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+        return dict(path=path, sha256=hashlib.sha256(data).hexdigest())
+
+    owner = 'bicep' if provider == 'azure' else 'cdk'
+    scope = dict(account_id='synthetic-account', region='synthetic-region', deployment_scope='synthetic-scope')
+    source = put('bundle/unit/main.bicep' if provider == 'azure' else 'bundle/unit/cdk.json', b'// synthetic\n' if provider == 'azure' else {})
+    upstream = put('bundle/upstream/reference.md', b'Synthetic local integrity fixture.\n')
+    evidence = 'specs/cloud-orchestration/verification/T-007/cloud/synthetic-run/synthetic-unit'
+    (root / evidence).mkdir(parents=True, exist_ok=True)
+    profile = dict(schema='cloud-verification-profile/v1', id='cloud-compute', version='2', required_check_ids=['resource', 'network', 'identity', 'monitoring', 'workload'], max_age_seconds=300)
+    return dict(schema='cloud-run-request/v1', run_id='synthetic-run', unit_id='synthetic-unit', provider=provider,
+        binding_id='synthetic-binding', environment='synthetic', scope=scope, owner=owner,
+        route='azure-bicep' if provider == 'azure' else 'aws-cdk', operation='apply', predecessor_receipts=[],
+        source_revision='a' * 40, input_artifacts=[dict(kind='source', **source)],
+        dependency_lock=put('bundle/lock.json', dict(schema='cloud-dependency-lock/v1', adapter_version='1.0.0', upstream=[dict(repository='https://example.invalid/synthetic', commit='a' * 40, root='bundle/upstream', files=[dict(**upstream, references=[])])], tools=[dict(name=owner, version='1.0.0', sha256='a' * 64)], managed_endpoints=[])),
+        policy=put('bundle/policy.json', dict(schema='cloud-deployment-policy/v1', allowed_scopes=[scope], allowed_resource_types=['synthetic'], backup_required=False, private_networking=True, budget=dict(ceiling_minor_units=10000, currency='USD'), evidence=dict(residency='synthetic', retention_days=7, access='restricted'))),
+        verification_profile=dict(id='cloud-compute', version='2', **put('bundle/profile.json', profile)),
+        local_context=dict(workspace_anchor='CLOUD_WORKSPACE_ROOT', artifact_root='bundle', unit_roots=['bundle/unit'], evidence_directory=evidence, feature='cloud-orchestration', task_id='T-007', ownership=put('bundle/ownership.json', dict(schema='cloud-ownership/v1', owners=[dict(owner=owner, root='bundle/unit')], existing_resources=[])), provider_config=put('bundle/config.json', dict(schema=provider+'-local-config/v1', import_resources=False))))
+
+
+# Executed by isolated Python with ONLY the installed scripts directory added.
+# No fixture imports from the repository; the fake authenticated response here
+# is synthetic. Network access is intercepted with a scoped unittest mock.
+RUNTIME_PROBE = r"""
+import json, sys
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+runtime = Path(sys.argv[1])
+sys.path.insert(0, str(runtime / 'scripts'))
+import cloud_contracts as c
+import cloud_authorization as a
+import cloud_verification as v
+import cloud_dependencies as d
+for module in (c, a, v, d):
+    assert Path(module.__file__).parent == runtime / 'scripts'
+profile = dict(schema='cloud-verification-profile/v1', id='cloud-compute', version='2', required_check_ids=['resource','network','identity','monitoring','workload'], max_age_seconds=300)
+selection = v.protected_selection(profile, dict(backup_required=False))
+assert selection[0] == ['iac-validate','policy-validation','iac-preview','identity','monitoring','network','resource','workload']
+registry = runtime / 'references/cloud-verification-registry.json'
+raw = registry.read_bytes()
+try:
+    registry.unlink()
+    try: v.protected_selection(profile, dict(backup_required=False))
+    except FileNotFoundError: pass
+    else: raise AssertionError('missing registry accepted')
+    value = json.loads(raw); value['profiles'][0]['version'] = '200'
+    registry.write_text(json.dumps(value))
+    try: v.protected_selection(profile, dict(backup_required=False))
+    except c.ContractError as exc: assert str(exc) == 'PROFILE_REGISTRY_INVALID'
+    else: raise AssertionError('tampered registry accepted')
+finally: registry.write_bytes(raw)
+for name, version in [('verification-contract-v3.schema.json','verification-contract/v3'),('selected-verification-plan-v2.schema.json','selected-verification-plan/v2')]:
+    assert json.loads((runtime / 'contracts' / name).read_bytes())['properties']['schema']['const'] == version
+root = Path.cwd()
+receipt = root / 'prior.json'; receipt.write_bytes(b'synthetic authenticated receipt')
+ref = dict(path='prior.json', sha256=v.digest(receipt.read_bytes()))
+pin = dict(unit_id='prior-unit', verification=ref)
+policy = SimpleNamespace(predecessor_trust=(pin,), dependency_request_sha256='a'*64)
+request_ref = dict(path='request.json', sha256='a'*64)
+request = dict(predecessor_receipts=[dict(unit_id='prior-unit', **ref)])
+deadline = c._utc(v.utc(200))
+# This isolates installed dependency admission, NOT native GitHub provenance.
+with patch('urllib.request.OpenerDirector.open', side_effect=AssertionError('network forbidden')), patch.object(d, '_verified', return_value=({}, receipt.read_bytes(), deadline)):
+    assert d.admit_predecessors(root, request, request_ref, policy, None, None, clock=lambda:100) == deadline
+    for mutated, expected in [(dict(predecessor_receipts=[]),'DEPENDENCY_SET_MISMATCH'), (dict(predecessor_receipts=[dict(unit_id='prior-unit', path='prior.json', sha256='b'*64)]),'DEPENDENCY_SET_MISMATCH')]:
+        try: d.admit_predecessors(root, mutated, request_ref, policy, None, None, clock=lambda:100)
+        except c.ContractError as exc: assert str(exc) == expected
+        else: raise AssertionError('mismatched predecessor accepted')
+        original = c._require
+        def bypass(condition, code='INVALID_ARTIFACT'):
+            if code != expected: original(condition, code)
+        with patch.object(c, '_require', side_effect=bypass):
+            assert d.admit_predecessors(root, mutated, request_ref, policy, None, None, clock=lambda:100) == deadline
+    receipt.unlink()
+    try: d.admit_predecessors(root, request, request_ref, policy, None, None, clock=lambda:100)
+    except (OSError, c.ContractError): pass
+    else: raise AssertionError('missing predecessor accepted')
+print('installed modules, protected selection, registry denial, schemas, dependency controls/sensitivity: OK')
+"""
+
+
+class InstalledLifecycle(unittest.TestCase):
+    temp: tempfile.TemporaryDirectory[str]
+    root: Path
+    source: Path
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.temp = tempfile.TemporaryDirectory(prefix='cloud-install-lifecycle-')
+        cls.root = Path(cls.temp.name).resolve()
+        cls.source = cls.root / 'source'
+        cls.source.mkdir()
+        fixture(cls.source)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.temp.cleanup()
+
+    def installer(self, shell: str, plugins: tuple[str, ...], dest: Path, *, uninstall: bool = False) -> subprocess.CompletedProcess[str]:
+        name = 'uninstall' if uninstall else 'install'
+        env = dict(PATH=os.environ['PATH'], HOME=str(self.root), PYTHONDONTWRITEBYTECODE='1', SDD_CODEX_HOME=str(self.root / 'codex-home'))
+        if shell == 'bash':
+            args = ['bash', str(ROOT / (name + '.sh')), '--install-root', str(dest), '--target', 'FilesOnly', '--skip-agent-' + ('uninstall' if uninstall else 'install'), '--skip-mcp' + ('-uninstall' if uninstall else '')]
+            if plugins:
+                args += ['--plugins', ','.join(plugins)]
+            if not uninstall:
+                args += ['--source-directory', str(self.source)]
+        else:
+            # Native -File array binding differs from PowerShell's command parser.
+            command = '& ' + "'" + str(ROOT / (name + '.ps1')) + "' -InstallRoot '" + str(dest) + "' -Target FilesOnly -SkipAgent" + ('Uninstall' if uninstall else 'Install') + ' -SkipMcp' + ('Uninstall' if uninstall else '')
+            if plugins:
+                command += ' -Plugins ' + ','.join("'"+p+"'" for p in plugins)
+            if not uninstall:
+                command += " -SourceDirectory '" + str(self.source) + "'"
+            args = [PWSH, '-NoProfile', '-Command', command]
+        return run(args, self.root, env)
+
+    def test_each_provider_and_both_real_install_and_uninstall(self) -> None:
+        for shell in ('bash', 'pwsh'):
+            for providers in (('azure',), ('aws',), PROVIDERS):
+                with self.subTest(shell=shell, providers=providers), tempfile.TemporaryDirectory(dir=self.root) as temp:
+                    dest = Path(temp) / 'installed'
+                    p = self.installer(shell, tuple(f'sdd-{v}-cloud' for v in providers), dest)
+                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertIn('sdd-quality-loop', p.stdout + p.stderr)
+                    for provider in providers:
+                        plugin = dest / f'plugins/sdd-{provider}-cloud'
+                        for rel, canonical in runtime_sources().items():
+                            self.assertEqual((plugin / 'runtime' / rel).read_bytes(), canonical.read_bytes(), rel)
+                        self.check_runtime_and_cli(plugin, provider, Path(temp))
+                        # Model each host's isolated cache: plugin payload ONLY, no
+                        # shared sibling, development root or ambient Python paths.
+                        for host in ('codex', 'claude', 'copilot'):
+                            cached = Path(temp) / host / 'cache' / f'sdd-{provider}-cloud' / '1.18.0'
+                            shutil.copytree(plugin, cached)
+                            self.check_runtime_and_cli(cached, provider, Path(temp))
+                    shared = dest / 'plugins/sdd-quality-loop/scripts/cloud_dependencies.py'
+                    unrelated = dest / 'plugins/sdd-bootstrap/.codex-plugin/plugin.json'
+                    before = (shared.read_bytes(), unrelated.read_bytes())
+                    for provider in providers:
+                        p = self.installer(shell, (f'sdd-{provider}-cloud',), dest, uninstall=True)
+                        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                        self.assertEqual((shared.read_bytes(), unrelated.read_bytes()), before)
+                    # Existing behavior: dependencies remain even after last cloud
+                    # uninstall, since unrelated plugins are still unselected.
+                    p = self.installer(shell, (), dest, uninstall=True)
+                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertFalse(dest.exists())
+
+    def check_runtime_and_cli(self, plugin: Path, provider: str, parent: Path) -> None:
+        with tempfile.TemporaryDirectory(dir=parent) as temp:
+            work = Path(temp)
+            runtime = plugin / 'runtime'
+            env = dict(PATH=os.defpath, HOME=temp, CLOUD_WORKSPACE_ROOT=temp, CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
+            p = run([sys.executable, '-I', '-B', '-c', RUNTIME_PROBE, str(runtime)], work, env)
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+            request = local_request(work, provider)
+            request_path = work / 'request.json'
+            for phase in ('route', 'prepare', 'apply'):
+                write_json(request_path, request)
+                output = request['local_context']['evidence_directory'] + '/' + phase + '.json'
+                p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), phase, '--request', str(request_path), '--output', output], work, env)
+                self.assertEqual(p.returncode, 0 if phase == 'route' else 2, p.stdout + p.stderr)
+                result = json.loads(p.stdout)
+                self.assertEqual(result['result'], 'PASS' if phase == 'route' else 'BLOCKED')
+                if phase != 'route':
+                    self.assertEqual(result['error_code'], 'OPERATION_UNIMPLEMENTED')
+                    self.assertFalse((work / output).exists())
+            for variant in ('missing', 'invalid'):
+                prior = work / 'prior.json'
+                if variant == 'missing':
+                    prior.unlink(missing_ok=True)
+                else:
+                    prior.write_text('{}')
+                request['predecessor_receipts'] = [dict(unit_id='prior-unit', path='prior.json', sha256=hashlib.sha256(b'{}').hexdigest())]
+                write_json(request_path, request)
+                for phase in ('route', 'prepare', 'apply'):
+                    output = request['local_context']['evidence_directory'] + '/' + variant + '-' + phase + '.json'
+                    p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), phase, '--request', str(request_path), '--output', output], work, env)
+                    self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                    self.assertEqual(json.loads(p.stdout)['result'], 'BLOCKED')
+                    self.assertFalse((work / output).exists())
+            module = runtime / 'scripts/cloud_dependencies.py'
+            raw = module.read_bytes()
+            try:
+                module.unlink()
+                p = run([sys.executable, '-I', '-B', '-c', RUNTIME_PROBE, str(runtime)], work, env)
+                self.assertNotEqual(p.returncode, 0)
+                self.assertIn('cloud_dependencies', p.stderr)
+            finally:
+                module.write_bytes(raw)
+            # Explicit missing trusted root must never fall back to development.
+            env['CLOUD_SHARED_RUNTIME_ROOT'] = str(work / 'absent')
+            p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(request_path), '--output', 'out.json'], work, env)
+            self.assertEqual(p.returncode, 2)
+            self.assertEqual(json.loads(p.stdout)['error_code'], 'SHARED_RUNTIME_UNAVAILABLE')
+
+    def test_missing_shared_dependency_aborts_before_placement(self) -> None:
+        path = self.source / 'plugins/sdd-quality-loop/scripts/cloud_dependencies.py'
+        raw = path.read_bytes()
+        try:
+            path.unlink()
+            for shell in ('bash', 'pwsh'):
+                with self.subTest(shell=shell):
+                    dest = self.root / ('missing-' + shell)
+                    p = self.installer(shell, ('sdd-azure-cloud',), dest)
+                    self.assertNotEqual(p.returncode, 0)
+                    self.assertFalse(dest.exists())
+        finally:
+            path.write_bytes(raw)
+
+    def test_case_variants_at_operator_and_file_discovery_layers(self) -> None:
+        for shell in ('bash', 'pwsh'):
+            for plugin in ('SDD-AZURE-CLOUD', 'sdd-Aws-cloud'):
+                with self.subTest(shell=shell, plugin=plugin):
+                    dest = self.root / (shell + '-' + plugin)
+                    p = self.installer(shell, (plugin,), dest)
+                    self.assertNotEqual(p.returncode, 0)
+                    self.assertFalse(dest.exists())
+        # Independent cmdlet/glob check: uppercase schema name is not packaged.
+        marker = self.source / 'contracts/CLOUD-CASE.schema.json'
+        marker.write_text('{}\n')
+        p = run(['git', 'add', '--', 'contracts/CLOUD-CASE.schema.json'], self.source)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        try:
+            for shell in ('bash', 'pwsh'):
+                dest = self.root / ('case-schema-' + shell)
+                p = self.installer(shell, ('sdd-azure-cloud',), dest)
+                self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                self.assertFalse((dest / 'plugins/sdd-azure-cloud/runtime/contracts' / marker.name).exists())
+        finally:
+            run(['git', 'rm', '-f', '--', 'contracts/CLOUD-CASE.schema.json'], self.source)
+
+
+class SkillVisibility(unittest.TestCase):
+    def test_real_export_consumer_ignores_upstream_reference_skills(self) -> None:
+        with tempfile.TemporaryDirectory(prefix='cloud-skill-exports-') as temp:
+            root = Path(temp)
+            fixture(root)
+            result = validate(root, skills=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+    def test_each_entry_frontmatter_and_relative_links(self) -> None:
+        import re
+        for provider in PROVIDERS:
+            skill = ROOT / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
+            text = skill.read_text()
+            frontmatter = text.split('---', 2)[1]
+            self.assertIn('name: orchestrate', frontmatter)
+            self.assertIn('disable-model-invocation: true', frontmatter)
+            self.assertNotIn('user-invocable: false', frontmatter)
+            for link in re.findall(r'\]\(([^)]+)\)', text):
+                self.assertTrue((skill.parent / link).is_file(), link)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/install-cloud.tests.py",
+    "SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-18T15:31:05Z",
+  "exit_code": 1,
+  "elapsed_seconds": 0.679,
+  "classification": "offline local command; no live cloud"
+}
