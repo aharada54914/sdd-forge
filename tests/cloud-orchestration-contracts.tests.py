@@ -402,5 +402,73 @@ class Contracts(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()),[])
 
 
+    def test_schema_scalar_domains_and_optional_field_boundaries(self):
+        for kind, original in self.f.items():
+            schema = self.schema(kind)
+            for path, value in nodes(original):
+                if not path or isinstance(value,(dict,list)) or path[-1]=='schema':
+                    continue
+                fragment=schema
+                for key in path:
+                    if 'oneOf' in fragment and 'properties' not in fragment:
+                        fragment=next(branch for branch in fragment['oneOf'] if branch.get('type')!='null')
+                    fragment=fragment['items'] if type(key) is int else fragment['properties'][key]
+                candidates=[]
+                if 'enum' in fragment:
+                    candidates=['not-a-member','',value.lower(),value+'X']
+                elif 'pattern' in fragment:
+                    candidates=['',value+'\n',value+' ',value+'/', 'x'*3000]
+                for candidate in candidates:
+                    bad=copy.deepcopy(original); at(bad,path[:-1])[path[-1]]=candidate
+                    schema_valid=not self.oracle._schema_validate(schema,bad)
+                    with self.subTest(kind=kind,path=path,candidate=candidate[:30]):
+                        # Some independent semantic checks are strictly stronger than
+                        # JSON Schema (e.g. dates and unique IDs); never weaker.
+                        if not schema_valid:
+                            self.rejects(bad)
+        for field in ('issuer',):
+            for url in ('https://example.invalid/../escape','https://example.invalid/./x',
+                        'https://user:pass@example.invalid/x','http://example.invalid/x'):
+                bad=dict(self.f['cloud-authorization-receipt/v1'],**{field:url})
+                self.both(bad,False)
+        request=copy.deepcopy(self.f['cloud-run-request/v1'])
+        request['predecessor_receipts']=[dict(unit_id='prior',**ref('prior.json'))]
+        self.both(request,True)
+        for field in ('unit_id','path','sha256'):
+            bad=copy.deepcopy(request);del bad['predecessor_receipts'][0][field]
+            self.both(bad,False)
+        for extra in (None,7,{},''):
+            self.both(dict(self.f['cloud-operation-result/v1'],native_operation_id=extra),False)
+        self.both(dict(self.f['cloud-operation-result/v1'],native_operation_id='native-1'),True)
+
+    def test_schema_published_limits_have_executable_runtime_counterparts(self):
+        original=self.f['cloud-observation/v1']; schema=self.schema(original['schema'])
+        self.assertEqual(schema['properties']['exit_code']['maximum'],2147483647)
+        self.assertEqual(schema['properties']['resource_ids']['maxItems'],4096)
+        self.assertEqual(schema['properties']['timestamp']['format'],'date-time')
+        self.c.parse_artifact(encode(dict(original,status='FAIL',exit_code=2147483647)))
+        for value in (-1,2147483648): self.rejects(dict(original,exit_code=value))
+        self.c.parse_artifact(encode(dict(original,resource_ids=['r'+str(i) for i in range(4096)])))
+        self.rejects(dict(original,resource_ids=['r'+str(i) for i in range(4097)]))
+        for field,size in (('run_id',128),('query',2048)):
+            self.both(dict(original,**{field:'x'*size}),True)
+            self.both(dict(original,**{field:'x'*(size+1)}),False)
+        with self.assertRaises(self.c.ContractError):
+            self.c.parse_artifact(b'{"x":1,"\\u0078":2}')
+
+    def test_schema_inventory_has_no_open_object_or_unexercised_family(self):
+        expected={kind.split('/')[0]+'.schema.json' for kind in self.f}
+        self.assertEqual({p.name for p in (ROOT/'contracts').glob('cloud-*.schema.json')},expected)
+        for kind in self.f:
+            schema=self.schema(kind)
+            for path,node in nodes(schema):
+                if isinstance(node,dict) and node.get('type')=='object':
+                    self.assertIs(node.get('additionalProperties'),False,(kind,path))
+                    optional={'native_operation_id'} if kind=='cloud-operation-result/v1' and not path else set()
+                    self.assertEqual(set(node['required']),set(node['properties'])-optional,(kind,path))
+            self.assertEqual(schema['properties']['schema']['const'],kind)
+        self.assertEqual(set(self.c.VALIDATORS),set(self.f))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
