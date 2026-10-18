@@ -1,0 +1,15 @@
+test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass) ... FAIL
+
+======================================================================
+FAIL: test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 664, in test_native_azure_incomplete_permission_proof_cannot_pass
+    with self.assertRaisesRegex(
+         ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (failures=1)

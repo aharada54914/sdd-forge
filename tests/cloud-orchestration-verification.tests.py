@@ -509,6 +509,56 @@ class FreshnessCases(unittest.TestCase):
                         self.assertEqual(query["interval"], ["PT1M"])
                         self.assertEqual(query["AutoAdjustTimegrain"], ["false"])
 
+    def test_native_selected_window_never_chooses_only_healthy_point(self):
+        import xml.etree.ElementTree as ET
+
+        for provider in ("aws", "azure"):
+            for extra_time, extra_value, expected in (
+                ("2026-10-18T06:00:00Z", 0, "FAIL"),
+                ("2026-10-18T05:57:00Z", 1, "BLOCKED"),
+                ("2026-10-18T06:03:00Z", 1, "BLOCKED"),
+                ("2026-10-18T06:00:00Z", 1, "PASS"),
+            ):
+                with self.subTest(
+                    provider=provider, extra_time=extra_time, extra_value=extra_value
+                ):
+                    collector, fixture = self.collector(
+                        provider, "workload", "healthy", "2026-10-18T04:00:00Z"
+                    )
+                    original = fixture.request
+
+                    def response(method, url, headers, body=None):
+                        result = original(method, url, headers, body)
+                        if provider == "azure":
+                            value = json.loads(result.body)
+                            value["value"][0]["timeseries"][0]["data"].insert(
+                                0, dict(timeStamp=extra_time, maximum=extra_value)
+                            )
+                            result.body = encode(value)
+                        else:
+                            tree = ET.fromstring(result.body)
+                            ns = "{http://monitoring.amazonaws.com/doc/2010-08-01/}"
+                            points = tree.find(".//" + ns + "Datapoints")
+                            assert points is not None
+                            member = ET.SubElement(points, ns + "member")
+                            ET.SubElement(member, ns + "Timestamp").text = extra_time
+                            ET.SubElement(member, ns + "Maximum").text = str(
+                                extra_value
+                            )
+                            result.body = ET.tostring(tree)
+                        return result
+
+                    with patch.object(fixture, "request", side_effect=response):
+                        if expected == "BLOCKED":
+                            with self.assertRaisesRegex(
+                                c.ContractError, "STALE_SIGNAL"
+                            ):
+                                collector.workload()
+                        else:
+                            self.assertEqual(
+                                collector.workload()[0], expected == "PASS"
+                            )
+
     def test_aws_backup_native_recent_query_window(self):
         from urllib.parse import parse_qs, urlsplit
 
@@ -589,6 +639,32 @@ class NativeCollectorCases(unittest.TestCase):
                             healthy, _ = getattr(collector, check)()
                             self.assertEqual(healthy, variant != "unhealthy")
                         self.assertTrue(fixture.calls)
+
+    def test_native_azure_incomplete_permission_proof_cannot_pass(self):
+        sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
+        import azure_observation as module
+
+        fixture = NativeFixture("azure", "identity", "healthy")
+        native = module.HttpsTransport()
+        collector = module.Collector(
+            fixture.scope,
+            fixture.cfg,
+            fixture.credentials,
+            principal=fixture.principal,
+            completed="2026-10-18T06:00:00Z",
+            age=300,
+            clock=lambda: 1792303260,
+            transport=native,
+            run_id="synthetic-run",
+            unit_id="synthetic-unit",
+        )
+        # The actual native transport class is used, but its I/O is explicitly
+        # mocked with synthetic bytes. No network/provenance claim is made.
+        with patch.object(native, "request", side_effect=fixture.request):
+            with self.assertRaisesRegex(
+                c.ContractError, "PERMISSION_CONTEXT_UNSUPPORTED"
+            ):
+                collector.identity()
 
     def test_backup_discovery_without_future_identifier(self):
         sys.path.insert(0, str(ROOT / "plugins/sdd-aws-cloud/scripts"))
