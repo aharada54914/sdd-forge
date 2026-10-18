@@ -1,0 +1,21 @@
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (4.553021ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (59.28992ms)
+✔ synthetic: well-formed ticket parses all optional fields (0.902351ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (0.576129ms)
+✔ cannot-parse: invalid YAML syntax (1.002133ms)
+✔ cannot-parse: missing required fields (0.420214ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (0.406283ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (0.341255ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (0.83516ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 158.325227

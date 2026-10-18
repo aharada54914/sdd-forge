@@ -17,7 +17,7 @@
 - **CLI 脚**（本ドキュメントの本節、T-001）: `scripts/bump-version.sh`
   自体が、バージョン文字列を書き換える前に両スイートを実行します。
 - **CI 脚**（`.github/workflows/release.yml` の必須 `loop-gate` ジョブ、
-  T-002）: 詳細は [release.yml セクション](#release-yml-の-loop-gate-ジョブ) を
+  T-002）: 詳細は [release.yml セクション](#releaseyml-の-loop-gate-ジョブ) を
   参照してください。
 
 いずれの脚も、ループスイート自体のロジックを再実装せず、実スイートを
@@ -83,7 +83,7 @@ CLI であり、本リポジトリのテストスイートに課される `.sh`/
 **Windows ホストでリリース版バンプを直接実行することはできません。**
 Windows ホストのコントリビューター、および `release.yml` を起動するあらゆる
 CI 環境は、代わりに `.github/workflows/release.yml` の必須 `loop-gate` ジョブ
-（[release.yml セクション](#release-yml-の-loop-gate-ジョブ) 参照、T-002）が
+（[release.yml セクション](#releaseyml-の-loop-gate-ジョブ) 参照、T-002）が
 提供する同等の保証に依拠します。`loop-gate` ジョブは `ubuntu-latest` 上で
 同じ2つのループスイートを実行し、既存のビルドジョブ（tarball / SBOM /
 checksum / sigstore attestation / アップロードチェーン）はそのジョブへの

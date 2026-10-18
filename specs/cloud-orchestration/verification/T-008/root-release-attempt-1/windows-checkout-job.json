@@ -1,0 +1,388 @@
+{
+  "id": 117759191306,
+  "run_id": 39155983283,
+  "workflow_name": "Test installers and gates",
+  "head_branch": "release/cloud-orchestration-v1.19.0-20261018",
+  "run_url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/runs/39155983283",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOS1iq_c8AAAAbav6pCg",
+  "head_sha": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+  "url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/jobs/117759191306",
+  "html_url": "https://github.com/aharada54914/sdd-forge/actions/runs/39155983283/job/117759191306",
+  "status": "completed",
+  "conclusion": "failure",
+  "created_at": "2026-10-18T18:50:12Z",
+  "started_at": "2026-10-18T18:50:40Z",
+  "completed_at": "2026-10-18T18:50:59Z",
+  "name": "test (windows-latest)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-18T18:50:40Z",
+      "completed_at": "2026-10-18T18:50:41Z"
+    },
+    {
+      "name": "[deterministic] Setup step 1",
+      "status": "completed",
+      "conclusion": "failure",
+      "number": 2,
+      "started_at": "2026-10-18T18:50:41Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Install structural YAML parser",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 3,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Install pinned local cloud compilation tools (Linux only)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 4,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 5,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 6,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test Concept Test gate on native Windows",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 7,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test domain review finalization on native platforms",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 8,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify generated guard invariants (Windows)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 9,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify generated guard invariants (POSIX)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 10,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 11,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 12,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify vendored contracts copy (Windows)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 13,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 14,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Validate workflow state (PowerShell)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 15,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Validate workflow state (POSIX)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 16,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Validate repository",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 17,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Validate repository (POSIX)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 18,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test repository release validation parity",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 19,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test deterministic gate scripts",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 20,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test run-record feature scope and CRLF identity",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 21,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test selected-feature structure validation",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 22,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 23,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 24,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 25,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test cross-model gate (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 26,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 27,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 28,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test hook guards",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 29,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 30,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test review hash normalization (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 31,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 32,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test guards (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 33,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test approval boundary (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 34,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test deterministic gates (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 35,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test panelist-input consent gate (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 36,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test portable review-loop prechecks (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 37,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test cross-model gate (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 38,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test outcome-based eval suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 39,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test CRLF line-ending parity (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 40,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 41,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Test branch-protection script (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 42,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "[deterministic] Upload test logs",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 43,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:55Z"
+    },
+    {
+      "name": "Post [deterministic] Setup step 1",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 86,
+      "started_at": "2026-10-18T18:50:55Z",
+      "completed_at": "2026-10-18T18:50:58Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 87,
+      "started_at": "2026-10-18T18:50:58Z",
+      "completed_at": "2026-10-18T18:50:58Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/aharada54914/sdd-forge/check-runs/117759191306",
+  "labels": [
+    "windows-latest"
+  ],
+  "runner_id": 1000047182,
+  "runner_name": "GitHub Actions 1000047182",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

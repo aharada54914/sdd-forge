@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 import subprocess
 import sys
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
@@ -15,6 +16,8 @@ SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
 
 def load(name):
     spec = importlib.util.spec_from_file_location(name.replace("-", "_"), SCRIPTS / (name + ".py"))
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Required local module is unavailable")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -29,30 +32,30 @@ spec.loader.exec_module(OBSERVER)
 OWNERSHIP = load("resolve-component-paths")
 RESOLVER = load("resolve-project-context")
 PLUGIN_IDS = {"sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop",
-              "sdd-ship", "sdd-lite", "sdd-domain"}
+              "sdd-ship", "sdd-lite", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud"}
 
 
 def validate(document, tracked_paths, phase="phase1"):
     errors = []
     if not RESOLVER._project_context_valid(document, ROOT):
         return ["Context schema or scoped characteristic validation failed"], None
-    expected = {"phase1": {"spec_profile": "full", "artifact_layout": "legacy-seven-layer",
+    expected_workflow = {"phase1": {"spec_profile": "full", "artifact_layout": "legacy-seven-layer",
                            "capability_enforcement": "advisory"},
                 "phase2": {"spec_profile": "full", "artifact_layout": "facet-hybrid",
                            "capability_enforcement": "required"}}[phase]
-    if document["workflow"] != expected:
+    if document["workflow"] != expected_workflow:
         errors.append("candidate must use the exact " + phase + " workflow tuple")
     components = document.get("components", [])
     identities = [c["id"] for c in components]
-    if len(identities) != 9 or set(identities) != PLUGIN_IDS | {"mcp", "installer"}:
-        errors.append("candidate must contain exactly the nine approved components")
-    overrides = []
+    if len(identities) != 11 or set(identities) != PLUGIN_IDS | {"mcp", "installer"}:
+        errors.append("candidate must contain exactly the eleven approved current components")
+    overrides: list[tuple[str, str, str, bool]] = []
     for component in components:
         identity = component["id"]
         if identity in PLUGIN_IDS:
             expected = (["plugin_package"], ["host_cli_plugin"], ["github_release", "multi_runtime_plugin_install"],
                         ["repository_content"] + (["workflow_evidence"] if identity != "sdd-bootstrap" else []) +
-                        (["credential_material"] if identity == "sdd-quality-loop" else []))
+                        (["credential_material"] if identity in {"sdd-quality-loop", "sdd-azure-cloud", "sdd-aws-cloud"} else []))
         elif identity == "mcp":
             expected = (["mcp_server"], ["local_mcp_server"], ["github_release", "multi_runtime_plugin_install"],
                         ["repository_content", "host_metadata", "ci_metadata", "credential_material"])
@@ -79,8 +82,11 @@ def validate(document, tracked_paths, phase="phase1"):
     shared = document.get("shared_paths", [])
     if not growing <= {entry["pattern"] for entry in shared if entry.get("classification") == "cross-cutting"}:
         errors.append("all seven approved growing paths must remain cross-cutting")
+    cloud_shared = {"pattern": "templates/cloud/**", "components": ["sdd-azure-cloud", "sdd-aws-cloud"]}
+    if [entry for entry in shared if entry["pattern"] == "templates/cloud/**"] != [cloud_shared]:
+        errors.append("cloud templates must retain exact bounded provider ownership")
     for entry in shared:
-        if "*" in entry["pattern"] and entry["pattern"] not in growing:
+        if "*" in entry["pattern"] and entry["pattern"] not in growing and entry != cloud_shared:
             errors.append("unapproved broad shared rule: " + entry["pattern"])
         overrides.extend((entry["pattern"], item["scope"], item["characteristic"], item["value"])
                          for item in entry.get("characteristic_overrides", []))
@@ -140,7 +146,8 @@ def validate_release_cycle(cycle, commits):
         for pr in prs:
             if not isinstance(pr["head_sha"], str) or not re.fullmatch(r"[0-9a-f]{40}", pr["head_sha"]):
                 raise ValueError("PR head must be a full commit ID")
-            latest, ids = {}, set()
+            latest: dict[str, dict[str, Any]] = {}
+            ids: set[int] = set()
             for check in pr["check_runs"]:
                 if type(check["id"]) is not int or check["id"] <= 0 or check["id"] in ids:
                     raise ValueError("check run IDs must be unique positive integers")

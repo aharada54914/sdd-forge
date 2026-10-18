@@ -108,8 +108,8 @@ assert_literal "$MATRIX" '| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | 
   "lightweight Codex mapping must name gpt-5.1-codex-mini"
 assert_literal "$MATRIX" '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |' \
   "standard Codex mapping must name gpt-5.1-codex"
-assert_literal "$MATRIX" '| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |' \
-  "strong Codex mapping must name gpt-5.2-codex and its fallback"
+assert_literal "$MATRIX" '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' \
+  "strong Codex mapping must use the available registry and preserve the role floor"
 
 assert_literal "$MATRIX" '| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |' \
   "investigator must be lightweight/Haiku with Codex low equivalent"
@@ -119,7 +119,7 @@ assert_literal "$MATRIX" '| impl-reviewer-a/b | standard minimum | Anthropic Son
   "implementation reviewers must be at least standard/Sonnet"
 assert_literal "$MATRIX" '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
   "task reviewers must be at least standard/Sonnet"
-assert_literal "$MATRIX" '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' \
+assert_literal "$MATRIX" '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' \
   "evaluator must use Claude Sonnet and retain Codex strong high/xhigh"
 
 assert_contains "$INVESTIGATOR" '^model: haiku$' "Claude investigator must be downgraded to Haiku"
@@ -448,6 +448,22 @@ real_v2="$(
 jq -e '.model == "openai/gpt-5.1-codex-mini" and .effort_source == "welded"' \
   <<<"$real_v2" >/dev/null ||
   fail "shell selector did not auto-detect the real v2 registry schema"
+
+# Current registered model: exercise both actual selectors, not a doc-only alias.
+cat > "$TMP/astra.json" <<'JSON'
+[{"name":"gpt-6-astra","cost":"5.00","available":true,"effort":"high"}]
+JSON
+for runtime in shell powershell; do
+  if [[ "$runtime" == shell ]]; then
+    selected="$(bash "$SELECTOR_SH" --risk high --registry "$REGISTRY_V2" \
+      --candidates-file "$TMP/astra.json" --required-tier strong --role sdd-evaluator --host codex-cli --json)"
+  else
+    selected="$(pwsh -NoProfile -File "$SELECTOR_PS" -Risk high -Registry "$REGISTRY_V2" \
+      -CandidatesFile "$TMP/astra.json" -RequiredTier strong -Role sdd-evaluator -HostName codex-cli -Json)"
+  fi
+  jq -e '.model == "gpt-6-astra" and .canonical_tier == "strong" and .effort == "high"' \
+    <<<"$selected" >/dev/null || fail "$runtime registered Astra evaluator must retain strong/high"
+done
 
 cat > "$TMP/v2-registry.json" <<'JSON'
 {

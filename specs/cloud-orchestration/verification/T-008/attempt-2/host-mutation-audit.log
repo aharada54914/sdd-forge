@@ -1,0 +1,39 @@
+test_012d_unrelated_membership_unchanged (host_scope_audit.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.028s
+
+OK
+{"path": "plugins/sdd-azure-cloud/scripts/cloud.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-azure-cloud/scripts/cloud.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/cloud.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/cloud.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-azure-cloud/scripts/governed-setup.md", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-azure-cloud/scripts/governed-setup.md", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/governed-setup.md", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/governed-setup.md", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-bootstrap/scripts/cloud-routing.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-bootstrap/scripts/cloud-routing.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/references/cloud-verification-registry.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/scripts/cloud_verification.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/scripts/cloud_verification.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/scripts/cloud_contracts.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-azure-cloud/scripts/azure_observation.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-azure-cloud/scripts/azure_observation.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/aws_observation.py", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-aws-cloud/scripts/aws_observation.py", "mutation": "duplicate", "result": "PASS"}
+{"path": "contracts/verification-contract-v3.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "contracts/verification-contract-v3.schema.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "contracts/selected-verification-plan-v2.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "contracts/selected-verification-plan-v2.schema.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "contracts/cloud-verification-registry.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "contracts/cloud-verification-registry.schema.json", "mutation": "duplicate", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json", "mutation": "remove", "result": "PASS"}
+{"path": "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json", "mutation": "duplicate", "result": "PASS"}
+PASS: actual 32 cloud membership mutation bodies; matched count controls and unrelated/extra negatives in the same test

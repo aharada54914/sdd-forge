@@ -1,0 +1,294 @@
+[
+  {
+    "path": "docs/review-tickets/RT-20260623-001.yml",
+    "ticket_id": "RT-20260623-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260705-001.yml",
+    "ticket_id": "RT-20260705-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260706-001.yml",
+    "ticket_id": "RT-20260706-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260706-002.yml",
+    "ticket_id": "RT-20260706-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260707-001.yml",
+    "ticket_id": "RT-20260707-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260707-002.yml",
+    "ticket_id": "RT-20260707-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260712-001.yml",
+    "ticket_id": "RT-20260712-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260712-002.yml",
+    "ticket_id": "RT-20260712-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260712-003.yml",
+    "ticket_id": "RT-20260712-003"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260715-001.yml",
+    "ticket_id": "RT-20260715-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260723-001.yml",
+    "ticket_id": "RT-20260723-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260805-001.yml",
+    "ticket_id": "RT-20260805-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260805-002.yml",
+    "ticket_id": "RT-20260805-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260805-003.yml",
+    "ticket_id": "RT-20260805-003"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260807-001.yml",
+    "ticket_id": "RT-20260807-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260808-001.yml",
+    "ticket_id": "RT-20260808-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260809-001.yml",
+    "ticket_id": "RT-20260809-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260809-002.yml",
+    "ticket_id": "RT-20260809-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260810-001.yml",
+    "ticket_id": "RT-20260810-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260810-002.yml",
+    "ticket_id": "RT-20260810-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260811-001.yml",
+    "ticket_id": "RT-20260811-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260811-002.yml",
+    "ticket_id": "RT-20260811-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260811-003.yml",
+    "ticket_id": "RT-20260811-003"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260814-001.yml",
+    "ticket_id": "RT-20260814-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-001.yml",
+    "ticket_id": "RT-20260817-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-002.yml",
+    "ticket_id": "RT-20260817-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-003.yml",
+    "ticket_id": "RT-20260817-003"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-004.yml",
+    "ticket_id": "RT-20260817-004"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-005.yml",
+    "ticket_id": "RT-20260817-005"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260817-006.yml",
+    "ticket_id": "RT-20260817-006"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260819-001.yml",
+    "ticket_id": "RT-20260819-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260819-002.yml",
+    "ticket_id": "RT-20260819-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-001.yml",
+    "ticket_id": "RT-20260821-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-002.yml",
+    "ticket_id": "RT-20260821-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-003.yml",
+    "ticket_id": "RT-20260821-003"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-004.yml",
+    "ticket_id": "RT-20260821-004"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-005.yml",
+    "ticket_id": "RT-20260821-005"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-006.yml",
+    "ticket_id": "RT-20260821-006"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-007.yml",
+    "ticket_id": "RT-20260821-007"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-008.yml",
+    "ticket_id": "RT-20260821-008"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-009.yml",
+    "ticket_id": "RT-20260821-009"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-010.yml",
+    "ticket_id": "RT-20260821-010"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-011.yml",
+    "ticket_id": "RT-20260821-011"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-012.yml",
+    "ticket_id": "RT-20260821-012"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-013.yml",
+    "ticket_id": "RT-20260821-013"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-014.yml",
+    "ticket_id": "RT-20260821-014"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-015.yml",
+    "ticket_id": "RT-20260821-015"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-016.yml",
+    "ticket_id": "RT-20260821-016"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-017.yml",
+    "ticket_id": "RT-20260821-017"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260821-018.yml",
+    "ticket_id": "RT-20260821-018"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260823-001.yml",
+    "ticket_id": "RT-20260823-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260823-002.yml",
+    "ticket_id": "RT-20260823-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260826-001.yml",
+    "ticket_id": "RT-20260826-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260826-002.yml",
+    "ticket_id": "RT-20260826-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260828-001.yml",
+    "ticket_id": "RT-20260828-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260828-002.yml",
+    "ticket_id": "RT-20260828-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20260930-001.yml",
+    "ticket_id": "RT-20260930-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261006-001.yml",
+    "ticket_id": "RT-20261006-001"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261006-002.yml",
+    "ticket_id": "RT-20261006-002"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-423.yml",
+    "ticket_id": "RT-20261018-423"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-900.yml",
+    "ticket_id": "RT-20261018-900"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml",
+    "ticket_id": "RT-20261018-CLOUD-ALARM-NUMERIC"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml",
+    "ticket_id": "RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml",
+    "ticket_id": "RT-20261018-CLOUD-CONTRACT"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml",
+    "ticket_id": "RT-20261018-CLOUD-DEPENDENCY-EXPIRY"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml",
+    "ticket_id": "RT-20261018-CLOUD-EXPIRY"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml",
+    "ticket_id": "RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-OWNER.yml",
+    "ticket_id": "RT-20261018-CLOUD-OWNER"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml",
+    "ticket_id": "RT-20261018-CLOUD-PREFLIGHT"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml",
+    "ticket_id": "RT-20261018-CLOUD-PREVIEW-EXPIRY"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml",
+    "ticket_id": "RT-20261018-CLOUD-ROUTING-GUARD"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml",
+    "ticket_id": "RT-20261018-CLOUD-SANDBOX"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml",
+    "ticket_id": "RT-20261018-CLOUD-T009-PREFLIGHT"
+  }
+]

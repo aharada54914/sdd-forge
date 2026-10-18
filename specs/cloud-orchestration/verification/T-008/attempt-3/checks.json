@@ -1,0 +1,144 @@
+[
+  {
+    "phase": "before",
+    "command": [
+      "python3",
+      "-B",
+      "tests/required-checks-posix.tests.py",
+      ".github/workflows/test.yml"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:33.423544+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok\ntest_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok\ntest_all_success (__main__.RequiredChecksTests.test_all_success) ... ok\ntest_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok\ntest_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok\ntest_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok\ntest_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok\ntest_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok\ntest_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok\ntest_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok\ntest_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok\ntest_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok\ntest_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok\ntest_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok\ntest_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok\ntest_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok\ntest_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok\ntest_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.997s\n\nOK\n",
+    "workflow_sha256": "ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d"
+  },
+  {
+    "phase": "before",
+    "command": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:34.486116+00:00",
+    "exit_code": 0,
+    "stdout": "==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nSKIPPED: tests/a.tests.py\n==> tests/native-a.tests.ps1\nFAILED: tests/native-a.tests.ps1\n==> tests/native-b.tests.ps1\nPASSED: tests/native-b.tests.ps1\n==> tests/a.tests.py\nfixture\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nchanged\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n",
+    "stderr": "...............\n----------------------------------------------------------------------\nRan 15 tests in 1.387s\n\nOK\n",
+    "workflow_sha256": "ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d"
+  },
+  {
+    "phase": "parsed-comparison",
+    "changed_path": "jobs.test.timeout-minutes",
+    "before": "${{ matrix.os == 'macos-latest' && 40 || 30 }}",
+    "after": 45,
+    "all_other_parsed_values_identical": true,
+    "matrix": {
+      "os": [
+        "windows-latest",
+        "macos-latest",
+        "ubuntu-latest"
+      ]
+    }
+  },
+  {
+    "phase": "after",
+    "command": [
+      "python3",
+      "-B",
+      "tests/required-checks-posix.tests.py",
+      ".github/workflows/test.yml"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:36.062185+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok\ntest_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok\ntest_all_success (__main__.RequiredChecksTests.test_all_success) ... ok\ntest_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok\ntest_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok\ntest_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok\ntest_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok\ntest_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok\ntest_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok\ntest_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok\ntest_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok\ntest_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok\ntest_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok\ntest_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok\ntest_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok\ntest_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok\ntest_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok\ntest_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.945s\n\nOK\n",
+    "workflow_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+  },
+  {
+    "phase": "after",
+    "command": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:37.072201+00:00",
+    "exit_code": 0,
+    "stdout": "==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nSKIPPED: tests/a.tests.py\n==> tests/native-a.tests.ps1\nFAILED: tests/native-a.tests.ps1\n==> tests/native-b.tests.ps1\nPASSED: tests/native-b.tests.ps1\n==> tests/a.tests.py\nfixture\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nchanged\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n",
+    "stderr": "...............\n----------------------------------------------------------------------\nRan 15 tests in 1.454s\n\nOK\n",
+    "workflow_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+  },
+  {
+    "phase": "rollback",
+    "command": [
+      "python3",
+      "-B",
+      "tests/required-checks-posix.tests.py",
+      "/tmp/cloud-T008-attempt3-01a15070/rollback/.github/workflows/test.yml"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:38.630066+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok\ntest_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok\ntest_all_success (__main__.RequiredChecksTests.test_all_success) ... ok\ntest_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok\ntest_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok\ntest_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok\ntest_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok\ntest_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok\ntest_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok\ntest_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok\ntest_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok\ntest_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok\ntest_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok\ntest_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok\ntest_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok\ntest_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok\ntest_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok\ntest_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.987s\n\nOK\n",
+    "workflow_sha256": "ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d"
+  },
+  {
+    "phase": "rollback",
+    "command": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:39.690211+00:00",
+    "exit_code": 0,
+    "stdout": "==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nSKIPPED: tests/a.tests.py\n==> tests/native-a.tests.ps1\nFAILED: tests/native-a.tests.ps1\n==> tests/native-b.tests.ps1\nPASSED: tests/native-b.tests.ps1\n==> tests/a.tests.py\nfixture\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nchanged\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n",
+    "stderr": "...............\n----------------------------------------------------------------------\nRan 15 tests in 1.383s\n\nOK\n",
+    "workflow_sha256": "ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d"
+  },
+  {
+    "phase": "reapply",
+    "command": [
+      "python3",
+      "-B",
+      "tests/required-checks-posix.tests.py",
+      "/tmp/cloud-T008-attempt3-01a15070/rollback/.github/workflows/test.yml"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:41.172754+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok\ntest_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok\ntest_all_success (__main__.RequiredChecksTests.test_all_success) ... ok\ntest_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok\ntest_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok\ntest_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok\ntest_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok\ntest_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... ok\ntest_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok\ntest_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok\ntest_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... ok\ntest_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok\ntest_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok\ntest_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok\ntest_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok\ntest_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok\ntest_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok\ntest_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.955s\n\nOK\n",
+    "workflow_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+  },
+  {
+    "phase": "reapply",
+    "command": [
+      "bash",
+      "tests/ci-suite-wiring.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-18T19:16:42.196223+00:00",
+    "exit_code": 0,
+    "stdout": "==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nFAILED: tests/a.tests.py\n==> tests/a.tests.py\nSKIPPED: tests/a.tests.py\n==> tests/native-a.tests.ps1\nFAILED: tests/native-a.tests.ps1\n==> tests/native-b.tests.ps1\nPASSED: tests/native-b.tests.ps1\n==> tests/a.tests.py\nfixture\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n==> tests/a.tests.py\nchanged\nPASSED: tests/a.tests.py\n==> tests/b.tests.py\nfixture\nPASSED: tests/b.tests.py\n",
+    "stderr": "...............\n----------------------------------------------------------------------\nRan 15 tests in 1.388s\n\nOK\n",
+    "workflow_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b"
+  },
+  {
+    "phase": "preservation",
+    "frozen_reports_match": true,
+    "working_candidate_unchanged_during_rollback": true
+  },
+  {
+    "phase": "reproduction",
+    "orchestration_source": "from pathlib import Path\nimport subprocess,json,hashlib,importlib.util,shutil,datetime,difflib\nroot=Path.cwd(); ev=Path('specs/cloud-orchestration/verification/T-008/attempt-3'); scratch=Path('/tmp/cloud-T008-attempt3-01a15070'); workflow=Path('.github/workflows/test.yml')\nspec=importlib.util.spec_from_file_location('workflow',root/'tests/verification-workflow.py'); wf=importlib.util.module_from_spec(spec); spec.loader.exec_module(wf)\nresults=[]\ndef checks(label,path):\n for command in [['python3','-B','tests/required-checks-posix.tests.py',str(path)],['bash','tests/ci-suite-wiring.tests.sh']]:\n  start=datetime.datetime.now(datetime.timezone.utc).isoformat(); r=subprocess.run(command,text=True,capture_output=True)\n  results.append(dict(phase=label,command=command,cwd=str(root),started_at=start,exit_code=r.returncode,stdout=r.stdout,stderr=r.stderr,workflow_sha256=hashlib.sha256(path.read_bytes()).hexdigest()))\n  (ev/'checks.json').write_text(json.dumps(results,indent=2)+'\\n')\n  print(label,command[2:],r.returncode,flush=True)\n  if r.returncode: raise SystemExit(r.returncode)\nbefore=workflow.read_bytes(); checks('before',workflow)\nold=\"    # Native macOS regression runs can exceed 30 minutes while making progress.\\n    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}\"\nnew=\"    # Allow full native regressions plus mandatory cloud coverage (~8-11 extra minutes observed).\\n    timeout-minutes: 45\"\nassert before.decode().count(old)==1\nworkflow.write_bytes(before.decode().replace(old,new).encode()); after=workflow.read_bytes()\na=wf.load_workflow(ev/'before-workflow.yml'); b=wf.load_workflow(workflow); original=a['jobs']['test']['timeout-minutes']; a['jobs']['test']['timeout-minutes']=45; assert a==b\nresults.append(dict(phase='parsed-comparison',changed_path='jobs.test.timeout-minutes',before=original,after=45,all_other_parsed_values_identical=True,matrix=b['jobs']['test']['strategy']['matrix']))\n(ev/'scope.diff').write_text(''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='entry/.github/workflows/test.yml',tofile='candidate/.github/workflows/test.yml')))\nchecks('after',workflow)\ndisposable=scratch/'rollback/.github/workflows/test.yml'; disposable.parent.mkdir(parents=True,exist_ok=True)\nfor label,data in [('disposable-candidate',after),('rollback',before),('reapply',after)]:\n disposable.write_bytes(data); assert disposable.read_bytes()==data\n if label!='disposable-candidate': checks(label,disposable)\nassert workflow.read_bytes()==after\nfor p,h in [('reports/implementation/cloud-orchestration/T-008.md','a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195'),('reports/implementation/cloud-orchestration/T-008-release-fixes.md','3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44')]:\n assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==h\nresults.append(dict(phase='preservation',frozen_reports_match=True,working_candidate_unchanged_during_rollback=True))\n(ev/'checks.json').write_text(json.dumps(results,indent=2)+'\\n')\nsource=Path('specs/cloud-orchestration/verification/T-008/root-release-attempt-1/native-timing-observation.json'); jobs=json.loads(source.read_text()); summary=[]\nfor job in jobs:\n if job['name'] not in ['test (ubuntu-latest)','test (macos-latest)']: continue\n step=next(s for s in job['steps'] if s['name']=='[deterministic] Test cloud suites, installed packages and current multitarget boundaries')\n seconds=(datetime.datetime.fromisoformat(step['completed_at'])-datetime.datetime.fromisoformat(step['started_at'])).total_seconds()\n summary.append(dict(job=job['name'],job_status=job['status'],job_conclusion=job['conclusion'],head_sha=job['head_sha'],url=job['html_url'],step=step['name'],started_at=step['started_at'],completed_at=step['completed_at'],seconds=seconds,step_conclusion=step['conclusion']))\n(ev/'timing-summary.json').write_text(json.dumps(dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),observations=summary,limit='Captured first-candidate observation only; neither timeout failure nor completed whole-job PASS is asserted.'),indent=2)+'\\n')\n",
+    "invocation": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH python3 -B /tmp/cloud-T008-attempt3-01a15070/checks.py",
+    "note": "Retained executed orchestration source as command evidence, not a new product test suite. Do not rerun against an already-edited workflow; before assertions intentionally require entry bytes."
+  },
+  {
+    "phase": "manifest-validation",
+    "command": "bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/cloud-orchestration/verification/T-008/attempt-3/task-input-manifest.json --snapshot-root /tmp/cloud-T008-attempt3-01a15070/snapshot --expected-task T-008",
+    "exit_code": 0
+  }
+]

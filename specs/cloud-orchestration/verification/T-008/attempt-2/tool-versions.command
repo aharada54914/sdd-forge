@@ -1,0 +1,1 @@
+bash -c date\ -u\ +%Y-%m-%dT%H:%M:%SZ\;\ uname\ -s\;\ git\ --version\;\ node\ --version\;\ npm\ --version\;\ python3\ --version\;\ /workspace/.tools/sdd-forge-dev/bin/pwsh\ -NoProfile\ -Command\ \'\$PSVersionTable.PSVersion.ToString\(\)\'\;\ /tmp/cloud-quality-python/bin/python\ -m\ mypy\ --version\;\ /tmp/cloud-quality-python/bin/python\ -m\ ruff\ --version 

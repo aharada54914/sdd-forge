@@ -1,0 +1,97 @@
+[
+  {
+    "path": ".github/workflows/test.yml",
+    "before_sha256": "48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a",
+    "after_sha256": "ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d"
+  },
+  {
+    "path": "docs/contributor/release-runbook.md",
+    "before_sha256": "e36c2929985575d742c99d0bd2f5b6b314fecf910ef10f033de415df5e2f70cd",
+    "after_sha256": "0a5ff56974a9003c4f65be874f8b3b81016fd9d45456119a8efe02fb5c101a51"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml",
+    "before_sha256": "719239cc024035be384c7200fb77df3282d785756dc616b5266a8c9b3dea4081",
+    "after_sha256": "dba3c956b9add51145ac176c71e253bde10c4f3c8c51f12b49baf1fe708f38af"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml",
+    "before_sha256": "d2009263bad0c58e5fa3afa8684dcb7d2009bd97bcada3ab786d38088117641c",
+    "after_sha256": "4c26485003d1df3b49215bbf0cda1fd870c374b27fce4c7671eb53204ee40e78"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml",
+    "before_sha256": "cf91c32fd97061c4555662954b02522ff13c7deb46970263cc8fc011d45aeddf",
+    "after_sha256": "9d3844242c7f6c120eb57a1f44eb66b6abdf97c7b228f9de79d12dfa5783221c"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml",
+    "before_sha256": "8fd6d8297a0a4ec58144ba417da70893ad638e407f03260b2b7a62e35e6464f0",
+    "after_sha256": "4f3c6c2d52bcca417d9445cdf650f16d29c28288255336ad758388c21ba561b2"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml",
+    "before_sha256": "feb7fbec562c413cd10c304c5ade9c89ef619e2ff9d02c8115a8e874f0814c21",
+    "after_sha256": "c6a7e4a16d9f214e286d6cdb3cf978474b6ecb24ad0f7e6c17313563f7e61673"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml",
+    "before_sha256": "6fbec50c0f6bf91333910ee20cc47f0dbdc442510c7029fb3401e0284ad32215",
+    "after_sha256": "e9a6c58ca6d10fa13a7690b1a99a36c8d4969a2daf41e477ba467cc4889dc09a"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-OWNER.yml",
+    "before_sha256": "f4a2877f8d0bcefd5f9a5ce151a161011ff2f080c2dca98268e559b1b9bd89e5",
+    "after_sha256": "468cf843fd5b0bde2efaa79797a83fcaaaeee408a3f39bc3d1615bb89a3cdef2"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml",
+    "before_sha256": "f0c8d5abadf76e71777be562d2b8dfc34ed7ee314503bd29fab8adbe925774fb",
+    "after_sha256": "340593cbb2620fbe8611ae8702792b9897b247d22e3d5bad849a1fc73e603489"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml",
+    "before_sha256": "6f631b1e6fbe9a13a1b6815db8d7a7ae3b2c96babbc7bfd9c73595e9ff08d38d",
+    "after_sha256": "0322d78d83592a1b1a4e2c405daa3ce1552c7113c1e5b6e98ac7e9ac97e84858"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml",
+    "before_sha256": "a904b950bab27c82b62fa0d5f3dea2a73be622265cab3b93c19d7c30967d2611",
+    "after_sha256": "610c48275597834307912ae2d89113adba18f5df9cb5bb3ec7430346a346a017"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml",
+    "before_sha256": "cb0c94aac640dcf8bf49ebea66b2fd357e6a945fdbc257e9d14fc9eb389d6df8",
+    "after_sha256": "4fc66f7a3a83183f7edd966ba51a86008a16cbb186f59c193adf9246fca03e13"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml",
+    "before_sha256": "17ad8d0e1548b563ab28a4bd1d109d6e98967d2341564e90dca4a13ccf2f2490",
+    "after_sha256": "7fb4b1fa6c2a20a4b4c3d7f77979cd71df0a15856412f46f53c4c82de3cb9642"
+  },
+  {
+    "path": "scripts/validate-a9-candidate.py",
+    "before_sha256": "0cf45c1fd3db5b34aa63f2a9ffa2c1664a885eaa68d0451e5c0dd8cbfccfd892",
+    "after_sha256": "232e30cb0b43aeac1c86659bec1058a5e2c4fe66a6f2777bdb9faaebc39f7a06"
+  },
+  {
+    "path": "specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+    "before_sha256": "26fff1715ced68b4cfbe486370db7d06abadf613a405ca749d17e68441e5a000",
+    "after_sha256": "57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10"
+  },
+  {
+    "path": "tests/a9-dogfood.tests.py",
+    "before_sha256": "1972b861075034864534448e4b2e15add3295ed4abef5cc469ab7a4d667efb41",
+    "after_sha256": "366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba"
+  },
+  {
+    "path": "tests/agent-model-routing.tests.sh",
+    "before_sha256": "b5279728d91e67c7edc57f8300445086d3a88a00e1b5e6a602b078891819a565",
+    "after_sha256": "db805b44a8529b6f066fdcc14f90af20f0b0bd95658294b4406ac64d6a12b69f"
+  },
+  {
+    "path": "tests/host-review-preflight.tests.py",
+    "before_sha256": "981f419d293e372e888fd2e7270225de3f5e2ea87eb715eeb187ac96170c1aec",
+    "after_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8"
+  }
+]

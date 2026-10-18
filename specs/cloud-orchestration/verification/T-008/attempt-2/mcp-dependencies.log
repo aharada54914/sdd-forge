@@ -1,0 +1,12 @@
+sdd-forge-mcp@0.1.0 /workspace/sdd-forge/mcp/sdd-forge-mcp
+├── @modelcontextprotocol/inspector@2.10.1
+├── @modelcontextprotocol/sdk@1.32.1
+├── @types/js-yaml@4.0.9
+├── @types/node@26.6.5
+├── ajv-formats@3.0.1
+├── ajv@8.20.0
+├── esbuild@0.28.2
+├── js-yaml@5.4.3
+├── typescript@7.0.2
+└── zod@4.6.5
+

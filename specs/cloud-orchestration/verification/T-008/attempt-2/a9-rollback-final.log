@@ -1,0 +1,39 @@
+test_case_alias_cannot_replace_preserved_predecessor (__main__.RollbackTests.test_case_alias_cannot_replace_preserved_predecessor) ... skipped 'case-insensitive Windows alias boundary'
+test_cli_readonly_diagnostics_do_not_include_private_paths (__main__.RollbackTests.test_cli_readonly_diagnostics_do_not_include_private_paths) ... ok
+test_current_anchor_drift_blocks_replay (__main__.RollbackTests.test_current_anchor_drift_blocks_replay) ... ok
+test_current_registry_growth_requires_new_two_person_approval (__main__.RollbackTests.test_current_registry_growth_requires_new_two_person_approval) ... ok
+test_duplicate_or_missing_second_approval (__main__.RollbackTests.test_duplicate_or_missing_second_approval) ... ok
+test_extra_manifest_target_is_rejected_even_when_signed (__main__.RollbackTests.test_extra_manifest_target_is_rejected_even_when_signed) ... ok
+test_future_application_is_rejected_before_publisher (__main__.RollbackTests.test_future_application_is_rejected_before_publisher) ... ok
+test_hmac_tamper_and_context_snapshot_mismatch (__main__.RollbackTests.test_hmac_tamper_and_context_snapshot_mismatch) ... ok
+test_invalid_ed25519_signature (__main__.RollbackTests.test_invalid_ed25519_signature) ... ok
+test_malformed_signature_metadata_is_a_controlled_refusal (__main__.RollbackTests.test_malformed_signature_metadata_is_a_controlled_refusal) ... ok
+test_post_application_current_bytes_are_verified (__main__.RollbackTests.test_post_application_current_bytes_are_verified) ... ok
+test_predecessor_and_epoch_binding (__main__.RollbackTests.test_predecessor_and_epoch_binding) ... ok
+test_preserved_predecessor_cannot_alias_live_target (__main__.RollbackTests.test_preserved_predecessor_cannot_alias_live_target) ... ok
+test_publisher_receives_only_private_authenticated_snapshot (__main__.RollbackTests.test_publisher_receives_only_private_authenticated_snapshot) ... ok
+test_real_powershell_publisher (__main__.RollbackTests.test_real_powershell_publisher) ... ok
+test_real_publish_and_signed_post_application_verification (__main__.RollbackTests.test_real_publish_and_signed_post_application_verification) ... ok
+test_registry_shrink_accepts_fresh_solo_branch_after_cooldown (__main__.RollbackTests.test_registry_shrink_accepts_fresh_solo_branch_after_cooldown) ... ok
+test_registry_shrink_does_not_reuse_old_two_person_branch (__main__.RollbackTests.test_registry_shrink_does_not_reuse_old_two_person_branch) ... ok
+test_registry_zero_at_request_or_application (__main__.RollbackTests.test_registry_zero_at_request_or_application) ... ok
+test_second_identity_added_after_request_requires_fresh_current_branch (__main__.RollbackTests.test_second_identity_added_after_request_requires_fresh_current_branch) ... ok
+test_signature_purpose_cannot_be_reused (__main__.RollbackTests.test_signature_purpose_cannot_be_reused) ... ok
+test_signed_early_effective_at_cannot_shorten_cooldown (__main__.RollbackTests.test_signed_early_effective_at_cannot_shorten_cooldown) ... ok
+test_signed_post_application_receipt_cannot_lie_about_result (__main__.RollbackTests.test_signed_post_application_receipt_cannot_lie_about_result) ... ok
+test_sole_requester_self_approval_is_rejected (__main__.RollbackTests.test_sole_requester_self_approval_is_rejected) ... ok
+test_solo_before_24_hours_is_rejected_even_after_wall_clock_deadline (__main__.RollbackTests.test_solo_before_24_hours_is_rejected_even_after_wall_clock_deadline) ... ok
+test_solo_exact_24_hours_and_plus_one (__main__.RollbackTests.test_solo_exact_24_hours_and_plus_one) ... ok
+test_solo_request_registry_cannot_claim_missing_primary (__main__.RollbackTests.test_solo_request_registry_cannot_claim_missing_primary) ... ok
+test_stale_raw_binding_rejects_current_registry_change (__main__.RollbackTests.test_stale_raw_binding_rejects_current_registry_change) ... ok
+test_symlink_input_is_rejected (__main__.RollbackTests.test_symlink_input_is_rejected) ... ok
+test_transaction_in_progress_blocks_admission (__main__.RollbackTests.test_transaction_in_progress_blocks_admission) ... ok
+test_trusted_key_identity_role_and_membership (__main__.RollbackTests.test_trusted_key_identity_role_and_membership) ... ok
+test_two_distinct_current_registered_approvals (__main__.RollbackTests.test_two_distinct_current_registered_approvals) ... ok
+test_unrelated_policy_change_is_not_authorized_by_rollback (__main__.RollbackTests.test_unrelated_policy_change_is_not_authorized_by_rollback) ... ok
+test_unsigned_or_tampered_application_is_not_a_rehearsal_proof (__main__.RollbackTests.test_unsigned_or_tampered_application_is_not_a_rehearsal_proof) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 67.800s
+
+OK (skipped=1)

@@ -17,6 +17,8 @@ from types import SimpleNamespace
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'plugins/sdd-review-loop/scripts/preflight-host-review.py'
 spec = importlib.util.spec_from_file_location('host_review_preflight', SCRIPT)
+if spec is None or spec.loader is None:
+    raise RuntimeError('Required host preflight module is unavailable')
 preflight = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(preflight)
 launcher = preflight.load_module('review_launcher_test', SCRIPT.with_name('launch-impl-review.py'))
@@ -270,6 +272,22 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-domain/scripts/finalize-domain-review.sh',
     'plugins/sdd-domain/scripts/finalize-domain-review.ps1',
     'tests/lib/cross-runtime-consumer-evidence.py',
+    'plugins/sdd-azure-cloud/scripts/cloud.py',
+    'plugins/sdd-aws-cloud/scripts/cloud.py',
+    'plugins/sdd-azure-cloud/scripts/governed-setup.md',
+    'plugins/sdd-aws-cloud/scripts/governed-setup.md',
+    'plugins/sdd-bootstrap/scripts/cloud-routing.py',
+    'plugins/sdd-quality-loop/references/cloud-verification-registry.json',
+    'plugins/sdd-quality-loop/scripts/cloud_verification.py',
+    'plugins/sdd-quality-loop/scripts/cloud_contracts.py',
+    'plugins/sdd-azure-cloud/scripts/azure_observation.py',
+    'plugins/sdd-aws-cloud/scripts/aws_observation.py',
+    'contracts/verification-contract-v3.schema.json',
+    'plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json',
+    'contracts/selected-verification-plan-v2.schema.json',
+    'plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json',
+    'contracts/cloud-verification-registry.schema.json',
+    'plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json',
 )
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(
@@ -429,7 +447,8 @@ class ProtectedEntrypointTests(unittest.TestCase):
     def assert_transport_registered(self):
         workflow = (self.root / WORKFLOW).read_text()
         job = re.search(r'(?ms)^  posix-regression:\n(.*?)(?=^  [\w-]+:|\Z)', workflow)
-        self.assertIsNotNone(job, 'CI POSIX regression job missing')
+        if job is None:
+            self.fail('CI POSIX regression job missing')
         # The current workflow uses a single-line run step, not a display-name match.
         self.assertEqual(len(TRANSPORT_RUN.findall(job.group(1))), 1,
                          'CI transport registration missing or duplicated')

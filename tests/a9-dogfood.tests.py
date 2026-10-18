@@ -13,12 +13,16 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import ModuleType
+from typing import Any, NotRequired, TypedDict
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "plugins/sdd-quality-loop/scripts"
 
 def load(name):
     spec = importlib.util.spec_from_file_location(name.replace("-", "_"), SCRIPTS / (name + ".py"))
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Required local module is unavailable")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -74,7 +78,8 @@ class OverrideTests(unittest.TestCase):
         for name in ("scope", "characteristic", "value", "rationale"):
             doc = context()
             del doc["components"][0]["characteristic_overrides"][0][name]
-            with self.subTest(missing=name): self.assert_rejected(doc)
+            with self.subTest(missing=name):
+                self.assert_rejected(doc)
         doc = context()
         doc["components"][0]["characteristic_overrides"][0]["extra"] = True
         self.assert_rejected(doc)
@@ -86,7 +91,8 @@ class OverrideTests(unittest.TestCase):
                              ("scope", "mcp/*"), ("scope", "mcp/bad\x00name"), ("rationale", ""), ("rationale", "two\nlines"), ("rationale", "trailing\n")]:
             doc = context()
             doc["components"][0]["characteristic_overrides"][0][field] = value
-            with self.subTest(field=field, value=value): self.assert_rejected(doc)
+            with self.subTest(field=field, value=value):
+                self.assert_rejected(doc)
         doc = context()
         doc["shared_paths"][0]["characteristic_overrides"][0]["value"] = False
         self.assert_rejected(doc)
@@ -99,7 +105,8 @@ class OverrideTests(unittest.TestCase):
     def test_shared_override_requires_cross_cutting_owner_and_exact_scope(self):
         for change in ("scope", "bounded"):
             doc = context()
-            if change == "scope": doc["shared_paths"][0]["characteristic_overrides"][0]["scope"] = "elsewhere/**"
+            if change == "scope":
+                doc["shared_paths"][0]["characteristic_overrides"][0]["scope"] = "elsewhere/**"
             else:
                 del doc["shared_paths"][0]["classification"]
                 doc["shared_paths"][0]["components"] = ["mcp"]
@@ -111,7 +118,8 @@ class OverrideTests(unittest.TestCase):
             override = doc["components"][0].pop("characteristic_overrides")
             target = doc if location == "top" else doc["workflow"] if location == "workflow" else doc["components"][0].setdefault(location, {})
             target["characteristic_overrides"] = override
-            with self.subTest(location=location): self.assert_rejected(doc)
+            with self.subTest(location=location):
+                self.assert_rejected(doc)
 
 
 class CandidatePackTests(unittest.TestCase):
@@ -119,25 +127,54 @@ class CandidatePackTests(unittest.TestCase):
         candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml"
         doc = OWNERSHIP.parse_minimal_yaml(candidate.read_text())
         self.assertTrue(RESOLVER._project_context_valid(doc, ROOT))
-        self.assertEqual(len(doc["components"]), 9)
+        self.assertEqual(len(doc["components"]), 11)
         paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
         result = OWNERSHIP.classify_paths(OWNERSHIP.load_config_dict(doc), [p for p in paths if p])
         self.assertFalse([r for r in result["records"] if r["classification"] in ("UNOWNED", "OVERLAP")])
 
     def test_candidate_contract_rejects_inventory_classification_and_ownership_drift(self):
         spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Required local module is unavailable")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
         doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
         tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
-        for index in range(9):
+        for index in range(11):
             changed = copy.deepcopy(doc)
             del changed["components"][index]
-            with self.subTest(missing=index): self.assertTrue(checker.validate(changed, tracked)[0])
-        for field in ("artifact_kinds", "runtime_classes", "distribution_channels", "data_classification"):
+            with self.subTest(missing=index):
+                self.assertTrue(checker.validate(changed, tracked)[0])
+        self.assertEqual(checker.validate(doc, tracked)[0], [])
+        for index in range(11):
+            for field in ("artifact_kinds", "runtime_classes", "distribution_channels", "data_classification"):
+                changed = copy.deepcopy(doc)
+                changed["components"][index][field] = []
+                with self.subTest(component=index, field=field):
+                    self.assertTrue(checker.validate(changed, tracked)[0])
             changed = copy.deepcopy(doc)
-            changed["components"][0][field] = []
-            with self.subTest(field=field): self.assertTrue(checker.validate(changed, tracked)[0])
+            changed["components"][index]["paths"]["include"] = ["unowned-subtree/**"]
+            with self.subTest(owner=index):
+                self.assertTrue(checker.validate(changed, tracked)[0])
+        for index in (9, 10):
+            for classification in (["repository_content", "workflow_evidence"],
+                                   ["repository_content", "workflow_evidence", "host_metadata"]):
+                changed = copy.deepcopy(doc)
+                changed["components"][index]["data_classification"] = classification
+                with self.subTest(cloud_component=index, classification=classification):
+                    errors, _ = checker.validate(changed, tracked)
+                    self.assertIn(changed["components"][index]["id"] + ": classification mismatch: data_classification", errors)
+        for replacement in (None, {"pattern": "templates/**", "components": ["sdd-azure-cloud", "sdd-aws-cloud"]},
+                            {"pattern": "templates/cloud/**", "classification": "cross-cutting"},
+                            {"pattern": "templates/cloud/**", "components": ["sdd-azure-cloud"]}):
+            changed = copy.deepcopy(doc)
+            changed["shared_paths"] = [entry for entry in changed["shared_paths"] if entry["pattern"] != "templates/cloud/**"]
+            if replacement is not None:
+                changed["shared_paths"].append(replacement)
+            with self.subTest(cloud_templates=replacement):
+                self.assertTrue(checker.validate(changed, tracked)[0])
+        self.assertTrue(checker.validate(doc, tracked + ["plugins/unapproved/fixture.py"])[0])
+        self.assertTrue(checker.validate(doc, tracked + ["templates/unapproved/fixture.yml"])[0])
         changed = copy.deepcopy(doc)
         changed["components"][0]["paths"]["include"] = ["**"]
         self.assertTrue(checker.validate(changed, tracked)[0])
@@ -155,7 +192,8 @@ class CandidatePackTests(unittest.TestCase):
                                ("unknown", set()), ("PLUGIN_PACKAGE", set()), ("MCP_SERVER", set()), ("INSTALLER_SCRIPT", set())]:
             actual = {name for name in ("developer-tooling", "cli-library")
                       if PREDICATE.run_evaluate(caps[name]["trigger"], {"artifact_kinds": [kind]})["result"]}
-            with self.subTest(kind=kind): self.assertEqual(actual, expected)
+            with self.subTest(kind=kind):
+                self.assertEqual(actual, expected)
         for name in ("developer-tooling", "cli-library"):
             cap = caps[name]
             self.assertEqual(cap["gate_ids"], [])
@@ -313,11 +351,39 @@ class ResolverIntegrationTests(unittest.TestCase):
                     doc["workflow"].update(spec_profile=profile, artifact_layout=layout, capability_enforcement=enforcement))
 
 
+class PullRequestFixture(TypedDict):
+    number: int
+    head_sha: str
+    merge_commit_sha: str
+    base_sha: NotRequired[str]
+    advisory_observation: NotRequired[dict[str, Any]]
+    check_runs: list[dict[str, object]]
+
+
+class ReleaseCycleFixture(TypedDict):
+    schema: str
+    base_sha: str
+    head_sha: str
+    release: dict[str, object]
+    required_checks: dict[str, list[str]]
+    advisory_check: str
+    pull_requests: list[PullRequestFixture]
+
+
 class PromotionPreflightTests(unittest.TestCase):
     """Synthetic evidence tests: these never authorize a real promotion."""
+    fixture_module: ModuleType
+    fixture_tmp: tempfile.TemporaryDirectory[str]
+    fixture_root: Path
+    pr_base: str
+    pr_head: str
+    observation: dict[str, Any]
+    cycle: ReleaseCycleFixture
     @classmethod
     def setUpClass(cls):
         spec = importlib.util.spec_from_file_location("a9_observation_fixture", ROOT / "tests/a9-advisory-evidence.tests.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Required local module is unavailable")
         cls.fixture_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.fixture_module)
         cls.fixture_tmp = tempfile.TemporaryDirectory(prefix="a9-release-fixture-")
@@ -332,6 +398,8 @@ class PromotionPreflightTests(unittest.TestCase):
 
     def setUp(self):
         spec = importlib.util.spec_from_file_location("a9_promotion", ROOT / "scripts/validate-a9-candidate.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Required local module is unavailable")
         self.checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.checker)
         self.baseline = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
@@ -360,8 +428,8 @@ class PromotionPreflightTests(unittest.TestCase):
                     for i, name in enumerate(["capability-mode Gate (advisory)", "tests (ubuntu-latest)",
                                               "tests (macos-latest)", "tests (windows-latest)"])]}]}
 
-        self.cycle["pull_requests"][0].update(base_sha=self.pr_base,
-            advisory_observation=copy.deepcopy(self.observation))
+        self.cycle["pull_requests"][0]["base_sha"] = self.pr_base
+        self.cycle["pull_requests"][0]["advisory_observation"] = copy.deepcopy(self.observation)
         self.cycle["pull_requests"][0]["check_runs"][0]["advisory_observation_sha256"] = OWNERSHIP.canonical_digest(self.observation)
 
     def check(self):
@@ -448,7 +516,8 @@ class PromotionPreflightTests(unittest.TestCase):
         for field in ("full_context_revision", "ownership_digest", "registry_digest"):
             self.evidence = copy.deepcopy(original)
             self.evidence["context_binding"][field] = "sha256:" + "0" * 64
-            with self.subTest(field=field): self.assertTrue(self.check())
+            with self.subTest(field=field):
+                self.assertTrue(self.check())
         self.evidence = original
         self.evidence["resolver"]["version"] = "stale"
         self.assertTrue(self.check())
@@ -472,7 +541,8 @@ class PromotionPreflightTests(unittest.TestCase):
         for field, value in (("required_facets", []), ("feature", "another-feature"), ("capabilities", [])):
             self.manifest = copy.deepcopy(original)
             self.manifest[field] = value
-            with self.subTest(field=field): self.assertTrue(self.check())
+            with self.subTest(field=field):
+                self.assertTrue(self.check())
 
     def test_release_roster_must_cover_exact_git_commits(self):
         for mutate in (lambda c: c.update(pull_requests=[]),
@@ -492,7 +562,8 @@ class PromotionPreflightTests(unittest.TestCase):
                                  ("conclusion", "failure"), ("conclusion", "skipped")):
                 self.cycle = copy.deepcopy(original)
                 self.cycle["pull_requests"][0]["check_runs"][index][field] = value
-                with self.subTest(index=index, field=field, value=value): self.assertTrue(self.check())
+                with self.subTest(index=index, field=field, value=value):
+                    self.assertTrue(self.check())
             self.cycle = copy.deepcopy(original)
             self.cycle["pull_requests"][0]["check_runs"].pop(index)
             self.assertTrue(self.check())
@@ -509,14 +580,17 @@ class PromotionPreflightTests(unittest.TestCase):
         self.assertEqual(self.check(), [])
 
     def test_missing_or_malformed_evidence_fails_closed(self):
-        for value in ({}, None, [], {"schema": "a9-release-cycle/v1"}):
-            self.cycle = value
-            with self.subTest(value=value): self.assertTrue(self.check())
+        malformed: list[object] = [{}, None, [], {"schema": "a9-release-cycle/v1"}]
+        for value in malformed:
+            with self.subTest(value=value), patch.object(self, "cycle", value):
+                self.assertTrue(self.check())
 
 
 class PromotionGitBoundaryTests(unittest.TestCase):
     def test_real_git_release_boundary_and_tag_binding(self):
         spec = importlib.util.spec_from_file_location("a9_git_boundary", ROOT / "scripts/validate-a9-candidate.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Required local module is unavailable")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
         with tempfile.TemporaryDirectory() as directory:
@@ -533,12 +607,16 @@ class PromotionGitBoundaryTests(unittest.TestCase):
             with patch.object(checker, "ROOT", root):
                 self.assertEqual(checker.release_commits(cycle), [head])
                 git("tag", "-f", "synthetic-release", base)
-                with self.assertRaises(ValueError): checker.release_commits(cycle)
+                with self.assertRaises(ValueError):
+                    checker.release_commits(cycle)
                 cycle["head_sha"] = "--help"
-                with self.assertRaises(ValueError): checker.release_commits(cycle)
+                with self.assertRaises(ValueError):
+                    checker.release_commits(cycle)
 
     def test_reads_real_resolver_json_in_yaml_and_rejects_corrupt_objects(self):
         spec = importlib.util.spec_from_file_location("a9_reader", ROOT / "scripts/validate-a9-candidate.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Required local module is unavailable")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
         folder = ROOT / "specs/epic-197-a9-dogfood/verification/advisory-observation-20261017"
@@ -549,7 +627,8 @@ class PromotionGitBoundaryTests(unittest.TestCase):
             path = Path(directory) / "artifact.yaml"
             for content in ('{"schema":"first","schema":"second"}', '{"schema": invalid}'):
                 path.write_text(content)
-                with self.subTest(content=content), self.assertRaises(ValueError): checker.read_document(path)
+                with self.subTest(content=content), self.assertRaises(ValueError):
+                    checker.read_document(path)
 
     def test_cli_missing_or_duplicate_documents_reject_without_activation(self):
         command = [sys.executable, str(ROOT / "scripts/validate-a9-candidate.py")]

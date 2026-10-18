@@ -1,0 +1,92 @@
+[
+  {
+    "path": "specs/cloud-orchestration/requirements.md",
+    "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/tasks.md",
+    "sha256": "7a9aca7ff38c3dcb420c92606d6dcf492a16dc716c28978f9e7d18b439bcbe71",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/investigation.md",
+    "sha256": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/traceability.md",
+    "sha256": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/security-spec.md",
+    "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/infra-spec.md",
+    "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/ux-spec.md",
+    "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/frontend-spec.md",
+    "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/acceptance-tests.md",
+    "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/design.md",
+    "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "reports/implementation/cloud-orchestration/T-008.md",
+    "sha256": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/task-input-manifest.json",
+    "sha256": "5d8edc569990d3de8c515c0f76a5edb426d53ddf891f3495811ec023f28ace54",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+    "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "sha256": "c4b619bf7729a3742ee807b1b2efd1debf7f440d88d142c070e193c236221351",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+    "sha256": "3fface3fd9bd38dd3919dfff11ce290aa3d4016cb9cb99f44f0275a545bc5a07",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+    "sha256": "b8abe09fd6f86f080d477b638918d74657c2295bf4f7c575c28cb63fa3c3bd3b",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "sha256": "564080c31fdcc4cf2270017867f90ea6e0265de000c07b141a6788479830ef80",
+    "unchanged_from_candidate": true
+  },
+  {
+    "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "sha256": "31f6e2444069de7473030d88387f649fc420d59c4e3e853692013fcd787ac5a8",
+    "unchanged_from_candidate": true
+  }
+]

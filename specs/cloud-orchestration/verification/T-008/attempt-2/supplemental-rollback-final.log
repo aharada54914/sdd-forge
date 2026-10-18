@@ -1,0 +1,217 @@
+PHASE=candidate
+db805b44a8529b6f066fdcc14f90af20f0b0bd95658294b4406ac64d6a12b69f  /tmp/T008-release-01a1505e/rollback/tests/agent-model-routing.tests.sh
+232e30cb0b43aeac1c86659bec1058a5e2c4fe66a6f2777bdb9faaebc39f7a06  /tmp/T008-release-01a1505e/rollback/scripts/validate-a9-candidate.py
+366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba  /tmp/T008-release-01a1505e/rollback/tests/a9-dogfood.tests.py
+57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10  /tmp/T008-release-01a1505e/rollback/specs/epic-197-a9-dogfood/candidate/project-context.yaml
+b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8  /tmp/T008-release-01a1505e/rollback/tests/host-review-preflight.tests.py
+ok: matrix missing low risk row
+ok: matrix missing medium risk row
+ok: matrix missing high risk row
+ok: matrix missing critical risk row
+ok: low risk matrix row must be 1/1/1
+ok: medium risk matrix row must be 2/1/1
+ok: high risk matrix row must be 3/2/1
+ok: critical risk matrix row must be 3/2/1
+ok: routing priority must put expected iterations before tier and token price
+ok: routing must use invocation-supplied cost estimate
+ok: routing must record cost estimate timestamp
+ok: routing must define lexical final tie-break
+ok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break
+ok: the ADR must record the fallback-deprioritization rank
+ok: missing closed failure enum: test
+ok: missing closed failure enum: lint
+ok: missing closed failure enum: typecheck
+ok: missing closed failure enum: build
+ok: missing closed failure enum: review-major
+ok: missing closed failure enum: review-critical
+ok: same failure recurrence must be required before escalation
+ok: different failure classes must not trigger escalation
+ok: escalation must advance exactly one tier
+ok: strong recurrence must block with terminal-tier-recurrence
+ok: terminal-tier resume must use deterministic paired validation
+ok: deterministic operations must be excluded from model routing
+ok: routing must fail closed when no availability-checked model satisfies a required tier
+ok: same-tier substitution must preserve canonical tier identity
+ok: strong Codex routing must prefer high before xhigh
+ok: lightweight Anthropic mapping must be Haiku
+ok: standard Anthropic mapping must be Sonnet
+ok: strong Anthropic mapping must be Opus
+ok: lightweight Codex mapping must name gpt-5.1-codex-mini
+ok: standard Codex mapping must name gpt-5.1-codex
+ok: strong Codex mapping must use the available registry and preserve the role floor
+ok: investigator must be lightweight/Haiku with Codex low equivalent
+ok: spec reviewers must be at least standard/Sonnet
+ok: implementation reviewers must be at least standard/Sonnet
+ok: task reviewers must be at least standard/Sonnet
+ok: evaluator must use Claude Sonnet and retain Codex strong high/xhigh
+ok: Claude investigator must be downgraded to Haiku
+ok: Copilot investigator must document lightweight tier
+ok: Claude evaluator must use approved Sonnet
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md
+ok: ADR must record turn-first routing decision
+ok: delegation policy must require turn-first routing
+ok: turn-first model routing structure is defined
+routing exit=0 expected=0
+..
+----------------------------------------------------------------------
+Ran 2 tests in 151.189s
+
+OK
+a9 exit=0 expected=0
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.028s
+
+OK
+host exit=0 expected=0
+PHASE=restored
+b5279728d91e67c7edc57f8300445086d3a88a00e1b5e6a602b078891819a565  /tmp/T008-release-01a1505e/rollback/tests/agent-model-routing.tests.sh
+0cf45c1fd3db5b34aa63f2a9ffa2c1664a885eaa68d0451e5c0dd8cbfccfd892  /tmp/T008-release-01a1505e/rollback/scripts/validate-a9-candidate.py
+1972b861075034864534448e4b2e15add3295ed4abef5cc469ab7a4d667efb41  /tmp/T008-release-01a1505e/rollback/tests/a9-dogfood.tests.py
+26fff1715ced68b4cfbe486370db7d06abadf613a405ca749d17e68441e5a000  /tmp/T008-release-01a1505e/rollback/specs/epic-197-a9-dogfood/candidate/project-context.yaml
+981f419d293e372e888fd2e7270225de3f5e2ea87eb715eeb187ac96170c1aec  /tmp/T008-release-01a1505e/rollback/tests/host-review-preflight.tests.py
+ok: matrix missing low risk row
+ok: matrix missing medium risk row
+ok: matrix missing high risk row
+ok: matrix missing critical risk row
+ok: low risk matrix row must be 1/1/1
+ok: medium risk matrix row must be 2/1/1
+ok: high risk matrix row must be 3/2/1
+ok: critical risk matrix row must be 3/2/1
+ok: routing priority must put expected iterations before tier and token price
+ok: routing must use invocation-supplied cost estimate
+ok: routing must record cost estimate timestamp
+ok: routing must define lexical final tie-break
+ok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break
+ok: the ADR must record the fallback-deprioritization rank
+ok: missing closed failure enum: test
+ok: missing closed failure enum: lint
+ok: missing closed failure enum: typecheck
+ok: missing closed failure enum: build
+ok: missing closed failure enum: review-major
+ok: missing closed failure enum: review-critical
+ok: same failure recurrence must be required before escalation
+ok: different failure classes must not trigger escalation
+ok: escalation must advance exactly one tier
+ok: strong recurrence must block with terminal-tier-recurrence
+ok: terminal-tier resume must use deterministic paired validation
+ok: deterministic operations must be excluded from model routing
+ok: routing must fail closed when no availability-checked model satisfies a required tier
+ok: same-tier substitution must preserve canonical tier identity
+ok: strong Codex routing must prefer high before xhigh
+ok: lightweight Anthropic mapping must be Haiku
+ok: standard Anthropic mapping must be Sonnet
+ok: strong Anthropic mapping must be Opus
+ok: lightweight Codex mapping must name gpt-5.1-codex-mini
+ok: standard Codex mapping must name gpt-5.1-codex
+not ok: strong Codex mapping must name gpt-5.2-codex and its fallback
+routing exit=1 expected=1
+F.
+======================================================================
+FAIL: test_candidate_has_complete_nonoverlapping_tracked_ownership (__main__.CandidatePackTests.test_candidate_has_complete_nonoverlapping_tracked_ownership)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/T008-release-01a1505e/rollback/tests/a9-dogfood.tests.py", line 125, in test_candidate_has_complete_nonoverlapping_tracked_ownership
+    self.assertFalse([r for r in result["records"] if r["classification"] in ("UNOWNED", "OVERLAP")])
+AssertionError: [{'raw_path': 'plugins/sdd-aws-cloud/.claude-plugin/plugin.json', 'normalized_path': 'plugins/sdd-aws-cloud/.claude-plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/.codex-plugin/plugin.json', 'normalized_path': 'plugins/sdd-aws-cloud/.codex-plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/.plugin/plugin.json', 'normalized_path': 'plugins/sdd-aws-cloud/.plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/examples/private-ec2/README.md', 'normalized_path': 'plugins/sdd-aws-cloud/examples/private-ec2/README.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/examples/private-ec2/app.js', 'normalized_path': 'plugins/sdd-aws-cloud/examples/private-ec2/app.js', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/examples/private-ec2/cdk.json', 'normalized_path': 'plugins/sdd-aws-cloud/examples/private-ec2/cdk.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json', 'normalized_path': 'plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/examples/private-ec2/package.json', 'normalized_path': 'plugins/sdd-aws-cloud/examples/private-ec2/package.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/LICENSE-upstream.txt', 'normalized_path': 'plugins/sdd-aws-cloud/references/LICENSE-upstream.txt', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/NOTICE-upstream.txt', 'normalized_path': 'plugins/sdd-aws-cloud/references/NOTICE-upstream.txt', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/aws-local-config.schema.json', 'normalized_path': 'plugins/sdd-aws-cloud/references/aws-local-config.schema.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json', 'normalized_path': 'plugins/sdd-aws-cloud/references/aws-local-evidence.schema.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/dependencies.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/dependencies.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/local-preparation.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/local-preparation.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/observations.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/observations.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/toolchain-lock.json', 'normalized_path': 'plugins/sdd-aws-cloud/references/toolchain-lock.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream-lock.json', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream-lock.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/SKILL.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/bootstrap-and-project-setup.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/compliance-and-drift.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/construct-patterns.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/fast-deployments.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/import-and-migrate.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/refactor-and-prevent-replacement.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-credentials.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-deployment.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/troubleshooting-synth.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md', 'normalized_path': 'plugins/sdd-aws-cloud/references/upstream/plugins/aws-core/skills/aws-cdk/references/v1-to-v2-migration.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_control.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_control.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_execution.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_execution.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_governed.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_governed.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_graph.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_graph.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_local.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_local.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_native.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_native.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/aws_observation.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/aws_observation.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/cloud.py', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/cloud.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/scripts/governed-setup.md', 'normalized_path': 'plugins/sdd-aws-cloud/scripts/governed-setup.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md', 'normalized_path': 'plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/.claude-plugin/plugin.json', 'normalized_path': 'plugins/sdd-azure-cloud/.claude-plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/.codex-plugin/plugin.json', 'normalized_path': 'plugins/sdd-azure-cloud/.codex-plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/.plugin/plugin.json', 'normalized_path': 'plugins/sdd-azure-cloud/.plugin/plugin.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/examples/README.md', 'normalized_path': 'plugins/sdd-azure-cloud/examples/README.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/examples/local-route-example.py', 'normalized_path': 'plugins/sdd-azure-cloud/examples/local-route-example.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/examples/private-vm.bicep', 'normalized_path': 'plugins/sdd-azure-cloud/examples/private-vm.bicep', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/LICENSE-upstream.txt', 'normalized_path': 'plugins/sdd-azure-cloud/references/LICENSE-upstream.txt', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/azure-local-config.schema.json', 'normalized_path': 'plugins/sdd-azure-cloud/references/azure-local-config.schema.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json', 'normalized_path': 'plugins/sdd-azure-cloud/references/azure-local-evidence.schema.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/azure-parameters.schema.json', 'normalized_path': 'plugins/sdd-azure-cloud/references/azure-parameters.schema.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/dependencies.md', 'normalized_path': 'plugins/sdd-azure-cloud/references/dependencies.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/local-contract.md', 'normalized_path': 'plugins/sdd-azure-cloud/references/local-contract.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/observations.md', 'normalized_path': 'plugins/sdd-azure-cloud/references/observations.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/references/upstream-lock.json', 'normalized_path': 'plugins/sdd-azure-cloud/references/upstream-lock.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_arm.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_arm.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_execution.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_execution.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_governed.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_governed.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_graph.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_graph.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_local.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_local.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/azure_observation.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/azure_observation.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/cloud.py', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/cloud.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/scripts/governed-setup.md', 'normalized_path': 'plugins/sdd-azure-cloud/scripts/governed-setup.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md', 'normalized_path': 'plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/github-aws.yml', 'normalized_path': 'templates/cloud/github-aws.yml', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/github-azure.yml', 'normalized_path': 'templates/cloud/github-azure.yml', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/README.md', 'normalized_path': 'templates/cloud/iam/README.md', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/aws-apply-permissions.json', 'normalized_path': 'templates/cloud/iam/aws-apply-permissions.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/aws-apply-trust.json', 'normalized_path': 'templates/cloud/iam/aws-apply-trust.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/aws-prepare-permissions.json', 'normalized_path': 'templates/cloud/iam/aws-prepare-permissions.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/aws-prepare-trust.json', 'normalized_path': 'templates/cloud/iam/aws-prepare-trust.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/azure-apply-federation.json', 'normalized_path': 'templates/cloud/iam/azure-apply-federation.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/azure-apply-role.json', 'normalized_path': 'templates/cloud/iam/azure-apply-role.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/azure-prepare-federation.json', 'normalized_path': 'templates/cloud/iam/azure-prepare-federation.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/azure-prepare-role.json', 'normalized_path': 'templates/cloud/iam/azure-prepare-role.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/github-environment.json', 'normalized_path': 'templates/cloud/iam/github-environment.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/github-oidc-subject.json', 'normalized_path': 'templates/cloud/iam/github-oidc-subject.json', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}, {'raw_path': 'templates/cloud/iam/trusted-policy.example.py', 'normalized_path': 'templates/cloud/iam/trusted-policy.example.py', 'classification': 'UNOWNED', 'owning_components': [], 'evidence': {'excluded_match': None}}] is not false
+
+----------------------------------------------------------------------
+Ran 2 tests in 25.615s
+
+FAILED (failures=1)
+a9 exit=1 expected=1
+F
+======================================================================
+FAIL: test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/T008-release-01a1505e/rollback/tests/host-review-preflight.tests.py", line 396, in test_012d_unrelated_membership_unchanged
+    self.assert_unrelated_unchanged(data)
+  File "/tmp/T008-release-01a1505e/rollback/tests/host-review-preflight.tests.py", line 392, in assert_unrelated_unchanged
+    self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
+AssertionError: '77af36d6151353129d09ab9ea9886ed31e50b0de86ef8b79825f8700308daad4' != 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
+- 77af36d6151353129d09ab9ea9886ed31e50b0de86ef8b79825f8700308daad4
++ ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9
+ : unrelated invariant keys or membership changed
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)
+host exit=1 expected=1
+PHASE=reapplied
+db805b44a8529b6f066fdcc14f90af20f0b0bd95658294b4406ac64d6a12b69f  /tmp/T008-release-01a1505e/rollback/tests/agent-model-routing.tests.sh
+232e30cb0b43aeac1c86659bec1058a5e2c4fe66a6f2777bdb9faaebc39f7a06  /tmp/T008-release-01a1505e/rollback/scripts/validate-a9-candidate.py
+366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba  /tmp/T008-release-01a1505e/rollback/tests/a9-dogfood.tests.py
+57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10  /tmp/T008-release-01a1505e/rollback/specs/epic-197-a9-dogfood/candidate/project-context.yaml
+b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8  /tmp/T008-release-01a1505e/rollback/tests/host-review-preflight.tests.py
+ok: matrix missing low risk row
+ok: matrix missing medium risk row
+ok: matrix missing high risk row
+ok: matrix missing critical risk row
+ok: low risk matrix row must be 1/1/1
+ok: medium risk matrix row must be 2/1/1
+ok: high risk matrix row must be 3/2/1
+ok: critical risk matrix row must be 3/2/1
+ok: routing priority must put expected iterations before tier and token price
+ok: routing must use invocation-supplied cost estimate
+ok: routing must record cost estimate timestamp
+ok: routing must define lexical final tie-break
+ok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break
+ok: the ADR must record the fallback-deprioritization rank
+ok: missing closed failure enum: test
+ok: missing closed failure enum: lint
+ok: missing closed failure enum: typecheck
+ok: missing closed failure enum: build
+ok: missing closed failure enum: review-major
+ok: missing closed failure enum: review-critical
+ok: same failure recurrence must be required before escalation
+ok: different failure classes must not trigger escalation
+ok: escalation must advance exactly one tier
+ok: strong recurrence must block with terminal-tier-recurrence
+ok: terminal-tier resume must use deterministic paired validation
+ok: deterministic operations must be excluded from model routing
+ok: routing must fail closed when no availability-checked model satisfies a required tier
+ok: same-tier substitution must preserve canonical tier identity
+ok: strong Codex routing must prefer high before xhigh
+ok: lightweight Anthropic mapping must be Haiku
+ok: standard Anthropic mapping must be Sonnet
+ok: strong Anthropic mapping must be Opus
+ok: lightweight Codex mapping must name gpt-5.1-codex-mini
+ok: standard Codex mapping must name gpt-5.1-codex
+ok: strong Codex mapping must use the available registry and preserve the role floor
+ok: investigator must be lightweight/Haiku with Codex low equivalent
+ok: spec reviewers must be at least standard/Sonnet
+ok: implementation reviewers must be at least standard/Sonnet
+ok: task reviewers must be at least standard/Sonnet
+ok: evaluator must use Claude Sonnet and retain Codex strong high/xhigh
+ok: Claude investigator must be downgraded to Haiku
+ok: Copilot investigator must document lightweight tier
+ok: Claude evaluator must use approved Sonnet
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md
+ok: ADR must record turn-first routing decision
+ok: delegation policy must require turn-first routing
+ok: turn-first model routing structure is defined
+routing exit=0 expected=0
+..
+----------------------------------------------------------------------
+Ran 2 tests in 74.803s
+
+OK
+a9 exit=0 expected=0
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+OK
+host exit=0 expected=0

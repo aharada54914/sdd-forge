@@ -1,0 +1,140 @@
+E701 Multiple statements on one line (colon)
+  --> tests/a9-dogfood.tests.py:77:44
+   |
+75 |             doc = context()
+76 |             del doc["components"][0]["characteristic_overrides"][0][name]
+77 |             with self.subTest(missing=name): self.assert_rejected(doc)
+   |                                            ^
+78 |         doc = context()
+79 |         doc["components"][0]["characteristic_overrides"][0]["extra"] = True
+   |
+
+E701 Multiple statements on one line (colon)
+  --> tests/a9-dogfood.tests.py:89:56
+   |
+87 |             doc = context()
+88 |             doc["components"][0]["characteristic_overrides"][0][field] = value
+89 |             with self.subTest(field=field, value=value): self.assert_rejected(doc)
+   |                                                        ^
+90 |         doc = context()
+91 |         doc["shared_paths"][0]["characteristic_overrides"][0]["value"] = False
+   |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:102:33
+    |
+100 |         for change in ("scope", "bounded"):
+101 |             doc = context()
+102 |             if change == "scope": doc["shared_paths"][0]["characteristic_overrides"][0]["scope"] = "elsewhere/**"
+    |                                 ^
+103 |             else:
+104 |                 del doc["shared_paths"][0]["classification"]
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:114:49
+    |
+112 | …     target = doc if location == "top" else doc["workflow"] if location == "workflow" else doc["components"][0].setdefault(location,…
+113 | …     target["characteristic_overrides"] = override
+114 | …     with self.subTest(location=location): self.assert_rejected(doc)
+    |                                           ^
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:136:45
+    |
+134 |             changed = copy.deepcopy(doc)
+135 |             del changed["components"][index]
+136 |             with self.subTest(missing=index): self.assertTrue(checker.validate(changed, tracked)[0])
+    |                                             ^
+137 |         self.assertEqual(checker.validate(doc, tracked)[0], [])
+138 |         for index in range(11):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:176:41
+    |
+174 |             actual = {name for name in ("developer-tooling", "cli-library")
+175 |                       if PREDICATE.run_evaluate(caps[name]["trigger"], {"artifact_kinds": [kind]})["result"]}
+176 |             with self.subTest(kind=kind): self.assertEqual(actual, expected)
+    |                                         ^
+177 |         for name in ("developer-tooling", "cli-library"):
+178 |             cap = caps[name]
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:469:43
+    |
+467 |             self.evidence = copy.deepcopy(original)
+468 |             self.evidence["context_binding"][field] = "sha256:" + "0" * 64
+469 |             with self.subTest(field=field): self.assertTrue(self.check())
+    |                                           ^
+470 |         self.evidence = original
+471 |         self.evidence["resolver"]["version"] = "stale"
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:493:43
+    |
+491 |             self.manifest = copy.deepcopy(original)
+492 |             self.manifest[field] = value
+493 |             with self.subTest(field=field): self.assertTrue(self.check())
+    |                                           ^
+494 |
+495 |     def test_release_roster_must_cover_exact_git_commits(self):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:513:73
+    |
+511 |                 self.cycle = copy.deepcopy(original)
+512 |                 self.cycle["pull_requests"][0]["check_runs"][index][field] = value
+513 |                 with self.subTest(index=index, field=field, value=value): self.assertTrue(self.check())
+    |                                                                         ^
+514 |             self.cycle = copy.deepcopy(original)
+515 |             self.cycle["pull_requests"][0]["check_runs"].pop(index)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:532:43
+    |
+530 |         for value in ({}, None, [], {"schema": "a9-release-cycle/v1"}):
+531 |             self.cycle = value
+532 |             with self.subTest(value=value): self.assertTrue(self.check())
+    |                                           ^
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:554:51
+    |
+552 |                 self.assertEqual(checker.release_commits(cycle), [head])
+553 |                 git("tag", "-f", "synthetic-release", base)
+554 |                 with self.assertRaises(ValueError): checker.release_commits(cycle)
+    |                                                   ^
+555 |                 cycle["head_sha"] = "--help"
+556 |                 with self.assertRaises(ValueError): checker.release_commits(cycle)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:556:51
+    |
+554 |                 with self.assertRaises(ValueError): checker.release_commits(cycle)
+555 |                 cycle["head_sha"] = "--help"
+556 |                 with self.assertRaises(ValueError): checker.release_commits(cycle)
+    |                                                   ^
+557 |
+558 |     def test_reads_real_resolver_json_in_yaml_and_rejects_corrupt_objects(self):
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/a9-dogfood.tests.py:570:82
+    |
+568 |             for content in ('{"schema":"first","schema":"second"}', '{"schema": invalid}'):
+569 |                 path.write_text(content)
+570 |                 with self.subTest(content=content), self.assertRaises(ValueError): checker.read_document(path)
+    |                                                                                  ^
+571 |
+572 |     def test_cli_missing_or_duplicate_documents_reject_without_activation(self):
+    |
+
+Found 13 errors.

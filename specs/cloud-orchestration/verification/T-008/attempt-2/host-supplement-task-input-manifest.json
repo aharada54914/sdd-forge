@@ -1,0 +1,35 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "session_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "agent_instance_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T19:00:11Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "host-supplement/tests/host-review-preflight.tests.py",
+      "sha256": "981f419d293e372e888fd2e7270225de3f5e2ea87eb715eeb187ac96170c1aec"
+    },
+    {
+      "path": "host-supplement/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "f0d7c2040db8760434d27d698b7b971a77c056125b209968286d905ecbfd459d"
+    },
+    {
+      "path": "host-supplement/specs/cloud-orchestration/verification/T-008/root-release-attempt-1/host-protection-baseline-failure.log",
+      "sha256": "93ab386135c2d62efe59e905c8b9cf1c820aab82caaedfb5efb9ea228ba11c67"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/host-review-preflight.tests.py",
+    "specs/cloud-orchestration/verification/T-008/attempt-2/",
+    "reports/implementation/cloud-orchestration/T-008-release-fixes.md"
+  ]
+}

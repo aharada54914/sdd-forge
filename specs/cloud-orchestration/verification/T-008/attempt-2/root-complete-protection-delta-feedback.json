@@ -1,0 +1,14 @@
+{
+  "id": 900903,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1505e-4688-71b3-9816-af65b714a220",
+    "expectedTurnId": "01a1505e-484d-7211-b522-d06cb18aa223",
+    "input": [
+      {
+        "type": "text",
+        "text": "Caller disposition of prior-cloud-protection-gap.json: include the exact eleven additional entries listed there as well as the five T011 entries in ADDITIONAL_PROTECTIONS. My earlier five-only restriction came from incomplete diagnosis; your Git comparison shows the prior approved cloud-verification delta (ebf77988\u2192f0f269ef), no removals and no other invariant-field changes. Existing user approval already covers those implemented protected cloud contracts/registry/collectors; this is only reconciling the existing strict regression with the full exact approved16-path delta, not new guard behavior or a procedural exception. Keep original UNRELATED_SHA256 immutable, preserve all negative controls, actually execute count/remove/duplicate for all16, arbitrary-extra and unrelated-field rejection. Record both historical delta sets and honest five-only failure before the corrected PASS. Finish actual host-preflight and supplemental rollback/reapply Green; no need to ask user for this routine integration fix. Keep both frozen original implementation reports and source guard/projections unchanged."
+      }
+    ]
+  }
+}

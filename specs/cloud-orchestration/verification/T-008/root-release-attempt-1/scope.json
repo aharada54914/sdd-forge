@@ -1,0 +1,13 @@
+{
+  "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+  "run_id": 39155983283,
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39155983283",
+  "status": "failed checks observed; run still in progress",
+  "findings": [
+    "Native Windows checkout fails on frozen evidence path length",
+    "MCP real-repository parser rejects twelve newly added descriptive ticket_id values; keep strict existing contract",
+    "Two existing release-runbook heading fragment links unresolved"
+  ],
+  "artifact_provenance": "Job metadata/annotations via authenticated gh REST; actual decoded logs via GitHub connector (CLI redirected log download returned Forbidden; signed redirect URLs remain private and are not published).",
+  "tag_published": false
+}

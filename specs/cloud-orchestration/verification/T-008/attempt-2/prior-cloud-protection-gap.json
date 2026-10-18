@@ -1,0 +1,22 @@
+{
+  "baseline_commit": "ebf77988",
+  "prior_cloud_commit": "f0f269ef",
+  "added": [
+    "plugins/sdd-quality-loop/references/cloud-verification-registry.json",
+    "plugins/sdd-quality-loop/scripts/cloud_verification.py",
+    "plugins/sdd-quality-loop/scripts/cloud_contracts.py",
+    "plugins/sdd-azure-cloud/scripts/azure_observation.py",
+    "plugins/sdd-aws-cloud/scripts/aws_observation.py",
+    "contracts/verification-contract-v3.schema.json",
+    "plugins/sdd-quality-loop/contracts/verification-contract-v3.schema.json",
+    "contracts/selected-verification-plan-v2.schema.json",
+    "plugins/sdd-quality-loop/contracts/selected-verification-plan-v2.schema.json",
+    "contracts/cloud-verification-registry.schema.json",
+    "plugins/sdd-quality-loop/contracts/cloud-verification-registry.schema.json"
+  ],
+  "removed": [],
+  "other_fields_unchanged": true,
+  "unchanged_test_baseline_sha256": "ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9",
+  "after_five_only_actual_sha256": "fa9cabb7f68e92decf8aec218f5c9981389cbb3f63793e5c348878531c609096",
+  "approval": "requested; no additional edits yet"
+}

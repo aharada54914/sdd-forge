@@ -1,0 +1,50 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "session_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "agent_instance_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T19:05:39Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "classification/scripts/validate-a9-candidate.py",
+      "sha256": "e11d039fa149600feaed612d7495a7789ea0ae754f2e9f0aad18cfa9972d5aca"
+    },
+    {
+      "path": "classification/tests/a9-dogfood.tests.py",
+      "sha256": "d92f95c030cecc37334f25376a0dbb7908996c9bff8498a5aba1ae7ecb0e01c3"
+    },
+    {
+      "path": "classification/specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+      "sha256": "eb2699721c01c9f0fd69c615d2d0fd74e152a57de640a3098e50afe381aacb4d"
+    },
+    {
+      "path": "classification/plugins/sdd-azure-cloud/scripts/azure_governed.py",
+      "sha256": "c919c2fe44f462db08ccfd5f766b7635ae3e9eb4bf416bac96e2c9ded1509bc8"
+    },
+    {
+      "path": "classification/plugins/sdd-aws-cloud/scripts/aws_governed.py",
+      "sha256": "94f9f9c07aee2de6bb1e7229c0244cde7423441d59b813cc8c426e2a71943ff0"
+    },
+    {
+      "path": "classification/plugins/sdd-aws-cloud/scripts/aws_control.py",
+      "sha256": "92842d7174dbb0bc8ba3ad796fd8a3bd7f46ed91178dfa80bbc6558762523d67"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/agent-model-routing.tests.sh",
+    "scripts/validate-a9-candidate.py",
+    "tests/a9-dogfood.tests.py",
+    "specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+    "specs/cloud-orchestration/verification/T-008/attempt-2/",
+    "reports/implementation/cloud-orchestration/T-008-release-fixes.md"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "thread_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "session_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "turn": {
+    "id": "01a1505e-484d-7211-b522-d06cb18aa223",
+    "items": [
+      {
+        "type": "agentMessage",
+        "id": "msg_0dc516bd6d701628016ad51a4115f48191af90667d18c09579",
+        "text": "T-008 repairs are ready for root review.\n\n- MCP, A9, host-preflight, configured Ruff/mypy, and rollback/reapply checks passed.\n- Frozen evidence and canonical report preserved; no commits, status changes, or cloud actions.\n- Native Windows proof and full-repository CI remain root-owned.\n\nReport: `reports/implementation/cloud-orchestration/T-008-release-fixes.md`",
+        "phase": "final_answer",
+        "memoryCitation": null,
+        "delivery": null,
+        "questions": null
+      }
+    ],
+    "itemsView": "summary",
+    "status": "completed",
+    "error": null,
+    "startedAt": 1792349718,
+    "completedAt": 1792350786,
+    "durationMs": 1067878
+  }
+}

@@ -1,0 +1,9 @@
+Changed only the test matrix timeout to 45 minutes and its rationale comment.
+
+- Existing checks passed before/after and rollback/reapply.
+- Manifest and report validators passed.
+- Frozen reports preserved; no commits or status changes.
+
+Report: `reports/implementation/cloud-orchestration/T-008-ci-time-budget.md`
+
+Full suites/native CI remain root-owned; 45 minutes is an allowance, not proven completion.

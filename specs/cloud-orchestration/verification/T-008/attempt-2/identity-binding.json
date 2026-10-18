@@ -1,0 +1,14 @@
+{
+  "run_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "session_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "agent_instance_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "model_tier": "strong",
+  "identity_source": "caller-supplied identity; stable native thread/start allocation",
+  "native_allocation_path": "specs/cloud-orchestration/verification/T-008/attempt-2/native-allocation.json",
+  "native_allocation_sha256": "96e5d66a93afa08aba84770914a14c2e8305f8f19bfefcd50cc2a52ae71486bf",
+  "scratch_root": "/tmp/T008-release-01a1505e",
+  "base_revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7"
+}

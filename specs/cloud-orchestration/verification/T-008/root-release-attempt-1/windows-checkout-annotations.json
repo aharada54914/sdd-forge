@@ -1,0 +1,26 @@
+[
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/aharada54914/sdd-forge/blob/3017aca56ca3b96ad3cbbc8217f949bedba2d1a7/.github",
+    "start_line": 195,
+    "start_column": null,
+    "end_line": 195,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "The process 'C:\\Program Files\\Git\\bin\\git.exe' failed with exit code 1",
+    "raw_details": ""
+  },
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/aharada54914/sdd-forge/blob/3017aca56ca3b96ad3cbbc8217f949bedba2d1a7/.github",
+    "start_line": 157,
+    "start_column": null,
+    "end_line": 157,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "unable to create file specs/cloud-orchestration/verification/T-012/attempt-2/evidence/pre-reconcile-fix/execution-fixture/specs/cloud-orchestration/verification/T-004/cloud/synthetic-run/synthetic-unit/synthetic-unit.prepare.prepare-what-if.authorization.json: Filename too long",
+    "raw_details": ""
+  }
+]

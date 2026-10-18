@@ -1,0 +1,31 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "session_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "agent_instance_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T19:05:19Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "host-complete/tests/host-review-preflight.tests.py",
+      "sha256": "aa24e3e99292418ab3de44f3eccdcaa1d80d6cdb271b680203ab78cb53d40ebd"
+    },
+    {
+      "path": "host-complete/specs/cloud-orchestration/verification/T-008/attempt-2/prior-cloud-protection-gap.json",
+      "sha256": "76bacf2abd6bfb524732e7b812616602d04786995925992b2d8e0da347cc93e5"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/host-review-preflight.tests.py",
+    "specs/cloud-orchestration/verification/T-008/attempt-2/",
+    "reports/implementation/cloud-orchestration/T-008-release-fixes.md"
+  ]
+}

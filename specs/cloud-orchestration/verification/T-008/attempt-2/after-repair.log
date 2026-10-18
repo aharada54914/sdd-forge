@@ -1,0 +1,6 @@
+Linux nested Git config: command line:	true; NOT native Windows proof
+PASS workflow YAML: only workflow-level Git environment changes; all jobs preserved
+73 unique tickets; 12 ID-only corrections
+PASS ticket IDs: unique numeric values; only ticket_id bytes change
+Two actual heading references and all local file links resolve
+PASS release runbook actual local files and heading anchors

@@ -1,0 +1,7 @@
+T-008 repairs are ready for root review.
+
+- MCP, A9, host-preflight, configured Ruff/mypy, and rollback/reapply checks passed.
+- Frozen evidence and canonical report preserved; no commits, status changes, or cloud actions.
+- Native Windows proof and full-repository CI remain root-owned.
+
+Report: `reports/implementation/cloud-orchestration/T-008-release-fixes.md`

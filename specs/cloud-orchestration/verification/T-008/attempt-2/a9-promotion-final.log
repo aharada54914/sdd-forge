@@ -1,0 +1,41 @@
+test_actual_existing_publisher_applies_only_three_bound_files (__main__.PromotionTests.test_actual_existing_publisher_applies_only_three_bound_files) ... ok
+test_boolean_disposition_id_is_not_integer_pr_identity (__main__.PromotionTests.test_boolean_disposition_id_is_not_integer_pr_identity) ... ok
+test_bound_input_tamper_rejected (__main__.PromotionTests.test_bound_input_tamper_rejected) ... ok
+test_compatibility_skip_or_failure_rejected (__main__.PromotionTests.test_compatibility_skip_or_failure_rejected) ... ok
+test_cross_runtime_output_tamper_rejected (__main__.PromotionTests.test_cross_runtime_output_tamper_rejected) ... ok
+test_current_consumer_drift_invalidates_signed_old_proof (__main__.PromotionTests.test_current_consumer_drift_invalidates_signed_old_proof) ... ok
+test_duplicate_json_and_private_diagnostics (__main__.PromotionTests.test_duplicate_json_and_private_diagnostics) ... ok
+test_extra_publication_target_rejected (__main__.PromotionTests.test_extra_publication_target_rejected) ... ok
+test_false_positive_without_wfi_rejected (__main__.PromotionTests.test_false_positive_without_wfi_rejected) ... ok
+test_findings_cannot_omit_raw_export_items (__main__.PromotionTests.test_findings_cannot_omit_raw_export_items) ... ok
+test_forged_native_proof_is_blocked_with_private_cli_diagnostics (__main__.PromotionTests.test_forged_native_proof_is_blocked_with_private_cli_diagnostics) ... ok
+test_full_signed_readonly_admission (__main__.PromotionTests.test_full_signed_readonly_admission) ... ok
+test_future_decision_rejected (__main__.PromotionTests.test_future_decision_rejected) ... ok
+test_handoff_output_cannot_substitute_another_nonce_even_with_hash (__main__.PromotionTests.test_handoff_output_cannot_substitute_another_nonce_even_with_hash) ... ok
+test_host_proof_must_precede_the_human_decision (__main__.PromotionTests.test_host_proof_must_precede_the_human_decision) ... ok
+test_incomplete_cross_runtime_rejected (__main__.PromotionTests.test_incomplete_cross_runtime_rejected) ... ok
+test_legacy_pass_claim_without_signed_host_evidence_is_rejected (__main__.PromotionTests.test_legacy_pass_claim_without_signed_host_evidence_is_rejected) ... ok
+test_live_anchor_drift_rejected (__main__.PromotionTests.test_live_anchor_drift_rejected) ... ok
+test_missing_hmac_approval_rejected (__main__.PromotionTests.test_missing_hmac_approval_rejected) ... ok
+test_missing_or_forged_decision_does_not_use_valid_context_approval (__main__.PromotionTests.test_missing_or_forged_decision_does_not_use_valid_context_approval) ... ok
+test_missing_platform_compatibility_rejected (__main__.PromotionTests.test_missing_platform_compatibility_rejected) ... ok
+test_native_fractional_session_time_uses_existing_a8_contract (__main__.PromotionTests.test_native_fractional_session_time_uses_existing_a8_contract) ... ok
+test_omitted_observation_rejected (__main__.PromotionTests.test_omitted_observation_rejected) ... ok
+test_powershell_publisher_applies_identical_three_file_contract (__main__.PromotionTests.test_powershell_publisher_applies_identical_three_file_contract) ... ok
+test_proof_cannot_execute_verifier_from_evidence_checkout (__main__.PromotionTests.test_proof_cannot_execute_verifier_from_evidence_checkout) ... ok
+test_proof_roster_cannot_claim_discharge_without_exact_inputs (__main__.PromotionTests.test_proof_roster_cannot_claim_discharge_without_exact_inputs) ... ok
+test_stale_head_rejected (__main__.PromotionTests.test_stale_head_rejected) ... ok
+test_stale_suite_source_rejected (__main__.PromotionTests.test_stale_suite_source_rejected) ... ok
+test_transported_signed_proof_revalidated_without_ledger_write (__main__.PromotionTests.test_transported_signed_proof_revalidated_without_ledger_write) ... ok
+test_unconsumed_or_foreign_nonce_cannot_replay_completed_receipt (__main__.PromotionTests.test_unconsumed_or_foreign_nonce_cannot_replay_completed_receipt) ... ok
+test_unresolved_major_rejected (__main__.PromotionTests.test_unresolved_major_rejected) ... ok
+test_unsigned_rollback_rejected (__main__.PromotionTests.test_unsigned_rollback_rejected) ... ok
+test_untriaged_false_positive_rejected (__main__.PromotionTests.test_untriaged_false_positive_rejected) ... ok
+test_wfi_must_be_committed_and_identify_the_observation (__main__.PromotionTests.test_wfi_must_be_committed_and_identify_the_observation) ... ok
+test_wrong_epoch_even_with_valid_hmac_rejected (__main__.PromotionTests.test_wrong_epoch_even_with_valid_hmac_rejected) ... ok
+test_wrong_signer_is_not_hmac_approver (__main__.PromotionTests.test_wrong_signer_is_not_hmac_approver) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 204.639s
+
+OK

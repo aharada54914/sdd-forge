@@ -1,0 +1,15 @@
+{
+  "revision": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+  "scope": "Changed current Markdown documents; heuristic ATX/HTML anchor inspection, manual disposition required for any candidate",
+  "checked_fragments": 25,
+  "unresolved_candidates": [
+    {
+      "source": "docs/contributor/release-runbook.md",
+      "target": "#release-yml-の-loop-gate-ジョブ"
+    },
+    {
+      "source": "docs/contributor/release-runbook.md",
+      "target": "#release-yml-の-loop-gate-ジョブ"
+    }
+  ]
+}

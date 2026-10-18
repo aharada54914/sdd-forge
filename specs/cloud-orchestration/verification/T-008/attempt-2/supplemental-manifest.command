@@ -1,0 +1,1 @@
+bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/cloud-orchestration/verification/T-008/attempt-2/supplemental-task-input-manifest.json --snapshot-root /tmp/T008-release-01a1505e --expected-task T-008 

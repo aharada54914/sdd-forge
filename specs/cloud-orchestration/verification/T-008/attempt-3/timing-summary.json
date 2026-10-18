@@ -1,0 +1,31 @@
+{
+  "source": "specs/cloud-orchestration/verification/T-008/root-release-attempt-1/native-timing-observation.json",
+  "sha256": "059e0b0bc3d774b3ad828f6f84517f8d0c3ce2c1083d4c51a38a3d96f6af53b9",
+  "observations": [
+    {
+      "job": "test (ubuntu-latest)",
+      "job_status": "in_progress",
+      "job_conclusion": null,
+      "head_sha": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39155983283/job/117759191290",
+      "step": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+      "started_at": "2026-10-18T18:50:34Z",
+      "completed_at": "2026-10-18T19:01:46Z",
+      "seconds": 672.0,
+      "step_conclusion": "success"
+    },
+    {
+      "job": "test (macos-latest)",
+      "job_status": "in_progress",
+      "job_conclusion": null,
+      "head_sha": "3017aca56ca3b96ad3cbbc8217f949bedba2d1a7",
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39155983283/job/117759191215",
+      "step": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+      "started_at": "2026-10-18T18:50:38Z",
+      "completed_at": "2026-10-18T18:58:45Z",
+      "seconds": 487.0,
+      "step_conclusion": "success"
+    }
+  ],
+  "limit": "Captured first-candidate observation only; neither timeout failure nor completed whole-job PASS is asserted."
+}

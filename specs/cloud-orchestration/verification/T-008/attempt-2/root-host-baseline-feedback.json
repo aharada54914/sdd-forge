@@ -1,0 +1,14 @@
+{
+  "id": 900902,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1505e-4688-71b3-9816-af65b714a220",
+    "expectedTurnId": "01a1505e-484d-7211-b522-d06cb18aa223",
+    "input": [
+      {
+        "type": "text",
+        "text": "One more actual CI integration failure, exact log now root-release-attempt-1/host-protection-baseline-failure.log: tests/host-review-preflight.tests.py ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged fails because T011 legitimately added five cloud protected paths. Existing test already has ADDITIONAL_PROTECTIONS and count/remove/duplicate mutation coverage, and immutable UNRELATED_SHA256 ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9. Minimal repair: verify the current invariant delta against prior tree and add only the exact five approved T011 paths to the explicit additional-protection list. Keep UNRELATED_SHA256 unchanged, preserve arbitrary-extra/unrelated-key mutation rejection, and actually execute each existing remove/duplicate negative for the new members. No production guard changes or broad exclusion/rebaseline. Include this existing test and scoped host-preflight suite in the same Task008 supplemental repair scope before final delivery. Root retains all first-candidate failures and will rerun exact new-candidate CI."
+      }
+    ]
+  }
+}

@@ -17,6 +17,12 @@ concurrency:
 permissions:
   contents: read
 
+# Applies before checkout and is inherited by nested Git fixtures on Windows.
+env:
+  GIT_CONFIG_COUNT: "1"
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: "true"
+
 jobs:
   a9-advisory-inputs:
     name: A9 advisory activation detection
@@ -241,8 +247,8 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    # Native macOS regression runs can exceed 30 minutes while making progress.
-    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}
+    # Allow full native regressions plus mandatory cloud coverage (~8-11 extra minutes observed).
+    timeout-minutes: 45
     steps:
       # eval-lane: (none yet)
       - name: "[deterministic] Setup step 1"

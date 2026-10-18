@@ -1,0 +1,287 @@
+PHASE=candidate base=3017aca56ca3b96ad3cbbc8217f949bedba2d1a7
+ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d  /tmp/T008-release-01a1505e/rollback/.github/workflows/test.yml
+0a5ff56974a9003c4f65be874f8b3b81016fd9d45456119a8efe02fb5c101a51  /tmp/T008-release-01a1505e/rollback/docs/contributor/release-runbook.md
+dba3c956b9add51145ac176c71e253bde10c4f3c8c51f12b49baf1fe708f38af  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml
+4c26485003d1df3b49215bbf0cda1fd870c374b27fce4c7671eb53204ee40e78  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml
+9d3844242c7f6c120eb57a1f44eb66b6abdf97c7b228f9de79d12dfa5783221c  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml
+4f3c6c2d52bcca417d9445cdf650f16d29c28288255336ad758388c21ba561b2  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml
+c6a7e4a16d9f214e286d6cdb3cf978474b6ecb24ad0f7e6c17313563f7e61673  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml
+e9a6c58ca6d10fa13a7690b1a99a36c8d4969a2daf41e477ba467cc4889dc09a  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml
+468cf843fd5b0bde2efaa79797a83fcaaaeee408a3f39bc3d1615bb89a3cdef2  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-OWNER.yml
+340593cbb2620fbe8611ae8702792b9897b247d22e3d5bad849a1fc73e603489  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml
+0322d78d83592a1b1a4e2c405daa3ce1552c7113c1e5b6e98ac7e9ac97e84858  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml
+610c48275597834307912ae2d89113adba18f5df9cb5bb3ec7430346a346a017  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml
+4fc66f7a3a83183f7edd966ba51a86008a16cbb186f59c193adf9246fca03e13  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml
+7fb4b1fa6c2a20a4b4c3d7f77979cd71df0a15856412f46f53c4c82de3cb9642  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml
+Linux nested Git config: command line:	true; NOT native Windows proof
+PASS workflow YAML: only workflow-level Git environment changes; all jobs preserved
+73 unique tickets; 12 ID-only corrections
+PASS ticket IDs: unique numeric values; only ticket_id bytes change
+Two actual heading references and all local file links resolve
+PASS release runbook actual local files and heading anchors
+scoped acceptance exit=0 expected=0
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (8.445345ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (79.991029ms)
+✔ synthetic: well-formed ticket parses all optional fields (1.029063ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (0.430419ms)
+✔ cannot-parse: invalid YAML syntax (1.111087ms)
+✔ cannot-parse: missing required fields (0.419733ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (0.401926ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (0.363399ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (1.162374ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 288.088642
+existing MCP tickets exit=0 expected=0
+PHASE=restored base=3017aca56ca3b96ad3cbbc8217f949bedba2d1a7
+48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a  /tmp/T008-release-01a1505e/rollback/.github/workflows/test.yml
+e36c2929985575d742c99d0bd2f5b6b314fecf910ef10f033de415df5e2f70cd  /tmp/T008-release-01a1505e/rollback/docs/contributor/release-runbook.md
+719239cc024035be384c7200fb77df3282d785756dc616b5266a8c9b3dea4081  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml
+d2009263bad0c58e5fa3afa8684dcb7d2009bd97bcada3ab786d38088117641c  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml
+cf91c32fd97061c4555662954b02522ff13c7deb46970263cc8fc011d45aeddf  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml
+8fd6d8297a0a4ec58144ba417da70893ad638e407f03260b2b7a62e35e6464f0  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml
+feb7fbec562c413cd10c304c5ade9c89ef619e2ff9d02c8115a8e874f0814c21  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml
+6fbec50c0f6bf91333910ee20cc47f0dbdc442510c7029fb3401e0284ad32215  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml
+f4a2877f8d0bcefd5f9a5ce151a161011ff2f080c2dca98268e559b1b9bd89e5  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-OWNER.yml
+f0c8d5abadf76e71777be562d2b8dfc34ed7ee314503bd29fab8adbe925774fb  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml
+6f631b1e6fbe9a13a1b6815db8d7a7ae3b2c96babbc7bfd9c73595e9ff08d38d  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml
+a904b950bab27c82b62fa0d5f3dea2a73be622265cab3b93c19d7c30967d2611  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml
+cb0c94aac640dcf8bf49ebea66b2fd357e6a945fdbc257e9d14fc9eb389d6df8  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml
+17ad8d0e1548b563ab28a4bd1d109d6e98967d2341564e90dca4a13ccf2f2490  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml
+FAIL workflow YAML: only workflow-level Git environment changes; all jobs preserved: Expected values to be strictly deep-equal:
++ actual - expected
+
++ undefined
+- {
+-   GIT_CONFIG_COUNT: '1',
+-   GIT_CONFIG_KEY_0: 'core.longpaths',
+-   GIT_CONFIG_VALUE_0: 'true'
+- }
+
+FAIL ticket IDs: unique numeric values; only ticket_id bytes change: The input did not match the regular expression /^RT-[0-9]{8}-[0-9]{3}$/. Input:
+
+'RT-20261018-CLOUD-ALARM-NUMERIC'
+
+FAIL release runbook actual local files and heading anchors: #release-yml-の-loop-gate-ジョブ
+scoped acceptance exit=1 expected=1
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (10.089717ms)
+✖ real repo: listReviewTickets finds at least one ticket and no failures (71.812446ms)
+✔ synthetic: well-formed ticket parses all optional fields (1.766606ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (1.422396ms)
+✔ cannot-parse: invalid YAML syntax (0.844345ms)
+✔ cannot-parse: missing required fields (0.521117ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (0.387815ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (0.387445ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (0.773648ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 211.120244
+
+✖ failing tests:
+
+test at dist-test/tests/parsers-state/review-ticket.test.js:24:1
+✖ real repo: listReviewTickets finds at least one ticket and no failures (71.812446ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ALARM-NUMERIC (docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS (docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-CONTRACT (docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-DEPENDENCY-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME (docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-OWNER (docs/review-tickets/RT-20261018-CLOUD-OWNER.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREVIEW-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ROUTING-GUARD (docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-SANDBOX (docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-T009-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///tmp/T008-release-01a1505e/rollback/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/review-ticket.test.js:28:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml', error: [Object] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+existing MCP tickets exit=1 expected=1
+PHASE=reapplied base=3017aca56ca3b96ad3cbbc8217f949bedba2d1a7
+ef3e4de5d23ce794bc434766055e3c975c414a4834ff394026b523ae1ffe086d  /tmp/T008-release-01a1505e/rollback/.github/workflows/test.yml
+0a5ff56974a9003c4f65be874f8b3b81016fd9d45456119a8efe02fb5c101a51  /tmp/T008-release-01a1505e/rollback/docs/contributor/release-runbook.md
+dba3c956b9add51145ac176c71e253bde10c4f3c8c51f12b49baf1fe708f38af  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml
+4c26485003d1df3b49215bbf0cda1fd870c374b27fce4c7671eb53204ee40e78  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml
+9d3844242c7f6c120eb57a1f44eb66b6abdf97c7b228f9de79d12dfa5783221c  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml
+4f3c6c2d52bcca417d9445cdf650f16d29c28288255336ad758388c21ba561b2  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml
+c6a7e4a16d9f214e286d6cdb3cf978474b6ecb24ad0f7e6c17313563f7e61673  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml
+e9a6c58ca6d10fa13a7690b1a99a36c8d4969a2daf41e477ba467cc4889dc09a  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml
+468cf843fd5b0bde2efaa79797a83fcaaaeee408a3f39bc3d1615bb89a3cdef2  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-OWNER.yml
+340593cbb2620fbe8611ae8702792b9897b247d22e3d5bad849a1fc73e603489  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml
+0322d78d83592a1b1a4e2c405daa3ce1552c7113c1e5b6e98ac7e9ac97e84858  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml
+610c48275597834307912ae2d89113adba18f5df9cb5bb3ec7430346a346a017  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml
+4fc66f7a3a83183f7edd966ba51a86008a16cbb186f59c193adf9246fca03e13  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml
+7fb4b1fa6c2a20a4b4c3d7f77979cd71df0a15856412f46f53c4c82de3cb9642  /tmp/T008-release-01a1505e/rollback/docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml
+Linux nested Git config: command line:	true; NOT native Windows proof
+PASS workflow YAML: only workflow-level Git environment changes; all jobs preserved
+73 unique tickets; 12 ID-only corrections
+PASS ticket IDs: unique numeric values; only ticket_id bytes change
+Two actual heading references and all local file links resolve
+PASS release runbook actual local files and heading anchors
+scoped acceptance exit=0 expected=0
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (13.473976ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (98.927801ms)
+✔ synthetic: well-formed ticket parses all optional fields (1.13298ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (0.425863ms)
+✔ cannot-parse: invalid YAML syntax (6.303343ms)
+✔ cannot-parse: missing required fields (0.599075ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (0.46337ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (0.366593ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (4.244276ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 356.457834
+existing MCP tickets exit=0 expected=0

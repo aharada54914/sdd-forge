@@ -1,0 +1,257 @@
+2026-10-18T18:51:25.6564168Z # Subtest: real repo: listReviewTickets finds at least one ticket and no failures
+2026-10-18T18:51:25.6565388Z not ok 174 - real repo: listReviewTickets finds at least one ticket and no failures
+2026-10-18T18:51:25.6566108Z   ---
+2026-10-18T18:51:25.6566676Z   duration_ms: 80.73819
+2026-10-18T18:51:25.6567073Z   type: 'test'
+2026-10-18T18:51:25.6568115Z   location: '/home/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/review-ticket.test.js:24:1'
+2026-10-18T18:51:25.6569217Z   failureType: 'testCodeFailure'
+2026-10-18T18:51:25.6569666Z   error: |-
+2026-10-18T18:51:25.6570111Z     Expected values to be strictly deep-equal:
+2026-10-18T18:51:25.6570645Z     + actual - expected
+2026-10-18T18:51:25.6571022Z     
+2026-10-18T18:51:25.6571325Z     + [
+2026-10-18T18:51:25.6571639Z     +   {
+2026-10-18T18:51:25.6571968Z     +     error: {
+2026-10-18T18:51:25.6572382Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6572822Z     +       details: {
+2026-10-18T18:51:25.6573471Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml',
+2026-10-18T18:51:25.6574200Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6574654Z     +       },
+2026-10-18T18:51:25.6575952Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ALARM-NUMERIC (docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml)'
+2026-10-18T18:51:25.6577485Z     +     },
+2026-10-18T18:51:25.6578074Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml'
+2026-10-18T18:51:25.6578707Z     +   },
+2026-10-18T18:51:25.6579024Z     +   {
+2026-10-18T18:51:25.6579345Z     +     error: {
+2026-10-18T18:51:25.6579768Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6580210Z     +       details: {
+2026-10-18T18:51:25.6580899Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml',
+2026-10-18T18:51:25.6581676Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6582130Z     +       },
+2026-10-18T18:51:25.6583547Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS (docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml)'
+2026-10-18T18:51:25.6585122Z     +     },
+2026-10-18T18:51:25.6585761Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml'
+2026-10-18T18:51:25.6586652Z     +   },
+2026-10-18T18:51:25.6586973Z     +   {
+2026-10-18T18:51:25.6587309Z     +     error: {
+2026-10-18T18:51:25.6587721Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6588157Z     +       details: {
+2026-10-18T18:51:25.6588760Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml',
+2026-10-18T18:51:25.6589445Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6589894Z     +       },
+2026-10-18T18:51:25.6591085Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-CONTRACT (docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml)'
+2026-10-18T18:51:25.6592239Z     +     },
+2026-10-18T18:51:25.6592784Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml'
+2026-10-18T18:51:25.6593390Z     +   },
+2026-10-18T18:51:25.6593708Z     +   {
+2026-10-18T18:51:25.6594028Z     +     error: {
+2026-10-18T18:51:25.6594441Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6594874Z     +       details: {
+2026-10-18T18:51:25.6595540Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml',
+2026-10-18T18:51:25.6596517Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6596982Z     +       },
+2026-10-18T18:51:25.6598527Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-DEPENDENCY-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml)'
+2026-10-18T18:51:25.6599828Z     +     },
+2026-10-18T18:51:25.6600444Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml'
+2026-10-18T18:51:25.6601093Z     +   },
+2026-10-18T18:51:25.6601414Z     +   {
+2026-10-18T18:51:25.6601728Z     +     error: {
+2026-10-18T18:51:25.6602138Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6602565Z     +       details: {
+2026-10-18T18:51:25.6603155Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml',
+2026-10-18T18:51:25.6603822Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6604266Z     +       },
+2026-10-18T18:51:25.6605428Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml)'
+2026-10-18T18:51:25.6606850Z     +     },
+2026-10-18T18:51:25.6607391Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml'
+2026-10-18T18:51:25.6607976Z     +   },
+2026-10-18T18:51:25.6608294Z     +   {
+2026-10-18T18:51:25.6608610Z     +     error: {
+2026-10-18T18:51:25.6609026Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6609463Z     +       details: {
+2026-10-18T18:51:25.6610193Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml',
+2026-10-18T18:51:25.6611017Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6611462Z     +       },
+2026-10-18T18:51:25.6612946Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME (docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml)'
+2026-10-18T18:51:25.6614371Z     +     },
+2026-10-18T18:51:25.6615039Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml'
+2026-10-18T18:51:25.6615740Z     +   },
+2026-10-18T18:51:25.6616060Z     +   {
+2026-10-18T18:51:25.6616606Z     +     error: {
+2026-10-18T18:51:25.6617027Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6617475Z     +       details: {
+2026-10-18T18:51:25.6618519Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml',
+2026-10-18T18:51:25.6619184Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6619639Z     +       },
+2026-10-18T18:51:25.6620778Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-OWNER (docs/review-tickets/RT-20261018-CLOUD-OWNER.yml)'
+2026-10-18T18:51:25.6621870Z     +     },
+2026-10-18T18:51:25.6622634Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml'
+2026-10-18T18:51:25.6623199Z     +   },
+2026-10-18T18:51:25.6623510Z     +   {
+2026-10-18T18:51:25.6623828Z     +     error: {
+2026-10-18T18:51:25.6624244Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6624668Z     +       details: {
+2026-10-18T18:51:25.6625270Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml',
+2026-10-18T18:51:25.6625955Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6626611Z     +       },
+2026-10-18T18:51:25.6627907Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml)'
+2026-10-18T18:51:25.6629080Z     +     },
+2026-10-18T18:51:25.6629626Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml'
+2026-10-18T18:51:25.6630209Z     +   },
+2026-10-18T18:51:25.6630530Z     +   {
+2026-10-18T18:51:25.6630849Z     +     error: {
+2026-10-18T18:51:25.6631266Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6631696Z     +       details: {
+2026-10-18T18:51:25.6632339Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml',
+2026-10-18T18:51:25.6633055Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6633501Z     +       },
+2026-10-18T18:51:25.6634789Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREVIEW-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml)'
+2026-10-18T18:51:25.6636204Z     +     },
+2026-10-18T18:51:25.6637009Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml'
+2026-10-18T18:51:25.6637640Z     +   },
+2026-10-18T18:51:25.6637947Z     +   {
+2026-10-18T18:51:25.6638273Z     +     error: {
+2026-10-18T18:51:25.6638681Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6639119Z     +       details: {
+2026-10-18T18:51:25.6639763Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml',
+2026-10-18T18:51:25.6640502Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6640952Z     +       },
+2026-10-18T18:51:25.6642229Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ROUTING-GUARD (docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml)'
+2026-10-18T18:51:25.6643437Z     +     },
+2026-10-18T18:51:25.6644017Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml'
+2026-10-18T18:51:25.6644630Z     +   },
+2026-10-18T18:51:25.6644944Z     +   {
+2026-10-18T18:51:25.6645275Z     +     error: {
+2026-10-18T18:51:25.6645685Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6646122Z     +       details: {
+2026-10-18T18:51:25.6646975Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml',
+2026-10-18T18:51:25.6647658Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6648102Z     +       },
+2026-10-18T18:51:25.6649284Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-SANDBOX (docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml)'
+2026-10-18T18:51:25.6650408Z     +     },
+2026-10-18T18:51:25.6650950Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml'
+2026-10-18T18:51:25.6651528Z     +   },
+2026-10-18T18:51:25.6651840Z     +   {
+2026-10-18T18:51:25.6652154Z     +     error: {
+2026-10-18T18:51:25.6652560Z     +       code: 'cannot-parse',
+2026-10-18T18:51:25.6652994Z     +       details: {
+2026-10-18T18:51:25.6653633Z     +         file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml',
+2026-10-18T18:51:25.6654360Z     +         rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6654810Z     +       },
+2026-10-18T18:51:25.6656105Z     +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-T009-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml)'
+2026-10-18T18:51:25.6657539Z     +     },
+2026-10-18T18:51:25.6658139Z     +     file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml'
+2026-10-18T18:51:25.6659050Z     +   }
+2026-10-18T18:51:25.6659363Z     + ]
+2026-10-18T18:51:25.6659685Z     - []
+2026-10-18T18:51:25.6659990Z     
+2026-10-18T18:51:25.6660321Z   code: 'ERR_ASSERTION'
+2026-10-18T18:51:25.6660728Z   name: 'AssertionError'
+2026-10-18T18:51:25.6661128Z   expected:
+2026-10-18T18:51:25.6661454Z   actual:
+2026-10-18T18:51:25.6661760Z     0:
+2026-10-18T18:51:25.6662332Z       file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml'
+2026-10-18T18:51:25.6662951Z       error:
+2026-10-18T18:51:25.6663321Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6664677Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ALARM-NUMERIC (docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml)'
+2026-10-18T18:51:25.6665903Z         details:
+2026-10-18T18:51:25.6666704Z           file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml'
+2026-10-18T18:51:25.6667421Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6667854Z     1:
+2026-10-18T18:51:25.6668467Z       file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml'
+2026-10-18T18:51:25.6669157Z       error:
+2026-10-18T18:51:25.6669505Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6670968Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS (docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml)'
+2026-10-18T18:51:25.6672305Z         details:
+2026-10-18T18:51:25.6672948Z           file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml'
+2026-10-18T18:51:25.6673862Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6674311Z     2:
+2026-10-18T18:51:25.6674822Z       file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml'
+2026-10-18T18:51:25.6675405Z       error:
+2026-10-18T18:51:25.6675761Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6677204Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-CONTRACT (docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml)'
+2026-10-18T18:51:25.6678377Z         details:
+2026-10-18T18:51:25.6678940Z           file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml'
+2026-10-18T18:51:25.6679589Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6680009Z     3:
+2026-10-18T18:51:25.6680601Z       file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml'
+2026-10-18T18:51:25.6681242Z       error:
+2026-10-18T18:51:25.6681591Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6683011Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-DEPENDENCY-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml)'
+2026-10-18T18:51:25.6684299Z         details:
+2026-10-18T18:51:25.6684923Z           file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml'
+2026-10-18T18:51:25.6685651Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6686073Z     4:
+2026-10-18T18:51:25.6686762Z       file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml'
+2026-10-18T18:51:25.6687330Z       error:
+2026-10-18T18:51:25.6687697Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6688913Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml)'
+2026-10-18T18:51:25.6690016Z         details:
+2026-10-18T18:51:25.6690561Z           file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml'
+2026-10-18T18:51:25.6691202Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6691626Z     5:
+2026-10-18T18:51:25.6692296Z       file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml'
+2026-10-18T18:51:25.6693005Z       error:
+2026-10-18T18:51:25.6693355Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6694919Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME (docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml)'
+2026-10-18T18:51:25.6696507Z         details:
+2026-10-18T18:51:25.6697289Z           file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml'
+2026-10-18T18:51:25.6698321Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6698752Z     6:
+2026-10-18T18:51:25.6699256Z       file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml'
+2026-10-18T18:51:25.6699819Z       error:
+2026-10-18T18:51:25.6700171Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6701369Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-OWNER (docs/review-tickets/RT-20261018-CLOUD-OWNER.yml)'
+2026-10-18T18:51:25.6702489Z         details:
+2026-10-18T18:51:25.6703020Z           file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml'
+2026-10-18T18:51:25.6703651Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6704076Z     7:
+2026-10-18T18:51:25.6704601Z       file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml'
+2026-10-18T18:51:25.6705181Z       error:
+2026-10-18T18:51:25.6705536Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6707067Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml)'
+2026-10-18T18:51:25.6708268Z         details:
+2026-10-18T18:51:25.6708846Z           file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml'
+2026-10-18T18:51:25.6709511Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6709936Z     8:
+2026-10-18T18:51:25.6710505Z       file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml'
+2026-10-18T18:51:25.6711136Z       error:
+2026-10-18T18:51:25.6711677Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6713064Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREVIEW-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml)'
+2026-10-18T18:51:25.6714307Z         details:
+2026-10-18T18:51:25.6714920Z           file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml'
+2026-10-18T18:51:25.6715626Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6716057Z     9:
+2026-10-18T18:51:25.6716833Z       file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml'
+2026-10-18T18:51:25.6717476Z       error:
+2026-10-18T18:51:25.6717830Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6719196Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ROUTING-GUARD (docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml)'
+2026-10-18T18:51:25.6720426Z         details:
+2026-10-18T18:51:25.6721020Z           file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml'
+2026-10-18T18:51:25.6721720Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6722158Z     10:
+2026-10-18T18:51:25.6722670Z       file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml'
+2026-10-18T18:51:25.6723247Z       error:
+2026-10-18T18:51:25.6723608Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6724852Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-SANDBOX (docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml)'
+2026-10-18T18:51:25.6725965Z         details:
+2026-10-18T18:51:25.6726693Z           file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml'
+2026-10-18T18:51:25.6727359Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6727865Z     11:
+2026-10-18T18:51:25.6728432Z       file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml'
+2026-10-18T18:51:25.6729052Z       error:
+2026-10-18T18:51:25.6729405Z         code: 'cannot-parse'
+2026-10-18T18:51:25.6730766Z         message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-T009-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml)'
+2026-10-18T18:51:25.6732003Z         details:
+2026-10-18T18:51:25.6732622Z           file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml'
+2026-10-18T18:51:25.6733317Z           rule: 'ticket-id-shape'
+2026-10-18T18:51:25.6733786Z   operator: 'deepStrictEqual'
+2026-10-18T18:51:25.6734208Z   stack: |-
+2026-10-18T18:51:25.6735409Z     TestContext.<anonymous> (file:///home/runner/work/sdd-forge/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/review-ticket.test.js:28:12)
+2026-10-18T18:51:25.6737148Z     Test.runInAsyncScope (node:async_hooks:214:14)
+2026-10-18T18:51:25.6737831Z     Test.run (node:internal/test_runner/test:1047:25)
+2026-10-18T18:51:25.6738661Z     Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+2026-10-18T18:51:25.6739512Z     Test.postRun (node:internal/test_runner/test:1173:19)
+2026-10-18T18:51:25.6740205Z     Test.run (node:internal/test_runner/test:1101:12)
+2026-10-18T18:51:25.6741081Z     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+2026-10-18T18:51:25.6741793Z   ...

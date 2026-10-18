@@ -1,0 +1,90 @@
+{
+  "remaining_task_owned_processes": [
+    {
+      "pid": 2801604,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2801657,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2801702,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2837106,
+      "pgid": 2770415,
+      "comm": "python3"
+    },
+    {
+      "pid": 2838018,
+      "pgid": 2770415,
+      "comm": "python3"
+    },
+    {
+      "pid": 2871126,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2871600,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2878760,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2879967,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2880588,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 2880996,
+      "pgid": 2770418,
+      "comm": "bash"
+    },
+    {
+      "pid": 3150195,
+      "pgid": 2770414,
+      "comm": "sed"
+    },
+    {
+      "pid": 3161521,
+      "pgid": 2770414,
+      "comm": "sed"
+    },
+    {
+      "pid": 3174501,
+      "pgid": 2770414,
+      "comm": "sed"
+    },
+    {
+      "pid": 3174512,
+      "pgid": 2770414,
+      "comm": "sed"
+    },
+    {
+      "pid": 3179043,
+      "pgid": 2770414,
+      "comm": "sed"
+    },
+    {
+      "pid": 3182302,
+      "pgid": 2770418,
+      "comm": "pwsh"
+    }
+  ],
+  "action": "SIGTERM to remaining verified task groups only"
+}

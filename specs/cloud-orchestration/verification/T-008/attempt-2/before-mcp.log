@@ -1,0 +1,179 @@
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (9.067676ms)
+✖ real repo: listReviewTickets finds at least one ticket and no failures (53.890001ms)
+✔ synthetic: well-formed ticket parses all optional fields (0.92073ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (0.472784ms)
+✔ cannot-parse: invalid YAML syntax (0.929673ms)
+✔ cannot-parse: missing required fields (0.481196ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (0.401997ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (1.984215ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (0.875932ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.832347
+
+✖ failing tests:
+
+test at dist-test/tests/parsers-state/review-ticket.test.js:24:1
+✖ real repo: listReviewTickets finds at least one ticket and no failures (53.890001ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ALARM-NUMERIC (docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS (docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-CONTRACT (docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-DEPENDENCY-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME (docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-OWNER (docs/review-tickets/RT-20261018-CLOUD-OWNER.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-PREVIEW-EXPIRY (docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-ROUTING-GUARD (docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-SANDBOX (docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml'
+  +   },
+  +   {
+  +     error: {
+  +       code: 'cannot-parse',
+  +       details: {
+  +         file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml',
+  +         rule: 'ticket-id-shape'
+  +       },
+  +       message: 'Review ticket ticket_id does not match RT-YYYYMMDD-NNN: RT-20261018-CLOUD-T009-PREFLIGHT (docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml)'
+  +     },
+  +     file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/review-ticket.test.js:28:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { file: 'docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-OWNER.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml', error: [Object] }, { file: 'docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml', error: [Object] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,15 @@
+FAIL workflow YAML: only workflow-level Git environment changes; all jobs preserved: Expected values to be strictly deep-equal:
++ actual - expected
+
++ undefined
+- {
+-   GIT_CONFIG_COUNT: '1',
+-   GIT_CONFIG_KEY_0: 'core.longpaths',
+-   GIT_CONFIG_VALUE_0: 'true'
+- }
+
+FAIL ticket IDs: unique numeric values; only ticket_id bytes change: The input did not match the regular expression /^RT-[0-9]{8}-[0-9]{3}$/. Input:
+
+'RT-20261018-CLOUD-ALARM-NUMERIC'
+
+FAIL release runbook actual local files and heading anchors: #release-yml-の-loop-gate-ジョブ

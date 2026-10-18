@@ -1,0 +1,13 @@
+--- entry/.github/workflows/test.yml
++++ candidate/.github/workflows/test.yml
+@@ -247,8 +247,8 @@
+       matrix:
+         os: [windows-latest, macos-latest, ubuntu-latest]
+     runs-on: ${{ matrix.os }}
+-    # Native macOS regression runs can exceed 30 minutes while making progress.
+-    timeout-minutes: ${{ matrix.os == 'macos-latest' && 40 || 30 }}
++    # Allow full native regressions plus mandatory cloud coverage (~8-11 extra minutes observed).
++    timeout-minutes: 45
+     steps:
+       # eval-lane: (none yet)
+       - name: "[deterministic] Setup step 1"

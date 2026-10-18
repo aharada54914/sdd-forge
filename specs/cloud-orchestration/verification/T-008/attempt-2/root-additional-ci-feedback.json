@@ -1,0 +1,14 @@
+{
+  "id": 900901,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1505e-4688-71b3-9816-af65b714a220",
+    "expectedTurnId": "01a1505e-484d-7211-b522-d06cb18aa223",
+    "input": [
+      {
+        "type": "text",
+        "text": "Two more actual first-candidate integration failures surfaced; include them in this same T008 repair before delivery, preserving an explicit supplemental input/scope manifest before new edits if needed. (A) Existing tests/agent-model-routing.tests.sh hardcodes old GPT5.2-only documentation rows at111/122 and now fails because approved T008 guidance is registry-driven including gpt6astra. Root saved real failure to root-release-attempt-1/agent-model-routing-failure.log. Update the existing precise doc-consistency assertions and applicable consumers to truthful current registry/role guidance; preserve tier/effort/availability/fallback controls and add a real existing-selector GPT6 case if absent. Do not revert approved GPT6-compatible guidance or relax selection contracts. (B) Actual version-gates Ubuntu job117759191162 fails tests/a9-dogfood.tests.py because the nonactivated candidate specs/epic-197-a9-dogfood/candidate/project-context.yaml has no owners for the two new provider directories and templates/cloud. Exact log root-release-attempt-1/a9-candidate-failure.log. Read scripts/validate-a9-candidate.py and all current candidate consumers. Keep the candidate UNACTIVATED with no live sdd/project-context.yaml/sidecar/promotion, preserve frozen A9 specs/reports and unrelated pending bundles. Add precise ownership/classification for the two approved cloud plugin packages and templates/cloud (not broad plugin/root catchalls or exclusions), updating the strict current expected inventory/checks and current nonfrozen documentation/addendum as necessary. Prior nine components must remain intact; current cloud addition is user-approved scope, not a license to admit arbitrary components or activate A9. Never weaken complete nonoverlapping tracked ownership, classification, mutation negatives or required/advisory tuples. Record the current-tree registration update as a cloud release integration addendum rather than editing frozen historical nine-component design assertions. Run actual A9 candidate/Pack/promotion regressions for the current tracked tree and scoped missing-component/owner/classification controls. Keep Root ticket900/history and this additional failure evidence. Root final full suite and native CI still decide. If a true new authority/spec change is required, isolate the exact blocker instead of guessing; routine current inventory consistency for already approved cloud directories is authorized."
+      }
+    ]
+  }
+}

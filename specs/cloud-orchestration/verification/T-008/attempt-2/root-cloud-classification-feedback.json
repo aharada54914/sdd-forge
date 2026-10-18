@@ -1,0 +1,14 @@
+{
+  "id": 900904,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1505e-4688-71b3-9816-af65b714a220",
+    "expectedTurnId": "01a1505e-484d-7211-b522-d06cb18aa223",
+    "input": [
+      {
+        "type": "text",
+        "text": "Current candidate classification review: the two cloud plugin components must include credential_material in data_classification, in addition to repository_content/workflow_evidence, because governed provider code actually handles protected credentials (azure_governed.py303-304 and aws_governed.py381-382 consume ACTIONS_ID_TOKEN_REQUEST_TOKEN; aws_control.py76 constructs Authorization with runtime.github_token). The analogous existing quality-loop and MCP components already classify handled credentials this way. Reflect the actual already-approved runtime behavior in the new candidate and strict validator expected tuples; preserve old9 component records and exactly existing override set/noactivation. This is truthful classification of existing cloud code, not additional credential authority. Include per-cloud-component wrong/missing classification negatives. Keep precise templates/cloud bounded ownership; that choice looks appropriate. Update your current-inventory addendum so it does not claim cloud components are repository/evidence-only."
+      }
+    ]
+  }
+}

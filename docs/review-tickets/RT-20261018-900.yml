@@ -1,0 +1,25 @@
+ticket_id: RT-20261018-900
+status: open
+type: release-integration-defect
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-008
+summary: Exact-candidate CI fails Windows checkout and MCP ticket parsing; current release guide has two broken heading links
+problem: >-
+  Candidate 3017aca56ca3b96ad3cbbc8217f949bedba2d1a7, actual CI run
+  39155983283, fails Windows checkout on a frozen evidence path (Filename too
+  long) and the Linux MCP real-repository review-ticket test on descriptive IDs
+  outside the existing RT-YYYYMMDD-NNN contract. Caller inspection also found
+  two preexisting release-runbook fragment links with a spurious hyphen.
+expected_fix:
+  - Configure standard Git long-path support before Windows checkout without renaming frozen evidence or skipping tests.
+  - Normalize the twelve mutable cloud ticket_id values to unique unused contract-conforming IDs; preserve historical paths and provide exact alias mapping.
+  - Keep strict parser/schema behavior and frozen historical reports unchanged.
+  - Correct the two current release-runbook fragments and validate the actual anchors.
+  - Preserve failed CI evidence, run scoped regression and actual native CI on the new final candidate before any tag.
+approval: Existing user authorization covers necessary integration/documentation fixes; CI efficiency selection remains separately unapproved.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
+evidence: specs/cloud-orchestration/verification/T-008/root-release-attempt-1/scope.json

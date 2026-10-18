@@ -1,0 +1,62 @@
+[
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ALARM-NUMERIC.yml",
+    "historical_alias": "RT-20261018-CLOUD-ALARM-NUMERIC",
+    "ticket_id": "RT-20261018-901"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS.yml",
+    "historical_alias": "RT-20261018-CLOUD-BOOTSTRAP-PATH-TESTS",
+    "ticket_id": "RT-20261018-902"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-CONTRACT.yml",
+    "historical_alias": "RT-20261018-CLOUD-CONTRACT",
+    "ticket_id": "RT-20261018-903"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-DEPENDENCY-EXPIRY.yml",
+    "historical_alias": "RT-20261018-CLOUD-DEPENDENCY-EXPIRY",
+    "ticket_id": "RT-20261018-904"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-EXPIRY.yml",
+    "historical_alias": "RT-20261018-CLOUD-EXPIRY",
+    "ticket_id": "RT-20261018-905"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME.yml",
+    "historical_alias": "RT-20261018-CLOUD-INSTALL-SELECTION-RUNTIME",
+    "ticket_id": "RT-20261018-906"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-OWNER.yml",
+    "historical_alias": "RT-20261018-CLOUD-OWNER",
+    "ticket_id": "RT-20261018-907"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREFLIGHT.yml",
+    "historical_alias": "RT-20261018-CLOUD-PREFLIGHT",
+    "ticket_id": "RT-20261018-908"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-PREVIEW-EXPIRY.yml",
+    "historical_alias": "RT-20261018-CLOUD-PREVIEW-EXPIRY",
+    "ticket_id": "RT-20261018-909"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-ROUTING-GUARD.yml",
+    "historical_alias": "RT-20261018-CLOUD-ROUTING-GUARD",
+    "ticket_id": "RT-20261018-910"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-SANDBOX.yml",
+    "historical_alias": "RT-20261018-CLOUD-SANDBOX",
+    "ticket_id": "RT-20261018-911"
+  },
+  {
+    "path": "docs/review-tickets/RT-20261018-CLOUD-T009-PREFLIGHT.yml",
+    "historical_alias": "RT-20261018-CLOUD-T009-PREFLIGHT",
+    "ticket_id": "RT-20261018-912"
+  }
+]

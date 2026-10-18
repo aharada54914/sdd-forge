@@ -1,0 +1,16 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+const require = createRequire(resolve('mcp/sdd-forge-mcp/package.json'));
+const { load } = require('js-yaml');
+const candidate = 'specs/epic-197-a9-dogfood/candidate/project-context.yaml';
+const original = load(readFileSync('/tmp/T008-release-01a1505e/supplemental/' + candidate, 'utf8'));
+const current = load(readFileSync(candidate, 'utf8'));
+assert.deepEqual(current.components.slice(0, 9), original.components);
+assert.deepEqual(current.workflow, original.workflow);
+assert.deepEqual(current.shared_paths.slice(1), original.shared_paths);
+for (const path of ['sdd/project-context.yaml', 'sdd/project-context.approval.json', 'sdd/.approved-context/project-context.approved.yaml']) assert.equal(existsSync(path), false, path);
+assert.equal(createHash('sha256').update(readFileSync('reports/implementation/cloud-orchestration/T-008.md')).digest('hex'), 'a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195');
+console.log('PASS original nine components, old shared rules, advisory tuple, unactivated live state and frozen T008 report');

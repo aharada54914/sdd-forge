@@ -1,0 +1,7 @@
+{
+  "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+  "sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+  "outputs": 576,
+  "mismatches": [],
+  "canonical_report_unchanged": true
+}

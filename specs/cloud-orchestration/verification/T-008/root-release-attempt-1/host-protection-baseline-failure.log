@@ -1,0 +1,16 @@
+2026-10-18T18:55:59.8928298Z FAIL: test_012d_unrelated_membership_unchanged (__main__.ProtectedEntrypointTests.test_012d_unrelated_membership_unchanged)
+2026-10-18T18:55:59.8928712Z ----------------------------------------------------------------------
+2026-10-18T18:55:59.8929005Z Traceback (most recent call last):
+2026-10-18T18:55:59.8929626Z   File "/home/runner/work/sdd-forge/sdd-forge/tests/host-review-preflight.tests.py", line 396, in test_012d_unrelated_membership_unchanged
+2026-10-18T18:55:59.8930130Z     self.assert_unrelated_unchanged(data)
+2026-10-18T18:55:59.8930663Z   File "/home/runner/work/sdd-forge/sdd-forge/tests/host-review-preflight.tests.py", line 392, in assert_unrelated_unchanged
+2026-10-18T18:55:59.8931272Z     self.assertEqual(digest, UNRELATED_SHA256, 'unrelated invariant keys or membership changed')
+2026-10-18T18:55:59.8931971Z AssertionError: '77af36d6151353129d09ab9ea9886ed31e50b0de86ef8b79825f8700308daad4' != 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
+2026-10-18T18:55:59.8932618Z - 77af36d6151353129d09ab9ea9886ed31e50b0de86ef8b79825f8700308daad4
+2026-10-18T18:55:59.8933000Z + ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9
+2026-10-18T18:55:59.8933336Z  : unrelated invariant keys or membership changed
+2026-10-18T18:55:59.8933518Z 
+2026-10-18T18:55:59.8933645Z ----------------------------------------------------------------------
+2026-10-18T18:55:59.8933913Z Ran 21 tests in 14.848s
+2026-10-18T18:55:59.8934034Z 
+2026-10-18T18:55:59.8934108Z FAILED (failures=1)
