@@ -1,0 +1,14 @@
+{
+  "id": 901001,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+    "expectedTurnId": "01a1507a-35a2-74b2-8200-c2cfa9a2ae5b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Additional actual candidate2 CI failure same test-only release scope: Windows capability lane job117766278610 registry-discovery.tests.ps1 fails freshly-vendored tree; selected evidence T008/root-release-attempt-2/registry-discovery-fixture-failure.log. Root inspected canonical vendor-capability-registry.py ARTIFACTS: three approved cloud additions verification-contract-v3.schema.json, selected-verification-plan-v2.schema.json, cloud-verification-registry.schema.json are absent from BOTH registry-discovery.tests.sh and .ps1 fixture copy lists. Both fixtures therefore exercise missing-source instead of intended drift checks. Include exact additions in both existingfixtures, assert vendor generation actually succeeds and show diagnostics when it fails so missingfixture cannot masquerade asdrift. Preserve stale-copy rejection/no-write checks and existingallcases. No productvendor/contract change. Extend own manifest output scope and record snapshot before touching these files; ifinitialmanifestalreadyfrozen use explicit supplementalinputs with currenthashes and reportbinding, never alter priorfrozenmanifest. Run both fullregistrydiscoverytwins and disposable rollback/reapply alongside other two scopedrepairs. CI failure doesnotauthorize broader optimization or missingcontract suppression."
+      }
+    ]
+  }
+}

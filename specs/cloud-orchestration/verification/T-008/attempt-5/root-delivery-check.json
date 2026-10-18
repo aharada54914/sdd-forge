@@ -1,0 +1,6 @@
+{
+  "report": "reports/implementation/cloud-orchestration/T-008-mcp-report-scan-fix.md",
+  "sha256": "30d57c67c9acf9921e77f0a945533f6ed8ed163ba10dabd8d90db5786f7abfa7",
+  "outputs": 147,
+  "mismatches": []
+}

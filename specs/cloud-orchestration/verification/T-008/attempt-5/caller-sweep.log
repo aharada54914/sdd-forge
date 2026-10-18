@@ -1,0 +1,22 @@
+mcp/sdd-forge-mcp/src/tools/evidence.ts:378:  const taskStateResult = parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+mcp/sdd-forge-mcp/src/tools/core.ts:23:import { createReportLookup } from "../parsers/report-lookup.js";
+mcp/sdd-forge-mcp/src/tools/core.ts:89:  const reportLookup = createReportLookup();
+mcp/sdd-forge-mcp/src/tools/core.ts:91:    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, undefined, undefined, reportLookup);
+mcp/sdd-forge-mcp/src/tools/core.ts:170:  return parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+mcp/sdd-forge-mcp/src/tools/core.ts:191:  const stateResult = parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+mcp/sdd-forge-mcp/src/tools/core.ts:205:  const stateResult = parseTaskState(root, feature, `specs/${feature}/tasks.md`);
+mcp/sdd-forge-mcp/src/parsers/tasks.ts:28:import { createReportLookup, type ReportLookup } from "./report-lookup.js";
+mcp/sdd-forge-mcp/src/parsers/tasks.ts:68:export function parseTaskState(
+mcp/sdd-forge-mcp/src/parsers/tasks.ts:74:  reportLookup: ReportLookup = createReportLookup(),
+mcp/sdd-forge-mcp/src/parsers/tasks.ts:91:      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:8:import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass, type ReportLookup } from "./report-lookup.js";
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:39:export function finishTask(
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:47:  reportLookup?: ReportLookup,
+mcp/sdd-forge-mcp/src/parsers/task-validation.ts:125:  reportLookup?: ReportLookup,
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:87:export function anyFileContaining(root: SddRoot, relDir: string, pattern: string): string[] {
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:96:  return anyFileContaining(root, relDir, taskId).length > 0;
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:105:  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:117:export interface ReportLookup {
+mcp/sdd-forge-mcp/src/parsers/report-lookup.ts:129:export function createReportLookup(): ReportLookup {
+mcp/sdd-forge-mcp/src/next-command.ts:229:  const taskStateResult = parseTaskState(root, feature, tasksPath);
+mcp/sdd-forge-mcp/src/next-command.ts:259:    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);

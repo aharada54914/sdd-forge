@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-10-18T19:24:08.225478+00:00",
+  "excluded_raw_input": {
+    "path": "specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+    "sha256": "57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10"
+  },
+  "scope": "Raw cross-feature candidate is outside supplemental reviewer admission and is not copied into this task. Current canonical validator and test sources, actual preservation/mutation/rollback results, and the original nine components and unchanged policy comparison are admitted. Root checks the candidate digest against the tested committed tree; no activation, approval or historical A9 re-review is claimed.",
+  "canonical_validator": "scripts/validate-a9-candidate.py",
+  "mutation_tests": "tests/a9-dogfood.tests.py",
+  "preservation_command": "specs/cloud-orchestration/verification/T-008/attempt-2/check-preservation.mjs",
+  "preservation_result": "specs/cloud-orchestration/verification/T-008/attempt-2/classified-preservation.log",
+  "validation_result": "specs/cloud-orchestration/verification/T-008/attempt-2/final-candidate.log",
+  "mutation_result": "specs/cloud-orchestration/verification/T-008/attempt-2/a9-classified-final.log",
+  "root_delivery": "specs/cloud-orchestration/verification/T-008/attempt-2/root-delivery-check.json"
+}

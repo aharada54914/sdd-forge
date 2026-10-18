@@ -157,7 +157,8 @@ cp "$FIXTURES/registry-discovery-catalog-valid.json" "$DRIFT_ROOT/contracts/lite
 # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
 # the missing-source error path instead of the drift path they test.
 for _extra in facet-manifest.schema.json capability-summary.schema.json \
-              context-projection.schema.json selected-verification-plan.schema.json lite-check-catalog.json lite-check-catalog.schema.json; do
+              context-projection.schema.json selected-verification-plan.schema.json lite-check-catalog.json lite-check-catalog.schema.json \
+              verification-contract-v3.schema.json selected-verification-plan-v2.schema.json cloud-verification-registry.schema.json; do
   cp "$ROOT/contracts/$_extra" "$DRIFT_ROOT/contracts/$_extra"
 done
 cp "$REAL_DISCOVERY" "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/registry_discovery.py"
@@ -168,10 +169,10 @@ cp "$FIXTURES/registry-discovery-schemafile-valid.json" "$DRIFT_ROOT/plugins/sdd
 cp "$FIXTURES/registry-discovery-catalog-valid.json" "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json"
 
 python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" --check >/dev/null 2>"$WORKDIR/drift-check.log"
-if [[ $? -ne 0 ]]; then
+if [[ $? -ne 0 ]] && grep -Fq "vendored copies are stale: capability-registry.json" "$WORKDIR/drift-check.log"; then
   ok "AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy"
 else
-  fail "AC-027 vendored-copy-drift: --check unexpectedly passed against a stale vendored copy"
+  fail "AC-027 vendored-copy-drift: expected stale-copy diagnostic: $(cat "$WORKDIR/drift-check.log")"
 fi
 
 # Freshly-vendored tree: re-vendor for real, then confirm --check passes
@@ -183,7 +184,11 @@ fi
 # on a busy CI disk -- a false "mtime changed" failure. st_mtime_ns is also
 # strictly stronger than the previous whole-second granularity.
 file_mtime_ns() { python3 -c 'import os, sys; print(os.stat(sys.argv[1]).st_mtime_ns)' "$1"; }
-python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" >/dev/null 2>&1
+if python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" >"$WORKDIR/vendor-generation.log" 2>&1; then
+  ok "AC-027 vendored-copy-drift: vendor generation succeeds"
+else
+  fail "AC-027 vendored-copy-drift: vendor generation failed: $(cat "$WORKDIR/vendor-generation.log")"
+fi
 mtime_before="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
 python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" --check >/dev/null 2>"$WORKDIR/drift-check2.log"
 drift_check_rc=$?
@@ -191,7 +196,7 @@ mtime_after="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/cap
 if [[ "$drift_check_rc" -eq 0 ]]; then
   ok "AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree"
 else
-  fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree"
+  fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: $(cat "$WORKDIR/drift-check2.log")"
 fi
 if [[ "$mtime_before" == "$mtime_after" ]]; then
   ok "AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)"

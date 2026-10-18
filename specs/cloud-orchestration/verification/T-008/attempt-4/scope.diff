@@ -1,0 +1,252 @@
+diff --git a/tests/agent-model-routing.tests.ps1 b/tests/agent-model-routing.tests.ps1
+index c19ae66e..ad4f9752 100644
+--- a/tests/agent-model-routing.tests.ps1
++++ b/tests/agent-model-routing.tests.ps1
+@@ -121,8 +121,8 @@ Assert-Literal $Matrix '| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | lo
+     'lightweight Codex mapping must name gpt-5.1-codex-mini'
+ Assert-Literal $Matrix '| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |' `
+     'standard Codex mapping must name gpt-5.1-codex'
+-Assert-Literal $Matrix '| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |' `
+-    'strong Codex mapping must name gpt-5.2-codex and its fallback'
++Assert-Literal $Matrix '| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies |' `
++    'strong Codex mapping must use the available registry and preserve the role floor'
+ 
+ Assert-Literal $Matrix '| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |' `
+     'investigator must be lightweight/Haiku with Codex low equivalent'
+@@ -132,7 +132,7 @@ Assert-Literal $Matrix '| impl-reviewer-a/b | standard minimum | Anthropic Sonne
+     'implementation reviewers must be at least standard/Sonnet'
+ Assert-Literal $Matrix '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' `
+     'task reviewers must be at least standard/Sonnet'
+-Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' `
++Assert-Literal $Matrix '| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |' `
+     'evaluator must use Claude Sonnet and retain Codex strong high/xhigh'
+ 
+ Assert-Contains $Investigator '^model: haiku$' 'Claude investigator must be downgraded to Haiku'
+diff --git a/tests/cloud-orchestration-verification.tests.py b/tests/cloud-orchestration-verification.tests.py
+index cc0edca9..a1f7dbe0 100644
+--- a/tests/cloud-orchestration-verification.tests.py
++++ b/tests/cloud-orchestration-verification.tests.py
+@@ -2982,6 +2982,7 @@ class AlarmNumericCases(unittest.TestCase):
+                     self.assertFalse(collector.monitoring()[0])
+                 self.assertEqual(len(hits), 1)
+ 
++    @unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
+     def test_public_synthetic_threshold_result_counterparts(self):
+         for value in self.ZEROS + self.REJECTED:
+             with self.subTest(threshold=value):
+diff --git a/tests/install-cloud.tests.py b/tests/install-cloud.tests.py
+index 94d3d131..bf98263f 100644
+--- a/tests/install-cloud.tests.py
++++ b/tests/install-cloud.tests.py
+@@ -15,6 +15,7 @@ import subprocess
+ import sys
+ import tempfile
+ import unittest
++from unittest.mock import patch
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ PWSH = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh') or '/workspace/.tools/sdd-forge-dev/bin/pwsh'
+@@ -25,8 +26,20 @@ HOSTS = ('.claude-plugin', '.codex-plugin', '.plugin')
+ MARKETS = ('.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json')
+ 
+ 
++def fixture_environment(home: Path, *, path: str | None = None) -> dict[str, str]:
++    # Windows executable discovery needs PATHEXT and the OS directory; never
++    # inherit credentials, profiles, Git configuration or ambient cloud settings.
++    env = {key: os.environ[key] for key in ('PATH', 'PATHEXT', 'SystemRoot', 'WINDIR', 'COMSPEC')
++           if key in os.environ}
++    if path is not None:
++        env['PATH'] = path
++    env.update(HOME=str(home), USERPROFILE=str(home), TEMP=str(home), TMP=str(home),
++               PYTHONDONTWRITEBYTECODE='1')
++    return env
++
++
+ def run(args: list[str], cwd: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+-    return subprocess.run(args, cwd=cwd, env=env, text=True, capture_output=True, timeout=180)
++    return subprocess.run(args, cwd=cwd, env=fixture_environment(cwd) if env is None else env, text=True, capture_output=True, timeout=180)
+ 
+ 
+ def write_json(path: Path, value: object) -> None:
+@@ -96,6 +109,19 @@ def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[st
+     return run([PWSH, '-NoProfile', '-File', str(driver), str(root)], root)
+ 
+ 
++class FixtureEnvironment(unittest.TestCase):
++    def test_platform_keys_without_ambient_credentials(self) -> None:
++        platform = dict(PATH='fixture-path', PATHEXT='.COM;.EXE;.BAT;.CMD',
++                        SystemRoot='fixture-windows', WINDIR='fixture-windows', COMSPEC='fixture-cmd')
++        with patch.dict(os.environ, dict(platform, AWS_PROFILE='not-inherited',
++                                       AZURE_CONFIG_DIR='not-inherited', GIT_CONFIG_COUNT='1'), clear=True):
++            env = fixture_environment(Path('fixture-home'))
++            self.assertEqual({key: env[key] for key in platform}, platform)
++            self.assertEqual(set(env), set(platform) | {'HOME', 'USERPROFILE', 'TEMP', 'TMP', 'PYTHONDONTWRITEBYTECODE'})
++            self.assertEqual(env['HOME'], env['USERPROFILE'])
++            self.assertEqual(fixture_environment(Path('fixture-home'), path=os.defpath)['PATH'], os.defpath)
++
++
+ class ManifestBoundary(unittest.TestCase):
+     temp: tempfile.TemporaryDirectory[str]
+     root: Path
+@@ -298,7 +324,8 @@ class InstalledLifecycle(unittest.TestCase):
+ 
+     def installer(self, shell: str, plugins: tuple[str, ...], dest: Path, *, uninstall: bool = False) -> subprocess.CompletedProcess[str]:
+         name = 'uninstall' if uninstall else 'install'
+-        env = dict(PATH=os.environ['PATH'], HOME=str(self.root), PYTHONDONTWRITEBYTECODE='1', SDD_CODEX_HOME=str(self.root / 'codex-home'))
++        env = fixture_environment(self.root)
++        env['SDD_CODEX_HOME'] = str(self.root / 'codex-home')
+         if shell == 'bash':
+             args = ['bash', str(ROOT / (name + '.sh')), '--install-root', str(dest), '--target', 'FilesOnly', '--skip-agent-' + ('uninstall' if uninstall else 'install'), '--skip-mcp' + ('-uninstall' if uninstall else '')]
+             if plugins:
+@@ -351,7 +378,7 @@ class InstalledLifecycle(unittest.TestCase):
+         with tempfile.TemporaryDirectory(dir=parent) as temp:
+             work = Path(temp).resolve()
+             runtime = plugin / 'runtime'
+-            env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work), CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
++            env = dict(fixture_environment(work, path=os.defpath), CLOUD_WORKSPACE_ROOT=str(work), CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
+             p = run([sys.executable, '-I', '-B', '-c', RUNTIME_PROBE, str(runtime)], work, env)
+             self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+             request = local_request(work, provider)
+@@ -468,7 +495,7 @@ class InstalledLifecycle(unittest.TestCase):
+                                 work = Path(work_temp).resolve()
+                                 request = local_request(work, provider)
+                                 write_json(work / 'request.json', request)
+-                                env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work),
++                                env = dict(fixture_environment(work, path=os.defpath), CLOUD_WORKSPACE_ROOT=str(work),
+                                            CLOUD_SHARED_RUNTIME_ROOT=str(plugin / 'runtime/scripts'), PYTHONDONTWRITEBYTECODE='1')
+                                 p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(work / 'request.json'),
+                                          '--output', request['local_context']['evidence_directory'] + '/route.json'], work, env)
+@@ -561,24 +588,26 @@ class SkillVisibility(unittest.TestCase):
+         with tempfile.TemporaryDirectory(prefix='cloud-visibility-guards-') as temp:
+             root = Path(temp).resolve()
+             fixture(root)
+-            self.assertEqual(validate(root, skills=True).returncode, 0)
++            result = validate(root, skills=True)
++            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+             for provider in PROVIDERS:
+                 path = root / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
+-                original = path.read_text()
++                original = path.read_bytes()
+                 variants = [
+-                    original.replace('name: orchestrate', 'name: Orchestrate'),
+-                    original.replace('disable-model-invocation: true', 'disable-model-invocation: false'),
+-                    original.replace('disable-model-invocation: true', 'disable-model-invocation: true\nuser-invocable: false'),
++                    original.replace(b'name: orchestrate', b'name: Orchestrate'),
++                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: false'),
++                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: true\nuser-invocable: false'),
+                 ]
+                 for index, variant in enumerate(variants):
+                     with self.subTest(provider=provider, variant=index):
+                         try:
+-                            path.write_text(variant)
++                            path.write_bytes(variant)
+                             result = validate(root, skills=True)
+-                            self.assertNotEqual(result.returncode, 0)
++                            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                         finally:
+-                            path.write_text(original)
+-                self.assertEqual(validate(root, skills=True).returncode, 0)
++                            path.write_bytes(original)
++                result = validate(root, skills=True)
++                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+ 
+     def test_each_entry_frontmatter_and_relative_links(self) -> None:
+         import re
+diff --git a/tests/registry-discovery.tests.ps1 b/tests/registry-discovery.tests.ps1
+index be507eef..8f79c102 100644
+--- a/tests/registry-discovery.tests.ps1
++++ b/tests/registry-discovery.tests.ps1
+@@ -166,7 +166,8 @@ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid
+ # a canonical source is missing, so this fixture tree must carry every
+ # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
+ # the missing-source error path instead of the drift path they test.
+-foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json')) {
++foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json',
++                     'verification-contract-v3.schema.json', 'selected-verification-plan-v2.schema.json', 'cloud-verification-registry.schema.json')) {
+     Copy-Item -LiteralPath (Join-Path $root "contracts/$extra") -Destination (Join-Path $driftRoot "contracts/$extra")
+ }
+ Copy-Item -LiteralPath $realDiscovery -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/registry_discovery.py')
+@@ -176,23 +177,28 @@ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-schemafile-va
+ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid.json') -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json')
+ 
+ $vendorScript = Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py'
+-& $pythonExe $vendorScript --check *> $null
+-if ($LASTEXITCODE -ne 0) {
++$staleOutput = @(& $pythonExe $vendorScript --check 2>&1)
++if ($LASTEXITCODE -ne 0 -and ($staleOutput -join "`n").Contains('vendored copies are stale: capability-registry.json')) {
+   Ok 'AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy'
+ } else {
+-  Fail 'AC-027 vendored-copy-drift: --check unexpectedly passed against a stale vendored copy'
++  Fail "AC-027 vendored-copy-drift: expected stale-copy diagnostic: $($staleOutput -join "`n")"
+ }
+ 
+-& $pythonExe $vendorScript *> $null
++$generationOutput = @(& $pythonExe $vendorScript 2>&1)
++if ($LASTEXITCODE -eq 0) {
++  Ok 'AC-027 vendored-copy-drift: vendor generation succeeds'
++} else {
++  Fail "AC-027 vendored-copy-drift: vendor generation failed: $($generationOutput -join "`n")"
++}
+ $vendoredFile = Join-Path $driftRoot 'plugins/sdd-quality-loop/contracts/capability-registry.json'
+ $mtimeBefore = (Get-Item -LiteralPath $vendoredFile).LastWriteTimeUtc
+-& $pythonExe $vendorScript --check *> $null
++$checkOutput = @(& $pythonExe $vendorScript --check 2>&1)
+ $driftCheckRc = $LASTEXITCODE
+ $mtimeAfter = (Get-Item -LiteralPath $vendoredFile).LastWriteTimeUtc
+ if ($driftCheckRc -eq 0) {
+   Ok 'AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree'
+ } else {
+-  Fail 'AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree'
++  Fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: $($checkOutput -join "`n")"
+ }
+ if ($mtimeBefore -eq $mtimeAfter) {
+   Ok 'AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)'
+diff --git a/tests/registry-discovery.tests.sh b/tests/registry-discovery.tests.sh
+index ddb2dd67..f52ff574 100755
+--- a/tests/registry-discovery.tests.sh
++++ b/tests/registry-discovery.tests.sh
+@@ -157,7 +157,8 @@ cp "$FIXTURES/registry-discovery-catalog-valid.json" "$DRIFT_ROOT/contracts/lite
+ # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
+ # the missing-source error path instead of the drift path they test.
+ for _extra in facet-manifest.schema.json capability-summary.schema.json \
+-              context-projection.schema.json selected-verification-plan.schema.json lite-check-catalog.json lite-check-catalog.schema.json; do
++              context-projection.schema.json selected-verification-plan.schema.json lite-check-catalog.json lite-check-catalog.schema.json \
++              verification-contract-v3.schema.json selected-verification-plan-v2.schema.json cloud-verification-registry.schema.json; do
+   cp "$ROOT/contracts/$_extra" "$DRIFT_ROOT/contracts/$_extra"
+ done
+ cp "$REAL_DISCOVERY" "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/registry_discovery.py"
+@@ -168,10 +169,10 @@ cp "$FIXTURES/registry-discovery-schemafile-valid.json" "$DRIFT_ROOT/plugins/sdd
+ cp "$FIXTURES/registry-discovery-catalog-valid.json" "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json"
+ 
+ python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" --check >/dev/null 2>"$WORKDIR/drift-check.log"
+-if [[ $? -ne 0 ]]; then
++if [[ $? -ne 0 ]] && grep -Fq "vendored copies are stale: capability-registry.json" "$WORKDIR/drift-check.log"; then
+   ok "AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy"
+ else
+-  fail "AC-027 vendored-copy-drift: --check unexpectedly passed against a stale vendored copy"
++  fail "AC-027 vendored-copy-drift: expected stale-copy diagnostic: $(cat "$WORKDIR/drift-check.log")"
+ fi
+ 
+ # Freshly-vendored tree: re-vendor for real, then confirm --check passes
+@@ -183,7 +184,11 @@ fi
+ # on a busy CI disk -- a false "mtime changed" failure. st_mtime_ns is also
+ # strictly stronger than the previous whole-second granularity.
+ file_mtime_ns() { python3 -c 'import os, sys; print(os.stat(sys.argv[1]).st_mtime_ns)' "$1"; }
+-python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" >/dev/null 2>&1
++if python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" >"$WORKDIR/vendor-generation.log" 2>&1; then
++  ok "AC-027 vendored-copy-drift: vendor generation succeeds"
++else
++  fail "AC-027 vendored-copy-drift: vendor generation failed: $(cat "$WORKDIR/vendor-generation.log")"
++fi
+ mtime_before="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
+ python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" --check >/dev/null 2>"$WORKDIR/drift-check2.log"
+ drift_check_rc=$?
+@@ -191,7 +196,7 @@ mtime_after="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/cap
+ if [[ "$drift_check_rc" -eq 0 ]]; then
+   ok "AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree"
+ else
+-  fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree"
++  fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: $(cat "$WORKDIR/drift-check2.log")"
+ fi
+ if [[ "$mtime_before" == "$mtime_after" ]]; then
+   ok "AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)"

@@ -39813,6 +39813,70 @@ function extractHeaderValue(contents, key) {
   return void 0;
 }
 
+// src/parsers/report-lookup.ts
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function anyFileContainingWithDiagnostics(root, relDir, pattern) {
+  const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+  const matches = [];
+  for (const relFilePath of files) {
+    const read = guardedRead(root, relFilePath);
+    if (read.ok && wordBoundary.test(read.data.contents)) {
+      matches.push(relFilePath);
+    }
+  }
+  return { matches, errors };
+}
+function anyFileContaining(root, relDir, pattern) {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
+}
+function hasAnyFileMentioning(root, relDir, taskId) {
+  return anyFileContaining(root, relDir, taskId).length > 0;
+}
+function hasQualityGateVerdictPass(root, relDir, taskId) {
+  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
+    const read = guardedRead(root, relFilePath);
+    return read.ok && /VERDICT: PASS/.test(read.data.contents);
+  });
+}
+function createReportLookup() {
+  const roots = /* @__PURE__ */ new Map();
+  const directory = (root, relDir) => {
+    let directories = roots.get(root);
+    if (directories === void 0) {
+      directories = /* @__PURE__ */ new Map();
+      roots.set(root, directories);
+    }
+    let snapshot = directories.get(relDir);
+    if (snapshot === void 0) {
+      const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+      const readable = [];
+      for (const path of files) {
+        const read = guardedRead(root, path);
+        if (read.ok) readable.push({ path, contents: read.data.contents });
+      }
+      snapshot = { files: readable, errors };
+      directories.set(relDir, snapshot);
+    }
+    return snapshot;
+  };
+  const matching = (root, relDir, pattern) => {
+    const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+    return directory(root, relDir).files.filter((file2) => wordBoundary.test(file2.contents));
+  };
+  return {
+    anyFileContainingWithDiagnostics: (root, relDir, pattern) => ({
+      matches: matching(root, relDir, pattern).map((file2) => file2.path),
+      errors: directory(root, relDir).errors.map((error62) => ({ ...error62 }))
+    }),
+    anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map((file2) => file2.path),
+    hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
+    hasQualityGateVerdictPass: (root, relDir, taskId) => matching(root, relDir, taskId).some((file2) => /VERDICT: PASS/.test(file2.contents))
+  };
+}
+
 // src/parsers/json-object.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -40066,35 +40130,6 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   return failures;
 }
 
-// src/parsers/report-lookup.ts
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function anyFileContainingWithDiagnostics(root, relDir, pattern) {
-  const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
-  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
-  const matches = [];
-  for (const relFilePath of files) {
-    const read = guardedRead(root, relFilePath);
-    if (read.ok && wordBoundary.test(read.data.contents)) {
-      matches.push(relFilePath);
-    }
-  }
-  return { matches, errors };
-}
-function anyFileContaining(root, relDir, pattern) {
-  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
-}
-function hasAnyFileMentioning(root, relDir, taskId) {
-  return anyFileContaining(root, relDir, taskId).length > 0;
-}
-function hasQualityGateVerdictPass(root, relDir, taskId) {
-  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && /VERDICT: PASS/.test(read.data.contents);
-  });
-}
-
 // src/parsers/task-types.ts
 var STATUS_VALUES = [
   "Planned",
@@ -40128,7 +40163,7 @@ function approverId(value) {
 function isApprovedShape(value) {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
-function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks) {
+function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup) {
   const taskId = draft.id;
   const fail = (rule, message) => {
     failures.push({ taskId, rule, message });
@@ -40154,10 +40189,10 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done") {
-    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail);
+    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
   if (status === "Implementation Complete") {
-    if (!hasAnyFileMentioning(root, implReportsDir, taskId)) {
+    if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`
@@ -40184,7 +40219,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     tasks.push(buildTaskEntry(taskId, draft, approval, status, blockersNonEmpty));
   }
 }
-function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail) {
+function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail, reportLookup) {
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
   if (!guardedExists(root, bundleRelPath)) {
@@ -40236,13 +40271,13 @@ function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail
       );
     }
   }
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
+  const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
       `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`
     );
-  } else if (!hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
     fail(
       "done-quality-gate-verdict-fail",
       `${taskId} is Done but quality-gate report does not contain VERDICT: PASS: ${qgMatches[0]}`
@@ -40319,7 +40354,7 @@ function parentDir(relTasksFilePath) {
   const idx = relTasksFilePath.lastIndexOf("/");
   return idx === -1 ? "." : relTasksFilePath.slice(0, idx);
 }
-function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation") {
+function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation", reportLookup = createReportLookup()) {
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
     return fileResult;
@@ -40332,7 +40367,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   let draft;
   const finish = () => {
     if (draft !== void 0) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
     }
   };
   for (const rawLine of lines) {
@@ -40642,8 +40677,9 @@ function listActiveSpecs(root) {
   if (!specsResult.ok) {
     return specsResult;
   }
+  const reportLookup = createReportLookup();
   const specs = specsResult.data.map((spec) => {
-    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);
+    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, void 0, void 0, reportLookup);
     const flag = taskStateResult.ok ? hasApprovedPlannedOrInProgress(taskStateResult.data.tasks) : false;
     return {
       feature: spec.feature,

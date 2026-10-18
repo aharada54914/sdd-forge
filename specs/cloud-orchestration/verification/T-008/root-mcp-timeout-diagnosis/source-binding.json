@@ -1,0 +1,42 @@
+{
+  "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+  "sources": [
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/core.ts",
+      "sha256": "dc6806218200911a10e82895177d2e936d2a7bf34df965ab86c25df3786b98db"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "sha256": "75da89565748dda07fc3f808e549793aad2ababe34a1ff4d5d2640083b505c7d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+      "sha256": "e9c45eac1158ae2cfd4f6918826754b189a0dcaac91ae5f7b05d3ce408ee8e1c"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+      "sha256": "ea0448f5ae4d62350d7737824620e9ad51fc32204a06b6346e56ea27dc59cd14"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "sha256": "6cc067c34027ff7b98d7114a230ca397e953da4bb18ca6a8ab83b1292121cc09"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts",
+      "sha256": "8dd6c9ef06b0e15ec063ab38b8b12aa356823b14dcc8778400a48d6a8fd47a7a"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "sha256": "2073331df48c2e05d7547aee4bde63a291c3940c5ece5bbb363a186b127c1608"
+    }
+  ],
+  "compiled_probe_input": "mcp/sdd-forge-mcp/dist-test/src/tools/core.js",
+  "compiled_sha256": "d5643c09ddab68f9137ba38cea7d2d27ec336352fb7a912d7546cd4a26831d72",
+  "finding": "One real listActiveSpecs call on Linux performed164554 file reads over1863 distinctfiles, reading1209907658bytes; repeated guarded report scans dominate. 23.535s includes current concurrenttestload. Windows actual CI hit Inspector requestlimit60s. This is diagnosis, not finalperformanceorCIacceptance.",
+  "upstream_latest_probe": {
+    "version": "2.11.0",
+    "integrity": "sha512-gqMw2x0NCotTdjLNv3PSm/IJSeXL7O8u0SpyZXtXGhSukJ2DMoAy8RR7xKngHTCETJcG5gyPdxhOn8zf/ofSRA==",
+    "cli_sha256": "bd48a8df27412e4c01e876493a4e629d84d823ed44f0e738751a7efa3a8d18ca",
+    "result": "CLI InspectorClient options still omit requestTimeout; no dependency update performed."
+  }
+}

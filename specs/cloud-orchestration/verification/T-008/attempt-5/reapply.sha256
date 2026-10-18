@@ -1,0 +1,7 @@
+9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d  mcp/sdd-forge-mcp/src/parsers/report-lookup.ts
+7997a80a1d5265696ac318d4052958f926c30ca103c080726d11be2adc681250  mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1  mcp/sdd-forge-mcp/src/parsers/tasks.ts
+6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb  mcp/sdd-forge-mcp/src/tools/core.ts
+31f357cd5de8d7d1d404cc1259ca12a60ffd19ef6de406823d3e361aec6516f2  mcp/sdd-forge-mcp/dist/index.js
+636d456437bce3afc5cf19d148bd9ac927a3e5e18313a9a82d2aabd210971ca4  README.md
+d95991e9f53c9799d04ddbdefac8bf9af3a83c1f9f6edd5171bee36237abf9a9  mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts

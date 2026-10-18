@@ -1,0 +1,39 @@
+2026-10-18T19:25:23.0336134Z 
+2026-10-18T19:25:23.0336351Z ======================================================================
+2026-10-18T19:25:23.0337613Z ERROR: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0')
+2026-10-18T19:25:23.0338939Z ----------------------------------------------------------------------
+2026-10-18T19:25:23.0339538Z Traceback (most recent call last):
+2026-10-18T19:25:23.0340629Z   File "D:\a\sdd-forge\sdd-forge\tests\cloud-orchestration-verification.tests.py", line 2990, in test_public_synthetic_threshold_result_counterparts
+2026-10-18T19:25:23.0341888Z     case, wire, health, module = harness.setup_execution("aws")
+2026-10-18T19:25:23.0342492Z                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0343434Z   File "D:\a\sdd-forge\sdd-forge\tests\cloud-orchestration-verification.tests.py", line 2601, in setup_execution
+2026-10-18T19:25:23.0344454Z     case, wire = harness.setup_execution(protected=protected)
+2026-10-18T19:25:23.0345232Z                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0346149Z   File "D:\a\sdd-forge\sdd-forge\tests\cloud-orchestration-verification.tests.py", line 1742, in setup_execution
+2026-10-18T19:25:23.0347010Z     case.setUp()
+2026-10-18T19:25:23.0347719Z   File "D:\a\sdd-forge\sdd-forge\tests\cloud-orchestration-execution.tests.py", line 2167, in setUp
+2026-10-18T19:25:23.0348579Z     self.executor = self.stage("prepare")
+2026-10-18T19:25:23.0349038Z                     ^^^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0349816Z   File "D:\a\sdd-forge\sdd-forge\tests\cloud-orchestration-execution.tests.py", line 2209, in stage
+2026-10-18T19:25:23.0350650Z     return self.e.AwsExecutor(
+2026-10-18T19:25:23.0351610Z            ^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0352367Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-aws-cloud\scripts\aws_execution.py", line 124, in __init__
+2026-10-18T19:25:23.0353577Z     self.request = c.read_artifact(root, request_ref, "cloud-run-request/v1")
+2026-10-18T19:25:23.0354320Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0355448Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 423, in read_artifact
+2026-10-18T19:25:23.0356542Z     value = parse_artifact(read_verified(root, reference), expected_schema)
+2026-10-18T19:25:23.0357219Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-18T19:25:23.0358119Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 398, in read_verified
+2026-10-18T19:25:23.0359004Z     _ref(reference)
+2026-10-18T19:25:23.0359715Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 129, in _ref
+2026-10-18T19:25:23.0360596Z     _record(value, {'path': _path, 'sha256': _sha})
+2026-10-18T19:25:23.0361472Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 110, in _record
+2026-10-18T19:25:23.0362353Z     validator(value[name])
+2026-10-18T19:25:23.0363097Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 97, in _path
+2026-10-18T19:25:23.0364609Z     _require(re.fullmatch(r'[A-Za-z0-9_.][A-Za-z0-9._-]*', part) is not None
+2026-10-18T19:25:23.0365588Z   File "D:\a\sdd-forge\sdd-forge\plugins\sdd-quality-loop\scripts\cloud_contracts.py", line 41, in _require
+2026-10-18T19:25:23.0366442Z     raise ContractError(code)
+2026-10-18T19:25:23.0366914Z cloud_contracts.ContractError: UNSAFE_PATH
+2026-10-18T19:25:23.0367242Z 
+2026-10-18T19:25:23.0367429Z ======================================================================
+2026-10-18T19:25:23.0368613Z ERROR: test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) (threshold='0.0')

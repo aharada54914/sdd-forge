@@ -1,0 +1,188 @@
+Locked Inspector 2.10.1 clients/cli/build/index.js; exact source spans. Config is parsed but callMethod omits timeout and serverSettings from InspectorClient options.
+7708: function storedFieldsToInspectorSettings(stored) {
+7709:   const hasAny = stored.headers !== void 0 || stored.metadata !== void 0 || stored.connectionTimeout !== void 0 || stored.requestTimeout !== void 0 || stored.taskTtl !== void 0 || stored.autoRefreshOnListChanged !== void 0 || stored.paginatedLists !== void 0 || stored.suppressNotificationStream !== void 0 || stored.advertisedExtensions !== void 0 || stored.maxFetchRequests !== void 0 || stored.skillCatalogMaxSkills !== void 0 || stored.skillCatalogMaxBytes !== void 0 || stored.oauth !== void 0 || stored.roots !== void 0 || stored.protocolEra !== void 0 || stored.elicitCapability !== void 0 || stored.modernLogLevel !== void 0 || stored.env !== void 0 || stored.cwd !== void 0;
+7710:   if (!hasAny) return void 0;
+7711:   const headersPairs = stored.headers ? Object.entries(stored.headers).map(([key, value]) => ({ key, value })) : [];
+7712:   const settings = {
+7713:     headers: headersPairs,
+7714:     env: envRecordToPairs(stored.env),
+7715:     metadata: normalizeStoredMetadata(stored.metadata),
+7716:     // Concrete product default, like taskTtl below: an absent field reads back
+7717:     // as 30 s so the form shows the bound that will actually apply. An explicit
+7718:     // 0 is preserved as-is — it is the user's opt-out, not a sentinel (#2320).
+7719:     connectionTimeout: stored.connectionTimeout ?? DEFAULT_CONNECTION_TIMEOUT_MS,
+7720:     requestTimeout: stored.requestTimeout ?? 0,
+7721:     // Unlike requestTimeout (0 = "SDK default"), task TTL has a concrete product
+7722:     // default so the form shows it and "Run as task" has a value to send.
+7723:     taskTtl: stored.taskTtl ?? DEFAULT_TASK_TTL_MS,
+7880:   metadata: true,
+7881:   protocolEra: true,
+7882:   elicitCapability: true,
+7883:   modernLogLevel: true,
+7884:   connectionTimeout: true,
+7885:   requestTimeout: true,
+7886:   taskTtl: true,
+7887:   autoRefreshOnListChanged: true,
+7888:   paginatedLists: true,
+7889:   suppressNotificationStream: true,
+7890:   advertisedExtensions: true,
+7891:   maxFetchRequests: true,
+7892:   skillCatalogMaxSkills: true,
+7893:   skillCatalogMaxBytes: true,
+7907: function mcpConfigToServerEntries(config) {
+7908:   return Object.entries(config.mcpServers).map(([id, raw]) => {
+7909:     const inspectorFields = {};
+7910:     const sdkOnly = {};
+7911:     const inspectorRecord = toRecord(inspectorFields);
+7912:     for (const [k, v] of Object.entries(toRecord(raw))) {
+7913:       if (INSPECTOR_FIELD_KEYS.has(k)) {
+7914:         inspectorRecord[k] = v;
+7915:       } else {
+7916:         sdkOnly[k] = v;
+7917:       }
+7918:     }
+7919:     const normalizedConfig = normalizeServerType(
+7920:       sdkOnly
+7921:     );
+7922:     const entry = {
+7923:       id,
+7924:       name: id,
+7925:       config: normalizedConfig,
+7926:       connection: { status: "disconnected" }
+7927:     };
+7928:     const isStdio = normalizedConfig.type === "stdio" || normalizedConfig.type === void 0;
+7929:     const stdioConfig = isStdio ? normalizedConfig : void 0;
+7930:     const settings = storedFieldsToInspectorSettings({
+7931:       ...inspectorFields,
+7932:       env: stdioConfig?.env,
+7933:       cwd: stdioConfig?.cwd
+7934:     });
+7935:     if (settings !== void 0) entry.settings = settings;
+7936:     return entry;
+7937:   });
+7938: }
+7939: var isStdioStored = (stored) => stored.type === "stdio" || stored.type === void 0;
+15920:     this.advertisedExtensions = options.advertisedExtensions;
+15921:     this.appElicitationRenderer = options.appElicitation;
+15922:     this.receiverTaskTtlMs = options.receiverTaskTtlMs ?? 6e4;
+15923:     this.progress = options.progress ?? true;
+15924:     this.resetTimeoutOnProgress = options.resetTimeoutOnProgress ?? true;
+15925:     this.requestTimeout = options.timeout;
+15926:     this.defaultMetadata = options.defaultMetadata && Object.keys(options.defaultMetadata).length > 0 ? options.defaultMetadata : void 0;
+15927:     this.serverSettings = options.serverSettings;
+15928:     this.modernLogLevel = resolveModernLogLevel(options.serverSettings);
+16275:   getRequestOptions(progressToken, signal) {
+16276:     const opts = {
+16277:       resetTimeoutOnProgress: this.resetTimeoutOnProgress
+16278:     };
+16279:     if (this.requestTimeout !== void 0) {
+16280:       opts.timeout = this.requestTimeout;
+16281:     }
+16282:     const effectiveSignal = combineAbortSignals(
+16283:       signal,
+16284:       this.ambientRequestSignal
+22441: function buildRunnerClientAuthOptions(clientConfig, savedSettings, cliOverrides) {
+22442:   const activeIdp = getActiveEnterpriseManagedAuthIdp(clientConfig);
+22443:   const activeCimdUrl = getActiveCimdClientMetadataUrl(clientConfig);
+22444:   const serverAuthorizationParams = savedSettings ? oauthAuthorizationParamsFromSettings(savedSettings) : void 0;
+22445:   const serverEndpointOverrides = savedSettings ? oauthEndpointOverridesFromSettings(savedSettings) : void 0;
+22446:   const oauthFromServer = savedSettings && (savedSettings.oauthClientId || savedSettings.oauthClientSecret || savedSettings.oauthScopes || serverAuthorizationParams || serverEndpointOverrides || savedSettings.enterpriseManaged || savedSettings.oauthRequestRefreshToken === false) ? {
+22447:     ...savedSettings.oauthClientId && {
+22448:       clientId: savedSettings.oauthClientId
+22449:     },
+22450:     ...savedSettings.oauthClientSecret && {
+22451:       clientSecret: savedSettings.oauthClientSecret
+22452:     },
+22453:     ...savedSettings.oauthScopes && {
+22454:       scope: savedSettings.oauthScopes
+22455:     },
+22456:     ...serverAuthorizationParams && {
+22457:       authorizationParams: serverAuthorizationParams
+22458:     },
+22459:     ...serverEndpointOverrides,
+22460:     ...savedSettings.enterpriseManaged && {
+22461:       enterpriseManaged: true
+22462:     },
+22463:     // #2068: only the explicit opt-out is forwarded; omitting the key
+22464:     // leaves the provider's default (declare `refresh_token`) in place.
+22465:     ...savedSettings.oauthRequestRefreshToken === false && {
+22466:       requestRefreshToken: false
+22467:     }
+22468:   } : void 0;
+22469:   const clientMetadataUrl = cliOverrides?.clientMetadataUrl?.trim() || activeCimdUrl;
+22470:   const oauthFromCli = cliOverrides?.clientId || cliOverrides?.clientSecret || clientMetadataUrl ? {
+22471:     ...cliOverrides?.clientId && { clientId: cliOverrides.clientId },
+22472:     ...cliOverrides?.clientSecret && {
+22473:       clientSecret: cliOverrides.clientSecret
+22474:     },
+22475:     ...clientMetadataUrl && { clientMetadataUrl }
+22476:   } : void 0;
+22477:   const oauth = oauthFromServer || oauthFromCli ? {
+22478:     ...oauthFromServer ?? {},
+22479:     ...oauthFromCli ?? {}
+22480:   } : void 0;
+22481:   return {
+22482:     ...oauth && { oauth },
+22483:     ...activeIdp && {
+22484:       enterpriseManagedAuth: { idp: activeIdp }
+22485:     },
+22486:     ...clientConfig.enterpriseManagedAuth && {
+22487:       installEnterpriseManagedAuth: clientConfig.enterpriseManagedAuth
+22488:     },
+22489:     ...oauth && { directAuthRecovery: true }
+22490:   };
+22491: }
+22492: 
+22493: // ../../core/cli/cliOAuth.ts
+22494: import { createInterface } from "readline/promises";
+22815:     cliAuthOverrides
+22816:   );
+22817:   const inspectorClient = new InspectorClient(serverConfig, {
+22818:     environment,
+22819:     clientIdentity,
+22820:     initialLoggingLevel: "debug",
+22821:     // A stdio server's stderr is inherited by default, so its startup banners
+22822:     // and logs interleave with the CLI's own output. `--quiet` pipes it
+22823:     // instead; InspectorClient drains the pipe into its `stderrLog` event,
+22824:     // which nothing here subscribes to, so the lines are discarded without the
+22825:     // child ever blocking on a full pipe (#2435).
+22826:     pipeStderr: args.quiet === true,
+22827:     progress: false,
+22828:     sample: false,
+22829:     elicit: false,
+22830:     // Advertise the roots configured for this server in mcp.json, exactly as
+22831:     // web does (`App.tsx`) so both answer `roots/list` with the same content.
+22832:     // Passing the option (even empty) is what negotiates `capabilities.roots`
+22833:     // at `initialize` and registers the `roots/list` handler. Omitting it meant
+22834:     // a server that asks for roots on its own — `server-filesystem` does, at
+22835:     // `initialize` — got -32601, and `--method roots/set` could not announce
+22836:     // the change at all: the SDK refuses `roots/list_changed` from a client
+22837:     // that never declared it, which `setRoots` logged as a send failure (#1797).
+22838:     roots: cleanRoots(serverSettings?.roots ?? []),
+22839:     // Per-server default `_meta` from mcp.json, exactly as web (`App.tsx`) and
+22840:     // the TUI pass it — the setting belongs to the server, not to the client
+22841:     // that happens to read it, and `InspectorClient` only reads the option
+22842:     // rather than falling back to `serverSettings.metadata` (#2093). Already a
+22843:     // JSON object (#1910), so there is no pair-array flattening left to do;
+22844:     // `{}` means "no defaults". `--metadata` stays per-invocation and wins on a
+22845:     // key collision, since call-time keys override defaults in `mergeMeta`.
+22846:     ...serverSettings?.metadata && Object.keys(serverSettings.metadata).length > 0 && {
+22847:       defaultMetadata: serverSettings.metadata
+22848:     },
+22849:     serverSettings,
+22850:     // Per-server protocol era (SEP §7.8) from mcp.json → SDK versionNegotiation.
+22851:     // Absent era defaults to legacy in the InspectorClient constructor (#1626).
+22852:     ...serverSettings?.protocolEra && {
+22853:       versionNegotiation: eraToVersionNegotiation(serverSettings.protocolEra)
+22854:     },
+22855:     // The CLI cannot render an MCP App, so it does not advertise the UI
+22856:     // extension by default (#2403). `--advertise-apps` claims it explicitly,
+22857:     // for a server that only exposes its App tools to a client that does —
+22858:     // which is what an `--app-info` probe against such a server needs.
+22859:     ...args.advertiseApps && {
+22860:       advertisedExtensions: { [UI_EXTENSION_KEY]: true }
+22861:     },
+22862:     ...clientAuthOptions
+22863:   });
+22864:   try {
+22865:     await connectInspectorWithOAuth(

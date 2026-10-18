@@ -1,0 +1,102 @@
+{
+  "at": "2026-10-18T19:34:24.462710+00:00",
+  "remaining_before_term": [
+    {
+      "pid": 3195795,
+      "pgid": 3195460,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3195796,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3226821,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3226875,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3226973,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3247789,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[find] <defunct>"
+    },
+    {
+      "pid": 3263237,
+      "pgid": 3195460,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3264775,
+      "pgid": 3195460,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3303388,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3304641,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3310832,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3311247,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3311657,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3388323,
+      "pgid": 3195460,
+      "state": "Z",
+      "command": "[pwsh] <defunct>"
+    },
+    {
+      "pid": 3417957,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3445854,
+      "pgid": 3195456,
+      "state": "Z",
+      "command": "[rm] <defunct>"
+    }
+  ],
+  "signals": "SIGTERM only for already-verified obsolete candidate2 groups; zombies are not live work."
+}

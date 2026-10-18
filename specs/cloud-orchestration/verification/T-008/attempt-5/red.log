@@ -1,0 +1,52 @@
+✖ parseTaskState: report reads are bounded by files, not completed tasks (7.836875ms)
+✖ listActiveSpecs: report reads are bounded by files, not completed tasks (5.138544ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.878531
+
+✖ failing tests:
+
+test at dist-test/tests/parsers-state/report-reuse.test.js:13:5
+✖ parseTaskState: report reads are bounded by files, not completed tasks (7.836875ms)
+  AssertionError [ERR_ASSERTION]: quality-gate
+  
+  6 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:45:20)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 6,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/parsers-state/report-reuse.test.js:13:5
+✖ listActiveSpecs: report reads are bounded by files, not completed tasks (5.138544ms)
+  AssertionError [ERR_ASSERTION]: quality-gate
+  
+  12 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:45:20)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 12,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

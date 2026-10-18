@@ -1,0 +1,4009 @@
+{
+  "conclusion": "",
+  "headSha": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+  "jobs": [
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278397,
+      "name": "version-gates-windows-bump (bash)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test bump-version loop-gate prerequisite",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 4,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278397"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:47Z",
+      "conclusion": "success",
+      "databaseId": 117766278482,
+      "name": "cli-hook-enforcement (macos-latest)",
+      "startedAt": "2026-10-18T19:21:25Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278482"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278484,
+      "name": "POSIX unwired shard (2)",
+      "startedAt": "2026-10-18T19:21:21Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run POSIX inventory shard",
+          "number": 5,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 10,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278484"
+    },
+    {
+      "completedAt": "2026-10-18T19:22:20Z",
+      "conclusion": "success",
+      "databaseId": 117766278494,
+      "name": "cli-hook-enforcement (windows-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278494"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278503,
+      "name": "installers (macos-latest / all)",
+      "startedAt": "2026-10-18T19:21:26Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278503"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278510,
+      "name": "POSIX unwired shard (0)",
+      "startedAt": "2026-10-18T19:21:21Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run POSIX inventory shard",
+          "number": 5,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 10,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278510"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278535,
+      "name": "version-gates (macos-latest)",
+      "startedAt": "2026-10-18T19:22:01Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (pwsh)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (bash)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (pwsh)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (bash)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (pwsh)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test A9 unpublished candidate and Pack (pwsh)",
+          "number": 11,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test approver-registry-schema suite (bash)",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test approver-registry-schema suite (pwsh)",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test canonicalize-sdd-yaml suite (bash)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-approval-sidecar suite (bash)",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-approval-sidecar suite (pwsh)",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test detect-policy-weakening suite (bash)",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test detect-policy-weakening suite (pwsh)",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-approval-sidecar suite (bash)",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-approval-sidecar suite (pwsh)",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test apply-human-copy publisher (Bash)",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test apply-human-copy publisher (PowerShell)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-activation handshake suite (bash)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-activation handshake suite (pwsh)",
+          "number": 25,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test epic-a1 guard-invariants registration (bash)",
+          "number": 26,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test epic-a1 guard-invariants registration (pwsh)",
+          "number": 27,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+          "number": 28,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+          "number": 29,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+          "number": 30,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test plugin-contracts track-selection contract (bash)",
+          "number": 31,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test plugin-contracts track-selection contract (pwsh)",
+          "number": 32,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ship track-selection migration (bash)",
+          "number": 33,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ship track-selection migration (pwsh)",
+          "number": 34,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-schema suite (bash)",
+          "number": 35,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-schema suite (pwsh)",
+          "number": 36,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test evaluate-predicate suite (bash)",
+          "number": 37,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test evaluate-predicate suite (pwsh)",
+          "number": 38,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test registry-discovery suite (bash)",
+          "number": 39,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test registry-discovery suite (pwsh)",
+          "number": 40,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-capability-registry suite (bash)",
+          "number": 41,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-capability-registry suite (pwsh)",
+          "number": 42,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-registry-digest suite (bash)",
+          "number": 43,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-registry-digest suite (pwsh)",
+          "number": 44,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-gate-capabilities suite (bash)",
+          "number": 45,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-gate-capabilities suite (pwsh)",
+          "number": 46,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-parity suite (bash)",
+          "number": 47,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-parity suite (pwsh)",
+          "number": 48,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-resolver suite (bash)",
+          "number": 49,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-resolver suite (pwsh)",
+          "number": 50,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-diff-basis suite (bash)",
+          "number": 51,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-diff-basis suite (pwsh)",
+          "number": 52,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ownership-digest suite (bash)",
+          "number": 53,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ownership-digest suite (pwsh)",
+          "number": 54,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-component-coverage suite (bash)",
+          "number": 55,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-component-coverage suite (pwsh)",
+          "number": 56,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-ownership parity suite (bash)",
+          "number": 57,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-ownership parity suite (pwsh)",
+          "number": 58,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test human-copy-runner-contract suite (bash)",
+          "number": 59,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test human-copy-runner-contract suite (pwsh)",
+          "number": 60,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+          "number": 61,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+          "number": 62,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+          "number": 63,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+          "number": 64,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+          "number": 65,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+          "number": 66,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+          "number": 67,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+          "number": 68,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-spec-capability-block suite (bash)",
+          "number": 69,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-spec-capability-block suite (pwsh)",
+          "number": 70,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-consumption suite (bash)",
+          "number": 71,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-consumption suite (pwsh)",
+          "number": 72,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent suite (bash)",
+          "number": 73,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent suite (pwsh)",
+          "number": 74,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-invalid suite (bash)",
+          "number": 75,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-invalid suite (pwsh)",
+          "number": 76,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+          "number": 77,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+          "number": 78,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+          "number": 79,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+          "number": 80,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 160,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278535"
+    },
+    {
+      "completedAt": "2026-10-18T19:23:48Z",
+      "conclusion": "failure",
+      "databaseId": 117766278550,
+      "name": "loops-routing (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test template-validator parity (bash)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test template-validator parity (pwsh)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test boundary-reference authorization parity (pwsh, WFI-037)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (bash)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop inventory registration forcing (pwsh)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (bash)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop driver smoke suite (pwsh)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop consistency suite (bash)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop consistency suite (pwsh)",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop escalation suite (bash)",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test loop escalation suite (pwsh)",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test agent-model-capabilities v2 registry parity lock (bash)",
+          "number": 14,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test agent-model-capabilities v2 registry parity lock (pwsh)",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test render-agent-frontmatter suite (bash)",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test render-agent-frontmatter suite (pwsh)",
+          "number": 17,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test turn-first agent-model routing suite (bash)",
+          "number": 18,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Test turn-first agent-model routing suite (pwsh)",
+          "number": 19,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)",
+          "number": 20,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)",
+          "number": 21,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (bash)",
+          "number": 22,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test HITL/WFI-audit terminal-behavior suite (pwsh)",
+          "number": 23,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test check-placeholders brownfield behavior lock (bash)",
+          "number": 24,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test check-placeholders brownfield behavior lock (pwsh)",
+          "number": 25,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test run-panelist-effort suite (bash)",
+          "number": 26,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test run-panelist-effort suite (pwsh)",
+          "number": 27,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 54,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 55,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278550"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278556,
+      "name": "POSIX unwired shard (1)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run POSIX inventory shard",
+          "number": 5,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 10,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278556"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278558,
+      "name": "version-gates (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test release.yml required loop-gate job (pwsh)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (bash)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test model-freshness-check suite (pwsh)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (bash)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test project-context-schema suite (pwsh)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test A9 unpublished candidate and Pack (pwsh)",
+          "number": 11,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test approver-registry-schema suite (bash)",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test approver-registry-schema suite (pwsh)",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test canonicalize-sdd-yaml suite (bash)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-approval-sidecar suite (bash)",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-approval-sidecar suite (pwsh)",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test detect-policy-weakening suite (bash)",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test detect-policy-weakening suite (pwsh)",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-approval-sidecar suite (bash)",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-approval-sidecar suite (pwsh)",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test apply-human-copy publisher (Bash)",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test apply-human-copy publisher (PowerShell)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-activation handshake suite (bash)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-activation handshake suite (pwsh)",
+          "number": 25,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test epic-a1 guard-invariants registration (bash)",
+          "number": 26,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test epic-a1 guard-invariants registration (pwsh)",
+          "number": 27,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+          "number": 28,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+          "number": 29,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+          "number": 30,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test plugin-contracts track-selection contract (bash)",
+          "number": 31,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test plugin-contracts track-selection contract (pwsh)",
+          "number": 32,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ship track-selection migration (bash)",
+          "number": 33,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ship track-selection migration (pwsh)",
+          "number": 34,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-schema suite (bash)",
+          "number": 35,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-schema suite (pwsh)",
+          "number": 36,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test evaluate-predicate suite (bash)",
+          "number": 37,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test evaluate-predicate suite (pwsh)",
+          "number": 38,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test registry-discovery suite (bash)",
+          "number": 39,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test registry-discovery suite (pwsh)",
+          "number": 40,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-capability-registry suite (bash)",
+          "number": 41,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test validate-capability-registry suite (pwsh)",
+          "number": 42,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-registry-digest suite (bash)",
+          "number": 43,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-registry-digest suite (pwsh)",
+          "number": 44,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-gate-capabilities suite (bash)",
+          "number": 45,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test generate-gate-capabilities suite (pwsh)",
+          "number": 46,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-parity suite (bash)",
+          "number": 47,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test capability-registry-parity suite (pwsh)",
+          "number": 48,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-resolver suite (bash)",
+          "number": 49,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-resolver suite (pwsh)",
+          "number": 50,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-diff-basis suite (bash)",
+          "number": 51,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-diff-basis suite (pwsh)",
+          "number": 52,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ownership-digest suite (bash)",
+          "number": 53,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test ownership-digest suite (pwsh)",
+          "number": 54,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-component-coverage suite (bash)",
+          "number": 55,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-component-coverage suite (pwsh)",
+          "number": 56,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-ownership parity suite (bash)",
+          "number": 57,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test component-path-ownership parity suite (pwsh)",
+          "number": 58,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test human-copy-runner-contract suite (bash)",
+          "number": 59,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test human-copy-runner-contract suite (pwsh)",
+          "number": 60,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+          "number": 61,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+          "number": 62,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+          "number": 63,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+          "number": 64,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+          "number": 65,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+          "number": 66,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+          "number": 67,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+          "number": 68,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-spec-capability-block suite (bash)",
+          "number": 69,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-spec-capability-block suite (pwsh)",
+          "number": 70,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-consumption suite (bash)",
+          "number": 71,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-consumption suite (pwsh)",
+          "number": 72,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent suite (bash)",
+          "number": 73,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent suite (pwsh)",
+          "number": 74,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-invalid suite (bash)",
+          "number": 75,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-invalid suite (pwsh)",
+          "number": 76,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+          "number": 77,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+          "number": 78,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+          "number": 79,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+          "number": 80,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 160,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278558"
+    },
+    {
+      "completedAt": "2026-10-18T19:23:43Z",
+      "conclusion": "failure",
+      "databaseId": 117766278559,
+      "name": "mcp-tests (windows-latest)",
+      "startedAt": "2026-10-18T19:21:23Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "failure",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278559"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278562,
+      "name": "installers (windows-latest / core)",
+      "startedAt": "2026-10-18T19:22:46Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278562"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278565,
+      "name": "POSIX unwired shard (3)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run POSIX inventory shard",
+          "number": 5,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 10,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278565"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278572,
+      "name": "version-gates-windows-bump (powershell)",
+      "startedAt": "2026-10-18T19:21:47Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test bump-version loop-gate prerequisite",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test release.yml required loop-gate job (bash)",
+          "number": 4,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 8,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278572"
+    },
+    {
+      "completedAt": "2026-10-18T19:24:05Z",
+      "conclusion": "success",
+      "databaseId": 117766278578,
+      "name": "installers (ubuntu-latest / all)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 31,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278578"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278582,
+      "name": "test (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "[deterministic] Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "[deterministic] Install pinned local cloud compilation tools (Linux only)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+          "number": 5,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+          "number": 6,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Concept Test gate on native Windows",
+          "number": 7,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test domain review finalization on native platforms",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+          "number": 25,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 26,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 27,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 28,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test hook guards",
+          "number": 29,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 30,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 31,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 32,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 33,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 34,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 35,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 36,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 37,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 38,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 39,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 40,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 41,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 42,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Upload test logs",
+          "number": 43,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 86,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278582"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278583,
+      "name": "complete POSIX regression inventory",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install structural YAML parser",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test required-checks POSIX failure propagation",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test verification catalog and shadow selection",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Observe impact selection without skipping required checks",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install pinned RTK",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test evaluator scratch isolation (Bash and PowerShell)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test shared quality non-TTY transport contracts",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Check shared launch Python and FilesOnly distribution",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test shared launch FilesOnly distribution",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test traceability freeze normalization",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install contract validator",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test shared review launch and conditional input contracts",
+          "number": 14,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Install pinned domain regression test runner",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test domain concept modeling and review contracts",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test guard dispatch fallback",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test guard negative corpus",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test deterministic lane coverage",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test workflow scenarios",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test design system contract (Bash)",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test design system contract (PowerShell)",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test design sync standing consent (Bash)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test design sync standing consent (PowerShell)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 48,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278583"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278593,
+      "name": "installers (windows-latest / mcp)",
+      "startedAt": "2026-10-18T19:23:50Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278593"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:26Z",
+      "conclusion": "success",
+      "databaseId": 117766278597,
+      "name": "A9 advisory activation detection",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Read trusted base",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Read exact PR head",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Detect advisory activation without executing repository code",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 5,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278597"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278610,
+      "name": "version-gates-windows-lanes (capability)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278610"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:49Z",
+      "conclusion": "success",
+      "databaseId": 117766278620,
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Claude Code CLI",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Codex CLI (best-effort)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install Copilot CLI (best-effort)",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "CLI hook enforcement (real toolchain present)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278620"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278623,
+      "name": "test (macos-latest)",
+      "startedAt": "2026-10-18T19:24:09Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Install structural YAML parser",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Install pinned local cloud compilation tools (Linux only)",
+          "number": 4,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+          "number": 5,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+          "number": 6,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Concept Test gate on native Windows",
+          "number": 7,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test domain review finalization on native platforms",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+          "number": 25,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 26,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 27,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 28,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test hook guards",
+          "number": 29,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 30,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 31,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 32,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 33,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 34,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 35,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 36,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 37,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 38,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 39,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 40,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 41,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 42,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Upload test logs",
+          "number": 43,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 86,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278623"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278625,
+      "name": "version-gates-windows-lanes (lite)",
+      "startedAt": "2026-10-18T19:24:13Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278625"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278626,
+      "name": "version-gates-windows-lanes (ownership)",
+      "startedAt": "2026-10-18T19:21:53Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278626"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:49Z",
+      "conclusion": "success",
+      "databaseId": 117766278627,
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278627"
+    },
+    {
+      "completedAt": "2026-10-18T19:22:43Z",
+      "conclusion": "success",
+      "databaseId": 117766278636,
+      "name": "ci-mcp-tests (windows-latest)",
+      "startedAt": "2026-10-18T19:21:52Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278636"
+    },
+    {
+      "completedAt": "2026-10-18T19:23:58Z",
+      "conclusion": "success",
+      "databaseId": 117766278639,
+      "name": "installers (windows-latest / context)",
+      "startedAt": "2026-10-18T19:21:29Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 31,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278639"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278642,
+      "name": "version-gates-windows-lanes (governance)",
+      "startedAt": "2026-10-18T19:22:23Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Test Windows version-gates lane",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 6,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278642"
+    },
+    {
+      "completedAt": "2026-10-18T19:24:10Z",
+      "conclusion": "success",
+      "databaseId": 117766278643,
+      "name": "installers (windows-latest / clients)",
+      "startedAt": "2026-10-18T19:22:29Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Verify generated guard invariants (Windows)",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Verify generated guard invariants (POSIX)",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install recorded Claude Code CLI",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Validate Claude plugin manifests (real CLI)",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test installer (pwsh)",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test installer idempotency (pwsh; WFI-041)",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test uninstaller (pwsh)",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test Claude registration (pwsh)",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (pwsh)",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test POSIX installer",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test POSIX uninstaller",
+          "number": 13,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Test authenticated remote installer (bash)",
+          "number": 14,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Upload installer test logs",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 30,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 31,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278643"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278654,
+      "name": "test (windows-latest)",
+      "startedAt": "2026-10-18T19:24:08Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Setup step 1",
+          "number": 2,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Install structural YAML parser",
+          "number": 3,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Install pinned local cloud compilation tools (Linux only)",
+          "number": 4,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+          "number": 5,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+          "number": 6,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Concept Test gate on native Windows",
+          "number": 7,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test domain review finalization on native platforms",
+          "number": 8,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (Windows)",
+          "number": 9,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated guard invariants (POSIX)",
+          "number": 10,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+          "number": 11,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+          "number": 12,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (Windows)",
+          "number": 13,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+          "number": 14,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (PowerShell)",
+          "number": 15,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate workflow state (POSIX)",
+          "number": 16,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository",
+          "number": 17,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Validate repository (POSIX)",
+          "number": 18,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test repository release validation parity",
+          "number": 19,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gate scripts",
+          "number": 20,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test run-record feature scope and CRLF identity",
+          "number": 21,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test selected-feature structure validation",
+          "number": 22,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+          "number": 23,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+          "number": 24,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+          "number": 25,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (pwsh)",
+          "number": 26,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+          "number": 27,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+          "number": 28,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test hook guards",
+          "number": 29,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+          "number": 30,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test review hash normalization (pwsh)",
+          "number": 31,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+          "number": 32,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test guards (bash)",
+          "number": 33,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test approval boundary (bash)",
+          "number": 34,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test deterministic gates (bash)",
+          "number": 35,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test panelist-input consent gate (bash)",
+          "number": 36,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test portable review-loop prechecks (bash)",
+          "number": 37,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-model gate (bash)",
+          "number": 38,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test outcome-based eval suite (bash)",
+          "number": 39,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test CRLF line-ending parity (bash)",
+          "number": 40,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+          "number": 41,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Test branch-protection script (bash)",
+          "number": 42,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "[deterministic] Upload test logs",
+          "number": 43,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post [deterministic] Setup step 1",
+          "number": 86,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278654"
+    },
+    {
+      "completedAt": "2026-10-18T19:24:17Z",
+      "conclusion": "success",
+      "databaseId": 117766278663,
+      "name": "ci-mcp-tests (macos-latest)",
+      "startedAt": "2026-10-18T19:23:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "skipped",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278663"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278665,
+      "name": "loops-routing (windows-latest)",
+      "startedAt": "2026-10-18T19:24:20Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "",
+          "name": "Set up job",
+          "number": 1,
+          "status": "in_progress"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278665"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278669,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278669"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:44Z",
+      "conclusion": "success",
+      "databaseId": 117766278674,
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278674"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278706,
+      "name": "test-windows-heavy (compatibility)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278706"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278722,
+      "name": "test-windows-heavy (a9)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278722"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278733,
+      "name": "mcp-tests (macos-latest)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278733"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278746,
+      "name": "test-windows-heavy (gates)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278746"
+    },
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 117766278761,
+      "name": "local-env-mcp-tests (macos-latest)",
+      "startedAt": "2026-10-18T19:21:19Z",
+      "status": "queued",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278761"
+    },
+    {
+      "completedAt": "2026-10-18T19:22:26Z",
+      "conclusion": "success",
+      "databaseId": 117766278762,
+      "name": "mcp-tests (ubuntu-latest)",
+      "startedAt": "2026-10-18T19:21:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Set up Node.js",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Type check",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run tests",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Rebuild dist and verify parity",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Audit production dependencies",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Set up Node.js",
+          "number": 15,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 16,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766278762"
+    },
+    {
+      "completedAt": "2026-10-18T19:21:26Z",
+      "conclusion": "skipped",
+      "databaseId": 117766307739,
+      "name": "capability-mode Gate",
+      "startedAt": "2026-10-18T19:21:27Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39158381429/job/117766307739"
+    }
+  ],
+  "status": "queued"
+}

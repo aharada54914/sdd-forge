@@ -1,0 +1,26 @@
+{
+  "unfiltered_diff_check_exit": 2,
+  "affected_paths": [
+    "specs/cloud-orchestration/verification/T-008/attempt-4/inspector-interface.txt",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/launch-brief.txt",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/mcp-typecheck.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/scope.diff",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/acceptance-red.test.ts.txt",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/before-mcp-tests.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/launch-brief.txt",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/reapply-typecheck.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/red-compile.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/red.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/rollback-mcp-tests.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/rollback-typecheck.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/scope.diff",
+    "specs/cloud-orchestration/verification/T-008/attempt-5/typecheck.log",
+    "specs/cloud-orchestration/verification/T-008/root-release-attempt-1/ubuntu-native-timeout-selected.log",
+    "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/windows-cloud-alarm-failure.log",
+    "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/windows-cloud-install-failure.log",
+    "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/windows-cloud-visibility-failure.log",
+    "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/windows-mcp-timeout.log"
+  ],
+  "source_documentation_report_diff_check_exit": 0,
+  "resolution": "Preserve exact frozen command output, diagnostic excerpts and unified-diff whitespace. No production/documentation/implementation-report whitespace errors. Evidence bytes are not rewritten for cosmetic formatting."
+}

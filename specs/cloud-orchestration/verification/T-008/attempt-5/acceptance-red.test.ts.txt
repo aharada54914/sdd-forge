@@ -1,0 +1,49 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
+import { parseTaskState } from "../../src/parsers/tasks.js";
+import { listActiveSpecs } from "../../src/tools/core.js";
+import { makeTempSddRoot, writeFile } from "../test-helpers.js";
+
+function tasks(): string {
+  return ["Done", "Done", "Implementation Complete", "Implementation Complete"]
+    .map((status, i) => `## T-00${i + 1}\nApproval: Approved\nStatus: ${status}\nRisk: low\n`).join("\n");
+}
+
+for (const boundary of ["parseTaskState", "listActiveSpecs"]) {
+  test(`${boundary}: report reads are bounded by files, not completed tasks`, (t) => {
+    const fixture = makeTempSddRoot("report-reuse");
+    t.after(fixture.cleanup);
+    writeFile(fixture.dir, "AGENTS.md", "## Active Spec Directories\n\n- `specs/one/`\n- `specs/two/`\n");
+    for (const feature of ["one", "two"]) writeFile(fixture.dir, `specs/${feature}/tasks.md`, tasks());
+    for (const dir of ["quality-gate", "implementation"]) {
+      writeFile(fixture.dir, `reports/${dir}/all.md`, "T-001 T-002 T-003 T-004\nVERDICT: PASS\n");
+    }
+    const original = fs.readFileSync;
+    const reads: string[] = [];
+    t.mock.method(fs, "readFileSync", (...args: Parameters<typeof fs.readFileSync>) => {
+      reads.push(String(args[0]).replaceAll("\\", "/"));
+      return Reflect.apply(original, fs, args);
+    });
+    syncBuiltinESMExports();
+    t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+    if (boundary === "parseTaskState") {
+      const result = parseTaskState(fixture.root, "one", "specs/one/tasks.md");
+      assert.ok(result.ok);
+      assert.equal(result.data.tasks.length, 4);
+      assert.deepEqual(result.data.failures.map(f => f.rule), [
+        "done-evidence-missing", "done-contract-missing", "done-evidence-missing", "done-contract-missing",
+      ]);
+    } else {
+      assert.deepEqual(listActiveSpecs(fixture.root), { ok: true, data: { kind: "active-specs", specs: [
+        { feature: "one", path: "specs/one/", hasApprovedPlannedOrInProgress: false },
+        { feature: "two", path: "specs/two/", hasApprovedPlannedOrInProgress: false },
+      ] } });
+    }
+    for (const dir of ["quality-gate", "implementation"]) {
+      assert.equal(reads.filter(p => p.endsWith(`/reports/${dir}/all.md`)).length, 1, dir);
+    }
+  });
+}
+

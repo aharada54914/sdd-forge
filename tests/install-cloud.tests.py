@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 PWSH = os.environ.get('SDD_TEST_PWSH') or shutil.which('pwsh') or '/workspace/.tools/sdd-forge-dev/bin/pwsh'
@@ -25,8 +26,20 @@ HOSTS = ('.claude-plugin', '.codex-plugin', '.plugin')
 MARKETS = ('.agents/plugins/marketplace.json', '.claude-plugin/marketplace.json')
 
 
+def fixture_environment(home: Path, *, path: str | None = None) -> dict[str, str]:
+    # Windows executable discovery needs PATHEXT and the OS directory; never
+    # inherit credentials, profiles, Git configuration or ambient cloud settings.
+    env = {key: os.environ[key] for key in ('PATH', 'PATHEXT', 'SystemRoot', 'WINDIR', 'COMSPEC')
+           if key in os.environ}
+    if path is not None:
+        env['PATH'] = path
+    env.update(HOME=str(home), USERPROFILE=str(home), TEMP=str(home), TMP=str(home),
+               PYTHONDONTWRITEBYTECODE='1')
+    return env
+
+
 def run(args: list[str], cwd: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, cwd=cwd, env=env, text=True, capture_output=True, timeout=180)
+    return subprocess.run(args, cwd=cwd, env=fixture_environment(cwd) if env is None else env, text=True, capture_output=True, timeout=180)
 
 
 def write_json(path: Path, value: object) -> None:
@@ -94,6 +107,19 @@ def validate(root: Path, skills: bool = False) -> subprocess.CompletedProcess[st
     driver = root / 'boundary.ps1'
     driver.write_text('param([string]$repositoryRoot)\n$ErrorActionPreference="Stop"\nSet-StrictMode -Version Latest\n' + block)
     return run([PWSH, '-NoProfile', '-File', str(driver), str(root)], root)
+
+
+class FixtureEnvironment(unittest.TestCase):
+    def test_platform_keys_without_ambient_credentials(self) -> None:
+        platform = dict(PATH='fixture-path', PATHEXT='.COM;.EXE;.BAT;.CMD',
+                        SystemRoot='fixture-windows', WINDIR='fixture-windows', COMSPEC='fixture-cmd')
+        with patch.dict(os.environ, dict(platform, AWS_PROFILE='not-inherited',
+                                       AZURE_CONFIG_DIR='not-inherited', GIT_CONFIG_COUNT='1'), clear=True):
+            env = fixture_environment(Path('fixture-home'))
+            self.assertEqual({key: env[key] for key in platform}, platform)
+            self.assertEqual(set(env), set(platform) | {'HOME', 'USERPROFILE', 'TEMP', 'TMP', 'PYTHONDONTWRITEBYTECODE'})
+            self.assertEqual(env['HOME'], env['USERPROFILE'])
+            self.assertEqual(fixture_environment(Path('fixture-home'), path=os.defpath)['PATH'], os.defpath)
 
 
 class ManifestBoundary(unittest.TestCase):
@@ -298,7 +324,8 @@ class InstalledLifecycle(unittest.TestCase):
 
     def installer(self, shell: str, plugins: tuple[str, ...], dest: Path, *, uninstall: bool = False) -> subprocess.CompletedProcess[str]:
         name = 'uninstall' if uninstall else 'install'
-        env = dict(PATH=os.environ['PATH'], HOME=str(self.root), PYTHONDONTWRITEBYTECODE='1', SDD_CODEX_HOME=str(self.root / 'codex-home'))
+        env = fixture_environment(self.root)
+        env['SDD_CODEX_HOME'] = str(self.root / 'codex-home')
         if shell == 'bash':
             args = ['bash', str(ROOT / (name + '.sh')), '--install-root', str(dest), '--target', 'FilesOnly', '--skip-agent-' + ('uninstall' if uninstall else 'install'), '--skip-mcp' + ('-uninstall' if uninstall else '')]
             if plugins:
@@ -351,7 +378,7 @@ class InstalledLifecycle(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=parent) as temp:
             work = Path(temp).resolve()
             runtime = plugin / 'runtime'
-            env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work), CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
+            env = dict(fixture_environment(work, path=os.defpath), CLOUD_WORKSPACE_ROOT=str(work), CLOUD_SHARED_RUNTIME_ROOT=str(runtime / 'scripts'), PYTHONDONTWRITEBYTECODE='1')
             p = run([sys.executable, '-I', '-B', '-c', RUNTIME_PROBE, str(runtime)], work, env)
             self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
             request = local_request(work, provider)
@@ -468,7 +495,7 @@ class InstalledLifecycle(unittest.TestCase):
                                 work = Path(work_temp).resolve()
                                 request = local_request(work, provider)
                                 write_json(work / 'request.json', request)
-                                env = dict(PATH=os.defpath, HOME=str(work), CLOUD_WORKSPACE_ROOT=str(work),
+                                env = dict(fixture_environment(work, path=os.defpath), CLOUD_WORKSPACE_ROOT=str(work),
                                            CLOUD_SHARED_RUNTIME_ROOT=str(plugin / 'runtime/scripts'), PYTHONDONTWRITEBYTECODE='1')
                                 p = run([sys.executable, '-B', str(plugin / 'scripts/cloud.py'), 'route', '--request', str(work / 'request.json'),
                                          '--output', request['local_context']['evidence_directory'] + '/route.json'], work, env)
@@ -561,24 +588,26 @@ class SkillVisibility(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='cloud-visibility-guards-') as temp:
             root = Path(temp).resolve()
             fixture(root)
-            self.assertEqual(validate(root, skills=True).returncode, 0)
+            result = validate(root, skills=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             for provider in PROVIDERS:
                 path = root / f'plugins/sdd-{provider}-cloud/skills/orchestrate/SKILL.md'
-                original = path.read_text()
+                original = path.read_bytes()
                 variants = [
-                    original.replace('name: orchestrate', 'name: Orchestrate'),
-                    original.replace('disable-model-invocation: true', 'disable-model-invocation: false'),
-                    original.replace('disable-model-invocation: true', 'disable-model-invocation: true\nuser-invocable: false'),
+                    original.replace(b'name: orchestrate', b'name: Orchestrate'),
+                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: false'),
+                    original.replace(b'disable-model-invocation: true', b'disable-model-invocation: true\nuser-invocable: false'),
                 ]
                 for index, variant in enumerate(variants):
                     with self.subTest(provider=provider, variant=index):
                         try:
-                            path.write_text(variant)
+                            path.write_bytes(variant)
                             result = validate(root, skills=True)
-                            self.assertNotEqual(result.returncode, 0)
+                            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                         finally:
-                            path.write_text(original)
-                self.assertEqual(validate(root, skills=True).returncode, 0)
+                            path.write_bytes(original)
+                result = validate(root, skills=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_each_entry_frontmatter_and_relative_links(self) -> None:
         import re

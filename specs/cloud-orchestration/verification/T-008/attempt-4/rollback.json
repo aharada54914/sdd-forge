@@ -1,0 +1,273 @@
+{
+  "classification": "disposable git archive with exact initial task-file bytes restored then exact candidate bytes reapplied; no live checkout rollback",
+  "results": [
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "bash",
+        "tests/agent-model-routing.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 40.53698314099893,
+      "stdout": "ok: matrix missing low risk row\nok: matrix missing medium risk row\nok: matrix missing high risk row\nok: matrix missing critical risk row\nok: low risk matrix row must be 1/1/1\nok: medium risk matrix row must be 2/1/1\nok: high risk matrix row must be 3/2/1\nok: critical risk matrix row must be 3/2/1\nok: routing priority must put expected iterations before tier and token price\nok: routing must use invocation-supplied cost estimate\nok: routing must record cost estimate timestamp\nok: routing must define lexical final tie-break\nok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break\nok: the ADR must record the fallback-deprioritization rank\nok: missing closed failure enum: test\nok: missing closed failure enum: lint\nok: missing closed failure enum: typecheck\nok: missing closed failure enum: build\nok: missing closed failure enum: review-major\nok: missing closed failure enum: review-critical\nok: same failure recurrence must be required before escalation\nok: different failure classes must not trigger escalation\nok: escalation must advance exactly one tier\nok: strong recurrence must block with terminal-tier-recurrence\nok: terminal-tier resume must use deterministic paired validation\nok: deterministic operations must be excluded from model routing\nok: routing must fail closed when no availability-checked model satisfies a required tier\nok: same-tier substitution must preserve canonical tier identity\nok: strong Codex routing must prefer high before xhigh\nok: lightweight Anthropic mapping must be Haiku\nok: standard Anthropic mapping must be Sonnet\nok: strong Anthropic mapping must be Opus\nok: lightweight Codex mapping must name gpt-5.1-codex-mini\nok: standard Codex mapping must name gpt-5.1-codex\nok: strong Codex mapping must use the available registry and preserve the role floor\nok: investigator must be lightweight/Haiku with Codex low equivalent\nok: spec reviewers must be at least standard/Sonnet\nok: implementation reviewers must be at least standard/Sonnet\nok: task reviewers must be at least standard/Sonnet\nok: evaluator must use Claude Sonnet and retain Codex strong high/xhigh\nok: Claude investigator must be downgraded to Haiku\nok: Copilot investigator must document lightweight tier\nok: Claude evaluator must use approved Sonnet\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-b.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-b.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md\nok: ADR must record turn-first routing decision\nok: delegation policy must require turn-first routing\nok: turn-first model routing structure is defined\n",
+      "stderr": ""
+    },
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/agent-model-routing.tests.ps1"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 1,
+      "seconds": 0.836567742000625,
+      "stdout": "",
+      "stderr": "not ok: strong Codex mapping must name gpt-5.2-codex and its fallback\n"
+    },
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "bash",
+        "tests/registry-discovery.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 1,
+      "seconds": 1.9201486949968967,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=20 fail=1 ----\nregistry-discovery suite FAILED (20 passed, 1 failed)\n",
+      "stderr": "not ok: AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree\n"
+    },
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/registry-discovery.tests.ps1"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 1,
+      "seconds": 2.4641836160008097,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=20 fail=1 ----\nregistry-discovery suite FAILED (20 passed, 1 failed)\n",
+      "stderr": "not ok: AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree\n"
+    },
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "python3",
+        "-B",
+        "tests/install-cloud.tests.py",
+        "SkillVisibility.test_visibility_guards_with_matched_controls"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 10.537876030997722,
+      "stdout": "",
+      "stderr": "test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 10.307s\n\nOK\n"
+    },
+    {
+      "phase": "rollback",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+        "tests/registry-discovery.tests.sh": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+        "tests/registry-discovery.tests.ps1": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+        "tests/install-cloud.tests.py": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+        "tests/cloud-orchestration-verification.tests.py": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f"
+      },
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AlarmNumericCases"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 29.45987133000017,
+      "stdout": "",
+      "stderr": "test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok\ntest_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok\ntest_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok\ntest_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 29.112s\n\nOK\n"
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "bash",
+        "tests/agent-model-routing.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 39.772368288002326,
+      "stdout": "ok: matrix missing low risk row\nok: matrix missing medium risk row\nok: matrix missing high risk row\nok: matrix missing critical risk row\nok: low risk matrix row must be 1/1/1\nok: medium risk matrix row must be 2/1/1\nok: high risk matrix row must be 3/2/1\nok: critical risk matrix row must be 3/2/1\nok: routing priority must put expected iterations before tier and token price\nok: routing must use invocation-supplied cost estimate\nok: routing must record cost estimate timestamp\nok: routing must define lexical final tie-break\nok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break\nok: the ADR must record the fallback-deprioritization rank\nok: missing closed failure enum: test\nok: missing closed failure enum: lint\nok: missing closed failure enum: typecheck\nok: missing closed failure enum: build\nok: missing closed failure enum: review-major\nok: missing closed failure enum: review-critical\nok: same failure recurrence must be required before escalation\nok: different failure classes must not trigger escalation\nok: escalation must advance exactly one tier\nok: strong recurrence must block with terminal-tier-recurrence\nok: terminal-tier resume must use deterministic paired validation\nok: deterministic operations must be excluded from model routing\nok: routing must fail closed when no availability-checked model satisfies a required tier\nok: same-tier substitution must preserve canonical tier identity\nok: strong Codex routing must prefer high before xhigh\nok: lightweight Anthropic mapping must be Haiku\nok: standard Anthropic mapping must be Sonnet\nok: strong Anthropic mapping must be Opus\nok: lightweight Codex mapping must name gpt-5.1-codex-mini\nok: standard Codex mapping must name gpt-5.1-codex\nok: strong Codex mapping must use the available registry and preserve the role floor\nok: investigator must be lightweight/Haiku with Codex low equivalent\nok: spec reviewers must be at least standard/Sonnet\nok: implementation reviewers must be at least standard/Sonnet\nok: task reviewers must be at least standard/Sonnet\nok: evaluator must use Claude Sonnet and retain Codex strong high/xhigh\nok: Claude investigator must be downgraded to Haiku\nok: Copilot investigator must document lightweight tier\nok: Claude evaluator must use approved Sonnet\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-b.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-b.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md\nok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md\nok: ADR must record turn-first routing decision\nok: delegation policy must require turn-first routing\nok: turn-first model routing structure is defined\n",
+      "stderr": ""
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/agent-model-routing.tests.ps1"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 2.6213427749971743,
+      "stdout": "Risk check passed for 1 task(s).\nRisk check FAILED:\n - T-001 Risk: low is inconsistent with its structured risk fields (policy floor: high)\nok: turn-first model routing structure is defined (PowerShell twin)\n",
+      "stderr": ""
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "bash",
+        "tests/registry-discovery.tests.sh"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 1.847079348997795,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy\nok: AC-027 vendored-copy-drift: vendor generation succeeds\nok: AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=22 fail=0 ----\nregistry-discovery suite passed (22 checks)\n",
+      "stderr": ""
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/registry-discovery.tests.ps1"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 3.110769879996951,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy\nok: AC-027 vendored-copy-drift: vendor generation succeeds\nok: AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=22 fail=0 ----\nregistry-discovery suite passed (22 checks)\n",
+      "stderr": ""
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "python3",
+        "-B",
+        "tests/install-cloud.tests.py",
+        "SkillVisibility.test_visibility_guards_with_matched_controls"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 9.927919458998076,
+      "stdout": "",
+      "stderr": "test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 9.644s\n\nOK\n"
+    },
+    {
+      "phase": "reapply",
+      "hashes": {
+        "tests/agent-model-routing.tests.ps1": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+        "tests/registry-discovery.tests.sh": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+        "tests/registry-discovery.tests.ps1": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+        "tests/install-cloud.tests.py": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+        "tests/cloud-orchestration-verification.tests.py": "12efb15e4a595c0507abce45556aeced8344564e0d5105d989c5b1649928385a"
+      },
+      "command": [
+        "python3",
+        "-B",
+        "tests/cloud-orchestration-verification.tests.py",
+        "AlarmNumericCases"
+      ],
+      "cwd": "/tmp/cloud-T008-attempt4-01a1507a/rollback",
+      "exit_code": 0,
+      "seconds": 24.41475293700205,
+      "stdout": "",
+      "stderr": "test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok\ntest_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok\ntest_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok\ntest_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 24.152s\n\nOK\n"
+    }
+  ],
+  "missing_source_sensitivity": [
+    {
+      "command": [
+        "bash",
+        "tests/registry-discovery.tests.sh"
+      ],
+      "mutation": "omit verification-contract-v3.schema.json from fixture copy list only",
+      "exit_code": 1,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=19 fail=3 ----\nregistry-discovery suite FAILED (19 passed, 3 failed)\n",
+      "stderr": "not ok: AC-027 vendored-copy-drift: expected stale-copy diagnostic: vendor-capability-registry: canonical source missing: /tmp/tmp.fCD4305CR1/drift-repo/contracts/verification-contract-v3.schema.json\nnot ok: AC-027 vendored-copy-drift: vendor generation failed: vendor-capability-registry: canonical source missing: /tmp/tmp.fCD4305CR1/drift-repo/contracts/verification-contract-v3.schema.json\nnot ok: AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: vendor-capability-registry: canonical source missing: /tmp/tmp.fCD4305CR1/drift-repo/contracts/verification-contract-v3.schema.json\n"
+    },
+    {
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "tests/registry-discovery.tests.ps1"
+      ],
+      "mutation": "omit verification-contract-v3.schema.json from fixture copy list only",
+      "exit_code": 1,
+      "stdout": "ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone\nok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone\nok: AC-027 version-mismatch: wrong schema value on the Registry fails closed\nok: AC-027 version-mismatch: mismatched $id on the schema file fails closed\nok: AC-027 version-mismatch: missing $schema key on the schema file fails closed\nok: AC-027 version-mismatch: wrong schema value on the catalog fails closed\nok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)\nok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)\nok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh\nok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1\nok: human-copy: staged workflow candidate registers this suite's CI steps\nok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256\n---- summary: pass=19 fail=3 ----\nregistry-discovery suite FAILED (19 passed, 3 failed)\n",
+      "stderr": "not ok: AC-027 vendored-copy-drift: expected stale-copy diagnostic: vendor-capability-registry: canonical source missing: /tmp/y2yjbscp.avj/drift-repo/contracts/verification-contract-v3.schema.json\nnot ok: AC-027 vendored-copy-drift: vendor generation failed: vendor-capability-registry: canonical source missing: /tmp/y2yjbscp.avj/drift-repo/contracts/verification-contract-v3.schema.json\nnot ok: AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: vendor-capability-registry: canonical source missing: /tmp/y2yjbscp.avj/drift-repo/contracts/verification-contract-v3.schema.json\n"
+    }
+  ]
+}

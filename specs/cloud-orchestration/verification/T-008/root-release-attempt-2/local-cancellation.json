@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-10-18T19:34:15.079444+00:00",
+  "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+  "reason": "Actual known native CI failures and local PowerShell routing failure require a new candidate. Cancel obsolete incomplete local full runs to free resources for fixes; not PASS or complete coverage. Hosted CI continues for additional diagnostics.",
+  "signals": [
+    {
+      "pid": 3195456,
+      "pgid": 3195456,
+      "command": [
+        "python3",
+        "/tmp/cloud-run-release-shard.py",
+        "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+        "local-posix",
+        "1",
+        "/workspace/cloud-release-v119-2"
+      ]
+    },
+    {
+      "pid": 3195457,
+      "pgid": 3195457,
+      "command": [
+        "python3",
+        "/tmp/cloud-run-release-shard.py",
+        "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+        "local-powershell",
+        "1",
+        "/workspace/cloud-release-v119-2"
+      ]
+    },
+    {
+      "pid": 3195460,
+      "pgid": 3195460,
+      "command": [
+        "python3",
+        "/tmp/cloud-run-release-shard.py",
+        "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+        "local-powershell",
+        "0",
+        "/workspace/cloud-release-v119-2"
+      ]
+    },
+    {
+      "pid": 3195463,
+      "pgid": 3195463,
+      "command": [
+        "python3",
+        "/tmp/cloud-run-release-shard.py",
+        "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+        "local-posix",
+        "0",
+        "/workspace/cloud-release-v119-2"
+      ]
+    }
+  ],
+  "partial_logs": [
+    {
+      "path": "/workspace/cloud-release-v119-2/local-powershell-1.log",
+      "sha256_before_signal": "8fcb4165f38cdd9aa4cb45aed0fbec1ff4b1bbee27d668e336aa9684a73a61d5"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-powershell-0.log",
+      "sha256_before_signal": "6964b8d13b1036e2a221a2794d5915fac7ee01efb396bccc217408693d540a7e"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-posix-0.log",
+      "sha256_before_signal": "5963b64c7731491b9525a6cac3fe74773ece64b1419a8d688bc142447cedcbce"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-posix-1.log",
+      "sha256_before_signal": "e903e73f28f85cea004ba2bef80e8a70617235492b6ee429bfd076b9d328e27a"
+    }
+  ]
+}

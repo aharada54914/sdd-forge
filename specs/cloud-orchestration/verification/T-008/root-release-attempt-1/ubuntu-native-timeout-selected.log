@@ -1,0 +1,35 @@
+2026-10-18T19:20:30.2753165Z Removing HTTP extra header
+2026-10-18T19:20:30.2778133Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-18T19:20:30.2832874Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-18T19:20:30.3112352Z Removing includeIf entries pointing to credentials config files
+2026-10-18T19:20:30.3122561Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-18T19:20:30.3150608Z includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git.path
+2026-10-18T19:20:30.3161717Z includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git/worktrees/*.path
+2026-10-18T19:20:30.3162646Z includeif.gitdir:/github/workspace/.git.path
+2026-10-18T19:20:30.3163435Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-18T19:20:30.3165380Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git.path
+2026-10-18T19:20:30.3192526Z /home/runner/work/_temp/git-credentials-0a89a12b-9ca7-43ff-b706-6d5ced5b76bc.config
+2026-10-18T19:20:30.3205504Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-0a89a12b\-9ca7\-43ff\-b706\-6d5ced5b76bc\.config
+2026-10-18T19:20:30.3272487Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git/worktrees/*.path
+2026-10-18T19:20:30.3297703Z /home/runner/work/_temp/git-credentials-0a89a12b-9ca7-43ff-b706-6d5ced5b76bc.config
+2026-10-18T19:20:30.3320465Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sdd-forge/sdd-forge/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-0a89a12b\-9ca7\-43ff\-b706\-6d5ced5b76bc\.config
+2026-10-18T19:20:30.3360814Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-18T19:20:30.3390906Z /github/runner_temp/git-credentials-0a89a12b-9ca7-43ff-b706-6d5ced5b76bc.config
+2026-10-18T19:20:30.3400917Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-0a89a12b\-9ca7\-43ff\-b706\-6d5ced5b76bc\.config
+2026-10-18T19:20:30.3442067Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-18T19:20:30.3470864Z /github/runner_temp/git-credentials-0a89a12b-9ca7-43ff-b706-6d5ced5b76bc.config
+2026-10-18T19:20:30.3481501Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-0a89a12b\-9ca7\-43ff\-b706\-6d5ced5b76bc\.config
+2026-10-18T19:20:30.3526451Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-18T19:20:30.3786802Z Removing credentials config '/home/runner/work/_temp/git-credentials-0a89a12b-9ca7-43ff-b706-6d5ced5b76bc.config'
+2026-10-18T19:20:30.3955101Z Cleaning up orphan processes
+2026-10-18T19:20:30.4221663Z Terminate orphan process: pid (146448) (bash)
+2026-10-18T19:20:30.4258700Z Terminate orphan process: pid (146449) (tee)
+2026-10-18T19:20:30.4288198Z Terminate orphan process: pid (147128) (bash)
+2026-10-18T19:20:30.4309836Z Terminate orphan process: pid (147129) (sh)
+2026-10-18T19:20:30.4331286Z Terminate orphan process: pid (147138) (python3)
+2026-10-18T19:20:30.4352907Z Terminate orphan process: pid (147144) (sleep)
+2026-10-18T19:20:30.4374315Z Terminate orphan process: pid (147145) (gemini)
+2026-10-18T19:20:30.4395662Z Terminate orphan process: pid (147146) (gemini)
+2026-10-18T19:20:30.4416982Z Terminate orphan process: pid (147155) (sleep)
+2026-10-18T19:20:30.4438549Z Terminate orphan process: pid (147156) (sleep)
+

@@ -1,0 +1,7 @@
+{
+  "stage": "thread/start before allocation",
+  "error": "invalid transport in mcp_servers.chrome-devtools",
+  "cause": "Launcher override enabled=false introduced a server entry absent from current environment configuration, with no transport.",
+  "repair": "Remove only obsolete chrome-devtools.enabled override. No user configuration edited, no reviewer identity reserved or implementation started.",
+  "timestamp": "2026-10-18T19:25:47.976620+00:00"
+}

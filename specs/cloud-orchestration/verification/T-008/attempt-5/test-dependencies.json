@@ -1,0 +1,17 @@
+[
+  {
+    "path": "contracts/cross-critique.v1.schema.json",
+    "sha256": "8c72c37907036cf00d1d8d341199d4d3502fabd57db1c60d0205926e23135991",
+    "entry_git_bytes_equal": true
+  },
+  {
+    "path": "contracts/adversarial-review-report.v1.schema.json",
+    "sha256": "3dd9bbb8cfd475444b4662abddedc86b9088d419323e4bfeb34b663a8353fb1a",
+    "entry_git_bytes_equal": true
+  },
+  {
+    "path": "contracts/adversarial-review-evaluation.v1.schema.json",
+    "sha256": "79a3f7b75996474d318535dab04fd284706f2008ef7592fe66992e3dc39d054f",
+    "entry_git_bytes_equal": true
+  }
+]

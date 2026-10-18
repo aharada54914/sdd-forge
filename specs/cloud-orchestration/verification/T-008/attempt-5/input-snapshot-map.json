@@ -1,0 +1,458 @@
+[
+  {
+    "path": "initial/external/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-blast-radius/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-blast-radius/SKILL.md"
+  },
+  {
+    "path": "initial/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/coding-standards/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/coding-standards/SKILL.md"
+  },
+  {
+    "path": "initial/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/security-review/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/security-review/SKILL.md"
+  },
+  {
+    "path": "initial/external/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/verification-loop/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/verification-loop/SKILL.md"
+  },
+  {
+    "path": "initial/external/workspace/.tools/sdd-forge-dev/upstream/ponytail/skills/ponytail/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/upstream/ponytail/skills/ponytail/SKILL.md"
+  },
+  {
+    "path": "initial/external/workspace/AGENTS.md",
+    "source": "/workspace/AGENTS.md"
+  },
+  {
+    "path": "initial/AGENTS.md",
+    "source": "AGENTS.md"
+  },
+  {
+    "path": "initial/README.md",
+    "source": "README.md"
+  },
+  {
+    "path": "initial/contracts/sdd-forge-mcp-tools.v1.schema.json",
+    "source": "contracts/sdd-forge-mcp-tools.v1.schema.json"
+  },
+  {
+    "path": "initial/contracts/task-input-manifest.schema.json",
+    "source": "contracts/task-input-manifest.schema.json"
+  },
+  {
+    "path": "initial/docs/adr/0036-thin-cloud-orchestration.md",
+    "source": "docs/adr/0036-thin-cloud-orchestration.md"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/dist/index.js",
+    "source": "mcp/sdd-forge-mcp/dist/index.js"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/package-lock.json",
+    "source": "mcp/sdd-forge-mcp/package-lock.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/package.json",
+    "source": "mcp/sdd-forge-mcp/package.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs",
+    "source": "mcp/sdd-forge-mcp/scripts/check-adversarial-report.mjs"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs",
+    "source": "mcp/sdd-forge-mcp/scripts/check-cross-critique.mjs"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/scripts/record-golden-fixtures.ts",
+    "source": "mcp/sdd-forge-mcp/scripts/record-golden-fixtures.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/scripts/run-tests.mjs",
+    "source": "mcp/sdd-forge-mcp/scripts/run-tests.mjs"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/envelope.ts",
+    "source": "mcp/sdd-forge-mcp/src/envelope.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/index.ts",
+    "source": "mcp/sdd-forge-mcp/src/index.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/next-command.ts",
+    "source": "mcp/sdd-forge-mcp/src/next-command.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/agents-md.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/agents-md.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/evidence-bundle.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/evidence-bundle.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/evidence.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/evidence.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/json-object.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/json-object.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/quality-report.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/quality-report.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/review-ticket.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/review-ticket.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/spec-header.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/spec-header.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/task-types.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/task-types.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/task-validation.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/tasks.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/parsers/traceability.ts",
+    "source": "mcp/sdd-forge-mcp/src/parsers/traceability.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/path-guard.ts",
+    "source": "mcp/sdd-forge-mcp/src/path-guard.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/resources.ts",
+    "source": "mcp/sdd-forge-mcp/src/resources.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/root.ts",
+    "source": "mcp/sdd-forge-mcp/src/root.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/server.ts",
+    "source": "mcp/sdd-forge-mcp/src/server.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/tools/core.ts",
+    "source": "mcp/sdd-forge-mcp/src/tools/core.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/src/tools/evidence.ts",
+    "source": "mcp/sdd-forge-mcp/src/tools/evidence.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/adversarial-report-current.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/adversarial-report-current.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/core-tools/core-tools.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/core-tools/core-tools.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/cross-critique-contract.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/cross-critique-contract.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/error-paths/too-large-and-not-sdd-root.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/error-paths/too-large-and-not-sdd-root.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/deep-verify-parity-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/environment-dependence.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/golden/environment-dependence.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/bootstrap-interviewer-enhancement.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/bootstrap-interviewer-enhancement.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/ci-mcp.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/ci-mcp.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/claude-workflow-compatibility.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/claude-workflow-compatibility.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/cross-model-verification.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/cross-model-verification.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/evidence-deep-verify.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/evidence-deep-verify.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/risk-adaptive-layer.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/risk-adaptive-layer.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-lite.expected.json",
+    "source": "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-lite.expected.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/shell-runner.ts",
+    "source": "mcp/sdd-forge-mcp/tests/golden/shell-runner.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/next-command/next-command.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/next-command/next-command.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/next-command/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/next-command/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/no-secrets/deep-verify-signature.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/no-secrets/deep-verify-signature.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parser/baseline-and-io.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parser/baseline-and-io.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parser/done-state.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parser/done-state.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parser/evidence-bundle.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parser/evidence-bundle.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parser/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parser/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-evidence/evidence.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-evidence/evidence.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-evidence/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-evidence/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-evidence/traceability.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-evidence/traceability.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-state/agents-md.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-state/agents-md.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-state/quality-report.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-state/quality-report.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-state/review-ticket.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-state/review-ticket.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/parsers-state/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/parsers-state/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/path-security/denylist.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/path-security/denylist.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/path-security/denylisted-ancestor.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/path-security/denylisted-ancestor.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/path-security/traversal-and-symlink.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/path-security/traversal-and-symlink.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/readonly/core-tools-snapshot.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/readonly/core-tools-snapshot.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/readonly/deep-verify-static-check.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/readonly/deep-verify-static-check.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/resources/resources.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/resources/resources.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/resources/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/resources/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/test-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/test-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify-determinism.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify-determinism.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify-helpers.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify-helpers.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify-invariants.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify-invariants.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tests/tools/evidence-shape-boundaries.test.ts",
+    "source": "mcp/sdd-forge-mcp/tests/tools/evidence-shape-boundaries.test.ts"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tsconfig.json",
+    "source": "mcp/sdd-forge-mcp/tsconfig.json"
+  },
+  {
+    "path": "initial/mcp/sdd-forge-mcp/tsconfig.test.json",
+    "source": "mcp/sdd-forge-mcp/tsconfig.test.json"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "source": "plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "source": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/skills/implement-task/SKILL.md",
+    "source": "plugins/sdd-implementation/skills/implement-task/SKILL.md"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+    "source": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+    "source": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+    "source": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md"
+  },
+  {
+    "path": "initial/plugins/sdd-implementation/templates/implementation-report.template.md",
+    "source": "plugins/sdd-implementation/templates/implementation-report.template.md"
+  },
+  {
+    "path": "initial/reports/implementation/cloud-orchestration/T-008-ci-time-budget.md",
+    "source": "reports/implementation/cloud-orchestration/T-008-ci-time-budget.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/acceptance-tests.md",
+    "source": "specs/cloud-orchestration/acceptance-tests.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/design.md",
+    "source": "specs/cloud-orchestration/design.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/frontend-spec.md",
+    "source": "specs/cloud-orchestration/frontend-spec.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/infra-spec.md",
+    "source": "specs/cloud-orchestration/infra-spec.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/investigation.md",
+    "source": "specs/cloud-orchestration/investigation.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/requirements.md",
+    "source": "specs/cloud-orchestration/requirements.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/security-spec.md",
+    "source": "specs/cloud-orchestration/security-spec.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/tasks.md",
+    "source": "specs/cloud-orchestration/tasks.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/traceability.md",
+    "source": "specs/cloud-orchestration/traceability.md"
+  },
+  {
+    "path": "initial/specs/cloud-orchestration/ux-spec.md",
+    "source": "specs/cloud-orchestration/ux-spec.md"
+  }
+]

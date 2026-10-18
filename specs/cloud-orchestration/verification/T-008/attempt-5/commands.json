@@ -1,0 +1,57 @@
+[
+  {
+    "command": "bash scripts/check-sdd-structure.sh",
+    "exit_code": 0,
+    "evidence": "check-sdd-structure: OK; CLAUDE.md advisory"
+  },
+  {
+    "command": "npm run pretest && node --test dist-test/tests/parsers-state/report-reuse.test.js (before product changes)",
+    "exit_code": 1,
+    "evidence": "red-compile.log; red.log: real existing parseTaskState/listActiveSpecs read counts 6 and 12, expected 1; not missing components"
+  },
+  {
+    "command": "node probe.mjs /workspace/sdd-forge /workspace/sdd-forge/mcp/sdd-forge-mcp /tmp/cloud-T008-attempt5-01a15085/before",
+    "exit_code": 0,
+    "evidence": "before-probe.log; before source hashes in initial manifest"
+  },
+  {
+    "command": "npm test (unchanged implementation plus two new acceptance assertions)",
+    "exit_code": 1,
+    "evidence": "before-mcp-tests.log: 297 pass, 2 new read-count failures"
+  },
+  {
+    "command": "npm run typecheck && npm run build && npm test (first candidate)",
+    "exit_code": 1,
+    "evidence": "after-mcp-tests.log: 304 pass, 1 BL-003 exact signature failure; retained, not waived"
+  },
+  {
+    "command": "bash specs/cloud-orchestration/verification/T-008/attempt-5/verify.sh",
+    "exit_code": 0,
+    "evidence": "verification.log; final 307/307; full commands in verify.sh"
+  },
+  {
+    "command": "bash specs/cloud-orchestration/verification/T-008/attempt-5/rollback.sh (initial symlink dependency layout)",
+    "exit_code": 1,
+    "evidence": "rollback-layout-failure.log: esbuild embedded external node_modules path; not a product failure; local dependency copy used for final exact experiment"
+  },
+  {
+    "command": "bash specs/cloud-orchestration/verification/T-008/attempt-5/rollback.sh (copied dependencies)",
+    "exit_code": 0,
+    "evidence": "rollback.log; expected 2 original read-count failures then full 307/307 reapply"
+  },
+  {
+    "command": "node specs/cloud-orchestration/verification/T-008/attempt-5/sensitivity.mjs",
+    "exit_code": 0,
+    "evidence": "sensitivity.json: 3 deliberate implementation mutations rejected, restored 10 controls pass"
+  },
+  {
+    "command": "git diff --check -- README.md mcp/sdd-forge-mcp",
+    "exit_code": 0,
+    "evidence": "No whitespace errors"
+  },
+  {
+    "command": "bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest specs/cloud-orchestration/verification/T-008/attempt-5/task-input-manifest.json --snapshot-root /tmp/cloud-T008-attempt5-01a15085 --expected-task T-008",
+    "exit_code": 0,
+    "evidence": "manifest-validation.log; manifest-validation-final.log"
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "cases": [
+    {
+      "name": "cross-root-contamination",
+      "file": "src/parsers/report-lookup.ts",
+      "original_sha256": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d",
+      "mutation_sha256": "7671f5041967afe7d2ec732005aaf6dd81a14a924b6a26b87fa12a393f1225dc",
+      "compile": {
+        "command": [
+          "npm",
+          "run",
+          "pretest"
+        ],
+        "exit": 0,
+        "stdout": "\n> sdd-forge-mcp@0.1.0 pretest\n> tsc -p tsconfig.test.json\n\n",
+        "stderr": ""
+      },
+      "tests": {
+        "command": [
+          "node",
+          "--test",
+          "--test-name-pattern",
+          "root identity isolates",
+          "dist-test/tests/parsers-state/report-reuse.test.js"
+        ],
+        "exit": 1,
+        "stdout": "✖ root identity isolates snapshots even when directory names and task IDs coincide (3.760435ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 68.906759\n\n✖ failing tests:\n\ntest at dist-test/tests/parsers-state/report-reuse.test.js:108:1\n✖ root identity isolates snapshots even when directory names and task IDs coincide (3.760435ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file:///tmp/cloud-T008-attempt5-01a15085/rollback/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:116:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "wholeword-boundary-loss",
+      "file": "src/parsers/report-lookup.ts",
+      "original_sha256": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d",
+      "mutation_sha256": "26f838b771d14aa198c2782bc30ab38a62970419411dabde639243c8f0687f6d",
+      "compile": {
+        "command": [
+          "npm",
+          "run",
+          "pretest"
+        ],
+        "exit": 0,
+        "stdout": "\n> sdd-forge-mcp@0.1.0 pretest\n> tsc -p tsconfig.test.json\n\n",
+        "stderr": ""
+      },
+      "tests": {
+        "command": [
+          "node",
+          "--test",
+          "--test-name-pattern",
+          "snapshot matches legacy",
+          "dist-test/tests/parsers-state/report-reuse.test.js"
+        ],
+        "exit": 1,
+        "stdout": "✖ snapshot matches legacy whole words, all matching reports, order and diagnostics (8.774071ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 79.177419\n\n✖ failing tests:\n\ntest at dist-test/tests/parsers-state/report-reuse.test.js:52:1\n✖ snapshot matches legacy whole words, all matching reports, order and diagnostics (8.774071ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    {\n      errors: [\n        {\n          path: 'reports/quality-gate/.env',\n          reason: 'Path matches a denylisted file.'\n  ...\n        'reports/quality-gate/a.md',\n  +     'reports/quality-gate/b.md',\n        'reports/quality-gate/c.md'\n      ]\n    }\n  \n      at TestContext.<anonymous> (file:///tmp/cloud-T008-attempt5-01a15085/rollback/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:64:20)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { matches: [ 'reports/quality-gate/a.md', 'reports/quality-gate/b.md', 'reports/quality-gate/c.md' ], errors: [ [Object] ] },\n    expected: { matches: [ 'reports/quality-gate/a.md', 'reports/quality-gate/c.md' ], errors: [ [Object] ] },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "cross-request-stale-pass",
+      "file": "src/parsers/tasks.ts",
+      "original_sha256": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1",
+      "mutation_sha256": "6ef5a5422fa58bdf5713962df2cb3731a18886a281d10ee4c06aa8ba077dedfd",
+      "compile": {
+        "command": [
+          "npm",
+          "run",
+          "pretest"
+        ],
+        "exit": 0,
+        "stdout": "\n> sdd-forge-mcp@0.1.0 pretest\n> tsc -p tsconfig.test.json\n\n",
+        "stderr": ""
+      },
+      "tests": {
+        "command": [
+          "node",
+          "--test",
+          "--test-name-pattern",
+          "new parser requests|read permission failure",
+          "dist-test/tests/parsers-state/report-reuse.test.js"
+        ],
+        "exit": 1,
+        "stdout": "✖ new parser requests see changed, replaced, deleted and denied reports, never stale PASS (6.955657ms)\n✖ read permission failure after a successful request cannot retain PASS (2.665463ms)\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 87.538982\n\n✖ failing tests:\n\ntest at dist-test/tests/parsers-state/report-reuse.test.js:120:1\n✖ new parser requests see changed, replaced, deleted and denied reports, never stale PASS (6.955657ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n  + []\n  - [\n  -   'done-quality-gate-verdict-fail',\n  -   'done-quality-gate-verdict-fail'\n  - ]\n  \n      at TestContext.<anonymous> (file:///tmp/cloud-T008-attempt5-01a15085/rollback/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:134:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [],\n    expected: [ 'done-quality-gate-verdict-fail', 'done-quality-gate-verdict-fail' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at dist-test/tests/parsers-state/report-reuse.test.js:207:1\n✖ read permission failure after a successful request cannot retain PASS (2.665463ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n  + []\n  - [\n  -   'done-quality-gate-report-missing',\n  -   'done-quality-gate-report-missing'\n  - ]\n  \n      at TestContext.<anonymous> (file:///tmp/cloud-T008-attempt5-01a15085/rollback/mcp/sdd-forge-mcp/dist-test/tests/parsers-state/report-reuse.test.js:226:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at node:internal/test_runner/test:1285:31\n      at node:internal/process/task_queues:151:7\n      at AsyncResource.runInAsyncScope (node:async_hooks:227:14)\n      at AsyncResource.runMicrotask (node:internal/process/task_queues:148:8) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [],\n    expected: [ 'done-quality-gate-report-missing', 'done-quality-gate-report-missing' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "restored": {
+    "compile": {
+      "command": [
+        "npm",
+        "run",
+        "pretest"
+      ],
+      "exit": 0,
+      "stdout": "\n> sdd-forge-mcp@0.1.0 pretest\n> tsc -p tsconfig.test.json\n\n",
+      "stderr": ""
+    },
+    "control": {
+      "command": [
+        "node",
+        "--test",
+        "dist-test/tests/parsers-state/report-reuse.test.js"
+      ],
+      "exit": 0,
+      "stdout": "✔ parseTaskState: report reads are bounded by files, not completed tasks (5.956611ms)\n✔ listActiveSpecs: report reads are bounded by files, not completed tasks (2.945173ms)\n✔ snapshot matches legacy whole words, all matching reports, order and diagnostics (11.789907ms)\n✔ partial listing and file-read failures keep legacy diagnostics and readable matches (1.660145ms)\n✔ root identity isolates snapshots even when directory names and task IDs coincide (1.031264ms)\n✔ new parser requests see changed, replaced, deleted and denied reports, never stale PASS (6.030269ms)\n✔ new listActiveSpecs requests rescan reports and still validate Done tasks (1.646253ms)\n✔ directory symlink escape is denied identically, including replacement between requests (0.911312ms)\n✔ planned-only parses are lazy and perform no report scans (0.858728ms)\n✔ read permission failure after a successful request cannot retain PASS (1.717928ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 103.095537\n",
+      "stderr": ""
+    }
+  }
+}

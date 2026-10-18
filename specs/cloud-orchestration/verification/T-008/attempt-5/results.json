@@ -1,0 +1,117 @@
+{
+  "classification": "native local Linux repository and synthetic filesystem controls; no cloud actions",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.9.0"
+  },
+  "before": {
+    "counts": {
+      "readFileSync": 164585,
+      "statSync": 333746,
+      "realpathSync": 502264
+    },
+    "bytes": 1210716665,
+    "distinctFiles": 1864,
+    "maximumReads": 557,
+    "elapsed_ms": 11145.293792
+  },
+  "after": {
+    "counts": {
+      "readFileSync": 2904,
+      "statSync": 6485,
+      "realpathSync": 12360
+    },
+    "bytes": 27371617,
+    "distinctFiles": 1864,
+    "maximumReads": 11,
+    "elapsed_ms": 659.213093
+  },
+  "comparisons": [
+    {
+      "kind": "tool.json",
+      "before_sha256": "3d8d34714baae77941b5611dd8fabeeb5784fde52180b2458cc59bf0e2b58e33",
+      "after_sha256": "3d8d34714baae77941b5611dd8fabeeb5784fde52180b2458cc59bf0e2b58e33",
+      "bytes": 5560,
+      "equal": true
+    },
+    {
+      "kind": "parses.json",
+      "before_sha256": "6d9eb22deafbbb6324d659464b87bee90ffc3ebf11c408a1737b2fd7b70b1669",
+      "after_sha256": "6d9eb22deafbbb6324d659464b87bee90ffc3ebf11c408a1737b2fd7b70b1669",
+      "bytes": 55229,
+      "equal": true
+    },
+    {
+      "kind": "real Inspector tools/call full stdout",
+      "before_sha256": "d8f7a9cba2863fbb18c94f9ec78ee05dcc0c6ffafe52a21f8197596eabd0235f",
+      "after_sha256": "d8f7a9cba2863fbb18c94f9ec78ee05dcc0c6ffafe52a21f8197596eabd0235f",
+      "bytes": 6134,
+      "equal": true
+    }
+  ],
+  "active_features": 49,
+  "all_four_legacy_report_exports_byte_unchanged": true,
+  "existing_test_files_unchanged": [
+    "mcp/sdd-forge-mcp/tests/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/cross-critique-contract.test.ts",
+    "mcp/sdd-forge-mcp/tests/adversarial-report-current.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/evidence-shape-boundaries.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify-tool.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify-invariants.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify-determinism.test.ts",
+    "mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts",
+    "mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts",
+    "mcp/sdd-forge-mcp/tests/root-immutable/root-immutable.test.ts",
+    "mcp/sdd-forge-mcp/tests/resources/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/resources/resources.test.ts",
+    "mcp/sdd-forge-mcp/tests/readonly/static-check.test.ts",
+    "mcp/sdd-forge-mcp/tests/readonly/deep-verify-static-check.test.ts",
+    "mcp/sdd-forge-mcp/tests/readonly/core-tools-snapshot.test.ts",
+    "mcp/sdd-forge-mcp/tests/path-security/traversal-and-symlink.test.ts",
+    "mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts",
+    "mcp/sdd-forge-mcp/tests/path-security/denylisted-ancestor.test.ts",
+    "mcp/sdd-forge-mcp/tests/path-security/denylist.test.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-state/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-state/review-ticket.test.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-state/quality-report.test.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-state/agents-md.test.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-evidence/traceability.test.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-evidence/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/parsers-evidence/evidence.test.ts",
+    "mcp/sdd-forge-mcp/tests/parser/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts",
+    "mcp/sdd-forge-mcp/tests/parser/evidence-bundle.test.ts",
+    "mcp/sdd-forge-mcp/tests/parser/done-state.test.ts",
+    "mcp/sdd-forge-mcp/tests/parser/baseline-and-io.test.ts",
+    "mcp/sdd-forge-mcp/tests/no-secrets/deep-verify-signature.test.ts",
+    "mcp/sdd-forge-mcp/tests/next-command/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/next-command/next-command.test.ts",
+    "mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts",
+    "mcp/sdd-forge-mcp/tests/golden/shell-runner.ts",
+    "mcp/sdd-forge-mcp/tests/golden/environment-dependence.test.ts",
+    "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity.test.ts",
+    "mcp/sdd-forge-mcp/tests/golden/deep-verify-parity-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/evidence/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts",
+    "mcp/sdd-forge-mcp/tests/error-paths/too-large-and-not-sdd-root.test.ts",
+    "mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts",
+    "mcp/sdd-forge-mcp/tests/core-tools/test-helpers.ts",
+    "mcp/sdd-forge-mcp/tests/core-tools/core-tools.test.ts",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-lite.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/risk-adaptive-layer.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/evidence-deep-verify.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/cross-model-verification.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/claude-workflow-compatibility.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/ci-mcp.expected.json",
+    "mcp/sdd-forge-mcp/tests/golden/fixtures/bootstrap-interviewer-enhancement.expected.json"
+  ],
+  "limits": [
+    "Elapsed time is observational, not a portable threshold.",
+    "Remaining repeated report reads in evidence-bundle validation are intentionally not cached.",
+    "Final exact-candidate Windows/macOS/Linux CI and independent gate remain root-owned.",
+    "Snapshot reuses first-scan bytes only within a synchronous operation; not atomic against concurrent external filesystem writes."
+  ]
+}

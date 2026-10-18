@@ -1,0 +1,5 @@
+Implemented five test-only repairs. Full routing/discovery twins, installer tests, 109 verification tests, 297 MCP tests, build/typecheck, Ruff and mypy pass. Rollback and report validation pass.
+
+Report: `reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md`
+
+Inspector’s Windows timeout remains unresolved. Native Windows CI and full release validation remain root-owned. No product changes, commits, tags or status updates.

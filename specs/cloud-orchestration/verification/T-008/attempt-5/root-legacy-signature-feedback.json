@@ -1,0 +1,14 @@
+{
+  "id": 901101,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a15085-2b6a-7ea1-8988-e9cbc2cda132",
+    "expectedTurnId": "01a15085-2bab-7220-9a00-bd4761fcb8ad",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root inspected actual after-mcp-tests failure BL-003 exact pre-existing anyFileContaining signature. Preserve that existing source/API compatibility assertion and canonical legacy3argexport; do NOT relax/update oldtest or frozenBL003requirement. Put new request-scoped optionallookup admission behind a separate internalhelper/interface asneeded so existingpublicsignaturesanddiagnosticsemantics remain exact. Actual afterprobe2904reads/27MB/~0.67s is promising, but304/305 isnotcomplete; preservefailurelog thenfreshfinalalltests aftercompatibilityfix. Retain allnewmutation/root/boundarycontrols and fullactualInspectorcall. Rootreviewhasnorequestfornewfeaturesorbroaderchange."
+      }
+    ]
+  }
+}

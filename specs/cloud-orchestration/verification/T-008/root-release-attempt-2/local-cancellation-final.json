@@ -1,0 +1,33 @@
+{
+  "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+  "outcome": "CANCELLED_INCOMPLETE",
+  "process_exit_codes": [
+    130,
+    130,
+    130,
+    130
+  ],
+  "scope": "Known obsolete candidate; no complete receipts or full PASS. Nested intentional fixture failure markers are not top-level suite results.",
+  "partial_logs": [
+    {
+      "path": "/workspace/cloud-release-v119-2/local-powershell-1.log",
+      "sha256": "0bd86ca8ccd2c792e3073640cccd7a6408b731e30ef20b652adcc375feb9da39",
+      "bytes": 148974
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-powershell-0.log",
+      "sha256": "09d3ac1a629cf95fd43f0834e2ce15462e0b4a926a739d2becd0d54dd90b4536",
+      "bytes": 170854
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-posix-0.log",
+      "sha256": "a50fd3a1d5e7ef97405693f629cc6adc9023bda9d6a4cf77f3fe1f75b7334707",
+      "bytes": 99376
+    },
+    {
+      "path": "/workspace/cloud-release-v119-2/local-posix-1.log",
+      "sha256": "c7602cc51b86c2000afb86a147deb583950d91fc210de2aa00014ed41792f370",
+      "bytes": 143233
+    }
+  ]
+}

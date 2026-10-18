@@ -1,0 +1,38 @@
+{
+  "spec_revision": "5cd2db84e3fc959fc576bcd7b0c1083eb12c03bd2e4d454a8d1082390b07ae83",
+  "inputs": [
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "sha256": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0"
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "sha256": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89"
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "sha256": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b"
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "sha256": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d"
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922"
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "sha256": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db"
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "sha256": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43"
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "sha256": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc"
+    }
+  ],
+  "entry_git_revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b"
+}

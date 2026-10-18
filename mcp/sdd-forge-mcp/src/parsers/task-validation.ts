@@ -5,7 +5,7 @@
 
 import { isJsonObject } from "./json-object.js";
 import { verifyEvidenceBundle } from "./evidence-bundle.js";
-import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass } from "./report-lookup.js";
+import { anyFileContaining, hasAnyFileMentioning, hasQualityGateVerdictPass, type ReportLookup } from "./report-lookup.js";
 import { guardedExists, guardedExistsNonEmpty, guardedRead } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
 import {
@@ -44,6 +44,7 @@ export function finishTask(
   implReportsDir: string,
   failures: TaskFailure[],
   tasks: TaskEntry[],
+  reportLookup?: ReportLookup,
 ): void {
   const taskId = draft.id;
   const fail = (rule: string, message: string): void => {
@@ -78,11 +79,11 @@ export function finishTask(
   }
 
   if (status === "Done") {
-    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail);
+    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
 
   if (status === "Implementation Complete") {
-    if (!hasAnyFileMentioning(root, implReportsDir, taskId)) {
+    if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`,
@@ -121,6 +122,7 @@ function validateDoneEvidence(
   tasksDir: string,
   reportsDir: string,
   fail: (rule: string, message: string) => void,
+  reportLookup?: ReportLookup,
 ): void {
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
@@ -176,13 +178,13 @@ function validateDoneEvidence(
     }
   }
 
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
+  const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
       `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`,
     );
-  } else if (!hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
     fail(
       "done-quality-gate-verdict-fail",
       `${taskId} is Done but quality-gate report does not contain VERDICT: PASS: ${qgMatches[0]}`,

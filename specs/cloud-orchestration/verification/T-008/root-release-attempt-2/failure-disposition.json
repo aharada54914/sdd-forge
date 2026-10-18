@@ -1,0 +1,59 @@
+{
+  "revision": "a151c66a26bd2aad09232a1082d2ba9e3ae3643b",
+  "run_id": 39158381429,
+  "scope": "Observed failures only; final CI status remains separate. Never converts old failure to PASS.",
+  "findings": [
+    {
+      "jobs": [
+        117766278550,
+        117766278665
+      ],
+      "failure": "PowerShell model documentation assertions still fixed to legacy-only wording",
+      "repair": "T-008-platform-test-fixes",
+      "files": [
+        "tests/agent-model-routing.tests.ps1"
+      ],
+      "state": "Scoped repair delivered; final exact CI pending"
+    },
+    {
+      "jobs": [
+        117766278535,
+        117766278558,
+        117766278610
+      ],
+      "failure": "Bash/PowerShell registry drift fixtures omit three added cloud schema inputs",
+      "repair": "T-008-platform-test-fixes",
+      "files": [
+        "tests/registry-discovery.tests.sh",
+        "tests/registry-discovery.tests.ps1"
+      ],
+      "state": "Scoped repair delivered; final exact CI pending"
+    },
+    {
+      "jobs": [
+        117766278654
+      ],
+      "failure": "Windows fixture environment omits process essentials; skill fixture text write changes line endings; POSIX-only alarm integration manually invokes skipped class",
+      "repair": "T-008-platform-test-fixes",
+      "files": [
+        "tests/install-cloud.tests.py",
+        "tests/cloud-orchestration-verification.tests.py"
+      ],
+      "state": "Local controls/fixtures repaired; native Windows rerun and junction proof still pending"
+    },
+    {
+      "jobs": [
+        117766278559
+      ],
+      "failure": "Inspector request timeout after60s for real list_active_specs; repeated guarded report reads diagnosed",
+      "repair": "T-008-mcp-report-scan-fix",
+      "files": [
+        "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+        "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+        "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+        "mcp/sdd-forge-mcp/src/tools/core.ts"
+      ],
+      "state": "Repair in progress; no success claimed"
+    }
+  ]
+}

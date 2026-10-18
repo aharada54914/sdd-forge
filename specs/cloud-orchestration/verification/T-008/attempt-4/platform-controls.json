@@ -1,0 +1,22 @@
+{
+  "classification": "synthetic environment comparison, no Windows runtime claimed",
+  "baseline_missing_keys": [
+    "PATHEXT",
+    "SystemRoot",
+    "WINDIR",
+    "COMSPEC"
+  ],
+  "after_keys": [
+    "COMSPEC",
+    "HOME",
+    "PATH",
+    "PATHEXT",
+    "PYTHONDONTWRITEBYTECODE",
+    "SystemRoot",
+    "TEMP",
+    "TMP",
+    "USERPROFILE",
+    "WINDIR"
+  ],
+  "ambient_cloud_settings_absent": true
+}

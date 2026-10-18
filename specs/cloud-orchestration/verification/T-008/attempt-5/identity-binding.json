@@ -1,0 +1,12 @@
+{
+  "run_id": "01a15085-2b6a-7ea1-8988-e9cbc2cda132",
+  "session_id": "01a15085-2b6a-7ea1-8988-e9cbc2cda132",
+  "agent_instance_id": "01a15085-2b6a-7ea1-8988-e9cbc2cda132",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "model_tier": "strong",
+  "isolation_mode": "fresh-agent",
+  "source": "Caller-supplied native allocation; thread.id verified locally",
+  "allocation_sha256": "1213233d45c85eadf81cd9328d568e1433bde66bd0aae6447e6e121805c84376"
+}

@@ -1,0 +1,18 @@
+✔ parseTaskState: report reads are bounded by files, not completed tasks (5.598277ms)
+✔ listActiveSpecs: report reads are bounded by files, not completed tasks (2.7501ms)
+✔ snapshot matches legacy whole words, all matching reports, order and diagnostics (11.454585ms)
+✔ partial listing and file-read failures keep legacy diagnostics and readable matches (1.578602ms)
+✔ root identity isolates snapshots even when directory names and task IDs coincide (1.042894ms)
+✔ new parser requests see changed, replaced, deleted and denied reports, never stale PASS (5.827563ms)
+✔ new listActiveSpecs requests rescan reports and still validate Done tasks (1.593985ms)
+✔ directory symlink escape is denied identically, including replacement between requests (0.916263ms)
+✔ planned-only parses are lazy and perform no report scans (0.854088ms)
+✔ read permission failure after a successful request cannot retain PASS (1.722809ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.803563

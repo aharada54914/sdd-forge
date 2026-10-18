@@ -1,0 +1,8 @@
+Implemented T-008’s scoped MCP repair.
+
+- All 307 MCP tests pass; legacy exports preserved.
+- Reads reduced 164,585 → 2,904; outputs byte-identical.
+- Inspector, rollback/reapply, manifest and report validation pass.
+- Report: `reports/implementation/cloud-orchestration/T-008-mcp-report-scan-fix.md`
+
+No commits or status changes. Final native Windows/three-OS CI and independent review remain root-owned and pending.

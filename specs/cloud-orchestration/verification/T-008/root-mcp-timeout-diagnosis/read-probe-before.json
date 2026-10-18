@@ -1,0 +1,77 @@
+{
+  "seconds": 23.535136108,
+  "counts": {
+    "readFileSync": 164554,
+    "statSync": 333684,
+    "realpathSync": 333688,
+    "readdirSync": 4231
+  },
+  "bytes": 1209907658,
+  "distinct_read_files": 1863,
+  "top_reads": [
+    {
+      "path": "reports/quality-gate/2026-06-24T120000Z-T-003.md",
+      "reads": 557
+    },
+    {
+      "path": "reports/quality-gate/2026-06-25T000000Z-T-002.md",
+      "reads": 505
+    },
+    {
+      "path": "reports/quality-gate/2026-06-23T001628Z-T-002.md",
+      "reads": 503
+    },
+    {
+      "path": "reports/quality-gate/2026-06-24T160000Z-T-005.md",
+      "reads": 481
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-007.md",
+      "reads": 465
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-008.md",
+      "reads": 463
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-010.md",
+      "reads": 462
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-009.md",
+      "reads": 461
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-011.md",
+      "reads": 459
+    },
+    {
+      "path": "reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-012.md",
+      "reads": 457
+    },
+    {
+      "path": "reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-002.md",
+      "reads": 456
+    },
+    {
+      "path": "reports/quality-gate/sdd-forge-refactor-T-001.md",
+      "reads": 454
+    },
+    {
+      "path": "reports/quality-gate/2026-06-24T150000Z-T-004.md",
+      "reads": 454
+    },
+    {
+      "path": "reports/quality-gate/2026-06-25T010000Z-T-006.md",
+      "reads": 454
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-001.md",
+      "reads": 454
+    }
+  ],
+  "result_ok": true,
+  "spec_count": 49,
+  "result_sha256": "3d8d34714baae77941b5611dd8fabeeb5784fde52180b2458cc59bf0e2b58e33",
+  "scope": "Read-only Linux diagnosis on current working tree; no Windows completion or release acceptance inferred."
+}

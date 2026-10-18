@@ -1,0 +1,31 @@
+2026-10-18T19:25:05.0828771Z evaluate-predicate suite passed (63 checks)
+2026-10-18T19:25:05.1047896Z --- registry-discovery.tests.ps1 ---
+2026-10-18T19:25:05.6697632Z ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone
+2026-10-18T19:25:05.7307554Z ok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone
+2026-10-18T19:25:05.7902566Z ok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+2026-10-18T19:25:05.8767522Z ok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone
+2026-10-18T19:25:05.9377276Z ok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone
+2026-10-18T19:25:06.0056707Z ok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+2026-10-18T19:25:06.0756341Z ok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone
+2026-10-18T19:25:06.1362127Z ok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone
+2026-10-18T19:25:06.2012532Z ok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+2026-10-18T19:25:06.3154929Z ok: AC-027 version-mismatch: wrong schema value on the Registry fails closed
+2026-10-18T19:25:06.4010312Z ok: AC-027 version-mismatch: mismatched $id on the schema file fails closed
+2026-10-18T19:25:06.4876403Z ok: AC-027 version-mismatch: missing $schema key on the schema file fails closed
+2026-10-18T19:25:06.5659917Z ok: AC-027 version-mismatch: wrong schema value on the catalog fails closed
+2026-10-18T19:25:06.6885978Z ok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)
+2026-10-18T19:25:06.8944506Z ok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy
+2026-10-18T19:25:07.1742536Z not ok: AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree
+2026-10-18T19:25:07.1753474Z ok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)
+2026-10-18T19:25:07.5688137Z ok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh
+2026-10-18T19:25:07.8699131Z ok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1
+2026-10-18T19:25:07.8749189Z ok: human-copy: staged workflow candidate registers this suite's CI steps
+2026-10-18T19:25:07.8915105Z ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+2026-10-18T19:25:07.9289831Z ---- summary: pass=20 fail=1 ----
+2026-10-18T19:25:07.9295065Z registry-discovery suite FAILED (20 passed, 1 failed)
+2026-10-18T19:25:08.1591103Z [31;1mException: [0mD:\a\sdd-forge\sdd-forge\tests\run-version-gates-windows.ps1:68[0m
+2026-10-18T19:25:08.1592939Z [31;1m[0m[36;1mLine |[0m
+2026-10-18T19:25:08.1594248Z [31;1m[0m[36;1m[36;1m  68 | [0m             [36;1mthrow "Windows version-gates suite failed: $suite (exit $[0m …[0m
+2026-10-18T19:25:08.1595455Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-18T19:25:08.1597500Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mWindows version-gates suite failed: registry-discovery.tests.ps1 (exit 1)[0m
+2026-10-18T19:25:08.1803143Z ##[error]Process completed with exit code 1.

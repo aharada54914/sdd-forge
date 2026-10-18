@@ -1,0 +1,728 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+  "session_id": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+  "agent_instance_id": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "5.00",
+  "cost_estimate_source": "caller planning allowance; not measured billing or a rate quote; sole compatible registered candidate",
+  "cost_estimate_timestamp": "2026-10-18T19:27:54Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "initial/contracts/adversarial-review-evaluation.v1.schema.json",
+      "sha256": "79a3f7b75996474d318535dab04fd284706f2008ef7592fe66992e3dc39d054f"
+    },
+    {
+      "path": "initial/contracts/adversarial-review-report.v1.schema.json",
+      "sha256": "3dd9bbb8cfd475444b4662abddedc86b9088d419323e4bfeb34b663a8353fb1a"
+    },
+    {
+      "path": "initial/contracts/agent-model-capabilities.json",
+      "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+    },
+    {
+      "path": "initial/contracts/agent-model-capabilities.v2.json",
+      "sha256": "847fe86588ea22dcb0a13b7b61548aa254f22a8244aa5153e63efefe8a4d200e"
+    },
+    {
+      "path": "initial/contracts/agent-model-capabilities.v2.md",
+      "sha256": "0ff9fb9dbe404b83d022e8ab5bf3ea717e35008c175c96c408dafa9db6d5ebb6"
+    },
+    {
+      "path": "initial/contracts/approval-sidecar.schema.json",
+      "sha256": "f205da8f1103fc2ac876e7fbff4dc6f89db4146325e65aadc15d139ffa4265e3"
+    },
+    {
+      "path": "initial/contracts/approver-registry.schema.json",
+      "sha256": "47c1c3e0eddfca0a6abbf22db2fd4b8d633e2bdc9362044ec3c903c82d85e94e"
+    },
+    {
+      "path": "initial/contracts/capability-registry.json",
+      "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75"
+    },
+    {
+      "path": "initial/contracts/capability-registry.schema.json",
+      "sha256": "ef70a27785d325cc32d2c4a2faeed099e9df3058fd7a918e2efbd4013ed8f319"
+    },
+    {
+      "path": "initial/contracts/capability-summary.schema.json",
+      "sha256": "09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f"
+    },
+    {
+      "path": "initial/contracts/ci-mcp-tools.v1.schema.json",
+      "sha256": "7e2cc1d88a07ab4e62c4088d0cc0c2d0b0b49972b23cbc95d70debd3449ec357"
+    },
+    {
+      "path": "initial/contracts/cloud-authorization-receipt.schema.json",
+      "sha256": "5c4f8efaaf458aba6f149a53967df7615eaf2a823c4ec6f75e44610a4c8ac8b8"
+    },
+    {
+      "path": "initial/contracts/cloud-check-result.schema.json",
+      "sha256": "992b8f4d530d4aab0fe5bca1a28b459a6c9cd9bec7e6ed68b648f489127617c0"
+    },
+    {
+      "path": "initial/contracts/cloud-collection-context.schema.json",
+      "sha256": "7706241bf1a949a64b18212ba09bd8a4aa66896df668084056ee6979fdb84272"
+    },
+    {
+      "path": "initial/contracts/cloud-dependency-lock.schema.json",
+      "sha256": "e72395e755f13bff50f8f10d27a8181fcfa1894ef6c60499c01f84d4c2128cec"
+    },
+    {
+      "path": "initial/contracts/cloud-deployment-policy.schema.json",
+      "sha256": "a064217e4a68838a3d719749fb751ba63ffabb2094d16cf13090afeaed080eb8"
+    },
+    {
+      "path": "initial/contracts/cloud-input-error.schema.json",
+      "sha256": "d228ad47ea2c899022169a704c9408f6b5fee285be5be12ad3f0906bd2b4bc77"
+    },
+    {
+      "path": "initial/contracts/cloud-observation-evidence.schema.json",
+      "sha256": "0d0dfccf3bd5982a2948a9db75fd459197b6bb683f19a993b5bfdce72df1d99e"
+    },
+    {
+      "path": "initial/contracts/cloud-observation.schema.json",
+      "sha256": "5ce80d6fb77fde9bc966d00db75c2650f3a37166fcccfd1071f087208191c826"
+    },
+    {
+      "path": "initial/contracts/cloud-operation-result.schema.json",
+      "sha256": "a92bdac86499052256112babe5ff559c2e071adba411f4a2e92ec38b6b5b2aa6"
+    },
+    {
+      "path": "initial/contracts/cloud-ownership.schema.json",
+      "sha256": "71079e7320c968bce57fba67bd105d59ab57c00a51165a3598d522919141f25d"
+    },
+    {
+      "path": "initial/contracts/cloud-preview.schema.json",
+      "sha256": "12afaf962e1bf1325496d985b21ffc5c970c1e2d14fc43933c5ad8aa8940eb99"
+    },
+    {
+      "path": "initial/contracts/cloud-run-request.schema.json",
+      "sha256": "781d83fad3d8e883e2c4aa886c5356da12f93d5ef5e35f16a5d83e9c024c9d81"
+    },
+    {
+      "path": "initial/contracts/cloud-verification-profile.schema.json",
+      "sha256": "b25112c7e73583b180941639cb8f137a89fcb7daa82b1afd7ec8eec66c9353bf"
+    },
+    {
+      "path": "initial/contracts/cloud-verification-registry.schema.json",
+      "sha256": "56c235d897412295cfa631906c8fd3688a43ae6918178753ee1ed934fd622392"
+    },
+    {
+      "path": "initial/contracts/cloud-verification.schema.json",
+      "sha256": "dcfd0760733951080efc1f0cb993bfc46a081b4eff4a82bd07968f868b2f3f2e"
+    },
+    {
+      "path": "initial/contracts/concept-test.v1.schema.json",
+      "sha256": "7b0bc534b1f0b819a19e5a70c0e3d39f35e3d5f6747e53086bb9c1dbbb810c71"
+    },
+    {
+      "path": "initial/contracts/context-projection.schema.json",
+      "sha256": "3c8e39c6a8dedf948cbd7e6a8f36369f2a68a3fc3dd92192f90bbce917d32643"
+    },
+    {
+      "path": "initial/contracts/cross-critique.v1.schema.json",
+      "sha256": "8c72c37907036cf00d1d8d341199d4d3502fabd57db1c60d0205926e23135991"
+    },
+    {
+      "path": "initial/contracts/design-system.contract.v1.schema.json",
+      "sha256": "3b8d541218fda8e794350b8a545d6bcb3a85733f2e0ee00089eb49f7de3d1db1"
+    },
+    {
+      "path": "initial/contracts/domain-contract.v1.schema.json",
+      "sha256": "0ab46b74c1e2561431b42b76106698339e79cd64ce0513b02aec5527b8b73841"
+    },
+    {
+      "path": "initial/contracts/domain-contract.v2.schema.json",
+      "sha256": "ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"
+    },
+    {
+      "path": "initial/contracts/domain-review-contract.v1.schema.json",
+      "sha256": "b86f234e76f66887384284fed08ec3b5d951df3bcc7cc5722e9ed18489edfb35"
+    },
+    {
+      "path": "initial/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "initial/contracts/lite-check-catalog.json",
+      "sha256": "c251b3e02a2c93c45a7ea590bc5a7e36eef8e5915c485b0c6a6e83519afe086a"
+    },
+    {
+      "path": "initial/contracts/lite-check-catalog.schema.json",
+      "sha256": "a4e458242d68237cf16e66aa28b362c30dae4a6d20109cb4af51711f6fc1cd19"
+    },
+    {
+      "path": "initial/contracts/lite-upgrade-reason-catalog.json",
+      "sha256": "e73a730f9edacd7d2dad2da3e13b9e3df01f7002c25f7e947316ca249118eb76"
+    },
+    {
+      "path": "initial/contracts/local-env-mcp-tools.v1.schema.json",
+      "sha256": "f1f81d484cd13b62c64b4802195efd6d50edb1ccedcd489626f699f6cac4ae1d"
+    },
+    {
+      "path": "initial/contracts/project-context.schema.json",
+      "sha256": "a6a86903e8126ecc0d587499f75c7222aee0eb0f442a51b39fa8ff852829592e"
+    },
+    {
+      "path": "initial/contracts/project-context.template.yaml",
+      "sha256": "afb8ae3ae563887e4f6383effe2873e4dbf164601f8b218fe6105810b1c57fd3"
+    },
+    {
+      "path": "initial/contracts/provider-bindings.schema.json",
+      "sha256": "7adfa236d2bb00055bd38f3fc6b7664f6d41e88989e9aedba1c0a9c5d55f8cd7"
+    },
+    {
+      "path": "initial/contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "initial/contracts/review-contract.v1.schema.json",
+      "sha256": "d1bf67c20a8b1229f5550ba6deab339962236a626d5a9aac84e847dc7727597a"
+    },
+    {
+      "path": "initial/contracts/rollback-1.5.0.json",
+      "sha256": "64d5646d56c7d3836eba8734cb1e7d1aa64cd0effb82b0bad8bb7616d37c2197"
+    },
+    {
+      "path": "initial/contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    {
+      "path": "initial/contracts/selected-verification-plan-v2.schema.json",
+      "sha256": "cddae6fd212bf40a10fa86a27f171f0342b578f7a651bc276448f7134f4e8fe5"
+    },
+    {
+      "path": "initial/contracts/selected-verification-plan.schema.json",
+      "sha256": "0da68ea6b5c880ee7db2dc0bf88e9ca4c31c01fe8d859dfb50c664eb8a2bd7fe"
+    },
+    {
+      "path": "initial/contracts/spec-review-interrupted-recovery.v1.data-contract.md",
+      "sha256": "9cc49eb4468d4b16ea49d385798297e8bcae9b401e30c7bfac65820185daf6c1"
+    },
+    {
+      "path": "initial/contracts/task-input-manifest.schema.json",
+      "sha256": "22a756c64a7c720b761b31d71c9fbb62c390a9f18b201673443e962998781749"
+    },
+    {
+      "path": "initial/contracts/terminal-tier-blocked-state.schema.json",
+      "sha256": "bcf0d1b969fb917b656b0d25e24dcb34021378cc2639bb4b30198c3ccb722dc5"
+    },
+    {
+      "path": "initial/contracts/verification-contract-v3.schema.json",
+      "sha256": "c52f8795c274ea8dc8c3a54f2e6b0d55ca9a8f49164200065fff51e3d710345a"
+    },
+    {
+      "path": "initial/contracts/workflow-state-registry.schema.json",
+      "sha256": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/registry_discovery.py",
+      "sha256": "5cb5fa8230a21e3b4d108b4643d3db474586b34601eb52c1fbcf932d259541da"
+    },
+    {
+      "path": "initial/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+      "sha256": "a61f889f274a8069d06c359caf813f79a444de5c77ee64c5a37404a8de8b973b"
+    },
+    {
+      "path": "initial/specs/cloud-orchestration/verification/T-008/root-release-attempt-2/registry-discovery-fixture-failure.log",
+      "sha256": "3379f81328f91e4627ecfbfb593e8edf2eb2cf121d10d554ce57b54d3b6fc717"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml",
+      "sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256",
+      "sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json",
+      "sha256": "eb7c347bdba42369f48a9c842e5eeb3a0e61d4deb2d5f26fdf99bf54e5eac23a"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "sha256": "0a743fa2a03ad4241f5a69964076a7d59f2f0c8fa36c3b356ae2b7fb886df9c2"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "sha256": "a2a8828f32867df5855b3bf33005b101f8f1ad86aa4c1ae3e8f8df59271a3427"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "sha256": "d578580e6ab511311fb5bd5471857c9c6d3bc1b6841f3e7e7fa78a0a9bf065e4"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "sha256": "d3250ec7c22e8da327edc894f3348d857a75131925f3d21763b0318acfbb4da5"
+    },
+    {
+      "path": "initial/specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "sha256": "578e66fd70622b4ffafc3254f093ff7779e18086f7d65b51396a645d01e09681"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/gate-capabilities-clean-expected.json",
+      "sha256": "c6fbf948d61c82b9dd8a2f0b6168061cbb1f9552d4758b392f7f3ddee82c5ce2"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/gate-capabilities-clean-registry.json",
+      "sha256": "e91b1fc0599a1854ba21e92e5dc485f5bc6cb48a52c65cc0ef7d18cf5dc5fcab"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/gate-capabilities-mutated.json",
+      "sha256": "74189d9668d41b3dd294627d0f9009fa26e836aa77ff81b1c0b474d2efb67c76"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/capability-packs/some-pack/gates.yaml",
+      "sha256": "2541c2b4bcb9639f37c4df34cbbb55502f5b12e93b31669e0d624f9715f3f6c4"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/outside-scan-root/check-outside.py",
+      "sha256": "153d847b7b9d6c8084a8cc716f77ac3b0b0f52d1dfe9b88f03cb87ef34ba280f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/references/provider-terms.json",
+      "sha256": "a1794d34c78ed31c16e913d851290886866ef32d28ea4e571e4c99daefb0cf22"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+      "sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.ps1",
+      "sha256": "f5c3719fe843affa072d98e347f661244c852fb01366212b2fd3bc22e7a6c932"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.py",
+      "sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.sh",
+      "sha256": "bcb27f59fcde6681340917a4a3940fb088562496fefc4cc32e60f6c7d9b24dae"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-unregistered.py",
+      "sha256": "e94a62801f8f67bcc438ccc67b7f90084c74287a60bb55a5c54cd160563f2a49"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/emit-run-record.py",
+      "sha256": "ac77b790d25874c037048d01ffe30b594b38052b746d415c0a11c467865ce13f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/parity-golden-evaluate-predicate.json",
+      "sha256": "540c21db7e07b74bc58e29b2a46666b07e230b3934d1b634682c7712b039841b"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/parity-golden-validate-capability-registry.txt",
+      "sha256": "9e7cbf3aee25af792e33316e6864a441e812d5f7b9c4d23a6605890632589c6b"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/parity-runtime-claude-code.json",
+      "sha256": "db11f2ecd3fd829d004a877ef2c09d883e50b8b2b34c734c534c94710503c18e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/parity-runtime-codex-cli.json",
+      "sha256": "ceecb00550264ad71e764c9e405c9a6d4e4afe86ebbd57ffc2b370899de637d5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/parity-runtime-copilot-cli.json",
+      "sha256": "f0ee9653c8d17065d8586f02912749d7a06a76366803b74c30475b0c79cb71d3"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-all-empty.json",
+      "sha256": "b1f952881e89e785d98e4a57391acafb37a4e00bed635b0c8f56ed32cad0aaa6"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-all-false.json",
+      "sha256": "846a03d64334b2a1584ac22d5347269f8bc30eacc769a74e040d42aa802e44f6"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-all-true.json",
+      "sha256": "fa18d6950cb50be0a165ac07b4fbb4c7c1abb9c90e5432458db78262dd0f1516"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-any-empty.json",
+      "sha256": "da68f65f1f14112eda394aa1751681d38936040831ee2a2f656996c6c9467add"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-any-false.json",
+      "sha256": "e62b1a738010ceecdcbb7e400483f8a8a88e865d309c3c48141f157bb0ff5295"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-any-mixed-no-shortcircuit.json",
+      "sha256": "cd47c8422f69ddce0d387ac946ba2ccc54438a1f24e872ba60ad489d373f36dc"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-bad-field.json",
+      "sha256": "d3ec171a624a6df057a0ba03d5308b50d3e08b8643138536a3264ec5891b07f4"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-bad-operator-jsonpath.json",
+      "sha256": "8441aef88a282dfcd0a938e48240340bffa673f0287f18e2beb48760a7415d85"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-bad-operator-regex.json",
+      "sha256": "1346bbb71e27b9fbf13d33f18d5bd28e62eab86826deff37b3937a6edf10be2e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-exists-absent.json",
+      "sha256": "6cc13c89f59e7b8ad62207562af0c017d1700eacd6cb0e174cc7a77bc6e8640f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-exists-present-null.json",
+      "sha256": "42d5e9c6ffa877481622145ae1d3db84e3f60458ec146a25535e88c427991a6e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-exists-present-value.json",
+      "sha256": "02c994fb1dbd62af33e7f90bc00d7e890070383b1643fd8845f6278411ee81aa"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-contains-missing.json",
+      "sha256": "ecba20de13eb2bc4e888629dbc7682c89318c2248b0dfe9f22960959754df37f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-contains-nonarray.json",
+      "sha256": "272f4efa04fde9010740503159d5ba9809e83c85a3eebb95d4f51223b4657177"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-contains-null.json",
+      "sha256": "4eabda2572fd1019fa644177fb9b0e7f19f4ca52b2848461a66cd00dc2f67b69"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-equals-missing.json",
+      "sha256": "66e56acac5190c6b25ea0f867a1c166ba339ef44426c783172a10df11315ac90"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-equals-null.json",
+      "sha256": "9baa8b3ca9b92c70fb666397d75a1070c24f533d2132006f76086745d5567280"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-equals-type-mismatch.json",
+      "sha256": "917f1f88f739e25b74eb062bcd2553077e30474ba942ca5dfae98d595d53c497"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-in-malformed-value.json",
+      "sha256": "5a55b8fb782dc423085a0bed23c518a91e8f47471d3762e71a627360085037c1"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-in-missing.json",
+      "sha256": "bf4390cba850c9641005dbc73c6bfef52af396ae694385184039694965b16566"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-in-null.json",
+      "sha256": "7aa13dd9e19767dd798d6397e744c09075acf8a057ecfa87fc02bdaeb894a34f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-not-equals-missing.json",
+      "sha256": "5e81a4c332362074b8483a01825d1d7c416f2402c657686be70376a219a664a5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-not-equals-null.json",
+      "sha256": "1cea5150af952075a9e6d7089bdf786b40deec6cd3abd37963bb519792584ab8"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-fail-closed-not-equals-type-mismatch.json",
+      "sha256": "c8e63a760d412fcbc76b258ef78716386096af63a46f1f6b4e1f4a61bc8f34af"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-nested-depth-first.json",
+      "sha256": "51092b73ec0939b32f1d7e22ec311903ccd14a25127e72a01f554d0acb1822b9"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-not-child-false.json",
+      "sha256": "c777c310d6074d3a0391bdd85efc6f6e1d3aa700e98806af4ab0b4bc0e0c9c02"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-not-child-true.json",
+      "sha256": "98a00228656764e71c03a144c6dfa3ed47693aa7ed945720db39cee0d2c3bdde"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-not-child-warn.json",
+      "sha256": "38d8112fa3edb09907b8c95b3e699407a8924b48a83e66560c7967bc8de12681"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-not-two-children.json",
+      "sha256": "b90218c245fc9ec05d962eaa87bcd0eeb6c0fae90345f38e7594fd117f6bfbcb"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-not-zero-children.json",
+      "sha256": "1ec81eef41c346d07bcfa3ed732f1e68b8388d11591e1580553f9e591b5db5e0"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-trigger-context.json",
+      "sha256": "033b3ac9bf1a9a85c78856191addec828bb69a3b5acde38af7b8c60262c66e45"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/predicate-when-context.json",
+      "sha256": "033b3ac9bf1a9a85c78856191addec828bb69a3b5acde38af7b8c60262c66e45"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/project-context-fixture-drift.json",
+      "sha256": "4611529db904edd30a573b115e67a32155413d209bdafe0ab6bd2d0ca75ee4c2"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/project-context-fixture-match.json",
+      "sha256": "b4585b10e1e24d97a14a85a7377269e345c8931daad63eff0c49d4dbc4fdaa96"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-base.json",
+      "sha256": "acaabf26ed028b6196ff2b3310a6df80dfe0d94db7f76dc64ef59543e2f12355"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-fragment-cap-alpha.json",
+      "sha256": "125014cf101538573b2c7a35dd1269df2ec800185a70d76bda268963b32ca7ef"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-fragment-gate-b.json",
+      "sha256": "d0e8b513df70e024d9c74d000a2becd03600c7fd347c943f2c0bcbc7fb1170e3"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-fragment-multi-cap.json",
+      "sha256": "e066ac6498557d2bbd433f3f5df2a66cd5f05d69be1cdc37d2260a642a7a494d"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-fragment-union.json",
+      "sha256": "dc2fa2f17662f039684155547961e8802e61063b1de477ca2e62e62271cba887"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-jcs-a.json",
+      "sha256": "1c83921884478bb255b1cf83ef6ada195ec8196debb404e7a3291898c565d485"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-jcs-b.json",
+      "sha256": "fbdb0e2d058617f54ad6c342cf24eb445f8eeeb744d966f4ae2bea85bd705364"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-nfc-composed.json",
+      "sha256": "ab231e76bc36946565e3a0f6b5e2c11e5ece1a17af7662eb7d6427ecda1698d5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-nfc-decomposed.json",
+      "sha256": "4cb564a30de9331e217bdc19aecd361f3f7466f6c5361aa4da9b2950484498c2"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-digest-whole-mutated.json",
+      "sha256": "5fa20c1e62d0e97955936b7c9759c2cd832975fd83477b3b3bcfefe9ca12397a"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-catalog-bad-schema.json",
+      "sha256": "bf667ad921cd30731675d6bda10273526331447b371f72b01fa30ea42d442c62"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-catalog-valid.json",
+      "sha256": "772baca07d3ec95ced4638ca1be80215c4803e19c331bf8857fd9cfdf0836b99"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-registry-bad-schema.json",
+      "sha256": "e7be0e482e1495c762cf923758db85d5e14dfc4b7bb68d9b26b4954113cabcca"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-registry-valid.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-schemafile-bad-id.json",
+      "sha256": "913508a1edccfec737ec0d6d74c332f6f6f36bbada51c004255cfbca929c7a99"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-schemafile-missing-schema-key.json",
+      "sha256": "95f55997ad373f7d18f38188727297064fa501b7447603fa66f7d43e36a83761"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/registry-discovery-schemafile-valid.json",
+      "sha256": "58181b930b865982842b84a6cfa9aca4d6d226a821601cd5cddb1cbefb8f557e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-arbitrary-delivery-kind.json",
+      "sha256": "c6f71d64820e8d2454fed84a2bc7635f819b847e9bf43109c16d60c383f0aa60"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-empty-facet-arrays.json",
+      "sha256": "6cd84eeba314bd2a87dfca2ec3c4b6a7d82f1af9295623704536733dd521057e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-empty-review-check-ids.json",
+      "sha256": "1b371e62ee1ef9ff906e439679563b25abb3f9f0e3773689b8c5235ad596031f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-lite-checks.json",
+      "sha256": "f120635abc98013823368fccf9eb19e052c313d55226a2f0700cb3ca0720d3e8"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-maximal.json",
+      "sha256": "70c57141ce9fe3915d56a5210db2138a21d15e9967886ca891be12b52ef20e83"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-minimal.json",
+      "sha256": "87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-accept-reserved-stage-inertness.json",
+      "sha256": "0b5a664123cff8d1adb5c7d0821b8f8d88a7ec01f4a8a3a968bf52c7e6382604"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-capability-missing-delivery-strategy.json",
+      "sha256": "03e4ef8a2d8f74ff7583733a5e1a6e2eb184dbb38833ea82514d84a1f2e20132"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-conditional-facets-extra-key.json",
+      "sha256": "deca07d616998f4f9a62f88047a32900a3c50553cbce3072976f26613e13a305"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-conditional-facets-missing-facet.json",
+      "sha256": "4bcd869e35ef69003e9889e3323d21cd3f2ccb153e9a9b65a34e0ec94c4bdb5f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-conditional-facets-missing-when.json",
+      "sha256": "c4033058885d9d4ae8665d8efac32a87325493ed4bf1b3795625423e615d5e54"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-delivery-strategy-kind-empty.json",
+      "sha256": "9a517e4995e09b7aa22d88820aa687f8ce0e4ddc10bcf995159dcdbcea1c4cb5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-delivery-strategy-missing-kind.json",
+      "sha256": "410251520a0f59a45b6771abcd537e1add0fcc8ff1ad7f555f25987da9554237"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-extra-conditions-key.json",
+      "sha256": "10c370f0d6a1033d8d01f63d12da0167f45205e86b47e975e735c4796b0494a5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-gate-extra-key.json",
+      "sha256": "7a50aebd7b1c736e90ea6c9df868d60ab94b4896cf4d1caee899781f446c6ac1"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-lite-checks-duplicate.json",
+      "sha256": "5eee9888596153fa8df55e024d87a80cb7de4085700de724a656c9b5f3a352a0"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-lite-checks-path.json",
+      "sha256": "8875541b75bfa99a74e71b9643e33f2b46ae55d36f004eec4485f8ad1ee1c222"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-lite-checks-type.json",
+      "sha256": "1e6414e7abba3f606a142bed0703f6ef350a47e16b129b0ab05443ed4565a554"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-lite-policy-eligible-nonboolean.json",
+      "sha256": "cf2673a7e859344764d85edb53d902d898084b6e930892790ee3c0744d3b2484"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-lite-policy-missing-eligible.json",
+      "sha256": "f320f35fdce16ee4e50cc9f2de12f1c90d5cdcf0b93f1836a6a7cb38f0640d87"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-minimum-enforcement-bad.json",
+      "sha256": "e0a651ba2513787dbb3e487bd6c298974ad74e55d4defe77a95cf4681288255d"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-missing-implementation-ref.json",
+      "sha256": "5821fa2c19e86de0ac8c775b528c58ec1b8056226e7be19bc308c2f1e5681ac3"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-required-facets-non-string.json",
+      "sha256": "df0ab018120372b8d5380cfbb9277dc43f228a81a7f5d3e92a917437f776674a"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-review-check-ids-empty-string.json",
+      "sha256": "d02779362d07f74d3b4ed5758e5255563b364ee264c5d0c2791efce5f03f4ad5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-review-check-ids-non-string.json",
+      "sha256": "5353bf25b7e0a90589067994350805a7c5c063aedb923cf9cf85dfc2a86ec01d"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/schema-reject-top-level-extra-key.json",
+      "sha256": "5f42221f71129446b6ffd7094c5b7969238160d70266c78adec0bc1dc624622b"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-combined-duplicate.json",
+      "sha256": "2052b2c4aa03a8828244b7205761fa92103747660bd2e64bdcad13115520dab0"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-dangling-gate-ref.json",
+      "sha256": "b854ce36d324110dba6dd769bc362667c22c1fe91790aaab6932cdbafc1c6323"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-dup-capability-id.json",
+      "sha256": "97dcf29819c612fe07538beb24b269d0b5dcc4fd3e2e9a3773ee86949b3ed6f4"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-dup-gate-id.json",
+      "sha256": "ee1a878ae028216f03124ea112a7b0c816ad96492439cbb9259b1d250acf3880"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-fully-clean.json",
+      "sha256": "128950b2f1111add0e5afb04c7d1da40748e349c4d6ed2e37c3833877803fac8"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-identity-bidirectional.json",
+      "sha256": "3f33c6f054f071f5da7df689bc50d0065501877769fb04d20dfe3902c692aeb5"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-identity-collision.json",
+      "sha256": "ab6aba47139566ba5a62af9345b7810444a31e6ac5f160b23fc3ce85c962151e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-identity-non-py-ref.json",
+      "sha256": "2b5a08b8865cf571d112006462b2a4cbf135de428fb3da1b28ce65bd363ad20f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-identity-symlink.json",
+      "sha256": "226e3af24d960ee4b53837f088815fea09913e65c10dbdcf2401d51bbac6784f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-impl-ref-nonexistent-path.json",
+      "sha256": "65dc7adb02a4f623a339d08c7d9c9be83e5f7471c8ac9002974ff738f570779f"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-missing-impl-ref.json",
+      "sha256": "c951c08957f01b0389e925c19bc576d978c57e9feb7f649437e849a8e9939e79"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-provider-clean.json",
+      "sha256": "c3f5f9908a941df1f60b66bd0b19858760b9fcf2c9b7ddfee1294b45cc6de189"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-provider-name.json",
+      "sha256": "affc65272497954f9b16f95136ea0f90f29168a094cda62c15bff7f0f6d25dff"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-stage-missing.json",
+      "sha256": "9751feb5c22debe3d5816d20db6649e96d4df84e8cbf925e8361a25eb5d63b7e"
+    },
+    {
+      "path": "initial/tests/fixtures/capability-registry/validate-registry-unknown-upgrade-reason.json",
+      "sha256": "a75386a916a3f591c9615bc06b528d907f88bc19b6562ef774df6a110bb0868f"
+    },
+    {
+      "path": "initial/tests/lib/verification-registration.ps1",
+      "sha256": "ef7945b4e18e3bf70dba53b424e28846c92c0cb2f22feed92581c31d794f0d7f"
+    },
+    {
+      "path": "initial/tests/registry-discovery.tests.ps1",
+      "sha256": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309"
+    },
+    {
+      "path": "initial/tests/registry-discovery.tests.sh",
+      "sha256": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/registry-discovery.tests.sh",
+    "tests/registry-discovery.tests.ps1",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/supplemental-input-manifest.json",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/supplemental-manifest-validation.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/before-registry-bash.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/before-registry-powershell.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/after-registry-bash.log",
+    "specs/cloud-orchestration/verification/T-008/attempt-4/after-registry-powershell.log"
+  ]
+}

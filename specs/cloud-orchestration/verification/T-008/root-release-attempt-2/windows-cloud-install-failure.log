@@ -1,0 +1,28 @@
+2026-10-18T19:26:14.1113955Z   test_prior_runtime_rebuild_failure_preserves_installation (__main__.InstalledLifecycle.test_prior_runtime_rebuild_failure_preserves_installation) (shell='pwsh', missing=('plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md',)) ... FAIL
+2026-10-18T19:26:14.1120422Z Native Windows: exercise PowerShell installation; Bash lifecycle and POSIX cloud execution not claimed
+2026-10-18T19:26:14.1121013Z sequential pwsh: azure->aws, step=0, selection=('sdd-azure-cloud',)
+2026-10-18T19:26:16.7512501Z test_sequential_selections_rebuild_prior_runtime (__main__.InstalledLifecycle.test_sequential_selections_rebuild_prior_runtime) ... FAIL
+2026-10-18T19:26:33.7521952Z test_cloud_manifest_field_mismatches (__main__.ManifestBoundary.test_cloud_manifest_field_mismatches) ... ok
+2026-10-18T19:26:34.9419404Z test_existing_name_and_version_guards (__main__.ManifestBoundary.test_existing_name_and_version_guards) ... ok
+2026-10-18T19:26:45.0895013Z test_marketplace_field_mismatches (__main__.ManifestBoundary.test_marketplace_field_mismatches) ... ok
+2026-10-18T19:26:45.7707595Z test_matched_control (__main__.ManifestBoundary.test_matched_control) ... ok
+2026-10-18T19:27:17.4920574Z test_runtime_field_mismatches (__main__.ManifestBoundary.test_runtime_field_mismatches) ... ok
+2026-10-18T19:27:18.2115913Z test_each_entry_frontmatter_and_relative_links (__main__.SkillVisibility.test_each_entry_frontmatter_and_relative_links) ... ok
+2026-10-18T19:27:24.6029966Z test_real_export_consumer_ignores_upstream_reference_skills (__main__.SkillVisibility.test_real_export_consumer_ignores_upstream_reference_skills) ... ok
+2026-10-18T19:27:34.0972157Z test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls) ... FAIL
+2026-10-18T19:27:34.0975599Z 
+2026-10-18T19:27:34.0976036Z ======================================================================
+2026-10-18T19:27:34.0977218Z FAIL: test_case_variants_at_operator_and_file_discovery_layers (__main__.InstalledLifecycle.test_case_variants_at_operator_and_file_discovery_layers)
+2026-10-18T19:27:34.0978340Z ----------------------------------------------------------------------
+2026-10-18T19:27:34.0979823Z Traceback (most recent call last):
+2026-10-18T19:27:34.0981517Z   File "D:\a\sdd-forge\sdd-forge\tests\install-cloud.tests.py", line 545, in test_case_variants_at_operator_and_file_discovery_layers
+2026-10-18T19:27:34.0983306Z     self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+2026-10-18T19:27:34.0984863Z AssertionError: 1 != 0 : [33;1mWARNING: Dependency resolution auto-included: sdd-quality-loop.[0m
+2026-10-18T19:27:34.0985911Z [31;1mException: [0mD:\a\sdd-forge\sdd-forge\install.ps1:647[0m
+2026-10-18T19:27:34.0986565Z [31;1m[0m[36;1mLine |[0m
+2026-10-18T19:27:34.0987733Z [31;1m[0m[36;1m[36;1m 647 | [0m             [36;1mthrow "SourceDirectory must be the root of a Git worktree[0m …[0m
+2026-10-18T19:27:34.0988879Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-18T19:27:34.0990345Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mSourceDirectory must be the root of a Git worktree so only tracked files can be installed (git was not found).[0m
+2026-10-18T19:27:34.0991276Z 
+2026-10-18T19:27:34.0991284Z 
+2026-10-18T19:27:34.0991487Z ======================================================================

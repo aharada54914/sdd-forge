@@ -1,0 +1,138 @@
+{
+  "checks": [
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-ci-time-budget.md",
+      "before": "9189afa9ea4cac5864ce73be807ae4cab6617ef48c37ab3cc45e9fbebe0d4760",
+      "after": "9189afa9ea4cac5864ce73be807ae4cab6617ef48c37ab3cc45e9fbebe0d4760",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+      "before": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+      "after": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+      "unchanged": true
+    },
+    {
+      "path": "reports/implementation/cloud-orchestration/T-008.md",
+      "before": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+      "after": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/acceptance-tests.md",
+      "before": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+      "after": "4eb6f1a088bc175196ff6f9e33393b05190903e061186fe70cf4895f044f06e0",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/design.md",
+      "before": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+      "after": "f3605c89c9522f3f167db695e2bbf2bcbe7e9e71c92610ff0032272b0bca5f89",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/frontend-spec.md",
+      "before": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+      "after": "586d52fd577b5eaa24be9037f80fbc0334ab934906a9125ead71206eb8561d2b",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/infra-spec.md",
+      "before": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+      "after": "9fcb3698f73022d60b8848785b05ca137620b97cd43586da63a0e75716bccf7d",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/investigation.md",
+      "before": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+      "after": "38229c1b74b815780bfd752a353f1dc15bbcfeefa0285e4f8dc097721227f20c",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/requirements.md",
+      "before": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "after": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/security-spec.md",
+      "before": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+      "after": "fe980874e34da14db58b088b0ae6f989a6e0dadc3a39757851457c0c5312e1db",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "before": "7a9aca7ff38c3dcb420c92606d6dcf492a16dc716c28978f9e7d18b439bcbe71",
+      "after": "7a9aca7ff38c3dcb420c92606d6dcf492a16dc716c28978f9e7d18b439bcbe71",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "before": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+      "after": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/ux-spec.md",
+      "before": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+      "after": "d02d6d219266ca0b5c0ae9705a58e67b66682f3539ce2cd749e545abe5bad8bc",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/ci-observation.json",
+      "before": "9914869f9c34db8d28cc7bd5b18f2e2ed466dc2c378581c4b93139c221775a2d",
+      "after": "9914869f9c34db8d28cc7bd5b18f2e2ed466dc2c378581c4b93139c221775a2d",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/powershell-routing-failure.log",
+      "before": "451da67548841e7d2d296d1047683305fb4a2b14b440e8635655fa97cca2365c",
+      "after": "451da67548841e7d2d296d1047683305fb4a2b14b440e8635655fa97cca2365c",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/registry-discovery-fixture-failure.log",
+      "before": "3379f81328f91e4627ecfbfb593e8edf2eb2cf121d10d554ce57b54d3b6fc717",
+      "after": "3379f81328f91e4627ecfbfb593e8edf2eb2cf121d10d554ce57b54d3b6fc717",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/scope.json",
+      "before": "237026bcb11ea812dfbcabc4054bada6912df7d0ec003b07de2d6c1303743720",
+      "after": "237026bcb11ea812dfbcabc4054bada6912df7d0ec003b07de2d6c1303743720",
+      "unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-attempt-2/windows-mcp-timeout.log",
+      "before": "b9a7d9e381f3f462b528b4b4d083aa73d8faaeff75422d19684480ebc0960a24",
+      "after": "b9a7d9e381f3f462b528b4b4d083aa73d8faaeff75422d19684480ebc0960a24",
+      "unchanged": true
+    },
+    {
+      "path": "AGENTS.md",
+      "before": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537",
+      "after": "be21577343b8b2cc488c47b373ed68130ded00d994f58f1f81b7b69bddd6d537",
+      "unchanged": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "before": "7ec12198da5ece99627ee80323196bc875e0f1bfb7dba0eadd62813cf90d6d96",
+      "after": "7ec12198da5ece99627ee80323196bc875e0f1bfb7dba0eadd62813cf90d6d96",
+      "unchanged": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "before": "2073331df48c2e05d7547aee4bde63a291c3940c5ece5bbb363a186b127c1608",
+      "after": "2073331df48c2e05d7547aee4bde63a291c3940c5ece5bbb363a186b127c1608",
+      "unchanged": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/smoke/inspector-smoke.test.ts",
+      "before": "8dd6c9ef06b0e15ec063ab38b8b12aa356823b14dcc8778400a48d6a8fd47a7a",
+      "after": "8dd6c9ef06b0e15ec063ab38b8b12aa356823b14dcc8778400a48d6a8fd47a7a",
+      "unchanged": true
+    }
+  ],
+  "product_diff": "",
+  "scope_diff_exit": 0
+}

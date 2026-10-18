@@ -1,0 +1,2 @@
+rollback npm test exit=1 (expected 1: original two read-count assertions)
+reapply typecheck/build/dist-byte-parity/full MCP tests exit=0

@@ -1,0 +1,14 @@
+2026-10-18T19:27:34.1145885Z 
+2026-10-18T19:27:34.1146042Z ======================================================================
+2026-10-18T19:27:34.1146944Z FAIL: test_visibility_guards_with_matched_controls (__main__.SkillVisibility.test_visibility_guards_with_matched_controls)
+2026-10-18T19:27:34.1147979Z ----------------------------------------------------------------------
+2026-10-18T19:27:34.1148487Z Traceback (most recent call last):
+2026-10-18T19:27:34.1149242Z   File "D:\a\sdd-forge\sdd-forge\tests\install-cloud.tests.py", line 581, in test_visibility_guards_with_matched_controls
+2026-10-18T19:27:34.1150004Z     self.assertEqual(validate(root, skills=True).returncode, 0)
+2026-10-18T19:27:34.1150326Z AssertionError: 1 != 0
+2026-10-18T19:27:34.1150471Z 
+2026-10-18T19:27:34.1150602Z ----------------------------------------------------------------------
+2026-10-18T19:27:34.1150929Z Ran 13 tests in 130.889s
+2026-10-18T19:27:34.1151065Z 
+2026-10-18T19:27:34.1151141Z FAILED (failures=14)
+2026-10-18T19:27:34.1151845Z FAILED: tests/install-cloud.tests.py

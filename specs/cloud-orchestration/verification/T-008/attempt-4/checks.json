@@ -1,0 +1,200 @@
+[
+  {
+    "name": "before-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/agent-model-routing.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 1,
+    "seconds": 0.533
+  },
+  {
+    "name": "before-registry-bash",
+    "command": [
+      "bash",
+      "tests/registry-discovery.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 1,
+    "seconds": 1.355
+  },
+  {
+    "name": "before-bash",
+    "command": [
+      "bash",
+      "tests/agent-model-routing.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 28.464
+  },
+  {
+    "name": "before-registry-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/registry-discovery.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 1,
+    "seconds": 2.133
+  },
+  {
+    "name": "after-registry-bash",
+    "command": [
+      "bash",
+      "tests/registry-discovery.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 1.224
+  },
+  {
+    "name": "after-registry-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/registry-discovery.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 1.78
+  },
+  {
+    "name": "after-powershell",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "tests/agent-model-routing.tests.ps1"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 1.858
+  },
+  {
+    "name": "after-bash",
+    "command": [
+      "bash",
+      "tests/agent-model-routing.tests.sh"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 30.598
+  },
+  {
+    "name": "mcp-typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "/workspace/sdd-forge/mcp/sdd-forge-mcp",
+    "exit_code": 0,
+    "seconds": 0.446
+  },
+  {
+    "name": "mcp-build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "cwd": "/workspace/sdd-forge/mcp/sdd-forge-mcp",
+    "exit_code": 0,
+    "seconds": 0.35
+  },
+  {
+    "name": "mcp-tests",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/workspace/sdd-forge/mcp/sdd-forge-mcp",
+    "exit_code": 0,
+    "seconds": 36.845
+  },
+  {
+    "name": "ruff",
+    "command": [
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--config",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "mypy",
+    "command": [
+      "env",
+      "MYPYPATH=plugins/sdd-quality-loop/scripts:plugins/sdd-azure-cloud/scripts:plugins/sdd-aws-cloud/scripts",
+      "/tmp/cloud-quality-python/bin/python",
+      "-m",
+      "mypy",
+      "--config-file",
+      "tests/shared-launch-python/pyproject.toml",
+      "tests/install-cloud.tests.py",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 1.036
+  },
+  {
+    "name": "before-install-cloud",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 241.757
+  },
+  {
+    "name": "after-install-cloud",
+    "command": [
+      "python3",
+      "-B",
+      "tests/install-cloud.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 239.383
+  },
+  {
+    "name": "before-cloud-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 161.388,
+    "timing_qualification": "Queued after baseline install; began after decorator edit. Additional post-edit run, not baseline or Red. Actual original alarm cases are in rollback.json."
+  },
+  {
+    "name": "after-cloud-verification",
+    "command": [
+      "python3",
+      "-B",
+      "tests/cloud-orchestration-verification.tests.py"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "exit_code": 0,
+    "seconds": 147.052
+  }
+]

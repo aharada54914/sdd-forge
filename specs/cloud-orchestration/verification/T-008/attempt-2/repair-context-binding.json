@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "repair_run_id": "01a1505e-4688-71b3-9816-af65b714a220",
+  "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+  "sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+  "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-2/implementation-report-snapshot.md",
+  "scope": "Actual release integration repair; original canonical report remains frozen. Current exact-commit full tests and native CI are separate root evidence; this binding does not assert their outcome."
+}

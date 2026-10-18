@@ -1,0 +1,26 @@
+{
+  "classification": "Linux PowerShell with explicit Windows newline translation emulation; not a native Windows run",
+  "results": [
+    {
+      "phase": "matched",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "skill_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5"
+    },
+    {
+      "phase": "windows-text-write",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "\u001b[31;1mException: \u001b[0m/tmp/cloud-T008-attempt4-01a1507a/visibility-dxer2zun/boundary.ps1:193\u001b[0m\n\u001b[31;1m\u001b[0m\u001b[36;1mLine |\u001b[0m\n\u001b[31;1m\u001b[0m\u001b[36;1m\u001b[36;1m 193 | \u001b[0m         \u001b[36;1mthrow \"Skill must declare disable-model-invocation explicitly\u001b[0m \u2026\u001b[0m\n\u001b[31;1m\u001b[0m\u001b[36;1m\u001b[36;1m\u001b[0m\u001b[36;1m\u001b[0m\u001b[36;1m     | \u001b[31;1m         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\u001b[0m\n\u001b[31;1m\u001b[0m\u001b[36;1m\u001b[36;1m\u001b[0m\u001b[36;1m\u001b[0m\u001b[36;1m\u001b[31;1m\u001b[31;1m\u001b[36;1m     | \u001b[31;1mSkill must declare disable-model-invocation explicitly:\u001b[0m\n\u001b[31;1m\u001b[0m\u001b[36;1m\u001b[36;1m\u001b[0m\u001b[36;1m\u001b[0m\u001b[36;1m\u001b[31;1m\u001b[31;1m\u001b[36;1m\u001b[31;1m\u001b[36;1m     | \u001b[31;1m/tmp/cloud-T008-attempt4-01a1507a/visibility-dxer2zun/plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md\u001b[0m\n",
+      "skill_sha256": "df6cd1c0511b2c185ad03e19dfe5dce4929b64b4f4df7ec9f00cb26f9fc67788"
+    },
+    {
+      "phase": "byte-restored",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "skill_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5"
+    }
+  ]
+}

@@ -2982,6 +2982,7 @@ class AlarmNumericCases(unittest.TestCase):
                     self.assertFalse(collector.monitoring()[0])
                 self.assertEqual(len(hits), 1)
 
+    @unittest.skipIf(os.name == "nt", "Cloud evidence integration requires safe POSIX fd/no-follow operations")
     def test_public_synthetic_threshold_result_counterparts(self):
         for value in self.ZEROS + self.REJECTED:
             with self.subTest(threshold=value):

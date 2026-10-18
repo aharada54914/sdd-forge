@@ -166,7 +166,8 @@ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid
 # a canonical source is missing, so this fixture tree must carry every
 # ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
 # the missing-source error path instead of the drift path they test.
-foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json')) {
+foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json', 'selected-verification-plan.schema.json', 'lite-check-catalog.json', 'lite-check-catalog.schema.json',
+                     'verification-contract-v3.schema.json', 'selected-verification-plan-v2.schema.json', 'cloud-verification-registry.schema.json')) {
     Copy-Item -LiteralPath (Join-Path $root "contracts/$extra") -Destination (Join-Path $driftRoot "contracts/$extra")
 }
 Copy-Item -LiteralPath $realDiscovery -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/registry_discovery.py')
@@ -176,23 +177,28 @@ Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-schemafile-va
 Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid.json') -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/contracts/lite-upgrade-reason-catalog.json')
 
 $vendorScript = Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py'
-& $pythonExe $vendorScript --check *> $null
-if ($LASTEXITCODE -ne 0) {
+$staleOutput = @(& $pythonExe $vendorScript --check 2>&1)
+if ($LASTEXITCODE -ne 0 -and ($staleOutput -join "`n").Contains('vendored copies are stale: capability-registry.json')) {
   Ok 'AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy'
 } else {
-  Fail 'AC-027 vendored-copy-drift: --check unexpectedly passed against a stale vendored copy'
+  Fail "AC-027 vendored-copy-drift: expected stale-copy diagnostic: $($staleOutput -join "`n")"
 }
 
-& $pythonExe $vendorScript *> $null
+$generationOutput = @(& $pythonExe $vendorScript 2>&1)
+if ($LASTEXITCODE -eq 0) {
+  Ok 'AC-027 vendored-copy-drift: vendor generation succeeds'
+} else {
+  Fail "AC-027 vendored-copy-drift: vendor generation failed: $($generationOutput -join "`n")"
+}
 $vendoredFile = Join-Path $driftRoot 'plugins/sdd-quality-loop/contracts/capability-registry.json'
 $mtimeBefore = (Get-Item -LiteralPath $vendoredFile).LastWriteTimeUtc
-& $pythonExe $vendorScript --check *> $null
+$checkOutput = @(& $pythonExe $vendorScript --check 2>&1)
 $driftCheckRc = $LASTEXITCODE
 $mtimeAfter = (Get-Item -LiteralPath $vendoredFile).LastWriteTimeUtc
 if ($driftCheckRc -eq 0) {
   Ok 'AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree'
 } else {
-  Fail 'AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree'
+  Fail "AC-027 vendored-copy-drift: --check unexpectedly failed against a freshly-vendored tree: $($checkOutput -join "`n")"
 }
 if ($mtimeBefore -eq $mtimeAfter) {
   Ok 'AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)'

@@ -1,0 +1,14 @@
+{
+  "id": 901002,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+    "expectedTurnId": "01a1507a-35a2-74b2-8200-c2cfa9a2ae5b",
+    "input": [
+      {
+        "type": "text",
+        "text": "Actual nativeWindows test job117766278654 now failed in cloud suite, selected evidence root-release-attempt-2/windows-cloud-*.log; full public actual log /tmp/cloud-CI-2-117766278654.log. Additional TEST-ONLY repairs within sameattempt4: (a) AlarmNumericCases.test_public_synthetic_threshold_result_counterparts directly instantiates POSIX-only publicintegration harness, bypassing its class skip; all33thresholds fail UNSAFE_PATH onbackslash. Existingcontract intentionally refusesWindowsPOSIXcloudI/O. Mark ONLY this POSIX public integration method with the same truthful nativeWindows limitation as underlyingharness, retain pure alarmnumeric/nativeXML schema cases onWindows and keep genuineWindows unsafe-root refusal. Do not normalizeproductionpath or weakenadmission; no blanketclassskip. (b) tests/install-cloud.tests.py installer() constructs env with PATH/HOME only and drops Windows process essentials PATHEXT/SystemRoot etc, so PowerShell Get-Command git fails though Git exists inCI. Diagnose and preserve only required safe platform environment keys in synthetic subprocess fixture; do not inheritcloudcredentials or weakenisolation. Existing cloud CLI-specific POSIX guards remain. SkillVisibility.test_visibility_guards_with_matched_controls also fails control, inspectactual diagnostics (currently assertsreturncodewithoutoutput) and fix realtestfixturecause, notskip. WindowsPowerShell install/lifecycle must remain mandatory and genuinelyexecuted. Audit other restrictiveenv construction in samefile and subprocesscallers; run fullinstallcloud/syntheticverificationwithnativeLinux tooling plusmatchedcontrolfailuremessages/staticchecks/rollback. Root will require actualWindowscandidate3CI and junction branch. Newtestfiles require manifested/supplemental input snapshots beforeediting. Keep all priorproductbytes unchanged; if diagnostics revealproductionissue reportbefore expanding. Preserve observed nativefailures and explain why each platformbranch is exercised or correctlyunsupported."
+      }
+    ]
+  }
+}

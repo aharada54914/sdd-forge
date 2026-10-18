@@ -1,0 +1,17 @@
+2026-10-18T19:23:24.2025810Z ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md
+2026-10-18T19:23:24.2039078Z ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md
+2026-10-18T19:23:24.2051918Z ok: ADR must record turn-first routing decision
+2026-10-18T19:23:24.2065323Z ok: delegation policy must require turn-first routing
+2026-10-18T19:23:45.7703314Z ok: turn-first model routing structure is defined
+2026-10-18T19:23:45.7764171Z ##[group]Run ./tests/agent-model-routing.tests.ps1
+2026-10-18T19:23:45.7764666Z [36;1m./tests/agent-model-routing.tests.ps1[0m
+2026-10-18T19:23:45.7789640Z shell: /usr/bin/pwsh -command ". '{0}'"
+2026-10-18T19:23:45.7790174Z env:
+2026-10-18T19:23:45.7790395Z   GIT_CONFIG_COUNT: 1
+2026-10-18T19:23:45.7790664Z   GIT_CONFIG_KEY_0: core.longpaths
+2026-10-18T19:23:45.7790977Z   GIT_CONFIG_VALUE_0: true
+2026-10-18T19:23:45.7791247Z ##[endgroup]
+2026-10-18T19:23:46.1788994Z not ok: strong Codex mapping must name gpt-5.2-codex and its fallback
+2026-10-18T19:23:46.2239822Z ##[error]Process completed with exit code 1.
+2026-10-18T19:23:46.2406498Z Post job cleanup.
+2026-10-18T19:23:46.3236152Z [command]/usr/bin/git version

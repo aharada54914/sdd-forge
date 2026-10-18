@@ -1,0 +1,9 @@
+{
+  "schema": "repair-context-binding/v1",
+  "original_run_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "repair_run_id": "01a1507a-333c-7fd0-ac6b-e012aa1447aa",
+  "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+  "sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+  "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md",
+  "scope": "Five test-only platform/inventory repairs. All96Outputs root verified. InspectorWindows timeout remains unresolved at this handoff; next separate native attempt5 owns request-scoped report scan repair. No finalCI/WindowsPASS/tag claimed."
+}
