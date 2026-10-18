@@ -297,6 +297,18 @@ class AzureRouting(unittest.TestCase):
         self.refresh()
         self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
 
+
+    def test_explicit_installed_shared_runtime_and_output_link_boundary(self):
+        runtime = self.root/"trusted-shared"
+        runtime.mkdir()
+        (runtime/"cloud_contracts.py").write_bytes((ROOT/"plugins/sdd-quality-loop/scripts/cloud_contracts.py").read_bytes())
+        self.assertEqual(self.invoke(env_extra={"CLOUD_SHARED_RUNTIME_ROOT": str(runtime)})["state"], "ROUTED")
+        outside = self.root/"outside"
+        outside.mkdir()
+        (self.root/self.evidence/"link").symlink_to(outside, target_is_directory=True)
+        self.assertEqual(self.invoke(expected=2, output=self.evidence+"/link/escape.json")["result"], "BLOCKED")
+        self.assertFalse(list(outside.iterdir()))
+
     def test_secret_marker_publication_is_denied(self):
         self.owner["existing_resources"] = [dict(resource_id="synthetic-" + "secret" + "-canary", owner="terraform", attachments=[])]
         self.refresh()
@@ -309,8 +321,8 @@ class AzureNativePreparation(AzureRouting):
     def setUp(self):
         super().setUp()
         self.binary = Path(os.environ.get("CLOUD_BICEP_BIN", "/workspace/.tools/cloud/bicep/0.48.1/bicep"))
-        self.upstream = Path(os.environ.get("CLOUD_AZURE_UPSTREAM_ROOT",
-            "/tmp/cloud-T004-01a14d9e-7a63-71c2-a07c-aa71d275b9de/upstream/azure-skills-cf79ce8778ad063eeac19dbe8bf982d71b466ce0"))
+        preserved = ROOT / "specs/cloud-orchestration/verification/T-004/attempt-2/evidence/native-workspace/bundle/upstream"
+        self.upstream = Path(os.environ.get("CLOUD_AZURE_UPSTREAM_ROOT", str(preserved)))
         self.env = {"CLOUD_BICEP_BIN": str(self.binary)}
         prefix = "/subscriptions/" + self.req["scope"]["account_id"] + "/resourceGroups/synthetic-group/providers/"
         self.params = dict(vmName="synthetic-vm", location="eastus", vmSize="Standard_D2s_v5",
@@ -613,6 +625,40 @@ resource changed 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
             self.source = self.put("bundle/unit/main.bicep", original + extra.encode())
             self.write_parameters()
             self.assertEqual(self.invoke("plan", expected=2)["error_code"], "UNLOCKED_SOURCE")
+
+
+    def test_expression_depth_has_an_explicit_bound(self):
+        probe = """import sys
+sys.path.insert(0, sys.argv[1])
+import cloud
+from azure_graph import Expressions
+expression = '[' + 'toLower(' * 100 + "parameters('name')" + ')' * 100 + ']'
+try:
+    Expressions({'name':'synthetic'}, {}, {}).value(expression)
+except cloud.c.ContractError as exc:
+    print(str(exc))
+else:
+    raise SystemExit(1)
+"""
+        proc = subprocess.run([sys.executable, "-B", "-c", probe, str(CLI.parent)],
+            env={"PATH": os.defpath}, capture_output=True, timeout=15)
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertEqual(proc.stdout.strip(), b"ARM_EXPRESSION_LIMIT")
+
+    def test_directory_scan_recursion_is_a_typed_cli_denial(self):
+        self.put("request.json", self.req)
+        deep = self.root/"bundle/unit"
+        for _ in range(180):
+            deep = deep/"d"
+            deep.mkdir()
+        bootstrap = "import sys,runpy; sys.setrecursionlimit(150); sys.argv=sys.argv[1:]; runpy.run_path(sys.argv[0],run_name='__main__')"
+        proc = subprocess.run([sys.executable, "-B", "-c", bootstrap, str(CLI), "route", "--request", str(self.root/"request.json"),
+            "--output", str(self.root/self.evidence/"deep.json")], env={"PATH": os.defpath,
+            "CLOUD_WORKSPACE_ROOT": str(self.root)}, capture_output=True, timeout=15)
+        self.assertEqual(proc.returncode, 2, proc.stderr.decode())
+        result = self.contracts.parse_artifact(proc.stdout)
+        self.assertEqual((result["result"], result["error_code"]), ("BLOCKED", "NESTING_LIMIT"))
+        self.assertNotIn(b"Traceback", proc.stderr)
 
     def test_unsupported_filesystem_subprocess(self):
         self.put("request.json", self.req)
