@@ -661,11 +661,15 @@ class NativeCollectorCases(unittest.TestCase):
         # The actual native transport class is used, but its I/O is explicitly
         # mocked with synthetic bytes. No network/provenance claim is made.
         original = fixture.request
+
         def incomplete(method, url, headers, body=None):
             response = original(method, url, headers, body)
             if "/roleAssignments?" in url:
-                response.body = encode(dict(value=[], nextLink="https://untrusted.example"))
+                response.body = encode(
+                    dict(value=[], nextLink="https://untrusted.example")
+                )
             return response
+
         with patch.object(native, "request", side_effect=incomplete):
             with self.assertRaises(ValueError):
                 collector.identity()
@@ -832,7 +836,8 @@ def observation_config(provider: str) -> dict:
         + "/providers/Microsoft.Insights/dataCollectionRuleAssociations/monitor",
         data_collection_rule_id=prefix
         + "Microsoft.Insights/dataCollectionRules/workload",
-        monitoring_workspace_id=prefix + "Microsoft.OperationalInsights/workspaces/monitor",
+        monitoring_workspace_id=prefix
+        + "Microsoft.OperationalInsights/workspaces/monitor",
         workload_metric=dict(
             namespace="Workload", name="Healthy", minimum=1, maximum=1
         ),
@@ -844,22 +849,38 @@ def observation_config(provider: str) -> dict:
     )
 
 
-
 def azure_actions(resource: str, cfg: dict) -> set[str]:
     """Independent fixture oracle for the supported VM policy, not implementation output."""
-    actions = {"Microsoft.Authorization/permissions/read",
-               "Microsoft.Authorization/roleAssignments/read",
-               "Microsoft.Authorization/roleDefinitions/read"}
+    actions = {
+        "Microsoft.Authorization/permissions/read",
+        "Microsoft.Authorization/roleAssignments/read",
+        "Microsoft.Authorization/roleDefinitions/read",
+        "Microsoft.Resources/deployments/read",
+        "Microsoft.Resources/deployments/operations/read",
+    }
     mapping = {
-        cfg["vm_id"]: {"Microsoft.Compute/virtualMachines/read", "Microsoft.Compute/virtualMachines/instanceView/read", "Microsoft.Insights/metrics/read", "Microsoft.Insights/metrics/write"},
-        cfg["nic_id"]: {"Microsoft.Network/networkInterfaces/read", "Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/action"},
+        cfg["vm_id"]: {
+            "Microsoft.Compute/virtualMachines/read",
+            "Microsoft.Compute/virtualMachines/instanceView/read",
+            "Microsoft.Insights/metrics/read",
+            "Microsoft.Insights/metrics/write",
+        },
+        cfg["nic_id"]: {
+            "Microsoft.Network/networkInterfaces/read",
+            "Microsoft.Network/networkInterfaces/effectiveNetworkSecurityGroups/action",
+        },
         cfg["identity_id"]: {"Microsoft.ManagedIdentity/userAssignedIdentities/read"},
-        cfg["association_id"]: {"Microsoft.Insights/dataCollectionRuleAssociations/read"},
+        cfg["association_id"]: {
+            "Microsoft.Insights/dataCollectionRuleAssociations/read"
+        },
         cfg["data_collection_rule_id"]: {"Microsoft.Insights/dataCollectionRules/read"},
     }
     if "backup" in cfg:
         item = cfg["backup"]["protected_item_id"]
-        mapping[item] = {"Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read", "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read"}
+        mapping[item] = {
+            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/read",
+            "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems/recoveryPoints/read",
+        }
         if resource.startswith(item + "/recoveryPoints/"):
             return actions | mapping[item]
     return actions | mapping[resource]
@@ -868,30 +889,100 @@ def azure_actions(resource: str, cfg: dict) -> set[str]:
 def azure_role_records(fixture):
     cfg = fixture.cfg
     subscription = "/subscriptions/" + fixture.scope["account_id"]
-    targets = [cfg[k] for k in ("vm_id", "nic_id", "identity_id", "association_id", "data_collection_rule_id")]
+    targets = [
+        cfg[k]
+        for k in (
+            "vm_id",
+            "nic_id",
+            "identity_id",
+            "association_id",
+            "data_collection_rule_id",
+        )
+    ]
     if "backup" in cfg:
         targets.append(cfg["backup"]["protected_item_id"])
-    audit = {"Microsoft.Authorization/roleAssignments/read", "Microsoft.Authorization/roleDefinitions/read"}
+    audit = {
+        "Microsoft.Authorization/roleAssignments/read",
+        "Microsoft.Authorization/roleDefinitions/read",
+    }
     assignments, definitions = [], {}
-    for i, target in enumerate([subscription, *targets]):
+    group = subscription + "/resourceGroups/" + fixture.scope["deployment_scope"]
+    deployment_reads = {
+        "Microsoft.Resources/deployments/read",
+        "Microsoft.Resources/deployments/operations/read",
+    }
+    for i, target in enumerate([subscription, group, *targets]):
         guid = "00000000-0000-0000-0000-" + str(i + 10).zfill(12)
-        role_id = subscription + "/providers/Microsoft.Authorization/roleDefinitions/" + guid
-        assignment_id = target + "/providers/Microsoft.Authorization/roleAssignments/" + guid
-        actions = audit if target == subscription else azure_actions(target, cfg) - audit
-        assignments.append(dict(id=assignment_id, name=guid, type="Microsoft.Authorization/roleAssignments", properties=dict(scope=target, principalId=fixture.principal, principalType="ServicePrincipal", roleDefinitionId=role_id, condition=None, conditionVersion=None, delegatedManagedIdentityResourceId=None)))
-        definitions[role_id] = dict(id=role_id, name=guid, type="Microsoft.Authorization/roleDefinitions", properties=dict(roleName="Untrusted display name", type="CustomRole", assignableScopes=[subscription], permissions=[dict(actions=sorted(actions), notActions=[], dataActions=[], notDataActions=[])]))
+        role_id = (
+            subscription + "/providers/Microsoft.Authorization/roleDefinitions/" + guid
+        )
+        assignment_id = (
+            target + "/providers/Microsoft.Authorization/roleAssignments/" + guid
+        )
+        actions = (
+            audit
+            if target == subscription
+            else deployment_reads
+            if target == group
+            else azure_actions(target, cfg) - audit - deployment_reads
+        )
+        assignments.append(
+            dict(
+                id=assignment_id,
+                name=guid,
+                type="Microsoft.Authorization/roleAssignments",
+                properties=dict(
+                    scope=target,
+                    principalId=fixture.principal,
+                    principalType="ServicePrincipal",
+                    roleDefinitionId=role_id,
+                    condition=None,
+                    conditionVersion=None,
+                    delegatedManagedIdentityResourceId=None,
+                ),
+            )
+        )
+        definitions[role_id] = dict(
+            id=role_id,
+            name=guid,
+            type="Microsoft.Authorization/roleDefinitions",
+            properties=dict(
+                roleName="Untrusted display name",
+                type="CustomRole",
+                assignableScopes=[subscription],
+                permissions=[
+                    dict(
+                        actions=sorted(actions),
+                        notActions=[],
+                        dataActions=[],
+                        notDataActions=[],
+                    )
+                ],
+            ),
+        )
     return assignments, definitions
 
 
 class AzureClosureAndDcrCases(unittest.TestCase):
-    def collector(self, native=False):
+    @staticmethod
+    def collector(native=False):
         sys.path.insert(0, str(ROOT / "plugins/sdd-azure-cloud/scripts"))
         import azure_observation as module
+
         fixture = NativeFixture("azure", "all", "healthy")
         transport = module.HttpsTransport() if native else fixture
-        collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
-            principal=fixture.principal, completed="2026-10-18T06:00:00Z", age=300,
-            clock=lambda: 1792303260, transport=transport, run_id="synthetic-run", unit_id="synthetic-unit")
+        collector = module.Collector(
+            fixture.scope,
+            fixture.cfg,
+            fixture.credentials,
+            principal=fixture.principal,
+            completed="2026-10-18T06:00:00Z",
+            age=300,
+            clock=lambda: 1792303260,
+            transport=transport,
+            run_id="synthetic-run",
+            unit_id="synthetic-unit",
+        )
         return collector, fixture
 
     def test_native_positive_permission_closure_protocol(self):
@@ -906,11 +997,27 @@ class AzureClosureAndDcrCases(unittest.TestCase):
         # Native and injected paths must enforce the identical guard. Native I/O is
         # mocked explicitly; no EVIDENCE_COMPLETE or live IAM claim is made.
         for native in (False, True):
-            for variant in ("principal", "group", "scope", "condition", "wildcard", "data", "notActions", "role-id", "assignment-id", "pagination", "denied", "empty", "caller-disagrees", "drift"):
+            for variant in (
+                "principal",
+                "group",
+                "scope",
+                "condition",
+                "wildcard",
+                "data",
+                "notActions",
+                "role-id",
+                "assignment-id",
+                "pagination",
+                "denied",
+                "empty",
+                "caller-disagrees",
+                "drift",
+            ):
                 with self.subTest(native=native, variant=variant):
                     collector, fixture = self.collector(native=native)
                     original = fixture.request
                     assignment_reads = 0
+
                     def wire(method, url, headers, body=None):
                         nonlocal assignment_reads
                         response = original(method, url, headers, body)
@@ -919,77 +1026,172 @@ class AzureClosureAndDcrCases(unittest.TestCase):
                             assignment_reads += 1
                             row = value["value"][-1]
                             prop = row["properties"]
-                            if variant == "principal": prop["principalId"] = "00000000-0000-0000-0000-000000000099"
-                            if variant == "group": prop["principalType"] = "Group"
-                            if variant == "scope": prop["scope"] += "/unrelated/child"
-                            if variant == "condition": prop["condition"] = "unsupported"
-                            if variant == "assignment-id": row["id"] += "wrong"
-                            if variant == "pagination": value["nextLink"] = "https://untrusted.example"
-                            if variant == "denied": response.status = 403
-                            if variant == "empty": value["value"] = []
-                            if variant == "drift" and assignment_reads > 1: value["value"] = value["value"][:-1]
+                            if variant == "principal":
+                                prop["principalId"] = (
+                                    "00000000-0000-0000-0000-000000000099"
+                                )
+                            if variant == "group":
+                                prop["principalType"] = "Group"
+                            if variant == "scope":
+                                prop["scope"] += "/unrelated/child"
+                            if variant == "condition":
+                                prop["condition"] = "unsupported"
+                            if variant == "assignment-id":
+                                row["id"] += "wrong"
+                            if variant == "pagination":
+                                value["nextLink"] = "https://untrusted.example"
+                            if variant == "denied":
+                                response.status = 403
+                            if variant == "empty":
+                                value["value"] = []
+                            if variant == "drift" and assignment_reads > 1:
+                                value["value"] = value["value"][:-1]
                         if "/roleDefinitions/" in url:
                             perm = value["properties"]["permissions"][0]
-                            if variant == "wildcard": perm["actions"] = ["*"]
-                            if variant == "data": perm["dataActions"] = ["Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"]
-                            if variant == "notActions": perm["notActions"] = ["Microsoft.Compute/virtualMachines/read"]
-                            if variant == "role-id": value["id"] += "wrong"
-                        if "/permissions?" in url and variant == "caller-disagrees": value["value"][0]["actions"] = []
+                            if variant == "wildcard":
+                                perm["actions"] = ["*"]
+                            if variant == "data":
+                                perm["dataActions"] = [
+                                    "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+                                ]
+                            if variant == "notActions":
+                                perm["notActions"] = [
+                                    "Microsoft.Compute/virtualMachines/read"
+                                ]
+                            if variant == "role-id":
+                                value["id"] += "wrong"
+                        if "/permissions?" in url and variant == "caller-disagrees":
+                            value["value"][0]["actions"] = []
                         response.body = encode(value)
                         return response
+
                     with patch.object(collector.transport, "request", side_effect=wire):
-                        with self.assertRaises(ValueError): collector.identity()
+                        with self.assertRaises(ValueError):
+                            collector.identity()
 
     def test_dcr_readback_and_mismatches(self):
-        for variant in ("matched", "id", "location", "kind", "state", "source", "counter", "interval", "stream", "destination", "flow", "transform", "denied", "missing", "pagination"):
+        for variant in (
+            "matched",
+            "id",
+            "location",
+            "kind",
+            "state",
+            "source",
+            "counter",
+            "interval",
+            "stream",
+            "destination",
+            "flow",
+            "transform",
+            "denied",
+            "missing",
+            "pagination",
+        ):
             with self.subTest(variant=variant):
                 collector, fixture = self.collector()
                 original = fixture.request
+
                 def wire(method, url, headers, body=None):
                     response = original(method, url, headers, body)
-                    if url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]):
+                    if url.split("?")[0].endswith(
+                        fixture.cfg["data_collection_rule_id"]
+                    ):
                         value = json.loads(response.body)
                         props = value["properties"]
-                        if variant == "id": value["id"] += "wrong"
-                        if variant == "location": value["location"] = "westus"
-                        if variant == "kind": value["kind"] = "Windows"
-                        if variant == "state": props["provisioningState"] = "Failed"
-                        if variant == "source": props["dataSources"] = {}
-                        if variant == "counter": props["dataSources"]["performanceCounters"][0]["counterSpecifiers"] = ["unrelated"]
-                        if variant == "interval": props["dataSources"]["performanceCounters"][0]["samplingFrequencyInSeconds"] = 600
-                        if variant == "stream": props["dataSources"]["performanceCounters"][0]["streams"] = ["Microsoft-Syslog"]
-                        if variant == "destination": props["destinations"]["logAnalytics"][0]["workspaceResourceId"] += "wrong"
-                        if variant == "flow": props["dataFlows"][0]["destinations"] = ["other"]
-                        if variant == "transform": props["dataFlows"][0]["transformKql"] = "source | where false"
-                        if variant == "denied": response.status = 403
-                        if variant == "missing": value = {}
-                        if variant == "pagination": value["nextLink"] = "https://untrusted.example"
+                        if variant == "id":
+                            value["id"] += "wrong"
+                        if variant == "location":
+                            value["location"] = "westus"
+                        if variant == "kind":
+                            value["kind"] = "Windows"
+                        if variant == "state":
+                            props["provisioningState"] = "Failed"
+                        if variant == "source":
+                            props["dataSources"] = {}
+                        if variant == "counter":
+                            props["dataSources"]["performanceCounters"][0][
+                                "counterSpecifiers"
+                            ] = ["unrelated"]
+                        if variant == "interval":
+                            props["dataSources"]["performanceCounters"][0][
+                                "samplingFrequencyInSeconds"
+                            ] = 600
+                        if variant == "stream":
+                            props["dataSources"]["performanceCounters"][0][
+                                "streams"
+                            ] = ["Microsoft-Syslog"]
+                        if variant == "destination":
+                            props["destinations"]["logAnalytics"][0][
+                                "workspaceResourceId"
+                            ] += "wrong"
+                        if variant == "flow":
+                            props["dataFlows"][0]["destinations"] = ["other"]
+                        if variant == "transform":
+                            props["dataFlows"][0]["transformKql"] = (
+                                "source | where false"
+                            )
+                        if variant == "denied":
+                            response.status = 403
+                        if variant == "missing":
+                            value = {}
+                        if variant == "pagination":
+                            value["nextLink"] = "https://untrusted.example"
                         response.body = encode(value)
                     return response
+
                 with patch.object(fixture, "request", side_effect=wire):
-                    if variant == "matched": self.assertTrue(collector.monitoring()[0])
+                    if variant == "matched":
+                        self.assertTrue(collector.monitoring()[0])
                     else:
-                        try: healthy = collector.monitoring()[0]
-                        except (ValueError, KeyError): healthy = False
+                        try:
+                            healthy = collector.monitoring()[0]
+                        except (ValueError, KeyError):
+                            healthy = False
                         self.assertFalse(healthy)
-                self.assertTrue(any(url.split("?")[0].endswith(fixture.cfg["data_collection_rule_id"]) for _, url, _ in fixture.calls))
+                self.assertTrue(
+                    any(
+                        url.split("?")[0].endswith(
+                            fixture.cfg["data_collection_rule_id"]
+                        )
+                        for _, url, _ in fixture.calls
+                    )
+                )
+
 
 class AzureMetricContextCases(unittest.TestCase):
     collector = AzureClosureAndDcrCases.collector
 
     def test_metric_context_counterparts(self):
-        for field in ("namespace", "resourceregion", "interval", "timespan", "id", "metadata-duplicate"):
+        for field in (
+            "namespace",
+            "resourceregion",
+            "interval",
+            "timespan",
+            "id",
+            "metadata-duplicate",
+        ):
             collector, fixture = self.collector()
             original = fixture.request
+
             def wire(method, url, headers, body=None):
                 response = original(method, url, headers, body)
                 value = json.loads(response.body)
-                if field == "id": value["value"][0]["id"] += "wrong"
-                elif field == "metadata-duplicate": value["value"][0]["timeseries"][0]["metadatavalues"].append(dict(name=dict(value="RunId"), value="synthetic-run"))
-                else: value[field] = "wrong"
+                if field == "id":
+                    value["value"][0]["id"] += "wrong"
+                elif field == "metadata-duplicate":
+                    value["value"][0]["timeseries"][0]["metadatavalues"].append(
+                        dict(name=dict(value="RunId"), value="synthetic-run")
+                    )
+                else:
+                    value[field] = "wrong"
                 response.body = encode(value)
                 return response
-            with self.subTest(field=field), patch.object(fixture, "request", side_effect=wire), self.assertRaises(ValueError):
+
+            with (
+                self.subTest(field=field),
+                patch.object(fixture, "request", side_effect=wire),
+                self.assertRaises(ValueError),
+            ):
                 collector.workload()
 
 
@@ -1063,11 +1265,38 @@ class NativeFixture:
             _, definitions = azure_role_records(self)
             return definitions[path]
         if path == cfg["data_collection_rule_id"]:
-            return dict(id=path, location=self.scope["region"], kind="Linux", properties=dict(
-                provisioningState="Succeeded",
-                dataSources=dict(performanceCounters=[dict(name="cpu", streams=["Microsoft-Perf"], samplingFrequencyInSeconds=60, counterSpecifiers=["\\Processor(_Total)\\% Processor Time"])]),
-                destinations=dict(logAnalytics=[dict(name="workspace", workspaceResourceId=cfg["vm_id"].split("/providers/")[0] + "/providers/Microsoft.OperationalInsights/workspaces/monitor")]),
-                dataFlows=[dict(streams=["Microsoft-Perf"], destinations=["workspace"])]))
+            return dict(
+                id=path,
+                location=self.scope["region"],
+                kind="Linux",
+                properties=dict(
+                    provisioningState="Succeeded",
+                    dataSources=dict(
+                        performanceCounters=[
+                            dict(
+                                name="cpu",
+                                streams=["Microsoft-Perf"],
+                                samplingFrequencyInSeconds=60,
+                                counterSpecifiers=[
+                                    "\\Processor(_Total)\\% Processor Time"
+                                ],
+                            )
+                        ]
+                    ),
+                    destinations=dict(
+                        logAnalytics=[
+                            dict(
+                                name="workspace",
+                                workspaceResourceId=cfg["vm_id"].split("/providers/")[0]
+                                + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
+                            )
+                        ]
+                    ),
+                    dataFlows=[
+                        dict(streams=["Microsoft-Perf"], destinations=["workspace"])
+                    ],
+                ),
+            )
         if path.endswith("/permissions"):
             resource = path.removesuffix(
                 "/providers/Microsoft.Authorization/permissions"
@@ -1111,7 +1340,7 @@ class NativeFixture:
                 ),
             )
         if path == cfg["vm_id"] + "/instanceView":
-            return dict(statuses=[dict(code="PowerState/running")])
+            return dict(statuses=[dict(code="PowerState/stopped" if bad and self.check == "resource" else "PowerState/running")])
         if path == cfg["nic_id"]:
             return dict(
                 id=path,
@@ -1170,7 +1399,10 @@ class NativeFixture:
                 else []
             )
             return dict(
-                namespace=query["metricnamespace"][0], resourceregion=self.scope["region"], interval="PT1M", timespan=query["timespan"][0],
+                namespace=query["metricnamespace"][0],
+                resourceregion=self.scope["region"],
+                interval="PT1M",
+                timespan=query["timespan"][0],
                 value=[
                     dict(
                         id=path + "/" + name,
@@ -1182,7 +1414,7 @@ class NativeFixture:
                             )
                         ],
                     )
-                ]
+                ],
             )
         b = cfg["backup"]
         if path == b["protected_item_id"]:
@@ -1445,8 +1677,11 @@ class AwsObservationOrchestration(unittest.TestCase):
         case.setUp()
         if update:
             from dataclasses import replace
+
             case.native.existing = True
-            case.native.control = replace(case.native.control, existing_stack_id=case.native.stack)
+            case.native.control = replace(
+                case.native.control, existing_stack_id=case.native.stack
+            )
         self.addCleanup(case.doCleanups)
         sys.modules.pop("aws_observation", None)
         cfg = observation_config("aws")
@@ -1509,27 +1744,59 @@ class AwsObservationOrchestration(unittest.TestCase):
         from dataclasses import replace
         from urllib.parse import parse_qs
         import xml.etree.ElementTree as ET
-        for variant in ("newer-stack", "newer-resource", "missing-token", "unordered", "same-time"):
+
+        for variant in (
+            "newer-stack",
+            "newer-resource",
+            "missing-token",
+            "unordered",
+            "same-time",
+        ):
             with self.subTest(variant=variant):
                 case, wire = self.setup_execution(update=True)
                 self.assertEqual(wire.native.create["ChangeSetType"], "UPDATE")
                 wire.health.cfg["instance_id"] = "i-fedcba98765432100"
                 original = wire.request
+
                 def response(method, url, headers, body=None):
                     value = original(method, url, headers, body)
-                    if "cloudformation." in url and parse_qs(body.decode()).get("Action") == ["DescribeStackEvents"]:
+                    if "cloudformation." in url and parse_qs(body.decode()).get(
+                        "Action"
+                    ) == ["DescribeStackEvents"]:
                         tree = ET.fromstring(value.body)
-                        events = next(n for n in tree.iter() if n.tag.endswith("}StackEvents"))
+                        events = next(
+                            n for n in tree.iter() if n.tag.endswith("}StackEvents")
+                        )
                         other = copy.deepcopy(list(events)[0])
                         for node in other:
-                            if node.tag.endswith("}ClientRequestToken"): node.text = "" if variant == "missing-token" else "other-operation"
-                            if node.tag.endswith("}Timestamp"): node.text = "2026-10-18T06:00:00Z" if variant == "same-time" else "2026-10-18T06:00:30Z"
-                            if node.tag.endswith("}ResourceType") and variant == "newer-resource": node.text = "AWS::EC2::Instance"
-                        events.insert(len(events) if variant == "unordered" else 0, other)
+                            if node.tag.endswith("}ClientRequestToken"):
+                                node.text = (
+                                    ""
+                                    if variant == "missing-token"
+                                    else "other-operation"
+                                )
+                            if node.tag.endswith("}Timestamp"):
+                                node.text = (
+                                    "2026-10-18T06:00:00Z"
+                                    if variant == "same-time"
+                                    else "2026-10-18T06:00:30Z"
+                                )
+                            if (
+                                node.tag.endswith("}ResourceType")
+                                and variant == "newer-resource"
+                            ):
+                                node.text = "AWS::EC2::Instance"
+                        events.insert(
+                            len(events) if variant == "unordered" else 0, other
+                        )
                         value = replace(value, body=ET.tostring(tree))
                     return value
+
                 writes = list(wire.writes)
-                with patch.object(wire, "request", side_effect=response), self.assertRaises(ValueError):
+                with (
+                    patch.object(wire, "request", side_effect=response),
+                    self.assertRaises(ValueError),
+                ):
                     case.executor.observe(case.directory + "/newer.json", "verify")
                 self.assertEqual(wire.writes, writes)
 
@@ -1624,7 +1891,7 @@ class AwsObservationOrchestration(unittest.TestCase):
                     self.assertTrue(oracle._schema_validate(schema, changed))
 
 
-class AzureCompletionCases(unittest.TestCase):
+class AzureTestBase(unittest.TestCase):
     def setUp(self):
         scripts = str(ROOT / "plugins/sdd-azure-cloud/scripts")
         self.modules = patch.dict(sys.modules)
@@ -1648,6 +1915,8 @@ class AzureCompletionCases(unittest.TestCase):
 
         self.g, self.o = azure_governed, azure_observation
 
+
+class AzureCompletionCases(AzureTestBase):
     def test_inert_template_has_literal_separate_phase_boundaries(self):
         workflow = self.g.workflow_template()
         self.assertEqual(
@@ -1791,10 +2060,9 @@ class AzureCompletionCases(unittest.TestCase):
                 self.completion(mutation)
 
 
-class AzureResourceBindingCases(unittest.TestCase):
+class AzureResourceBindingCases(AzureTestBase):
     o: ModuleType
     g: ModuleType
-    setUp = AzureCompletionCases.setUp
 
     def test_compiled_and_original_operation_membership(self):
         from types import SimpleNamespace
@@ -1835,7 +2103,12 @@ class AzureResourceBindingCases(unittest.TestCase):
             "native-substitute",
             "type",
             "state",
-            "pagination", "newer-deployment", "active-deployment", "same-time-deployment", "deployment-pagination", "deployment-denied",
+            "pagination",
+            "newer-deployment",
+            "active-deployment",
+            "same-time-deployment",
+            "deployment-pagination",
+            "deployment-denied",
         ):
             current = copy.deepcopy(cfg)
             current.pop("backup")
@@ -1873,11 +2146,43 @@ class AzureResourceBindingCases(unittest.TestCase):
                 def call(self, method, url, credentials, request_id):
                     self.last = (method, url)
                     if "/deployments?" in url:
-                        value = dict(value=[dict(id=native_id, properties=dict(timestamp="2026-10-18T06:00:00Z", provisioningState="Succeeded"))])
-                        if variant in ("newer-deployment", "active-deployment", "same-time-deployment"):
-                            value["value"].append(dict(id=native_id + "-other", properties=dict(timestamp="2026-10-18T05:00:00Z" if variant == "active-deployment" else "2026-10-18T06:00:00Z" if variant == "same-time-deployment" else "2026-10-18T06:00:30Z", provisioningState="Running" if variant == "active-deployment" else "Succeeded")))
-                        if variant == "deployment-pagination": value["nextLink"] = "https://untrusted.example"
-                        return SimpleNamespace(status=403 if variant == "deployment-denied" else 200, body=encode(value))
+                        value: dict = dict(
+                            value=[
+                                dict(
+                                    id=native_id,
+                                    properties=dict(
+                                        timestamp="2026-10-18T06:00:00Z",
+                                        provisioningState="Succeeded",
+                                    ),
+                                )
+                            ]
+                        )
+                        if variant in (
+                            "newer-deployment",
+                            "active-deployment",
+                            "same-time-deployment",
+                        ):
+                            value["value"].append(
+                                dict(
+                                    id=native_id + "-other",
+                                    properties=dict(
+                                        timestamp="2026-10-18T05:00:00Z"
+                                        if variant == "active-deployment"
+                                        else "2026-10-18T06:00:00Z"
+                                        if variant == "same-time-deployment"
+                                        else "2026-10-18T06:00:30Z",
+                                        provisioningState="Running"
+                                        if variant == "active-deployment"
+                                        else "Succeeded",
+                                    ),
+                                )
+                            )
+                        if variant == "deployment-pagination":
+                            value["nextLink"] = "https://untrusted.example"
+                        return SimpleNamespace(
+                            status=403 if variant == "deployment-denied" else 200,
+                            body=encode(value),
+                        )
                     return SimpleNamespace(status=200, body=encode(operations))
 
             client = Client()
@@ -1886,6 +2191,7 @@ class AzureResourceBindingCases(unittest.TestCase):
                 request=dict(scope=scope),
                 client=client,
                 request_id="synthetic-request-id",
+                clock=lambda: 1792303320,
             )
             with self.subTest(variant=variant):
                 if variant == "matched":
@@ -1898,8 +2204,7 @@ class AzureResourceBindingCases(unittest.TestCase):
                         )
 
 
-class AzureObservationOrchestration(unittest.TestCase):
-    setUp = AzureCompletionCases.setUp
+class AzureObservationOrchestration(AzureTestBase):
     o: ModuleType
     g: ModuleType
 
@@ -1934,7 +2239,10 @@ class AzureObservationOrchestration(unittest.TestCase):
                 "Microsoft.Insights/dataCollectionRuleAssociations"
             ],
             data_collection_rule_id=params["dataCollectionRuleId"],
-            monitoring_workspace_id=resources["Microsoft.Compute/virtualMachines"].split("/providers/")[0] + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
+            monitoring_workspace_id=resources[
+                "Microsoft.Compute/virtualMachines"
+            ].split("/providers/")[0]
+            + "/providers/Microsoft.OperationalInsights/workspaces/monitor",
             workload_metric=dict(
                 namespace="Workload", name="Healthy", minimum=1, maximum=1
             ),
@@ -1975,7 +2283,23 @@ class AzureObservationOrchestration(unittest.TestCase):
         def wire(method, url, headers, body=None):
             path = urlsplit(url).path
             if path.endswith("/providers/Microsoft.Resources/deployments"):
-                return SimpleNamespace(status=200, headers={}, body=encode(dict(value=[dict(id=native_id, properties=dict(timestamp="2026-10-18T06:00:00Z", provisioningState="Succeeded"))])))
+                return SimpleNamespace(
+                    status=200,
+                    headers={},
+                    body=encode(
+                        dict(
+                            value=[
+                                dict(
+                                    id=native_id,
+                                    properties=dict(
+                                        timestamp="2026-10-18T06:00:00Z",
+                                        provisioningState="Succeeded",
+                                    ),
+                                )
+                            ]
+                        )
+                    ),
+                )
             if path == native_id + "/operations":
                 return SimpleNamespace(
                     status=200,
@@ -2167,6 +2491,404 @@ class ObservationWire:
                 ),
             )
         return response
+
+
+class PublicObservationCases(unittest.TestCase):
+    def setup_execution(self, provider):
+        harness: AzureObservationOrchestration | AwsObservationOrchestration
+        if provider == "azure":
+            harness = AzureObservationOrchestration(
+                "test_public_verify_uses_original_operation_and_received_signal"
+            )
+            harness.setUp()
+        else:
+            harness = AwsObservationOrchestration(
+                "test_unknown_create_ids_resolved_without_request_edits"
+            )
+        self.addCleanup(harness.doCleanups)
+        case, wire = harness.setup_execution()
+        health = wire if provider == "azure" else wire.health
+        module = sys.modules["cloud"]
+        return case, wire, health, module
+
+    def run_public(self, case, module, name):
+        with patch.dict(os.environ, {"CLOUD_WORKSPACE_ROOT": str(case.root)}):
+            return module.run(
+                [
+                    "verify",
+                    "--request",
+                    case.request_ref["path"],
+                    "--output",
+                    case.directory + "/" + name + ".json",
+                ],
+                executor=case.executor,
+            )
+
+    @staticmethod
+    def target(provider, check, url, body):
+        from urllib.parse import parse_qs
+
+        if provider == "azure":
+            return {
+                "resource": "/instanceView?" in url,
+                "network": "/effectiveNetworkSecurityGroups?" in url,
+                "identity": "/permissions?" in url,
+                "monitoring": "metricnames=Percentage%20CPU" in url,
+                "workload": "metricnames=Healthy" in url,
+                "backup": "/protectedItems/" in url,
+            }[check]
+        action = parse_qs(body.decode()).get("Action", [""])[0] if body else ""
+        metric = parse_qs(body.decode()).get("MetricName", [""])[0] if body else ""
+        return {
+            "resource": action == "DescribeInstances",
+            "network": action == "DescribeSecurityGroups",
+            "identity": action == "GetRolePolicy",
+            "monitoring": action == "DescribeAlarms" or metric == "StatusCheckFailed",
+            "workload": metric == "Healthy",
+            "backup": "backup." in url,
+        }[check]
+
+    def test_public_all_checks_matrix_native_protocol_fixtures(self):
+        # Finite required-check branches; dimensions sharing the same reducer guard
+        # are tested separately rather than an unbounded Cartesian product.
+        for provider in ("aws", "azure"):
+            for check in (
+                "resource",
+                "network",
+                "identity",
+                "monitoring",
+                "workload",
+                "backup",
+            ):
+                for variant in ("healthy", "unhealthy", "denied", "missing", "stale"):
+                    if variant == "stale" and check not in (
+                        "monitoring",
+                        "workload",
+                        "backup",
+                    ):
+                        continue  # synchronous configuration read freshness is the lease, tested below
+                    with self.subTest(provider=provider, check=check, variant=variant):
+                        case, wire, health, module = self.setup_execution(provider)
+                        original = health.request
+                        hit = []
+
+                        def response(method, url, headers, body=None):
+                            target = self.target(provider, check, url, body)
+                            health.variant, health.check = (
+                                (variant if target else "healthy"),
+                                check,
+                            )
+                            if target:
+                                hit.append(url)
+                            return original(method, url, headers, body)
+
+                        with patch.object(health, "request", side_effect=response):
+                            result = self.run_public(case, module, "matrix")
+                        self.assertTrue(hit)
+                        v = json.loads(
+                            (
+                                case.root
+                                / (case.directory + "/matrix.json.verification.json")
+                            ).read_bytes()
+                        )
+                        expected = (
+                            "PASS"
+                            if variant == "healthy"
+                            else "FAIL"
+                            if variant == "unhealthy"
+                            else "BLOCKED"
+                        )
+                        self.assertEqual(
+                            next(
+                                c["result"]
+                                for c in v["checks"]
+                                if c["check_id"] == check
+                            ),
+                            expected,
+                        )
+                        self.assertFalse(v["evidence_complete"])
+                        self.assertEqual(
+                            result["result"],
+                            "FAIL" if variant == "unhealthy" else "BLOCKED",
+                        )
+                        # Release nested fixture/module patches promptly between subtests.
+                        self.doCleanups()
+
+    def test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction(self):
+        for provider in ("aws", "azure"):
+            for variant in (
+                "matched",
+                "overwrite",
+                "symlink",
+                "scanner-false",
+                "scanner-error",
+                "raw-secret",
+                "request-drift",
+                "fake-native",
+            ):
+                with self.subTest(provider=provider, variant=variant):
+                    case, wire, health, module = self.setup_execution(provider)
+                    output = case.root / (case.directory + "/publish.json")
+                    original = health.request
+                    canary = ("secret" + "-canary").encode()
+
+                    def response(method, url, headers, body=None):
+                        r = original(method, url, headers, body)
+                        if variant == "raw-secret":
+                            # Provider body only, not a record or a query identifier.
+                            if r.body.startswith(b"{"):
+                                value = json.loads(r.body)
+                                value["privateDiagnostic"] = canary.decode()
+                                r.body = encode(value)
+                            else:
+                                r.body = r.body.replace(
+                                    b"</", b"<!--" + canary + b"--></", 1
+                                )
+                        if variant == "request-drift":
+                            path = case.root / case.request_ref["path"]
+                            if not path.read_bytes().endswith(b" \n"):
+                                path.write_bytes(path.read_bytes() + b" \n")
+                        return r
+
+                    if variant in ("overwrite", "symlink"):
+                        if variant == "overwrite":
+                            output.write_bytes(b"preserved")
+                        else:
+                            output.symlink_to(case.root / "outside.json")
+                    if variant == "fake-native":
+                        (case.root / "fake.json").write_bytes(
+                            encode(
+                                dict(
+                                    classification="native",
+                                    approved=True,
+                                    exit_code=0,
+                                    evidence_complete=True,
+                                )
+                            )
+                        )
+                        setattr(health, "classification", "native")
+                    with patch.object(health, "request", side_effect=response):
+                        if variant.startswith("scanner"):
+                            scan_patch = (patch.object(module, "safe_publication", return_value=False)
+                                if variant == "scanner-false" else patch.object(module, "safe_publication", side_effect=OSError("scanner unavailable")))
+                            with scan_patch:
+                                result = self.run_public(case, module, "publish")
+                        else:
+                            result = self.run_public(case, module, "publish")
+                    self.assertEqual(result["result"], "BLOCKED")
+                    if variant in ("matched", "raw-secret", "fake-native"):
+                        manifest = json.loads(
+                            (
+                                case.root
+                                / (case.directory + "/publish.json.manifest.json")
+                            ).read_bytes()
+                        )
+                        self.assertEqual(manifest["request"], case.request_ref)
+                        self.assertEqual(manifest["classification"], "synthetic")
+                        self.assertTrue(manifest["saved_receipt_authorizes_nothing"])
+                        for ref in [
+                            manifest["request"],
+                            manifest["context"],
+                            manifest["verification"],
+                            *[
+                                row[k]
+                                for row in manifest["observations"]
+                                for k in ("observation", "result")
+                            ],
+                        ]:
+                            data = (case.root / ref["path"]).read_bytes()
+                            self.assertEqual(
+                                hashlib.sha256(data).hexdigest(), ref["sha256"]
+                            )
+                            self.assertNotIn(canary, data)
+                        self.assertEqual(
+                            result["input_manifest_sha256"], case.request_ref["sha256"]
+                        )
+                        self.assertEqual(
+                            result["evidence_manifest_path"],
+                            case.directory + "/publish.json.manifest.json",
+                        )
+                    elif variant == "overwrite":
+                        self.assertEqual(output.read_bytes(), b"preserved")
+                    elif variant == "symlink":
+                        self.assertFalse((case.root / "outside.json").exists())
+                    else:
+                        self.assertFalse(output.exists())
+                    self.doCleanups()
+
+    def test_public_request_and_trusted_policy_counterparts(self):
+        for provider in ("aws", "azure"):
+            for field in (
+                "run_id",
+                "unit_id",
+                "scope",
+                "verification_profile",
+                "principal",
+                "missing-credentials",
+            ):
+                with self.subTest(provider=provider, field=field):
+                    case, wire, health, module = self.setup_execution(provider)
+                    if field in ("principal", "missing-credentials"):
+                        # Actual federation/identity exchange denial, not a saved local label.
+                        auth = case.executor.boundary.transport
+                        original = auth.request
+
+                        def deny(method, url, headers, body=None):
+                            if "login.microsoftonline.com" in url or "sts." in url:
+                                if field == "missing-credentials":
+                                    raise OSError("unavailable")
+                                return b"{}"
+                            return original(method, url, headers, body)
+
+                        with patch.object(auth, "request", side_effect=deny):
+                            result = self.run_public(case, module, "binding")
+                    else:
+                        value = copy.deepcopy(case.req)
+                        if field == "scope":
+                            value[field]["region"] = "wrong-region"
+                        elif field == "verification_profile":
+                            value[field]["sha256"] = "f" * 64
+                        else:
+                            value[field] = "other"
+                        (case.root / case.request_ref["path"]).write_bytes(
+                            encode(value)
+                        )
+                        result = self.run_public(case, module, "binding")
+                    self.assertEqual(result["result"], "BLOCKED")
+                    self.assertFalse(
+                        (case.root / (case.directory + "/binding.json")).exists()
+                    )
+                    self.doCleanups()
+
+
+class NativeAdversarialCases(unittest.TestCase):
+    def test_native_response_binding_pagination_and_unknown(self):
+        import xml.etree.ElementTree as ET
+        for provider in ("aws", "azure"):
+            for check in ("resource", "network", "identity", "monitoring", "workload", "backup"):
+                for variant in ("tampered", "pagination", "unknown"):
+                    if variant == "unknown" and check not in ("resource", "backup"):
+                        continue  # unknown metrics/numbers and unsupported rights have their own concrete tests
+                    with self.subTest(provider=provider, check=check, variant=variant):
+                        collector, fixture = FreshnessCases().collector(provider, check, "healthy", "2026-10-18T06:00:00Z")
+                        original = fixture.request
+                        def response(method, url, headers, body=None):
+                            r = original(method, url, headers, body)
+                            if provider == "azure":
+                                value = json.loads(r.body)
+                                if variant == "pagination": value["nextLink"] = "https://untrusted.example"
+                                elif variant == "tampered":
+                                    if check == "identity" and "principalId" in value.get("properties", {}): value["properties"]["principalId"] = "other"
+                                    elif check in ("monitoring", "workload") and "/metrics?" in url: value["value"][0]["id"] += "wrong"
+                                    elif "id" in value: value["id"] += "wrong"
+                                elif variant == "unknown":
+                                    if check == "resource" and "/instanceView?" in url: value["statuses"] = [dict(code="PowerState/unknown")]
+                                    elif check == "backup" and "lastBackupStatus" in value.get("properties", {}): value["properties"]["lastBackupStatus"] = "unknown"
+                                r.body = encode(value)
+                            elif r.body.startswith(b"{"):
+                                value = json.loads(r.body)
+                                if variant == "pagination": value["NextToken"] = "more"
+                                elif "RecoveryPoints" in value:
+                                    point = value["RecoveryPoints"][0]
+                                    point["ResourceArn" if variant == "tampered" else "Status"] = "unknown"
+                                r.body = encode(value)
+                            else:
+                                tree = ET.fromstring(r.body)
+                                if variant == "pagination":
+                                    container = next((n for n in tree if n.tag.endswith("Result")), tree)
+                                    ns = tree.tag.split("}")[0] + "}"
+                                    ET.SubElement(container, ns + "NextToken").text = "more"
+                                else:
+                                    key = {"resource": "instanceId" if variant == "tampered" else "name", "network": "groupId", "identity": "Arn", "monitoring": "AlarmName", "workload": "Label"}.get(check)
+                                    for node in tree.iter():
+                                        if node.tag.endswith("}" + str(key)): node.text = "unknown"
+                                r.body = ET.tostring(tree)
+                            return r
+                        with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+                            getattr(collector, check)()
+
+    def test_postcollection_lease_expiry_prevents_publication(self):
+        for provider in ("aws", "azure"):
+            harness = PublicObservationCases()
+            self.addCleanup(harness.doCleanups)
+            case, wire, health, module = harness.setup_execution(provider)
+            now = [1792303320 if provider == "azure" else 1792303260]
+            case.executor.clock = lambda: now[0]
+            original = health.request
+            def response(method, url, headers, body=None):
+                r = original(method, url, headers, body)
+                if "/recoveryPoints?" in url or "/recovery-points/?" in url: now[0] += 10000
+                return r
+            with patch.object(health, "request", side_effect=response): result = harness.run_public(case, module, "expired")
+            self.assertEqual(result["result"], "BLOCKED")
+            self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
+            self.doCleanups()
+
+
+class ExpandedBindingCases(unittest.TestCase):
+    def test_nested_context_fields_and_untrusted_native_labels(self):
+        import cloud_verification as v
+
+        for field in (
+            "request",
+            "scope",
+            "dependency_lock",
+            "policy",
+            "verification_profile",
+        ):
+            for subfield in reducer_case()[4][field]:
+                case = reducer_case()
+                case[4][field][subfield] = "f" * 64 if subfield == "sha256" else "wrong"
+                with (
+                    self.subTest(field=field, subfield=subfield),
+                    self.assertRaises(ValueError),
+                ):
+                    v.reduce(*case, now="2026-10-18T06:01:01Z")
+        case = reducer_case()
+        case[4]["classification"] = "native"
+        for item in case[5]:
+            payload = json.loads(item["payload_bytes"])
+            obs = json.loads(item["observation_bytes"])
+            payload["context_sha256"] = v.digest(v.encode(case[4]))
+            item["payload_bytes"] = v.encode(payload)
+            obs["classification"] = "native"
+            obs["result"]["sha256"] = v.digest(item["payload_bytes"])
+            item["observation_bytes"] = v.encode(obs)
+        with self.assertRaisesRegex(ValueError, "COLLECTOR_PROVENANCE_REQUIRED"):
+            v.reduce(*case, now="2026-10-18T06:01:01Z")
+        # Explicitly synthetic library trust-boundary control, never public provenance.
+        self.assertTrue(
+            v.reduce(*case, now="2026-10-18T06:01:01Z", trusted_native=True)[
+                "evidence_complete"
+            ]
+        )
+
+    def test_every_check_lease_expiry_during_native_response(self):
+        for provider in ("aws", "azure"):
+            for check in (
+                "resource",
+                "network",
+                "identity",
+                "monitoring",
+                "workload",
+                "backup",
+            ):
+                with self.subTest(provider=provider, check=check):
+                    collector, fixture = FreshnessCases().collector(
+                        provider, check, "healthy", "2026-10-18T06:00:00Z"
+                    )
+                    original = fixture.request
+
+                    def response(method, url, headers, body=None):
+                        result = original(method, url, headers, body)
+                        collector.lease = 1
+                        return result
+
+                    with (
+                        patch.object(fixture, "request", side_effect=response),
+                        self.assertRaisesRegex(ValueError, "READ_CREDENTIAL_EXPIRED"),
+                    ):
+                        getattr(collector, check)()
 
 
 if __name__ == "__main__":

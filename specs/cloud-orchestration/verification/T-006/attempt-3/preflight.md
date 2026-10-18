@@ -69,3 +69,17 @@ actual metric ID/namespace/region/interval/window and duplicate dimensions again
 the fixed query/configuration (payload status/trace and verification counterparts).
 The first explicit-workspace config Red fails admission (44 errors), not DCR guard
 execution; subsequent green-closure-dcr.log executes all closure/DCR guard bodies.
+
+## Unknown-state and final lease preflight
+
+NativeAdversarialCases feeds unknown EC2 state/Backup status and Azure power/
+backup status to actual collector methods. Counterparts are native documented
+enums versus result.status/reason, observation.status/exit_code, and verification
+checks/overall_result. Unknown must BLOCK, not classify as a real unhealthy FAIL.
+Its postcollection expiry case expires the actual read lease during recovery
+readback; final recheck/publication must not publish a stale authenticated result.
+red-unknown-expiry.log: four executed unknown-state assertion failures plus one
+Azure postcollection publication failure (AWS already blocks before publication).
+Public matrix first failure was fixture targeting: Azure unhealthy changed VM
+provisioning state but the scoped injection targeted instanceView only; repaired
+fixture now supplies actual stopped power state. It is not a product Red.

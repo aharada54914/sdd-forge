@@ -1,0 +1,55 @@
+test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... 
+  test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='aws', check='resource', variant='unknown') ... FAIL
+  test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='aws', check='backup', variant='unknown') ... FAIL
+  test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='azure', check='resource', variant='unknown') ... FAIL
+  test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='azure', check='backup', variant='unknown') ... FAIL
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... FAIL
+
+======================================================================
+FAIL: test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='aws', check='resource', variant='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2807, in test_native_response_binding_pagination_and_unknown
+    with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'KeyError'>) not raised
+
+======================================================================
+FAIL: test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='aws', check='backup', variant='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2807, in test_native_response_binding_pagination_and_unknown
+    with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'KeyError'>) not raised
+
+======================================================================
+FAIL: test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='azure', check='resource', variant='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2807, in test_native_response_binding_pagination_and_unknown
+    with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'KeyError'>) not raised
+
+======================================================================
+FAIL: test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) (provider='azure', check='backup', variant='unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2807, in test_native_response_binding_pagination_and_unknown
+    with patch.object(fixture, "request", side_effect=response), self.assertRaises((ValueError, KeyError)):
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'KeyError'>) not raised
+
+======================================================================
+FAIL: test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 2824, in test_postcollection_lease_expiry_prevents_publication
+    self.assertFalse((case.root / (case.directory + "/expired.json")).exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.656s
+
+FAILED (failures=5)
