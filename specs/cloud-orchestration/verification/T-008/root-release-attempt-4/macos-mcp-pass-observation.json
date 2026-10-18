@@ -1,0 +1,83 @@
+{
+  "recorded_at": "2026-10-18T20:08:45.846801+00:00",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "job": {
+    "completedAt": "2026-10-18T20:04:39Z",
+    "conclusion": "success",
+    "databaseId": 117775708695,
+    "name": "mcp-tests (macos-latest)",
+    "startedAt": "2026-10-18T20:03:46Z",
+    "status": "completed",
+    "steps": [
+      {
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Set up Node.js",
+        "number": 3,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install dependencies",
+        "number": 4,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Type check",
+        "number": 5,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run tests",
+        "number": 6,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Rebuild dist and verify parity",
+        "number": 7,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Audit production dependencies",
+        "number": 8,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Set up Node.js",
+        "number": 15,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 16,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 17,
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708695"
+  },
+  "scope": "Native macOS after attempt6 canonical fixture path repair. Complete final workflow result remains pending."
+}

@@ -1,0 +1,250 @@
+{
+  "task_id": "T-008",
+  "feature": "cloud-orchestration",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "9b8a12e8d875cf283e0c4370426ecf3c6e4338feff27a69ff888a2888066c440",
+  "quality_report": "reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-2.md",
+  "verification_contract": "specs/cloud-orchestration/verification/T-008.contract.json",
+  "git_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.12.14",
+    "git": "git version 2.52.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "agent",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:31Z",
+      "finished_at": "2026-10-18T20:58:31Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/lint.log",
+      "evidence_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:31Z",
+      "finished_at": "2026-10-18T20:58:32Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/typecheck.log",
+      "evidence_sha256": "050c52a2b0c61e8b681ef5c485e0bc03340b8d55148e0acef27d744c8be42033"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": "bash -c 'python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/docs-check.py . && npm --prefix mcp/sdd-forge-mcp test'",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:43Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unit-tests.log",
+      "evidence_sha256": "e3bbc99b5d8d187670f44d3f2cdf9a09f334abc356c1e949139e919ead39ecf7"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": true,
+      "command": "python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/examples-check.py .",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:43Z",
+      "finished_at": "2026-10-18T20:58:43Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/integration-tests.log",
+      "evidence_sha256": "de8435b589569ca33848fb41c6e1bf732e9a755421e86f29a7a44901478bf765"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "command": "python3 -m py_compile plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:32Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/build.log",
+      "evidence_sha256": "02e1db421b30c90a27b7a40e4c4211bfdde89f3c2a3e8632c7bc4b5f8a1b2135"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py mcp/sdd-forge-mcp/src/parsers/report-lookup.ts mcp/sdd-forge-mcp/src/parsers/task-validation.ts mcp/sdd-forge-mcp/src/parsers/tasks.ts mcp/sdd-forge-mcp/src/tools/core.ts",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:10Z",
+      "finished_at": "2026-10-18T20:59:10Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/placeholder-scan.log",
+      "evidence_sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:10Z",
+      "finished_at": "2026-10-18T20:59:11Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/task-state-check.log",
+      "evidence_sha256": "9481641bd4c7fb0896892d45603c008a91a3ab1b47536d198ee7e9003a3aea19"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": true,
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/validate-repository.ps1",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:44Z",
+      "finished_at": "2026-10-18T20:59:08Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/smoke-run.log",
+      "evidence_sha256": "9e902175137edbf69da035587f99733037ea118b3cf6befbf87151a41e907903"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": "bash -c 'python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/docs-check.py . && npm --prefix mcp/sdd-forge-mcp test'",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:43Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unit-tests.log",
+      "evidence_sha256": "e3bbc99b5d8d187670f44d3f2cdf9a09f334abc356c1e949139e919ead39ecf7"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B specs/cloud-orchestration/verification/T-008/root-release-final/validate-local.py specs/cloud-orchestration/verification/T-008/root-release-final/local 2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:43Z",
+      "finished_at": "2026-10-18T20:58:44Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/regression.log",
+      "evidence_sha256": "d14a41b8cfe07db162ffda78d5004fe605d0ddc1dcfc8d1c8ef864fb8fb9ea80"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:49Z",
+      "finished_at": "2026-10-18T20:59:49Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/requirement-traceability.log",
+      "evidence_sha256": "6358e5190cabd532fc3a592f6fac28117776879e658cbb929865c3634c0acc0e"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:49Z",
+      "finished_at": "2026-10-18T20:59:49Z",
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/check-component-coverage.log",
+      "evidence_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-008.contract.json",
+      "sha256": "9de5dff48848a36a60ec5d205e8b56514894c43839b1b337aa9de6e7278d2301"
+    },
+    {
+      "path": "reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-2.md",
+      "sha256": "75a8b0c243d31942e958ca495c1c64adadcdcd85712e24b2b5d4496e7daf77d9"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/build.log",
+      "sha256": "02e1db421b30c90a27b7a40e4c4211bfdde89f3c2a3e8632c7bc4b5f8a1b2135"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/check-component-coverage.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/integration-tests.log",
+      "sha256": "de8435b589569ca33848fb41c6e1bf732e9a755421e86f29a7a44901478bf765"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/lint.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/regression.log",
+      "sha256": "d14a41b8cfe07db162ffda78d5004fe605d0ddc1dcfc8d1c8ef864fb8fb9ea80"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/requirement-traceability.log",
+      "sha256": "6358e5190cabd532fc3a592f6fac28117776879e658cbb929865c3634c0acc0e"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/smoke-run.log",
+      "sha256": "9e902175137edbf69da035587f99733037ea118b3cf6befbf87151a41e907903"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/task-state-check.log",
+      "sha256": "9481641bd4c7fb0896892d45603c008a91a3ab1b47536d198ee7e9003a3aea19"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/typecheck.log",
+      "sha256": "050c52a2b0c61e8b681ef5c485e0bc03340b8d55148e0acef27d744c8be42033"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unit-tests.log",
+      "sha256": "e3bbc99b5d8d187670f44d3f2cdf9a09f334abc356c1e949139e919ead39ecf7"
+    }
+  ]
+}

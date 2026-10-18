@@ -1,0 +1,266 @@
+{
+  "task_id": "T-008",
+  "feature": "cloud-orchestration",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+  "created": "2026-10-18T20:58:31Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/lint.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "/tmp/cloud-quality-python/bin/python -m ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:31Z",
+      "finished_at": "2026-10-18T20:58:31Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "/tmp/cloud-quality-python/bin/python -m mypy --config-file tests/shared-launch-python/pyproject.toml plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:31Z",
+      "finished_at": "2026-10-18T20:58:32Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-008/attempt-1/before-docs.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+      "command": "bash -c 'python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/docs-check.py . && npm --prefix mcp/sdd-forge-mcp test'",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:43Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/integration-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-008/attempt-1/before-docs.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+      "command": "python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/examples-check.py .",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:43Z",
+      "finished_at": "2026-10-18T20:58:43Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -m py_compile plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py tests/a9-dogfood.tests.py tests/host-review-preflight.tests.py tests/install-cloud.tests.py tests/cloud-orchestration-verification.tests.py",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:32Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-azure-cloud/examples/local-route-example.py plugins/sdd-azure-cloud/scripts/cloud.py scripts/validate-a9-candidate.py mcp/sdd-forge-mcp/src/parsers/report-lookup.ts mcp/sdd-forge-mcp/src/parsers/task-validation.ts mcp/sdd-forge-mcp/src/parsers/tasks.ts mcp/sdd-forge-mcp/src/tools/core.ts",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:10Z",
+      "finished_at": "2026-10-18T20:59:10Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/cloud-orchestration/tasks.md",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:10Z",
+      "finished_at": "2026-10-18T20:59:11Z"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/smoke-run.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-008/attempt-1/before-docs.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+      "command": "/workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/validate-repository.ps1",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:44Z",
+      "finished_at": "2026-10-18T20:59:08Z"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI. Final exact-commit native CI and new annotated tag must have actual root evidence before final review. Live cloud TEST-003/005/009 remains BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI. Final exact-commit native CI and new annotated tag must have actual root evidence before final review. Live cloud TEST-003/005/009 remains BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No UI. Final exact-commit native CI and new annotated tag must have actual root evidence before final review. Live cloud TEST-003/005/009 remains BLOCKED, never waived.",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-008/attempt-1/before-docs.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+      "command": "bash -c 'python3 -B specs/cloud-orchestration/verification/T-008/attempt-1/docs-check.py . && npm --prefix mcp/sdd-forge-mcp test'",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:32Z",
+      "finished_at": "2026-10-18T20:58:43Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "specs/cloud-orchestration/verification/T-008/attempt-1/before-docs.log",
+      "green_evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+      "command": "python3 -B specs/cloud-orchestration/verification/T-008/root-release-final/validate-local.py specs/cloud-orchestration/verification/T-008/root-release-final/local 2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:58:43Z",
+      "finished_at": "2026-10-18T20:58:44Z"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/requirement-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/cloud-orchestration/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:49Z",
+      "finished_at": "2026-10-18T20:59:49Z"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/check-component-coverage.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-013",
+        "REQ-014"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": "python3 -B plugins/sdd-quality-loop/scripts/check-component-coverage.py --repo-root /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-18T20:59:49Z",
+      "finished_at": "2026-10-18T20:59:49Z"
+    }
+  ]
+}

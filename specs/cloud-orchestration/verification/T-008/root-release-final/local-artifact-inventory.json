@@ -1,0 +1,149 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "artifacts": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-0.result.json",
+      "sha256": "e35f7d66a7b59679ca6b756235395b4581180baba16c54ae5c86a5e25e4cd4ac",
+      "bytes": 685,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-0.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-0.receipt.json",
+      "sha256": "1ceffa2b3f7637f5ba5862a664de97776de1f88fe9d6a3277b9d87fa97bf2387",
+      "bytes": 668,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-0.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-0.log",
+      "sha256": "e3a25c5a7d60f5203faeecfd7b84212bc9ac35205ba813014d1d503610da01d3",
+      "bytes": 31938,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-0.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-1.result.json",
+      "sha256": "be22ffc3a16ede8c1b92214322adbd65973a19046b20ce672263bc98a7a6704f",
+      "bytes": 685,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-1.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-1.receipt.json",
+      "sha256": "b0cb0e37a83705d53cd912755667cbd01d5e25838f1271c87c8c86b3cf7d41c0",
+      "bytes": 18325,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-1.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-1.log",
+      "sha256": "d01ed7afbcb35181d7b5dba51e04c965a745602e2972199ee834fc7c53f14489",
+      "bytes": 303550,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-1.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-2.result.json",
+      "sha256": "31a940aefc6b0fc2e023a3a78b892156bb7da57e12ab42406146d96516cc7093",
+      "bytes": 685,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-2.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-2.receipt.json",
+      "sha256": "6911a2a41dbb91734ca3af8e3b4ba2bdf9a996b881d81b147129668d782ec3d2",
+      "bytes": 18805,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-2.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-2.log",
+      "sha256": "578414b5b5bc55e7a81e9882c86ab5775aaf1a1086b03ee72892b18201e78eaa",
+      "bytes": 440226,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-2.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-3.result.json",
+      "sha256": "49954f5454b17ea8ae44fd92b0e3b51a644fc40137fdc3f3eadc36341212ac1e",
+      "bytes": 685,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-3.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-3.receipt.json",
+      "sha256": "453b3b232c9375023fbf6090167f519da7399f2964ead88a8e517c58be89ca41",
+      "bytes": 18942,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-3.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-posix-3.log",
+      "sha256": "36566fe83b5a0391ab28e7af7d675bcff521a5fe2930979c18b9681a8e55e851",
+      "bytes": 347411,
+      "source": "/workspace/cloud-release-v119-4b/local-posix-3.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-0.result.json",
+      "sha256": "0cad22cb9148c3fd28ef4ff5d6fcd83879e1b2271ba9d6d941782807eed51861",
+      "bytes": 705,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-0.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-0.receipt.json",
+      "sha256": "2bf495e12882e1c0357a005a0d9509bf6368ac9302110c8e07ac1e5307efead5",
+      "bytes": 9801,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-0.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-0.log",
+      "sha256": "564bd54ef850cbca241b669f46e14231f51b998dedaf102a5dd24587e05fd9ad",
+      "bytes": 152123,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-0.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-1.result.json",
+      "sha256": "56daa09f31194cc067f0bc3cee38e9d21e2b9dffd413543653ad985616c1d793",
+      "bytes": 705,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-1.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-1.receipt.json",
+      "sha256": "23f2c2fba3feab50b65746c306c63e96273a234fd1a599b1c940a5696198706f",
+      "bytes": 9692,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-1.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-1.log",
+      "sha256": "01e70f117f80461c6ee25836220aef89790f7316c1cef929b43cf2cac6367356",
+      "bytes": 280487,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-1.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-2.result.json",
+      "sha256": "f141d2aa5794b0f0d4213da073a8774c24f11f9b4457596597b2c3753b349b8e",
+      "bytes": 705,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-2.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-2.receipt.json",
+      "sha256": "3bcc47bbcbe48fe0aec0a6515c8daf2d7ecf738f457c9029bb7d09bd57b1142e",
+      "bytes": 9525,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-2.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-2.log",
+      "sha256": "4bc0808a942eb437adf6666e1928337965ee436200943e65ad934c00dfc7953f",
+      "bytes": 249117,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-2.log"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-3.result.json",
+      "sha256": "7a007049513580d7ff1fb3b60d1df47c5d27319e2c7a8b6ad5f387b0518e143f",
+      "bytes": 705,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-3.result.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-3.receipt.json",
+      "sha256": "e59ddc371ae2ad0d9b2ed2e2902c5d8814a422e1ee453361890328bc47a9c8e3",
+      "bytes": 9572,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-3.receipt.json"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/local/local-powershell-3.log",
+      "sha256": "48731523185b67506671bf5d049c4449270ccd9dd60344425655307453022c99",
+      "bytes": 146601,
+      "source": "/workspace/cloud-release-v119-4b/local-powershell-3.log"
+    }
+  ]
+}

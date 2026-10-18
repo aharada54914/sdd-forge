@@ -1,0 +1,7 @@
+{
+  "reason": "Corrected newly-rendered unbound report reference after current ticket namespace scan; 901 already names historical alarm issue. Actual evaluator output and verdict unchanged.",
+  "before_sha256": "8b0f174112d4bc0bf74f8d877e3715bde558d650e0f30c0a32e8826e9d0cebe9",
+  "after_sha256": "ab4f0a73f0277f2f8edbf6c85191c7e8ca1b3b0c325d6f907c3a912d160880a3",
+  "ticket_id": "RT-20261018-913",
+  "additional_prose_correction": "Post-Fix table admits existing current bytes; no claim these bytes were generated after reviewer finding."
+}

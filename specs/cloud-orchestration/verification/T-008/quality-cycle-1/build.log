@@ -1,0 +1,1 @@
+{"command": ["python3", "-m", "py_compile", "plugins/sdd-azure-cloud/examples/local-route-example.py", "plugins/sdd-azure-cloud/scripts/cloud.py", "scripts/validate-a9-candidate.py", "tests/a9-dogfood.tests.py", "tests/host-review-preflight.tests.py", "tests/install-cloud.tests.py", "tests/cloud-orchestration-verification.tests.py"], "exit_code": 0, "stdout": "", "stderr": ""}

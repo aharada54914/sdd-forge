@@ -1,0 +1,175 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "job": {
+    "completedAt": "2026-10-18T20:12:31Z",
+    "conclusion": "failure",
+    "databaseId": 117775708641,
+    "name": "complete POSIX regression inventory",
+    "startedAt": "2026-10-18T20:03:24Z",
+    "status": "completed",
+    "steps": [
+      {
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install structural YAML parser",
+        "number": 3,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test required-checks POSIX failure propagation",
+        "number": 4,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test verification catalog and shadow selection",
+        "number": 5,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Observe impact selection without skipping required checks",
+        "number": 6,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install pinned RTK",
+        "number": 7,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test evaluator scratch isolation (Bash and PowerShell)",
+        "number": 8,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test shared quality non-TTY transport contracts",
+        "number": 9,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Check shared launch Python and FilesOnly distribution",
+        "number": 10,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test shared launch FilesOnly distribution",
+        "number": 11,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test traceability freeze normalization",
+        "number": 12,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install contract validator",
+        "number": 13,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Test shared review launch and conditional input contracts",
+        "number": 14,
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "name": "Install pinned domain regression test runner",
+        "number": 15,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test domain concept modeling and review contracts",
+        "number": 16,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test guard dispatch fallback",
+        "number": 17,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test guard negative corpus",
+        "number": 18,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test deterministic lane coverage",
+        "number": 19,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test workflow scenarios",
+        "number": 20,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test design system contract (Bash)",
+        "number": 21,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test design system contract (PowerShell)",
+        "number": 22,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test design sync standing consent (Bash)",
+        "number": 23,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test design sync standing consent (PowerShell)",
+        "number": 24,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 48,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 49,
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708641"
+  },
+  "observed_failure": "Install-Module Pester -RequiredVersion 4.10.1 returned no matching module; all preceding suite steps completed successfully. Cause of package retrieval failure is not established.",
+  "action": "Retain failure; retry affected job on same exact commit after run completion. No code or test selection change.",
+  "log": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/pester-install-failure.log",
+  "sha256": "563408feede07e429c2b17586b74e376acb6951ae976096af465c89cf087f257"
+}

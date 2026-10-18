@@ -1,0 +1,15 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "ci_run_id": 39161543135,
+  "ci_url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135",
+  "branch": "release/cloud-orchestration-v1.19.0-20261018",
+  "local_base": "/workspace/cloud-release-v119-4",
+  "profiles": [
+    "local-posix",
+    "local-powershell"
+  ],
+  "shards_per_profile": 4,
+  "selected_full_profiles": true,
+  "launched_at": "2026-10-18T20:03:45.621916+00:00",
+  "status": "RUNNING; no PASS or tag claimed"
+}

@@ -1,0 +1,63 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "status": "PASS",
+  "scope": "Complete current local POSIX and PowerShell profiles; each source pinned, disjoint shards and exact coverage; native Windows/macOS and live cloud acceptance separate.",
+  "records": [
+    {
+      "profile": "local-posix",
+      "shard": 0,
+      "suites": 1,
+      "receipt_sha256": "1ceffa2b3f7637f5ba5862a664de97776de1f88fe9d6a3277b9d87fa97bf2387",
+      "log_sha256": "e3a25c5a7d60f5203faeecfd7b84212bc9ac35205ba813014d1d503610da01d3"
+    },
+    {
+      "profile": "local-posix",
+      "shard": 1,
+      "suites": 64,
+      "receipt_sha256": "b0cb0e37a83705d53cd912755667cbd01d5e25838f1271c87c8c86b3cf7d41c0",
+      "log_sha256": "d01ed7afbcb35181d7b5dba51e04c965a745602e2972199ee834fc7c53f14489"
+    },
+    {
+      "profile": "local-posix",
+      "shard": 2,
+      "suites": 65,
+      "receipt_sha256": "6911a2a41dbb91734ca3af8e3b4ba2bdf9a996b881d81b147129668d782ec3d2",
+      "log_sha256": "578414b5b5bc55e7a81e9882c86ab5775aaf1a1086b03ee72892b18201e78eaa"
+    },
+    {
+      "profile": "local-posix",
+      "shard": 3,
+      "suites": 66,
+      "receipt_sha256": "453b3b232c9375023fbf6090167f519da7399f2964ead88a8e517c58be89ca41",
+      "log_sha256": "36566fe83b5a0391ab28e7af7d675bcff521a5fe2930979c18b9681a8e55e851"
+    },
+    {
+      "profile": "local-powershell",
+      "shard": 0,
+      "suites": 33,
+      "receipt_sha256": "2bf495e12882e1c0357a005a0d9509bf6368ac9302110c8e07ac1e5307efead5",
+      "log_sha256": "564bd54ef850cbca241b669f46e14231f51b998dedaf102a5dd24587e05fd9ad"
+    },
+    {
+      "profile": "local-powershell",
+      "shard": 1,
+      "suites": 33,
+      "receipt_sha256": "23f2c2fba3feab50b65746c306c63e96273a234fd1a599b1c940a5696198706f",
+      "log_sha256": "01e70f117f80461c6ee25836220aef89790f7316c1cef929b43cf2cac6367356"
+    },
+    {
+      "profile": "local-powershell",
+      "shard": 2,
+      "suites": 32,
+      "receipt_sha256": "3bcc47bbcbe48fe0aec0a6515c8daf2d7ecf738f457c9029bb7d09bd57b1142e",
+      "log_sha256": "4bc0808a942eb437adf6666e1928337965ee436200943e65ad934c00dfc7953f"
+    },
+    {
+      "profile": "local-powershell",
+      "shard": 3,
+      "suites": 32,
+      "receipt_sha256": "e59ddc371ae2ad0d9b2ed2e2902c5d8814a422e1ee453361890328bc47a9c8e3",
+      "log_sha256": "48731523185b67506671bf5d049c4449270ccd9dd60344425655307453022c99"
+    }
+  ]
+}

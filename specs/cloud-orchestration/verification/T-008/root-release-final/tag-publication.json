@@ -1,0 +1,11 @@
+{
+  "tag": "v1.19.0",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "annotated_tag_object": "b9bae073836b9b2ecd6c975f6f7e332de362c9dd",
+  "run_id": 39161543135,
+  "ci_url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135",
+  "published_at": "2026-10-18T20:58:00.258112+00:00",
+  "historical_tags_unchanged": true,
+  "release_assets": "not published",
+  "live_cloud_acceptance": "BLOCKED: sandbox unavailable"
+}

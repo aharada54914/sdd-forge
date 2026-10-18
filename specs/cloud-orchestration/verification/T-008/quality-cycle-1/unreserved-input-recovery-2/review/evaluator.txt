@@ -1,0 +1,11 @@
+RUN_ID: 01a15120-4cb9-7f41-888e-d54f071a4b6a
+HOST_SESSION_ID: 01a15120-4cb9-7f41-888e-d54f071a4b6a
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-008/quality-cycle-1/unreserved-input-recovery-2/review/invocation.json SHA-256 6508bbd8cf79c8b37a295ee1b88b483e6d9c0eeec4dc05b7ec863d1097439452
+VERDICT: NEEDS_WORK
+FINDINGS:
+- [Major] reports/verification/cloud-orchestration-release.md — Required T-008 release report cannot be inspected: its path is absent from the allowed manifest, and review_read returned “DENIED: not admitted.” Supply a corrected, reserved manifest admitting its exact hash. Review stopped; AC-014 remains unverified, not disproved.
+CHECKED:
+- Verified invocation fields, implementation identity separation, reservation sequence/link, and recomputed receipt hash matching the supplied REVIEW_CONTEXT_OK.
+- Inspected approved T-008 scope, REQ-013/014, AC-013/014, and design documentation/release requirements.
+- Inspected docs-check.py and examples-check.py line-level assertions, including real CLI subprocess checks for routing, unauthorized prepare/apply, overwrite, and digest mutation.
+- Inspected saved command metadata; no tests were rerun. Release publication, exact-commit CI, and required release-report contents were not independently verified before the admission boundary stopped review.

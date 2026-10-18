@@ -1,0 +1,44 @@
+{
+  "schema": "post-quality-status-transition/v1",
+  "at": "2026-10-18T23:15:36.100811+00:00",
+  "task": "T-008",
+  "evaluator_run_id": "01a15137-1453-7ab1-b492-552d831dc2e2",
+  "quality_report": "reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-2.md",
+  "quality_report_sha256": "75a8b0c243d31942e958ca495c1c64adadcdcd85712e24b2b5d4496e7daf77d9",
+  "changes": [
+    {
+      "path": "specs/cloud-orchestration/tasks.md",
+      "before_sha256": "7eb45c772cd877c35e5112e2df3dfa12f3bb15f13dfdfe5dab8cbc9d490a33dc",
+      "after_sha256": "b81a1043552e35e62c06726fd9036d2775a073121313efdeffc209a76b0e5fd5",
+      "change": "T-008 Status only: Implementation Complete -> Done",
+      "other_bytes_unchanged": true
+    },
+    {
+      "path": "specs/cloud-orchestration/traceability.md",
+      "before_sha256": "5d6ed8d89b688ee11406b5059323b537d37dcbc8d4ae8d32c43c1dece6809b43",
+      "after_sha256": "9f79997f72abc540f6ad8af00af91478967e7cf4e318bb6e1020fcc1bd02b1da",
+      "change": "REQ-013/014 final status cells only: Planned -> Done",
+      "other_bytes_unchanged": true
+    },
+    {
+      "path": "docs/review-tickets/RT-20261018-900.yml",
+      "before_sha256": "d619f3b82e1d1cbc7016b0b74c92ffb6b92d126d1d20386df980e281f6cd4e22",
+      "after_sha256": "60e234e1e15a6fa3ac27dd1ef84f05274d0167d0ce305ec23fe8a67898a02e1b",
+      "change": "Resolve only after actual PASS and checked bundle; preserve prior finding/approval history"
+    },
+    {
+      "path": "docs/review-tickets/RT-20261018-913.yml",
+      "before_sha256": "8e732c44027a9af4f8d9262d4d17355857c81d76e65ed8e80bc8e8a7d01318fd",
+      "after_sha256": "4f1e78c8a73e59fdbac308b9720e7a2b50a2b3096f955b9e1faa445e155611e8",
+      "change": "Resolve only after actual PASS and checked bundle; preserve prior finding/approval history"
+    }
+  ],
+  "frozen_output_supersession_unchanged": true,
+  "live_sandbox_tasks_still_not_done": [
+    "T-003",
+    "T-006",
+    "T-012",
+    "T-013"
+  ],
+  "published_tag_unchanged": "v1.19.0"
+}

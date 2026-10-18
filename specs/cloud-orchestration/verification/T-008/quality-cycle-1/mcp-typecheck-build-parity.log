@@ -1,0 +1,12 @@
+
+> sdd-forge-mcp@0.1.0 typecheck
+> tsc --noEmit
+
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  1.5mb ⚠️
+
+⚡ Done in 54ms

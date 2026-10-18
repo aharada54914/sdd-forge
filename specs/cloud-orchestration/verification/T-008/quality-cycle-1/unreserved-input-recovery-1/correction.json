@@ -1,0 +1,20 @@
+{
+  "failed_allocation": "01a150d0-9949-76e1-a455-58f348e47384",
+  "identity_reserved": false,
+  "model_turn_started": false,
+  "cause": "Caller supplemental declaration tried to admit one intentional symlink fixture as a readable regular input. Canonical read-safe validation correctly rejected it.",
+  "preserved_fixture": {
+    "path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+    "link_target": "check-registered.py",
+    "git_entry": "120000 a0b016a9a236048ea24ec90b296a02f1556d05b7 0\ttests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py",
+    "target_path": "tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered.py",
+    "target_sha256": "8154a68e0fd5205dcf567d5d0efa4c7ff7588dcf9bdc4e5cb973e4bd624953bf"
+  },
+  "correction": "Exclude the symlink from readable inputs; retain its link metadata, regular target and unchanged registered regression results. Product fixture and validator remain unchanged. New fresh evaluator allocation and full automatic preflight required.",
+  "prior_checks": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json",
+  "authorization": "Necessary caller-input correction within approved T-008. No manual preflight fallback or T009 exception.",
+  "fixture_consumers": [
+    "tests/registry-discovery.tests.sh",
+    "tests/registry-discovery.tests.ps1"
+  ]
+}

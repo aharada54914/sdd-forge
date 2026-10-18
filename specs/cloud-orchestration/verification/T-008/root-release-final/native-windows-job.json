@@ -1,0 +1,281 @@
+{
+  "completedAt": "2026-10-18T20:28:39Z",
+  "conclusion": "success",
+  "databaseId": 117775708617,
+  "name": "test (windows-latest)",
+  "startedAt": "2026-10-18T20:04:04Z",
+  "status": "completed",
+  "steps": [
+    {
+      "conclusion": "success",
+      "name": "Set up job",
+      "number": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Setup step 1",
+      "number": 2,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Install structural YAML parser",
+      "number": 3,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Install pinned local cloud compilation tools (Linux only)",
+      "number": 4,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+      "number": 5,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test selected-plan and Lite full promotion on native platforms",
+      "number": 6,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test Concept Test gate on native Windows",
+      "number": 7,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test domain review finalization on native platforms",
+      "number": 8,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Verify generated guard invariants (Windows)",
+      "number": 9,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Verify generated guard invariants (POSIX)",
+      "number": 10,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Verify generated gate-capabilities projection (Windows)",
+      "number": 11,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Verify generated gate-capabilities projection (POSIX)",
+      "number": 12,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Verify vendored contracts copy (Windows)",
+      "number": 13,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Verify vendored contracts copy (POSIX)",
+      "number": 14,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Validate workflow state (PowerShell)",
+      "number": 15,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Validate workflow state (POSIX)",
+      "number": 16,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Validate repository",
+      "number": 17,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Validate repository (POSIX)",
+      "number": 18,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test repository release validation parity",
+      "number": 19,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test deterministic gate scripts",
+      "number": 20,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test run-record feature scope and CRLF identity",
+      "number": 21,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test selected-feature structure validation",
+      "number": 22,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test quality-gate cycle-limit suite (bash)",
+      "number": 23,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+      "number": 24,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test task prior-pass receipt (pwsh)",
+      "number": 25,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test cross-model gate (pwsh)",
+      "number": 26,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test Phase 2 guard invariants (pwsh)",
+      "number": 27,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test Phase 2 guard invariants (bash)",
+      "number": 28,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test hook guards",
+      "number": 29,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test cross-runtime scenario suite (pwsh)",
+      "number": 30,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test review hash normalization (pwsh)",
+      "number": 31,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "[deterministic] Test Epic A7 compatibility suites (pwsh)",
+      "number": 32,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test guards (bash)",
+      "number": 33,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test approval boundary (bash)",
+      "number": 34,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test deterministic gates (bash)",
+      "number": 35,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test panelist-input consent gate (bash)",
+      "number": 36,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test portable review-loop prechecks (bash)",
+      "number": 37,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test cross-model gate (bash)",
+      "number": 38,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test outcome-based eval suite (bash)",
+      "number": 39,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test CRLF line-ending parity (bash)",
+      "number": 40,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test cross-runtime scenario suite (bash)",
+      "number": 41,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Test branch-protection script (bash)",
+      "number": 42,
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "name": "[deterministic] Upload test logs",
+      "number": 43,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "Post [deterministic] Setup step 1",
+      "number": 86,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "name": "Complete job",
+      "number": 87,
+      "status": "completed"
+    }
+  ],
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708617"
+}

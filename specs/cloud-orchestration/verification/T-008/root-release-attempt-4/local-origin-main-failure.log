@@ -1,0 +1,38 @@
+==> tests/cross-runtime-handoff.tests.ps1
+ok: native live CLI contract and all eight missing-token mutations
+ok: PowerShell live Copilot model guard accepts explicit Auto and rejects missing/invalid selections
+ok: pseudo-CLI contract exercised fixture mutation, stdout marker, generated-file hash, and independent nonces
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh Auto good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh claude-sonnet-4.6 good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto missing-output
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto no-lf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-lf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto crlf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto bom
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto wrong-nonce
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto wrong-first-consumer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto missing-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto mutate-input
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto removed-input
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-file
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-dir
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto symlink-dir
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto auto-observation
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto duplicate-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto malformed-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto routing-only
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh claude-sonnet-4.6 wrong-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh <missing> good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto;echo good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof valid-signed
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof explicit-valid
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof stale-consumer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof missing-record
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof unsigned-record
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof invalid-issuer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof untrusted-signer
+fatal: Not a valid object name origin/main
+cross-runtime-handoff: activation predicate mismatch for In Progress
+Evidence preserved: /tmp/sdd-a8-handoff-1f1c74e9dd734758b24d10c7203584f0
+FAILED: tests/cross-runtime-handoff.tests.ps1

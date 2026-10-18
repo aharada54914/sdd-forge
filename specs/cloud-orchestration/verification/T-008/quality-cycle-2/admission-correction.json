@@ -1,0 +1,15 @@
+{
+  "schema": "review-admission-correction/v1",
+  "task": "T-008",
+  "prior_actual_verdict": "NEEDS_WORK",
+  "prior_report": "reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-1.md",
+  "prior_report_sha256": "ab4f0a73f0277f2f8edbf6c85191c7e8ca1b3b0c325d6f907c3a912d160880a3",
+  "release_report": {
+    "path": "reports/verification/cloud-orchestration-release.md",
+    "sha256": "6f4ec198ae1f7df13269a74b7faa3c19e112e890bdd8b055661699b18b44aacf"
+  },
+  "source_or_test_changes": false,
+  "verification_reuse": "15 exact unchanged caller command results and clean exact-commit local/hosted receipts remain valid; this correction changes review admission only. No rerun or new PASS is asserted.",
+  "post_fix_channel": "Canonical gate_report_declaration; prior report body is not delivered to the reviewer.",
+  "approved_task_scope": "T008 AC013/014; live provider tests remain blocked separately."
+}

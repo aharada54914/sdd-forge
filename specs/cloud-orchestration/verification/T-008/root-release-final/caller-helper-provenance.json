@@ -1,0 +1,25 @@
+{
+  "scope": "Actual caller helper source for publication and audit; copied bytes only, execution success is separately recorded after real runs. No peer review copied.",
+  "helpers": [
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/publish-release-tag.py",
+      "source": "/tmp/cloud-publish-release-tag.py",
+      "sha256": "3a93a610cbc9023db05050e9e4798728c56f3ce84ebc8724c87f97f15f060c77"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/write-release-audit.py",
+      "source": "/tmp/cloud-write-final-release-audit.py",
+      "sha256": "b9b4efb75d8cb6550f77afae64d60b5739c527b6cdf988e4793de664b2d18593"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/bind-final-delivery.py",
+      "source": "/tmp/cloud-bind-final-delivery.py",
+      "sha256": "677203235f77d435579a1d53ec84beab69a5a400e985ad80f05b21ff7ca5e350"
+    },
+    {
+      "path": "specs/cloud-orchestration/verification/T-008/root-release-final/collect-final-local.py",
+      "source": "/tmp/cloud-collect-final-local.py",
+      "sha256": "78741ce8e336320673f9f9be4732aa541f1779957050f01b99ad121dd39ff84c"
+    }
+  ]
+}

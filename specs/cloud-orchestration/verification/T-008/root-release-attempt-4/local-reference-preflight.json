@@ -1,0 +1,48 @@
+{
+  "recorded_at": "2026-10-18T20:29:03.678556+00:00",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "status": "PASS",
+  "scope": "All eight actual isolated clones exercise existing six-state activation self-test after pinned origin/main materialization. This is setup proof only; full profile results are separate.",
+  "items": [
+    {
+      "shard": "local-posix-0",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-posix-0-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-posix-1",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-posix-1-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-posix-2",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-posix-2-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-posix-3",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-posix-3-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-powershell-0",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-powershell-0-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-powershell-1",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-powershell-1-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-powershell-2",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-powershell-2-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "shard": "local-powershell-3",
+      "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/local-powershell-3-activation-preflight.log",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    }
+  ]
+}

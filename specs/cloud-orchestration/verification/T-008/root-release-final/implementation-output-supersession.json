@@ -1,0 +1,137 @@
+{
+  "canonical_report": "reports/implementation/cloud-orchestration/T-008.md",
+  "canonical_report_sha256": "a1efa08a83d5a603790916675d44a74488e557c1502b39afe2db72f4ee6ee195",
+  "original_outputs": 1784,
+  "unchanged_outputs": 1771,
+  "differences": [
+    {
+      "path": ".github/workflows/test.yml",
+      "original_sha256": "48698cda10fa3d2ae083368fdc378f3def72271eeeb074f290fc63aad0f4d27a",
+      "current_sha256": "0e682e95ea60b154836781b7b840268c3f334081b5be17ced2cfbd52fe09986b",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-ci-time-budget.md",
+        "report_sha256": "9189afa9ea4cac5864ce73be807ae4cab6617ef48c37ab3cc45e9fbebe0d4760",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-3/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "README.md",
+      "original_sha256": "26e74a8a43096a3585c6c0a720dc8d481884eb9e91cdf6d230d47f6767cbd69a",
+      "current_sha256": "636d456437bce3afc5cf19d148bd9ac927a3e5e18313a9a82d2aabd210971ca4",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-mcp-report-scan-fix.md",
+        "report_sha256": "30d57c67c9acf9921e77f0a945533f6ed8ed163ba10dabd8d90db5786f7abfa7",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-5/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "docs/contributor/release-runbook.md",
+      "original_sha256": "e36c2929985575d742c99d0bd2f5b6b314fecf910ef10f033de415df5e2f70cd",
+      "current_sha256": "0a5ff56974a9003c4f65be874f8b3b81016fd9d45456119a8efe02fb5c101a51",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+        "report_sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-2/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "reports/verification/cloud-orchestration-release.md",
+      "original_sha256": "c4a8f23e05ff25b20719ef69c08da88c4ac8fa01face4950a65024d3d19e2d57",
+      "current_sha256": "6f4ec198ae1f7df13269a74b7faa3c19e112e890bdd8b055661699b18b44aacf",
+      "superseding_evidence": {
+        "root_audit_binding": "specs/cloud-orchestration/verification/T-008/root-release-final/release-audit-binding.json"
+      }
+    },
+    {
+      "path": "scripts/validate-a9-candidate.py",
+      "original_sha256": "0cf45c1fd3db5b34aa63f2a9ffa2c1664a885eaa68d0451e5c0dd8cbfccfd892",
+      "current_sha256": "232e30cb0b43aeac1c86659bec1058a5e2c4fe66a6f2777bdb9faaebc39f7a06",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+        "report_sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-2/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/a9-dogfood.tests.py",
+      "original_sha256": "1972b861075034864534448e4b2e15add3295ed4abef5cc469ab7a4d667efb41",
+      "current_sha256": "366d90bc9aaf7ff386d971410451ec066e42ad6cf8a2253b66959911882f7cba",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+        "report_sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-2/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/agent-model-routing.tests.ps1",
+      "original_sha256": "b3c63e42f206d0d3b4baf63ff1c3e970d4b6ec5d647d733127bac1ac681134ef",
+      "current_sha256": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+        "report_sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/agent-model-routing.tests.sh",
+      "original_sha256": "b5279728d91e67c7edc57f8300445086d3a88a00e1b5e6a602b078891819a565",
+      "current_sha256": "db805b44a8529b6f066fdcc14f90af20f0b0bd95658294b4406ac64d6a12b69f",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+        "report_sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/cloud-orchestration-verification.tests.py",
+      "original_sha256": "e5a6ccd705689a8636c72e4e319399d72325de48e67774d4c50d5846236a805f",
+      "current_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-posix-harness-boundary-fix.md",
+        "report_sha256": "ef7f4e485bd4620daa4ce0f799198a3e4ea6bdc899780e12b0dad513cc9892fa",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-7/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/host-review-preflight.tests.py",
+      "original_sha256": "981f419d293e372e888fd2e7270225de3f5e2ea87eb715eeb187ac96170c1aec",
+      "current_sha256": "b2c1c8a823450a29268087ba42af57972904b3f2dfd3c089c9b270a65f6a09f8",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-release-fixes.md",
+        "report_sha256": "3fe7f0070cd9411f080ca7a37fdf8067868a1d1fb251f6a43fd8f1fa5ea3ce44",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-2/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/install-cloud.tests.py",
+      "original_sha256": "7885c0d30108a2a67d0d3454f40553376acb4f5a22950158960b7958f889b7b5",
+      "current_sha256": "d51687890c89db046a4624e4a64a8b58643bf8917d76f82b2c9dacce5639ace1",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+        "report_sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/registry-discovery.tests.ps1",
+      "original_sha256": "1c81ce754ac869a77a5ac14925adedea483a7e87edbab096384ddb4113faa309",
+      "current_sha256": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+        "report_sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md"
+      }
+    },
+    {
+      "path": "tests/registry-discovery.tests.sh",
+      "original_sha256": "9f111814cf939ab011b32ba90712c172fd475826d199afe044df963831bbbf8f",
+      "current_sha256": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+      "superseding_evidence": {
+        "report": "reports/implementation/cloud-orchestration/T-008-platform-test-fixes.md",
+        "report_sha256": "39fd1f94e7b0a3bd694ee85bd8943d30025e3603de139e14f21af303ecf37049",
+        "snapshot": "specs/cloud-orchestration/verification/T-008/attempt-4/implementation-report-snapshot.md"
+      }
+    }
+  ],
+  "policy": "Frozen original and six repair reports preserved byte-for-byte. Current source and root publication evidence explicitly supersede listed historical output hashes."
+}

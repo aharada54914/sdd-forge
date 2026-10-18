@@ -1,0 +1,9 @@
+{
+  "recorded_at": "2026-10-18T20:07:29.025450+00:00",
+  "run_id": 39160496110,
+  "head_sha": "7850d3fb34258d8fa12cf1ac54d9bb7fae3a7b61",
+  "replacement_run_id": 39161543135,
+  "reason": "Known failed obsolete candidate superseded by exact full candidate4; avoid duplicate use of hosted runners. No cancellation counted as PASS.",
+  "exit_code": 0,
+  "output": "\u2713 Request to cancel workflow 39160496110 submitted.\n"
+}

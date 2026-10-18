@@ -1,0 +1,12 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "job_id": 117775708617,
+  "step": {
+    "conclusion": "success",
+    "name": "[deterministic] Test cloud suites, installed packages and current multitarget boundaries",
+    "number": 5,
+    "status": "completed"
+  },
+  "scope": "Actual native Windows cloud suite step succeeds after method-level POSIX harness guards; whole job and final junction proof still pending."
+}

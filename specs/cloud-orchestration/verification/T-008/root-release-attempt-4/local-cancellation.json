@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-18T20:21:01.745476+00:00",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "outcome": "CANCELLED_INCOMPLETE_WITH_ONE_FAILED_SHARD",
+  "reason": "Caller isolated clone omitted origin/main required by existing cross-runtime and activation checks. Preserve first actual failure; rerun unchanged commit with verified upstream reference. No product change and no failed/cancelled run counted as PASS.",
+  "targets": [
+    {
+      "pid": 3512435,
+      "pgid": 3512435,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-posix 2 /workspace/cloud-release-v119-4"
+    },
+    {
+      "pid": 3512438,
+      "pgid": 3512438,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-powershell 0 /workspace/cloud-release-v119-4"
+    },
+    {
+      "pid": 3512441,
+      "pgid": 3512441,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-posix 1 /workspace/cloud-release-v119-4"
+    },
+    {
+      "pid": 3512444,
+      "pgid": 3512444,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-posix 3 /workspace/cloud-release-v119-4"
+    },
+    {
+      "pid": 3512462,
+      "pgid": 3512462,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-powershell 2 /workspace/cloud-release-v119-4"
+    },
+    {
+      "pid": 3512465,
+      "pgid": 3512465,
+      "command": "python3 /tmp/cloud-run-release-shard4.py 2aaac49c528d0dfe28437082d54fb86a32f04a15 local-powershell 1 /workspace/cloud-release-v119-4"
+    }
+  ]
+}

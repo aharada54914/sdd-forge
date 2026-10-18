@@ -1,0 +1,7 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "cloud_verification_raw_transport_or_html_paths": [],
+  "status": "PASS",
+  "source_reference_assessment": "specs/cloud-orchestration/verification/T-008/root-reference-assessment/assessment.json",
+  "scope": "Exact committed tree scan; excluded local historical bytes remain untouched."
+}

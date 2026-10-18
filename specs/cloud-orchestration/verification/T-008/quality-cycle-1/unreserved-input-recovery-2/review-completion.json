@@ -1,0 +1,11 @@
+{
+  "task_id": "T-008",
+  "review_run_id": "01a15120-4cb9-7f41-888e-d54f071a4b6a",
+  "implementation_run_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "6508bbd8cf79c8b37a295ee1b88b483e6d9c0eeec4dc05b7ec863d1097439452",
+  "hashes_unchanged_at_delivery": true,
+  "actual_readonly_context": true,
+  "report": "reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-1.md",
+  "completion_scope": "NEEDS_WORK: T-008 remains Implementation Complete. Correct the next manifest through the canonical gate-report Post-Fix Artifacts channel, admitting the current release report exact bytes. Preserve all failed admissions and this verdict; fresh independent cycle2 must verify the release. No product or test source changed for this input correction.\n\n[INFO] retrospective deferred: 4 approved task(s) still pending Done"
+}

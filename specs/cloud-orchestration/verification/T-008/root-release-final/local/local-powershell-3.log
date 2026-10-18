@@ -1,0 +1,1730 @@
+["git", "clone", "--shared", "--no-checkout", "/workspace/sdd-forge", "/workspace/cloud-release-v119-4b/local-powershell-3"]
+Cloning into '/workspace/cloud-release-v119-4b/local-powershell-3'...
+done.
+["git", "checkout", "--detach", "2aaac49c528d0dfe28437082d54fb86a32f04a15"]
+HEAD is now at 2aaac49c fix(tests): respect canonical paths and POSIX harness boundaries
+["git", "merge-base", "--is-ancestor", "fcb8275a42061b8132ea88a36e69b02f4487be71", "2aaac49c528d0dfe28437082d54fb86a32f04a15"]
+["git", "update-ref", "refs/remotes/origin/main", "fcb8275a42061b8132ea88a36e69b02f4487be71"]
+["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/cross-runtime-handoff.tests.ps1", "-SelfTestActivation"]
+ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present
+["npm", "ci", "--prefix", "mcp/sdd-forge-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 205 packages in 11s
+["npm", "ci", "--prefix", "mcp/ci-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 201 packages in 8s
+["npm", "ci", "--prefix", "mcp/local-env-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 202 packages in 9s
+["python3", "-B", "tests/verification.py", "--profile", "local-powershell", "--run", "--shard-count", "4", "--shard-index", "3", "--receipt", "/workspace/cloud-release-v119-4b/local-powershell-3.receipt.json", "--powershell", "/workspace/.tools/sdd-forge-dev/bin/pwsh"]
+==> tests/cloud-orchestration-routing.tests.py
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AwsCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AwsCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AwsCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AwsCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_actual_synth_public_mutation_and_missing_backup_negatives (__main__.AwsNativePreparation.test_actual_synth_public_mutation_and_missing_backup_negatives) ... ok
+test_ambient_credentials_are_rejected_before_application (__main__.AwsNativePreparation.test_ambient_credentials_are_rejected_before_application) ... ok
+test_config_schema_required_and_unknown_fields (__main__.AwsNativePreparation.test_config_schema_required_and_unknown_fields) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_node_location_and_bytes (__main__.AwsNativePreparation.test_explicit_node_location_and_bytes) ... ok
+test_expression_depth_and_noncanonical_native_windows_root (__main__.AwsNativePreparation.test_expression_depth_and_noncanonical_native_windows_root) ... ok
+test_fixed_tool_and_upstream_schema_lock_mismatch (__main__.AwsNativePreparation.test_fixed_tool_and_upstream_schema_lock_mismatch) ... ok
+test_generated_output_inside_source_and_hidden_owners_block (__main__.AwsNativePreparation.test_generated_output_inside_source_and_hidden_owners_block) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_independently_authored_private_graph (__main__.AwsNativePreparation.test_independently_authored_private_graph) ... ok
+test_installed_runtime_mutation_denied (__main__.AwsNativePreparation.test_installed_runtime_mutation_denied) ... ok
+test_literal_and_composed_markers_are_not_resource_references (__main__.AwsNativePreparation.test_literal_and_composed_markers_are_not_resource_references) ... ok
+test_malformed_compiled_outputs_always_typed_and_no_receipt (__main__.AwsNativePreparation.test_malformed_compiled_outputs_always_typed_and_no_receipt) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsNativePreparation.test_mixed_unsupported_missing_import_and_provider) ... ok
+test_native_assembly_schema_assets_and_executable_surface_denials (__main__.AwsNativePreparation.test_native_assembly_schema_assets_and_executable_surface_denials) ... ok
+test_output_and_source_integrity (__main__.AwsNativePreparation.test_output_and_source_integrity) ... ok
+test_policy_and_bound_field_mismatch_preflight (__main__.AwsNativePreparation.test_policy_and_bound_field_mismatch_preflight) ... ok
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... ok
+test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported (__main__.AwsNativePreparation.test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsNativePreparation.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsNativePreparation.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_executable_config_and_unlocked_sources (__main__.AwsNativePreparation.test_unsupported_executable_config_and_unlocked_sources) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AwsRouting.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AwsRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AwsRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AwsRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AwsRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_mixed_unsupported_missing_import_and_provider (__main__.AwsRouting.test_mixed_unsupported_missing_import_and_provider) ... ok
+test_output_and_source_integrity (__main__.AwsRouting.test_output_and_source_integrity) ... ok
+test_route_owner_identity_and_stable_intent (__main__.AwsRouting.test_route_owner_identity_and_stable_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AwsRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AwsRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AwsRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_filesystem_subprocess (__main__.AwsRouting.test_unsupported_filesystem_subprocess) ... ok
+test_governed_operations_are_typed_blocked_not_fake_success (__main__.AzureCliContract.test_governed_operations_are_typed_blocked_not_fake_success) ... ok
+test_input_output_alias_is_not_overwritten (__main__.AzureCliContract.test_input_output_alias_is_not_overwritten) ... ok
+test_local_operations_reject_malformed_json_with_identity_free_envelope (__main__.AzureCliContract.test_local_operations_reject_malformed_json_with_identity_free_envelope) ... ok
+test_unknown_operation_and_flag_are_typed_rejections (__main__.AzureCliContract.test_unknown_operation_and_flag_are_typed_rejections) ... ok
+test_commented_unlocked_compiler_reads_fail_closed (__main__.AzureNativePreparation.test_commented_unlocked_compiler_reads_fail_closed) ... ok
+test_compiled_outputs_and_variables_have_no_hidden_runtime_reads (__main__.AzureNativePreparation.test_compiled_outputs_and_variables_have_no_hidden_runtime_reads) ... ok
+test_compiled_public_ip_ingress_and_existing_resource_mutation (__main__.AzureNativePreparation.test_compiled_public_ip_ingress_and_existing_resource_mutation) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureNativePreparation.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_directory_scan_recursion_is_a_typed_cli_denial (__main__.AzureNativePreparation.test_directory_scan_recursion_is_a_typed_cli_denial) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureNativePreparation.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AzureNativePreparation.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureNativePreparation.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_expression_depth_has_an_explicit_bound (__main__.AzureNativePreparation.test_expression_depth_has_an_explicit_bound) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureNativePreparation.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_independent_module_resource_order_names_and_settings_compile (__main__.AzureNativePreparation.test_independent_module_resource_order_names_and_settings_compile) ... ok
+test_missing_compiler_and_transitive_source_rejected (__main__.AzureNativePreparation.test_missing_compiler_and_transitive_source_rejected) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AzureNativePreparation.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureNativePreparation.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureNativePreparation.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureNativePreparation.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_policy_config_mismatch_matrix_before_compiler (__main__.AzureNativePreparation.test_policy_config_mismatch_matrix_before_compiler) ... ok
+test_provider_schema_required_fields_and_types_match_cli (__main__.AzureNativePreparation.test_provider_schema_required_fields_and_types_match_cli) ... ok
+test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes) ... ok
+test_secret_marker_publication_is_denied (__main__.AzureNativePreparation.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureNativePreparation.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureNativePreparation.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unlocked_and_mutated_upstream_and_tool_pin (__main__.AzureNativePreparation.test_unlocked_and_mutated_upstream_and_tool_pin) ... ok
+test_unsupported_filesystem_subprocess (__main__.AzureNativePreparation.test_unsupported_filesystem_subprocess) ... ok
+test_unsupported_only_unit_is_not_migrated (__main__.AzureNativePreparation.test_unsupported_only_unit_is_not_migrated) ... ok
+test_detected_unsupported_owner_cannot_be_hidden_by_inventory (__main__.AzureRouting.test_detected_unsupported_owner_cannot_be_hidden_by_inventory) ... ok
+test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route (__main__.AzureRouting.test_encoded_cloudformation_keys_and_ambiguous_yaml_block_owner_route) ... ok
+test_explicit_installed_shared_runtime_and_output_link_boundary (__main__.AzureRouting.test_explicit_installed_shared_runtime_and_output_link_boundary) ... ok
+test_explicit_unsupported_inventory_and_provider_mismatch (__main__.AzureRouting.test_explicit_unsupported_inventory_and_provider_mismatch) ... ok
+test_governed_phases_use_phase_not_stable_request_intent (__main__.AzureRouting.test_governed_phases_use_phase_not_stable_request_intent) ... ok
+test_missing_installed_runtime_and_unknown_config_are_typed_denials (__main__.AzureRouting.test_missing_installed_runtime_and_unknown_config_are_typed_denials) ... ok
+test_missing_owner_import_and_metadata_id_preservation (__main__.AzureRouting.test_missing_owner_import_and_metadata_id_preservation) ... ok
+test_mutated_input_output_escape_alias_and_no_overwrite (__main__.AzureRouting.test_mutated_input_output_escape_alias_and_no_overwrite) ... ok
+test_one_explicit_bicep_owner_routes_with_stable_apply_intent (__main__.AzureRouting.test_one_explicit_bicep_owner_routes_with_stable_apply_intent) ... ok
+test_secret_marker_publication_is_denied (__main__.AzureRouting.test_secret_marker_publication_is_denied) ... ok
+test_shared_policy_profile_and_root_mismatches (__main__.AzureRouting.test_shared_policy_profile_and_root_mismatches) ... ok
+test_symlink_root_input_and_output_fail_closed (__main__.AzureRouting.test_symlink_root_input_and_output_fail_closed) ... ok
+test_unsupported_only_unit_is_not_migrated (__main__.AzureRouting.test_unsupported_only_unit_is_not_migrated) ... ok
+test_explicit_provider_and_installed_identity_are_required (__main__.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks (__main__.BootstrapInstalled.test_installed_cli_and_each_shared_module_refuse_nonfiles_and_symlinks) ... ok
+test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation (__main__.BootstrapInstalled.test_installed_cli_and_runtime_ancestor_symlinks_prevent_delegation) ... ok
+test_installed_plugin_roots_reject_complete_requests_before_delegation (__main__.BootstrapInstalled.test_installed_plugin_roots_reject_complete_requests_before_delegation) ... ok
+test_installed_provider_guard_sensitivity (__main__.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (__main__.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (__main__.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (__main__.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+test_catalog_and_every_native_ci_cell_admit_all_six_suites (__main__.NormalDriverRegistration.test_catalog_and_every_native_ci_cell_admit_all_six_suites) ... ok
+test_required_native_missing_tools_fail_instead_of_skip (__main__.NormalDriverRegistration.test_required_native_missing_tools_fail_instead_of_skip) ... ok
+
+----------------------------------------------------------------------
+Ran 96 tests in 227.848s
+
+OK
+PASSED: tests/cloud-orchestration-routing.tests.py
+==> tests/review-contract-foundation.tests.ps1
+ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs
+PASSED: tests/review-contract-foundation.tests.ps1
+==> tests/downstream-review-precheck.tests.ps1
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+PASSED: tests/downstream-review-precheck.tests.ps1
+==> tests/install.tests.ps1
+ok: archive extraction exit 0 handled
+ok: archive extraction exit 2 handled
+WARNING: /tmp/sdd-installer-test-9c690957-6faa-4d0a-ac53-33572bff0bf1/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-9c690957-6faa-4d0a-ac53-33572bff0bf1/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-211b5a94-97c9-4a21-808d-0d419aeffa32/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-211b5a94-97c9-4a21-808d-0d419aeffa32/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-04ebbc16-c7d6-4b3f-a090-a6ce6febbbf0/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-04ebbc16-c7d6-4b3f-a090-a6ce6febbbf0/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-quality-loop, sdd-review-loop.
+WARNING: /tmp/sdd-installer-test-7e561064-223b-4801-bf18-f287ad091474/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-test-7e561064-223b-4801-bf18-f287ad091474/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: Registration failed, but the install root at '/tmp/sdd-installer-test-9536d6e7-aab2-4066-93a7-d229695e6659/installed' was left at the newly installed version. Re-run the installer to retry registration.
+WARNING: Registration failed, but the install root at '/tmp/sdd-installer-test-b4f6b5b7-d149-48aa-bd71-41b1fc456619/installed' was left at the newly installed version. Re-run the installer to retry registration.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-filesonly-75272a03-f213-4b1a-a6cf-324549643e3c/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-tracked-only-bc8b7b31-60cb-43d4-83d2-f1ac50611cbd/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: local source installs Git-tracked files only
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: untracked required release file is rejected before deployment
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: /tmp/sdd-installer-idempotency-84f3996c-e6ae-4204-80f3-ae4b47e6e2e5/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-idempotency-84f3996c-e6ae-4204-80f3-ae4b47e6e2e5/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+WARNING: /tmp/sdd-installer-idempotency-84f3996c-e6ae-4204-80f3-ae4b47e6e2e5/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-idempotency-84f3996c-e6ae-4204-80f3-ae4b47e6e2e5/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: idempotency: second install exits 0, state consistent
+WARNING: /tmp/sdd-installer-nonest-b2c0dd1a-5cd7-4e38-a167-e0b8b807deb7/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-nonest-b2c0dd1a-5cd7-4e38-a167-e0b8b807deb7/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: malformed source agent TOML rejected before deployment
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+WARNING: /tmp/sdd-installer-remote-9faad9b7-2c0f-42c5-bb41-00bde016d91d/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/cursor-not-installed was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory).
+WARNING: /tmp/sdd-installer-ide-74c1f5e0-e621-4ee4-bf81-f2ecbb8dffe8/vscode-not-installed was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory).
+
+SDD plugins installed at: /tmp/sdd-installer-remote-9faad9b7-2c0f-42c5-bb41-00bde016d91d/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: authenticated remote install uses GitHub token flow
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-lock-31537d13-ccd0-48f2-9a93-aaefa485f9a7/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after mutex released
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-locksucc-5bd071a1-59df-43e2-a35a-54a921ebb977/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: released on success — mutex acquirable after install
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-smoke-bc947d48-ce33-40df-a3bd-e39a526a55f6/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-skip-598c1866-a407-4f78-84eb-5e09f844d235/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: -SkipMcp skips both MCP placement and registration
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-valid-40b69369-e00b-48b3-8792-18c329a88d93/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp sdd-forge-mcp installs only the selected MCP
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-le-a701e82e-8d55-4c73-a992-af7e62dedb6f/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: -Mcp local-env-mcp installs only the selected MCP
+ok: -Mcp ci-mcp installs only the selected MCP, with token guidance
+ok: -Mcp bogus-mcp is rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-oldnode-aeb4d302-2abe-49bb-9ec8-4ddf1df71e21/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: unsupported Node warns and skips MCP only, plugin install continues
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-01ab7933-190e-4fc6-a6c9-bfb500e66e3b/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.18.0 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-8f7900e1-7e5c-47b6-b0d3-fe4f1e226c98/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.19.0 is accepted
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-65067adb-d75c-413a-9958-3328821b2d8f/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v24.0.0 is accepted
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-7d5b1819-1400-4992-9da5-2b6bf3d006d9/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v22.19.0-rc.1 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-f41fd236-6ddf-474d-b7bc-44775a118af9/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary v999999999999999999999.0.0 is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-node-boundary-7708a68c-be41-423f-9240-bd306a4d169e/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: Node boundary not-a-version is rejected
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-v18-e976d232-b18c-4d08-b75b-f456d149390c/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+
+SDD plugins installed at: /tmp/sdd-installer-mcp-noconfig-b7799caf-7594-451f-b287-c189c92bb247/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+
+SDD plugins installed at: /tmp/sdd-installer-cursor-cebd1580-3646-4a95-a8c2-3b059ed9a7f0/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /tmp/sdd-installer-cursor-cebd1580-3646-4a95-a8c2-3b059ed9a7f0/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+
+SDD plugins installed at: /tmp/sdd-installer-vscode-c86b67c2-e67b-42cc-894f-5a7eb805fe18/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+
+SDD plugins installed at: /tmp/sdd-installer-vscode-c86b67c2-e67b-42cc-894f-5a7eb805fe18/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+ok: T-003 install output is unaffected by project-context presence
+Installer integration tests passed.
+PASSED: tests/install.tests.ps1
+==> tests/workflow-state-registry.tests.ps1
+ok: PowerShell validates workflow-state registry and migration records
+PASSED: tests/workflow-state-registry.tests.ps1
+==> tests/template-validator-parity.tests.ps1
+ok: impl-report template: heading line matches the evaluator boundary
+ok: validator pin: heading rule still present in launch boundary
+ok: impl-report template: '- Task ID:' line present
+ok: validator pin: Task ID rule still present in launch boundary
+ok: impl-report template: Outputs table row parses via the evaluator's declared-output rule
+ok: validator pin: Outputs-section parser still present in launch boundary
+ok: impl-report template: rendered report passes validate-implementation-report.sh
+ok: validator pin: Outputs-table row parser still present in validate-implementation-report.sh
+ok: quality-report template: single Feature: line with the contract feature value
+ok: validator pin: Feature rule still present in evidence-bundle validator
+ok: quality-report template: Task ID line present
+ok: quality-report template: VERDICT line present
+ok: quality-report template: Run ID line present
+ok: quality-report template: Critical count line present
+ok: quality-report template: Major count line present
+ok: quality-report template: Minor count line present
+ok: consumer pin: run-record counter accepts the canonical Task ID identity
+ok: consumer pin: severity-count parser still present in generate-evidence-bundle
+
+template-validator-parity.tests.ps1: 18 passed, 0 failed
+PASSED: tests/template-validator-parity.tests.ps1
+==> tests/loop-escalation.tests.ps1
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+ok: TEST-011.5: select-agent-model.ps1 escalates lightweight->standard on a repeated failure class
+ok: TEST-011.6: select-agent-model.ps1 escalates standard->strong on a repeated failure class
+ok: TEST-011.7: select-agent-model.ps1 reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: Test-LoopTerminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.ps1 denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.ps1 permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + unanchored-identity mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (anchored identity match)
+ok: TEST-018.2: temp copy mutation removed the end anchor from the identity pattern
+ok: TEST-018.3 (negative self-check): the unanchored-identity mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)
+=== TEST-012: implementation-report.template.md rendered into a loop-driver fixture, driven through the REAL quality:sdd-evaluator identity checks ===
+ok: TEST-012.1: loop_fixture_init (parity-extension fixture) succeeds
+ok: TEST-012.2: rendered implementation report carries the real T-NNN heading and Task ID field
+ok: TEST-012.3: the REAL validate-review-context-set.ps1 accepts the rendered implementation report and its declared ## Outputs row (quality:sdd-evaluator identity checks pass)
+ok: TEST-012.4 (negative self-check): deleting the '- Task ID:' line turns the quality:sdd-evaluator identity check red
+ok: TEST-012.5 (negative self-check, INV-014): a | path | sha256 | row outside the ## Outputs section boundary is NOT authorized as a declared output
+=== TEST-013: deterministic-runtime-unavailable degradation ===
+SKIP: TEST-013.1: check-terminal-tier-resume.ps1 has no external deterministic-runtime dependency (pure PowerShell reimplementation) -- INV-017 cites only check-terminal-tier-resume.sh:29-32; this leg does not apply on the pwsh lane
+SKIP: TEST-013.2: select-agent-model.ps1 reports deterministic-runtime-unavailable when its deterministic-runtime command is unavailable (INV-017 analogue); recorded degradation
+=== TEST-019: quality-gate-outcome + done-transition event trace (F1) ===
+ok: TEST-019.1: loop_fixture_init (Context-absent F1 event-trace fixture) succeeds
+ok: TEST-019.2: check-quality-gate-cycle-limit.ps1's real Escalate-Human decision (3 gate reports) recorded as quality-gate-outcome:escalation
+ok: TEST-019.3: select-agent-model.ps1's real lightweight->standard escalation recorded as quality-gate-outcome:escalation
+ok: TEST-019.4: select-agent-model.ps1's real standard->strong escalation recorded as quality-gate-outcome:escalation
+ok: TEST-019.5: quality-gate-outcome:capability-applicability recorded for F1's own disabled-legacy fixture state, last within the kind
+ok: TEST-019.6: done-transition:assert-terminal recorded as the round's own last event (terminal-tier BLOCKED)
+ok: TEST-019.7: observed quality-gate-outcome + done-transition event trace matches the committed golden trace
+ok: TEST-019.8/9 control: signed v1 Context passes real A1 validation without a stop event
+ok: TEST-019.8/9 control: physically absent Context alone takes the fallback route
+ok: TEST-019.8/9: F3 invalid Context is validator-rejected, stop-only, and never falls back
+ok: TEST-019.8/9: F4 invalid Context is validator-rejected, stop-only, and never falls back
+=== TEST-019.10 (AC-004, AC-021): Resolver-non-invocation spy-harness (named SKIP until Epic A5 merges) ===
+ok: TEST-019.10a (negative self-check): the spy-harness mechanism itself records a direct invocation (no false negative)
+ok: TEST-019.10b: resolver non-invocation assertion deferred until the live caller is wired (no stale SKIP emitted)
+INFO: TEST-019.10b spy observed 0 invocation(s) across F1/F3-invalid/F4-invalid fixtures
+=== TEST-019.11 (AC-037): REQ-002 Block surfaces, never falls back silently (named SKIP until Epic A5 merges) ===
+ok: TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) is correctly detected as NOT surfaced
+ok: TEST-019.11b (negative self-check): a Block that correctly surfaces (skip-stop-message:stop recorded) is detected as surfaced
+SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check is inactive until an executable interviewer caller invokes resolve-project-context; the TEST-019.8/.9 fixture guard is not that caller
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-escalation.tests.ps1: 36 passed, 0 failed, 15s elapsed
+PASSED: tests/loop-escalation.tests.ps1
+==> tests/hitl-wfi-terminal.tests.ps1
+=== TEST-001/TEST-002: HITL cap-5 terminal behavior (real template, fixture copy) ===
+ok: TEST-001 (AC-001): never-reproducing CHECK completes exactly 5 iterations, exits 0, prints the terminal string
+ok: TEST-002 (AC-002): CHECK returning true on iteration 3 exits 1 immediately with the RED canary message
+=== TEST-003: WFI-audit one-directional sweep (Audit-Attempt 0 -> 1 -> 2 -> 3) ===
+ok: TEST-003.1 (AC-003): Audit-Attempt absent (=0), BLOCKED -> Audit-Attempt 1, Audit-Status Not-Started
+ok: TEST-003.2 (AC-003): Audit-Attempt 1, BLOCKED -> Audit-Attempt 2, Audit-Status Not-Started
+ok: TEST-003.3 (AC-003): Audit-Attempt 2, BLOCKED -> Audit-Attempt 3, Audit-Status Human-Blocked (convergence guard)
+ok: TEST-003.4 (AC-003, negative self-check): mutating the threshold to 4 turns the attempt-3 assertion red, proving the check is live
+=== TEST-004: no remote-CLI invocation + Category construction proof ===
+ok: TEST-004.1 (AC-004): neither new file in this feature invokes the remote issue-tracker CLI
+ok: TEST-004.2 (AC-004): WFI-audit fixture Category is process, keeping SKILL.md STEP 8 a documented no-op by construction
+=== TEST-005: WFI-010.md / WFI-011.md read-only smoke ===
+ok: TEST-005 (AC-005): WFI-010.md Audit-Attempt=1 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-011.md Audit-Attempt=0 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-010.md SHA-256 unchanged before vs. after this suite run
+ok: TEST-005 (AC-005): WFI-011.md SHA-256 unchanged before vs. after this suite run
+=== TEST-006: self-registration + runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-006.3 (AC-006, negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-006.4 (AC-006): suite completed within the 300s runtime budget
+
+hitl-wfi-terminal.tests.ps1: 16 passed, 0 failed, 1s elapsed
+PASSED: tests/hitl-wfi-terminal.tests.ps1
+==> tests/check-placeholders-brownfield.tests.ps1
+=== TEST-007: canonical brownfield seed existence + three documented categories ===
+ok: TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker
+ok: TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker
+ok: TEST-007.3 (AC-007): specs/brownfield-seed-demo/tasks.md is bootstrap-complete (header/Task-Review-Status/T-NNN block with Status,Risk,Risk Rationale,Required Workflow/Blockers section)
+ok: TEST-007.4 (AC-007): specs/brownfield-seed-demo/tasks.md carries no unresolved {{...}} template placeholder
+=== TEST-008: marker-free CHANGED_FILES.txt subset passes (Case A) ===
+ok: TEST-008.1 (AC-008): CHANGED_FILES.txt manifest exists
+ok: TEST-008.2 (AC-008): check-placeholders.ps1 invoked with only the marker-free changed-files subset exits 0
+ok: TEST-008.3 (AC-008, negative self-check): CHANGED_FILES.txt lists neither marker-bearing file
+=== TEST-009: full seed directory fails with BOTH pre-existing markers (Case B) ===
+ok: TEST-009.1 (AC-009): check-placeholders.ps1 invoked with the full seed directory exits 1
+ok: TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding
+ok: TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding
+ok: TEST-009.4 (AC-009, negative self-check): the marker-free service.py does not appear in the findings
+ok: TEST-009.5 (AC-009, negative self-check): the marker-free tasks.md does not appear in the findings
+=== Self-registration: run-all.sh / run-all.ps1 / test.yml ===
+ok: REG.1 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.sh is registered in run-all.sh and test.yml
+ok: REG.2 (design.md Test Strategy item 5): check-placeholders-brownfield.tests.ps1 is registered in run-all.ps1 and test.yml
+
+check-placeholders-brownfield.tests.ps1: 14 passed, 0 failed
+PASSED: tests/check-placeholders-brownfield.tests.ps1
+==> tests/run-panelist-effort.tests.ps1
+ok: TEST-035: -Effort is forwarded into the assembled codex argv as -c model_reasoning_effort=<e>, positioned after -Model
+ok: TEST-035: omitting -Effort omits the -c model_reasoning_effort override from the codex argv
+ok: TEST-036: prepare-panelist-input.ps1 threads -Effort onto a second stdout line, verbatim
+ok: TEST-036: omitting -Effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+ok: TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged
+ok: TEST-037: select-agent-model -HostName codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model -HostName claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 positive control: a well-formed -Model/-Effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the Invoke-RunGpt wrapper, which unconditionally overrides $env:PATH to the stub codex (11 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+
+run-panelist-effort.tests.ps1: 28 passed, 0 failed
+PASSED: tests/run-panelist-effort.tests.ps1
+==> tests/facet-manifest-schema.tests.ps1
+ok: TEST-001: $schema is draft-07
+ok: TEST-001: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
+ok: TEST-002 positive baseline: valid-base.json valid (exit 0, no diagnostics)
+ok: TEST-002 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
+ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property 'affected_components'')
+ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property 'required_facets'')
+ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property 'conditional_facets'')
+ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property 'resolved_gates'')
+ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property 'lite_eligibility'')
+ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property 'context_binding'')
+ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property 'resolver'')
+ok: TEST-003: empty-arrays-valid.json valid (exit 0, no diagnostics)
+ok: TEST-003: duplicate-affected-components.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-003: duplicate-required-facets.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-003: duplicate-capabilities.json invalid as expected (contains 'uniqueItems violated')
+ok: TEST-004: conditional-facet-applied-false-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
+ok: TEST-004: conditional-facet-applied-true-with-reason.json invalid as expected (contains 'matched a schema under 'not'')
+ok: TEST-004: conditional-facet-applied-true-valid.json valid (exit 0, no diagnostics)
+ok: TEST-004 acceptance case (applied: false WITH reason): conditional-facet-applied-false-with-reason-valid.json valid (exit 0, no diagnostics)
+ok: TEST-005: evidence-invalid-operator.json invalid as expected (contains 'expected one of')
+ok: TEST-005: evidence-warn-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
+ok: TEST-005: evidence-warn-with-reason-valid.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-invalid-stage.json invalid as expected (contains 'expected one of')
+ok: TEST-006: resolved-gate-valid-multi.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-missing-id.json invalid as expected (contains 'missing required property 'id'')
+ok: TEST-006: resolved-gate-missing-stage.json invalid as expected (contains 'missing required property 'stage'')
+ok: TEST-006: resolved-gate-missing-blocking.json invalid as expected (contains 'missing required property 'blocking'')
+ok: TEST-007: capability-minimum-enforcement-invalid-value.json invalid as expected (contains 'expected const 'required'')
+ok: TEST-007: capability-minimum-enforcement-absent-valid.json valid (exit 0, no diagnostics)
+ok: TEST-007: capability-minimum-enforcement-aggregate-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-upgrade-reasons.json invalid as expected (contains 'missing required property 'upgrade_reasons'')
+ok: TEST-008: lite-eligibility-empty-upgrade-reasons-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-eligible.json invalid as expected (contains 'missing required property 'eligible'')
+ok: TEST-009: context-binding-malformed-digest.json invalid as expected (contains 'does not match pattern')
+ok: TEST-009: context-binding-empty-dependency-pointers.json invalid as expected (contains '< minItems 1')
+ok: TEST-009: context-binding-full-context-revision-malformed-digest.json invalid as expected (contains '/context_binding/full_context_revision: does not match pattern')
+ok: TEST-009: context-binding-projection-sha256-malformed-digest.json invalid as expected (contains '/context_binding/projection_sha256: does not match pattern')
+ok: TEST-009: context-binding-registry-digest-malformed-digest.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: TEST-009: context-binding-ownership-digest-malformed-digest.json invalid as expected (contains '/context_binding/ownership_digest: does not match pattern')
+ok: TEST-010: resolver-malformed-semver.json invalid as expected (contains 'does not match pattern')
+ok: TEST-010: resolver-valid-semver.json valid (exit 0, no diagnostics)
+ok: TEST-011: decision-doc-v2-section16-worked-example.json valid (exit 0, no diagnostics)
+ok: TEST-017: dependency-pointer-root-not-allowlisted.json invalid as expected (contains 'does not match pattern')
+ok: TEST-018: dependency-pointer-malformed-rfc6901.json invalid as expected (contains 'does not match pattern')
+ok: TEST-017/018: dependency-pointer-all-roots-valid.json valid (exit 0, no diagnostics)
+ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above
+ok: TEST-048: upgrade-reasons-duplicate.json invalid as expected (contains 'uniqueItems violated')
+ok: ECMA pattern semantics: trailing-newline digest rejected: context-binding-registry-digest-trailing-newline.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline digest rejected: resolver-version-trailing-newline.json invalid as expected (contains '/resolver/version: does not match pattern')
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
+ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=1, single-line diagnostic, no traceback)
+ok: manifest-unreadable: non-UTF-8 byte input diagnostic is exactly one line
+ok: TEST-034: facet-manifest.yaml/capability-summary.yaml alongside specs/<feature>/ files does not break check-sdd-structure.sh
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+facet-manifest-schema: 57 passed, 0 failed
+PASSED: tests/facet-manifest-schema.tests.ps1
+==> tests/canonicalize-sdd-yaml.tests.ps1
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .ps1 produce an identical SHA-256
+PASS: TEST-009 .sh produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .ps1 denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+PASS: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted
+PASS: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint
+PASS: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected
+PASS: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'
+PASS: TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected
+PASS: TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted
+PASS: TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic, not the misleading generic one
+PASS: TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document
+PASS: TEST-REMEDY2 the tab-separator rejection names 'tab' specifically
+PASS: TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'
+PASS: TEST-REMEDY2 correct single-space '- k: v' still succeeds
+PASS: TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds
+PASS: TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted
+PASS: TEST-REMEDY3 the merge-key rejection names 'merge key' specifically
+PASS: TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected
+PASS: TEST-REMEDY3 merge key with a sequence value is rejected
+PASS: TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected
+PASS: TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)
+PASS: TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key
+PASS: TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds
+PASS: TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds
+PASS: TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)
+PASS: TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY3(c) mapping-side 'k:   v' still succeeds (deliberate, recorded non-change)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: invalid inventory rejected (tests/other.tests.sh, exit 0)
+PASS: self-registration: invalid inventory rejected (tests/canonicalize-sdd-yaml.tests.sh.extra, exit 0)
+PASS: self-registration: invalid inventory rejected (tests/CANONICALIZE-sdd-yaml.tests.sh, exit 0)
+PASS: self-registration: invalid inventory rejected (tests/canonicalize-sdd-yaml.tests.sh, exit 1)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: 81
+FAIL: 0
+PASSED: tests/canonicalize-sdd-yaml.tests.ps1
+==> tests/apply-human-copy.tests.ps1
+PASS: TEST-033a fresh single-target publish: tool exits 0
+PASS: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033b publish over existing live content: content replaced
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 10)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 21)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 10)
+PASS: TEST-033e no live target created from a symlinked source
+PASS: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+PASS: TEST-033g staged-candidate hash mismatch denied (STAGED_CANDIDATE_HASH_MISMATCH)
+PASS: TEST-033g live target unchanged on preparation-stage failure
+PASS: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+PASS: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+PASS: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+PASS: TEST-033i [pre-existing] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [pre-existing] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [pre-existing] stale journal cleaned up after recovery
+PASS: TEST-033i [pre-existing] a subsequent UNRELATED batch still publishes (publisher not bricked)
+PASS: TEST-033j [pre-existing] mid-batch crash leaves an observable partial state right after the crash
+PASS: TEST-033j [pre-existing] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033k [pre-existing] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [pre-existing] journal removed once recovery confirms ALL-POST
+PASS: TEST-033l [pre-existing] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [pre-existing] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [pre-existing] journal fully cleaned up after the second recovery invocation
+PASS: TEST-033i [absent] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [absent] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [absent] stale journal cleaned up after recovery
+PASS: TEST-033i [absent] a subsequent UNRELATED batch still publishes (publisher not bricked)
+PASS: TEST-033j [absent] mid-batch crash leaves an observable partial state right after the crash
+PASS: TEST-033j [absent] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033k [absent] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [absent] journal removed once recovery confirms ALL-POST
+PASS: TEST-033l [absent] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [absent] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [absent] journal fully cleaned up after the second recovery invocation
+PASS: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (JOURNAL_SHAPE_INVALID)
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+PASS: TEST-033n recovery-only invocation with nothing stale exits 0
+PASS: TEST-033n recovery-only invocation reports recovered:0
+PASS: TEST-033o substitution-resistance fixture: tool still completes successfully
+PASS: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+PASS: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+PASS: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)
+PASS: TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)
+PASS: TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+PASS: TEST-033r ps1 journal has no BOM (leading bytes 7b2273 = open-brace quote s)
+PASS: TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)
+PASS: TEST-033s embedded-space path publishes correctly (exit 0, correct content)
+PASS: TEST-033s journal preserves the embedded-space live_path byte-exact
+PASS: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery
+PASS: TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)
+PASS: TEST-033t [space] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [space] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [tab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [tab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [leadtrail] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [leadtrail] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dquote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dquote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [comma] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [comma] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [star] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [star] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [question] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [question] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dollar] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dollar] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [backtick] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [backtick] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [squote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [squote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [utf8] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [utf8] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [vtab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [vtab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [soh] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [soh] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [formfeed] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [formfeed] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [esc] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [esc] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [unitsep] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [unitsep] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t ps1 rejects a literal backslash in a manifest path (fail-closed, category UNSUPPORTED_PATH_CHARACTER)
+PASS: TEST-033t ps1 rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER)
+PASS: TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy
+PASS: TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)
+PASS: TEST-033v [symlink/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [renameaside/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [renameaside/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [renameaside/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [renameaside/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [chmod000/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [symlink/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [renameaside/absent] a plainly-absent chain the journal itself recorded as ABSENT converges to ALL-PRE (design.md:1042-1043), never a permanent RECOVERY_FAILED brick
+PASS: TEST-033v [renameaside/absent] the journal is deleted once recovery reaches its terminal state
+PASS: TEST-033v [renameaside/absent] a further invocation after convergence is a clean no-op (recovery is idempotent)
+PASS: TEST-033v [renameaside/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [chmod000/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (LIVE_PROBE_FAILED)
+PASS: TEST-033w real content behind the symlink is unchanged (never silently overwritten)
+PASS: TEST-033w no journal/staging litter left behind by the denied batch
+PASS: TEST-033x [pre-existing] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [pre-existing] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [pre-existing] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [pre-existing] once the target is back at PRE the SAME journal converges and is deleted
+PASS: TEST-033x [absent] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [absent] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [absent] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [absent] once the target is back at PRE the SAME journal converges and is deleted
+PASS: TEST-033y basenames differing only by ASCII case are refused (DUPLICATE_BASENAME_IN_BATCH), on every platform
+PASS: TEST-033y both live targets unchanged (refused at manifest-parse time, before any live mutation)
+PASS: TEST-033y no journal/staging litter left behind by the refused batch
+PASS: TEST-033y the manifest-parse case fold refuses a case-variant batch even when no backup slot would ever be written (guard isolated from the slot check)
+PASS: TEST-033y neither target was published by the refused no-live-content batch
+PASS: TEST-033y on a volume that does NOT fold non-ASCII case, both targets are distinct slots and both publish
+PASS: TEST-033y non-ASCII slot-collision behaviour matches this volume own case semantics (no collision to refuse here)
+PASS: TEST-033z a denial raised AFTER argument parsing still reaches stderr (the diagnostic is never swallowed)
+PASS: TEST-033z the same denial ALSO reaches the machine-readable stdout channel (both channels, as documented)
+PASS: TEST-PR229-AHC staged apply-human-copy.ps1 candidate exists
+PASS: TEST-PR229-AHC precondition: crash after rename-1 leaves the target committed and the journal present
+PASS: TEST-PR229-AHC precondition: the journal records pre_hash=ABSENT for this target
+PASS: TEST-PR229-AHC recovery fails CLOSED on a symlinked target (RECOVERY_FAILED), never 'confirmed absent'
+PASS: TEST-PR229-AHC recovery never reports the batch as successfully recovered
+PASS: TEST-PR229-AHC the transaction journal is RETAINED, not deleted (the durable record survives)
+PASS: TEST-PR229-AHC the symlink is left exactly as found (never followed, never replaced)
+PASS: TEST-PR229-AHC the symlink's target is never written through, deleted, or modified
+PASS: TEST-PR229-AHC PREPARE denies a symlinked live target under the script's existing symlink category
+PASS: TEST-PR229-AHC PREPARE denial writes no journal (it refuses before the transaction begins)
+PASS: TEST-PR229-AHC PREPARE denial leaves the symlink and its target untouched
+PASS: TEST-PR229-AHC a DIRECTORY occupying the live target is denied too (the whole non-regular class, not symlinks alone)
+PASS: TEST-PR229-AHC the occupying directory is left in place
+PASS: TEST-MODE-PRESERVE fresh publish: executable staged candidate mode 755 propagates to the live target
+PASS: TEST-MODE-PRESERVE existing-live overwrite: staged mode 755 wins over the live target's own pre-existing mode 600
+PASS: TEST-MODE-PRESERVE non-executable target: staged mode 644 wins over the live target's own pre-existing executable mode 755
+PASS: TEST-MODE-PRESERVE rollback precondition: mid-batch crash leaves target1 committed to POST, target2 not yet created
+PASS: TEST-MODE-PRESERVE rollback: recovery succeeds and reports the batch recovered
+PASS: TEST-MODE-PRESERVE rollback: target1 content reverted to its PRE bytes
+PASS: TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode 755 (never the staged 644, never a backup-file default)
+PASS: TEST-MODE-PRESERVE rollback: target2 (never committed) remains absent
+PASS: TEST-MODE-PRESERVE rollback: journal/staging litter fully cleaned up after convergence
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+168 passed, 0 failed
+PASSED: tests/apply-human-copy.tests.ps1
+==> tests/plugin-contracts-track-selection.tests.ps1
+--- TEST-024/TEST-035P/TEST-039: live document conformance ---
+PASS: PLUGIN-CONTRACTS.md: contract-block-present
+PASS: PLUGIN-CONTRACTS.md: contract-table-exact
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-block-present
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-table-exact
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-block-present
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-table-exact
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-block-present
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: contract-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: contract-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: contract-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: contract-table-exact
+PASS: PLUGIN-CONTRACTS.md: handshake-block-present
+PASS: PLUGIN-CONTRACTS.md: handshake-tokens
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-block-present
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-tokens
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-block-present
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-tokens
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-block-present
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-tokens
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: handshake-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: handshake-tokens
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: handshake-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: handshake-tokens
+PASS: PLUGIN-CONTRACTS.md: fallback-retitled
+PASS: PLUGIN-CONTRACTS.md: fallback-after-contract
+PASS: PLUGIN-CONTRACTS.md: fallback-steps
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: gates-migrated
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: legacy-gating-removed
+--- TEST-026/TEST-039: fixture construction ---
+PASS: TEST-026 fixture: the no-Context project's sdd/project-context.yaml is physically ABSENT
+PASS: TEST-026 fixture: the full-profile project's sdd/project-context.yaml is physically PRESENT
+PASS: TEST-039 fixture: the full-profile project's on-disk spec_profile reads 'full'
+PASS: TEST-039 fixture: the lite-profile project's on-disk spec_profile reads 'lite'
+PASS: TEST-039 fixture: the full-profile project's sidecar PASSES validate-approval-sidecar
+PASS: TEST-039 fixture: the lite-profile project's sidecar PASSES validate-approval-sidecar
+--- TEST-026: six independent present-but-invalid reasons ---
+PASS: TEST-026 (1) missing sidecar file rejected (SIDECAR_UNREADABLE)
+PASS: TEST-026 (2) content-schema violation rejected (CONTENT_SCHEMA_VIOLATION)
+PASS: TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)
+PASS: TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)
+PASS: TEST-026 (6) not-yet-effective effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-026: the 'valid-full' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'bad-schema' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'not-yet-effective' invalid fixture is physically PRESENT (never absent)
+--- TEST-039: six-case matrix x four documents ---
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [PLUGIN-CONTRACTS.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C6 full + --full -> NO_OP_FULL
+--- TEST-026: the two routes are genuinely distinct ---
+PASS: TEST-026 [PLUGIN-CONTRACTS.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-lite/skills/lite-gate/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+--- TEST-MUT: mutation detection power ---
+PASS: TEST-MUT baseline: the pristine document copy CONFORMS (mutations below are measurable)
+PASS: TEST-MUT (1) routing C2 to the compatibility fallback is REJECTED (the B5 fail-open defect)
+PASS: TEST-MUT (2) honoring --lite against a full profile is REJECTED (the ADR-0023 silent downgrade)
+PASS: TEST-MUT (3) deleting the present-but-invalid case entirely is REJECTED
+PASS: TEST-MUT (4) swapping the absent and present-but-invalid preconditions is REJECTED
+PASS: TEST-MUT (5) demoting the four-case rule below the compatibility fallback is REJECTED (AC-024 ordering)
+PASS: TEST-MUT (6) restoring a pre-migration AGENTS.md gate phrase is REJECTED
+PASS: TEST-MUT (7) the silent-downgrade defect is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically
+PASS: TEST-MUT (8) the silent-downgrade defect is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically
+PASS: TEST-MUT (9) the silent-downgrade defect is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically
+PASS: TEST-MUT (10) the silent-downgrade defect is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
+PASS: TEST-MUT (11) the silent-downgrade defect is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] specifically
+PASS: TEST-MUT (12) removing the handshake wiring is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically
+PASS: TEST-MUT (13) removing the handshake wiring is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically
+PASS: TEST-MUT (14) removing the handshake wiring is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically
+PASS: TEST-MUT (15) removing the handshake wiring is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
+PASS: TEST-MUT (16) removing the handshake wiring is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] specifically
+--- self-registration ---
+PASS: self-registration: tests/plugin-contracts-track-selection.tests.sh registered in tests/run-all.sh
+PASS: registration control: exact entry accepted
+PASS: registration control: missing entry rejected
+PASS: registration control: duplicate entry rejected
+PASS: registration control: near match rejected
+PASS: registration control: case mismatch rejected
+PASS: registration control: failed listing rejected
+PASS: self-registration: tests/plugin-contracts-track-selection.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/plugin-contracts-track-selection.tests.sh twin exists
+PASS: 112
+FAIL: 0
+PASSED: tests/plugin-contracts-track-selection.tests.ps1
+==> tests/design-sync-standing-consent.tests.ps1
+PASS: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)
+PASS: TEST-002 a ## Project Settings heading exists and the setting key is named in a table row under it (AC-002)
+PASS: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+PASS: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+PASS: TEST-005 the setting's own definition carries no host-name conditional (AC-004)
+PASS: TEST-006 off's definition states the forbiddance applies on every host, unconditionally (AC-005)
+PASS: TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)
+PASS: TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)
+PASS: TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)
+PASS: TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)
+PASS: TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)
+PASS: TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)
+PASS: TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)
+PASS: TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)
+PASS: TEST-015 an outcome record is written for the off resolution (existence) (AC-012)
+PASS: TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)
+PASS: TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)
+PASS: TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)
+PASS: TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)
+PASS: TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)
+PASS: TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)
+PASS: TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)
+PASS: TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)
+PASS: TEST-024 step 6's push-failure rule is present, unmodified (AC-015)
+PASS: TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)
+PASS: TEST-026 Egress-Consent-Party is enumerated by name in the record table (AC-016)
+PASS: TEST-027 Egress-Consent-At is enumerated by name in the record table (AC-016)
+PASS: TEST-028 Ds-Upload-Consent-Setting is enumerated by name in the record table (AC-016)
+PASS: TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)
+PASS: TEST-030 Egress-Consent field name present, unmodified (AC-018)
+PASS: TEST-031 Egress-Consent-Scope field name present, unmodified (AC-018)
+PASS: TEST-032 Egress-Consent-Subject field name present, unmodified (AC-018)
+PASS: TEST-033 Egress-Destination field name present, unmodified (AC-018)
+PASS: TEST-034 Egress-Consent-Expiry field name present, unmodified (AC-018)
+PASS: TEST-035 Egress-Consent domain value granted present, unmodified (AC-018)
+PASS: TEST-036 Egress-Consent domain value not-permitted present, unmodified (AC-018)
+PASS: TEST-037 Egress-Consent domain value withdrawn present, unmodified (AC-018)
+PASS: TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)
+PASS: TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)
+PASS: TEST-040 a standing grant's target text carries all three new fields (AC-029)
+PASS: TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)
+PASS: TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)
+PASS: TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)
+PASS: TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)
+PASS: TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)
+PASS: TEST-046 claude-design-workflow.md contains no occurrence of the setting's literal key identifier (AC-022)
+PASS: TEST-047 the new bullet states the setting's value/outcome survive via an indirect reference, naming Design-Source (AC-022)
+PASS: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+PASS: TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)
+PASS: TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)
+PASS: TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)
+PASS: TEST-052 DS-29's own TEST-021 is green in both the baseline and current run, re-verified from this feature's own suite (AC-026)
+PASS: TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)
+PASS: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+PASS: 55
+FAIL: 0
+PASS: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred)
+PASSED: tests/design-sync-standing-consent.tests.ps1
+==> tests/resolve-project-context-match.tests.ps1
+# runner: pwsh
+PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
+PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
+PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
+PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
+PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
+PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
+PASS: full-pipeline-match: Resolver Evidence schema agreement
+PASS: full-pipeline-match: no partial live artifact
+PASS: full-pipeline-match: projection_sha256 independently recomputed from the resolver's own captured projection bytes matches the hand-built expectation's own hash (AC-003 remainder)
+PASS: full-pipeline-match: independently-recomputed affected_components matches the fixture's own four components
+PASS: full-pipeline-match: context_binding.full_context_revision is this run's own independently-hashed source_sha256, unmutated by assembly (AC-003 remainder)
+PASS: full-pipeline-match: context_binding.projection_sha256 is the resolver-captured, independently re-canonicalized-and-hashed projection digest, unmutated by assembly (AC-003 remainder)
+PASS: full-pipeline-match: context_binding.registry_digest is this fixture's own stub's fixed FIRST_DIGEST constant, unmutated by assembly (AC-005 remainder)
+PASS: full-pipeline-match: context_binding.ownership_digest is resolve-component-paths-real.py's own independent, real-subprocess-derived value, unmutated by assembly (AC-005 remainder)
+PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
+PASS: full-pipeline-match: "other~thing"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)
+PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- this call exercises _resolver_block()'s own reconstruction directly, diffed against the identical loaded module's own constants; gate-cycle-4 Minor: this label previously claimed both fields are 'never written to any live path pre-T-007', which is now stale -- resolver-evidence.yaml HAS published both since T-004's own NEEDS_WORK cycle 2 remediation, on every Block reached AT OR AFTER step 10 (this fixture's own forced snapshot-generation-mismatch Block among them); the PUBLISHED equivalent is read back off that written artifact and compared against this identical expectation further below, RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a context_binding block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.full_context_revision matches this run's own independently-hashed source_sha256 (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.projection_sha256 matches the resolver's own captured projection bytes, independently re-canonicalized and re-hashed (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.registry_digest matches this fixture's own stub's fixed FIRST_DIGEST constant (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.ownership_digest matches resolve-component-paths-real.py's own independent, real-subprocess-derived value (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] matches /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
+PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
+PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
+PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-alpha's own MATCHED 'required' correctly surfaces (AC-007, de-confounds the omission direction from the exclusion assertion above)
+PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
+PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
+PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
+PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
+PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
+PASS: include-untracked-pass-through: no partial live artifact
+PASS: enforcement-byte-identity-advisory: exit 1
+PASS: enforcement-byte-identity-advisory: canonical diagnostic only
+PASS: enforcement-byte-identity-advisory: state field records 'advisory'
+PASS: enforcement-byte-identity-advisory: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-advisory: no partial live artifact
+PASS: enforcement-byte-identity-required: exit 1
+PASS: enforcement-byte-identity-required: canonical diagnostic only
+PASS: enforcement-byte-identity-required: state field records 'required'
+PASS: enforcement-byte-identity-required: Resolver Evidence schema agreement
+PASS: enforcement-byte-identity-required: no partial live artifact
+PASS: enforcement-byte-identity: Resolver Evidence byte-identical across advisory/required except state and the two config-byte-derived context_binding digests (AC-016)
+PASS: enforcement-byte-identity: full_context_revision/projection_sha256 genuinely DO differ across advisory/required (sanity -- confirms the exclusion above is not vacuous)
+PASS: enforcement-byte-identity: _assemble_facet_manifest takes no state/capability_enforcement parameter (structural proof the Facet Manifest itself is enforcement-independent on the Full track, AC-016 remainder)
+PASS: warn-cardinality-single-node: exit 1
+PASS: warn-cardinality-single-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-single-node: exactly 1 severity:warn entry, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-single-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-single-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-single-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-single-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-single-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-single-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-single-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-single-node: no partial live artifact
+PASS: warn-cardinality-single-node: the severity:warn entry's own detail is byte-identical to this node's own independently-recomputed capability_id/component_id/operator/field/reason text, never merely a substring match (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-multi-node: exit 1
+PASS: warn-cardinality-multi-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-multi-node: exactly 3 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-multi-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-multi-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-multi-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: zero-affected-component-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: zero-affected-component-match: canonical diagnostic only, reached step 13 -- so steps 0-12, INCLUDING step 12's own schema self-validation of the staged Facet Manifest, all passed on zero affected components
+PASS: zero-affected-component-match: the REAL resolve-component-paths independently returns affected_components: [] for this commit range (the zero-component condition is genuine, never fabricated by a stub)
+PASS: zero-affected-component-match: capability_evaluations[] carries exactly one entry per Registry Capability, in declaration order, even with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Capability is matched: false with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Registry Capability's own trigger_evaluations[] is [] (REQ-006(g) first half, asserted here against a REAL published Resolver Evidence artifact rather than a hand-built instance)
+PASS: zero-affected-component-match: no unmatched Capability carries conditional_facet_evaluations (AC-019 key-omitted rule)
+PASS: zero-affected-component-match: Resolver Evidence publishes context_binding on this late Block
+PASS: zero-affected-component-match: Facet Manifest capabilities: [] with zero affected components (REQ-006(g) second half, AC-027 -- the half that previously had no fixture anywhere in this feature)
+PASS: zero-affected-component-match: every matched-set-derived aggregate is empty alongside capabilities: [] (required_facets/conditional_facets/resolved_gates, AC-007)
+PASS: zero-affected-component-match: capability_minimum_enforcement omitted when the matched set is empty (AC-007)
+PASS: zero-affected-component-match: the zero-component Facet Manifest validates against the REAL validate-facet-manifest (AC-008 -- capabilities: [] is a conforming instance, not merely an empty one)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 125 passed, 0 failed
+PASSED: tests/resolve-project-context-match.tests.ps1
+==> tests/resolve-project-context-caller-contract.tests.ps1
+caller-contract ps1: PASS
+anchor-sha256: 99133e6c154a928451ce2dd84f71e414e318fe53005b98ef1fd59b1acf491d9c
+full-profile-heading-ordinal: 4
+PASSED: tests/resolve-project-context-caller-contract.tests.ps1
+==> tests/skip-allowlist-manifest.tests.ps1
+PASS: AC-034 manifest contains exactly the five fixed entries and fingerprint values
+PASS: AC-016 all five fixed SKIP assertions read from the manifest helper
+PASS: compound dependency rendering matches the Bash manifest contract
+PASS: pinned integration survives deletion of the merged branch
+PASS: integration pin not ancestral to target is rejected
+ERROR: invalid merged_commit
+PASS: invalid or unavailable integration evidence cannot authorize a skip
+ERROR: integration ancestry evidence unavailable
+PASS: invalid or unavailable integration evidence cannot authorize a skip
+PASS: merged(A9) is false before branch ancestry reaches main
+PASS: fingerprint_match(0) matches the unmerged epic current HEAD
+PASS: merged fingerprint-match fixture makes both primitives true
+PASS: merged fingerprint-mismatch fixture keeps merged true and fingerprint_match false
+PASS: OR accepts one true primitive
+PASS: AND rejects one false primitive
+PASS: executable_contains stays false while the caller marker is not on main
+PASS: file_contains fails closed when the target ref is unavailable
+PASS: condition remains inactive when the target ref is unavailable
+PASS: executable_contains activates after the caller marker reaches main
+PASS: mis-cased terminal status keys do not activate merged(A9)
+PASS: mis-cased assertion identity is rejected without rendering
+PASS: AC-035a dependency-present output is a hard failure
+PASS: AC-035b unrecognized output is a hard failure
+PASS: AC-035c merged fingerprint drift is a hard failure
+PASS: AC-035c merged fingerprint drift hard-fails with zero SKIP lines
+PASS: matching merged fingerprint accepts zero SKIP lines
+PASS: unmerged dependency accepts zero SKIP lines
+PASS: invalid merge evidence hard-fails with zero SKIP lines
+PASS: unreadable manifest hard-fails with zero SKIP lines
+PASS: empty dependencies hard-fail with zero SKIP lines
+PASS: missing dependencies hard-fail with zero SKIP lines
+PASS: missing evaluator cannot satisfy AC-035
+PASS: missing manifest cannot satisfy AC-035
+PASS: clean fixture audits one real allowlisted line without failing vacuously
+32 passed, 0 failed
+PASSED: tests/skip-allowlist-manifest.tests.ps1
+==> tests/path-lineending-regression.tests.ps1
+ok: NFD source bytes are fixed
+ok: NFC copied bytes are fixed
+ok: LF source bytes are fixed
+ok: CRLF source bytes are fixed
+ok: CRLF is corrected to LF bytes
+ok: committed Unicode source is NFD and not NFC
+ok: .gitattributes assigns LF to the text fixture
+ok: 16-row generation algorithm matches the fixed matrix
+ok: all 10 independent-axis pairs are covered
+ok: dual NFC/NFD names trigger the collision oracle
+ok: row 1 windows-path-separator fixed oracle
+ok: row 1 crlf-lf-gitattributes-layer fixed oracle
+ok: row 1 nfc-nfd-filename fixed oracle
+ok: row 2 windows-path-separator fixed oracle
+ok: row 2 crlf-lf-gitattributes-layer fixed oracle
+ok: row 2 nfc-nfd-filename fixed oracle
+ok: row 3 windows-path-separator fixed oracle
+ok: row 3 crlf-lf-gitattributes-layer fixed oracle
+ok: row 3 nfc-nfd-filename fixed oracle
+ok: row 4 windows-path-separator fixed oracle
+ok: row 4 crlf-lf-gitattributes-layer fixed oracle
+ok: row 4 nfc-nfd-filename fixed oracle
+ok: row 5 windows-path-separator fixed oracle
+ok: row 5 crlf-lf-gitattributes-layer fixed oracle
+ok: row 5 nfc-nfd-filename fixed oracle
+ok: row 6 windows-path-separator fixed oracle
+ok: row 6 crlf-lf-gitattributes-layer fixed oracle
+ok: row 6 nfc-nfd-filename fixed oracle
+ok: row 7 windows-path-separator fixed oracle
+ok: row 7 crlf-lf-gitattributes-layer fixed oracle
+ok: row 7 nfc-nfd-filename fixed oracle
+ok: row 8 windows-path-separator fixed oracle
+ok: row 8 crlf-lf-gitattributes-layer fixed oracle
+ok: row 8 nfc-nfd-filename fixed oracle
+ok: row 9 windows-path-separator fixed oracle
+ok: row 9 crlf-lf-gitattributes-layer fixed oracle
+ok: row 9 nfc-nfd-filename fixed oracle
+ok: row 10 windows-path-separator fixed oracle
+ok: row 10 crlf-lf-gitattributes-layer fixed oracle
+ok: row 10 nfc-nfd-filename fixed oracle
+ok: row 11 windows-path-separator fixed oracle
+ok: row 11 crlf-lf-gitattributes-layer fixed oracle
+ok: row 11 nfc-nfd-filename fixed oracle
+ok: row 12 windows-path-separator fixed oracle
+ok: row 12 crlf-lf-gitattributes-layer fixed oracle
+ok: row 12 nfc-nfd-filename fixed oracle
+ok: row 13 windows-path-separator fixed oracle
+ok: row 13 crlf-lf-gitattributes-layer fixed oracle
+ok: row 13 nfc-nfd-filename fixed oracle
+ok: row 14 windows-path-separator fixed oracle
+ok: row 14 crlf-lf-gitattributes-layer fixed oracle
+ok: row 14 nfc-nfd-filename fixed oracle
+ok: row 15 windows-path-separator fixed oracle
+ok: row 15 crlf-lf-gitattributes-layer fixed oracle
+ok: row 15 nfc-nfd-filename fixed oracle
+ok: row 16 windows-path-separator fixed oracle
+ok: row 16 crlf-lf-gitattributes-layer fixed oracle
+ok: row 16 nfc-nfd-filename fixed oracle
+ok: path-lineending-fixture-result/v1 has 48 complete cells
+ok: layer windows-path-resolution disposition
+ok: layer crlf-lf-gitattributes disposition
+ok: layer generated-text-canonicalizer disposition
+ok: layer nfc-nfd-normalization disposition
+
+path-lineending-regression: 63 passed, 0 failed
+PASSED: tests/path-lineending-regression.tests.ps1
+==> tests/cross-runtime-handoff.tests.ps1
+ok: native live CLI contract and all eight missing-token mutations
+ok: PowerShell live Copilot model guard accepts explicit Auto and rejects missing/invalid selections
+ok: pseudo-CLI contract exercised fixture mutation, stdout marker, generated-file hash, and independent nonces
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh Auto good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh claude-sonnet-4.6 good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto missing-output
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto no-lf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-lf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto crlf
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto bom
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto wrong-nonce
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto wrong-first-consumer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto missing-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto mutate-input
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto removed-input
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-file
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto extra-dir
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto symlink-dir
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto auto-observation
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto duplicate-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto malformed-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto routing-only
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh claude-sonnet-4.6 wrong-model
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh <missing> good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh auto;echo good
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof valid-signed
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof explicit-valid
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof stale-consumer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof missing-record
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof unsigned-record
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof invalid-issuer
+ok: /workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh active proof untrusted-signer
+ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present
+Live CLI E2E not run; pass -LiveE2E and set SDD_A8_ALLOW_LIVE_CLI=1 for explicit authenticated sessions.
+PASSED: tests/cross-runtime-handoff.tests.ps1
+==> tests/check-a8-process-integrity.tests.ps1
+PASS: TEST-025 real classification table
+PASS: TEST-025 missing classification row
+PASS: TEST-025 ambiguous classification row
+PASS: TEST-025 duplicate classification table
+PASS: TEST-025 malformed classification row
+PASS: TEST-029 real scope boundary
+PASS: TEST-029 foreign-Epic artifact mutation
+PASS: TEST-030 real citation compliance
+PASS: TEST-030 uncited factual-claim mutation
+check-a8-process-integrity: 9 passed, 0 failed
+PASSED: tests/check-a8-process-integrity.tests.ps1
+==> tests/human-copy-runner-contract.tests.ps1
+ok: TEST-000a: fixture catalog schema is recognized
+ok: TEST-000b: fixture catalog covers every required runner scenario
+ok: TEST-000c: twin suites self-register first in the Epic-194 serialized order
+ok: TEST-000d: staged CI workflow candidate contains both twin steps first in the Epic-194 serialized order
+=== TEST-001: correct payload copies cleanly, post-copy verified ===
+ok: TEST-001a: correct payload exits 0
+ok: TEST-001b: every target's installed content matches the staged payload
+=== TEST-002: undeclared fifth payload path rejected before copy ===
+ok: TEST-002a: undeclared fifth path rejected (exit 2)
+ok: TEST-002b: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-002c: manifest-only fifth target is rejected by the declared/manifest exact-set check
+ok: TEST-002d: manifest-extra rejection occurs before every live copy
+=== TEST-003: missing declared target rejected before copy ===
+ok: TEST-003a: missing declared target rejected (exit 2)
+ok: TEST-003b: rejection is specifically the payload-vs-declared exact-set mismatch
+ok: TEST-003c: no copy occurred before rejection (all four live files unchanged)
+ok: TEST-003d: manifest missing one declared target is rejected by the declared/manifest exact-set check
+ok: TEST-003e: manifest-missing rejection occurs before every live copy
+=== TEST-004: per-target hash mismatch rejected before copy ===
+ok: TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit 2)
+ok: TEST-004b: no copy occurred before rejection (all four live files unchanged)
+=== TEST-005: control files excluded from payload-set comparison ===
+ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
+ok: TEST-005b: apply-protected-files.ps1 correctly excluded from the payload set
+ok: TEST-005c: payload set == exactly the declared targets, control files excluded
+ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
+=== TEST-006: post-copy corruption detected and reported ===
+ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
+ok: TEST-006b: failure message names post-copy re-verification
+ok: TEST-006c: failure message names the corrupted target
+ok: TEST-006d: real CLI rejects corruption injected after Copy-Payload
+ok: TEST-006e: real CLI invokes and reports post-copy re-verification
+ok: TEST-006f: real CLI diagnostic names the corrupted installed target
+=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
+ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
+ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
+=== TEST-012: mid-batch failure reports which targets are live ===
+ok: TEST-012a: the target published before the failure is reported INSTALLED (plugins/sdd-lite/references/risk-upgrade-policy.md)
+ok: TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem
+ok: TEST-012c: all 3 targets after the failure are reported NOT ATTEMPTED
+ok: TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED
+ok: TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery
+ok: TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration
+=== TEST-007: feature-scoped, not fixed-prefix, resolution ===
+ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
+=== TEST-008: case-sensitive control names and digest grammar ===
+ok: TEST-008a: a mis-cased control filename is not classified as a control path
+ok: TEST-008b: real CLI rejects a mis-cased control name as undeclared payload
+ok: TEST-008c: mis-cased control rejection fails closed at manifest resolution (case-sensitive lane)
+ok: TEST-008d: mis-cased control rejection occurs before every live copy
+ok: TEST-008e: uppercase digest text is rejected by the canonical lowercase manifest grammar
+ok: TEST-008f: uppercase digest rejection identifies the canonical lowercase grammar
+ok: TEST-008g: uppercase digest rejection occurs before every live copy
+=== TEST-009: ancestor symlink escape rejected before copy ===
+ok: TEST-009a: destination ancestor symlink/reparse point is rejected
+ok: TEST-009b: escaped external target remains byte-identical (rejection occurred before copy)
+ok: TEST-009c: lexical/canonical parent traversal outside the repository is rejected
+ok: TEST-009d: deterministic substitution seam executed
+ok: TEST-009e: atomic no-follow directory open explicitly rejected the substituted ancestor
+ok: TEST-009f: substituted external target remains byte-identical
+ok: TEST-009g: repository live target remains byte-identical after the rejected race
+=== TEST-010: nested PROPOSED subtree rejected explicitly ===
+ok: TEST-010a: nested PROPOSED payload is rejected
+ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompatibility
+ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
+=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
+ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
+ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
+
+Results: 56 passed, 0 failed
+PASSED: tests/human-copy-runner-contract.tests.ps1
+==> tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
+=== TEST-014a: eligible:false, upgrade_reasons key absent ===
+ok: TEST-014a: exits 10
+ok: TEST-014a: synthetic ineligible:<id> token produced
+=== TEST-014b: eligible:false, upgrade_reasons is an empty array ===
+ok: TEST-014b: exits 10
+ok: TEST-014b: synthetic ineligible:<id> token produced for an explicit empty array too
+=== TEST-014c: mixed no-reasons + has-reasons entries, both contribute ===
+ok: TEST-014c: exits 10
+ok: TEST-014c: no-reasons entry's synthetic token appears in its own array position
+
+Results: 6 passed, 0 failed
+PASSED: tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
+==> tests/lite-gate-summary-invalid.tests.ps1
+=== TEST-012a: wrong schema constant is VERDICT: FAIL ===
+ok: TEST-012a: wrong schema constant is VERDICT: FAIL
+=== TEST-012b: missing a required key is VERDICT: FAIL ===
+ok: TEST-012b: missing required keys is VERDICT: FAIL
+=== TEST-012c: wrong-type field is VERDICT: FAIL ===
+ok: TEST-012c: non-boolean full_upgrade_required is VERDICT: FAIL
+=== TEST-013: static review -- no per-Capability re-aggregation logic ===
+ok: TEST-013a: Boundaries explicitly disclaims cross-Capability re-aggregation
+ok: TEST-013b: text confirms the field is read as already-aggregated
+ok: TEST-013c: no Predicate-DSL/Registry-matching invocation found (disclaimed, not called)
+
+Results: 6 passed, 0 failed
+PASSED: tests/lite-gate-summary-invalid.tests.ps1
+==> tests/lite-gate-full-upgrade-backstop.tests.ps1
+=== TEST-026a: full_upgrade_required: true Blocks before Step 2b runs ===
+ok: TEST-026a: VERDICT: FAIL
+ok: TEST-026a: reason names full_upgrade_required specifically (proves Step 2b never ran)
+ok: TEST-026a: no check-discovery was attempted (Step 2b never reached)
+=== TEST-026b: full_upgrade_required: false continues normally ===
+ok: TEST-026b: full_upgrade_required: false continues, VERDICT: PASS
+=== TEST-026c: SKILL.md text -- full_upgrade_required: true backstop stays VERDICT: FAIL ===
+ok: TEST-026c: SKILL.md's own Step 2a backstop clause still reads VERDICT: FAIL on full_upgrade_required == true
+
+Results: 5 passed, 0 failed
+PASSED: tests/lite-gate-full-upgrade-backstop.tests.ps1
+==> tests/registry-discovery.tests.ps1
+ok: AC-027 installed-layout (claude-code): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (claude-code): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (claude-code): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (codex-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): capability-registry.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): capability-registry.schema.json resolves via packaged copy alone
+ok: AC-027 installed-layout (copilot-cli): lite-upgrade-reason-catalog.json resolves via packaged copy alone
+ok: AC-027 version-mismatch: wrong schema value on the Registry fails closed
+ok: AC-027 version-mismatch: mismatched $id on the schema file fails closed
+ok: AC-027 version-mismatch: missing $schema key on the schema file fails closed
+ok: AC-027 version-mismatch: wrong schema value on the catalog fails closed
+ok: AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)
+ok: AC-027 vendored-copy-drift: --check fails non-zero on a stale vendored copy
+ok: AC-027 vendored-copy-drift: vendor generation succeeds
+ok: AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree
+ok: AC-027 vendored-copy-drift: --check performs no filesystem write (mtime unchanged)
+ok: self-registration: registry-discovery.tests.sh registered in tests/run-all.sh
+ok: self-registration: registry-discovery.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=22 fail=0 ----
+registry-discovery suite passed (22 checks)
+PASSED: tests/registry-discovery.tests.ps1
+==> tests/validate-capability-registry.tests.ps1
+ok: TEST-028: plugins/sdd-capability/ does not exist
+ok: TEST-028: every REQ-002..005 script/reference file lives under plugins/sdd-quality-loop/
+ok: TEST-014: gate-id-duplicate detected
+ok: TEST-015: implementation-ref-missing (field absent) detected
+ok: TEST-015: implementation-ref-missing (path does not exist) detected
+ok: TEST-016/017: unregistered check-*.py master flagged
+ok: TEST-017(i): a properly-referenced master is not flagged
+ok: TEST-017(ii): a script outside the scan root is never flagged
+ok: TEST-017(iv): a non-check-* script under the scan root is never scanned
+ok: TEST-016(1): a non-.py implementation_ref does not register its .py master
+ok: TEST-016(2): a gate referencing a symlinked entry point correctly registers the real master
+ok: TEST-016(3): two gates resolving to the identical master are a gate-implementation-collision
+ok: TEST-016(3): collision diagnostic names both colliding gate ids
+ok: TEST-018: stage-missing re-asserted independent of schema
+ok: TEST-019: pack-owned gates.yaml detected repository-wide
+ok: TEST-020: provider-name-detected fires on a real provider term
+ok: TEST-020: provider-neutral vocabulary (durable_workflow) is not a false positive
+ok: TEST-021: dangling-gate-reference detected
+ok: TEST-022: unknown-upgrade-reason fails closed against the real catalog
+ok: TEST-039: capability-id-duplicate detected
+ok: TEST-039: combined fixture -- gate-id-duplicate surfaces
+ok: TEST-039: combined fixture -- capability-id-duplicate surfaces (neither masks the other)
+ok: fully-clean fixture: all 10 checks pass on valid input (negative proof)
+ok: self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh
+ok: self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 12.379s
+
+OK
+ok: Lite Registry contract: schema, catalog, opt-in and CLI boundaries
+---- summary: pass=28 fail=0 ----
+validate-capability-registry suite passed (28 checks)
+PASSED: tests/validate-capability-registry.tests.ps1
+==> tests/generate-gate-capabilities.tests.ps1
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+ok: TEST-025(2): fresh output is byte-identical to the golden expected projection
+ok: TEST-025(3): _generated block carries source/schema_version/sha256/notice correctly
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+ok: TEST-025(5): capability_gate_map omits the promotion-stage gate (dangling-reference filtering), sorted, empty-array capability preserved
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+ok: TEST-026(2): --check exits non-zero with a 'stale' diagnostic against a hand-mutated file
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+ok: TEST-026(4): missing canonical Registry fails closed with a diagnostic
+ok: run-all.ps1 registers this suite
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: candidate: authenticated archive permits only additive protections; negative controls pass
+ok: human-copy: authenticated archive permits only additive protections; negative controls pass
+ok: QG-fix: live inventory preserves the authenticated candidate with verified additive protections
+ok: QG-fix: live generator preserves candidate semantics with verified baseline additions
+ok: generator regression control rejects missing shell keys in all three contracts
+ok: generator regression control rejects a case-changed export mapping
+ok: human-copy: applied archive inventory preserved with verified additive protections
+ok: human-copy: applied archive generator preserved with verified baseline additions
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+ok: candidate bundle: all seven manifest hashes match
+ok: candidate bundle mutation missing rejected with expected diagnostic
+ok: candidate bundle mutation duplicate rejected with expected diagnostic
+ok: candidate bundle mutation malformed rejected with expected diagnostic
+ok: candidate bundle mutation hash rejected with expected diagnostic
+ok: QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)
+ok: historical workflow preserved; current candidate supersedes it with strict job/aggregation checks and negative controls
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=32 fail=0 designed-red=0 ----
+generate-gate-capabilities suite passed (32 checks)
+PASSED: tests/generate-gate-capabilities.tests.ps1
+==> tests/component-path-ownership-parity.tests.ps1
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and live CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 disposable registration baseline is accepted
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 registration audit rejects a disposable duplicate-suite mutant
+ok - TEST-047 registration audit rejects a disposable case-suite mutant
+ok - TEST-047 registration audit rejects a disposable suffix-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 25 passed, 0 failed
+PASSED: tests/component-path-ownership-parity.tests.ps1
+==> tests/sdd-domain-multitarget-T-004.tests.py
+test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... ok
+test_005_full_profile_output_contract_and_no_context_compatibility (__main__.CompatibilityTests.test_005_full_profile_output_contract_and_no_context_compatibility) ... ok
+test_005_stale_snapshot_blocks_without_partial_publication (__main__.CompatibilityTests.test_005_stale_snapshot_blocks_without_partial_publication) ... ok
+test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer (__main__.CompatibilityTests.test_006_shipped_structural_consumer_rejects_missing_or_rewritten_layer) ... ok
+test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest (__main__.CompatibilityTests.test_006_valid_hybrid_all_targets_retains_seven_bytes_and_separate_manifest) ... ok
+test_additive_override_contract_preserves_existing_context_boundaries (__main__.CompatibilityTests.test_additive_override_contract_preserves_existing_context_boundaries) ... ok
+test_reviewed_cloud_extension_is_exact_and_retains_original_baseline (__main__.CompatibilityTests.test_reviewed_cloud_extension_is_exact_and_retains_original_baseline) ... ok
+test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy (__main__.CompatibilityTests.test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy) ... ok
+test_reviewed_pending_status_requires_exact_change_and_original_baseline (__main__.CompatibilityTests.test_reviewed_pending_status_requires_exact_change_and_original_baseline) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 50.553s
+
+OK
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASSED: tests/sdd-domain-multitarget-T-004.tests.py
+==> tests/t001-evaluation-preparation.tests.py
+................
+----------------------------------------------------------------------
+Ran 16 tests in 1.366s
+
+OK
+PASSED: tests/t001-evaluation-preparation.tests.py
+==> tests/verification-impact.tests.py
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.193s
+
+OK
+PASSED: tests/verification-impact.tests.py

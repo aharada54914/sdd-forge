@@ -525,7 +525,7 @@ T-001, T-007
 ## T-008 Operator documentation and tagged release
 
 Approval: Approved (user-recorded 2026-10-18T04:41:34Z)
-Status: In Progress
+Status: Done
 Risk: medium
 Risk Rationale: Integrates scoped regression or delivery evidence without new runtime authority.
 Required Workflow: acceptance-first

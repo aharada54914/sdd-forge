@@ -1,0 +1,6 @@
+{
+  "path": "reports/verification/cloud-orchestration-release.md",
+  "sha256": "6f4ec198ae1f7df13269a74b7faa3c19e112e890bdd8b055661699b18b44aacf",
+  "tested_revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "scope": "Post-publication audit; independent quality gate is separately recorded."
+}

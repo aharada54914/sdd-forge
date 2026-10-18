@@ -1,0 +1,1760 @@
+["git", "clone", "--shared", "--no-checkout", "/workspace/sdd-forge", "/workspace/cloud-release-v119-4b/local-powershell-0"]
+Cloning into '/workspace/cloud-release-v119-4b/local-powershell-0'...
+done.
+["git", "checkout", "--detach", "2aaac49c528d0dfe28437082d54fb86a32f04a15"]
+HEAD is now at 2aaac49c fix(tests): respect canonical paths and POSIX harness boundaries
+["git", "merge-base", "--is-ancestor", "fcb8275a42061b8132ea88a36e69b02f4487be71", "2aaac49c528d0dfe28437082d54fb86a32f04a15"]
+["git", "update-ref", "refs/remotes/origin/main", "fcb8275a42061b8132ea88a36e69b02f4487be71"]
+["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/cross-runtime-handoff.tests.ps1", "-SelfTestActivation"]
+ok: AC-006 activation gate evaluated all six lifecycle values using disposable tasks.md copies; main handshake paths are present
+["npm", "ci", "--prefix", "mcp/sdd-forge-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 205 packages in 12s
+["npm", "ci", "--prefix", "mcp/ci-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 201 packages in 9s
+["npm", "ci", "--prefix", "mcp/local-env-mcp", "--ignore-scripts", "--no-audit", "--no-fund"]
+
+added 202 packages in 9s
+["python3", "-B", "tests/verification.py", "--profile", "local-powershell", "--run", "--shard-count", "4", "--shard-index", "0", "--receipt", "/workspace/cloud-release-v119-4b/local-powershell-0.receipt.json", "--powershell", "/workspace/.tools/sdd-forge-dev/bin/pwsh"]
+==> tests/cloud-orchestration-verification.tests.py
+test_native_xml_threshold_numeric_zero (__main__.AlarmNumericCases.test_native_xml_threshold_numeric_zero) ... ok
+test_native_xml_threshold_rejects_nonzero_and_invalid (__main__.AlarmNumericCases.test_native_xml_threshold_rejects_nonzero_and_invalid) ... ok
+test_other_alarm_field_semantics_remain_exact (__main__.AlarmNumericCases.test_other_alarm_field_semantics_remain_exact) ... ok
+test_public_synthetic_threshold_result_counterparts (__main__.AlarmNumericCases.test_public_synthetic_threshold_result_counterparts) ... ok
+test_emitted_contracts_are_closed (__main__.AwsObservationOrchestration.test_emitted_contracts_are_closed) ... ok
+test_legacy_physical_config_rejected_before_admission (__main__.AwsObservationOrchestration.test_legacy_physical_config_rejected_before_admission) ... ok
+test_native_healthy_substitute_response_blocks (__main__.AwsObservationOrchestration.test_native_healthy_substitute_response_blocks) ... ok
+test_newer_or_ambiguous_stack_operation_rejected (__main__.AwsObservationOrchestration.test_newer_or_ambiguous_stack_operation_rejected) ... ok
+test_original_native_operation_not_copied_receipt (__main__.AwsObservationOrchestration.test_original_native_operation_not_copied_receipt) ... ok
+test_publication_fresh_checks_never_reuse_saved_success (__main__.AwsObservationOrchestration.test_publication_fresh_checks_never_reuse_saved_success) ... ok
+test_stack_membership_counterparts (__main__.AwsObservationOrchestration.test_stack_membership_counterparts) ... ok
+test_unknown_create_ids_resolved_without_request_edits (__main__.AwsObservationOrchestration.test_unknown_create_ids_resolved_without_request_edits) ... ok
+test_dcr_readback_and_mismatches (__main__.AzureClosureAndDcrCases.test_dcr_readback_and_mismatches) ... ok
+test_native_positive_permission_closure_protocol (__main__.AzureClosureAndDcrCases.test_native_positive_permission_closure_protocol) ... ok
+test_permission_closure_mismatches (__main__.AzureClosureAndDcrCases.test_permission_closure_mismatches) ... ok
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... ok
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ok
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... ok
+test_metric_context_counterparts (__main__.AzureMetricContextCases.test_metric_context_counterparts) ... ok
+test_public_verify_uses_original_operation_and_received_signal (__main__.AzureObservationOrchestration.test_public_verify_uses_original_operation_and_received_signal) ... ok
+test_compiled_and_original_operation_membership (__main__.AzureResourceBindingCases.test_compiled_and_original_operation_membership) ... ok
+test_approval_self_review_uses_stable_id_despite_extra_metadata (__main__.DependencyBoundaryCases.test_approval_self_review_uses_stable_id_despite_extra_metadata) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyBoundaryCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyBoundaryCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_each_write_reacquires_and_final_scan_revocation_blocks (__main__.DependencyBoundaryCases.test_each_write_reacquires_and_final_scan_revocation_blocks) ... ok
+test_freshness_expires_during_final_acquisition_not_consumer_lease (__main__.DependencyBoundaryCases.test_freshness_expires_during_final_acquisition_not_consumer_lease) ... ok
+test_physically_resolved_temporary_root (__main__.DependencyBoundaryCases.test_physically_resolved_temporary_root) ... ok
+test_read_only_verify_policy_is_loadable_but_never_a_writer (__main__.DependencyBoundaryCases.test_read_only_verify_policy_is_loadable_but_never_a_writer) ... ok
+test_three_actual_adapter_units_partial_failure_preserves_a (__main__.DependencyBoundaryCases.test_three_actual_adapter_units_partial_failure_preserves_a) ... ok
+test_aws_callback_freshness_readback_history_and_authentication (__main__.DependencyCallbackExpiryCases.test_aws_callback_freshness_readback_history_and_authentication) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws publish authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create authentication elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute authentication elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws create readback elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute readback elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 0 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True), ('READ_CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 10 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD aws execute history elapsed 11 admissions [1792303200, 1792303200] guards [('READ_CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+ok
+test_azure_callback_freshness_validation_and_journal (__main__.DependencyCallbackExpiryCases.test_azure_callback_freshness_validation_and_journal) ... SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview validation elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 0 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 10 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure preview journal elapsed 11 admissions [1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy validation elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 0 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', True)] target_native_submissions 1 result PASS
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 10 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+SYNTHETIC_DEADLINE_REAL_FINAL_GUARD azure deploy journal elapsed 11 admissions [1792303200, 1792303200, 1792303200, 1792303200] guards [('CREDENTIAL_EXPIRED', False)] target_native_submissions 0 result BLOCKED
+ok
+test_receipt_expiry_minimum_and_empty_predecessors (__main__.DependencyCallbackExpiryCases.test_receipt_expiry_minimum_and_empty_predecessors) ... ok
+test_consumer_request_and_trust_set (__main__.DependencyFieldMatrix.test_consumer_request_and_trust_set) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyFieldMatrix.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyFieldMatrix.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyFieldMatrix.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_every_new_trust_and_producer_binding (__main__.DependencyFieldMatrix.test_every_new_trust_and_producer_binding) ... ok
+test_consumer_expiry_during_second_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_expiry_during_second_acquisition) ... ok
+test_consumer_revocation_during_second_predecessor_acquisition (__main__.DependencyFinalBoundaryCases.test_consumer_revocation_during_second_predecessor_acquisition) ... ok
+test_cross_provider_predecessors_and_foreign_provenance_denial (__main__.DependencyFinalBoundaryCases.test_cross_provider_predecessors_and_foreign_provenance_denial) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyFinalBoundaryCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyFinalBoundaryCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyFinalBoundaryCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_final_consumer_metadata_latency_cannot_stale_predecessor (__main__.DependencyFinalBoundaryCases.test_final_consumer_metadata_latency_cannot_stale_predecessor) ... ok
+test_guards_are_sensitive_not_blanket_denial (__main__.DependencyFinalBoundaryCases.test_guards_are_sensitive_not_blanket_denial) ... ok
+test_standalone_provider_install_does_not_import_other_provider (__main__.DependencyFinalBoundaryCases.test_standalone_provider_install_does_not_import_other_provider) ... ok
+test_order_and_each_invalid_graph_before_callbacks (__main__.DependencyGraphCases.test_order_and_each_invalid_graph_before_callbacks) ... ok
+test_transitive_unknown_preserves_identity_without_retry (__main__.DependencyGraphCases.test_transitive_unknown_preserves_identity_without_retry) ... ok
+test_dependency_matched_control_at_both_shared_stages (__main__.DependencyReceiptCases.test_dependency_matched_control_at_both_shared_stages) ... ok
+test_dependency_per_field_red_mismatches (__main__.DependencyReceiptCases.test_dependency_per_field_red_mismatches) ... ok
+test_dependency_producer_and_evidence_red_mismatches (__main__.DependencyReceiptCases.test_dependency_producer_and_evidence_red_mismatches) ... ok
+test_cli_without_trusted_executor_rejects_verify (__main__.EntryPreflight.test_cli_without_trusted_executor_rejects_verify) ... ok
+test_live_network_is_forbidden_before_transport (__main__.EntryPreflight.test_live_network_is_forbidden_before_transport) ... ok
+test_observation_settings_have_closed_executable_contract (__main__.EntryPreflight.test_observation_settings_have_closed_executable_contract) ... ok
+test_shared_reducer_available (__main__.EntryPreflight.test_shared_reducer_available) ... ok
+test_every_check_lease_expiry_during_native_response (__main__.ExpandedBindingCases.test_every_check_lease_expiry_during_native_response) ... ok
+test_nested_context_fields_and_untrusted_native_labels (__main__.ExpandedBindingCases.test_nested_context_fields_and_untrusted_native_labels) ... ok
+test_query_digests_are_exact_transport_bytes (__main__.ExpandedBindingCases.test_query_digests_are_exact_transport_bytes) ... ok
+test_aws_backup_native_recent_query_window (__main__.FreshnessCases.test_aws_backup_native_recent_query_window) ... ok
+test_metric_query_recent_postcompletion_minute_window (__main__.FreshnessCases.test_metric_query_recent_postcompletion_minute_window) ... ok
+test_native_selected_window_never_chooses_only_healthy_point (__main__.FreshnessCases.test_native_selected_window_never_chooses_only_healthy_point) ... ok
+test_old_deployment_native_recent_metric_and_backup (__main__.FreshnessCases.test_old_deployment_native_recent_metric_and_backup) ... ok
+test_old_deployment_recent_samples_and_time_order (__main__.FreshnessCases.test_old_deployment_recent_samples_and_time_order) ... ok
+test_native_response_binding_pagination_and_unknown (__main__.NativeAdversarialCases.test_native_response_binding_pagination_and_unknown) ... ok
+test_postcollection_lease_expiry_prevents_publication (__main__.NativeAdversarialCases.test_postcollection_lease_expiry_prevents_publication) ... ok
+test_azure_backup_does_not_require_future_recovery_id (__main__.NativeCollectorCases.test_azure_backup_does_not_require_future_recovery_id) ... ok
+test_backup_discovery_without_future_identifier (__main__.NativeCollectorCases.test_backup_discovery_without_future_identifier) ... ok
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... ok
+test_native_azure_incomplete_permission_proof_cannot_pass (__main__.NativeCollectorCases.test_native_azure_incomplete_permission_proof_cannot_pass) ... ok
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... ok
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... ok
+test_optional_backup_is_omitted_only_by_original_profile (__main__.NativeCollectorCases.test_optional_backup_is_omitted_only_by_original_profile) ... ok
+test_executed_preview_requires_actual_asset_readback (__main__.ProfileAwsReadbackCases.test_executed_preview_requires_actual_asset_readback) ... ok
+test_semantic_native_and_policy_guards (__main__.ProfileAwsReadbackCases.test_semantic_native_and_policy_guards) ... ok
+test_every_plan_leaf_and_closed_object (__main__.ProfileCompletionCases.test_every_plan_leaf_and_closed_object) ... ok
+test_iac_required_and_preview_window_at_publication (__main__.ProfileCompletionCases.test_iac_required_and_preview_window_at_publication) ... ok
+test_original_profile_version_and_conditional_backup (__main__.ProfileCompletionCases.test_original_profile_version_and_conditional_backup) ... ok
+test_preview_guard_matrix (__main__.ProfileCompletionCases.test_preview_guard_matrix) ... ok
+test_protected_mandatory_checks_never_become_optional (__main__.ProfileCompletionCases.test_protected_mandatory_checks_never_become_optional) ... ok
+test_saved_observation_mismatch_sensitivity (__main__.ProfileCompletionCases.test_saved_observation_mismatch_sensitivity) ... ok
+test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks (__main__.ProfileDispatchIntegration.test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks) ... ok
+test_native_transport_protocol_double_reaches_positive_existing_boundary (__main__.ProfileDispatchIntegration.test_native_transport_protocol_double_reaches_positive_existing_boundary) ... ok
+test_preview_and_iac_mismatches_at_public_boundary (__main__.ProfileDispatchIntegration.test_preview_and_iac_mismatches_at_public_boundary) ... ok
+test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check (__main__.ProfileGuardSensitivity.test_aws_native_preview_guard_is_necessary_not_a_saved_hash_check) ... ok
+test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart (__main__.ProfileGuardSensitivity.test_bound_preview_guard_sensitivity_with_valid_rehashed_counterpart) ... ok
+test_profile_allowlist_and_required_check_guard_sensitivity (__main__.ProfileGuardSensitivity.test_profile_allowlist_and_required_check_guard_sensitivity) ... ok
+test_self_consistent_postapply_preview_substitution_is_not_authenticated (__main__.ProfilePreviewProvenance.test_self_consistent_postapply_preview_substitution_is_not_authenticated) ... ok
+test_all_direct_consumers_explicit_selection_not_saved_authority (__main__.ProfileSavedConsumers.test_all_direct_consumers_explicit_selection_not_saved_authority) ... ok
+test_legacy_import_never_loads_cloud_runtime (__main__.ProfileSavedConsumers.test_legacy_import_never_loads_cloud_runtime) ... ok
+test_plan_fields_match_schema_and_recomputed_counterparts (__main__.ProfileSavedConsumers.test_plan_fields_match_schema_and_recomputed_counterparts) ... ok
+test_registry_protection_and_old_schema_mirrors (__main__.ProfileSavedConsumers.test_registry_protection_and_old_schema_mirrors) ... ok
+test_saved_contract_each_field_and_binding_guard (__main__.ProfileSavedConsumers.test_saved_contract_each_field_and_binding_guard) ... ok
+test_legacy_cannot_accept_cloud_discriminator (__main__.ProtectedProfileCases.test_legacy_cannot_accept_cloud_discriminator) ... ok
+test_unsupported_profile_version_at_reducer (__main__.ProtectedProfileCases.test_unsupported_profile_version_at_reducer) ... ok
+test_all_emitted_required_fields_have_closed_schema_counterparts (__main__.PublicObservationCases.test_all_emitted_required_fields_have_closed_schema_counterparts) ... ok
+test_public_all_checks_matrix_native_protocol_fixtures (__main__.PublicObservationCases.test_public_all_checks_matrix_native_protocol_fixtures) ... ok
+test_public_request_and_trusted_policy_counterparts (__main__.PublicObservationCases.test_public_request_and_trusted_policy_counterparts) ... ok
+test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction (__main__.PublicObservationCases.test_publication_bindings_scan_no_overwrite_escape_and_secret_redaction) ... ok
+test_all_checks_synthetic_never_complete (__main__.ReducerCases.test_all_checks_synthetic_never_complete) ... ok
+test_check_fail_block_unknown_stale_missing_tampered (__main__.ReducerCases.test_check_fail_block_unknown_stale_missing_tampered) ... ok
+test_context_shape_and_window (__main__.ReducerCases.test_context_shape_and_window) ... ok
+test_each_context_counterpart_mismatch (__main__.ReducerCases.test_each_context_counterpart_mismatch) ... ok
+test_each_observation_counterpart_mismatch (__main__.ReducerCases.test_each_observation_counterpart_mismatch) ... ok
+test_each_payload_counterpart_mismatch (__main__.ReducerCases.test_each_payload_counterpart_mismatch) ... ok
+test_native_denial_cannot_be_overridden_by_healthy_label (__main__.ReducerCases.test_native_denial_cannot_be_overridden_by_healthy_label) ... ok
+test_profile_policy_and_check_set (__main__.ReducerCases.test_profile_policy_and_check_set) ... ok
+test_query_trace_shape (__main__.ReducerCases.test_query_trace_shape) ... ok
+test_native_bucket_minimum_and_maximum (__main__.WorkloadRangeCases.test_native_bucket_minimum_and_maximum) ... ok
+
+----------------------------------------------------------------------
+Ran 109 tests in 329.777s
+
+OK
+PASSED: tests/cloud-orchestration-verification.tests.py
+==> tests/sdd-domain-multitarget-foundation.tests.py
+test_current_suite_remains_on_catalog_normal_and_native_ci_paths (__main__.CurrentAnchorTests.test_current_suite_remains_on_catalog_normal_and_native_ci_paths) ... ok
+test_fenced_heading_is_not_an_anchor (__main__.CurrentAnchorTests.test_fenced_heading_is_not_an_anchor) ... ok
+test_line_insertion_preserves_meaning (__main__.CurrentAnchorTests.test_line_insertion_preserves_meaning) ... ok
+test_missing_or_duplicate_heading_is_rejected (__main__.CurrentAnchorTests.test_missing_or_duplicate_heading_is_rejected) ... ok
+test_mixed_section_and_line_evidence_is_rejected (__main__.CurrentAnchorTests.test_mixed_section_and_line_evidence_is_rejected) ... ok
+test_requirement_in_another_section_does_not_satisfy_source (__main__.CurrentAnchorTests.test_requirement_in_another_section_does_not_satisfy_source) ... ok
+test_source_path_escape_is_rejected (__main__.CurrentAnchorTests.test_source_path_escape_is_rejected) ... ok
+test_symlinked_source_is_rejected (__main__.CurrentAnchorTests.test_symlinked_source_is_rejected) ... ok
+test_TEST_001a_interviewer_questions_and_layer_output (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001a_interviewer_questions_and_layer_output) ... ok
+test_TEST_001b_fixed_layer_template (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001b_fixed_layer_template) ... ok
+test_TEST_001c_risk_tier_verifier_contract (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001c_risk_tier_verifier_contract) ... ok
+test_TEST_001d_ui_design_loop (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001d_ui_design_loop) ... ok
+test_TEST_001e_endpoint_contract_checklist (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001e_endpoint_contract_checklist) ... ok
+test_TEST_001f_ci_mcp_package (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001f_ci_mcp_package) ... ok
+test_TEST_001g_provider_state_and_gate_stage_boundaries (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001g_provider_state_and_gate_stage_boundaries) ... ok
+test_TEST_001h_host_adapters_and_artifact_layout_migration (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001h_host_adapters_and_artifact_layout_migration) ... ok
+test_TEST_001i_compile_build_lint_checks_on_noncode_targets (historical_consumer_inventory.ConsumerInventoryTests.test_TEST_001i_compile_build_lint_checks_on_noncode_targets) ... ok
+test_duplicate_entry_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_duplicate_entry_id_is_rejected) ... ok
+test_full_inventory_has_no_outstanding_failures (historical_consumer_inventory.ConsumerInventoryTests.test_full_inventory_has_no_outstanding_failures) ... ok
+test_invalid_disposition_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_invalid_disposition_is_rejected) ... ok
+test_missing_required_entry_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_required_entry_is_rejected) ... ok
+test_missing_source_file_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_missing_source_file_is_rejected) ... ok
+test_out_of_range_line_end_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_out_of_range_line_end_is_rejected) ... ok
+test_same_consumer_under_another_id_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_same_consumer_under_another_id_is_rejected) ... ok
+test_stale_source_keyword_is_rejected (historical_consumer_inventory.ConsumerInventoryTests.test_stale_source_keyword_is_rejected) ... ok
+test_actual_registry_has_no_provider_terms (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_actual_registry_has_no_provider_terms) ... ok
+test_capability_registry_schema_rejects_provider_extra_field (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_capability_registry_schema_rejects_provider_extra_field) ... ok
+test_mutated_registry_with_provider_name_is_detected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_mutated_registry_with_provider_name_is_detected) ... ok
+test_nested_predicate_credentials_and_state_keys_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_nested_predicate_credentials_and_state_keys_are_rejected) ... ok
+test_provider_keys_in_predicates_are_rejected (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_keys_in_predicates_are_rejected) ... ok
+test_provider_neutral_nested_predicate_values_are_accepted (foundation_contract_boundaries.CapabilityRegistryProviderNeutralityTests.test_provider_neutral_nested_predicate_values_are_accepted) ... ok
+test_actual_tools_are_exactly_the_five_read_only_tools (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_actual_tools_are_exactly_the_five_read_only_tools) ... ok
+test_core_api_dependency_mutations_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_api_dependency_mutations_are_rejected) ... ok
+test_core_contracts_have_no_api_dependency (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_core_contracts_have_no_api_dependency) ... ok
+test_duplicate_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_duplicate_tool_is_rejected) ... ok
+test_mutated_api_dependency_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_api_dependency_is_rejected) ... ok
+test_mutated_non_get_method_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_non_get_method_is_rejected) ... ok
+test_mutated_write_tool_is_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_mutated_write_tool_is_rejected) ... ok
+test_removed_fetch_calls_are_rejected (foundation_contract_boundaries.CiMcpReadOnlyBoundaryTests.test_removed_fetch_calls_are_rejected) ... ok
+test_row1_core_owns_lifecycle_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row1_core_owns_lifecycle_not_provider_identity) ... ok
+test_row2_capability_registry_owns_obligations_not_provider_identity (foundation_contract_boundaries.OwnershipBoundaryTests.test_row2_capability_registry_owns_obligations_not_provider_identity) ... ok
+test_row3_provider_binding_owns_identity_not_core_policy (foundation_contract_boundaries.OwnershipBoundaryTests.test_row3_provider_binding_owns_identity_not_core_policy) ... ok
+test_row4_host_adapter_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row4_host_adapter_boundary_is_recorded) ... ok
+test_row5_ui_provider_boundary_is_recorded (foundation_contract_boundaries.OwnershipBoundaryTests.test_row5_ui_provider_boundary_is_recorded) ... ok
+test_context_projection_keeps_legal_shapes_and_binding_ids (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_keeps_legal_shapes_and_binding_ids) ... ok
+test_context_projection_rejects_provider_fields (foundation_contract_boundaries.ProjectContextBoundaryTests.test_context_projection_rejects_provider_fields) ... ok
+test_negative_provider_field_at_characteristics_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_characteristics_rejected) ... ok
+test_negative_provider_field_at_root_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_field_at_root_rejected) ... ok
+test_negative_provider_fields_at_component_rejected (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_component_rejected) ... ok
+test_negative_provider_fields_at_remaining_object_boundaries (foundation_contract_boundaries.ProjectContextBoundaryTests.test_negative_provider_fields_at_remaining_object_boundaries) ... ok
+test_positive_ordinary_fields_and_binding_ids_accepted (foundation_contract_boundaries.ProjectContextBoundaryTests.test_positive_ordinary_fields_and_binding_ids_accepted) ... ok
+test_provider_binding_schema_accepts_provider_product_credentials_state (foundation_contract_boundaries.ProjectContextBoundaryTests.test_provider_binding_schema_accepts_provider_product_credentials_state) ... ok
+test_runtime_resolver_and_contract_reader_keep_legal_shapes (foundation_contract_boundaries.ProjectContextBoundaryTests.test_runtime_resolver_and_contract_reader_keep_legal_shapes) ... ok
+test_shared_path_shape_stays_exclusive_and_typed (foundation_contract_boundaries.ProjectContextBoundaryTests.test_shared_path_shape_stays_exclusive_and_typed) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 1.457s
+
+OK
+PASSED: tests/sdd-domain-multitarget-foundation.tests.py
+==> tests/wfi-058-outputs-anchor.tests.ps1
+WFI-058 fixture anchors: Outputs-section C1=7d43724544d64955cc9f19168c3bbf2303abed5b header-only C3=b908953100bf8ae6d92af3503bd94ec27b589be1
+ok: C3 succeeds after output drift
+ok: notice names the Outputs-section anchor C1
+ok: control mismatched at worktree and C1 fails closed
+3 passed, 0 failed
+PASSED: tests/wfi-058-outputs-anchor.tests.ps1
+==> tests/review-hash-normalization.tests.ps1
+ok: shared impl/task reviewed-hash recipe matches baseline for CRLF, case, and invalid inputs
+PASSED: tests/review-hash-normalization.tests.ps1
+==> tests/task-context-isolation.tests.ps1
+ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic
+PASSED: tests/task-context-isolation.tests.ps1
+==> tests/impl-layer-review-inputs.tests.ps1
+PASS: PowerShell complete layer input set is hash-bound
+PASS: PowerShell precheck binds the nonempty ADR set into input hash
+PASS: PowerShell VerifyInputs accepts the unchanged nonempty ADR set
+PASS: PowerShell persisted full manifest rejects tamper after registry profile downgrade
+PASS: PowerShell VerifyInputs rejects ADR content tampering
+PASS: PowerShell VerifyInputs rejects a case-variant ADR path
+PASS: PowerShell rejects every missing layer input
+PASS: PowerShell rejects path-substituted layer input
+PASS: PowerShell lite producer persists empty ADR set with versioned input hash
+PASS: PowerShell VerifyInputs accepts historical precheck without ADR extension
+PASSED: tests/impl-layer-review-inputs.tests.ps1
+==> tests/phase2-guard-tokenizer.tests.ps1
+SKIP: phase2 tokenizer corpus requires powershell.exe, python.exe, node.exe
+PASSED: tests/phase2-guard-tokenizer.tests.ps1
+==> tests/scenario.tests.ps1
+=== Scenario A: full-chain multi-tier lifecycle ===
+--- A.1: check-risk passes ---
+ok: A.1: check-risk passes for well-formed three-task tasks.md
+--- A.2: check-risk fails-closed on missing Required Workflow ---
+ok: A.2: check-risk fails-closed when T-102 drops Required Workflow: tdd
+--- A.3: check-contract passes T-101 with docs stack ---
+ok: A.3: check-contract passes T-101 (docs stack, compile checks waived with waiver_reason)
+--- A.4: check-contract passes T-102 ---
+ok: A.4: check-contract passes T-102 (high risk, tdd, full evidence)
+--- A.5: check-contract fails on required passes:false ---
+ok: A.5: check-contract fails when required check has passes:false
+--- A.6: check-traceability passes complete chain ---
+ok: A.6: check-traceability passes complete REQ->AC->TEST->evidence chain
+--- A.7: check-traceability fails-closed on empty tests[] ---
+ok: A.7: check-traceability fails-closed on empty tests[] link
+--- A.8: check-task-state blocks Done with Approval: Draft ---
+ok: A.8: check-task-state BLOCKS Done while Approval: Draft
+--- A.9: check-task-state passes non-critical Done with named Approval ---
+ok: A.9: check-task-state PASSES non-critical Done with named Approval: Approved (alice)
+--- A.10: check-task-state blocks critical Done without Second Approval ---
+ok: A.10: check-task-state BLOCKS critical Done without Second Approval
+--- A.11: check-task-state blocks critical Done with same-name approvers ---
+ok: A.11: check-task-state BLOCKS critical Done with same-name approvers (alice==alice)
+--- A.12: check-task-state blocks critical Done with sudo approver ---
+ok: A.12: check-task-state BLOCKS critical Done with 'sudo' as primary approver
+--- A.13: evidence bundle round-trip for high task T-102 ---
+ok: A.13a: generate-evidence-bundle succeeds for high task T-102
+ok: A.13b: check-evidence-bundle passes for high task T-102
+=== Scenario B1: hook contract — all 3 CLI forms ===
+--- B1.1: Claude Code node --emit exit ---
+ok: B1.1a: Claude Code node guard exits 2 on self-approval (deny)
+ok: B1.1b: Claude Code node guard exits 0 on benign payload (allow)
+--- B1.2: Codex sh --emit exit ---
+ok: B1.2a: Codex sh guard exits 2 on self-approval (deny)
+ok: B1.2b: Codex sh guard exits 0 on benign payload (allow)
+--- B1.3: Copilot sh --emit copilot ---
+ok: B1.3a: Copilot sh guard emits permissionDecision=deny on self-approval (exit 0)
+ok: B1.3b: Copilot sh guard emits permissionDecision=allow on benign payload (exit 0)
+--- B1.4: drift guard — hook configs reference the correct CLI invocations ---
+ok: B1.4a: claude-hooks.json references sdd-hook-guard.js with --emit exit
+ok: B1.4b: hooks.json references sdd-hook-guard.sh --emit exit
+ok: B1.4c: copilot-hooks.json references sdd-hook-guard.sh --emit copilot
+=== Scenario E: critical signing round-trip ===
+--- E.1: generate signed critical bundle ---
+ok: E.1: generate-evidence-bundle succeeds for critical task with SDD_EVIDENCE_KEY
+ok: E.1b: signed bundle contains hmac-sha256 signature field
+--- E.2: check-evidence-bundle with correct key passes ---
+ok: E.2: check-evidence-bundle PASS with correct SDD_EVIDENCE_KEY
+--- E.3: tampered bundle fails signature check ---
+ok: E.3: tampered critical bundle fails check-evidence-bundle (mentions signature/HMAC)
+
+Results: 27 passed, 0 failed.
+PASSED: tests/scenario.tests.ps1
+==> tests/installer-idempotency.tests.ps1
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: already-registered marketplaces and MCP servers are tolerated
+Error: could not write to disk
+ok: a non-idempotency registration failure is still fatal
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: an already-installed Claude plugin is upgraded and the transition reported
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered
+Error: this plugin is already added
+Error: this plugin is already added
+MCP server sdd-forge-mcp already exists in user config
+ok: a machine already at the new version reports no upgrade
+ok: a clean install does not enter the upgrade path
+ok: a placement-phase failure still reverts the install root
+Error: could not write to disk
+ok: a registration-phase failure keeps the new version and names what failed
+
+installer-idempotency.tests.ps1: all scenarios passed.
+PASSED: tests/installer-idempotency.tests.ps1
+==> tests/uninstall.tests.ps1
+ok: full uninstall unregisters all plugins+marketplace, removes files and only shipped agents
+ok: -KeepFiles preserves installed files while unregistering
+ok: -SkipAgentUninstall preserves shipped agent role files
+ok: subset -Plugins unregisters only chosen plugins and keeps the marketplace
+ok: domain-only uninstall keeps dependencies and shared files
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: -SkipPluginUninstall proceeds when CLI is absent
+ok: idempotency: second uninstall succeeds
+ok: invalid plugin name rejected
+ok: invalid -Target rejected
+ok: empty -InstallRoot rejected
+ok: filesystem root rejected as -InstallRoot
+ok: home directory rejected as -InstallRoot
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: -Mcp <list> selects MCP payload/registration removal
+ok: invalid -Mcp name rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+Kept installed files at: /tmp/sdd-uninstall-mcp-q-f1f53c8e-4e0e-4de1-b8a7-1c2fef587826/installed (-KeepFiles).
+
+SDD plugins uninstalled.
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+ok: T-003 uninstall output is unaffected by project-context presence
+
+uninstall.tests.ps1: all scenarios passed.
+PASSED: tests/uninstall.tests.ps1
+==> tests/claude-registration.tests.ps1
+ok: Claude registration installs sdd-bootstrap:bootstrap and sdd-ship:ship plugins
+ok: Claude manifest validation fails before marketplace registration
+ok: RequireClaude fails closed when Claude CLI is absent
+PASSED: tests/claude-registration.tests.ps1
+==> tests/workflow-state-repository-integration.tests.ps1
+Workflow-state repository integration tests passed.
+PASSED: tests/workflow-state-repository-integration.tests.ps1
+==> tests/emit-run-record-feature-scope.tests.ps1
+ok: gate_reports.total counts only feat-a reports (3)
+ok: feat-b's BLOCKED report is not counted for feat-a (0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (2)
+ok: only feat-a T-002 passed on a single gate run (1)
+ok: review_tickets.major counts only feat-a tickets (1)
+ok: feat-b's critical ticket is not counted for feat-a (0)
+ok: CRLF feat-a ticket severity is counted (1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded) (1)
+ok: AC-021: schema bumps to v2 when any -Effort* param bound (sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (unknown)
+ok: AC-021: effort.main has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: effort.reviewers has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-033 matrix effort-only: existing v2 shape has no capability key (False)
+ok: AC-021: v1 metrics object unchanged in v2 shape (1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code (effort-control-frontmatter)
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed
+ok: AC-033 matrix no flags: emits the unchanged v1 schema (sdd-run-record/v1)
+ok: AC-033 matrix no flags: v1 shape has no effort key at all (False)
+ok: AC-033 matrix no flags: v1 shape has no capability key at all (False)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-011: native newline byte guard rejects changed or missing newline (width=1)
+ok: AC-011: native newline byte guard rejects changed or missing newline (width=1)
+ok: AC-011: native newline byte guard rejects changed or missing newline (width=2)
+ok: AC-011: native newline byte guard rejects changed or missing newline (width=2)
+ok: AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)
+ok: AC-033 matrix capability-only: exact usage error, exit 1, and no output record
+ok: block-id-only: exact usage error, exit 1, and no output record
+ok: block-id-only with an effort parameter: still the block-id diagnostic, exit 1, no output record
+ok: block_id serialization: the .ps1 emitter uses no external JSON tool, so the .sh stub-jq failure mode is unreachable here
+ok: AC-033 matrix both: schema remains v2 (sdd-run-record/v2)
+ok: AC-033 matrix both: effort sibling is present (True)
+ok: AC-012 matrix both: capability has exactly enforcement and block_id (block_id,enforcement)
+ok: AC-012 matrix both: enforcement is persisted (advisory)
+ok: AC-012 matrix both: supplied block_id is persisted (resolver-no-match)
+ok: AC-012 block_id: JSON-sensitive characters round-trip exactly (resolver-"quoted"\path)
+ok: AC-012 optional block_id: enforcement is persisted (required)
+ok: AC-012 optional block_id: omitted value serializes as null ()
+ok: case-sensitivity: mis-cased -CapabilityEnforcement is rejected fail-closed
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.ps1: 58 passed, 0 failed
+PASSED: tests/emit-run-record-feature-scope.tests.ps1
+==> tests/loop-inventory.tests.ps1
+=== TEST-001: inventory schema + registration forcing ===
+ok: TEST-001.0: loop-inventory.json exists at /workspace/cloud-release-v119-4b/local-powershell-0/tests/loops/loop-inventory.json
+ok: TEST-001.1: schema field is loop-inventory/v1
+ok: TEST-001.2: inventory carries exactly eight loop entries
+ok: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is registered in some entry's driver_scripts
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-a maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair spec:spec-reviewer-b maps to inventory entry spec-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-a maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair impl:impl-reviewer-b maps to inventory entry impl-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-a maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair task:task-reviewer-b maps to inventory entry task-review
+ok: TEST-001.4: stage:role pair quality:sdd-evaluator maps to inventory entry quality-gate
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-a maps to inventory entry domain-review
+ok: TEST-001.4: stage:role pair domain:domain-reviewer-b maps to inventory entry domain-review
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-task-state.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+ok: TEST-001.5: cross_gates path exists: plugins/sdd-implementation/scripts/select-agent-model.sh
+ok: TEST-001.6 (negative self-check): removing a registered entry turns registration validation red
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+ok: TEST-002.1: spec-review cap value greps to its driver source's limit
+ok: TEST-002.1: domain-review cap value greps to its driver source's limit
+ok: TEST-002.1: quality-gate cap value greps to its driver source's limit
+ok: TEST-002.2: terminal-tier is cap_kind:state and excluded from the numeric grep
+ok: TEST-002.3: exactly one cap_kind:state entry exists in the inventory
+ok: TEST-002.4 (negative self-check): a mutated cap value turns the drift lock red
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+ok: TEST-003.1: impl-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: task-review carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: wfi-audit carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.1: hitl-diagnosis carries no cap_kind field (skill-instruction is exempt from the numeric grep)
+ok: TEST-003.2: wfi-audit carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.2: hitl-diagnosis carries cap_source:skill-instruction and driver_scripts: []
+ok: TEST-003.3: every fixture_profiles value is greenfield or brownfield
+ok: TEST-003.4: every entry declares a non-empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+ok: TEST-004.3: missing registration is rejected
+ok: TEST-004.3: near-match registration is rejected
+ok: TEST-004.3: case registration is rejected
+ok: TEST-004.3: failed-list registration is rejected
+ok: TEST-004.1: loop-inventory.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-inventory.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-driver.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-driver.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-consistency.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-consistency.tests.ps1 is registered in run-all.ps1 and test.yml
+ok: TEST-004.1: loop-escalation.tests.sh is registered in run-all.sh and test.yml
+ok: TEST-004.2: loop-escalation.tests.ps1 is registered in run-all.ps1 and test.yml
+=== TEST-008: quality-gate capability applicability ===
+ok: TEST-008.1: a pre-epic-195 copy without capability_applicability remains base-valid
+ok: TEST-008.2: only quality-gate carries the exact three-state applicability mapping
+ok: TEST-008.3 (negative self-check): an incorrect applicability value is rejected
+=== TEST-009: event trace API + legacy helper non-regression ===
+ok: TEST-009.1: Test-ArtifactsSchema remains byte-identical
+ok: TEST-009.2: Test-LoopTerminal remains byte-identical
+ok: TEST-009.3 (negative self-check): a deliberately changed legacy function is rejected
+ok: TEST-009.4: Write-LoopTraceEvent is available
+ok: TEST-009.4: Test-CapabilityApplicability is available
+ok: TEST-009.4: Test-EventTrace is available
+ok: TEST-009.5: Initialize-LoopFixture resets the trace and sequence per fixture
+ok: TEST-009.6: capability applicability compares exactly and emits one canonical event
+ok: TEST-009.7: an unknown fixture state is rejected
+ok: TEST-009.7: applicability comparison is case-sensitive
+ok: TEST-009.8: the collector assigns one trace-wide monotonic sequence
+ok: TEST-009.9: invalid event JSON is rejected without consuming sequence state
+ok: TEST-009.10: comparator normalizes values, matches the golden trace, and is pure
+ok: TEST-009.11: kind mismatch is rejected
+ok: TEST-009.11: producer mismatch is rejected
+ok: TEST-009.11: value mismatch is rejected
+ok: TEST-009.11: count mismatch is rejected
+ok: TEST-009.12: Test-EventTrace is a pure reader and never calls the appender
+ok: TEST-009.13: path canonicalization is case-sensitive
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.ps1: 75 passed, 0 failed, 4s elapsed
+PASSED: tests/loop-inventory.tests.ps1
+==> tests/release-loop-gate.tests.ps1
+=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ===
+ok: TEST-007 (AC-007): a loop-gate: job slice was found in release.yml
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-consistency.tests.sh
+ok: TEST-007 (AC-007): loop-gate job slice invokes tests/loop-inventory.tests.sh
+=== TEST-008 (AC-008): release job needs: loop-gate + no escape hatch ===
+ok: TEST-008 (AC-008): release job slice carries a needs: loop-gate entry
+ok: TEST-008 (AC-008): loop-gate job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+ok: TEST-008 (AC-008): release job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+=== TEST-009 (AC-009): negative-branch canary (needs: stripped) ===
+ok: TEST-009 (AC-009): the needs:-stripped fixture copy is reported non-compliant, proving TEST-008's assertion is not vacuously true
+=== TEST-010 (AC-010): ubuntu-latest only + self-registration ===
+ok: TEST-010 (AC-010): loop-gate job slice declares runs-on: ubuntu-latest
+ok: TEST-010 (AC-010): loop-gate job slice carries no strategy:/matrix: key (single-OS, matching release.yml's existing scope)
+ok: TEST-010 (AC-010): release-loop-gate.tests.ps1 is registered in tests/run-all.ps1 and .github/workflows/test.yml
+
+release-loop-gate.tests.ps1: 10 passed, 0 failed
+PASSED: tests/release-loop-gate.tests.ps1
+==> tests/facet-manifest-semantics.tests.ps1
+ok: TEST-028: schema-invalid.json invalid as expected (contains 'facet-manifest: schema-invalid:')
+ok: TEST-028: resolved-gate-id-duplicate.json invalid as expected (contains 'facet-manifest: resolved-gate-id-duplicate:')
+ok: TEST-028: facet-classification-conflict.json invalid as expected (contains 'facet-manifest: facet-classification-conflict:')
+ok: TEST-028: conditional-facet-duplicate.json invalid as expected (contains 'facet-manifest: conditional-facet-duplicate:')
+ok: TEST-028: affected-components-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted:')
+ok: TEST-028 negative proof: fully-clean.json valid (exit 0, no diagnostics)
+ok: AC-047: conditional-facet-duplicate.json invalid as expected (contains 'duplicate conditional_facets facet')
+ok: array-not-stable-sorted: required-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /required_facets:')
+ok: array-not-stable-sorted: capabilities-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /capabilities:')
+ok: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:')
+ok: array-not-stable-sorted: conditional-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /conditional_facets:')
+ok: array-not-stable-sorted: resolved-gates-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /resolved_gates:')
+ok: determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly
+ok: determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order
+ok: self-registration: tests/run-all.ps1 lists this suite
+
+facet-manifest-semantics: 15 passed, 0 failed
+PASSED: tests/facet-manifest-semantics.tests.ps1
+==> tests/design-system-contract.tests.ps1
+ok: DS-001 contract schema envelope
+ok: DS-002 tokens template conforms
+ok: DS-003 design-system template sections
+ok: DS-004 ui-patterns template sections
+ok: DS-005 PLUGIN-CONTRACTS section
+ok: DS-006 design-sync-loop v2
+ok: DS-007 investigate-codebase design inventory
+ok: DS-008/DS-009 design templates
+ok: DS-010 reviewer-a conformance check
+ok: DS-011 reviewer-b UI library rule
+ok: DS-012 implementation policy UI rules
+ok: DS-013 visual-verify-loop design-system comparison
+ok: DS-014 design-system checklist wiring
+ok: DS-015 WCAG 2.2 AA
+ok: DS-016 contract and matrix wiring
+ok: DS-017 documentation
+ok: design-system contract tests passed
+PASS: TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)
+PASS: TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)
+PASS: TEST-003 a different scope does not inherit the consent (AC-001 branch 3)
+PASS: TEST-004 scope names exactly one unit, no disjunction between units (AC-002)
+PASS: TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)
+PASS: TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)
+PASS: TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)
+PASS: TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)
+PASS: TEST-009 finalize_plan payload is cited or its opacity is stated as a limitation (AC-005)
+PASS: TEST-010 Loop order: generate -> consent -> push -> claude.ai review (AC-006, ordered structure)
+PASS: TEST-011 local review carries an optionality marker (AC-007)
+PASS: TEST-012 local review is explicitly stated not to be a precondition for push (AC-007)
+PASS: TEST-013 the demotion's consequence is stated where the demotion is described (AC-008)
+PASS: TEST-014 regeneration cycle returns to generation (2), not consent (3) (AC-009, ordered structure)
+PASS: TEST-015 Design-Source record fields are enumerated by name, not a heading check (AC-010)
+PASS: TEST-016 full-profile record destination is specs/<feature>/ux-spec.md (AC-011)
+PASS: TEST-017 lite-profile record destination is specs/<feature>/design.md, staged draft (AC-011)
+PASS: TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)
+PASS: TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)
+PASS: TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)
+PASS: TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)
+PASS: TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)
+PASS: TEST-023 non-blocking condition 2: absence of design tools never blocks review (AC-015)
+PASS: TEST-024 ds_profile: none keeps no artifacts / no further questions; no consent leak (AC-016)
+PASS: TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)
+PASS: TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)
+PASS: TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)
+PASS: TEST-028 consent-resolution outcome 1: must be requested (AC-019)
+PASS: TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)
+PASS: TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)
+PASS: TEST-031 Design-Source shape is stated as additively extensible (AC-020)
+PASS: TEST-032 this feature's behaviour is the one a later per-feature setting selects (AC-020)
+PASS: TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)
+PASS: TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)
+PASS: TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)
+PASS: TEST-036 site 4 (workflow-guide.md, Japanese) states the per-feature/session model (AC-021)
+PASS: TEST-037 CHANGELOG.md historical release note is byte-identical to pre-change content (AC-022)
+PASS: TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)
+PASS: TEST-039 this feature's assertions are reachable from a CI entry point (AC-024)
+PASS: TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent
+PASS: TEST-041 a decline blocks that upload -- no upload occurs (AC-026)
+PASS: TEST-042 the next upload attempt within the same scope prompts again (AC-026)
+PASS: TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)
+PASS: TEST-044 the consent names the destination project as part of its coverage (AC-027)
+PASS: TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)
+PASS: TEST-046 a mid-session withdrawal path is stated (AC-028)
+PASS: TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)
+PASS: TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)
+PASS: TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)
+PASS: TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)
+PASS: TEST-051 push-failure rule, all four parts (AC-030)
+PASS: 51
+FAIL: 0
+PASSED: tests/design-system-contract.tests.ps1
+==> tests/project-context-schema.tests.ps1
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 44
+FAIL: 0
+PASSED: tests/project-context-schema.tests.ps1
+==> tests/a9-dogfood.tests.ps1
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 397.091s
+
+OK
+............................
+----------------------------------------------------------------------
+Ran 28 tests in 117.977s
+
+OK
+s.................................
+----------------------------------------------------------------------
+Ran 34 tests in 63.443s
+
+OK (skipped=1)
+....................................
+----------------------------------------------------------------------
+Ran 36 tests in 116.656s
+
+OK
+PASSED: tests/a9-dogfood.tests.ps1
+==> tests/approver-registry-schema.tests.ps1
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+PASSED: tests/approver-registry-schema.tests.ps1
+==> tests/hook-guard-epic-a1-boundary.tests.ps1
+PASS: PRE-live-inventory: sdd/project-context.approval.json is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/provider-bindings.approval.json is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/approver-registry.yaml is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/.hook-canary-sentinel is registered in the LIVE generated inventory
+PASS: PRE-stripped-fixture: sdd/project-context.approval.json removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/provider-bindings.approval.json removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/approver-registry.yaml removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/.hook-canary-sentinel removed from the stripped fixture inventory
+PASS: PRE-sudo-active: fixture SDD_SUDO token is ACTIVE (approval-increase allowed)
+PASS: PRE-sudo-inactive: no-token fixture leaves the approval guard enforcing (deny)
+
+--- AC-023 matrix: live post-application inventory ---
+PASS: AC-023 [sdd/project-context.approval.json | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 exhaustiveness: all 96 matrix cells executed
+
+--- BASE-* pristine copy (must still deny) / MUT-* stripped copy (must allow) ---
+PASS: BASE [sdd/project-context.approval.json | surface 01] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 02] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 03] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 04] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 05] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 06] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 07] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 08] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 09] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 10] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 11] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 12] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 01] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 02] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 03] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 04] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 05] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 06] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 07] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 08] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 09] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 10] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 11] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 12] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 01] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 02] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 03] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 04] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 05] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 06] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 07] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 08] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 09] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 10] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 11] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 12] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 01] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 02] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 03] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 04] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 05] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 06] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 07] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 08] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 09] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 10] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 11] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 12] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE/MUT exhaustiveness: 48 pristine + 48 mutated cells executed
+
+--- WIN05-* native-Windows absolute target (STAGED candidate) ---
+PASS: WIN05-staged-present: staged candidate exists
+PASS: WIN05-strip-fixture: staged inventory copy stripped of the four entries
+PASS: WIN05 [sdd/project-context.approval.json] staged guard denies a native-Windows absolute write target
+PASS: WIN05-sudo [sdd/project-context.approval.json] staged guard denies it under an ACTIVE sudo token too
+PASS: WIN05-MUT [sdd/project-context.approval.json] de-registered basename is allowed (assertion has detection power)
+PASS: WIN05 [sdd/provider-bindings.approval.json] staged guard denies a native-Windows absolute write target
+PASS: WIN05-sudo [sdd/provider-bindings.approval.json] staged guard denies it under an ACTIVE sudo token too
+PASS: WIN05-MUT [sdd/provider-bindings.approval.json] de-registered basename is allowed (assertion has detection power)
+PASS: WIN05 [sdd/approver-registry.yaml] staged guard denies a native-Windows absolute write target
+PASS: WIN05-sudo [sdd/approver-registry.yaml] staged guard denies it under an ACTIVE sudo token too
+PASS: WIN05-MUT [sdd/approver-registry.yaml] de-registered basename is allowed (assertion has detection power)
+PASS: WIN05 [sdd/.hook-canary-sentinel] staged guard denies a native-Windows absolute write target
+PASS: WIN05-sudo [sdd/.hook-canary-sentinel] staged guard denies it under an ACTIVE sudo token too
+PASS: WIN05-MUT [sdd/.hook-canary-sentinel] de-registered basename is allowed (assertion has detection power)
+PASS: WIN05-control-posix: staged guard still denies the platform-absolute equivalent
+PASS: WIN05-control-read: read-only access to a Windows-style protected path stays ALLOWED (issue #62)
+PASS: WIN05-control-unprotected: an unregistered Windows-style path stays ALLOWED (deny is suffix-specific, not backslash-specific)
+
+--- self-registration ---
+PASS: self-registration: POSIX twin exists
+PASS: self-registration: registered in tests/run-all.sh
+PASS: self-registration: registered in tests/run-all.ps1
+
+PASS: 224
+FAIL: 0
+PASSED: tests/hook-guard-epic-a1-boundary.tests.ps1
+==> tests/resolve-project-context-cli.tests.ps1
+# runner: pwsh
+PASS: missing-config: omitting --config is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-config: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-config: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-target-rev: omitting --target-rev is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-target-rev: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-target-rev: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-feature: omitting --feature is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-feature: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-feature: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: source-rev-default: reaches step 5 (Registry deliberately absent -> contract-discovery-failed), proving steps 0-4 (including argument validation) all passed with --source-rev omitted (AC-001 sanity)
+PASS: source-rev-default: resolve-component-paths received --source-rev HEAD verbatim -- the CLI's own fixed default value, never a caller-resolved sha (AC-001)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 13 passed, 0 failed
+PASSED: tests/resolve-project-context-cli.tests.ps1
+==> tests/resolve-project-context-metamorphic.tests.ps1
+# runner: pwsh
+PASS: combination-matrix-tt: clean run (exit 0)
+PASS: combination-matrix-tt: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-tt: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=True) (AC-045(a))
+PASS: combination-matrix-tt: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tt: Resolver Evidence schema agreement
+PASS: combination-matrix-tf: clean run (exit 0)
+PASS: combination-matrix-tf: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-tf: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=False) (AC-045(a))
+PASS: combination-matrix-tf: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tf: Resolver Evidence schema agreement
+PASS: combination-matrix-ft: clean run (exit 0)
+PASS: combination-matrix-ft: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-ft: matched == True exactly per the union-match rule (comp-a pii=False, comp-b pii=True) (AC-045(a))
+PASS: combination-matrix-ft: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ft: Resolver Evidence schema agreement
+PASS: combination-matrix-ff: clean run (exit 0)
+PASS: combination-matrix-ff: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-ff: matched == False exactly per the union-match rule (comp-a pii=False, comp-b pii=False) (AC-045(a))
+PASS: combination-matrix-ff: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ff: Resolver Evidence schema agreement
+PASS: order-invariance-a: clean run (exit 0)
+PASS: order-invariance-b: clean run (exit 0)
+PASS: order-invariance: fixture sanity -- Resolver Evidence bytes are genuinely non-empty (so the byte-identity checks below are not vacuously true on two empty strings)
+PASS: order-invariance: stdout byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: stderr byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: evidence byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: manifest byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: order-invariance: projection byte-identical regardless of affected_components[] input order ([comp-a, comp-b] vs. [comp-b, comp-a], same set) (AC-045(b), REQ-005)
+PASS: multi-true-dedup: clean run (exit 0)
+PASS: multi-true-dedup: cap-union recorded exactly once in capability_evaluations[] despite more than one component's own evaluation being true (comp-a, comp-b), never duplicated (AC-045(c))
+PASS: multi-true-dedup: fixture sanity -- more than one component's own evaluation is genuinely true (2)
+PASS: multi-true-dedup: Facet Manifest capabilities[] names cap-union exactly once too
+PASS: multi-true-dedup: Resolver Evidence schema agreement
+PASS: reason-template: clean run (exit 0)
+PASS: reason-template: Resolver Evidence's own per-Capability conditional_facet_evaluations[] entry is applied: false with no reason key at this level (reason is the aggregated Facet Manifest's own field, asserted verbatim below, AC-045(d))
+PASS: reason-template: Facet Manifest's own conditional_facets[] applied: false entry carries `reason` VERBATIM against the exact template this feature's design fixes (AC-045(d))
+PASS: reason-template: Resolver Evidence schema agreement
+PASS: warn-matched-trigger: exit 1 (Block)
+PASS: warn-matched-trigger: canonical diagnostic only
+PASS: warn-matched-trigger: fixture sanity -- comp-a genuinely matches, comp-b genuinely WARNs (missing-path)
+PASS: warn-matched-trigger: exact published Resolver Evidence (matched-capability-trigger-WARN, B2)
+PASS: warn-matched-trigger: Resolver Evidence schema agreement
+PASS: warn-matched-trigger: no live facet-manifest/capability-summary/projection written on Block
+PASS: warn-unmatched-trigger: exit 1 (Block)
+PASS: warn-unmatched-trigger: canonical diagnostic only
+PASS: warn-unmatched-trigger: fixture sanity -- comp-a's own sole trigger evaluation genuinely WARNs (missing-path) and the Capability ends up unmatched
+PASS: warn-unmatched-trigger: exact published Resolver Evidence (unmatched-capability-trigger-WARN, B2)
+PASS: warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: warn-unmatched-trigger: no live facet-manifest/capability-summary/projection written on Block
+PASS: warn-conditional-facet: exit 1 (Block)
+PASS: warn-conditional-facet: canonical diagnostic only
+PASS: warn-conditional-facet: fixture sanity -- the trigger evaluation is a clean match (no WARN); the conditional facet's own `when` evaluation against the SAME component genuinely WARNs (missing-path)
+PASS: warn-conditional-facet: exact published Resolver Evidence (matched-capability-conditional-facet-WARN, B2)
+PASS: warn-conditional-facet: Resolver Evidence schema agreement
+PASS: warn-conditional-facet: no live facet-manifest/capability-summary/projection written on Block
+PASS: nested-array-completeness (clean, every level (a complete, non-corrupted fixture passes)): exit 0 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (clean): emits exactly [] and nothing else
+PASS: nested-array-completeness (clean): every diagnostic line well-formed
+PASS: nested-array-completeness (capability-set-mismatch, capability_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (capability-set-mismatch): emits exactly ['capability-set-mismatch'] and nothing else
+PASS: nested-array-completeness (capability-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch, trigger_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch): emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: nested-array-completeness (trigger-evaluation-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (conditional-facet-set-mismatch, conditional_facet_evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (conditional-facet-set-mismatch): emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: nested-array-completeness (conditional-facet-set-mismatch): every diagnostic line well-formed
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch, evaluations[]): exit 1 via validate-resolver-evidence's own exact-set checks (AC-045(f))
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch): emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: nested-array-completeness (conditional-facet-evaluation-set-mismatch): every diagnostic line well-formed
+PASS: dependency-order-spy: clean run reaches exit 0 (no Block anywhere on the happy path)
+PASS: dependency-order-spy: this invocation's own first seven subprocess launches are exactly canonicalize-sdd-yaml (Project Context pass) -> canonicalize-sdd-yaml (Context Projection pass) -> resolve-component-paths -> validate-capability-registry (this invocation's own step-5 subprocess-observable event -- step 5's own discovery half is an in-process sibling-module import, never a subprocess; design.md item 9(g)'s own "Registry discovery" label names this position, see this driver's own module docstring) -> generate-registry-digest -> evaluate-predicate (trigger fan-out) -> evaluate-predicate (conditional-facet fan-out) (design.md Test Strategy item 9(g))
+PASS: dependency-order-spy-position-1: forced failure at position 1 Blocks (exit 1)
+PASS: dependency-order-spy-position-1: Blocks with position 1's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-1: detail names the correct sub-phase ('project context')
+PASS: dependency-order-spy-position-1: exactly 1 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-1: no partial live artifact
+PASS: dependency-order-spy-position-2: forced failure at position 2 Blocks (exit 1)
+PASS: dependency-order-spy-position-2: Blocks with position 2's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-2: detail names the correct sub-phase ('context projection')
+PASS: dependency-order-spy-position-2: exactly 2 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-2: no partial live artifact
+PASS: dependency-order-spy-position-3: forced failure at position 3 Blocks (exit 1)
+PASS: dependency-order-spy-position-3: Blocks with position 3's own correct diagnostic id 'affected-component-resolution-failed'
+PASS: dependency-order-spy-position-3: exactly 3 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-3: no partial live artifact
+PASS: dependency-order-spy-position-4: forced failure at position 4 Blocks (exit 1)
+PASS: dependency-order-spy-position-4: Blocks with position 4's own correct diagnostic id 'registry-validation-failed'
+PASS: dependency-order-spy-position-4: exactly 4 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-4: no partial live artifact
+PASS: dependency-order-spy-position-5: forced failure at position 5 Blocks (exit 1)
+PASS: dependency-order-spy-position-5: Blocks with position 5's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-5: exactly 5 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-5: no partial live artifact
+PASS: dependency-order-spy-position-6: forced failure at position 6 Blocks (exit 1)
+PASS: dependency-order-spy-position-6: Blocks with position 6's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-6: exactly 6 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-6: no partial live artifact
+PASS: dependency-order-spy-position-7: forced failure at position 7 Blocks (exit 1)
+PASS: dependency-order-spy-position-7: Blocks with position 7's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-7: exactly 7 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-7: no partial live artifact
+PASS: feature-wide completeness: resolve-project-context-cli sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-cli registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-cli registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-block sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-block registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-block registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-match sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-match registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-match registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-lite sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-lite registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-lite registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-parity sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-parity registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-parity registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-discovery sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-discovery registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-discovery registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolver-evidence-schema sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolver-evidence-schema registered in tests/run-all.sh
+PASS: feature-wide completeness: resolver-evidence-schema registered in tests/run-all.ps1
+PASS: feature-wide completeness: validate-resolver-evidence sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: validate-resolver-evidence registered in tests/run-all.sh
+PASS: feature-wide completeness: validate-resolver-evidence registered in tests/run-all.ps1
+PASS: feature-wide completeness: resolve-project-context-metamorphic sh/ps1 launcher pair exists (nine of ten suites T-001..T-010 build, AC-026)
+PASS: feature-wide completeness: resolve-project-context-metamorphic registered in tests/run-all.sh
+PASS: feature-wide completeness: resolve-project-context-metamorphic registered in tests/run-all.ps1
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (a) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (b) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (c) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-matched-nondetermining
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unmatched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (d) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (e) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-block
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (f) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (g) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/combination-matrix
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/order-invariance
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/multi-true-dedup
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/reason-template
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet
+PASS: feature-wide completeness: REQ-006 fixture-matrix item (h) anchor fixture present under tests/fixtures/capability-resolver/: tests/fixtures/capability-resolver/metamorphic/dependency-order-spy
+PASS: feature-wide completeness: REQ-006 item (e)'s own governing schema enum is closed at sixteen distinct diagnostic-id rows
+PASS: feature-wide completeness: REQ-006 item (e)'s own 16-row diagnostic-id matrix has at least that many independently-invocable fixtures present under resolve-project-context-block/ (the exact id-to-fixture mapping is that suite's own already-passing `run_block_matrix_completeness_check` lock, cited by name in this task's own report)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 150 passed, 0 failed
+PASSED: tests/resolve-project-context-metamorphic.tests.ps1
+==> tests/structural-compatibility.tests.ps1
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure with its process exit captured
+PASS: frontmatter rejects unterminated flow sequence without partial output
+PASS: frontmatter rejects unterminated flow mapping without partial output
+PASS: frontmatter rejects unterminated quoted scalar without partial output
+PASS: frontmatter rejects duplicate mapping key without partial output
+PASS: frontmatter rejects invalid nested mapping without partial output
+PASS: frontmatter rejects unknown executable tag without partial output
+PASS: frontmatter rejects frontmatter sequence root without partial output
+PASS: frontmatter accepts flow sequence
+PASS: frontmatter parses flow sequence into semantic values
+PASS: frontmatter accepts nested mapping
+PASS: frontmatter parses nested mapping into semantic values
+PASS: frontmatter accepts quoted scalar
+PASS: frontmatter parses quoted scalar into semantic values
+PASS: frontmatter rejects cyclic alias without partial output
+PASS: frontmatter rejects non-finite number without partial output
+PASS: frontmatter rejects unsafe integer boundary without partial output
+PASS: frontmatter rejects rounded unsafe integer without partial output
+PASS: frontmatter rejects negative unsafe integer without partial output
+PASS: frontmatter rejects hexadecimal unsafe integer without partial output
+PASS: frontmatter rejects exponent unsafe integer without partial output
+PASS: frontmatter rejects nested unsafe integer without partial output
+PASS: frontmatter rejects unsafe integer mapping key without partial output
+PASS: frontmatter accepts safe integer limit
+PASS: frontmatter parses safe integer limit into semantic values
+PASS: frontmatter accepts negative safe integer limit
+PASS: frontmatter parses negative safe integer limit into semantic values
+PASS: frontmatter accepts quoted large integer
+PASS: frontmatter parses quoted large integer into semantic values
+PASS: frontmatter accepts finite fractional number
+PASS: frontmatter parses finite fractional number into semantic values
+PASS: unrecognized heading grammar is a hard failure with its process exit captured
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+AC-007 active: checking recorded F4 full-track artifacts
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+AC-042 active: checking recorded F3 full-track artifacts
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+AC-043 active: checking F5 Context-present Lite artifacts
+PASS: F5 real Resolver preserves its Context state and human Markdown
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+AC-043 active: checking F6 Context-present Lite artifacts
+PASS: F6 real Resolver preserves its Context state and human Markdown
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+audited 0 allowlisted lines
+PASS: emitted dependency skips remain allowed on origin/main
+PASS: PowerShell aggregate runner registers this shipped suite exactly once
+PASS: registration accepts exact path
+PASS: registration rejects a comment-only reference
+PASS: registration rejects a mis-cased path
+PASS: registration rejects a longer path
+PASS: registration rejects an absent entry
+PASS: registration detects duplicate entries
+PASS: registration rejects failed queries even with a matching path
+132 passed, 0 failed
+PASSED: tests/structural-compatibility.tests.ps1
+==> tests/validate-live-host-proof.tests.ps1
+ok - ERR_MISSING_CELL
+ok - ERR_SCHEMA_INVALID
+ok - ERR_CELL_RUNTIME_MISMATCH
+ok - ERR_FEATURE_CONFIG_MISMATCH
+ok - ERR_NONCE_UNKNOWN
+ok - ERR_NONCE_REUSED
+ok - ERR_NONCE_CELL_MISMATCH
+ok - ERR_NONCE_ISSUED_AFTER_SESSION
+ok - ERR_NONCE_EXPIRED
+ok - ERR_NONCE_DUPLICATE_LEDGER_ENTRY
+ok - ERR_ISSUER_SIGNATURE_INVALID
+ok - ERR_HASH_MISMATCH
+ok - ERR_DIGEST_MISMATCH
+ok - ERR_SIGNATURE_INVALID
+ok - ERR_SIGNER_UNTRUSTED
+ok - ERR_SIGNER_IDENTITY_MISMATCH
+ok - ERR_SIGNER_KEY_COLLISION
+ok - ERR_SYNTHETIC_SUBSTITUTION
+ok - ERR_STALE_SKIP
+ok - missing-reviewer-signature
+ok - role-domain-separation
+ok - malformed-public-key
+ok - unused-signer-malformed-public-key
+ok - manifest-config-path-traversal
+ok - malformed-signature
+ok - automated-without-native-consumers
+ok - fail-verdict-hard-failure
+ok - skip-allowlist-substring-not-citation
+ok - missing-required-field-check
+ok - missing-required-field-cli_name
+ok - missing-required-field-cli_version
+ok - missing-required-field-hook_control_ref
+ok - missing-required-field-hook_control_sha256
+ok - missing-required-field-hooks_state
+ok - missing-required-field-host_event_id
+ok - missing-required-field-host_os
+ok - missing-required-field-host_session_id
+ok - missing-required-field-installed_hook_config_digest
+ok - missing-required-field-installed_hook_config_ref
+ok - missing-required-field-invocation_mode
+ok - missing-required-field-matrix_cell
+ok - missing-required-field-nonce
+ok - missing-required-field-operator
+ok - missing-required-field-operator_key_id
+ok - missing-required-field-operator_signature
+ok - missing-required-field-raw_tool_request_ref
+ok - missing-required-field-raw_tool_request_sha256
+ok - missing-required-field-raw_tool_result_ref
+ok - missing-required-field-raw_tool_result_sha256
+ok - missing-required-field-reviewer
+ok - missing-required-field-reviewer_key_id
+ok - missing-required-field-reviewer_signature
+ok - missing-required-field-runtime
+ok - missing-required-field-schema
+ok - missing-required-field-session_date
+ok - missing-required-field-session_end
+ok - missing-required-field-session_start
+ok - missing-required-field-skip_reason
+ok - missing-required-field-tool_call_evidence
+ok - missing-required-field-verdict
+ok - schema-const
+ok - matrix-cell-enum
+ok - runtime-enum
+ok - check-nonempty
+ok - invocation-mode-enum
+ok - nonce-format
+ok - host-identifiers-nonempty
+ok - canonical-evidence-path
+ok - digest-format
+ok - session-date-format
+ok - session-order
+ok - identity-nonempty
+ok - cli-fields-nonempty
+ok - plugin-hooks-enum
+ok - verdict-enum
+ok - skip-reason-null-on-pass
+ok - notes-type
+ok - non-codex-feature-config-null
+ok - skip-carries-session-evidence
+ok - skip-needs-reason
+ok - all-five-pass-discharged
+ok - valid-premerge-skip-pending
+ok - mixed-pass-skip-pending
+ok - ac006-lifecycle-Draft
+ok - ac006-lifecycle-Planned
+ok - ac006-lifecycle-Blocked
+ok - ac006-lifecycle-In Progress
+ok - ac006-lifecycle-Implementation Complete
+ok - ac006-lifecycle-Done
+ok - ac006-lifecycle-unknown
+ok - missing-activation-path
+ok - consumer-inventory-missing
+ok - consumer-inventory-duplicate
+ok - consumer-source-hash
+ok - consumer-native-session
+ok - consumer-native-event
+ok - consumer-outcome
+ok - consumer-window
+ok - consumer-source-path
+ok - consumer-signed-inventory-tamper
+ok - echo-is-not-helper
+ok - heredoc-is-not-helper
+ok - comment-is-not-helper
+ok - arbitrary-tail-file-not-verifier-stdout
+ok - split-printf-not-verifier-stdout
+ok - fallback-cannot-fabricate-helper-stdout
+ok - printf-cannot-fabricate-helper-stdout
+ok - background-helper-is-not-completed
+ok - pipeline-data-is-not-helper-mode
+ok - mixed-helper-modes-rejected
+ok - conditional-nonexecution-is-not-helper
+ok - conditional-block-is-not-helper
+ok - quoted-data-is-not-helper
+ok - skill-reversed-is-not-full-read
+ok - assistant-prose-is-not-verifier
+ok - native-success-cannot-claim-active
+ok - codex-native-success-cannot-claim-active
+ok - copilot-native-success-cannot-claim-active
+ok - issuer-after-native-dispatch
+ok - primary-cannot-prove-child
+ok - child-parent-task-mismatch
+ok - removed-flag-is-not-current-control
+ok - duplicate-hooks-selectors
+ok - conflicting-hooks-config
+ok - launch-root-mismatch
+ok - launch-start-mismatch
+ok - redirect-prefix-rejected
+ok - redirect-overwrite-rejected
+ok - redirect-comment-rejected
+ok - redirect-exact-native-read-accepted
+ok - automated-native-consumers-discharged
+ok - actual-unavailable-child-is-not-relabeled
+ok - codex-literal-wrapper
+ok - codex-observed-exit-code-tail
+ok - codex-observed-framed-exit-code-tail
+ok - codex-exit-tail-other-variable-rejected
+ok - codex-exit-tail-computed-value-rejected
+ok - codex-exit-tail-extra-prose-rejected
+ok - codex-exit-tail-forged-output-rejected
+ok - codex-wrapper-comment-is-data
+ok - codex-wrapper-string-is-data
+ok - codex-wrapper-conditional-not-executed
+ok - codex-wrapper-function-not-called
+ok - codex-wrapper-does-not-publish-tool-output
+ok - shell-comment-does-not-hide-following-command
+ok - shell-exit-cannot-precede-output-reader
+ok - literal-reader-comment-is-not-path
+ok - exact-reader-following-comment
+ok - atomic-all-or-none
+ok - idempotent-repeat
+ok - lock-contention
+ok - lock-release-failure-is-not-silent
+ok - rfc8032-known-answer-and-strict-negatives
+ok - TEST-013 semantic-cell-classification
+ok - TEST-014 fallback-classification
+ok - TEST-015 skip-pass-fail-matrix
+ok - TEST-016 fingerprinted-consumer-inventory
+ok - issuer-real-openssl-signature
+ok - issuer-public-receipt-verification
+ok - issuer-duplicate-rejected
+ok - issuer-consumption-validator-compatible
+ok - issuer-real-emit-before-actual-issuance
+ok - issuer-aggregate-consumes-produced-entry
+ok - issuer-reissue-after-aggregate-consumption-rejected
+ok - issuer-wrong-cell-rejected
+ok - issuer-existing-directory-lock-preserved
+ok - issuer-lock-owner-retained-directory
+ok - issuer-existing-file-lock-preserved
+ok - issuer-lock-owner-retained-file
+ok - issuer-receipt-consumed-rejected
+ok - issuer-receipt-signature-tamper-rejected
+ok - issuer-unknown-key-rejected
+ok - issuer-key-mismatch-rejected
+ok - issuer-no-backdating-option
+ok - issuer-receipt-rejects-private-key
+ok - issuer-append-uses-one-snapshot
+ok - issuer-sign-failure-atomic
+ok - issuer-replace-failure-atomic
+ok - issuer-fsync-failure-atomic
+ok - issuer-expired-receipt-rejected
+ok - issuer-future-receipt-rejected
+ok - issuer-duplicate-json-rejected
+ok - issuer-symbolic-ledger-rejected
+ok - issuer-hard-ledger-rejected
+live-host-proof: 184 passed, 0 failed
+PASSED: tests/validate-live-host-proof.tests.ps1
+==> tests/check-risk-upgrade-byte-identical.tests.ps1
+ok: TEST-007-baseline-hash: frozen baseline sha256 matches the pinned value
+ok: TEST-007-clean: exit code identical (0)
+ok: TEST-007-clean: output byte-identical
+ok: TEST-007-auth: exit code identical (10)
+ok: TEST-007-auth: output byte-identical
+ok: TEST-007-token: exit code identical (10)
+ok: TEST-007-token: output byte-identical
+ok: TEST-007-mcp: exit code identical (10)
+ok: TEST-007-mcp: output byte-identical
+ok: TEST-007-api: exit code identical (10)
+ok: TEST-007-api: output byte-identical
+ok: TEST-007-secret: exit code identical (10)
+ok: TEST-007-secret: output byte-identical
+ok: TEST-007-github-actions: exit code identical (10)
+ok: TEST-007-github-actions: output byte-identical
+ok: TEST-007-unavailable: exit code identical (2)
+ok: TEST-007-unavailable: output byte-identical
+
+Results: 17 passed, 0 failed
+PASSED: tests/check-risk-upgrade-byte-identical.tests.ps1
+==> tests/lite-spec-capability-block.tests.ps1
+=== TEST-019-static: proposed SKILL.md names every required element ===
+ok: TEST-019-static-a: names evaluate-predicate as the signal source
+ok: TEST-019-static-b: names the Project-Context-declared component match
+ok: TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape
+ok: TEST-019-static-d: the checker call site gains the new second argument
+ok: TEST-019-static-e: the .ps1 call site gains its own new parameter
+ok: TEST-019-static-f: disabled-legacy (no Project Context) skip clause present
+ok: TEST-019-static-g: non-overridable -- the "--lite never overrides" clause is present verbatim (AC-019)
+ok: TEST-019-static-g2: that non-override applies to the Capability-derived signal too, not only the keyword scan
+ok: TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented
+ok: TEST-019-static-i: ship-time recheck stays layered, not replaced
+ok: TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching
+ok: TEST-019-static-p: the gate states it runs before any specs/<feature>/ file is created (AC-019)
+ok: TEST-019-static-q: the Risk-Upgrade Gate section (line 139) precedes the specs/<feature>/ generation step (line 211)
+ok: TEST-019-static-k: names evaluate-predicate absence/non-zero exit as a producer failure mode
+ok: TEST-019-static-l: names an unreadable/unparseable Registry as a producer failure mode
+ok: TEST-019-static-m: names a temp-fragment write failure as a producer failure mode
+ok: TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs
+ok: TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted
+ok: TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins
+=== TEST-019-functional: assembled Capability-derived fragment Blocks ===
+ok: TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the sh twin's registry.json)
+ok: TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit 10, 'full-required: ...') -- the comparison target AC-019 names actually exists
+ok: TEST-019-functional-a: Blocks with the IDENTICAL exit code the keyword-match fixture just produced (10)
+ok: TEST-019-functional-b: message shape is the IDENTICAL 'full-required: ...' shape the keyword-match fixture just produced
+ok: TEST-019-functional-c: matched Capability upgrade_reasons token present in the Block message
+=== TEST-019-defense-in-depth: ship-time recheck independently Blocks a component intake did not flag ===
+ok: TEST-019-defense-in-depth-a: proposed SKILL.md documents the intake-time --capability-reasons contract this fixture drives
+ok: TEST-019-defense-in-depth-b: intake-time evaluation does not flag the eligible:true component (exit 0, lite-eligible)
+ok: TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake did not flag this component
+ok: TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time
+=== TEST-021 (AC-021): single-file, human-copy-only lock ===
+ok: TEST-021a: REQ-005 stages exactly one file under sdd-lite/skills/, and it is plugins/sdd-lite/skills/lite-spec/SKILL.md
+ok: TEST-021b: exactly one MANIFEST.sha256 entry names plugins/sdd-lite/skills/lite-spec/SKILL.md, and its digest matches the staged bytes
+ok: TEST-021c: the only application path staged is the shared apply-protected-files.ps1 -- no REQ-005-specific applier was introduced
+
+Results: 31 passed, 0 failed
+PASSED: tests/lite-spec-capability-block.tests.ps1
+==> tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+=== TEST-030a: active capability_enforcement, no Summary at all -> VERDICT: FAIL ===
+ok: TEST-030a: required enforcement + absent Summary is VERDICT: FAIL
+ok: TEST-030a: reason names active capability_enforcement specifically
+=== TEST-030b: advisory enforcement, no Summary at all -> also VERDICT: FAIL ===
+ok: TEST-030b: advisory enforcement + absent Summary is also VERDICT: FAIL
+=== TEST-030c: disabled-legacy (distinct case) is NOT a failure ===
+ok: TEST-030c: disabled-legacy is legitimate, VERDICT: PASS -- distinct from TEST-030a/b
+=== TEST-030d: present-but-empty Summary is a pass-through ===
+ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
+=== TEST-030e: SKILL.md text -- missing-Summary-under-active-enforcement stays VERDICT: FAIL ===
+ok: TEST-030e: SKILL.md's own missing-Summary branch still reads VERDICT: FAIL
+
+Results: 6 passed, 0 failed
+PASSED: tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+==> tests/generate-registry-digest.tests.ps1
+ok: TEST-023: implementation delegates canonicalization and contains no inline JCS/YAML parser
+ok: TEST-024(1): capability order and duplicates do not change the digest
+ok: TEST-024(2): capability selection includes transitive gates and stable-sorts both arrays
+ok: TEST-024(9): three-capability selection (author-unsorted CSV input) matches a fixed, independently-reconstructed sorted golden digest
+ok: TEST-024(3): direct gate selection is independent of capability references
+ok: TEST-024(4): both selector flags produce the deduped union
+ok: TEST-024(5): unknown capability is a hard unknown-fragment-id failure
+ok: TEST-024(6): unknown direct gate is a hard unknown-fragment-id failure
+ok: TEST-024(7): missing selector is a hard fragment-selector-required failure
+ok: TEST-024(8): --whole is content-sensitive
+ok: TEST-024(10): --whole preserves the Registry's author order (unsorted, unlike fragment selection)
+ok: TEST-032(1): JCS key-order and numeric-format vectors are digest-identical
+ok: TEST-032(2): NFC composed/decomposed Registries are digest-identical
+ok: TEST-032(3): stable ordering ignores gate order and duplication
+ok: wrapper parity: sh/ps1/js emit byte-identical digests
+ok: run-all.ps1 registers this suite between T-004 and T-006
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=17 fail=0 ----
+generate-registry-digest suite passed (17 checks)
+PASSED: tests/generate-registry-digest.tests.ps1
+==> tests/capability-registry-parity.tests.ps1
+ok: TEST-031(1): evaluate-predicate .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(2): validate-capability-registry .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(3): generate-registry-digest .sh/.ps1/.js stdout is byte-identical
+ok: TEST-031(4): the parity digest matches an independently reconstructed canonicalization of the same fixture Registry
+ok: TEST-031(5): generate-gate-capabilities .sh/.ps1 stdout is byte-identical
+ok: TEST-031(6): generate-gate-capabilities .sh/.ps1 write byte-identical projections matching the committed golden
+ok: TEST-033(1): evaluate-predicate yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(2): validate-capability-registry yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(3): generate-registry-digest yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(4): generate-gate-capabilities yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(5): generate-gate-capabilities writes an identical projection in all three installed-plugin contexts
+ok: TEST-033(6): generate-gate-capabilities --check exits zero in all three installed-plugin contexts, via both wrappers
+ok: TEST-033(7): no invocation in any of the three contexts fell back or failed closed on artifact discovery
+ok: non-vacuity canary: an injected cross-wrapper divergence is detected (content difference (172 vs 189 bytes))
+ok: self-registration: capability-registry-parity.tests.sh registered in tests/run-all.sh
+ok: self-registration: capability-registry-parity.tests.ps1 registered in tests/run-all.ps1
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate carries every one of this feature's seven suite pairs in task order
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate's sha256 matches its own MANIFEST.sha256.candidate entry
+ok: human-copy/ staged workflow carries every one of this feature's suite pairs in task order (human apply already landed)
+ok: human-copy: staged workflow sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+PASSED: tests/capability-registry-parity.tests.ps1
+==> tests/component-path-resolver.tests.ps1
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: direct child match
+ok: TEST-001.2: nested match crosses /
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does not cross /
+ok: TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)
+ok: TEST-002.4: src/*/file.ts does not match src/a/b/file.ts (bare * segment does not cross /, unlike **)
+ok: TEST-002.5: src/*/file.ts does not match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash pattern normalizes to slash form
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: Src/** matches Src/file.ts
+ok: TEST-005.2: Src/** does not match src/file.ts (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time
+ok: TEST-006.2: '?' pattern rejected fail-closed at load time
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: a/**/b matches literal a/b
+ok: TEST-007.2: a/**/b matches a/x/b
+ok: TEST-007.3: a/**/b does not match unrelated a/c
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a zero-match shared_paths entry does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly
+ok: TEST-010.3: stable ordinal sort over raw UTF-8 path bytes (incl. an NFD/NFC-distinguishing pair)
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: fail-closed non-zero when the artifact is absent
+ok: TEST-011.2: exact schema version/types and canonical components: [] report conformant:true
+ok: TEST-011.2a: wrong project-context schema version is rejected fail-closed
+ok: TEST-011.2b: divergent project-context field types are rejected fail-closed
+ok: TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed
+ok: TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract
+ok: TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json
+ok: TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed
+ok: TEST-011.6: an absent schema artifact still FAILS closed (never a skip)
+ok: TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field
+ok: TEST-011.8: ownership_input preserves canonical component id
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: Fail-5 invariant — exclude wins over include within the same component
+ok: TEST-014.1: UNOWNED record carries EXCLUDED_MATCH evidence
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: no component match classifies UNOWNED
+ok: TEST-015.2: ordinary UNOWNED carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: two-component match classifies OVERLAP
+ok: TEST-016.2: OVERLAP names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: shared_paths precedence applies with zero matching component includes
+ok: TEST-017.2: shared_paths precedence applies with one matching component include
+ok: TEST-017.3: shared_paths precedence applies with two matching component includes
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: both components+classification rejected
+ok: TEST-018.2: neither components nor classification rejected
+ok: TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed
+ok: TEST-018.4: mis-cased Components field is rejected fail-closed
+=== TEST-042: cross-epic inventory conformance (A1 template) ===
+ok: TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)
+=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ===
+ok: TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**
+ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')
+ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
+ok: TEST-042-negative.4: the check correctly rejects a case-divergent classification literal
+ok: TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'
+ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list
+=== TEST-043: no-op proof for the six-entry cross-cutting set ===
+ok: TEST-043.0: the no-op fixture really does declare zero component owners (components: [])
+ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED
+=== TEST-044: day-one cross-epic integration proof (A1 template) ===
+ok: TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change
+=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ===
+ok: COVERAGE-AFFECTED-COMPONENTS: affected_components == [alpha,beta] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture has >=2 overlapping components
+ok: TEST-045.2: base fixture has a nested excluded subtree
+ok: TEST-045.3: base fixture has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1
+ok: TEST-045.5 class lock: no repo-shared file is snapshotted in this bundle (no staged file, no manifest entry)
+ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)
+ok: AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation
+ok: TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key
+=== TEST-056: present-but-malformed -Config fails closed (plain and -Diagnose) ===
+ok: TEST-056.1: present-but-malformed config (malformed-tab.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.2: present-but-malformed config (malformed-tab.yaml, -Diagnose) exits non-zero naming the parse failure
+ok: TEST-056.3: present-but-malformed config (malformed-nonmap.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.4: present-but-malformed config (malformed-nonmap.yaml, -Diagnose) exits non-zero naming the parse failure
+ok: TEST-056.5: present-but-malformed config (malformed-unclosed.yaml, plain) exits non-zero naming the parse failure
+ok: TEST-056.6: present-but-malformed config (malformed-unclosed.yaml, -Diagnose) exits non-zero naming the parse failure
+
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+PASSED: tests/component-path-resolver.tests.ps1
+==> tests/check-component-coverage.tests.ps1
+=== TEST-026/027: applicability derivation, disabled-legacy ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2)
+ok: TEST-028.2: -FacetManifest omitted entirely is also a hard error
+=== TEST-029: -Diagnose never Gate-invoked ===
+ok: TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible'
+ok: TEST-034.1: absent provider-bindings records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: pwsh: capability_enforcement: Required (capital) is NOT matched as required (ordinal, case-sensitive), derives disabled-legacy (matches python)
+=== TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)
+ok: TEST-036.4: T-004's live registrations remain applied; all 12 shared-manifest candidate hashes verify; and all 12 live protected rows are byte-identical or verified additive invariant evolution
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ===
+ok: TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)
+ok: TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the pass is not stuck shut)
+ok: TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in run-all.sh and .ps1
+
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+PASSED: tests/check-component-coverage.tests.ps1
+==> tests/current-byte-capture.tests.py
+............
+----------------------------------------------------------------------
+Ran 12 tests in 19.765s
+
+OK
+PASSED: tests/current-byte-capture.tests.py

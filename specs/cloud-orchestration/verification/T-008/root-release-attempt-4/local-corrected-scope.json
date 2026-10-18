@@ -1,0 +1,14 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "ci_run_id": 39161543135,
+  "local_base": "/workspace/cloud-release-v119-4b",
+  "profiles": [
+    "local-posix",
+    "local-powershell"
+  ],
+  "shards_per_profile": 4,
+  "main_ref": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "launched_at": "2026-10-18T20:22:03.036876+00:00",
+  "status": "RUNNING; same candidate, corrected isolated clone context; previous failed/cancelled local run preserved",
+  "launcher": "specs/cloud-orchestration/verification/T-008/root-release-final/run-isolated-shard.py"
+}

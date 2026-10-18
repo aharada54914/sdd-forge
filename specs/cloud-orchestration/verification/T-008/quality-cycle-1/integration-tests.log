@@ -1,0 +1,9 @@
+azure route exit 0 PASS
+azure prepare exit 2 BLOCKED
+azure apply exit 2 BLOCKED
+azure overwrite/unknown-field/digest negatives: rejected
+aws route exit 0 PASS
+aws prepare exit 2 BLOCKED
+aws apply exit 2 BLOCKED
+aws overwrite/unknown-field/digest negatives: rejected
+PASS: synthetic local examples; no compiler or live acceptance claim

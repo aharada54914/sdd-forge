@@ -1,0 +1,7 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "path": "specs/epic-197-a9-dogfood/candidate/project-context.yaml",
+  "sha256": "57178adcee2d11ccb8660c6127cf395177ee9129cd25a2e19557c1f95f50cd10",
+  "exact_committed_bytes_match_tested_digest": true,
+  "review_boundary": "Raw cross-feature candidate remains excluded. Canonical validator/tests and actual frozen preservation/mutation/rollback evidence are retained under attempt-2."
+}

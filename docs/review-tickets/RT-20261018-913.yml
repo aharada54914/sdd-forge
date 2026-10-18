@@ -1,0 +1,29 @@
+ticket_id: RT-20261018-913
+status: resolved
+type: evaluator-input-admission
+severity: major
+target:
+  feature: cloud-orchestration
+  task: T-008
+summary: Final evaluator could not inspect the required current release report
+problem: >-
+  Actual cycle 1 returned NEEDS_WORK because reports/verification/cloud-orchestration-release.md
+  was absent from the admitted input manifest. The caller excluded all reports paths to
+  preserve reviewer isolation, but this current task deliverable needs explicit admission.
+  No denied content was delivered. AC-014 remains unverified, not disproved.
+expected_fix:
+  - Admit the exact current release report through the canonical gate-report Post-Fix Artifacts channel.
+  - Keep historical evaluator output, input hashes, native receipts and published tag unchanged.
+  - Use a new independent reserved cycle and require actual PASS plus validated evidence bundle.
+approval: Existing user authorization covers necessary review-input correction; no waiver or source change is requested.
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
+evidence: specs/cloud-orchestration/verification/T-008/quality-cycle-1/unreserved-input-recovery-2/review/evaluator.txt
+
+resolution: >-
+  Actual independent cycle2 evaluator 01a15137-1453-7ab1-b492-552d831dc2e2 returned PASS.
+  The current release report was admitted through the canonical Post-Fix channel;
+  unchanged full local and native hosted evidence and actual annotated tag were reviewed.
+  Evidence bundle validation passed. See reports/quality-gate/20261018-cloud-orchestration-T-008-cycle-2.md
+  and specs/cloud-orchestration/verification/T-008.evidence.json.

@@ -1,0 +1,7 @@
+sdd-forge v1.19.0
+
+Azure/AWS orchestration and multi-target integration fixes.
+Exact commit: 2aaac49c528d0dfe28437082d54fb86a32f04a15
+Full CI: https://github.com/aharada54914/sdd-forge/actions/runs/39161543135
+Full local POSIX and PowerShell profiles passed on this commit.
+Live cloud sandbox acceptance remains blocked; no release assets published.

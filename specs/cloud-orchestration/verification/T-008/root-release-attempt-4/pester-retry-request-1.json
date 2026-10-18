@@ -1,0 +1,16 @@
+{
+  "requested_at": "2026-10-18T20:14:44.772552+00:00",
+  "run_id": 39161543135,
+  "job_id": 117775708641,
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "command": [
+    "gh",
+    "run",
+    "rerun",
+    "39161543135",
+    "--job",
+    "117775708641"
+  ],
+  "exit_code": 1,
+  "output": "specify only one of `<run-id>` or `--job`\n\nUsage:  gh run rerun [<run-id>] [flags]\n\nFlags:\n  -d, --debug        Rerun with debug logging\n      --failed       Rerun only failed jobs, including dependencies\n  -j, --job string   Rerun a specific job from a run, including dependencies\n  \n"
+}

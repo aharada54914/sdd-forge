@@ -1,0 +1,251 @@
+{
+  "recorded_at": "2026-10-18T20:21:41.914741+00:00",
+  "remaining": [
+    {
+      "pid": 3528144,
+      "pgid": 3512462,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3528981,
+      "pgid": 3512462,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3611932,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3616910,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[python3] <defunct>"
+    },
+    {
+      "pid": 3624733,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3624857,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3624988,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3625169,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3648896,
+      "pgid": 3512441,
+      "state": "Z",
+      "command": "[find] <defunct>"
+    },
+    {
+      "pid": 3695292,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3711318,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3712566,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3716783,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3722884,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3725777,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3726106,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3726440,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3728210,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3728576,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3728959,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3733818,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3734278,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3739786,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3739796,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[sed] <defunct>"
+    },
+    {
+      "pid": 3772889,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3833110,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[find] <defunct>"
+    },
+    {
+      "pid": 3835393,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3836300,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3851160,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    },
+    {
+      "pid": 3852926,
+      "pgid": 3512444,
+      "state": "Z",
+      "command": "[bash] <defunct>"
+    }
+  ],
+  "partial_logs": [
+    {
+      "path": "/workspace/cloud-release-v119-4/local-powershell-1.log",
+      "sha256": "2da22e2633b5b2b0539011f2ad87836f2c47abebc57b6e6f494ed46f5a2e959b"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-powershell-0.log",
+      "sha256": "2b021a010dec4cc13694b581e16932aaaa82a810e5092141f2c1286066f0161c"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-powershell-3.log",
+      "sha256": "ac4c562001ffa61d170f6bdcb682a99cdce141463d5d3d865af992506f1c10dc"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-posix-0.log",
+      "sha256": "8c793c6fc88fd459de7cfebd78312273a5f3d1ae6c4a85aee6f252dcf175bbd9"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-posix-2.log",
+      "sha256": "b9e83f6f4fd8ff5d376608d8e3ace4cf18e34d6e2a74736e025ee65c8be844cd"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-powershell-2.log",
+      "sha256": "d69d8ac037ab90f2073a2950e55fb723a0dd4d7525ac66a42da29fb2931f03a6"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-posix-1.log",
+      "sha256": "0a4afc3e9f11cf90fb5df59d30d1eb83aefbb03e37f5e15113f652d25ea7fb9e"
+    },
+    {
+      "path": "/workspace/cloud-release-v119-4/local-posix-3.log",
+      "sha256": "89891821069999c3ba987da34ff5156fb44ab3601a2e89dc8a8f509f2910777d"
+    }
+  ],
+  "completed_results": [
+    {
+      "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "profile": "local-posix",
+      "shard_index": 0,
+      "shard_count": 4,
+      "clone": "/workspace/cloud-release-v119-4/local-posix-0",
+      "started_at": "2026-10-18T20:03:44.919568+00:00",
+      "finished_at": "2026-10-18T20:20:57.824784+00:00",
+      "exit_code": 0,
+      "receipt": "/workspace/cloud-release-v119-4/local-posix-0.receipt.json",
+      "log": "/workspace/cloud-release-v119-4/local-posix-0.log",
+      "receipt_sha256": "08f84c93109b417fc0f19f8e32b2c4c33d3693e368e944a0eeaf659eab17bcfa",
+      "source_status": "",
+      "result_file": "/workspace/cloud-release-v119-4/local-posix-0.result.json"
+    },
+    {
+      "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+      "profile": "local-powershell",
+      "shard_index": 3,
+      "shard_count": 4,
+      "clone": "/workspace/cloud-release-v119-4/local-powershell-3",
+      "started_at": "2026-10-18T20:03:47.311988+00:00",
+      "finished_at": "2026-10-18T20:18:34.283978+00:00",
+      "exit_code": 1,
+      "receipt": "/workspace/cloud-release-v119-4/local-powershell-3.receipt.json",
+      "log": "/workspace/cloud-release-v119-4/local-powershell-3.log",
+      "receipt_sha256": "6de4efbebf83f5e0174ca670402b7bbf4ec43935cdedc3d6cfeac39470b533d9",
+      "source_status": "",
+      "result_file": "/workspace/cloud-release-v119-4/local-powershell-3.result.json"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "run_attempt": 2,
+  "job_id": 117785090469,
+  "status": "PASS",
+  "scope": "Actual retry dependency acquisition and subsequent698domain tests; first failure preserved. No root-cause diagnosis inferred.",
+  "evidence": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/pester-retry-success.log",
+  "sha256": "4eade08ee1916fbb4e8d382a7ca6b46c927c6a6847d6bb7bacf19a1ef7975da7",
+  "complete_decoded_log_sha256": "6d8a72086943a14b42c1380846c91de8a7aa5708800cca79f08d4abcc188f1ae",
+  "job_metadata": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/ci-attempt-2-pester-job.json"
+}

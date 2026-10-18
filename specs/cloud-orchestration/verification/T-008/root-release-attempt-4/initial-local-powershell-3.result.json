@@ -1,0 +1,14 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "profile": "local-powershell",
+  "shard_index": 3,
+  "shard_count": 4,
+  "clone": "/workspace/cloud-release-v119-4/local-powershell-3",
+  "started_at": "2026-10-18T20:03:47.311988+00:00",
+  "finished_at": "2026-10-18T20:18:34.283978+00:00",
+  "exit_code": 1,
+  "receipt": "/workspace/cloud-release-v119-4/local-powershell-3.receipt.json",
+  "log": "/workspace/cloud-release-v119-4/local-powershell-3.log",
+  "receipt_sha256": "6de4efbebf83f5e0174ca670402b7bbf4ec43935cdedc3d6cfeac39470b533d9",
+  "source_status": ""
+}

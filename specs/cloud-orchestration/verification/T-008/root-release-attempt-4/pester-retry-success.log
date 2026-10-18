@@ -1,0 +1,10 @@
+2026-10-18T20:52:04.4998861Z ##[group]Run Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
+2026-10-18T20:52:04.4999279Z [36;1mInstall-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck[0m
+2026-10-18T20:52:04.5018813Z shell: /usr/bin/pwsh -command ". '{0}'"
+2026-10-18T20:52:04.5018967Z env:
+2026-10-18T20:52:04.5019080Z   GIT_CONFIG_COUNT: 1
+2026-10-18T20:52:04.5019208Z   GIT_CONFIG_KEY_0: core.longpaths
+2026-10-18T20:52:04.5019349Z   GIT_CONFIG_VALUE_0: true
+2026-10-18T20:52:04.5019475Z ##[endgroup]
+2026-10-18T20:52:12.9679900Z ##[group]Run ./tests/sdd-domain.tests.ps1
+2026-10-18T20:54:06.5006437Z Tests Passed: 698, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 

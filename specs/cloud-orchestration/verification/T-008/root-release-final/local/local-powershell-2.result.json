@@ -1,0 +1,16 @@
+{
+  "main_ref": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "main_ref_after": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "profile": "local-powershell",
+  "shard_index": 2,
+  "shard_count": 4,
+  "clone": "/workspace/cloud-release-v119-4b/local-powershell-2",
+  "started_at": "2026-10-18T20:22:20.431223+00:00",
+  "finished_at": "2026-10-18T20:44:47.120987+00:00",
+  "exit_code": 0,
+  "receipt": "/workspace/cloud-release-v119-4b/local-powershell-2.receipt.json",
+  "log": "/workspace/cloud-release-v119-4b/local-powershell-2.log",
+  "receipt_sha256": "3bcc47bbcbe48fe0aec0a6515c8daf2d7ecf738f457c9029bb7d09bd57b1142e",
+  "source_status": ""
+}

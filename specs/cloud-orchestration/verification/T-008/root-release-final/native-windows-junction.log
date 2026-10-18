@@ -1,0 +1,69 @@
+﻿2026-10-18T20:04:05.6589500Z Current runner version: '2.337.0'
+2026-10-18T20:04:05.6618882Z ##[group]Runner Image Provisioner
+2026-10-18T20:04:05.6619749Z Hosted Compute Agent
+2026-10-18T20:04:05.6620355Z Version: 20261002.596
+2026-10-18T20:04:05.6620963Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-18T20:04:05.6621657Z Build Date: 2026-10-02T22:28:27Z
+2026-10-18T20:04:05.6622337Z Worker ID: {5989d967-7b10-43b4-947b-c5af0d734813}
+2026-10-18T20:04:05.6623046Z Region: westus
+2026-10-18T20:04:05.6623560Z Cloud: Azure
+2026-10-18T20:04:05.6624081Z ##[endgroup]
+2026-10-18T20:04:05.6625612Z ##[group]Operating System
+2026-10-18T20:04:05.6626309Z Microsoft Windows Server 2025
+2026-10-18T20:04:05.6626908Z 10.0.26100
+2026-10-18T20:04:05.6627408Z Datacenter
+2026-10-18T20:04:05.6627931Z ##[endgroup]
+2026-10-18T20:04:05.6628450Z ##[group]Runner Image
+2026-10-18T20:04:05.6629036Z Image: windows-2025-vs2026
+2026-10-18T20:04:05.6629616Z Version: 20261007.264.1
+2026-10-18T20:04:05.6631264Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261007.264/images/windows/Windows2025-VS2026-Readme.md
+2026-10-18T20:04:05.6633355Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261007.264
+2026-10-18T20:04:05.6634371Z ##[endgroup]
+2026-10-18T20:04:05.6635747Z ##[group]GITHUB_TOKEN Permissions
+2026-10-18T20:04:05.6637762Z Contents: read
+[excerpt: selected-plan native step follows]
+2026-10-18T20:09:08.6643391Z ##[group]Run python -B tests/sdd-domain-multitarget-T-003.tests.py
+2026-10-18T20:09:08.6644076Z [36;1mpython -B tests/sdd-domain-multitarget-T-003.tests.py[0m
+2026-10-18T20:09:08.6717578Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-18T20:09:08.6718206Z env:
+2026-10-18T20:09:08.6718454Z   GIT_CONFIG_COUNT: 1
+2026-10-18T20:09:08.6718746Z   GIT_CONFIG_KEY_0: core.longpaths
+2026-10-18T20:09:08.6719713Z   GIT_CONFIG_VALUE_0: true
+2026-10-18T20:09:08.6720010Z ##[endgroup]
+2026-10-18T20:09:39.8626100Z test_resolver_output_reaches_selected_plan_for_all_targets (__main__.ResolverCliIntegrationTests.test_resolver_output_reaches_selected_plan_for_all_targets) ... ok
+2026-10-18T20:09:41.8604734Z test_003a_cli_contract_package_security_without_ui_or_deployment (__main__.SelectedPlanTests.test_003a_cli_contract_package_security_without_ui_or_deployment) ... ok
+2026-10-18T20:09:44.3186062Z test_003b_ui_flows_states_api_data_security_without_remote_service (__main__.SelectedPlanTests.test_003b_ui_flows_states_api_data_security_without_remote_service) ... ok
+2026-10-18T20:09:47.5977460Z test_003c_design_selection_retains_medium_spec_required_checks (__main__.SelectedPlanTests.test_003c_design_selection_retains_medium_spec_required_checks) ... ok
+2026-10-18T20:09:50.1945286Z test_003c_only_explicit_compile_waiver_with_reason_is_allowed (__main__.SelectedPlanTests.test_003c_only_explicit_compile_waiver_with_reason_is_allowed) ... ok
+2026-10-18T20:09:52.4593332Z test_003d_iac_validate_plan_policy_never_claim_apply (__main__.SelectedPlanTests.test_003d_iac_validate_plan_policy_never_claim_apply) ... ok
+2026-10-18T20:09:55.1330233Z test_003e_low_code_data_permissions_process_package_without_universal_build (__main__.SelectedPlanTests.test_003e_low_code_data_permissions_process_package_without_universal_build) ... ok
+2026-10-18T20:09:57.5210929Z test_c3_lite_full_promotion_uses_summary_runner (__main__.SelectedPlanTests.test_c3_lite_full_promotion_uses_summary_runner) ... ok
+2026-10-18T20:09:57.9920067Z test_design_selection_is_not_gate_success (__main__.SelectedPlanTests.test_design_selection_is_not_gate_success) ... ok
+2026-10-18T20:09:58.3742090Z test_duplicate_gate (__main__.SelectedPlanTests.test_duplicate_gate) ... ok
+2026-10-18T20:09:58.8496926Z test_evidence_escape (__main__.SelectedPlanTests.test_evidence_escape) ... ok
+2026-10-18T20:09:59.3332067Z test_implementation_only_keeps_foundation_stages (__main__.SelectedPlanTests.test_implementation_only_keeps_foundation_stages) ... ok
+2026-10-18T20:09:59.6366680Z test_legacy_fixture_control (__main__.SelectedPlanTests.test_legacy_fixture_control) ... ok
+2026-10-18T20:10:00.1347620Z test_legacy_required_not_removed (__main__.SelectedPlanTests.test_legacy_required_not_removed) ... ok
+2026-10-18T20:10:00.5911940Z test_manifest_cannot_drop_selected_registry_gate (__main__.SelectedPlanTests.test_manifest_cannot_drop_selected_registry_gate) ... ok
+2026-10-18T20:10:01.6462105Z test_nonimplementation_observation_cannot_be_relabelled (__main__.SelectedPlanTests.test_nonimplementation_observation_cannot_be_relabelled) ... ok
+2026-10-18T20:10:05.4553966Z test_optional_unselected_na_and_selected_not_run (__main__.SelectedPlanTests.test_optional_unselected_na_and_selected_not_run) ... ok
+2026-10-18T20:10:05.9321068Z test_output_identity_and_bindings (__main__.SelectedPlanTests.test_output_identity_and_bindings) ... ok
+2026-10-18T20:10:09.7133682Z test_output_paths_cannot_modify_other_files (__main__.SelectedPlanTests.test_output_paths_cannot_modify_other_files) ... ok
+2026-10-18T20:10:13.4909891Z test_packaged_schema_identity_is_required (__main__.SelectedPlanTests.test_packaged_schema_identity_is_required) ... ok
+2026-10-18T20:10:14.3824918Z test_persisted_field_mismatches_rejected (__main__.SelectedPlanTests.test_persisted_field_mismatches_rejected) ... ok
+2026-10-18T20:10:14.9232427Z test_quality_gate_and_both_runners_invoke_evaluator (__main__.SelectedPlanTests.test_quality_gate_and_both_runners_invoke_evaluator) ... ok
+2026-10-18T20:10:15.4400972Z test_registry_digest_mismatch (__main__.SelectedPlanTests.test_registry_digest_mismatch) ... ok
+2026-10-18T20:10:16.1575197Z test_registry_projection_mismatch (__main__.SelectedPlanTests.test_registry_projection_mismatch) ... ok
+2026-10-18T20:10:17.5848780Z test_required_cannot_be_downgraded_or_disappear (__main__.SelectedPlanTests.test_required_cannot_be_downgraded_or_disappear) ... ok
+2026-10-18T20:10:20.7589597Z test_required_execution_states (__main__.SelectedPlanTests.test_required_execution_states) ... ok
+2026-10-18T20:10:24.2328431Z test_required_missing_observation (__main__.SelectedPlanTests.test_required_missing_observation) ... ok
+2026-10-18T20:10:27.1822843Z test_required_success_is_pass (__main__.SelectedPlanTests.test_required_success_is_pass) ... ok
+2026-10-18T20:10:28.7299731Z test_single_gate_candidate_boundary_controls (__main__.SelectedPlanTests.test_single_gate_candidate_boundary_controls) ... ok
+2026-10-18T20:10:30.0836926Z test_standalone_package_schema_and_evaluation (__main__.SelectedPlanTests.test_standalone_package_schema_and_evaluation) ... ok
+2026-10-18T20:10:30.6422896Z test_verifier_unavailable (__main__.SelectedPlanTests.test_verifier_unavailable) ... ok
+2026-10-18T20:10:31.2473360Z test_windows_output_parent_junction_is_rejected (__main__.SelectedPlanTests.test_windows_output_parent_junction_is_rejected) ... ok
+2026-10-18T20:10:31.2474254Z 
+2026-10-18T20:10:31.2474475Z ----------------------------------------------------------------------
+2026-10-18T20:10:31.2474975Z Ran 32 tests in 82.111s
+2026-10-18T20:10:31.2475186Z 
+2026-10-18T20:10:31.2475300Z OK

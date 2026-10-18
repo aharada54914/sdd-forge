@@ -1,0 +1,13 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "job_id": 117775708617,
+  "status": "PASS",
+  "native_windows_executed": true,
+  "evidence": "specs/cloud-orchestration/verification/T-008/root-release-final/native-windows-junction.log",
+  "sha256": "93dbabbcd66def3965fc03ba5546ae9c840f527b3cec9478f76fd76ec7a430b6",
+  "source_path": "tests/sdd-domain-multitarget-T-003.tests.py",
+  "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+  "full_decoded_job_log_sha256": "b6637680b59adc2e6e8ec5485b68d93cbd8d896b8582cad76e5984399aa7d807",
+  "source_log": "GitHub Actions job 117775708617 decoded public log; Windows runner image and exact executed unittest line retained"
+}

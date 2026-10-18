@@ -1,0 +1,10 @@
+{
+  "failed_allocation": "01a15115-f1b8-7c83-883c-cc6dc39ab536",
+  "identity_reserved": false,
+  "model_turn_started": false,
+  "receipt": "EVALUATOR_DELIVERY_REJECTED: unreadable-or-malformed-input",
+  "observed_elapsed_seconds": 600.144609451294,
+  "observation": "Validator passed the path loop and was observed parsing the unchanged implementation manifest shortly before the 600-second caller deadline. Canonical wrapper uses one generic category for timeout and other read/type errors; the prior attempt did not persist its exception type. No malformed input is asserted from that generic receipt.",
+  "recovery": "Extend only caller wall-clock allowance to 1800 seconds per canonical automatic validation/reservation; persist actual subprocess timing/type for diagnosis. All canonical admission checks and inputs remain unchanged except this caller evidence. No manual precheck or waiver.",
+  "prior_checks": "specs/cloud-orchestration/verification/T-008/quality-cycle-1/commands.json"
+}

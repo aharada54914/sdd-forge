@@ -1,0 +1,10 @@
+{
+  "assessed_commit": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "historical_native_trial": "specs/cloud-orchestration/verification/T-011/native-host-trial-2/acceptance.json",
+  "changed_skill_sections": [
+    "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md: Updating an installation",
+    "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md: Updating an installation"
+  ],
+  "assessment": "The nine-line appendices describe the existing selected/materialized runtime regeneration and predecessor owner configuration. No existing routing/approval/CLI instructions were removed or rewritten. Native host trial pins remain historical, not current-version native proof. Exact-candidate full installer, routing and platform regressions validate the release bytes; no additional model host trial is required for this documentation-only appendix.",
+  "scope_limits": "Native trial was synthetic local route/denial only; live provider acceptance remains BLOCKED. Final regression status is separately bound by actual receipts, never inferred here."
+}

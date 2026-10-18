@@ -1,0 +1,270 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "74f67b89251c2b55c324e6b7e19f6923d2c0a53b871431f162949964f4e11d80",
+  "selected": [
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/run-all-python.tests.ps1",
+    "tests/task-prior-pass-receipt.tests.ps1",
+    "tests/cross-model.tests.ps1",
+    "tests/phase2-sudo-signature.tests.ps1",
+    "tests/install-uninstall-matrix.tests.ps1",
+    "tests/agent-model-routing.tests.ps1",
+    "tests/loop-driver.tests.ps1",
+    "tests/bump-version-gate.tests.ps1",
+    "tests/capability-summary-schema.tests.ps1",
+    "tests/facet-manifest-parity.tests.ps1",
+    "tests/generate-approval-sidecar.tests.ps1",
+    "tests/validate-approval-sidecar.tests.ps1",
+    "tests/guard-invariants-epic-a1.tests.ps1",
+    "tests/ship-track-selection-migration.tests.ps1",
+    "tests/design-sync-scan.tests.ps1",
+    "tests/resolver-evidence-schema.tests.ps1",
+    "tests/resolve-project-context-block.tests.ps1",
+    "tests/resolve-project-context-lite.tests.ps1",
+    "tests/validate-resolver-evidence.tests.ps1",
+    "tests/check-installed-plugin-drift.tests.ps1",
+    "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+    "tests/lite-gate-summary-consumption.tests.ps1",
+    "tests/lite-gate-direct-edit-contract.tests.ps1",
+    "tests/component-path-diff-basis.tests.ps1",
+    "tests/ownership-digest.tests.ps1",
+    "tests/human-copy-mirror-freshness.tests.ps1",
+    "tests/domain-review-finalize.tests.py",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/quality-nontty-transport.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-execution.tests.py",
+      "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.336269
+    },
+    {
+      "suite": "tests/run-all-python.tests.ps1",
+      "source_sha256": "71d42e12d0fa548dfc22f364ac7d05a9311070317badeae2d4fa60f27425e163",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.705396
+    },
+    {
+      "suite": "tests/task-prior-pass-receipt.tests.ps1",
+      "source_sha256": "035182ef005892a32370fa8ab8387d648bdad07329ad77ede8b493ed0b8d0cac",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.844202
+    },
+    {
+      "suite": "tests/cross-model.tests.ps1",
+      "source_sha256": "4dc09912e92114c60b39776c5a1537e8522c3105a87dec9af5959b0b86b3a036",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 155.142195
+    },
+    {
+      "suite": "tests/phase2-sudo-signature.tests.ps1",
+      "source_sha256": "bcb7a471c2b62f776e7107c6d114603459f3a9c40942c82f897c4568c344dc7d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.925098
+    },
+    {
+      "suite": "tests/install-uninstall-matrix.tests.ps1",
+      "source_sha256": "cf3b345331d73a0a64d0c91372bd17ade1b2ccc73a9681fc1b2db8a6f8f7fda0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 66.674105
+    },
+    {
+      "suite": "tests/agent-model-routing.tests.ps1",
+      "source_sha256": "1fc1f0310aadc90b498755b0d6777a6a088c73ef6b2c4fb019f830d85b6a7027",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.022587
+    },
+    {
+      "suite": "tests/loop-driver.tests.ps1",
+      "source_sha256": "5582eaa98288b7344110157ea4bf574167f0c51d705c4462bdc02242499f9530",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.056835
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.ps1",
+      "source_sha256": "aa63f6585248ec935e7f69e301ec80b3f030ae9d1c5f607cdf86a15177b3921a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.307576
+    },
+    {
+      "suite": "tests/capability-summary-schema.tests.ps1",
+      "source_sha256": "6f13da9335a67eb9828553b89b0f8735ad2c02986ed191bc06b8b0e73b99a188",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.315684
+    },
+    {
+      "suite": "tests/facet-manifest-parity.tests.ps1",
+      "source_sha256": "0012d58bfe8e0ce61918b34436fb165dc526b228af4dc0b53ef6a4289e4966c3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 136.442284
+    },
+    {
+      "suite": "tests/generate-approval-sidecar.tests.ps1",
+      "source_sha256": "fb7eb37c288178ac106e22643b0978fdaabbd342d16e4dcf2c8d8a380e9c0fb9",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.499967
+    },
+    {
+      "suite": "tests/validate-approval-sidecar.tests.ps1",
+      "source_sha256": "b885be98175b60c13c063b24ecbbbca297a95f1273779ca1f68cb25206ba9250",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 45.254938
+    },
+    {
+      "suite": "tests/guard-invariants-epic-a1.tests.ps1",
+      "source_sha256": "160b91a9d05c27ea99f60a2dfc7cf8193a3a782a5310e623703fb27aa0db5ec5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.12428
+    },
+    {
+      "suite": "tests/ship-track-selection-migration.tests.ps1",
+      "source_sha256": "c83a2e38e05330577f1d85dc5656a1bd96f9467b5eb64fa7182452e0dba13470",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.587187
+    },
+    {
+      "suite": "tests/design-sync-scan.tests.ps1",
+      "source_sha256": "35c8036fa35b1e1683ddda06a9a3be44e164dfaea6ceff577ff6edc86e5ee147",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 69.803123
+    },
+    {
+      "suite": "tests/resolver-evidence-schema.tests.ps1",
+      "source_sha256": "65881f0cdaae98c4682dcd9b90a4219c814645f39e07a084fdc9ba994cccead1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.085067
+    },
+    {
+      "suite": "tests/resolve-project-context-block.tests.ps1",
+      "source_sha256": "f09f9c97d53364def990865cef0d242785028781e3f462c71849b0734874a257",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 113.492524
+    },
+    {
+      "suite": "tests/resolve-project-context-lite.tests.ps1",
+      "source_sha256": "c0ca5c01ae07e0c70c9820c7408ca7af422623fdcc7ef7745996476372946764",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.772757
+    },
+    {
+      "suite": "tests/validate-resolver-evidence.tests.ps1",
+      "source_sha256": "499b0131b73721ed64920a39d42094fbb56edf73b54776720b66220c3d91975e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 27.790155
+    },
+    {
+      "suite": "tests/check-installed-plugin-drift.tests.ps1",
+      "source_sha256": "932f1d61cdc5116184cd6087bb241df6fb5e9e6353232aff94edeb00d19140c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 123.784693
+    },
+    {
+      "suite": "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+      "source_sha256": "7bc9d4ba65d333a3a87fa00e9bedb9118c53678c69f8083c3ce7dd1af6d2cc22",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 32.340606
+    },
+    {
+      "suite": "tests/lite-gate-summary-consumption.tests.ps1",
+      "source_sha256": "67f03a9dffb4b5839a275e4eb2b66db9c1883dbea146d3acfe2830a9d4bf30db",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.994068
+    },
+    {
+      "suite": "tests/lite-gate-direct-edit-contract.tests.ps1",
+      "source_sha256": "d4a6225cedcea6ea9fc79f900dbf435ce9b4cef2ff4f9aa3164ef94452e743df",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.791274
+    },
+    {
+      "suite": "tests/component-path-diff-basis.tests.ps1",
+      "source_sha256": "31d7ecb5438564a1a004af23e37c609e106b4da8bf0b073a6fdacade09b51311",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 33.594097
+    },
+    {
+      "suite": "tests/ownership-digest.tests.ps1",
+      "source_sha256": "57241c324af25cb45e33873520c85471320e449e40675d8e656a719e9e53aa41",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 58.599122
+    },
+    {
+      "suite": "tests/human-copy-mirror-freshness.tests.ps1",
+      "source_sha256": "ac02d8eb42ad16df93b1849a3d739011f6d96ea2331ba40a1526f3197da4280c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.635128
+    },
+    {
+      "suite": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 147.351851
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 48.372169
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 85.372255
+    },
+    {
+      "suite": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "9a420e3f8021dd62c6dc93379857b414b89b54c3180075a7160226a1464e77d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.94741
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 97.440138
+    }
+  ],
+  "revision_after": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "clean_after": true
+}

@@ -1,0 +1,23 @@
+2026-10-18T20:12:23.6933969Z ----------------------------------------------------------------------
+2026-10-18T20:12:23.6934528Z Ran 31 tests in 83.024s
+2026-10-18T20:12:23.6934688Z 
+2026-10-18T20:12:23.6934828Z OK
+2026-10-18T20:12:23.7012522Z PASSED: tests/supplemental-delivery-declaration.tests.py
+2026-10-18T20:12:23.7013154Z ==> tests/t001-evaluation-preparation.tests.py
+2026-10-18T20:12:25.0285193Z ................
+2026-10-18T20:12:25.0285713Z ----------------------------------------------------------------------
+2026-10-18T20:12:25.0286253Z Ran 16 tests in 1.287s
+2026-10-18T20:12:25.0286462Z 
+2026-10-18T20:12:25.0286623Z OK
+2026-10-18T20:12:25.0364695Z PASSED: tests/t001-evaluation-preparation.tests.py
+2026-10-18T20:12:25.0953835Z ##[group]Run Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
+2026-10-18T20:12:25.0954545Z [36;1mInstall-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck[0m
+2026-10-18T20:12:25.0975698Z shell: /usr/bin/pwsh -command ". '{0}'"
+2026-10-18T20:12:25.0976024Z env:
+2026-10-18T20:12:25.0976340Z   GIT_CONFIG_COUNT: 1
+2026-10-18T20:12:25.0976667Z   GIT_CONFIG_KEY_0: core.longpaths
+2026-10-18T20:12:25.0976969Z   GIT_CONFIG_VALUE_0: true
+2026-10-18T20:12:25.0977356Z ##[endgroup]
+2026-10-18T20:12:29.6657324Z [31;1mInstall-Package: [31;1mNo match was found for the specified search criteria and module name 'Pester'.[0m
+2026-10-18T20:12:29.6658423Z [31;1m[31;1mTry Get-PSRepository to see all available registered module repositories.[0m
+2026-10-18T20:12:29.7296884Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,16 @@
+{
+  "main_ref": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "main_ref_after": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "profile": "local-posix",
+  "shard_index": 1,
+  "shard_count": 4,
+  "clone": "/workspace/cloud-release-v119-4b/local-posix-1",
+  "started_at": "2026-10-18T20:22:19.704531+00:00",
+  "finished_at": "2026-10-18T20:57:27.896754+00:00",
+  "exit_code": 0,
+  "receipt": "/workspace/cloud-release-v119-4b/local-posix-1.receipt.json",
+  "log": "/workspace/cloud-release-v119-4b/local-posix-1.log",
+  "receipt_sha256": "b0cb0e37a83705d53cd912755667cbd01d5e25838f1271c87c8c86b3cf7d41c0",
+  "source_status": ""
+}

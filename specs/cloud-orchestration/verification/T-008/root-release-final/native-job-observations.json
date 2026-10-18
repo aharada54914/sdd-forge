@@ -1,0 +1,52 @@
+{
+  "revision": "2aaac49c528d0dfe28437082d54fb86a32f04a15",
+  "run_id": 39161543135,
+  "attempt": 1,
+  "workflow_conclusion": "failure",
+  "source": "specs/cloud-orchestration/verification/T-008/root-release-attempt-4/ci-attempt-1-final.json",
+  "measurement": "Job startedAt to completedAt, wall time only. These specific jobs passed inside an overall failed attempt. Not CPU/billing/p95 and not proof of final workflow success.",
+  "jobs": [
+    {
+      "name": "test (windows-latest)",
+      "job_id": 117775708617,
+      "conclusion": "success",
+      "elapsed_seconds": 1475.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708617"
+    },
+    {
+      "name": "test (ubuntu-latest)",
+      "job_id": 117775708621,
+      "conclusion": "success",
+      "elapsed_seconds": 1943.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708621"
+    },
+    {
+      "name": "test-windows-heavy (compatibility)",
+      "job_id": 117775708749,
+      "conclusion": "success",
+      "elapsed_seconds": 680.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708749"
+    },
+    {
+      "name": "test-windows-heavy (gates)",
+      "job_id": 117775708758,
+      "conclusion": "success",
+      "elapsed_seconds": 473.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708758"
+    },
+    {
+      "name": "test (macos-latest)",
+      "job_id": 117775708786,
+      "conclusion": "success",
+      "elapsed_seconds": 2235.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708786"
+    },
+    {
+      "name": "test-windows-heavy (a9)",
+      "job_id": 117775708884,
+      "conclusion": "success",
+      "elapsed_seconds": 1792.0,
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39161543135/job/117775708884"
+    }
+  ]
+}

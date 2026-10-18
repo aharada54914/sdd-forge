@@ -1,0 +1,16 @@
+RUN_ID: 01a15137-1453-7ab1-b492-552d831dc2e2
+HOST_SESSION_ID: 01a15137-1453-7ab1-b492-552d831dc2e2
+ALLOWED_INPUT_MANIFEST: specs/cloud-orchestration/verification/T-008/quality-cycle-2/review/invocation.json SHA-256 4a408a93f2090c063247ca9961f920e2bec0c5470ac7050bf0a11e78df3242d9
+VERDICT: PASS
+FINDINGS:
+- None.
+CHECKED:
+- Recomputed invocation and reservation hashes; both matched supplied pins. Sequence, predecessor and independent implementation identity matched.
+- Inspected T-008 scope, REQ-013/014, AC-013/014, design documentation matrix and ADR 0036.
+- Cross-checked operator documentation against request contracts and provider CLI argument/denial paths. Saved example results show both routes passing, unauthorized prepare/apply blocked, and mutation/overwrite negatives rejected.
+- Inspected documentation/link tests and saved results: documentation matrix passed; 122 relative file links passed. External URLs and general fragment validation were not established.
+- Verified all 27 plugin manifests and both marketplaces use 1.19.0; inspected successful bump, release-validation and repository-validation output.
+- Independently compared eight saved regression receipts with catalog membership and manifest source pins: complete, disjoint 196-suite POSIX and 130-suite PowerShell coverage; zero failed suite results; log/receipt hashes matched.
+- Inspected saved exact-commit CI and publication evidence: required jobs succeeded, native Windows junction test executed, and annotated v1.19.0 peeled to 2aaac49c528d0dfe28437082d54fb86a32f04a15. Existing tag mappings remained unchanged.
+- Inspected rollback/differential evidence and MCP source/tests, including report-lookup.ts:129–162 and report-reuse.test.ts:126–232; preserved behavior, request freshness and rollback/reapply checks are supported.
+- Evaluation used hash-checked saved outputs and source inspection, not test reruns or live remote queries. Release assets remain unpublished; live TEST-003/005/009 remain BLOCKED and are not claimed satisfied by this T-008 verdict.

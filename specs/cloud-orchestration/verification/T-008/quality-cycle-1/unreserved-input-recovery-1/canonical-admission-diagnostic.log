@@ -1,0 +1,2 @@
+supplemental-delivery: unsafe conditional input: tests/fixtures/capability-registry/identity-bidirectional-repo/plugins/sdd-quality-loop/scripts/check-registered-symlink.py
+REVIEW_CONTEXT_INPUT: supplemental delivery declaration is invalid
