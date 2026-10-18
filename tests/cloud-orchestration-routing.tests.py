@@ -889,6 +889,30 @@ class AwsNativePreparation(AwsRouting):
         self.put("bundle/unit/cdk.out/raw.json",dict(Resources={}))
         self.assertEqual(self.invoke(expected=2)["error_code"],"OWNER_CONFLICT")
 
+    def test_literal_and_composed_markers_are_not_resource_references(self):
+        self.native_prerequisites()
+        result=self.invoke('plan')
+        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
+        locked=self.contracts.read_artifact(self.root,ev['locked_request'],'cloud-run-request/v1')
+        ref=next(a for a in locked['input_artifacts'] if a['path'].endswith('.template.json'))
+        original=json.loads((self.root/ref['path']).read_bytes())
+        for kind in ('alarm','backup'):
+            marker='@Workload' if kind=='alarm' else 'arn:aws:ec2:us-east-1:111111111111:instance/@Workload'
+            forms=[marker,{'Fn::Join':['',[marker[:-4],marker[-4:]]]},
+                {'Fn::Sub':['${literal}',{'literal':marker}]},
+                {'Fn::Sub':['${left}${right}',{'left':marker[:-4],'right':marker[-4:]}]}]
+            for i,value in enumerate(forms):
+                with self.subTest(kind=kind,form=i):
+                    self.req=copy.deepcopy(locked)
+                    body=copy.deepcopy(original)
+                    if kind=='alarm':
+                        body['Resources']['Health']['Properties']['Dimensions'][0]['Value']=value
+                    else:
+                        body['Resources']['Protection']['Properties']['BackupSelection']['Resources']=[value]
+                    changed=self.put(ref['path'],body)
+                    next(a for a in self.req['input_artifacts'] if a['path']==ref['path']).update(changed)
+                    self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/spoof-{kind}-{i}.json')['result'],'BLOCKED')
+
     def test_malformed_compiled_outputs_always_typed_and_no_receipt(self):
         self.native_prerequisites()
         result=self.invoke('plan')
