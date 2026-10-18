@@ -1,0 +1,468 @@
+"""Current-code corrective probes; synthetic wire fixtures, never historical Red.
+
+Use the shipped AwsExecution fixtures and actual adapter/contract methods. A
+negative control must break a specific assertion, not fixture setup/imports.
+"""
+from __future__ import annotations
+
+import argparse
+import copy
+from dataclasses import replace
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import socket
+import sys
+import unittest
+from unittest.mock import patch
+from typing import Any, Callable
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def load(root: Path) -> Any:
+    path = root / "tests/cloud-orchestration-execution.tests.py"
+    spec = importlib.util.spec_from_file_location("execution_cases", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def store(t: Any, path: str, value: dict) -> dict:
+    data = t.e.encode(value)
+    (t.root / path).write_bytes(data)
+    return dict(path=path, sha256=sha(data))
+
+
+def document(t: Any, ref: dict) -> dict:
+    return json.loads((t.root / ref["path"]).read_bytes())
+
+
+def prepared(t: Any) -> tuple[dict, tuple]:
+    t.prepare()
+    semantic, data = t.executor.check_preview(t.preview_ref)
+    t.executor.authenticate(approval=True, preview=t.preview_ref)
+    assert t.executor.readback(semantic, data) == semantic, "MATCHED_READBACK_FAILED"
+    return semantic, data
+
+
+def cases(m: Any) -> dict[str, tuple[int, str | None, Callable]]:
+    result: dict[str, tuple[int, str | None, Callable]] = {}
+    field: str
+    value: Any
+
+    def add(row: int, name: str, code: str | None, fn: Callable) -> None:
+        result[f"R{row}.{name}"] = row, code, fn
+
+    # Every existing body runs separately, not merely its setUp.
+    def existing(t: Any, name: str) -> None:
+        getattr(t, name)()
+
+    for name in unittest.defaultTestLoader.getTestCaseNames(m.AwsExecution):
+        add(0, name, None, lambda t, n=name: existing(t, n))
+
+    def bound_bytes(t: Any, index: int) -> None:
+        prepared(t)
+        refs = [t.request_ref, t.req["policy"], t.req["dependency_lock"],
+                t.req["verification_profile"], t.req["local_context"]["ownership"],
+                t.req["local_context"]["provider_config"], *t.req["input_artifacts"], t.preview_ref]
+        ref = refs[index]
+        path = t.root / ref["path"]
+        path.write_bytes(path.read_bytes() + b" ")
+        t.executor.check_preview(t.preview_ref)
+    request = json.loads(next((m.ROOT / "specs/cloud-orchestration/verification/T-013/inputs/aws/bundle/generated").glob("*.request.json")).read_bytes())
+    names = ["request", "policy", "lock", "profile", "ownership", "config"] + [
+        f"{a['kind']}-{i}" for i, a in enumerate(request["input_artifacts"])] + ["preview"]
+    for index, name in enumerate(names):
+        add(1, "bytes-" + name, "DIGEST_MISMATCH", lambda t, i=index: bound_bytes(t, i))
+
+    def preview_pin(t: Any, field: str, value: Any) -> None:
+        prepared(t)
+        p = document(t, t.preview_ref)
+        if field in ("request", "dependency_lock", "policy", "verification_profile"):
+            # Valid alternate bytes, not a missing-file failure; preserve schema.
+            old = p[field]
+            body = (t.root / old["path"]).read_bytes() + b" "
+            target = t.directory + "/alternate-" + field + ".json"
+            (t.root / target).write_bytes(body)
+            p[field] = dict(path=target, sha256=sha(body))
+        elif field.startswith("scope."):
+            p["scope"][field.split(".")[1]] = value
+        else:
+            p[field] = value
+        ref = store(t, t.preview_ref["path"], p)
+        t.e.c.verify_binding(t.root, t.request_ref, ref, now=m.utc(m.NOW), operation="apply")
+
+    for field, value in [("run_id", "other-run"), ("unit_id", "other-unit"),
+                         ("provider", "azure"), ("scope.account_id", "222222222222"),
+                         ("scope.region", "us-west-2"), ("scope.deployment_scope", "Other"),
+                         ("request", None), ("dependency_lock", None), ("policy", None),
+                         ("verification_profile", None)]:
+        add(1, "preview-" + field, "BINDING_MISMATCH", lambda t, f=field, v=value: preview_pin(t, f, v))
+
+    def wire(t: Any, field: str, value: Any) -> None:
+        semantic, data = prepared(t)
+        t.native.override = {field: value(t) if callable(value) else value}
+        t.executor.readback(semantic, data)
+
+    wire_fields = [
+        ("ChangeSetId", lambda t: t.native.arn + "-other", "CHANGE_SET_BINDING_MISMATCH"),
+        ("ChangeSetName", "other-name", "CHANGE_SET_BINDING_MISMATCH"),
+        ("StackId", lambda t: t.native.stack + "-other", "CHANGE_SET_BINDING_MISMATCH"),
+        ("StackName", "Other", "CHANGE_SET_BINDING_MISMATCH"),
+        ("Description", "other", "CHANGE_SET_BINDING_MISMATCH"),
+        ("Parameters", [{"ParameterKey": "extra", "ParameterValue": "other"}], "CHANGE_SET_BINDING_MISMATCH"),
+        ("Capabilities", ["CAPABILITY_IAM"], "CHANGE_SET_BINDING_MISMATCH"),
+        ("NextToken", "more", "AWS_PAGINATION_UNSUPPORTED"),
+        ("OnStackFailure", "ROLLBACK", "CHANGE_SET_BINDING_MISMATCH"),
+    ]
+    for field, value, code in wire_fields:
+        add(2, "wire-" + field, code, lambda t, f=field, v=value: wire(t, f, v))
+    for field, value in [("account", "222222222222"), ("region", "us-west-2")]:
+        def arn_scope(t: Any, f: str = field, v: str = value) -> None:
+            semantic, data = prepared(t)
+            old = t.req["scope"]["account_id" if f == "account" else "region"]
+            t.native.override = dict(ChangeSetId=t.native.arn.replace(old, v))
+            t.executor.readback(semantic, data)
+        add(2, "arn-" + field, "NATIVE_ID_MISMATCH", arn_scope)
+
+    def direct_arn(t: Any) -> None:
+        prepared(t)
+        t.executor.arn(t.native.arn.replace(t.req["scope"]["account_id"], "222222222222"),
+                       "changeSet", t.executor.name)
+    add(2, "arn-direct-account", "NATIVE_ID_MISMATCH", direct_arn)
+
+    def template(t: Any) -> None:
+        semantic, data = prepared(t)
+        t.native.template_override = b'{"Resources":{}}'
+        t.executor.readback(semantic, data)
+    add(2, "template", "TEMPLATE_SUBSTITUTION", template)
+
+    def semantic_change(t: Any) -> None:
+        semantic, data = prepared(t)
+        change = copy.deepcopy(semantic["changes"])
+        change[0]["ResourceChange"]["Scope"] = ["Tags"]
+        t.native.override = dict(Changes=change)
+        response = t.apply()
+        assert response["result"] == "BLOCKED", "SEMANTIC_DRIFT_ACCEPTED"
+        assert "ExecuteChangeSet" not in t.native.writes
+    add(2, "semantic-change", None, semantic_change)
+
+    def asset_identity(t: Any, field: str, value: Any) -> None:
+        semantic, data = prepared(t)
+        asset = dict(semantic["asset"], **{field: value})
+        if field == "key":
+            # Readback recomputes the exact original create/URL binding.
+            t.executor.readback(dict(semantic, asset=asset), data)
+        else:
+            t.executor.native.read_object(asset, t.executor.credentials, data[1])
+    for field, value, code in [
+        ("bucket", "other-bucket", "S3_IDENTITY_MISMATCH"),
+        ("expected_owner", "222222222222", "S3_IDENTITY_MISMATCH"),
+        ("region", "us-west-2", "S3_IDENTITY_MISMATCH"),
+        ("sha256", "0" * 64, "S3_IDENTITY_MISMATCH"),
+        ("version", "other-version", "S3_SUBSTITUTION"),
+        ("etag", '"other-etag"', "S3_SUBSTITUTION"),
+        ("encryption", "other", "S3_SUBSTITUTION"),
+        ("key", "0" * 64 + ".json", "CREATE_REQUEST_MISMATCH"),
+    ]:
+        add(3, "asset-" + field, code, lambda t, f=field, v=value: asset_identity(t, f, v))
+
+    def asset_header(t: Any, field: str, value: str) -> None:
+        semantic, data = prepared(t)
+        original = t.native.request
+        def transport(method: str, url: str, headers: dict, body: bytes | None = None) -> Any:
+            response = original(method, url, headers, body)
+            if ".s3." in url and "versionId=" in url:
+                return replace(response, headers={**response.headers, field: value})
+            return response
+        with patch.object(t.native, "request", transport):
+            t.executor.native.read_object(semantic["asset"], t.executor.credentials, data[1])
+    for field, value, code in [("x-amz-version-id", "other-version", "S3_SUBSTITUTION"),
+                                ("ETag", '"other"', "S3_SUBSTITUTION"),
+                                ("x-amz-server-side-encryption", "none", "S3_OBJECT_DENIED")]:
+        add(3, "header-" + field, code, lambda t, f=field, v=value: asset_header(t, f, v))
+
+    def body(t: Any) -> None:
+        semantic, data = prepared(t)
+        t.native.object_bytes += b" "
+        t.executor.native.read_object(semantic["asset"], t.executor.credentials, data[1])
+    add(3, "object-bytes", "S3_SUBSTITUTION", body)
+
+    def create_pin(t: Any, field: str, value: Any) -> None:
+        semantic, data = prepared(t)
+        semantic["create"][field] = value
+        t.executor.readback(semantic, data)
+    for field, value in [("RoleARN", "arn:aws:iam::111111111111:role/other"),
+                         ("ClientToken", "other-token"), ("TemplateURL", "https://other.invalid/template"),
+                         ("StackName", "Other"), ("ChangeSetName", "Other")]:
+        add(4, "create-" + field, "CREATE_REQUEST_MISMATCH", lambda t, f=field, v=value: create_pin(t, f, v))
+
+    def failure_policy(t: Any, field: str, value: bool) -> None:
+        prepared(t)
+        body = dict(ChangeSetName=t.native.arn, StackName=t.native.stack,
+                    ClientRequestToken=t.executor.token, DisableRollback=True, RetainExceptOnCreate=False)
+        body[field] = value
+        t.e.query("ExecuteChangeSet", body)
+    for field, value in [("DisableRollback", False), ("RetainExceptOnCreate", True)]:
+        add(4, field, "AWS_FAILURE_POLICY", lambda t, f=field, v=value: failure_policy(t, f, v))
+
+    def stack_role(t: Any) -> None:
+        semantic, data = prepared(t)
+        original = t.native.xml
+        def xml(action: str, value: dict) -> Any:
+            if action == "DescribeStacks":
+                value["Stacks"][0]["RoleARN"] += "-other"
+            return original(action, value)
+        with patch.object(t.native, "xml", xml):
+            t.executor.readback(semantic, data)
+    add(4, "stack-role", "STACK_AUTHORITY_MISMATCH", stack_role)
+
+    def event_token(t: Any) -> None:
+        prepared(t)
+        original = t.native.xml
+        def xml(action: str, value: dict) -> Any:
+            if action == "DescribeStackEvents":
+                value["StackEvents"][0]["ClientRequestToken"] = "other"
+            return original(action, value)
+        with patch.object(t.native, "xml", xml):
+            response = t.apply()
+        assert response["result"] == "UNKNOWN", "WRONG_TOKEN_COMPLETION_ACCEPTED"
+        assert t.native.writes.count("ExecuteChangeSet") == 1
+    add(4, "event-token", None, event_token)
+
+    def auth_fault(t: Any, kind: str) -> None:
+        prepared(t)
+        if kind == "approval":
+            t.auths[-1].approvals[0]["state"] = "rejected"
+        elif kind == "lease":
+            t.auths[-1].lease_end = m.NOW
+        elif kind == "principal":
+            original = t.auths[-1].request
+            def transport(method: str, url: str, headers: dict, body: bytes | None = None) -> bytes:
+                response = original(method, url, headers, body)
+                if url == "https://sts.amazonaws.com/":
+                    response = response.replace(b"assumed-role/cloud-apply/", b"assumed-role/other/")
+                return response
+            t.auths[-1].request = transport
+        t.executor.authenticate(approval=True, preview=t.preview_ref)
+    for kind, code in [("approval", "APPROVAL_REQUIRED"), ("lease", "CREDENTIAL_EXPIRED"),
+                       ("principal", "PROVIDER_PRINCIPAL_MISMATCH")]:
+        add(5, kind, code, lambda t, k=kind: auth_fault(t, k))
+
+    def receipt(t: Any, field: str, value: Any) -> None:
+        prepared(t)
+        response = t.apply()
+        assert response["result"] == "PASS"
+        path = t.directory + "/" + t.req["unit_id"] + ".apply.execute.authorization.json"
+        rec = json.loads((t.root / path).read_bytes())
+        rec[field] = value
+        ref = store(t, path, rec)
+        t.e.c.verify_binding(t.root, t.request_ref, t.preview_ref, ref,
+                             now=m.utc(m.NOW), operation="apply")
+    for field, value, code in [("operation", "prepare", "BINDING_MISMATCH"),
+                                ("expires_at", m.utc(m.NOW), "EXPIRED_RECEIPT"),
+                                ("run_id", "other-run", "BINDING_MISMATCH")]:
+        add(5, "receipt-" + field, code, lambda t, f=field, v=value: receipt(t, f, v))
+
+    def no_change(t: Any, field: str, value: Any) -> None:
+        semantic, data = prepared(t)
+        t.native.no_change = True
+        t.native.override = {field: value}
+        t.executor.readback(semantic, data)
+    for field, value in [("Status", "DELETE_COMPLETE"), ("ExecutionStatus", "AVAILABLE"),
+                         ("StatusReason", "Access denied"),
+                         ("Changes", [{"Type": "Resource", "ResourceChange": {"Action": "Add", "LogicalResourceId": "Workload", "ResourceType": "AWS::EC2::Instance", "Scope": ["Properties"], "Details": []}}])]:
+        add(6, "no-op-" + field, "CHANGE_SET_UNAVAILABLE", lambda t, f=field, v=value: no_change(t, f, v))
+
+    def noop_id(t: Any) -> None:
+        t.native.no_change = True
+        response = t.executor.prepare(t.directory + "/no-change.json")
+        assert response["result"] == "NO_CHANGE"
+        assert "native_operation_id" not in response
+        response["native_operation_id"] = t.native.arn
+        t.e.c.parse_artifact(t.e.encode(response), "cloud-operation-result/v1")
+    add(6, "fabricated-deployment", "INVALID_ARTIFACT", noop_id)
+
+    def recovery(t: Any, field: str, value: Any) -> None:
+        prepared(t)
+        t.native.lose_execute = True
+        response = t.apply()
+        assert response["result"] == "UNKNOWN"
+        ref = t.executor.submission
+        op = document(t, ref)
+        if field.startswith("body."):
+            op["body"][field.split(".")[1]] = value
+            # Rehash deliberately: test counterpart binding, not stale digest only.
+            if field not in ("body.DisableRollback", "body.RetainExceptOnCreate"):
+                op["body_sha256"] = t.e.AwsExecutor.wire_hash("execute", op["body"])
+        elif field == "request":
+            op["request"] = dict(t.request_ref, sha256="0" * 64)
+        elif field == "scope":
+            op["scope"]["deployment_scope"] = "Other"
+        else:
+            op[field] = value(t) if callable(value) else value
+        ref = store(t, ref["path"], op)
+        executor = t.stage("apply", t.preview_ref)
+        before = len(t.native.calls)
+        response = executor.reconcile(ref, t.directory + "/probe-recovery.json")
+        assert response["result"] in ("BLOCKED", "UNKNOWN"), "JOURNAL_MISMATCH_ACCEPTED"
+        assert len(t.native.calls) == before, "UNTRUSTED_RECOVERY_READ"
+    for field, value in [("request", None), ("scope", None), ("client_token", "other"),
+                         ("status", "PASS"), ("created_at", "not-utc"), ("body_sha256", "0" * 64),
+                         ("native_operation_id", lambda t: t.native.arn.replace(t.executor.name, "other")),
+                         ("stack_id", lambda t: t.native.stack.replace("Private", "Other")),
+                         ("mutation", "create"), ("body.ClientRequestToken", "other"),
+                         ("body.ChangeSetName", "other"), ("body.StackName", "other"),
+                         ("body.DisableRollback", False), ("body.RetainExceptOnCreate", True)]:
+        add(7, "journal-" + field, None, lambda t, f=field, v=value: recovery(t, f, v))
+
+    def trusted(t: Any, field: str, value: Any) -> None:
+        prepared(t)
+        t.native.lose_execute = True
+        t.apply()
+        op = t.executor.submission
+        executor = t.stage("apply", t.preview_ref)
+        if field == "unit_id":
+            executor.control = replace(executor.control, unit_id=value)
+        else:
+            pins = {field: value}
+            if field == "account_id":
+                pins["aws_role_arn"] = executor.boundary.policy.aws_role_arn.replace(t.req["scope"]["account_id"], value)
+            if field == "provider":
+                pins.update(account_id=m.SUBSCRIPTION, azure_tenant=m.TENANT,
+                            azure_client=m.CLIENT, azure_principal=m.OBJECT)
+            executor.boundary.policy = replace(executor.boundary.policy, **pins)
+        before = len(t.native.calls)
+        response = executor.reconcile(op, t.directory + "/untrusted.json")
+        assert response["result"] in ("BLOCKED", "UNKNOWN"), "TRUSTED_PIN_ACCEPTED"
+        assert len(t.native.calls) == before, "UNTRUSTED_RECOVERY_READ"
+    for field, value in [("provider", "azure"), ("account_id", "222222222222"),
+                         ("region", "us-west-2"), ("deployment_scope", "Other"),
+                         ("policy_sha256", "0" * 64), ("unit_id", "other-unit")]:
+        add(8, "trusted-" + field, None, lambda t, f=field, v=value: trusted(t, f, v))
+
+    def observation(t: Any) -> None:
+        responses: list[dict] = []
+        original = t.native.request
+        def transport(method: str, url: str, headers: dict, body: bytes | None = None) -> Any:
+            response = original(method, url, headers, body)
+            responses.append(dict(method=method, url=url, status=response.status,
+                                  response_sha256=sha(response.body), request_sha256=sha(body or b"")))
+            return response
+        with patch.object(t.native, "request", transport):
+            t.prepare()
+            response = t.apply()
+        manifest = json.loads((t.root / response["evidence_manifest_path"]).read_bytes())
+        trace = manifest["native_trace"]
+        # Apply uses a new Native instance; compare its entire suffix of wire calls.
+        observed = responses[-len(trace):]
+        assert trace and len(observed) == len(trace)
+        for record, actual in zip(trace, observed):
+            for key in actual:
+                assert record[key] == actual[key], "TRACE_BINDING_MISMATCH:" + key
+        assert manifest["health_verified"] is False, "HEALTH_FLAG_MISMATCH"
+        assert manifest["result"] == response["result"] == "PASS"
+        assert response["state"] == "OBSERVED", "STATE_MISMATCH"
+        assert t.e.c.exit_code(response) == 0, "EXIT_MISMATCH"
+        for mutation, stage in [("publish", "prepare"), ("create", "prepare"), ("execute", "apply")]:
+            path = t.directory + "/" + t.req["unit_id"] + "." + stage + "." + mutation + ".authorization.json"
+            rec = json.loads((t.root / path).read_bytes())
+            assert rec["principal"] == f"arn:aws:sts::{t.req['scope']['account_id']}:assumed-role/cloud-{stage}/sdd-123", "RECEIPT_PRINCIPAL_MISMATCH"
+            assert rec["operation"] == stage
+            assert rec["expires_at"] == m.utc(m.NOW + 110), "RECEIPT_LEASE_MISMATCH"
+            assert rec["issued_at"] == m.utc(m.NOW - 10)
+            assert rec["ci"]["run_id"] == "123"
+        journal = document(t, t.executor.submission)
+        assert journal["body_sha256"] == sha(t.e.query("ExecuteChangeSet", journal["body"])), "JOURNAL_HASH_MISMATCH"
+        assert journal["created_at"] == m.utc(m.NOW)
+        assert journal["status"] == "UNKNOWN"
+    add(9, "observed-bindings", None, observation)
+
+    def result_mapping(t: Any) -> None:
+        prepared(t)
+        for status, state, exit_code in [("PASS", "OBSERVED", 0), ("NO_CHANGE", "NO_CHANGE", 0),
+                                          ("BLOCKED", "BLOCKED", 2), ("FAIL", "FAILED", 1),
+                                          ("UNKNOWN", "UNKNOWN", 3)]:
+            path = t.directory + "/result-" + status + ".json"
+            t.executor.start(path)
+            response = t.executor.result("apply", path, status,
+                                         error=None if status in ("PASS", "NO_CHANGE") else "PROBE")
+            assert response["state"] == state, "STATE_MISMATCH:" + status
+            assert t.e.c.exit_code(response) == exit_code, "EXIT_MISMATCH:" + status
+            evidence = json.loads((t.root / response["evidence_manifest_path"]).read_bytes())
+            assert evidence["health_verified"] is False, "HEALTH_FLAG_MISMATCH"
+        path = t.directory + "/prepare-state.json"
+        t.executor.start(path)
+        response = t.executor.result("prepare", path, "PASS")
+        assert response["state"] == "PREVIEW_READY", "PREPARE_STATE_MISMATCH"
+    add(9, "result-mapping", None, result_mapping)
+
+    def result_contract(t: Any, field: str, value: Any) -> None:
+        prepared(t)
+        response = t.apply()
+        response[field] = value
+        t.e.c.parse_artifact(t.e.encode(response), "cloud-operation-result/v1")
+    for field, value in [("state", "FAILED"), ("result", "NO_CHANGE"), ("error_code", "untrue")]:
+        add(9, "result-" + field, "INVALID_ARTIFACT", lambda t, f=field, v=value: result_contract(t, f, v))
+    return result
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument("--case")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    m = load(args.root.resolve())
+    selected = cases(m)
+    if args.case:
+        selected = {args.case: selected[args.case]}
+    records = []
+    for name, (row, expected, fn) in selected.items():
+        t = m.AwsExecution("runTest")
+        guards: list[dict] = []
+        record: dict = dict(case=name, row=row, setup_complete=False, body_entered=False, expected_guard=expected)
+        try:
+            with patch.object(socket.socket, "connect", side_effect=AssertionError("NETWORK_FORBIDDEN")):
+                t.setUp()
+                record["setup_complete"] = True
+                def trace(original: Callable) -> Callable:
+                    def wrapped(condition: Any, code: str = "INVALID_ARTIFACT") -> None:
+                        if not condition:
+                            frame = sys._getframe(1)
+                            guards.append(dict(code=code, file=str(Path(frame.f_code.co_filename).relative_to(args.root.resolve())), line=frame.f_lineno))
+                        original(condition, code)
+                    return wrapped
+                with patch.object(t.e.c, "_require", trace(t.e.c._require)), patch.object(t.a, "require", trace(t.a.require)):
+                    record["body_entered"] = True
+                    if expected:
+                        try:
+                            fn(t)
+                        except (t.e.c.ContractError, t.a.AdmissionDenied) as error:
+                            assert expected in str(error), f"WRONG_GUARD:{expected}:{error}"
+                            assert any(g["code"] == expected for g in guards), "GUARD_NOT_EXECUTED"
+                            record["observation"] = "expected rejection (not a failed unittest)"
+                        else:
+                            raise AssertionError("MISMATCH_NOT_REJECTED:" + expected)
+                    else:
+                        fn(t)
+                        record["observation"] = "assertions completed"
+                record["outcome"] = "PASS"
+        except Exception as error:
+            record.update(outcome="FAIL", error_type=type(error).__name__, error=str(error))
+        finally:
+            t.doCleanups()
+        record["guards"] = guards
+        records.append(record)
+        print(name, record["outcome"], record.get("error", ""))
+    args.output.write_text(json.dumps(dict(classification="synthetic-current-code-corrective-probes", records=records), indent=2) + "\n")
+    return int(any(r["outcome"] != "PASS" for r in records))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

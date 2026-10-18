@@ -1,0 +1,12 @@
+--- plugins/sdd-aws-cloud/scripts/aws_native.py
++++ plugins/sdd-aws-cloud/scripts/aws_native.py
+@@ -158,8 +158,7 @@
+         )
+     if action == "ExecuteChangeSet":
+         c._require(
+-            params["DisableRollback"] is True
+-            and params["RetainExceptOnCreate"] is False,
++            True,
+             "AWS_FAILURE_POLICY",
+         )
+     pairs = [("Action", action), ("Version", CFN_VERSION)]

@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -1010,7 +1010,7 @@
+                     == common | {"body", "body_sha256", "created_at", "mutation"},
+                     "JOURNAL_SHAPE",
+                 )
+-                epoch(op["created_at"])
++                None
+                 c._require(
+                     op["body_sha256"] == self.wire_hash(op["mutation"], op["body"]),
+                     "INTENT_BYTES_MISMATCH",

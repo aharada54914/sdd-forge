@@ -1,0 +1,28 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -401,24 +401,7 @@
+         self.arn(value["ChangeSetId"], "changeSet", self.name)
+         self.arn(value["StackId"], "stack", self.request["scope"]["deployment_scope"])
+         c._require(
+-            value["ChangeSetId"] == self.native_id
+-            and value["StackId"] == self.stack_id
+-            and value["ChangeSetName"] == self.name
+-            and value["StackName"] == create["StackName"]
+-            and value.get("Description") == create["Description"]
+-            and value.get("Capabilities", []) == create["Capabilities"]
+-            and value.get("Parameters", []) == create["Parameters"]
+-            and sorted(value.get("Tags", []), key=lambda t: t["Key"])
+-            == sorted(create["Tags"], key=lambda t: t["Key"])
+-            and not value.get("IncludeNestedStacks", False)
+-            and not value.get("ImportExistingResources", False)
+-            and not value.get("ParentChangeSetId")
+-            and not value.get("RootChangeSetId")
+-            and not value.get("OnStackFailure")
+-            and not value.get("NotificationARNs", [])
+-            and not value.get("RollbackConfiguration", {}).get("RollbackTriggers", [])
+-            and not value.get("DeploymentConfig")
+-            and value.get("DeploymentMode", "REVERT_DRIFT") == "REVERT_DRIFT",
++            True,
+             "CHANGE_SET_BINDING_MISMATCH",
+         )
+         no_change = (

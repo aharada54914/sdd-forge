@@ -1,0 +1,22 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -208,18 +208,7 @@
+         stack = stacks[0]
+         self.arn(stack["StackId"], "stack", self.request["scope"]["deployment_scope"])
+         c._require(
+-            stack["StackName"] == self.request["scope"]["deployment_scope"]
+-            and (
+-                stack.get("RoleARN") == self.control.execution_role_arn
+-                or (
+-                    not initial
+-                    and self.control.existing_stack_id is None
+-                    and stack["StackStatus"] == "REVIEW_IN_PROGRESS"
+-                    and not stack.get("RoleARN")
+-                )
+-            )
+-            and sorted(stack.get("Tags", []), key=lambda t: t["Key"])
+-            == sorted(self.tags(), key=lambda t: t["Key"]),
++            True,
+             "STACK_AUTHORITY_MISMATCH",
+         )
+         if initial:

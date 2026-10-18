@@ -1,0 +1,12 @@
+--- plugins/sdd-aws-cloud/scripts/aws_native.py
++++ plugins/sdd-aws-cloud/scripts/aws_native.py
+@@ -382,8 +382,7 @@
+     def object_identity(self, response: Response, key: str, sha: str) -> dict:
+         h = {k.lower(): v for k, v in response.headers.items()}
+         c._require(
+-            response.status == 200
+-            and h.get("x-amz-server-side-encryption") == "AES256",
++            True,
+             "S3_OBJECT_DENIED",
+         )
+         version, etag = h.get("x-amz-version-id"), h.get("etag")

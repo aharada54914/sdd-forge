@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R4.DisableRollback",
+      "row": 4,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "AWS_FAILURE_POLICY",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:AWS_FAILURE_POLICY",
+      "guards": []
+    }
+  ]
+}

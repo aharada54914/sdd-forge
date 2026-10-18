@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R2.arn-direct-account",
+      "row": 2,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "NATIVE_ID_MISMATCH",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:NATIVE_ID_MISMATCH",
+      "guards": []
+    }
+  ]
+}

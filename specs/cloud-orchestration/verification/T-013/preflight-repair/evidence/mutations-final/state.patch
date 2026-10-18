@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -586,7 +586,7 @@
+             operation=phase,
+             result=result,
+             state={
+-                "PASS": "PREVIEW_READY" if phase == "prepare" else "OBSERVED",
++                "PASS": "PREVIEW_READY" if phase == "prepare" else "VERIFIED",
+                 "FAIL": "FAILED",
+             }.get(result, result),
+             error_code=error,

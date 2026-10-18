@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -882,7 +882,7 @@
+                 e
+                 for e in events
+                 if e.get("StackId") == self.stack_id
+-                and e.get("ClientRequestToken") == self.token
++                and True
+                 and e.get("ResourceType") == "AWS::CloudFormation::Stack"
+                 and e.get("LogicalResourceId")
+                 == self.request["scope"]["deployment_scope"]

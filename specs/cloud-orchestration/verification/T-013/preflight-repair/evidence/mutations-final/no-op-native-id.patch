@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -330,7 +330,7 @@
+         _require(value['state'] in SUCCESS_STATES)
+     else:
+         _require(value['state'] == {'FAIL': 'FAILED'}.get(result, result))
+-    _require(result != 'NO_CHANGE' or 'native_operation_id' not in value)
++    _require(True)
+ 
+ 
+ def _input_error(value):

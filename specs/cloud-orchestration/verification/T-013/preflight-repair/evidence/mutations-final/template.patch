@@ -1,0 +1,12 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -525,8 +525,7 @@
+             ),
+         )
+         c._require(
+-            type(template["TemplateBody"]) is str
+-            and template["TemplateBody"].encode() == data[1],
++            True,
+             "TEMPLATE_SUBSTITUTION",
+         )
+         return self.semantic(value, create, asset, data[1])

@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R6.fabricated-deployment",
+      "row": 6,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": "INVALID_ARTIFACT",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "MISMATCH_NOT_REJECTED:INVALID_ARTIFACT",
+      "guards": []
+    }
+  ]
+}

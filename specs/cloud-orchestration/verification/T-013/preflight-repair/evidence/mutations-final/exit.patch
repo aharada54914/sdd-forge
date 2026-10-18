@@ -1,0 +1,11 @@
+--- plugins/sdd-quality-loop/scripts/cloud_contracts.py
++++ plugins/sdd-quality-loop/scripts/cloud_contracts.py
+@@ -29,7 +29,7 @@
+ SUCCESS_STATES = ('ROUTED', 'PLANNED', 'LOCAL_VALIDATED', 'PREPARE_AUTHORIZED',
+                   'PREVIEW_READY', 'APPLY_AUTHORIZED', 'EXECUTING', 'OBSERVED',
+                   'VERIFIED', 'EVIDENCE_COMPLETE')
+-EXIT_CODES = {'PASS': 0, 'NO_CHANGE': 0, 'BLOCKED': 2, 'FAIL': 1, 'UNKNOWN': 3}
++EXIT_CODES = {'PASS': 0, 'NO_CHANGE': 0, 'BLOCKED': 2, 'FAIL': 1, 'UNKNOWN': 0}
+ 
+ 
+ class ContractError(ValueError):

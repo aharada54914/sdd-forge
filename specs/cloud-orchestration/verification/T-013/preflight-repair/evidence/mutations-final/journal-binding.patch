@@ -1,0 +1,24 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -978,20 +978,7 @@
+             c._require(self.boundary.policy.operation == "apply", "STAGE_MISMATCH")
+             op = decode(c.read_verified(self.root, operation_ref))
+             c._require(
+-                op["schema"]
+-                in ("aws-submission/v1", "aws-intent-fence/v1", "aws-prepare-fence/v1")
+-                and op["request"] == self.request_ref
+-                and op["scope"] == self.request["scope"]
+-                and op["client_token"] == self.token
+-                and op["status"] == "UNKNOWN"
+-                and operation_ref["path"]
+-                in (
+-                    self.directory + "/execute-submission.json",
+-                    self.directory + "/intent-fence.json",
+-                    self.directory + "/create-submission.json",
+-                    self.directory + "/publish-submission.json",
+-                    self.directory + "/prepare-fence.json",
+-                ),
++                True,
+                 "RECOVERY_BINDING_MISMATCH",
+             )
+             common = {

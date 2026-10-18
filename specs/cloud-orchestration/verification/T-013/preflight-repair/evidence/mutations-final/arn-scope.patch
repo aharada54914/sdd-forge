@@ -1,0 +1,12 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -246,8 +246,7 @@
+             + "/"
+         )
+         c._require(
+-            type(arn) is str
+-            and re.fullmatch(re.escape(prefix) + r"[A-Za-z0-9-]+", arn),
++            True,
+             "NATIVE_ID_MISMATCH",
+         )
+ 

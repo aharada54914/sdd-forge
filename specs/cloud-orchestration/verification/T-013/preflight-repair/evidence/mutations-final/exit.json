@@ -1,0 +1,16 @@
+{
+  "classification": "synthetic-current-code-corrective-probes",
+  "records": [
+    {
+      "case": "R9.result-mapping",
+      "row": 9,
+      "setup_complete": true,
+      "body_entered": true,
+      "expected_guard": null,
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "error": "EXIT_MISMATCH:UNKNOWN",
+      "guards": []
+    }
+  ]
+}

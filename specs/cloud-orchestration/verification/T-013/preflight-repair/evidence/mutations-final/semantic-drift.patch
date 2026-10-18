@@ -1,0 +1,20 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -834,7 +834,7 @@
+                     "apply", output, "UNKNOWN", native=True, error="RECONCILE_REQUIRED"
+                 )
+             self.authenticate(approval=True, preview=preview_ref)
+-            c._require(self.readback(semantic, data) == semantic, "PREVIEW_DRIFT")
++            c._require(True, "PREVIEW_DRIFT")
+             if semantic["no_change"]:
+                 return self.result("apply", output, "NO_CHANGE", preview=preview_ref)
+             params = dict(
+@@ -851,7 +851,7 @@
+                     "RECONCILE_REQUIRED",
+                 )
+                 c._require(
+-                    self.readback(semantic, self.check()) == semantic, "PREVIEW_DRIFT"
++                    True, "PREVIEW_DRIFT"
+                 )
+                 self.check()
+                 c.verify_binding(

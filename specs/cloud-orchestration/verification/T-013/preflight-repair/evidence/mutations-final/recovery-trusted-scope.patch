@@ -1,0 +1,23 @@
+--- plugins/sdd-aws-cloud/scripts/aws_execution.py
++++ plugins/sdd-aws-cloud/scripts/aws_execution.py
+@@ -141,19 +141,7 @@
+         _policy_valid(p)
+         r = c.read_artifact(self.root, self.request_ref, "cloud-run-request/v1")
+         c._require(
+-            r == self.request
+-            and r["provider"] == p.provider == "aws"
+-            and r["operation"] == "apply"
+-            and r["environment"] == p.target_environment
+-            and r["owner"] == "cdk"
+-            and r["route"] == "aws-cdk"
+-            and r["scope"]
+-            == dict(
+-                account_id=p.account_id,
+-                region=p.region,
+-                deployment_scope=p.deployment_scope,
+-            )
+-            and r["policy"]["sha256"] == p.policy_sha256,
++            True,
+             "TRUSTED_POLICY_BINDING_MISMATCH",
+         )
+         self.control.validate(p, r)

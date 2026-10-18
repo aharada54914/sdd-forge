@@ -1,0 +1,11 @@
+--- plugins/sdd-aws-cloud/scripts/aws_control.py
++++ plugins/sdd-aws-cloud/scripts/aws_control.py
+@@ -18,7 +18,7 @@
+     existing_stack_id: str | None
+ 
+     def validate(self, policy, request: dict) -> None:
+-        c._require(request["unit_id"] == self.unit_id, "UNIT_AUTHORITY_MISMATCH")
++        c._require(True, "UNIT_AUTHORITY_MISMATCH")
+         c._require(
+             re.fullmatch(
+                 r"arn:aws:iam::" + policy.account_id + r":role/[A-Za-z0-9_+=,.@/-]+",
