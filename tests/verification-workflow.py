@@ -155,8 +155,14 @@ def step_suites(step, catalog, row, shell):
     body = step.get('run')
     if not isinstance(body, str) or shell not in ('bash', 'pwsh'):
         return set()
+    lines = [line for line in expand_matrix(body, row).splitlines()
+             if line.strip() and not line.lstrip().startswith('#')]
+    # GitHub pwsh propagates only the final native exit code. Multiple suites
+    # must use the runner, which aggregates every result, or separate steps.
+    if shell == 'pwsh' and len(lines) != 1:
+        return set()
     found = set()
-    for line in expand_matrix(body, row).splitlines():
+    for line in lines:
         result = command_suites(line, catalog, shell)
         if result is None:
             return set()
@@ -188,6 +194,59 @@ def workflow_coverage(workflow, catalog):
 
 def coverage_errors(workflow, catalog):
     actual = workflow_coverage(workflow, catalog)
-    return [f'{row["path"]}: no admitted execution in {job}'
+    errors = [f'{row["path"]}: no admitted execution in {job}'
             for row in catalog['suites'] for job in row.get('ci_jobs', [])
             if row['path'] not in actual.get(job, set())]
+    if 'ci-posix-fallback' in catalog['profiles']:
+        errors.extend(shard_errors(workflow))
+    return errors
+
+
+def shard_errors(workflow):
+    """The complete fallback partition must run and feed the aggregate gate."""
+    jobs = workflow['jobs']
+    job = jobs.get('posix-unwired-sharded', {})
+    needs = jobs.get('required-checks', {}).get('needs', [])
+    if isinstance(needs, str):
+        needs = [needs]
+    if ('posix-unwired-sharded' not in needs or job.get('runs-on') != 'ubuntu-latest'
+            or not enabled(job.get('if'), {}, None)
+            or job.get('continue-on-error', False) is not False):
+        return ['fallback shard job must be unconditional and required']
+    rows = matrix_rows(job)
+    invocations = []
+    for row in rows:
+        admitted = []
+        for step in job.get('steps', []):
+            if (not enabled(step.get('if'), {}, None) or step.get('continue-on-error', False) is not False
+                    or step.get('shell') != 'bash' or step.get('working-directory', '.') != '.'):
+                continue
+            body = expand_matrix(step.get('run', ''), row)
+            lines = [line.strip() for line in body.splitlines() if line.strip() and not line.lstrip().startswith('#')]
+            if len(lines) != 1 or any(char in body for char in ';|&<>`') or '$(' in body:
+                continue
+            try:
+                tokens = shlex.split(lines[0])
+            except ValueError:
+                continue
+            if len(tokens) < 2 or tokens[0] != 'bash' or tokens[1].removeprefix('./') != 'tests/run-ci-unwired.sh':
+                continue
+            tokens = tokens[2:]
+            options = {}
+            while tokens:
+                key = tokens.pop(0)
+                if key not in ('--shard-index', '--shard-count', '--receipt') or key in options or not tokens:
+                    break
+                options[key] = tokens.pop(0)
+            else:
+                index, count = options.get('--shard-index', ''), options.get('--shard-count', '')
+                if re.fullmatch(r'[0-9]+', index) and re.fullmatch(r'[1-9][0-9]*', count):
+                    admitted.append((int(index), int(count)))
+        if len(admitted) != 1:
+            return ['each fallback matrix row needs exactly one unconditional shard execution']
+        invocations.extend(admitted)
+    counts = {count for _, count in invocations}
+    indices = [index for index, _ in invocations]
+    if len(counts) != 1 or next(iter(counts)) != len(indices) or sorted(indices) != list(range(len(indices))):
+        return ['fallback shard indices must cover 0..count-1 exactly once']
+    return []

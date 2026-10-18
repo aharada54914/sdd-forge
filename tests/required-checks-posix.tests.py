@@ -212,6 +212,62 @@ class RequiredChecksTests(unittest.TestCase):
         workflow['jobs']['job']['steps'][0]['shell'] = 'pwsh'
         self.assertEqual(WF.coverage_errors(workflow, catalog), [])
 
+    def test_powershell_multiline_native_failure_is_not_coverage(self):
+        paths = ['tests/a.tests.py', 'tests/b.tests.py']
+        catalog = {'suites': [{'path': path, 'runtime': 'python', 'ci_jobs': ['job']} for path in paths],
+                   'profiles': {'both': paths}}
+        workflow = {'jobs': {'job': {'runs-on': 'windows-latest',
+                    'steps': [{'run': '\n'.join('python ' + path for path in paths), 'shell': 'pwsh'}]}}}
+        self.assertEqual(len(WF.coverage_errors(workflow, catalog)), 2)
+        executable = "'" + sys.executable.replace("'", "''") + "'"
+        # Real host semantics reproduce why two individually invoked native
+        # processes cannot prove that the first test's failure gates the job.
+        body = f'& {executable} -c "raise SystemExit(23)"\n& {executable} -c "raise SystemExit(0)"\nexit $LASTEXITCODE'
+        run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', body],
+                             text=True, capture_output=True, timeout=30)
+        self.assertEqual(run.returncode, 0)
+        workflow['jobs']['job']['steps'][0]['run'] = 'python tests/verification.py --profile both --run'
+        self.assertEqual(WF.coverage_errors(workflow, catalog), [])
+
+    def test_fallback_shards_are_complete_unconditional_and_required(self):
+        self.assertEqual(WF.shard_errors(self.workflow), [])
+        job_name = 'posix-unwired-sharded'
+        mutants = []
+        for indices in ([0, 1, 2], [0, 1, 2, 2], [0, 1, 2, 4]):
+            value = copy.deepcopy(self.workflow)
+            value['jobs'][job_name]['strategy']['matrix']['shard'] = indices
+            mutants.append(value)
+        for field, setting in (('if', False), ('continue-on-error', True)):
+            value = copy.deepcopy(self.workflow)
+            value['jobs'][job_name][field] = setting
+            mutants.append(value)
+        value = copy.deepcopy(self.workflow)
+        value['jobs']['required-checks']['needs'].remove(job_name)
+        mutants.append(value)
+        for mode in ('if', 'continue-on-error', 'count', 'echo'):
+            value = copy.deepcopy(self.workflow)
+            step = next(step for step in value['jobs'][job_name]['steps']
+                        if 'tests/run-ci-unwired.sh' in step.get('run', ''))
+            if mode in ('if', 'continue-on-error'):
+                step[mode] = False if mode == 'if' else True
+            elif mode == 'count':
+                step['run'] = step['run'].replace('--shard-count 4', '--shard-count 3')
+            else:
+                step['run'] = 'echo ' + step['run']
+            mutants.append(value)
+        for number, value in enumerate(mutants):
+            with self.subTest(mutation=number):
+                self.assertTrue(WF.shard_errors(value))
+        job = self.workflow['jobs'][job_name]
+        step = next(step for step in job['steps'] if 'tests/run-ci-unwired.sh' in step.get('run', ''))
+        with tempfile.TemporaryDirectory() as directory:
+            fail = pathlib.Path(directory) / 'fail.sh'
+            fail.write_text('exit 23\n')
+            body = WF.expand_matrix(step['run'], {'shard': 0}).replace('./tests/run-ci-unwired.sh', shlex.quote(str(fail)))
+            run = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', body],
+                                 capture_output=True, text=True, timeout=10)
+            self.assertEqual(run.returncode, 23)
+
     def execute_body(self, failed_job=None, result='success', active='true'):
         def expand(match):
             name = match[1]
