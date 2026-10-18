@@ -1712,10 +1712,20 @@ def native_xml(action, values, namespace, ec2=False):
     return ET.tostring(root)
 
 
+
+def use_protected_profile(case):
+    reference = case.req["verification_profile"]
+    path = case.root / reference["path"]
+    profile = json.loads(path.read_bytes())
+    profile.update(id="cloud-compute", version="2")
+    path.write_bytes(encode(profile))
+    reference.update(id=profile["id"], version=profile["version"], sha256=hashlib.sha256(encode(profile)).hexdigest())
+
+
 class AwsObservationOrchestration(unittest.TestCase):
     """Production prepare/apply/observe code over explicitly synthetic transports."""
 
-    def setup_execution(self, *, selectors=True, update=False):
+    def setup_execution(self, *, selectors=True, update=False, protected=False):
         spec = importlib.util.spec_from_file_location(
             "observation_execution_fixtures",
             ROOT / "tests/cloud-orchestration-execution.tests.py",
@@ -1762,6 +1772,8 @@ class AwsObservationOrchestration(unittest.TestCase):
         config["observation"] = cfg
         (case.root / config_ref["path"]).write_bytes(encode(config))
         config_ref["sha256"] = hashlib.sha256(encode(config)).hexdigest()
+        if protected:
+            use_protected_profile(case)
         case.request_bytes = encode(case.req)
         (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
         case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
@@ -2275,7 +2287,7 @@ class AzureObservationOrchestration(AzureTestBase):
     o: ModuleType
     g: ModuleType
 
-    def setup_execution(self):
+    def setup_execution(self, protected=False):
         import base64
         from types import SimpleNamespace
         from urllib.parse import urlsplit
@@ -2325,6 +2337,8 @@ class AzureObservationOrchestration(AzureTestBase):
         config["observation"] = cfg
         (case.root / ref["path"]).write_bytes(encode(config))
         ref["sha256"] = hashlib.sha256(encode(config)).hexdigest()
+        if protected:
+            use_protected_profile(case)
         case.request_bytes = encode(case.req)
         (case.root / case.request_ref["path"]).write_bytes(case.request_bytes)
         case.request_ref["sha256"] = hashlib.sha256(case.request_bytes).hexdigest()
@@ -2561,7 +2575,7 @@ class ObservationWire:
 
 
 class PublicObservationCases(unittest.TestCase):
-    def setup_execution(self, provider):
+    def setup_execution(self, provider, protected=False):
         harness: AzureObservationOrchestration | AwsObservationOrchestration
         if provider == "azure":
             harness = AzureObservationOrchestration(
@@ -2573,7 +2587,7 @@ class PublicObservationCases(unittest.TestCase):
                 "test_unknown_create_ids_resolved_without_request_edits"
             )
         self.addCleanup(harness.doCleanups)
-        case, wire = harness.setup_execution()
+        case, wire = harness.setup_execution(protected=protected)
         health = wire if provider == "azure" else wire.health
         module = sys.modules["cloud"]
         return case, wire, health, module
@@ -3299,6 +3313,296 @@ class ProtectedProfileCases(unittest.TestCase):
             proc = subprocess.run([sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(root)], capture_output=True, text=True)
             self.assertNotEqual(proc.returncode, 0, proc.stdout)
             self.assertIn("cloud profile requires verification-contract/v3", proc.stdout)
+
+
+
+class ProfileDispatchIntegration(unittest.TestCase):
+    """Real public/provider consumers with synthetic API transports; no live proof."""
+
+    def fixture(self, provider):
+        harness = PublicObservationCases()
+        self.addCleanup(harness.doCleanups)
+        case, wire, health, module = harness.setup_execution(provider, protected=True)
+        return harness, case, wire, health, module
+
+    def test_both_public_paths_select_real_iac_and_health_without_fake_unit_checks(self):
+        import cloud_verification as v
+
+        for provider in ("azure", "aws"):
+            with self.subTest(provider=provider):
+                harness, case, _, _, module = self.fixture(provider)
+                result = harness.run_public(case, module, "protected")
+                self.assertEqual(result["result"], "BLOCKED", result)
+                output = case.root / (case.directory + "/protected.json")
+                plan = json.loads(Path(str(output) + ".selected-plan.json").read_bytes())
+                contract_raw = Path(str(output) + ".contract.json").read_bytes()
+                self.assertEqual(plan["selection_result"], "PASS")
+                self.assertEqual(plan["verdict"], "BLOCKED")
+                self.assertEqual({c["id"] for c in plan["checks"]}, set(v.CHECKS) | set(v.PREFLIGHT_IDS))
+                self.assertTrue(all(c["required"] is True for c in plan["checks"]))
+                self.assertEqual(v.saved_profile_plan(contract_raw, case.root), plan)
+                for check in plan["checks"]:
+                    c.read_verified(case.root, check["evidence"])
+                self.doCleanups()
+
+    def test_native_transport_protocol_double_reaches_positive_existing_boundary(self):
+        import cloud_authorization as auth
+
+        for provider in ("azure", "aws"):
+            with self.subTest(provider=provider):
+                harness, case, _, _, module = self.fixture(provider)
+                holder = case.executor.client if provider == "azure" else case.executor.native
+                native_type = sys.modules[provider + ("_arm" if provider == "azure" else "_native")].HttpsTransport
+                native, admission = native_type(), auth.HttpsTransport()
+                old_native, old_admission = holder.transport, case.executor.boundary.transport
+                with (patch.object(native, "request", side_effect=old_native.request),
+                      patch.object(admission, "request", side_effect=old_admission.request),
+                      patch.object(holder, "transport", native),
+                      patch.object(case.executor.boundary, "transport", admission)):
+                    result = harness.run_public(case, module, "native-protocol-double")
+                self.assertEqual(result["result"], "PASS", result)
+                output = case.root / (case.directory + "/native-protocol-double.json")
+                plan = json.loads(Path(str(output) + ".selected-plan.json").read_bytes())
+                self.assertEqual(plan["verdict"], "PASS")
+                # The saved-file reader NEVER inherits the in-process trust decision.
+                import cloud_verification as v
+                saved = v.saved_profile_plan(Path(str(output) + ".contract.json").read_bytes(), case.root)
+                self.assertEqual(saved["verdict"], "BLOCKED")
+                self.doCleanups()
+
+    def test_preview_and_iac_mismatches_at_public_boundary(self):
+        for provider in ("azure", "aws"):
+            for variant in ("preview-missing", "preview-binding", "compiled-drift"):
+                with self.subTest(provider=provider, variant=variant):
+                    harness, case, _, _, module = self.fixture(provider)
+                    journal_name = "deployment-submission.json" if provider == "azure" else "execute-submission.json"
+                    journal = json.loads((case.root / (case.directory + "/" + journal_name)).read_bytes())
+                    if variant == "compiled-drift":
+                        artifact = next(a for a in case.req["input_artifacts"] if a["kind"] == "compiled")
+                        (case.root / artifact["path"]).write_bytes(b"{}")
+                    else:
+                        path = case.root / journal["preview"]["path"]
+                        if variant == "preview-missing":
+                            path.unlink()
+                        else:
+                            doc = json.loads(path.read_bytes())
+                            doc["scope"]["region"] = "other"
+                            path.write_bytes(encode(doc))
+                    result = harness.run_public(case, module, "negative")
+                    self.assertNotEqual(result["result"], "PASS")
+                    self.assertFalse((case.root / (case.directory + "/negative.json.selected-plan.json")).exists())
+                    self.doCleanups()
+
+
+
+class ProfileSavedConsumers(unittest.TestCase):
+    def fixture(self):
+        helper = ProfileDispatchIntegration()
+        self.addCleanup(helper.doCleanups)
+        harness, case, _, _, module = helper.fixture("aws")
+        result = harness.run_public(case, module, "saved")
+        self.assertEqual(result["result"], "BLOCKED")
+        path = case.root / (case.directory + "/saved.json.contract.json")
+        return case, path, json.loads(path.read_bytes())
+
+    def test_all_direct_consumers_explicit_selection_not_saved_authority(self):
+        case, path, contract = self.fixture()
+        plan_path = case.root / (case.directory + "/saved.json.selected-plan.json")
+        plan = json.loads(plan_path.read_bytes())
+        commands = [
+            [sys.executable, "-B", str(SHARED / "check-contract.py"), str(path), str(case.root)],
+            ["sh", str(SHARED / "check-contract.sh"), str(path), str(case.root)],
+            ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", str(SHARED / "check-contract.ps1"), "-ContractPath", str(path), "-RepoRoot", str(case.root)],
+        ]
+        for command in commands:
+            with self.subTest(consumer=command[0]):
+                proc = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(proc.returncode, 1, proc.stderr)
+                self.assertIn("fresh authenticated collection", proc.stdout)
+        spec = importlib.util.spec_from_file_location("profile_selected_fixture", ROOT / "tests/sdd-domain-multitarget-T-003.tests.py")
+        assert spec and spec.loader
+        fixture_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixture_module)
+        registry, manifest, _ = fixture_module.passing_fixture("iac-cloud")
+        manifest["feature"] = contract["feature"]
+        for name, value in (("registry.json", registry), ("facet.json", manifest)):
+            (case.root / name).write_text(json.dumps(value))
+        output = case.root / "specs" / contract["feature"] / "verification" / contract["task_id"] / "selected-plan.json"
+        proc = subprocess.run([sys.executable, "-B", str(SHARED / "evaluate-selected-plan.py"),
+            "--repo-root", str(case.root), "--registry", str(case.root / "registry.json"),
+            "--facet-manifest", str(case.root / "facet.json"), "--contract", str(path),
+            "--output", str(output)], capture_output=True, text=True, timeout=30)
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        self.assertIn("selected-verification-plan: BLOCKED", proc.stdout)
+        self.assertEqual(json.loads(output.read_bytes()), plan)
+        self.assertNotIn("unit-tests", {c["id"] for c in plan["checks"]})
+
+    def test_saved_contract_each_field_and_binding_guard(self):
+        import cloud_verification as v
+
+        case, _, baseline = self.fixture()
+        control = v.saved_profile_plan(encode(baseline), case.root)
+        self.assertEqual(control["selection_result"], "PASS")
+        self.assertEqual(control["verdict"], "BLOCKED")
+        for key in baseline:
+            mutated = copy.deepcopy(baseline)
+            del mutated[key]
+            with self.subTest(missing=key), self.assertRaises(ValueError):
+                v.saved_profile_plan(encode(mutated), case.root)
+        for key, value in [("schema", "verification-contract/v999"), ("profile", "Cloud"),
+                           ("feature", "other"), ("task_id", "T-999"), ("unknown", True)]:
+            with self.subTest(field=key), self.assertRaises(ValueError):
+                v.saved_profile_plan(encode(dict(baseline, **{key: value})), case.root)
+        for key in ("request", "preview", "verification"):
+            for field, value in [("path", "../escape"), ("sha256", "0" * 64), ("unknown", "x")]:
+                mutated = copy.deepcopy(baseline)
+                mutated[key][field] = value
+                with self.subTest(ref=key, field=field), self.assertRaises(ValueError):
+                    v.saved_profile_plan(encode(mutated), case.root)
+        for raw in [encode(baseline).replace(b'"profile": "cloud"', b'"profile": "cloud", "profile": "cloud"'),
+                    encode(baseline).replace(b'"profile": "cloud"', b'"profile": NaN')]:
+            with self.assertRaises(ValueError):
+                v.saved_profile_plan(raw, case.root)
+        # Rehash mutated counterpart records: the mismatch body, not the digest gate, must reject.
+        for key, fields, message in [
+            ("preview", ("run_id", "unit_id", "provider", "scope", "request", "dependency_lock", "policy", "verification_profile"), "PROFILE_PREVIEW_BINDING_MISMATCH"),
+            ("verification", ("run_id", "unit_id", "provider", "profile", "required_check_ids"), "PROFILE_VERIFICATION_MISMATCH"),
+        ]:
+            artifact_path = case.root / baseline[key]["path"]
+            original = artifact_path.read_bytes()
+            for field in fields:
+                document = json.loads(original)
+                val = document[field]
+                if field == "required_check_ids":
+                    document[field] = list(reversed(val))
+                elif isinstance(val, dict):
+                    document[field] = dict(val)
+                    if "id" in val:
+                        document[field]["id"] = "other"
+                    elif "sha256" in val:
+                        document[field] = dict(case.req["dependency_lock"] if field == "policy" else case.req["policy"])
+                    else:
+                        document[field]["region"] = "other"
+                elif field == "provider":
+                    document[field] = "azure"
+                else:
+                    document[field] = "other"
+                artifact_path.write_bytes(encode(document))
+                mutated = copy.deepcopy(baseline)
+                mutated[key]["sha256"] = hashlib.sha256(encode(document)).hexdigest()
+                try:
+                    with self.subTest(artifact=key, field=field), self.assertRaisesRegex(ValueError, message):
+                        v.saved_profile_plan(encode(mutated), case.root)
+                finally:
+                    artifact_path.write_bytes(original)
+        self.assertEqual(v.saved_profile_plan(encode(baseline), case.root), control)
+
+    def test_plan_fields_match_schema_and_recomputed_counterparts(self):
+        case, _, baseline = self.fixture()
+        import cloud_verification as v
+
+        spec = importlib.util.spec_from_file_location("profile_selected_evaluator", SHARED / "evaluate-selected-plan.py")
+        assert spec and spec.loader
+        evaluator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(evaluator)
+        expected = v.saved_profile_plan(encode(baseline), case.root)
+        self.assertEqual(evaluator.validate_plan(expected, expected), [])
+        for key in expected:
+            mutated = copy.deepcopy(expected)
+            del mutated[key]
+            with self.subTest(missing=key):
+                self.assertTrue(evaluator.validate_plan(mutated, expected))
+        for field in expected["bindings"]:
+            mutated = copy.deepcopy(expected)
+            mutated["bindings"][field] = "0" * 64
+            with self.subTest(binding=field):
+                self.assertIn("selected-plan-input-mismatch", evaluator.validate_plan(mutated, expected))
+        for i, check in enumerate(expected["checks"]):
+            for field, val in [("id", "unit-tests"), ("required", False), ("result", "PASS"), ("evidence", dict(path="other.json", sha256="0" * 64))]:
+                mutated = copy.deepcopy(expected)
+                mutated["checks"][i][field] = val
+                with self.subTest(check=check["id"], field=field):
+                    self.assertTrue(evaluator.validate_plan(mutated, expected))
+            mutated = copy.deepcopy(expected)
+            mutated["checks"].pop(i)
+            self.assertTrue(evaluator.validate_plan(mutated, expected))
+        for field, value in [("schema", "selected-verification-plan/v999"), ("verdict", "PASS"), ("selection_result", "FAIL"), ("profile", "Cloud")]:
+            self.assertTrue(evaluator.validate_plan(dict(expected, **{field: value}), expected))
+
+    def test_registry_protection_and_old_schema_mirrors(self):
+        import cloud_verification as v
+
+        registry = ROOT / "plugins/sdd-quality-loop/references/cloud-verification-registry.json"
+        raw = registry.read_bytes()
+        profile = dict(schema="cloud-verification-profile/v1", id="cloud-compute", version="2", required_check_ids=sorted(v.CHECKS), max_age_seconds=300)
+        chosen, _ = v.protected_selection(profile, dict(backup_required=True))
+        self.assertEqual(set(chosen), set(v.CHECKS) | set(v.PREFLIGHT_IDS))
+        for field in ("id", "version", "required_check_ids", "conditional_check_ids", "preflight_check_ids"):
+            document = json.loads(raw)
+            document["profiles"][0][field] = [] if field.endswith("ids") else ("999" if field == "version" else "unknown")
+            with patch.object(Path, "read_bytes", return_value=encode(document)), self.subTest(field=field), self.assertRaisesRegex(ValueError, "PROFILE_REGISTRY_INVALID"):
+                v.protected_selection(profile, dict(backup_required=True))
+        for cid in v.CHECKS:
+            mutated = dict(profile, required_check_ids=[c for c in profile["required_check_ids"] if c != cid])
+            with self.subTest(check=cid), self.assertRaisesRegex(ValueError, "PROFILE_CHECK_SET_MISMATCH"):
+                v.protected_selection(mutated, dict(backup_required=True))
+        guard = json.loads((SHARED.parent / "references/guard-invariants.json").read_bytes())
+        self.assertIn(registry.relative_to(ROOT).as_posix(), guard["protected_gate_suffixes"])
+        for name in ("selected-verification-plan.schema.json", "selected-verification-plan-v2.schema.json", "verification-contract-v3.schema.json", "cloud-verification-registry.schema.json", "capability-registry.schema.json", "capability-registry.json"):
+            self.assertEqual((ROOT / "contracts" / name).read_bytes(), (SHARED.parent / "contracts" / name).read_bytes())
+
+    def test_legacy_import_never_loads_cloud_runtime(self):
+        import ast
+
+        script = SHARED / "check-contract.py"
+        ast.parse(script.read_text(), feature_version=(3, 6))
+        source = "import runpy,sys; runpy.run_path(sys.argv[1],run_name='legacy_import'); assert 'cloud_verification' not in sys.modules; assert 'cloud_contracts' not in sys.modules"
+        proc = subprocess.run([sys.executable, "-B", "-c", source, str(script)], capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+
+
+
+class ProfilePreviewProvenance(unittest.TestCase):
+    def test_self_consistent_postapply_preview_substitution_is_not_authenticated(self):
+        import cloud_authorization as auth
+
+        for provider in ("aws", "azure"):
+            with self.subTest(provider=provider):
+                helper = ProfileDispatchIntegration()
+                self.addCleanup(helper.doCleanups)
+                harness, case, _, _, module = helper.fixture(provider)
+                holder = case.executor.client if provider == "azure" else case.executor.native
+                native_type = sys.modules[provider + ("_arm" if provider == "azure" else "_native")].HttpsTransport
+                native, admission = native_type(), auth.HttpsTransport()
+                old_native, old_admission = holder.transport, case.executor.boundary.transport
+                journal_path = case.root / (case.directory + "/" + ("deployment-submission.json" if provider == "azure" else "execute-submission.json"))
+                journal = json.loads(journal_path.read_bytes())
+                preview_path = case.root / journal["preview"]["path"]
+                preview = json.loads(preview_path.read_bytes())
+                changes_path = case.root / preview["changes"]["path"]
+                changes = json.loads(changes_path.read_bytes())
+                with (patch.object(native, "request", side_effect=old_native.request),
+                      patch.object(admission, "request", side_effect=old_admission.request),
+                      patch.object(holder, "transport", native),
+                      patch.object(case.executor.boundary, "transport", admission)):
+                    control = harness.run_public(case, module, "before-substitution")
+                    self.assertEqual(control["result"], "PASS", control)
+                    changes["changes"] = []
+                    changes_path.write_bytes(encode(changes))
+                    preview["changes"]["sha256"] = hashlib.sha256(encode(changes)).hexdigest()
+                    preview["semantic_sha256"] = preview["changes"]["sha256"]
+                    preview_path.write_bytes(encode(preview))
+                    journal["preview"]["sha256"] = hashlib.sha256(encode(preview)).hexdigest()
+                    journal_path.write_bytes(encode(journal))
+                    if provider == "azure":
+                        receipt_path = case.root / (case.directory + "/" + case.req["unit_id"] + ".apply.deploy.authorization.json")
+                        receipt = json.loads(receipt_path.read_bytes())
+                        receipt["preview"] = journal["preview"]
+                        receipt_path.write_bytes(encode(receipt))
+                    result = harness.run_public(case, module, "after-substitution")
+                self.assertNotEqual(result["result"], "PASS", result)
+                self.assertFalse((case.root / (case.directory + "/after-substitution.json.selected-plan.json")).exists())
+                self.doCleanups()
 
 
 if __name__ == "__main__":
