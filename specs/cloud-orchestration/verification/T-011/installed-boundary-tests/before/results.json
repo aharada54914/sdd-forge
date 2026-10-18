@@ -1,0 +1,54 @@
+{
+  "test_sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+  "helper_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+  "records": [
+    {
+      "variant": "control",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "semantic_delegation_failures": 0,
+      "mutations": [
+        {
+          "before_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+          "mutant_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+          "restored_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+        }
+      ],
+      "fixture_removed": true
+    },
+    {
+      "variant": "physical-path-policy",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "semantic_delegation_failures": 0,
+      "mutations": [
+        {
+          "before_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+          "mutant_sha256": "b3ad3370b985278c894cecbff5be1cb2e83240b2257019cae925df812478307b",
+          "restored_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+        }
+      ],
+      "fixture_removed": true
+    },
+    {
+      "variant": "runtime-presence",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "semantic_delegation_failures": 0,
+      "mutations": [
+        {
+          "before_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+          "mutant_sha256": "eb0d38a9595f8dbb2fc64f644e1c4d6d44f4ac5ea66f5d0eca9d78ff2483fab6",
+          "restored_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b"
+        }
+      ],
+      "fixture_removed": true
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "base_revision": "7180cc35f3258c1424a1bc1bc045cf5ffaf9d1b4",
+  "test_sha256": "2ea10b036fcfe019f045b7912b15c11abf2975f61424f055b44822bc59fbf971",
+  "helper_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+  "canonical_report_sha256": "2956e2e48c00cfcb8b7e5380362ae9df7f6627bfa086ad9b987f869931c765ea",
+  "previous_repair_report_sha256": "2b99d5745ae2bd9ffe22799a6195364bd6ee9b1eed8cdd5eacdab554bdedf998"
+}

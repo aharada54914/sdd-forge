@@ -1,0 +1,14 @@
+{
+  "snapshot_root": "/tmp/cloud-T011-installed-01a15032/inputs",
+  "repository_prefix": "initial/",
+  "external": {
+    "external/0/AGENTS.md": "/workspace/AGENTS.md",
+    "external/1/SKILL.md": "/workspace/.tools/sdd-forge-dev/upstream/ponytail/skills/ponytail/SKILL.md",
+    "external/2/SKILL.md": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/coding-standards/SKILL.md",
+    "external/3/SKILL.md": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/security-review/SKILL.md",
+    "external/4/SKILL.md": "/workspace/.tools/sdd-forge-dev/upstream/ecc/skills/verification-loop/SKILL.md",
+    "external/5/SKILL.md": "/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-behavior-eval/SKILL.md",
+    "external/6/SKILL.md": "/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-blast-radius/SKILL.md",
+    "external/7/cloud-native-test-env.sh": "/tmp/cloud-native-test-env.sh"
+  }
+}

@@ -1,0 +1,6 @@
+task_id exit 1  TASK_INPUT_IDENTITY: task_id does not match expected task
+
+fallback_reason exit 1  TASK_INPUT_ISOLATION: fresh-agent forbids fallback fields
+
+sha256 exit 1  TASK_INPUT_HASH: snapshot hash mismatch: initial/.github/workflows/test.yml
+

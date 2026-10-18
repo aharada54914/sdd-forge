@@ -1,0 +1,10 @@
+test_explicit_provider_and_installed_identity_are_required (routing_sensitivity.BootstrapInstalled.test_explicit_provider_and_installed_identity_are_required) ... ok
+test_installed_provider_guard_sensitivity (routing_sensitivity.BootstrapInstalled.test_installed_provider_guard_sensitivity) ... ok
+test_owner_import_digest_and_output_guards_have_matched_controls (routing_sensitivity.BootstrapInstalled.test_owner_import_digest_and_output_guards_have_matched_controls) ... ok
+test_request_mismatches_and_no_implicit_approval (routing_sensitivity.BootstrapInstalled.test_request_mismatches_and_no_implicit_approval) ... ok
+test_same_canonical_request_route_and_direct_write_denial (routing_sensitivity.BootstrapInstalled.test_same_canonical_request_route_and_direct_write_denial) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.401s
+
+OK
