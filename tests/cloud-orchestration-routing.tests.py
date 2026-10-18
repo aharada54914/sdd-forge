@@ -795,7 +795,8 @@ class AwsNativePreparation(AwsRouting):
     def setUp(self):
         super().setUp()
         self.toolroot = Path(os.environ.get("CLOUD_CDK_ROOT", "/workspace/.tools/cloud/cdk/2.1145.0"))
-        self.env = {"CLOUD_CDK_ROOT": str(self.toolroot)}
+        self.node = Path(os.environ.get("CLOUD_NODE_BIN", "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"))
+        self.env = {"CLOUD_CDK_ROOT": str(self.toolroot), "CLOUD_NODE_BIN": str(self.node)}
         self.params = dict(account="111111111111", region="us-east-1", stackName="SyntheticPrivate",
             vpcId="vpc-11111111", subnetId="subnet-11111111", instanceProfile="synthetic-profile",
             imageId="ami-11111111111111111", instanceType="t3.small", backupPlanId="synthetic-plan",
@@ -884,6 +885,15 @@ class AwsNativePreparation(AwsRouting):
         self.assertEqual(self.invoke("plan",expected=2)["error_code"],"LOCAL_POLICY_DENIED")
         self.put("bundle/unit/cdk.out/raw.json",dict(Resources={}))
         self.assertEqual(self.invoke(expected=2)["error_code"],"OWNER_CONFLICT")
+
+    def test_explicit_node_location_and_bytes(self):
+        self.native_prerequisites()
+        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":""})["error_code"],"NODE_UNAVAILABLE")
+        alternate=self.root/"trusted-node"
+        alternate.write_bytes(self.node.read_bytes());alternate.chmod(0o700)
+        self.assertEqual(self.invoke("plan",env_extra={"CLOUD_NODE_BIN":str(alternate)})["state"],"PLANNED")
+        alternate.write_bytes(b"#!/bin/sh\nexit 0\n")
+        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":str(alternate)},output=self.evidence+"/wrong-node.json")["error_code"],"NODE_RUNTIME_DRIFT")
 
     def test_installed_runtime_mutation_denied(self):
         self.native_prerequisites()
