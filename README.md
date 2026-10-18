@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.18.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.19.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 ## クイックスタート（2コマンド）
 
@@ -118,6 +118,19 @@ flowchart LR
 検査し、通常の CI でも実行します。対応範囲とクラウド拡張の進捗は
 [クラウド対応ガイド](docs/cloud-orchestration.md)を参照してください。
 
+Azure Bicep / AWS CDK の opt-in エントリは `/sdd-azure-cloud:orchestrate` /
+`/sdd-aws-cloud:orchestrate` です。レビュー済み checkout から明示導入します:
+
+```sh
+bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
+```
+
+共有 runtime はこのリポジトリの installer が組み立てます。bare remote marketplace
+provider entry の直接導入だけでは動作しません。既定の bootstrap/ship 導入は変更しません。
+ローカル route/plan/validate と保護 CI の prepare/apply は別の権限境界です。
+実クラウド TEST-003/005/009 は sandbox 未提供のため BLOCKED。タグは本番対応の証明ではありません。
+[実行契約・例・復旧・プラットフォーム制約](docs/cloud-orchestration.md)を先に確認してください。
+
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
 
 ### MCP サーバー
@@ -200,7 +213,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
 | `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
 
-`--plugins` に指定できる名前は次の 7 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain`。
+`--plugins` に指定できる名前は次の 9 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud`。
 
 **依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます（自動追加された分は警告として表示されます）。
 
@@ -248,7 +261,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
 | `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
 | `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
-| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` から小文字で選択。既定はこの 7 件すべて |
+| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud` から小文字で選択。既定は `sdd-bootstrap,sdd-ship` とその依存（cloud/domain は opt-in） |
 | `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
 | `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
 | `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
@@ -285,7 +298,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
 | [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
-| [docs/skill-reference.md](docs/skill-reference.md) | 26スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 29スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

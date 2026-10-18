@@ -1,0 +1,16 @@
+[
+  {
+    "url": "https://cli.github.com/manual/gh_workflow_run",
+    "sha256": "6bccf326ffb4be7fbf6ba6ef4d804665fd74860b206fb5a9830d6f3fe065c2ec",
+    "retrieved_at": "2026-10-18T18:42:31Z",
+    "contains_branch": true,
+    "contains_tag": true
+  },
+  {
+    "url": "https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event",
+    "sha256": "06f9b0473967b04b2216b718537a83fd6bee3f5c74f34063c75673f8d92b3798",
+    "retrieved_at": "2026-10-18T18:42:33Z",
+    "contains_branch": true,
+    "contains_tag": true
+  }
+]

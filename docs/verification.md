@@ -73,3 +73,23 @@ Raw test logs and application execution records may contain local paths or other
 private data. Keep them private; publish only reviewed summaries. Successful
 execution receipts are not credentials, human approvals, or permission to reuse
 results against changed source or environments.
+
+## Cloud evidence and platform coverage
+
+The catalog registers cloud-orchestration contracts, routing, execution, verification,
+profile and dependency suites, together with the #423 foundation regression. Use
+`python3 tests/verification.py --suite tests/cloud-orchestration-routing.tests.py --run`
+for scoped iteration; release verification still runs the full exact-commit profile
+and test.yml, including required native OS lanes. Do not reintroduce a duplicate inventory.
+
+Local synthetic transports, real pinned Bicep/CDK compilation, native model/guard
+invocation and live cloud acceptance are separate classes. TEST-003/005/009 remain
+BLOCKED without owner sandbox prerequisites. Native Windows installer/PowerShell
+guard/schema tests do not prove provider CLI support: POSIX-positive cases skip,
+Windows roots return UNSAFE_ROOT and unsupported safe-file primitives return
+UNSUPPORTED_FILESYSTEM. Linux fixtures do not prove native Windows junction coverage;
+record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
+
+CI-efficiency research is not adopted selection or achieved savings. The current
+selection experiment remains observational; skipped/planned checks are never PASS.
+Keep required-checks and native Windows compatibility/gate/A9 obligations intact.

@@ -1,0 +1,14 @@
+{
+  "id": 900802,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+    "expectedTurnId": "01a15048-2140-7782-9bf4-949101b51360",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root examined the new AWS service-authorization JSON publication HOLD. The complete JSON contains only machine facts (action/operation/resource identifiers, ARN formats, condition keys, SDK mappings, booleans/version), no Description/docs prose or source code, and no string over100 characters. Do not attribute it to botocore or invent a license. Lack of an explicit documentation license alone should not create an automatic publication blocker for this factual reference dataset. Root is recording a narrow factual-data/source attribution assessment against the official public machine-readable reference endpoint, separately from the seven full-text HTML exclusions. Keep your provenance correction; let the current publication addendum classify this JSON as public factual API metadata with source/hash and no license claim, rather than treating it as full documentation text. Do not rewrite any frozen historical evidence. Root will bind the final factual inspection record before publication."
+      }
+    ]
+  }
+}

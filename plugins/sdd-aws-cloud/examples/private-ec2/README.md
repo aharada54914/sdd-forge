@@ -25,3 +25,20 @@ See `../../references/local-preparation.md` for commands, trust boundaries,
 source inventory rules, strict policy support, template-only asset support and
 POSIX/Linux binary limits. Do not execute untrusted CDK on a credentialed host.
 No install lifecycle, cloud write, implicit bootstrap or asset upload is included.
+
+## Current operator workflow
+
+Use the repository installer with explicit cloud plugin selection; the bare
+marketplace source has no generated shared runtime. All invocation examples
+require an explicit trusted CLOUD_SHARED_RUNTIME_ROOT. The full operator guide
+(`docs/cloud-orchestration.md` in the repository) supplies strict request fields,
+credential-free plan/validate commands, official Linux x64 tool acquisition and
+separate protected prepare/apply/verify setup. No example scope grants authority.
+CREATE physical IDs/recovery points come from original native deployment resources,
+not fabricated predeployment values or later edits to locked requests.
+
+For a small local route-only fixture, run the repository's
+`plugins/sdd-azure-cloud/examples/local-route-example.py NEW_PHYSICAL_DIRECTORY`
+(with `--provider aws` for AWS). This is synthetic discovery, not compilation
+or a complete deployment example. Full native compile/synth inputs remain the
+strict provider configuration and source fixture described above.

@@ -1,9 +1,9 @@
 # Azure local route / plan / validate (v1)
 
-This adapter is local-only. It has **no provider HTTP client, credentials, ARM
-validation, deployment, what-if, observation or approval implementation**. All
-five other public phases return typed `OPERATION_UNIMPLEMENTED` / BLOCKED / exit
-2, with no invented native operation ID. T-012 owns governed execution.
+This reference covers credential-free local phases. The CLI also dispatches
+[governed execution](../scripts/governed-setup.md) and [read-only observations](observations.md)
+through a trusted executor. Direct local prepare/apply/reconcile calls remain
+BLOCKED; observe/verify require `TRUSTED_COLLECTOR_REQUIRED`. No local flag grants authority.
 
 ## Invocation and installation seam
 
@@ -29,7 +29,7 @@ runtime. An installer may explicitly set `CLOUD_SHARED_RUNTIME_ROOT` to the
 physical absolute trusted directory containing that exact shared module. There
 is no cwd/workspace/PYTHONPATH fallback to a different validator. This is trusted
 installed code, not an artifact-provided runtime. Missing runtime returns a
-structured input error. Packaging and bootstrap integration belong to T-007/011.
+structured input error. The repository installer packages this runtime before host registration; bootstrap delegates the same request.
 
 `CLOUD_BICEP_BIN` selects an explicitly installed, physical executable. The only
 currently tested binary is Linux x64 Bicep 0.48.1 (cec7951cf6), SHA-256
@@ -185,3 +185,9 @@ the same decoder. Recognized raw CloudFormation/SAM YAML is rejected as a mixed
 owner; other non-JSON YAML in scanned unit roots is `OWNER_UNRESOLVED`. This bounded
 Bicep route does not guess ownership from unsupported YAML syntax. Keep unrelated
 YAML outside the deployment unit roots or provide a supported unambiguous input.
+
+## Upstream attribution
+
+Pinned upstream reference material retains its original authorship and license.
+See [full upstream license](LICENSE-upstream.txt); commit/source and consumed-file digests remain in upstream-lock.json.
+These notices do not grant cloud authority or alter the frozen dependency closure.

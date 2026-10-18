@@ -4,7 +4,7 @@ This is the concrete **Azure** caller integration for T-003's shared admission
 boundary, replacing the Azure execution sketch in `templates/cloud/github-azure.yml`.
 That sketch remains historical task input, not an executable production recipe.
 No workflow in this repository is activated. Do not enable either sketch as-is.
-T-012 changes only Azure scripts, its execution tests, and its task addendum.
+This current operator reference includes the final observation/dependency integration.
 
 ## Acyclic pins: install in this order
 
@@ -19,13 +19,17 @@ T-012 changes only Azure scripts, its execution tests, and its task addendum.
    The renderer accepts only a complete configuration and a 40-hex executor pin.
    `python3 -I plugins/sdd-azure-cloud/scripts/azure_governed.py --render-template`
    emits an intentionally inert placeholder template for inspection only.
-3. Configure protected environments `sandbox-prepare` and `sandbox-apply` in
+3. Configure protected environments `sandbox-prepare`, `sandbox-apply`,
+   `sandbox-reconcile`, `sandbox-observe` and `sandbox-verify` in
    that control repository. Required named user reviewers, no self-review, no
    administrator bypass, protected branches only; install T-003's custom OIDC
    subject keys `repo`, `context`, `workflow_ref`, `workflow_sha`. Obtain actual
    numeric repository/environment/actor/reviewer IDs from GitHub. Set fixed
    protected-environment variables `AZURE_PREPARE_POLICY` and `AZURE_APPLY_POLICY`
-   to the stage-specific JSON below, now pinning **W**. Neither variable is a run
+   to the stage-specific JSON below, now pinning **W**. Also configure
+   `AZURE_RECONCILE_POLICY`, `AZURE_OBSERVE_POLICY` and `AZURE_VERIFY_POLICY`
+   for their separate read-only identities/environments (operation `apply`
+   is the original-operation discriminator, not permission to write). Neither variable is a run
    input or deployment artifact. Restrict environment-variable administration
    to the platform owner; branches cannot supply alternative trusted config.
 4. **After W exists**, create distinct Entra applications/service principals and
@@ -38,7 +42,9 @@ T-012 changes only Azure scripts, its execution tests, and its task addendum.
    Replace W with the literal reviewed commit in both federation and external
    protected policy. Never use a wildcard/mutable branch alone or derive the
    expected revision from `GITHUB_SHA`, OIDC claims, an unsigned receipt, or a
-   request field. Require dispatch at W. When the control branch advances,
+   request field. Dispatch with an operator-selected protected CONTROL_REF branch name resolving
+   to W (the native API accepts branch/tag names, not raw commit SHAs). The
+   shipped Policy uses refs/heads/main; exact workflow_sha must still equal W. When the control branch advances,
    explicitly re-review and update native federation plus protected policy before
    admitting that new commit. Changes to E require a new W; no self-referential
    Git hash is required at any step.
@@ -266,3 +272,27 @@ native federation/roles/concurrency and artifact storage enforcement remain
 **BLOCKED** until an owner-authorized sandbox exists. Azure's final preview/PUT
 race against external writers remains. No cloud writes, messages, cleanup,
 release publication or independent review were performed by T-012 development.
+
+## Current fixed-phase observation and dependency setup
+
+Use the current generated JSON workflow, not old task-input templates. See
+[observation contract](../references/observations.md) and
+[complete predecessor owner fields](../references/dependencies.md). Configure
+read-only sandbox-verify and PROVIDER_VERIFY_POLICY (replace PROVIDER with
+AZURE or AWS), whose operation apply denotes the original operation only.
+The shared WriteBoundary rejects this environment as a writer. Producer proof
+requires the exact generated verify job, successful collection/upload steps and
+original request/preview title plus pinned E/W and immutable artifact digest.
+Cross-repository GitHub artifact/run/jobs/workflow/environment/approval reads
+need explicit owner-arranged token permissions; no automatic privilege widening.
+Freshness propagates to the existing receipt expires_at and both native callback
+guards. Changes to immutable predecessors require new consumer authorization.
+
+Azure migration: regenerate ambiguous old workflow layouts and review/pin a new W
+and matching native federation before observation/verification. Current jobs have
+literal prepare/apply/reconcile/observe/verify commands; apply uses
+--require-native-apply. A successful original apply step/job at the exact W/E
+bounds completion; skipped/no-op/reconcile cannot substitute. Never derive terminal
+time from ARM deployment timestamp alone. Read-only observe/verify must meet the
+sole workload-principal and exact scoped permission closure in observations.md;
+unsupported identity/DCR contexts fail closed rather than gain broad roles.

@@ -1,0 +1,7 @@
+candidate docs exit 0 expected 0
+candidate validator exit 0 expected 0
+restored-entry docs exit 1 expected 1
+restored-entry validator exit 0 expected 0
+reapplied docs exit 0 expected 0
+reapplied validator exit 0 expected 0
+PASS: exact task-owned entry restoration and reapply; no cloud rollback or live workspace edits

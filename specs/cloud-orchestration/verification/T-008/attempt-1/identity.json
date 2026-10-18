@@ -1,0 +1,13 @@
+{
+  "run_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "session_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "agent_instance_id": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+  "source": "explicit native host identity supplied by caller in T-008 assignment; not inherited environment",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "model_tier": "strong",
+  "isolation_mode": "fresh-agent",
+  "scratch_root": "/tmp/T008-01a15048",
+  "base_revision": "9210c080f0face44217f569ad2c578fdaf44385f"
+}

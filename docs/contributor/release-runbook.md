@@ -174,3 +174,35 @@ failure()` を追加することで、このゲートを無効化できる可能
 公開記録にはタグ、コミット、CI の URL、配布アセットの作成有無を残します。
 クラウド対応の fixture 検証は実環境での IAM・デプロイ・ヘルス検証の代わりに
 ならないため、実クラウドの未実行項目も別に記録します。
+
+## Cloud release publication boundary
+
+Use tests/verification-catalog.json and its consuming verification.py /
+verification-workflow.py drivers, not a second inventory. After a task-scoped bump,
+root commits the complete curated candidate, runs the full suite in an isolated exact
+checkout and dispatches test.yml at that same commit (full coverage; no selected-test
+release shortcut). Preserve required-checks and all native OS lanes. Record actual
+CI URL, commit, OS results, annotated remote tag/peeled commit and assets status in
+reports/verification/cloud-orchestration-release.md only after each action succeeds.
+Never overwrite tags, auto-merge, or imply that a tag publishes Release assets.
+
+Exclude private native-events.jsonl and native-stderr.log explicitly from staging
+and publication: the root .gitignore verification/*.log negation overrides local
+exclude assumptions. Inspect exact staged paths, not just git status. Do not stage
+account metadata or raw provider responses. Public API snapshots need upstream
+license/attribution notices; full AWS documentation HTML without established
+redistribution permission stays private, with source URL/digest addenda instead.
+Frozen local reports/snapshots are not rewritten to pretend every input ships.
+
+Carry forward T-006 attempt-3/network-isolation.md: earlier fixture aliases may have
+attempted unauthenticated read-only Azure HTTPS with a synthetic token/fictional
+subscription; delivery/count unknown, no authenticated success/write. Affected old
+aggregate PASS is invalid guard evidence. Final guarded suites prohibit urllib I/O
+including subprocess and rollback paths. This is not live acceptance.
+TEST-003/005/009 and affected task Done remain BLOCKED pending authorized sandbox.
+A release tag is not production-readiness approval.
+
+`gh workflow run --ref` の引数は branch/tag 名です（raw commit SHA ではありません）。
+release test.yml は operator-selected protected ref が対象コミットを指すことを確認し、
+実際の CI head SHA も一致させます。cloud workflow の CONTROL_REF も同様ですが、
+外部 Policy.workflow_revision / native workflow_sha の exact W 検証は維持します。

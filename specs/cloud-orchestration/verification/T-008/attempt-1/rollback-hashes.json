@@ -1,0 +1,305 @@
+{
+  "base_revision": "9210c080f0face44217f569ad2c578fdaf44385f",
+  "files": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "candidate_sha256": "1ce3e326f244614f6d7410d3ba665283ee654e4cd68bd81d95da3a50b512ec7e",
+      "entry_sha256": "dd4a8d5efb2d2f8eb5918897d9a499b4e532ec5654bab2fdd539500c5eaee36a"
+    },
+    {
+      "path": ".claude-plugin/marketplace.json",
+      "candidate_sha256": "2d9536c7448796f5263f69d94ed244c21e9e33d628c11bbe20d8d60ad0b6d18c",
+      "entry_sha256": "dd935489bca5a357c90eec68081717e451c1d0b0b5f807f33b6ca8dd3b216155"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "candidate_sha256": "280353a3c2be3dbb34775c8433da8c2df3403ef22b3bd620cc27fbae173fecd6",
+      "entry_sha256": "eb5c357606bf289013f6859d772bc759959ca08fc3177a6af806f1ad17d281e5"
+    },
+    {
+      "path": "README.md",
+      "candidate_sha256": "26e74a8a43096a3585c6c0a720dc8d481884eb9e91cdf6d230d47f6767cbd69a",
+      "entry_sha256": "55d86469cedc7f5fd7f5cf8b3aea1bee4a95806d79168182aee6ee2026e80e67"
+    },
+    {
+      "path": "docs/adr/README.md",
+      "candidate_sha256": "1a3b54f901355e7ae94dc9791a71acdf031b61233519c38e5217851f8819c754",
+      "entry_sha256": "c4df1e6fbd6a03268d498516e9cff05ed466dd3d9acfbf0fb8d866241172283e"
+    },
+    {
+      "path": "docs/agent-capability-matrix.md",
+      "candidate_sha256": "097ee2d4bf93ccb6a880d0aa2e7ece4a02663f965b4367d2a9ed50a8f8ffcea1",
+      "entry_sha256": "62b37f88db4a7de8a791853403432fb8769d3dc6d89c803aec97f39c34e3fca2"
+    },
+    {
+      "path": "docs/architecture/overview.md",
+      "candidate_sha256": "9719da85e12dbd7c8f896ebd37cd80ccd1ef31cad15b3481ea5ce9b9d41a0bfd",
+      "entry_sha256": "9e3f8ebaf99898afe0354fa2e49f73e0250d063ec249343c5efefa75bed7e18c"
+    },
+    {
+      "path": "docs/cloud-orchestration.md",
+      "candidate_sha256": "947813e50ffe2a1dc6d710db6557a0efaec25bea1c77069fed4ddd32e8a9fd6f",
+      "entry_sha256": "993b2b1e23ad261f1ae2cf4e1f93795efa539b0c07a867b61d3ef4cf496c845b"
+    },
+    {
+      "path": "docs/contributor/release-runbook.md",
+      "candidate_sha256": "e36c2929985575d742c99d0bd2f5b6b314fecf910ef10f033de415df5e2f70cd",
+      "entry_sha256": "694dcaf0e4b0581d727093a70ee54003a3f9b798f3c672aca649c55b30b5388f"
+    },
+    {
+      "path": "docs/contributor/skill-reference-detail.md",
+      "candidate_sha256": "ec347bf82d6fd43192ceef0001c04ee4126cb73e3916441beb13139315035849",
+      "entry_sha256": "2c78b907797485b33aea56e19ee707519b6ffa0c82f4d8b4b66b86c6c6575a8c"
+    },
+    {
+      "path": "docs/skill-reference.md",
+      "candidate_sha256": "121e122e63079d02262412d08b73a78231bfa28827438d33bf87058b5bce43ed",
+      "entry_sha256": "86e120765b1bd0cb33f9575bb7b7fd5b65cac266604aba533a319eba3aedb3b5"
+    },
+    {
+      "path": "docs/verification.md",
+      "candidate_sha256": "fdfa71daea4ed40f4c5b44e545e0ad8d248c536bf2e3d6f29257cd357f894e24",
+      "entry_sha256": "2f66acebd7504bd9a4e30fdf7a3f47dd02d8c127ccc4e9c4ad5d627749911221"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "candidate_sha256": "fa405baa60bc7f06c63ffae630a421a99a3a62c2623e90c0443b37d60ef91f09",
+      "entry_sha256": "de090ac4a908cf61ba658c6d136eb119d9328de3503f7ef01993ac24f113fb7b"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.claude-plugin/plugin.json",
+      "candidate_sha256": "2a07c5310f7981bd7cdc494fd57d3d3bd9004688ced3e587a56b9bae366bcdf4",
+      "entry_sha256": "901affde1f22fd7f03420455ad247b89e6104a090940113e0d49b9024229642c"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.codex-plugin/plugin.json",
+      "candidate_sha256": "6a633e3fb18095e3aaea556d645c9af02d12758e0ad200437ed2c71b0132b421",
+      "entry_sha256": "fbaee91e13ec9a1fb202d9505c27e519f09655cce0fcb1ab266c85a1057aebec"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/.plugin/plugin.json",
+      "candidate_sha256": "c56470db8b34042dac8f0463d87daa21318f1979422918dccecfe91ba5545c34",
+      "entry_sha256": "2cef9f5155320fb1164da6264f47b50c71800dd95663cfbc7bc53cda6e6e2773"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/examples/private-ec2/README.md",
+      "candidate_sha256": "ddf320c57ed31a477229287f46ae4043e479ec63608322aef0052e79d7f275e8",
+      "entry_sha256": "0caceb7832a0c3e467042a760789f03a47521eaca375e712ea15120931e2ea5a"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/LICENSE-upstream.txt",
+      "candidate_sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/NOTICE-upstream.txt",
+      "candidate_sha256": "d4290ed64c2edd0fce1d84e3f9dfb2881240fe534def76b8cd29ed6af683e287",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/dependencies.md",
+      "candidate_sha256": "2c3c654b4a1c0fae1749c4e0e436c2a50029e04c697abc4db113e253051641eb",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/local-preparation.md",
+      "candidate_sha256": "12bcc0898536be85ecbea31a1e777df9df0bca9a849d140edcd6ef24d5a7b863",
+      "entry_sha256": "2a890269fabb6128f125f5533d3eb4c6411589ca0d0843b642b47cc959f7a257"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/references/observations.md",
+      "candidate_sha256": "45449fad4194df5eabb1fdc1df98447883545019ab3496a993e1a4be032f06ef",
+      "entry_sha256": "b474f3965405b3b5883d8550300aab4ac830261b14dc9cef615d47543794a748"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/governed-setup.md",
+      "candidate_sha256": "ca25bb20b16d9797b47544799c4abad7d2acbb05b7a05b5bdca5f5e54f07ca3b",
+      "entry_sha256": "2bd8c9b4ddcd7d9879a5b58d1e7c30d4d9c8c0286501b6b4d066eaf967712578"
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/skills/orchestrate/SKILL.md",
+      "candidate_sha256": "bd25b434d06b1573c934e5cc2869233bc85dd919d95b97496742ebbb2433ec67",
+      "entry_sha256": "27af791f755d21eefbf817dfa7e9b11b88fac34b075dbc3f413c1f20a163845a"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.claude-plugin/plugin.json",
+      "candidate_sha256": "08e18f6689f1c36d71448384fb06bd60692cdf3a80c1eaf233c0a11a19e125e2",
+      "entry_sha256": "53b2dc69739b8035499407c40318599557e6773bc0d64c2e627521f602e2bec3"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.codex-plugin/plugin.json",
+      "candidate_sha256": "302dbb28b24a1a0298dbfe84f5caf1fe5a7037e5677d3eb59b9fb653250bb6a0",
+      "entry_sha256": "72994a2916deec39493318312a22b21a7e81a643577fdc9f70e595d41c0c3b07"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/.plugin/plugin.json",
+      "candidate_sha256": "e133ef68c2fe616333d7c8c7ffa50535c9367b8b06d00e2f0ef3d3309f9e3cc7",
+      "entry_sha256": "b8a3c04ec499f65f81494958067cf946c719f506e71464e56e4c92d015fe4c14"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/README.md",
+      "candidate_sha256": "8ffe2540e1309eff4b0f84df2c14260adbe49da415f37c96524b6016cb62e679",
+      "entry_sha256": "18d4bac06d053a486ab77936c75cd7e4f0824fff90728431cbfdf7f89d9cc873"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/examples/local-route-example.py",
+      "candidate_sha256": "ef8f06381e786ecbbefcd3b420bfa3ac66e3499b7ce8115db6aa901a1cdbb7b1",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/LICENSE-upstream.txt",
+      "candidate_sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/dependencies.md",
+      "candidate_sha256": "2c3c654b4a1c0fae1749c4e0e436c2a50029e04c697abc4db113e253051641eb",
+      "entry_sha256": null
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/references/local-contract.md",
+      "candidate_sha256": "94b3c345ccfe40edf1e7284608f67e4368c0b7c014c8116b783247544bf5a230",
+      "entry_sha256": "68850cae945e1e5357fedb284079cce67fec809a07cd1a35f6f923a39b89fdfc"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "candidate_sha256": "019e77164d35afc20663c9d6d98ccbca64ddd558bd23a2b3982dccfd8197da4d",
+      "entry_sha256": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/governed-setup.md",
+      "candidate_sha256": "bf8a1f043f79d576c7688e8fe347d5b4c38b39e11f7349baa57c07fb631b3b58",
+      "entry_sha256": "b2f038ab953175e2fab863d5cc8baada77a79c0b8cef1281df68142831343388"
+    },
+    {
+      "path": "plugins/sdd-azure-cloud/skills/orchestrate/SKILL.md",
+      "candidate_sha256": "5468d3d7c4e28335221f612be656180333608b27b2bed0542d38fe71843ac8a5",
+      "entry_sha256": "5a906f317b352c84f1b38f39464f585ce66f2261651079a6c79df528a6c774e2"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+      "candidate_sha256": "fb75718f3f43ae939057b351eaad5aed79e1f91af535525ffefa7465d24d379b",
+      "entry_sha256": "8a8bffda62ca60cbcd995a61895b661fb9092ed9bdddaa0816c767a583fe9b21"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+      "candidate_sha256": "1be4dc96183fff3878ebee16ea1dcaba8645766deca5b0d78be40e6bf8328776",
+      "entry_sha256": "eab6d07fd3af9c1515ad1319af3d0f5675c9631060d9ae27a58439f06db0c474"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/.plugin/plugin.json",
+      "candidate_sha256": "6b6877f7c098c1c975b380eb3e9f945af7d556b2d99e58f2db5f69a7a913b5f1",
+      "entry_sha256": "06332645cba0d780f671f9df1f03bbc281f0ff387950395ab926f37822e21e12"
+    },
+    {
+      "path": "plugins/sdd-domain/.claude-plugin/plugin.json",
+      "candidate_sha256": "dcc374fc9e473c83b27a8f6a57cf328a71ee1c54a93d57bbf17967bb7a177e71",
+      "entry_sha256": "c2e9846fca5fedd8357bc1cbf9bfd8c8ce3e2ee9e6cbc6c45a9a478c630a67f8"
+    },
+    {
+      "path": "plugins/sdd-domain/.codex-plugin/plugin.json",
+      "candidate_sha256": "20e6ad33d4cfb2d0369002e515589e899ac2dbfcf65f728d1a51f939daae2dca",
+      "entry_sha256": "a84504f1dd31b8554d5faa64b82e165ca4608d207ecfe28a369c4ac2c11e1729"
+    },
+    {
+      "path": "plugins/sdd-domain/.plugin/plugin.json",
+      "candidate_sha256": "d402806919bb7c55efda234ad7df711fda4883238c03d262b4809f64fd632c54",
+      "entry_sha256": "e7ccb1b18c512710bb955336e3aeebd077dc9e20f95870156ab3e01faf768d2d"
+    },
+    {
+      "path": "plugins/sdd-implementation/.claude-plugin/plugin.json",
+      "candidate_sha256": "c8f144d819af263f2a61a1cb52d3420d76aef8e9a95034eba980d4758389a939",
+      "entry_sha256": "82a292a165f42ff82df185cdbc343d41537bc0a29d4d9f8bcded2d6beafdeb77"
+    },
+    {
+      "path": "plugins/sdd-implementation/.codex-plugin/plugin.json",
+      "candidate_sha256": "eef16d83dcd8f0ad843d4650a8826f808bbedc7807e98e351b316fec0dece4cb",
+      "entry_sha256": "6c5e68a63928e967b15eb795d5835d6b3e10d291a4402048a5bc2054f7e2a546"
+    },
+    {
+      "path": "plugins/sdd-implementation/.plugin/plugin.json",
+      "candidate_sha256": "05cee65544d636de05a8c2c297618eb107895c425a1e551000d50212a54cc368",
+      "entry_sha256": "fc13bdbe1b6513c06015d8f72b949e8729d0fcb5044827d15ed231fc5f138e6c"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "candidate_sha256": "ec5a392cea7190660b8517317977584d36179e718856061acf968b36ef6bd23f",
+      "entry_sha256": "d0622d44f13693cf6e32c918aba53efbcc5089dbfbba8a539bec3be601017051"
+    },
+    {
+      "path": "plugins/sdd-lite/.claude-plugin/plugin.json",
+      "candidate_sha256": "fbb4f450b67a1c023fca3805b4565ccb920f1f80ef76c7acf02291d27c8cc59f",
+      "entry_sha256": "5ae17da3db2d23496a20fb188c7253d66e2fd2cc3719b9300845043bf3593749"
+    },
+    {
+      "path": "plugins/sdd-lite/.codex-plugin/plugin.json",
+      "candidate_sha256": "af1fbb6dfc5d3fadd18023641abb42c00983673363c72e29d65f475b95f8cf66",
+      "entry_sha256": "4a7c37d3a1b44bfeafd34b0bea2c4ea863e9ea73e979bddcc7cfbf4fedca17fd"
+    },
+    {
+      "path": "plugins/sdd-lite/.plugin/plugin.json",
+      "candidate_sha256": "30bdb0e48563f4ecc19ac158c370b95f05fc9fddef15cd5aff9d5e3c38ebd122",
+      "entry_sha256": "a4fddd29ed226d93d528729b3d439c1f27fcda8f745c68dcd4a78f4856789071"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+      "candidate_sha256": "b844edce3ce0564dbf14aa0f875588d377f8562fb485c0c7b154d3a3a6b6f322",
+      "entry_sha256": "132ffb6eb6e23f1a4d772f76065ecd9cb299370e0ed4bc4bb9d38ae3d8ba66b9"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+      "candidate_sha256": "a89ec042b6c1f5c3e33006540ba9addff48704a7b31ab565bbe3e6be53ca4aca",
+      "entry_sha256": "d957210bf8057abae2ad16472e1d6c36a46ceccd3a4ee2a4133f0126dd60d011"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/.plugin/plugin.json",
+      "candidate_sha256": "c27a69e64dcc22b6ff55ff824f320fec03b1126dc59b25b913ef345c9cb92661",
+      "entry_sha256": "ae3dc271a5b56f88efb97949f6e2d66cfc906b3e5813bf1bcec9597e863ec099"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+      "candidate_sha256": "fa458c70c08812870d2212b4b44bc5fbd59fb9b3f75d1716f50e23485a65c26c",
+      "entry_sha256": "044d03a31bb19b077b607f1473aa6bdb456fd5993169a8389ecf587006941f03"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+      "candidate_sha256": "4c3b78320862d14ade6bafe5d9ec0caa61b4311b565ce9f76f4829bc2ddfcc1c",
+      "entry_sha256": "5cf0d64e677030216ecec03c012446318d69426af159f663aa62befd12154517"
+    },
+    {
+      "path": "plugins/sdd-review-loop/.plugin/plugin.json",
+      "candidate_sha256": "cf8cfc61cfc91d29fb778d9154a8d93a1c06b8ce29190f5857efbb4bf2fac660",
+      "entry_sha256": "e6573a4ebb23fed3a4456e4467e9cb1a3bdc63e0aaf5cef769136a4a82543470"
+    },
+    {
+      "path": "plugins/sdd-ship/.claude-plugin/plugin.json",
+      "candidate_sha256": "8be7d5899638530f4a5ca6d19590b856319c605eefbbea2c63cff9e23592ea34",
+      "entry_sha256": "be1c1dfe8cba928db9073c1c6ee2cee85aa76b7c0711a30b365054113adf9499"
+    },
+    {
+      "path": "plugins/sdd-ship/.codex-plugin/plugin.json",
+      "candidate_sha256": "689d7ab3f82d1a1ca6f2533c1af00c67387451ad09967a8747a0f36f4145c626",
+      "entry_sha256": "b3454c5c54fb5cf00f2f7e6422ed2af44b549d73d00314a63578242b34bcb327"
+    },
+    {
+      "path": "plugins/sdd-ship/.plugin/plugin.json",
+      "candidate_sha256": "e08184c097d48d4c837050dda6e28c24b671eae695ad95dde0360e7b81f2187c",
+      "entry_sha256": "44a3d211bf3112bd4431fc32d5b900b8aee6524eed6d3eb2cd1efa03a869aff6"
+    },
+    {
+      "path": "reports/verification/cloud-orchestration-release.md",
+      "candidate_sha256": "c4a8f23e05ff25b20719ef69c08da88c4ac8fa01face4950a65024d3d19e2d57",
+      "entry_sha256": null
+    },
+    {
+      "path": "tests/repository-release-validation.tests.sh",
+      "candidate_sha256": "f4618467a903c9ec11317345d6929f07949025c977050165e8927f5615047354",
+      "entry_sha256": "72172ad63ac9bab8899ec7ec55769ce21927a7a9bdf25c048432e9d92db2fe9b"
+    },
+    {
+      "path": "tests/validate-repository.ps1",
+      "candidate_sha256": "fd209d59234ee2cc0bfcdcc8af0800ca998a6e69c8791a2ebd00a7e5969fb5c3",
+      "entry_sha256": "15d9932d0d6cbcc9f3244ffca09c74360c511c3aec81679cc61bf35d9c339d6f"
+    }
+  ]
+}

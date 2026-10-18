@@ -1,0 +1,14 @@
+{
+  "id": 900801,
+  "method": "turn/steer",
+  "params": {
+    "threadId": "01a15048-20ef-7b60-acc6-4df3973ddc6f",
+    "expectedTurnId": "01a15048-2140-7782-9bf4-949101b51360",
+    "input": [
+      {
+        "type": "text",
+        "text": "Root caller doc check: docs/cloud-orchestration.md currently shows gh workflow run --ref \"$W\", while W is defined as immutable commit SHA. gh workflow run --help explicitly accepts a branch or tag name for --ref (GitHub workflow_dispatch ref is branch/tag, not arbitrary commit SHA). Correct these command examples and same-feature current restatements to an operator-selected protected CONTROL_REF (branch/tag) resolving to exact W, while retaining policy/workflow_sha enforcement of the exact W commit. Do not weaken the immutable pin or dispatch anything live. Validate command semantics against official API/CLI docs as needed and record this doc correction. Root independently checked curated committed tree 9210c080 workflow-state PASS without unpublished reference HTML; this is pre-version evidence only, not final release validation."
+      }
+    ]
+  }
+}

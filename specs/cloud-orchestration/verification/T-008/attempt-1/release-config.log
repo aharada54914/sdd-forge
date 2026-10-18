@@ -1,0 +1,7 @@
+ok: ruleset main.json parses and carries enforcement + rules
+ok: CODEOWNERS parses with at least one valid rule
+ok: test.yml keeps the merge_group trigger
+ok: apply-branch-protection.sh exists and parses
+ok: release.yml gates on ci-green with ref-restricted dispatch
+
+Results: 5 passed, 0 failed.

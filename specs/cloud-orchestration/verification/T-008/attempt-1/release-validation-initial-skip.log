@@ -1,0 +1,1 @@
+SKIP: pwsh not found; repository-release-validation.tests.sh not run (both validator legs require PowerShell)

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/azure-rest-api-specs-MIT.txt",
+    "url": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/LICENSE",
+    "sha256": "b37363bf2295aa0acde60ce78a60034a71a0955075fc01aa09cc23eadff44436",
+    "acquired_at": "2026-10-18T18:38:02Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/github-rest-api-description-MIT.txt",
+    "url": "https://raw.githubusercontent.com/github/rest-api-description/main/LICENSE.md",
+    "sha256": "3243761cbac07e6d169a5a2f4e7c25cc544da85248e735df74c3672e055cc87b",
+    "acquired_at": "2026-10-18T18:38:03Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/azure-docs-CC-BY-4.0.txt",
+    "url": "https://raw.githubusercontent.com/MicrosoftDocs/azure-docs/main/LICENSE",
+    "sha256": "15c406491bac79b9344852d0dc85a3345528dbdadf2c812f9468e0629258be90",
+    "acquired_at": "2026-10-18T18:38:04Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/entra-docs-CC-BY-4.0.txt",
+    "url": "https://raw.githubusercontent.com/MicrosoftDocs/entra-docs/main/LICENSE",
+    "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+    "acquired_at": "2026-10-18T18:38:05Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/botocore-Apache-2.0.txt",
+    "url": "https://raw.githubusercontent.com/boto/botocore/4de93abe62cc263980414f7a66be5226bd541b77/LICENSE.txt",
+    "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+    "acquired_at": "2026-10-18T18:38:05Z"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-008/attempt-1/licenses/botocore-NOTICE.txt",
+    "url": "https://raw.githubusercontent.com/boto/botocore/4de93abe62cc263980414f7a66be5226bd541b77/NOTICE",
+    "sha256": "1d1c5a6f3d68cb11f4fad1afa86a7450d0286f15c176ef0ea048f255b46d95b0",
+    "acquired_at": "2026-10-18T18:38:06Z"
+  }
+]

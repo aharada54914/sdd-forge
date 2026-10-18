@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.19.0 (2026-10-18)
+
+### Added
+- Opt-in Azure Bicep and AWS CDK/CloudFormation orchestration plugins with explicit repository-installer shared runtime packaging; default bootstrap/ship selection unchanged.
+- Credential-free owner routing and immutable local preparation, separately governed prepare/apply, original-ID read-only recovery, authenticated observations and protected cloud profiles/dependency receipts.
+- Operator setup, strict artifact formats, pinned Linux x64 tools, supported template-only AWS assets, fixed E/W workflow migration and fail-closed platform/permission limits.
+
+### Fixed
+- #423 current-consumer regression coverage while preserving historical inventories and seven-document Full-track requirements.
+- Sequential installer updates preserve/regenerate previously materialized cloud runtimes; current model guidance uses available registered strong candidates including gpt-6-astra.
+
+### Verification and release limits
+- Local synthetic, native compiler/synthesizer and isolated host evidence are distinct from live cloud acceptance. TEST-003/005/009 remain BLOCKED without owner-authorized sandbox prerequisites; Azure external-writer preview/apply race and exclusive-writer/history prerequisites remain.
+- Native Windows installer/guard/schema checks do not imply provider execution support on Windows paths. Exact-commit full CI, annotated tag and assets status are recorded separately after root delivery; a tag is not a production-readiness claim.
+- Earlier T-006 fixture network-isolation evidence is qualified in its preserved correction; only final guarded tests are valid guard evidence. Private transport logs and unlicensed full external HTML are excluded from publication.
+
+
 ## v1.18.0 (2026-10-01)
 
 ### Added

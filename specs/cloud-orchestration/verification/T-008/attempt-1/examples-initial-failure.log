@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/specs/cloud-orchestration/verification/T-008/attempt-1/examples-check.py", line 24, in <module>
+    contracts.parse_artifact(path.read_bytes())
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 364, in parse_artifact
+    _require(schema in VALIDATORS and (expected_schema is None or schema == expected_schema), 'UNKNOWN_SCHEMA')
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: UNKNOWN_SCHEMA

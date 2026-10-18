@@ -1,0 +1,7 @@
+{
+  "path": "specs/cloud-orchestration/verification/T-013/inputs/iam/aws-cloudformation-authorization.json",
+  "sha256": "5f5214d42df63c5d04964ae9086788bc060bd09d52c92a75ba51f6914385e83c",
+  "source_url": "https://servicereference.us-east-1.amazonaws.com/v1/cloudformation/cloudformation.json",
+  "publication": "public factual API metadata with source/hash attribution; no license claim; root binds final factual inspection before publication",
+  "basis": "Explicit root disposition: machine identifiers, ARN formats, condition keys, SDK mappings, booleans/version, not documentation prose or source code. Distinct from seven full-text HTML exclusions."
+}

@@ -1,0 +1,7 @@
+test_real_compile_locked_plan_and_validate_exact_bytes (__main__.AzureNativePreparation.test_real_compile_locked_plan_and_validate_exact_bytes) ... ok
+test_real_synth_complete_locked_assembly_validate_without_execution (__main__.AwsNativePreparation.test_real_synth_complete_locked_assembly_validate_without_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.442s
+
+OK

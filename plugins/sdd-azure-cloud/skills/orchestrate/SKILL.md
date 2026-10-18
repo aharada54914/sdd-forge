@@ -100,3 +100,12 @@ checks and live observations distinct. Never claim VERIFIED/EVIDENCE_COMPLETE
 from deployment success alone. On UNKNOWN reconcile the original native ID
 read-only; do not resubmit apply or rewrite a receipt. Cleanup/correction needs
 separate authorization. Surface failed or missing checks without weakening them.
+
+## Updating an installation
+
+The repository installer regenerates selected or previously materialized cloud
+runtimes before replacement, without newly registering unselected providers.
+If an older broken development install already lacks runtime/, explicitly select
+this provider again. Do not discover replacement code from the workspace.
+See [predecessor owner configuration](../../references/dependencies.md) before
+requesting dependent units; immutable reference changes need fresh authorization.

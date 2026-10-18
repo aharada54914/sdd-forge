@@ -1,0 +1,44 @@
+[
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/api/aws-deny-notaction.html",
+    "sha256": "b16ee412e900a3877c6d4c065c2a2871baace949c9c102ac62410db077e72ae1",
+    "source_url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_notaction.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/api/aws-policy-evaluation.html",
+    "sha256": "c89f839064a26a0832b99613f691ef312edd02778f951ff24e577766cb822b2f",
+    "source_url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/backup-backupselection.html",
+    "sha256": "f0f99a5a152a8db197542b3c77ea5546e0cc61a4d7c8086e6ebb4f56c1df9951",
+    "source_url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-backup-backupselection.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/cloudwatch-alarm.html",
+    "sha256": "f823f042822008f620d3bf9524413f07b84a84ebdbfbb272581454dfe2c0aad3",
+    "source_url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-cloudwatch-alarm.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/ec2-instance.html",
+    "sha256": "f9d0241ad8d0369adac8d77267242168d851601e1c81a0be0754428d738bc4b9",
+    "source_url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-instance.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-006/attempt-2/api/ec2-securitygroup.html",
+    "sha256": "0c8eb960911a6dd9710829bdd023efcd6bf1bc4e2732bb596bc6e1b15e9324b6",
+    "source_url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-securitygroup.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  },
+  {
+    "path": "specs/cloud-orchestration/verification/T-013/inputs/external/7/aws-cloudformation-iam.html",
+    "sha256": "4855e6faddb5f57c160a3eff7dcfc73700943471c806b6cef67f13ceb2f6f592",
+    "source_url": "https://docs.aws.amazon.com/service-authorization/latest/reference/list_awscloudformation.html",
+    "publication": "EXCLUDED unless applicable redistribution permission is established"
+  }
+]

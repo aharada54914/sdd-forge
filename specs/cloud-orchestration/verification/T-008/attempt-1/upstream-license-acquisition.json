@@ -1,0 +1,21 @@
+[
+  {
+    "path": "plugins/sdd-aws-cloud/references/LICENSE-upstream.txt",
+    "url": "https://raw.githubusercontent.com/aws/agent-toolkit-for-aws/44ba1a5451913998815111cc2d518f5c45f95ef7/LICENSE",
+    "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+  },
+  {
+    "path": "plugins/sdd-aws-cloud/references/NOTICE-upstream.txt",
+    "url": "https://raw.githubusercontent.com/aws/agent-toolkit-for-aws/44ba1a5451913998815111cc2d518f5c45f95ef7/NOTICE",
+    "sha256": "d4290ed64c2edd0fce1d84e3f9dfb2881240fe534def76b8cd29ed6af683e287"
+  },
+  {
+    "path": "plugins/sdd-azure-cloud/references/LICENSE-upstream.txt",
+    "url": "https://raw.githubusercontent.com/microsoft/azure-skills/cf79ce8778ad063eeac19dbe8bf982d71b466ce0/LICENSE",
+    "sha256": "8a5d8efb70942e65032f930c761d097feeb41a7517ebd04c9d2e4ec3764071c5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/microsoft/azure-skills/cf79ce8778ad063eeac19dbe8bf982d71b466ce0/NOTICE",
+    "result": "HTTPError"
+  }
+]

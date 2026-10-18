@@ -1,4 +1,7 @@
-"""Azure local CLI. No provider transport, credentials, or write authority.
+"""Azure CLI: credential-free planning and trusted governed phase dispatch.
+
+Direct invocation grants no provider credentials or write authority; only the
+fixed governed caller supplies an authenticated in-process executor.
 
 Installed callers may explicitly select the trusted shared scripts directory with
 CLOUD_SHARED_RUNTIME_ROOT. Otherwise use the repository/sibling-plugin layout.

@@ -19,7 +19,7 @@ No deployed workflow or cloud resources are created by this task.
    --render-template` prints inert placeholders only. Configure all renderer
    arguments together; account/region concurrency has `cancel-in-progress: false`.
 3. Set owner-administered protected variables `AWS_PREPARE_POLICY`,
-   `AWS_APPLY_POLICY`, `AWS_RECOVERY_POLICY` and `AWS_EXECUTION_CONTROL`. They are
+   `AWS_APPLY_POLICY`, `AWS_RECOVERY_POLICY`, `AWS_VERIFY_POLICY` and `AWS_EXECUTION_CONTROL`. They are
    not workflow-dispatch inputs, files in the deployment bundle, or mutable
    source-revision expectations inferred from the current run. Each policy is the
    exact shared `cloud_authorization.Policy` JSON record (actors/reviewers are
@@ -203,3 +203,24 @@ Disable the inactive workflow/caller on defects; restore only the task-owned cod
 in a disposable checkout as recorded in T-013's rollback experiment. Code rollback
 does not destroy cloud resources or erase native uncertainty. Retain original
 intents and evidence; cleanup/correction needs separate environment authorization.
+
+## Current fixed-phase observation and dependency setup
+
+Use the current generated JSON workflow, not old task-input templates. See
+[observation contract](../references/observations.md) and
+[complete predecessor owner fields](../references/dependencies.md). Configure
+read-only sandbox-verify and PROVIDER_VERIFY_POLICY (replace PROVIDER with
+AZURE or AWS), whose operation apply denotes the original operation only.
+The shared WriteBoundary rejects this environment as a writer. Producer proof
+requires the exact generated verify job, successful collection/upload steps and
+original request/preview title plus pinned E/W and immutable artifact digest.
+Cross-repository GitHub artifact/run/jobs/workflow/environment/approval reads
+need explicit owner-arranged token permissions; no automatic privilege widening.
+Freshness propagates to the existing receipt expires_at and both native callback
+guards. Changes to immutable predecessors require new consumer authorization.
+
+Dispatch ref: `gh workflow run --ref "$CONTROL_REF"` accepts a branch/tag name,
+not the raw W commit SHA. Choose the protected branch matching Policy.ref and
+verify it resolves to W; shipped examples use refs/heads/main. Native
+workflow_sha/Policy.workflow_revision still require exact W, so a moved branch
+cannot substitute another revision. No live dispatch is part of documentation validation.

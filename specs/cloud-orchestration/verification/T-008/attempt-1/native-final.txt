@@ -1,0 +1,7 @@
+Prepared T-008 documentation and v1.19.0 release surfaces.
+
+- Scoped tests, native local examples, rollback, Ruff/mypy and manifest/report validation passed.
+- Report: `reports/implementation/cloud-orchestration/T-008.md`
+- No commits, pushes, tags or live dispatches performed.
+
+Root still owns full exact-commit CI, publication and independent quality review. Live cloud acceptance remains BLOCKED.

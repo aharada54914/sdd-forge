@@ -38,3 +38,20 @@ Effective subnet ingress/egress, private management connectivity, actual identit
 privileges, received monitoring signals, workload health and backup recovery must
 be checked later with owner-approved profiles and separate authorization. Missing
 live values remain blockers; a local PASS or release tag is not that evidence.
+
+## Current operator workflow
+
+Use the repository installer with explicit cloud plugin selection; the bare
+marketplace source has no generated shared runtime. All invocation examples
+require an explicit trusted CLOUD_SHARED_RUNTIME_ROOT. The full operator guide
+(`docs/cloud-orchestration.md` in the repository) supplies strict request fields,
+credential-free plan/validate commands, official Linux x64 tool acquisition and
+separate protected prepare/apply/verify setup. No example scope grants authority.
+CREATE physical IDs/recovery points come from original native deployment resources,
+not fabricated predeployment values or later edits to locked requests.
+
+For a small local route-only fixture, run the repository's
+`plugins/sdd-azure-cloud/examples/local-route-example.py NEW_PHYSICAL_DIRECTORY`
+(with `--provider aws` for AWS). This is synthetic discovery, not compilation
+or a complete deployment example. Full native compile/synth inputs remain the
+strict provider configuration and source fixture described above.

@@ -135,7 +135,7 @@ the lexicographically smaller provider/model identifier.
 | strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
 | lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
 | standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
-| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh | 未確認 | OpenAI developers docs (Codex) |
+| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; T-011 native trial |
 
 Codex agent model selection is a runtime control (`--model` / `--effort` flags
 passed to the Codex CLI at invocation), not a field in the role TOML. The
@@ -181,7 +181,7 @@ computation at all.
 | spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
 | impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
 | task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
-| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |
+| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |
 
 ### Escalation
 
@@ -293,3 +293,14 @@ The two layers work together: the hook guard catches direct attempts to set appr
 - **sdd-investigator role** (TOML + developer_instructions): [`.codex/agents/sdd-investigator.toml`](../.codex/agents/sdd-investigator.toml)
 - **sdd-evaluator role** (TOML + developer_instructions): [`.codex/agents/sdd-evaluator.toml`](../.codex/agents/sdd-evaluator.toml)
 - **Sudo Mode Policy** (approval guard bypass rules): [`plugins/sdd-quality-loop/references/sudo-mode-policy.md`](../plugins/sdd-quality-loop/references/sudo-mode-policy.md)
+
+### Registered GPT-6 route (2026-10-18)
+
+The authority for repository eligibility is contracts/agent-model-capabilities.v2.json,
+not a fixed GPT-5.2-only primary. Its existing gpt-6-astra entry is strong with
+low/medium/high/xhigh efforts and default high; evaluator role floors still apply.
+Actual isolated cloud native trials used this registered model (T-011 native-host-trial-2);
+T-008 documentation uses medium effort under its medium-risk caller selection.
+These are local host observations, not universal model availability, comparative
+quality or pricing guarantees. Caller planning allowances are not measured billing.
+No redundant registry entry or historical report rewrite is needed.

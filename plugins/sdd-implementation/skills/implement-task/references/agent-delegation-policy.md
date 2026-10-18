@@ -84,8 +84,9 @@ Claude hosts, or OpenAI/Codex `gpt-5.1-codex-mini` with low reasoning effort.
 Specification, implementation-policy, and task reviewers use at least the
 `standard` tier: Anthropic Sonnet or OpenAI/Codex `gpt-5.1-codex` with medium
 or stronger effort. The Done evaluator uses Anthropic Sonnet (`standard`) on Claude
-hosts, or the `strong` tier on Codex: `gpt-5.2-codex` with high or xhigh effort, falling back to
-`gpt-5.1-codex-max` when the primary strong model is unavailable.
+hosts, or an available registered `strong` model on Codex. The capability registry
+includes `gpt-6-astra` as well as legacy strong candidates; it is not limited to
+`gpt-5.2-codex`. Respect the selected role effort floor and record the actual model.
 
 Before selection, filter candidates through the host capability registry.
 Substitution is allowed only for a model registered in the same canonical

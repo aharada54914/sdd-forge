@@ -1,0 +1,24 @@
+{
+  "base": "9210c080f0face44217f569ad2c578fdaf44385f",
+  "files": [
+    {
+      "path": "plugins/sdd-azure-cloud/scripts/cloud.py",
+      "before_sha256": "4ae02ced280a8267a99fbd18b92d5fbd7a61b3d3e64c369b02e02c63c15b5636",
+      "after_sha256": "019e77164d35afc20663c9d6d98ccbca64ddd558bd23a2b3982dccfd8197da4d",
+      "ast_ignoring_docstrings_equal": true
+    },
+    {
+      "path": "plugins/sdd-aws-cloud/scripts/cloud.py",
+      "before_sha256": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+      "after_sha256": "167b3e37e88a5ab1c32344e226823ae0e9d1518d7927a7ab4221422a011cc933",
+      "ast_ignoring_docstrings_equal": true
+    },
+    {
+      "path": "plugins/sdd-bootstrap/scripts/cloud-routing.py",
+      "before_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+      "after_sha256": "2d20361ae77a726118b9cc565cf9c0bdb720346b5d8507c5e820fc8a7a80d11b",
+      "ast_ignoring_docstrings_equal": true
+    }
+  ],
+  "native_host_scope": "Historical T011 trial2 pins remain historical. Provider skills only append installation update/predecessor reference guidance; canonical invocation/phase/authorization instructions and bootstrap helper are unchanged. No additional actual model trial is claimed; current installed behavior is exercised by final registered suites."
+}

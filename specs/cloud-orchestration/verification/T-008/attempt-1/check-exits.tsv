@@ -1,0 +1,10 @@
+loop-consistency	0
+loop-inventory	0
+release-validation	0
+bump-gate	0
+release-loop	0
+release-config	0
+repository-validator	0
+verification-catalog	0
+docs	0
+examples	0

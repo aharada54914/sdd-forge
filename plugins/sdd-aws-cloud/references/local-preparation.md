@@ -2,9 +2,11 @@
 
 `python3 plugins/sdd-aws-cloud/scripts/cloud.py <operation> --request <path> --output <path>`
 uses the existing shared strict cloud contracts. Operations: `route`, `plan`,
-`validate`, `prepare`, `apply`, `reconcile`, `observe`, `verify`. The last five
-are typed `BLOCKED/OPERATION_UNIMPLEMENTED` until their owning tasks implement
-them. stdout is one JSON envelope; exits are 0 PASS/NO_CHANGE, 2 BLOCKED,
+`validate`, `prepare`, `apply`, `reconcile`, `observe`, `verify`. Direct calls
+to governed phases block without the trusted executor (observe/verify use
+`TRUSTED_COLLECTOR_REQUIRED`). See [governed setup](../scripts/governed-setup.md)
+and [observations](observations.md) for the implemented protected paths.
+stdout is one JSON envelope; exits are 0 PASS/NO_CHANGE, 2 BLOCKED,
 1 FAIL, 3 UNKNOWN. This local adapter emits no preview, native operation ID,
 cloud observation, verification success or authorization.
 
@@ -67,7 +69,7 @@ publishes the **entire** assembly into a new digest-named artifact directory.
 It emits a new locked request; it never changes the supplied request. Failed
 partial publication is not reusable. `validate` rehashes the complete locked
 assembly and rechecks its policy **without executing the app or resynthesizing**.
-Future authorized apply must consume those exact assets, never regenerate them.
+Authorized apply must consume those exact assets, never regenerate them.
 
 Supported asset subset is deliberately **one stack's plain JSON template file
 asset only**, plus its full assembly/asset manifest, metadata, tree, validation
@@ -75,7 +77,7 @@ report, feature flag report and cdk.out. Non-template files, zip/directory,
 Docker, executable and external assets return `ASSET_TYPE_UNSUPPORTED`; they
 are not ignored or published. Assembly and asset schemas are pinned to 54.0.0.
 Bootstrap bucket/role locators are recorded as CDK outputs, not established live
-resources or authorization. T-013 owns any later authorized publication.
+resources or authorization. Protected prepare publishes only these exact supported bytes; see governed setup.
 
 Graph validation is structural, not a golden-template hash: supports explicit
 EC2 instances, new private security groups, CloudWatch instance-status alarms,
@@ -110,3 +112,9 @@ Shared no-follow, dir-fd and exclusive publication primitives require POSIX.
 Native Windows fails closed; it has not been claimed supported. Tests use
 physical temporary roots on macOS, but the pinned Node binary is the observed
 Linux build; native macOS execution needs a reviewed platform-specific pin.
+
+## Upstream attribution
+
+Pinned upstream reference material retains its original authorship and license.
+See [full upstream license](LICENSE-upstream.txt) and [NOTICE](NOTICE-upstream.txt); commit/source and consumed-file digests remain in upstream-lock.json.
+These notices do not grant cloud authority or alter the frozen dependency closure.

@@ -877,3 +877,15 @@ acceptance-tests.md が不在の場合は即時 PASS を返してスキップ。
 Sudo モードは適用外。
 
 ---
+
+## Opt-in cloud orchestration
+
+`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate` は各 1 unit の明示入口です。
+repository installer の `--plugins` / `-Plugins` で選択し共有 runtime を組み立てます。
+裸の marketplace provider directory だけでは不足します。`CLOUD_SHARED_RUNTIME_ROOT` は
+その installed/versioned cache 自身の `runtime/scripts` を明示し、workspace からコードを探しません。
+同じ strict request を bootstrap helper または direct CLI に渡します。route/plan/validate は
+ローカル、prepare/apply は別々の protected environment/OIDC admission、reconcile/observe は
+read-only、verify は authenticated observations が必要です。UNKNOWN は元 ID で照会し、
+NO_CHANGE は実 preview と zero apply。自動 import・再適用・破壊 rollback はありません。
+詳しい形式・例・Linux/POSIX tool pin と Windows 制約は [operator guide](../cloud-orchestration.md) を参照。

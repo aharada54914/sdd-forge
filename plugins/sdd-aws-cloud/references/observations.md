@@ -106,8 +106,9 @@ and after transport; library fixtures have a bounded synthetic read window.
 The evidence manifest binds original request, context, each observation and
 result, verification, classification and provenance. Its
 `saved_receipt_authorizes_nothing: true` is a warning, not an authentication
-mechanism. Later receipt consumers must authenticate acquisition or re-collect;
-none are implemented in T-006. Synthetic transport success remains BLOCKED at
+mechanism. Receipt consumers must authenticate acquisition or re-collect; the current
+shared dependency validator authenticates original producer runs/artifacts as
+documented in [predecessor owner configuration](dependencies.md). Synthetic transport success remains BLOCKED at
 the public result and never sets production `evidence_complete`.
 
 Workload GetMetricStatistics requests both Minimum and Maximum in the same fixed

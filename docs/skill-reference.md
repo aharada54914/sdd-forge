@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれる26のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる29のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -35,7 +35,7 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 6 本だけが `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の6つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 8 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate`、`/sdd-aws-cloud:orchestrate`（明示 cloud エントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -292,11 +292,11 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 ## 5. 決定論的スクリプト
 
-### スクリプト一覧（`plugins/` 配下 52本）
+### スクリプト参照（主要な公開境界）
 
-ワークフローが呼び出す決定論的スクリプトは、**`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+現在の `plugins/*/scripts/` 直下は plugin とベース名の組で **104** 件（quality-loop **60** 件）です。下表は主要境界の説明であり、全ファイルの網羅的インベントリではありません。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
 
-この 52本には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
+この集計には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
 
 **ゲート系（`check-*`、13本）** — 判定を返し、失敗時に exit 1 でフェイルクローズします。
 
@@ -400,7 +400,7 @@ python3 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
 | `run-panelist-gpt` | sh / ps1 | OpenAI GPT パネリストを `codex` CLI 経由で隔離スクラッチ内で実行 |
 | `run-panelist-gemini` | sh / ps1 | Google Gemini パネリストを `gemini` CLI 経由で隔離スクラッチ内で実行 |
 
-**他プラグインの決定論的スクリプト（15本）**
+**他プラグインの主要な決定論的スクリプト**
 
 | スクリプト名 | 所属プラグイン | 提供ランタイム | 目的 |
 |---|---|---|---|
@@ -910,3 +910,15 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 - [../README.md](../README.md) — プロジェクト概要・フロー図
 - [workflow-guide.md](workflow-guide.md) — SDD ワークフロー全体フロー・実行例
 - [troubleshooting.md](troubleshooting.md) — よくあるエラー・解決方法
+
+## Opt-in cloud orchestration
+
+`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate` は各 1 unit の明示入口です。
+repository installer の `--plugins` / `-Plugins` で選択し共有 runtime を組み立てます。
+裸の marketplace provider directory だけでは不足します。`CLOUD_SHARED_RUNTIME_ROOT` は
+その installed/versioned cache 自身の `runtime/scripts` を明示し、workspace からコードを探しません。
+同じ strict request を bootstrap helper または direct CLI に渡します。route/plan/validate は
+ローカル、prepare/apply は別々の protected environment/OIDC admission、reconcile/observe は
+read-only、verify は authenticated observations が必要です。UNKNOWN は元 ID で照会し、
+NO_CHANGE は実 preview と zero apply。自動 import・再適用・破壊 rollback はありません。
+詳しい形式・例・Linux/POSIX tool pin と Windows 制約は [operator guide](cloud-orchestration.md) を参照。

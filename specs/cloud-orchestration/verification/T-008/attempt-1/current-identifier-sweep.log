@@ -1,0 +1,31 @@
+Current documentation/CLI identifier sweep (vendored/frozen historical files excluded from edits)
+README.md:119:[クラウド対応ガイド](docs/cloud-orchestration.md)を参照してください。
+README.md:121:Azure Bicep / AWS CDK の opt-in エントリは `/sdd-azure-cloud:orchestrate` /
+README.md:122:`/sdd-aws-cloud:orchestrate` です。レビュー済み checkout から明示導入します:
+README.md:125:bash install.sh --source-directory "$PWD" --target Codex --plugins sdd-azure-cloud,sdd-aws-cloud
+README.md:132:[実行契約・例・復旧・プラットフォーム制約](docs/cloud-orchestration.md)を先に確認してください。
+README.md:216:`--plugins` に指定できる名前は次の 9 つです（小文字で完全一致）: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud`。
+README.md:264:| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-domain` / `sdd-azure-cloud` / `sdd-aws-cloud` から小文字で選択。既定は `sdd-bootstrap,sdd-ship` とその依存（cloud/domain は opt-in） |
+docs/adr/README.md:271:[cloud-orchestration guide](../cloud-orchestration.md) を参照してください。SDD selected-plan は
+docs/agent-capability-matrix.md:138:| strong | OpenAI/Codex | available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered) | registry-supported effort; role floor applies | 2026-10-18 local host | contracts/agent-model-capabilities.v2.json; T-011 native trial |
+docs/agent-capability-matrix.md:184:| sdd-evaluator | standard (Claude); strong (Codex) | Anthropic Sonnet | OpenAI/Codex available registered strong model (including `gpt-6-astra`; legacy `gpt-5.2-codex` / `gpt-5.1-codex-max` remain registered), effort high or xhigh |
+docs/architecture/overview.md:37:        PA["sdd-azure-cloud<br/>opt-in Bicep"]
+docs/architecture/overview.md:38:        PW["sdd-aws-cloud<br/>opt-in CDK"]
+docs/architecture/overview.md:102:| `sdd-azure-cloud` | Bicep local preparation / governed execution / read-only verification | 1 | 0 | 7 | なし |
+docs/architecture/overview.md:103:| `sdd-aws-cloud` | CDK local preparation / governed execution / read-only verification | 1 | 0 | 8 | なし |
+docs/architecture/overview.md:124:| `/sdd-azure-cloud:orchestrate` | 明示 Azure orchestration |
+docs/architecture/overview.md:125:| `/sdd-aws-cloud:orchestrate` | 明示 AWS orchestration |
+docs/architecture/overview.md:368:[operator guide](../cloud-orchestration.md) に実行可能範囲と未検証事項を集約しています。
+docs/contributor/release-runbook.md:186:reports/verification/cloud-orchestration-release.md only after each action succeeds.
+docs/contributor/skill-reference-detail.md:883:`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate` は各 1 unit の明示入口です。
+docs/contributor/skill-reference-detail.md:891:詳しい形式・例・Linux/POSIX tool pin と Windows 制約は [operator guide](../cloud-orchestration.md) を参照。
+docs/skill-reference.md:3:9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる29のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+docs/skill-reference.md:38:**重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 8 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate`、`/sdd-aws-cloud:orchestrate`（明示 cloud エントリ）。この契約は `tests/validate-repository.ps1` が強制します。
+docs/skill-reference.md:916:`/sdd-azure-cloud:orchestrate` と `/sdd-aws-cloud:orchestrate` は各 1 unit の明示入口です。
+docs/skill-reference.md:924:詳しい形式・例・Linux/POSIX tool pin と Windows 制約は [operator guide](cloud-orchestration.md) を参照。
+docs/verification.md:79:The catalog registers cloud-orchestration contracts, routing, execution, verification,
+docs/verification.md:81:`python3 tests/verification.py --suite tests/cloud-orchestration-routing.tests.py --run`
+docs/verification.md:91:record that branch only after real CI execution. See [operator guide](cloud-orchestration.md).
+docs/workflow-guide.md:25:[クラウド対応ガイド](cloud-orchestration.md)にまとめています。
+docs/workflow-guide.md:529:[正確な request、setup、例、期限と制約](cloud-orchestration.md) を参照してください。
+plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md:89:`gpt-5.2-codex`. Respect the selected role effort floor and record the actual model.

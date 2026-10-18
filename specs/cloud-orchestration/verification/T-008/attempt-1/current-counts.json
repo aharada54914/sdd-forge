@@ -1,0 +1,56 @@
+[
+  {
+    "plugin": "sdd-aws-cloud",
+    "skills": 1,
+    "public_entries": 1,
+    "script_basenames": 8
+  },
+  {
+    "plugin": "sdd-azure-cloud",
+    "skills": 1,
+    "public_entries": 1,
+    "script_basenames": 7
+  },
+  {
+    "plugin": "sdd-bootstrap",
+    "skills": 5,
+    "public_entries": 1,
+    "script_basenames": 4
+  },
+  {
+    "plugin": "sdd-domain",
+    "skills": 6,
+    "public_entries": 1,
+    "script_basenames": 5
+  },
+  {
+    "plugin": "sdd-implementation",
+    "skills": 4,
+    "public_entries": 1,
+    "script_basenames": 5
+  },
+  {
+    "plugin": "sdd-lite",
+    "skills": 2,
+    "public_entries": 0,
+    "script_basenames": 2
+  },
+  {
+    "plugin": "sdd-quality-loop",
+    "skills": 6,
+    "public_entries": 2,
+    "script_basenames": 60
+  },
+  {
+    "plugin": "sdd-review-loop",
+    "skills": 3,
+    "public_entries": 0,
+    "script_basenames": 13
+  },
+  {
+    "plugin": "sdd-ship",
+    "skills": 1,
+    "public_entries": 1,
+    "script_basenames": 0
+  }
+]

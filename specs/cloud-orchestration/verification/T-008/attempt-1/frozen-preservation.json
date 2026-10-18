@@ -1,0 +1,13 @@
+{
+  "specs/cloud-orchestration/acceptance-tests.md": true,
+  "specs/cloud-orchestration/design.md": true,
+  "specs/cloud-orchestration/frontend-spec.md": true,
+  "specs/cloud-orchestration/infra-spec.md": true,
+  "specs/cloud-orchestration/investigation.md": true,
+  "specs/cloud-orchestration/requirements.md": true,
+  "specs/cloud-orchestration/security-spec.md": true,
+  "specs/cloud-orchestration/tasks.md": true,
+  "specs/cloud-orchestration/traceability.json": true,
+  "specs/cloud-orchestration/traceability.md": true,
+  "specs/cloud-orchestration/ux-spec.md": true
+}

@@ -264,3 +264,10 @@ must never rely on a bare legacy number.
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
 | 0032 | Concept Design Layer — Phased Introduction | Accepted |
 | 0036 | Thin Azure/AWS orchestration with protected CI authorization | Proposed |
+
+## Cloud orchestration implementation reference
+
+現行の additive cloud operation 契約と E/W pin、分離 prepare/apply/verify の運用は
+[cloud-orchestration guide](../cloud-orchestration.md) を参照してください。SDD selected-plan は
+deployment engine ではなく、既存 ADR と frozen review artifacts は歴史的判断として保持します。
+この文書更新は新たな ADR 採番や既存判断の書き換えではありません。

@@ -1,0 +1,27 @@
+README.md: missing sdd-azure-cloud
+README.md: missing sdd-aws-cloud
+docs/cloud-orchestration.md: missing CLOUD_SHARED_RUNTIME_ROOT
+docs/cloud-orchestration.md: missing NO_CHANGE
+docs/cloud-orchestration.md: missing UNKNOWN
+docs/cloud-orchestration.md: missing max_age_seconds
+docs/cloud-orchestration.md: missing sandbox-verify
+docs/cloud-orchestration.md: missing dependency_request_sha256
+docs/cloud-orchestration.md: missing 11.17.0
+docs/cloud-orchestration.md: missing UNSAFE_ROOT
+docs/workflow-guide.md: missing sandbox-prepare
+docs/workflow-guide.md: missing sandbox-apply
+docs/workflow-guide.md: missing UNKNOWN
+docs/skill-reference.md: missing sdd-azure-cloud:orchestrate
+docs/skill-reference.md: missing sdd-aws-cloud:orchestrate
+docs/contributor/skill-reference-detail.md: missing sdd-azure-cloud:orchestrate
+docs/contributor/skill-reference-detail.md: missing sdd-aws-cloud:orchestrate
+docs/architecture/overview.md: missing 9 プラグイン
+docs/architecture/overview.md: missing 29
+docs/architecture/overview.md: missing cloud_dependencies
+docs/adr/README.md: missing cloud-orchestration
+docs/contributor/release-runbook.md: missing native-stderr.log
+docs/verification.md: missing cloud-orchestration
+docs/verification.md: missing UNSAFE_ROOT
+plugins/sdd-azure-cloud/references/local-contract.md: obsolete capability statement
+plugins/sdd-aws-cloud/references/local-preparation.md: obsolete capability statement
+dispatch selector must be CONTROL_REF, with exact W admission retained

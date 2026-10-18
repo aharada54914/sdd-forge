@@ -299,7 +299,7 @@ D6 テンプレートインタビューのいずれか）したうえで、ト�
 
 Phase 1（仕様・設計）のさらに前段、Issue受領の直後に位置づけられる任意のオプトインレーン。`sdd-bootstrap` が起動する前に、プロジェクト全体で共有する承認済みドメインモデルを1回用意しておくためのものです。`domain/` が存在しない場合は本レーンの影響はゼロで、既存フローはバイト同一の成果物を生成します。
 
-> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` を使うと、依存する `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録されます。既定のインストールには含みません。全体アンインストールは domain を含む全 7 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
+> **`sdd-domain` は明示指定で導入できます。** `./install.sh --plugins sdd-domain` / `./install.ps1 -Plugins sdd-domain` を使うと、依存する `sdd-bootstrap`・`sdd-quality-loop`・`sdd-review-loop` も自動登録されます。既定のインストールには含みません。全体アンインストールは domain を含む全 9 プラグインが対象です。domain のみを解除する場合は `./uninstall.sh --plugins sdd-domain` / `./uninstall.ps1 -Plugins sdd-domain` を使い、依存プラグインと共有ファイルは保持します。
 
 ### 位置づけ
 
@@ -516,3 +516,14 @@ lite 成果物はフル SDD の部分集合であり、書き直しゼロの加�
 - [README.md](../README.md) — プロジェクト概要・フロー図
 - [skill-reference.md](skill-reference.md) — 各スキル仕様の詳細リファレンス
 - [troubleshooting.md](troubleshooting.md) — 一般的な問題と解決方法
+
+## Cloud unit workflow
+
+明示 provider plugin を repository installer で導入し、credential-free route → plan → validate
+で immutable request/assembly を固定します。`sandbox-prepare` は preview/asset publication、
+`sandbox-apply` は同じ request と preview の適用を別 dispatch・別 reviewer approval で許可します。
+owner conflict は停止し、既存 Terraform/SAM/azd/raw CloudFormation を移管しません。
+NO_CHANGE は apply を送らず、UNKNOWN は original native ID を read-only reconcile します。
+実行成功は OBSERVED に過ぎず、ネットワーク・権限・監視・workload・必要な backup を確認して
+初めて VERIFIED/EVIDENCE_COMPLETE となります。依存 unit の未検証/失敗は後続を止め、独立成功は保持。
+[正確な request、setup、例、期限と制約](cloud-orchestration.md) を参照してください。

@@ -1,0 +1,11 @@
+{
+  "candidate": "1.19.0",
+  "rationale": "Additive opt-in provider capabilities over current 1.18.0; minor semantic release",
+  "confirmation_utc": "2026-10-18T18:47:34Z",
+  "command": "git ls-remote --tags origin",
+  "exit_code": 0,
+  "stdout_sha256": "6a734467cc85ee36e8997d6a4659d4f77712a596b5a134a54767264b954f251a",
+  "existing_tags_unchanged": true,
+  "candidate_unused": true,
+  "publication": "pending root exact-commit CI and recheck"
+}
