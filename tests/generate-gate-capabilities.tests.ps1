@@ -156,7 +156,7 @@ try {
   # =====================================================================
   # Suite/CI registration
   # =====================================================================
-  $runAllContent = Get-Content -LiteralPath (Join-Path $root 'tests/run-all.ps1') -Raw
+  $runAllContent = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $root 'tests/run-all.ps1'))
   if ($runAllContent -match [regex]::Escape('tests/generate-gate-capabilities.tests.ps1')) {
     Ok 'run-all.ps1 registers this suite'
   } else {

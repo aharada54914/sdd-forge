@@ -437,7 +437,7 @@ else
     fail "QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh NOT registered in tests/run-all.sh"
 fi
 
-if [ -f "$RUN_ALL_PS1" ] && grep -qF 'quality-gate-cycle-limit' "$RUN_ALL_PS1" 2>/dev/null; then
+if [ -f "$RUN_ALL_PS1" ] && { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -qF 'quality-gate-cycle-limit' <<< "$registered_ps1"; }; then
     fail "QGCL-016 (AC-007): quality-gate-cycle-limit unexpectedly registered in tests/run-all.ps1 (combined-suite convention violated)"
 else
     ok "QGCL-016 (AC-007): quality-gate-cycle-limit.tests.sh deliberately ABSENT from tests/run-all.ps1 (combined-suite convention)"
@@ -448,7 +448,7 @@ fi
 # suite"), confirming this is a repository-wide convention, not a gap this
 # suite introduces.
 for sibling in "second-approval-mask" "review-agent-isolation" "review-contract-foundation-parity"; do
-    if [ -f "$RUN_ALL_PS1" ] && grep -qF "$sibling" "$RUN_ALL_PS1" 2>/dev/null; then
+    if [ -f "$RUN_ALL_PS1" ] && { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -qF "$sibling" <<< "$registered_ps1"; }; then
         fail "QGCL-016 (AC-007, cross-check): ${sibling} unexpectedly present in tests/run-all.ps1"
     else
         ok "QGCL-016 (AC-007, cross-check): ${sibling} likewise absent from tests/run-all.ps1"

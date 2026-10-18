@@ -654,8 +654,16 @@ def run_test_025(counts):
 # =============================================================================
 
 def run_registration_check(counts):
-    sh_registered = "tests/resolve-project-context-parity.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
-    ps_registered = "tests/resolve-project-context-parity.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
+    sh_registered = "tests/resolve-project-context-parity.tests.sh" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-posix", "--list"],
+        text=True,
+    ).splitlines()
+    ps_registered = "tests/resolve-project-context-parity.tests.ps1" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-powershell", "--list"],
+        text=True,
+    ).splitlines()
     counts.check(sh_registered, "self-registration: tests/run-all.sh lists tests/resolve-project-context-parity.tests.sh")
     counts.check(ps_registered, "self-registration: tests/run-all.ps1 lists tests/resolve-project-context-parity.tests.ps1")
 

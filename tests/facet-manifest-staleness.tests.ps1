@@ -404,7 +404,7 @@ Expect-Verdict 'base-old.json' 'multi-component-bump-new.json' 'stale' 'semantic
 # =============================================================================
 # Suite/CI registration self-check
 # =============================================================================
-$runAll = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
+$runAll = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $RepoRoot 'tests/run-all.ps1'))
 if ($runAll.Contains('tests/facet-manifest-staleness.tests.ps1')) {
     Write-Host 'ok: self-registration: tests/run-all.ps1 lists this suite'; $script:Pass++
 } else {

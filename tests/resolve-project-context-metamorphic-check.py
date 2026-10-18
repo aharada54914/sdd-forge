@@ -960,8 +960,16 @@ REQ006_ANCHOR_FIXTURES = {
 
 
 def run_feature_wide_completeness_check(counts):
-    run_all_sh = (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
-    run_all_ps1 = (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
+    run_all_sh = subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-posix", "--list"],
+        text=True,
+    ).splitlines()
+    run_all_ps1 = subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-powershell", "--list"],
+        text=True,
+    ).splitlines()
     for suite in NINE_SUITES:
         sh_launcher = ROOT / f"tests/{suite}.tests.sh"
         ps1_launcher = ROOT / f"tests/{suite}.tests.ps1"
@@ -1035,8 +1043,16 @@ def main():
         # authored by this same task.
         run_feature_wide_completeness_check(counts)
 
-    sh_registered = "tests/resolve-project-context-metamorphic.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
-    ps_registered = "tests/resolve-project-context-metamorphic.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
+    sh_registered = "tests/resolve-project-context-metamorphic.tests.sh" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-posix", "--list"],
+        text=True,
+    ).splitlines()
+    ps_registered = "tests/resolve-project-context-metamorphic.tests.ps1" in subprocess.check_output(
+        [sys.executable, str(ROOT / "tests/verification.py"),
+         "--profile", "local-powershell", "--list"],
+        text=True,
+    ).splitlines()
     counts.check(sh_registered, "POSIX suite registered in tests/run-all.sh")
     counts.check(ps_registered, "PowerShell suite registered in tests/run-all.ps1")
 

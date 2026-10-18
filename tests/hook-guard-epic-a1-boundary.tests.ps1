@@ -456,7 +456,7 @@ foreach ($runner in @("run-all.sh", "run-all.ps1")) {
             $_ -ceq 'tests/hook-guard-epic-a1-boundary.tests.sh'
         }).Count -eq 1
     } else {
-        $registered = [System.IO.File]::ReadAllText($runnerPath).Contains("hook-guard-epic-a1-boundary.tests")
+        $registered = ((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runnerPath) -split "`n") -ccontains 'tests/hook-guard-epic-a1-boundary.tests.ps1'
     }
     if ($registered) {
         Pass "self-registration: registered in tests/$runner"

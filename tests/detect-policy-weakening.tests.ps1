@@ -829,7 +829,7 @@ if ($LASTEXITCODE -eq 0 -and $PosixEntries -ccontains 'tests/detect-policy-weake
 } else {
   Test-Fail 'self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh'
 }
-$RunAllPs1 = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')
+$RunAllPs1 = (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') (Join-Path $Root 'tests/run-all.ps1'))
 if ($RunAllPs1 -match 'detect-policy-weakening\.tests\.ps1') {
   Test-Pass 'self-registration: tests/detect-policy-weakening.tests.ps1 registered in tests/run-all.ps1'
 } else {

@@ -28,7 +28,8 @@ this file from its entry command:
 
 - 対象タスクが `Status: Implementation Complete` かつ `Approval: Approved`。
 - `reports/implementation/<task-id>.md` が存在する。
-- 望ましくは別コンテキスト/別セッション（または委譲）で実行し、実装者の主張を独立に再検証する。
+- 実装を担当していない別コンテキスト/別セッション（または委譲）で、一度の独立レビューとして実行する。独立した実行者を用意できなければ停止し、自己レビューを独立レビューと記録しない。これは実行時の責務であり、レポートの自己申告だけで独立性を証明したとは扱わない。
+- レビューでは短い `Done When` を受け入れ条件として、報告された現象の再現、原因、修正後の動作、関連する回帰を確認する。実行できない確認を PASS にせず、不足として差し戻す。
 
 ## Track Detection
 
@@ -85,7 +86,11 @@ lite ゲートとして実行してよいか、full quality-gate に切り替え
 > **順序が重要**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。
 
 1. 変更範囲に対し `plugins/sdd-quality-loop/scripts/check-placeholders.sh`（または `.ps1`）を実行。
-2. プロジェクトの lint / typecheck / build / test コマンドを**自分で実行**し、出力を捕捉する（コマンドはプロジェクトの AGENTS.md / 設定から判定）。コマンドが無い種別は「N/A」と記録し理由を添える。
+2. プロジェクトの lint / typecheck / build / test コマンドを**自分で実行**し、出力を捕捉する（コマンドはプロジェクトの AGENTS.md / 設定から判定）。コマンドが無い種別は「N/A」と記録し理由を添える。受け入れ条件と関連回帰は必ず確認し、標準の test がそれらを含むなら二重実行しない。含まれない場合は必要な追加チェックを実行する。確認手段がない場合は N/A で完了せず、FAIL として不足を報告する。
+
+   名前付きプロジェクトチェックは Step 2b と同じ `run-lite-gate.py` に `--check <id>` を必要な数だけ渡し、まとめて実行する。例えば `--check lint --check typecheck --check build --check test`。別の受け入れ/回帰コマンドが必要なら、その実在する id を追加する。`--output reports/quality-gate/<task-id>.execution.json` で実測の stdout / stderr / 終了コード / 所要時間を保存する（親ディレクトリを先に作成）。同じ id は一度だけ実行される。明示したチェックの未発見や起動失敗は FAIL であり N/A に置き換えない。標準の発見契約で扱えないコマンドは直接実行してその出力を保存する。
+
+   Step 2b の Summary チェックも同じ呼び出しに含める場合は、先に Step 2a の昇格判定を行い、解決済みの `--enforcement` / `--summary` を渡す。二重実行しない。生成された JSON の `source.before` / `source.after` は実行前後の HEAD と dirty 状態の観測値である。Git 非管理・取得失敗は null（unknown）となる。dirty・unknown・HEAD 変更時は特定リビジョンの成功証明に使わない。前後とも clean でも実行中の変更と復元までは検出しないため、`reuse_allowed: false` としキャッシュ・別コミットの検証代用に使わない。生成された JSON はコマンド実行の証拠であり、placeholder-scan・独立レビュー・最終状態確認を含む総合判定ではない。
 
 2a. **`full_upgrade_required` バックストップ**（epic-194-a6-lite-integration T-004, REQ-003, Blocker [B2]/[B6]）:
    a. Project Context の `workflow.capability_enforcement` を読む（存在すれば）。これは単純な参照であり、A3 自身の三値ロジックの再導出ではない。
@@ -120,7 +125,7 @@ lite ゲートとして実行してよいか、full quality-gate に切り替え
 
 実行アダプタ: Step 2b は `plugins/sdd-lite/lib/run-lite-gate.py` を POSIX/PowerShell 共通の Python 実行器として呼び、`--summary`、`--enforcement`、`--repo-root`、`--runtime` を渡す。アダプタは既存の Summary バリデータを呼び、子プロセスの stdout、stderr、終了コード、タイムアウト、実行時間を JSON に記録する。非ゼロ終了またはタイムアウトは必ず FAIL とし、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.*` は発見規則のテスト専用で実行証跡には使わない。
 
-3. `reports/quality-gate/<task-id>.md` を `templates/quality-report-lite.md` から生成する。先頭に `Task ID: <task-id>` と `VERDICT: PASS|FAIL` を必ず置く（`check-task-state-lite` の Done 判定が依存）。各チェックの PASS/FAIL と根拠を列挙する。Step 1/2/2a/2b のいずれかに1つでも FAIL があれば（Step 2 自身の既存規約による `N/A` を除く）`VERDICT: FAIL` を記録し、`Status` は変えず実装者へ差し戻して終了する。
+3. `reports/quality-gate/<task-id>.md` を `templates/quality-report-lite.md` から生成する。先頭に `Task ID: <task-id>` と `VERDICT: PASS|FAIL` を必ず置く（`check-task-state-lite` の Done 判定が依存）。実行結果は生成された execution.json を参照し、各チェックの出力を再転記しない。独立レビューの担当コンテキスト、確認した受け入れ条件・回帰、および残る問題を記録する。Step 1/2/2a/2b のいずれかに1つでも FAIL があれば（Step 2 自身の既存規約による `N/A` を除く）`VERDICT: FAIL` を記録し、`Status` は変えず実装者へ差し戻して終了する。
 4. `VERDICT: PASS` のときのみ `tasks.md` の対象タスクを `Status: Done` にする。
 5. **最終検証**: Done 化と品質レポート生成の**後**に `plugins/sdd-lite/scripts/check-task-state-lite.sh`（または `.ps1`）を実行し、`Done` 状態を決定論的に検証する（実装レポートのタスク ID 言及 + 品質レポートの `VERDICT: PASS` 言及を含む Done 専用チェックがここで初めて実走する）。失敗したら `Status` を `Implementation Complete` に戻し、レポートに失敗理由を記録して差し戻す（`Done` のまま残さない）。
 

@@ -465,7 +465,7 @@ if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
 else
   fail "self-registration: NOT registered in tests/run-all.sh"
 fi
-if grep -q "hook-guard-epic-a1-boundary.tests" "$ROOT/tests/run-all.ps1"; then
+if { registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -q "hook-guard-epic-a1-boundary.tests" <<< "$registered_ps1"; }; then
   pass "self-registration: registered in tests/run-all.ps1"
 else
   fail "self-registration: NOT registered in tests/run-all.ps1"

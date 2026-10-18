@@ -959,7 +959,7 @@ out=$(resolve "${FIXTURES}/base-tree/config.yaml" "${FIXTURES}/base-tree/changed
 
 if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
    grep -Fx "tests/component-path-resolver.tests.sh" <<< "$registered_suites" >/dev/null \
-   && grep -q "component-path-resolver" "${REPO_ROOT}/tests/run-all.ps1"; then
+   && { registered_ps1="$(python3 "${REPO_ROOT}/tests/verification.py" --profile local-powershell --list)" && grep -q "component-path-resolver" <<< "$registered_ps1"; }; then
   ok "TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1"
 else
   fail "TEST-045.4: component-path-resolver missing from tests/run-all.sh/.ps1 registration"

@@ -682,7 +682,7 @@ gi = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gi)
 protected = set(gi.PROTECTED_GATE_SUFFIXES) | {
     s.lstrip("/") for s in gi.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES}
-callers = ["tests/run-all.sh", "tests/run-all.ps1"]
+callers = ["tests/verification-catalog.json", "tests/verification.py", "tests/run-all.sh", "tests/run-all.ps1"]
 callers += glob.glob("plugins/*/skills/*/SKILL.md")
 callers += glob.glob(os.path.join(".github", "workflows", "*"))
 blob = ""

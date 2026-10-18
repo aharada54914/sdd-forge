@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Exercise the repository's required-checks shell body, not a replica.
-
-Accept an optional workflow path for validating a human-applied candidate.
-This intentionally supports the current explicit, single-step YAML shape;
-structural changes must update this test rather than silently skip checks.
-"""
+"""Validate parsed workflow contracts and execute its actual failure boundaries."""
+import copy
+import importlib.util
+import json
 import pathlib
 import re
+import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 
-WORKFLOW = pathlib.Path(sys.argv.pop(1)) if len(sys.argv) > 1 else (
-    pathlib.Path(__file__).resolve().parents[1] / '.github/workflows/test.yml'
-)
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location('workflow_contract', ROOT / 'tests/verification-workflow.py')
+WF = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(WF)
+WORKFLOW = pathlib.Path(sys.argv.pop(1)) if len(sys.argv) > 1 else ROOT / '.github/workflows/test.yml'
 REQUIRED = (
     'test', 'test-windows-heavy', 'installers', 'loops-routing', 'version-gates',
     'version-gates-windows-bump', 'version-gates-windows-lanes', 'mcp-tests',
@@ -23,127 +25,313 @@ REQUIRED = (
 )
 
 
+def unconditional(step):
+    return WF.enabled(step.get('if'), {}, None) and step.get('continue-on-error', False) is False
+
+
 class RequiredChecksTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        text = WORKFLOW.read_text(encoding='utf-8')
-        cls.workflow = text
-        blocks = re.findall(r'^  required-checks:\n((?:^    .*\n|^\s*\n)*)', text, re.M)
-        if len(blocks) != 1:
-            raise ValueError('expected one required-checks job')
-        cls.job = blocks[0]
-        needs = re.findall(r'^    needs: \[([^\n]+)\]$', cls.job, re.M)
-        if len(needs) != 1:
-            raise ValueError('expected one explicit needs list')
-        cls.needs = [name.strip() for name in needs[0].split(',')]
-        bodies = re.findall(r'^        run: \|\n((?:^          .*\n|^\s*\n)*)', cls.job, re.M)
+        cls.workflow = WF.load_workflow(WORKFLOW)
+        cls.catalog = json.loads((ROOT / 'tests/verification-catalog.json').read_text())
+        cls.job = cls.workflow['jobs']['required-checks']
+        cls.needs = cls.job.get('needs', [])
+        if isinstance(cls.needs, str):
+            cls.needs = [cls.needs]
+        bodies = [step['run'] for step in cls.job.get('steps', []) if isinstance(step.get('run'), str)]
         if len(bodies) != 1:
             raise ValueError('expected one required-checks shell body')
-        cls.body = '\n'.join(line[10:] for line in bodies[0].splitlines())
+        cls.body = bodies[0]
+
+    def consumers(self, job_name, suite):
+        job = self.workflow['jobs'][job_name]
+        return [step for step in job['steps']
+                if suite in WF.step_suites(step, self.catalog, {}, step.get('shell', 'bash'))]
 
     def test_dependencies_and_always(self):
         self.assertEqual(len(self.needs), len(set(self.needs)))
         self.assertTrue(set(REQUIRED).issubset(self.needs))
-        self.assertIn('    if: always()', self.job.splitlines())
+        self.assertTrue(set(self.needs).issubset(self.workflow['jobs']))
+        self.assertIn(self.job.get('if'), ('always()', '${{ always() }}'))
+        self.assertIs(self.job.get('continue-on-error', False), False)
+        step = next(step for step in self.job['steps'] if 'run' in step)
+        self.assertTrue(unconditional(step))
+        self.assertEqual(step.get('shell', 'bash'), 'bash')
 
     def test_previously_missing_suites_have_unconditional_steps(self):
-        blocks = re.findall(r'^  posix-regression:\n((?:^    .*\n|^\s*\n)*)',
-                            self.workflow, re.M)
-        self.assertEqual(len(blocks), 1)
-        steps = re.split(r'^      - ', blocks[0], flags=re.M)[1:]
-        commands = (
-            'bash ./tests/guard-dispatch-fallback.tests.sh',
-            'bash ./tests/guard-negative-corpus.tests.sh',
-            'bash ./tests/deterministic-lane-selfcheck.tests.sh',
-            'bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh',
-            'bash ./tests/design-system-contract.tests.sh',
-            './tests/design-system-contract.tests.ps1',
-            'bash ./tests/design-sync-standing-consent.tests.sh',
-            './tests/design-sync-standing-consent.tests.ps1',
+        suites = (
+            'tests/guard-dispatch-fallback.tests.sh',
+            'tests/guard-negative-corpus.tests.sh',
+            'tests/deterministic-lane-selfcheck.tests.sh',
+            'tests/workflow-scenarios/workflow-scenarios.tests.sh',
+            'tests/design-system-contract.tests.sh',
+            'tests/design-system-contract.tests.ps1',
+            'tests/design-sync-standing-consent.tests.sh',
+            'tests/design-sync-standing-consent.tests.ps1',
         )
-        for command in commands:
-            with self.subTest(command=command):
-                matches = [step for step in steps
-                           if f'        run: {command}' in step.splitlines()]
-                self.assertEqual(len(matches), 1, 'expected one direct CI step')
-                self.assertNotRegex(matches[0], r'(?m)^        (if|continue-on-error):')
-                shell = 'pwsh' if command.endswith('.ps1') else 'bash'
-                self.assertIn(f'        shell: {shell}', matches[0].splitlines())
+        for suite in suites:
+            with self.subTest(suite=suite):
+                matches = self.consumers('posix-regression', suite)
+                self.assertEqual(len(matches), 1)
+                self.assertTrue(unconditional(matches[0]))
+                self.assertEqual(matches[0].get('shell'), 'pwsh' if suite.endswith('.ps1') else 'bash')
 
     def test_selected_plan_full_suite_runs_on_all_native_platforms(self):
-        blocks = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)
-        self.assertEqual(len(blocks), 1)
-        job = blocks[0]
-        self.assertIn('    runs-on: ${{ matrix.os }}', job.splitlines())
-        platforms = re.findall(r'^        os: \[([^\n]+)\]$', job, re.M)
-        self.assertEqual(len(platforms), 1)
-        self.assertEqual({item.strip() for item in platforms[0].split(',')},
-                         {'windows-latest', 'macos-latest', 'ubuntu-latest'})
-        steps = re.split(r'^      - ', job, flags=re.M)[1:]
-        suite = 'tests/sdd-domain-multitarget-T-003.tests.py'
-        consumers = [step for step in steps if suite in step]
-        self.assertEqual(len(consumers), 1, 'the full selected-plan suite needs a direct matrix step')
-        step = consumers[0]
-        self.assertNotRegex(step, r'(?m)^        (if|continue-on-error):')
-        self.assertIn('        shell: pwsh', step.splitlines())
-        self.assertIn(f'        run: python -B {suite}', step.splitlines())
-        installs = [step for step in steps
-                    if 'run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts' in step]
+        job = self.workflow['jobs']['test']
+        platforms = {WF.expand_matrix(job['runs-on'], row) for row in WF.matrix_rows(job)}
+        self.assertEqual(platforms, {'windows-latest', 'macos-latest', 'ubuntu-latest'})
+        consumers = self.consumers('test', 'tests/sdd-domain-multitarget-T-003.tests.py')
+        self.assertEqual(len(consumers), 1)
+        self.assertTrue(unconditional(consumers[0]))
+        self.assertEqual(consumers[0]['shell'], 'pwsh')
+        installs = []
+        for step in job['steps']:
+            tokens = shlex.split(step.get('run', ''))
+            if tokens[:2] == ['npm', 'ci'] and '--prefix' in tokens:
+                index = tokens.index('--prefix')
+                if tokens[index + 1:index + 2] == ['mcp/sdd-forge-mcp'] and '--ignore-scripts' in tokens:
+                    installs.append(step)
         self.assertEqual(len(installs), 1)
-        self.assertNotRegex(installs[0], r'(?m)^        (if|continue-on-error):')
-        self.assertLess(steps.index(installs[0]), steps.index(consumers[0]))
+        self.assertTrue(unconditional(installs[0]))
+        self.assertLess(job['steps'].index(installs[0]), job['steps'].index(consumers[0]))
 
     def test_transport_dependency_is_pinned_and_installed_first(self):
-        job = re.findall(r'^  posix-regression:\n((?:^    .*\n|^\s*\n)*)',
-                         self.workflow, re.M)[0]
-        steps = re.split(r'^      - ', job, flags=re.M)[1:]
-        installs = [step for step in steps if step.startswith('name: Install pinned RTK\n')]
+        steps = self.workflow['jobs']['posix-regression']['steps']
+        installs = [step for step in steps if '/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz' in step.get('run', '')]
         self.assertEqual(len(installs), 1)
-        install = installs[0]
-        self.assertNotRegex(install, r'(?m)^        (if|continue-on-error):')
-        self.assertIn('shell: bash', install)
-        self.assertIn('set -euo pipefail', install)
-        self.assertIn('/v0.51.0/rtk-x86_64-unknown-linux-musl.tar.gz', install)
-        self.assertIn('5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5', install)
-        self.assertLess(install.index('sha256sum --check'), install.index('tar -xzf'))
-        self.assertIn('"$GITHUB_PATH"', install)
-        consumers = [step for step in steps if 'tests/quality-nontty-transport.tests.py' in step]
+        step = installs[0]
+        self.assertTrue(unconditional(step))
+        self.assertEqual(step.get('shell'), 'bash')
+        body = '\n'.join(line for line in step['run'].splitlines() if not line.lstrip().startswith('#'))
+        self.assertIn('set -euo pipefail', body)
+        self.assertIn('5028d3b19a8f0990d30fec9fbb07e32782bc5698e618fb1861aad8a9ccba4eb5', body)
+        self.assertLess(body.index('sha256sum --check'), body.index('tar -xzf'))
+        self.assertIn('"$GITHUB_PATH"', body)
+        consumers = self.consumers('posix-regression', 'tests/quality-nontty-transport.tests.py')
         self.assertEqual(len(consumers), 1)
-        self.assertLess(steps.index(install), steps.index(consumers[0]))
+        self.assertLess(steps.index(step), steps.index(consumers[0]))
 
     def test_domain_finalization_has_its_own_unconditional_native_step(self):
-        job = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)[0]
-        steps = re.split(r'^      - ', job, flags=re.M)[1:]
-        consumers = [step for step in steps if 'tests/domain-review-finalize.tests.py' in step]
+        consumers = self.consumers('test', 'tests/domain-review-finalize.tests.py')
         self.assertEqual(len(consumers), 1)
-        self.assertNotRegex(consumers[0], r'(?m)^        (if|continue-on-error):')
-        self.assertIn('        run: python -B tests/domain-review-finalize.tests.py',
-                      consumers[0].splitlines())
+        self.assertTrue(unconditional(consumers[0]))
+        self.assertEqual(consumers[0]['shell'], 'pwsh')
+        self.assertEqual(len([line for line in consumers[0]['run'].splitlines() if line.strip()]), 1)
 
     def test_each_native_python_failure_propagates_to_the_step(self):
-        job = re.findall(r'^  test:\n((?:^    .*\n|^\s*\n)*)', self.workflow, re.M)[0]
-        steps = re.split(r'^      - ', job, flags=re.M)[1:]
         executable = "'" + sys.executable.replace("'", "''") + "'"
         for suite in ('tests/concept-test.tests.py', 'tests/domain-review-finalize.tests.py'):
             with self.subTest(suite=suite):
-                consumers = [step for step in steps if suite in step]
+                consumers = self.consumers('test', suite)
                 self.assertEqual(len(consumers), 1)
                 step = consumers[0]
-                self.assertIn('        shell: pwsh', step.splitlines())
-                body = step.split('        run: ', 1)[1]
-                if body.startswith('|\n'):
-                    body = '\n'.join(line[10:] for line in body[2:].splitlines())
-                body = re.sub(r'python -B (tests/[\w.-]+\.py)',
+                self.assertEqual(step['shell'], 'pwsh')
+                body = re.sub(r'python3? (?:-B )?(tests/[\w.-]+\.py)',
                               lambda match: f'& {executable} -c "raise SystemExit({23 if match[1] == suite else 0})"',
-                              body)
-                # GitHub's pwsh wrapper exits with the final native command's
-                # status. Exercise the actual step body with one failing suite.
+                              step['run'])
                 script = ("$ErrorActionPreference = 'stop'\n"
                           "$PSNativeCommandUseErrorActionPreference = $false\n" + body +
                           "\nif (Test-Path variable:\\LASTEXITCODE) { exit $LASTEXITCODE }\n")
                 run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', script],
                                      capture_output=True, text=True, timeout=30)
                 self.assertEqual(run.returncode, 23, run.stdout + run.stderr)
+
+    def test_catalog_declared_ci_jobs_have_actual_execution(self):
+        self.assertEqual(WF.coverage_errors(self.workflow, self.catalog), [])
+
+    def assert_a9_private_workflow(self, workflow):
+        jobs = {name: workflow['jobs'][name] for name in ('a9-advisory-inputs', 'a9-advisory')}
+        self.assertNotIn('pull_request_target', workflow.get('on', {}))
+        for job in jobs.values():
+            self.assertEqual(job.get('permissions'), {'contents': 'read'})
+            checkouts = [step for step in job['steps']
+                         if step.get('uses', '').startswith('actions/checkout@')]
+            self.assertEqual(len(checkouts), 2)
+            for step in checkouts:
+                self.assertIs(step.get('with', {}).get('persist-credentials'), False)
+            self.assertEqual({(step['with'].get('path'), step['with'].get('ref')) for step in checkouts}, {
+                ('trusted', '${{ github.event.pull_request.base.sha }}'),
+                ('subject', '${{ github.event.pull_request.head.sha }}'),
+            })
+        serialized = json.dumps(jobs)
+        for forbidden in ('secrets.', 'upload-artifact', 'pull_request_target',
+                          'python3 subject/', 'source subject/', 'bash subject/'):
+            self.assertNotIn(forbidden, serialized)
+        self.assertEqual(jobs['a9-advisory'].get('if'),
+                         "needs.a9-advisory-inputs.outputs.active == 'true'")
+
+    def test_a9_workflow_trust_and_private_retention_boundary(self):
+        # Workflow-only validation belongs in this required structural lane;
+        # native A9 consumer tests need no Node dependency for YAML parsing.
+        self.assert_a9_private_workflow(self.workflow)
+        changed = copy.deepcopy(self.workflow)
+        changed['jobs']['unrelated-upload'] = {'steps': [{'uses': 'actions/upload-artifact@v4'}]}
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'workflow.yml'
+            path.write_text('# Different comments and layout\n' + json.dumps(changed, indent=3))
+            self.assert_a9_private_workflow(WF.load_workflow(path))
+
+    def test_a9_workflow_privacy_mutations_are_rejected(self):
+        for name in ('a9-advisory-inputs', 'a9-advisory'):
+            for mutation in ('upload', 'permissions', 'credentials', 'missing-credentials',
+                             'head-ref', 'secrets', 'python', 'source', 'bash'):
+                with self.subTest(job=name, mutation=mutation):
+                    changed = copy.deepcopy(self.workflow)
+                    job = changed['jobs'][name]
+                    if mutation == 'upload':
+                        job['steps'].append({'uses': 'actions/upload-artifact@v4'})
+                    elif mutation == 'permissions':
+                        job['permissions']['contents'] = 'write'
+                    elif mutation in ('credentials', 'missing-credentials', 'head-ref'):
+                        checkout = next(step for step in job['steps']
+                                        if step.get('with', {}).get('path') == 'subject')['with']
+                        if mutation == 'credentials':
+                            checkout['persist-credentials'] = True
+                        elif mutation == 'missing-credentials':
+                            del checkout['persist-credentials']
+                        else:
+                            checkout['ref'] = '${{ github.sha }}'
+                    else:
+                        command = {'secrets': 'echo "${{ secrets.PRIVATE }}"',
+                                   'python': 'python3 subject/script.py',
+                                   'source': 'source subject/script.sh',
+                                   'bash': 'bash subject/script.sh'}[mutation]
+                        job['steps'].append({'run': command})
+                    with self.assertRaises(AssertionError):
+                        self.assert_a9_private_workflow(changed)
+        changed = copy.deepcopy(self.workflow)
+        changed['jobs']['a9-advisory']['if'] = 'always()'
+        with self.assertRaises(AssertionError):
+            self.assert_a9_private_workflow(changed)
+
+    def test_yaml_format_and_step_names_do_not_define_coverage(self):
+        changed = copy.deepcopy(self.workflow)
+        for job in changed['jobs'].values():
+            for step in job.get('steps', []):
+                step['name'] = 'arbitrary display name'
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'workflow.yml'
+            # JSON is YAML's flow-style subset; this also changes all indentation
+            # and serializes needs/matrices independently of the source layout.
+            path.write_text(json.dumps(changed, indent=3))
+            parsed = WF.load_workflow(path)
+        self.assertEqual(WF.workflow_coverage(parsed, self.catalog), WF.workflow_coverage(self.workflow, self.catalog))
+        self.assertEqual(parsed['jobs']['required-checks']['needs'], self.needs)
+        self.assertEqual(parsed['jobs']['required-checks']['steps'][0]['run'], self.body)
+
+    def test_removed_disabled_or_prose_invocations_cannot_prove_coverage(self):
+        suite = 'tests/guard-dispatch-fallback.tests.sh'
+        catalog = {'suites': [{'path': suite, 'runtime': 'bash', 'ci_jobs': ['fixture']}], 'profiles': {'focused': [suite]}}
+        direct = {'run': f'bash ./{suite}', 'shell': 'bash'}
+        def workflow(step):
+            return {'jobs': {'fixture': {'runs-on': 'ubuntu-latest', 'steps': [step]}}}
+        self.assertEqual(WF.coverage_errors(workflow(direct), catalog), [])
+        profile = {'run': 'python3 tests/verification.py --profile focused --run', 'shell': 'bash'}
+        self.assertEqual(WF.coverage_errors(workflow(profile), catalog), [])
+        for step in (
+            {'run': 'echo done', 'name': suite},
+            {'run': '# bash ' + suite},
+            {'run': 'echo bash ' + suite},
+            {'run': "cat <<'EOF'\nbash " + suite + '\nEOF'},
+            {'run': 'if false; then\nbash ' + suite + '\nfi'},
+            dict(direct, **{'if': False}),
+            dict(direct, **{'continue-on-error': True}),
+            dict(direct, **{'working-directory': 'elsewhere'}),
+            {'run': 'python3 tests/verification.py --profile focused --list'},
+            {'run': f'bash {suite} --list'},
+            {'run': f'bash -n {suite}'},
+            {'run': f'\"bash {suite}\"'},
+            {'run': 'python3 tests/verification.py --profile missing --run'},
+        ):
+            with self.subTest(step=step):
+                self.assertTrue(WF.coverage_errors(workflow(step), catalog))
+        disabled = workflow(direct)
+        disabled['jobs']['fixture']['if'] = False
+        self.assertTrue(WF.coverage_errors(disabled, catalog))
+
+    def test_matrix_suite_profile_and_condition_coverage(self):
+        paths = ['tests/a.tests.py', 'tests/b.tests.py']
+        catalog = {'suites': [{'path': path, 'runtime': 'python', 'ci_jobs': ['matrix']} for path in paths],
+                   'profiles': {'both': paths}}
+        workflow = {'jobs': {'matrix': {'runs-on': 'windows-latest',
+                    'strategy': {'matrix': {'include': [{'suite': path} for path in paths]}},
+                    'steps': [{'run': 'python tests/verification.py --suite "${{ matrix.suite }}" --run',
+                               'shell': 'pwsh'}]}}}
+        self.assertEqual(WF.coverage_errors(workflow, catalog), [])
+        workflow['jobs']['matrix']['steps'][0]['if'] = "matrix.suite == 'tests/a.tests.py'"
+        errors = WF.coverage_errors(workflow, catalog)
+        self.assertEqual(len(errors), 1)
+        self.assertIn(paths[1], errors[0])
+        workflow['jobs']['matrix']['steps'][0]['if'] = 'unknown()'
+        self.assertEqual(len(WF.coverage_errors(workflow, catalog)), 2)
+
+    def test_duplicate_yaml_keys_and_wrong_shell_are_not_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'workflow.yml'
+            path.write_text('jobs: {}\njobs: {}\n')
+            with self.assertRaises(ValueError):
+                WF.load_workflow(path)
+        catalog = {'suites': [{'path': 'tests/a.ps1', 'runtime': 'powershell', 'ci_jobs': ['job']}], 'profiles': {}}
+        workflow = {'jobs': {'job': {'runs-on': 'ubuntu-latest', 'steps': [{'run': './tests/a.ps1', 'shell': 'bash'}]}}}
+        self.assertTrue(WF.coverage_errors(workflow, catalog))
+        workflow['jobs']['job']['steps'][0]['shell'] = 'pwsh'
+        self.assertEqual(WF.coverage_errors(workflow, catalog), [])
+
+    def test_powershell_multiline_native_failure_is_not_coverage(self):
+        paths = ['tests/a.tests.py', 'tests/b.tests.py']
+        catalog = {'suites': [{'path': path, 'runtime': 'python', 'ci_jobs': ['job']} for path in paths],
+                   'profiles': {'both': paths}}
+        workflow = {'jobs': {'job': {'runs-on': 'windows-latest',
+                    'steps': [{'run': '\n'.join('python ' + path for path in paths), 'shell': 'pwsh'}]}}}
+        self.assertEqual(len(WF.coverage_errors(workflow, catalog)), 2)
+        executable = "'" + sys.executable.replace("'", "''") + "'"
+        # Real host semantics reproduce why two individually invoked native
+        # processes cannot prove that the first test's failure gates the job.
+        body = f'& {executable} -c "raise SystemExit(23)"\n& {executable} -c "raise SystemExit(0)"\nexit $LASTEXITCODE'
+        run = subprocess.run([shutil.which('pwsh') or 'pwsh', '-NoProfile', '-Command', body],
+                             text=True, capture_output=True, timeout=30)
+        self.assertEqual(run.returncode, 0)
+        workflow['jobs']['job']['steps'][0]['run'] = 'python tests/verification.py --profile both --run'
+        self.assertEqual(WF.coverage_errors(workflow, catalog), [])
+
+    def test_fallback_shards_are_complete_unconditional_and_required(self):
+        self.assertEqual(WF.shard_errors(self.workflow), [])
+        job_name = 'posix-unwired-sharded'
+        mutants = []
+        for indices in ([0, 1, 2], [0, 1, 2, 2], [0, 1, 2, 4]):
+            value = copy.deepcopy(self.workflow)
+            value['jobs'][job_name]['strategy']['matrix']['shard'] = indices
+            mutants.append(value)
+        for field, setting in (('if', False), ('continue-on-error', True)):
+            value = copy.deepcopy(self.workflow)
+            value['jobs'][job_name][field] = setting
+            mutants.append(value)
+        value = copy.deepcopy(self.workflow)
+        value['jobs']['required-checks']['needs'].remove(job_name)
+        mutants.append(value)
+        for mode in ('if', 'continue-on-error', 'count', 'echo'):
+            value = copy.deepcopy(self.workflow)
+            step = next(step for step in value['jobs'][job_name]['steps']
+                        if 'tests/run-ci-unwired.sh' in step.get('run', ''))
+            if mode in ('if', 'continue-on-error'):
+                step[mode] = False if mode == 'if' else True
+            elif mode == 'count':
+                step['run'] = step['run'].replace('--shard-count 4', '--shard-count 3')
+            else:
+                step['run'] = 'echo ' + step['run']
+            mutants.append(value)
+        for number, value in enumerate(mutants):
+            with self.subTest(mutation=number):
+                self.assertTrue(WF.shard_errors(value))
+        job = self.workflow['jobs'][job_name]
+        step = next(step for step in job['steps'] if 'tests/run-ci-unwired.sh' in step.get('run', ''))
+        with tempfile.TemporaryDirectory() as directory:
+            fail = pathlib.Path(directory) / 'fail.sh'
+            fail.write_text('exit 23\n')
+            body = WF.expand_matrix(step['run'], {'shard': 0}).replace('./tests/run-ci-unwired.sh', shlex.quote(str(fail)))
+            run = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', body],
+                                 capture_output=True, text=True, timeout=10)
+            self.assertEqual(run.returncode, 23)
 
     def execute_body(self, failed_job=None, result='success', active='true'):
         def expand(match):
@@ -167,7 +355,7 @@ class RequiredChecksTests(unittest.TestCase):
                 self.assertNotEqual(self.execute_body('a9-advisory', result, active).returncode, 0)
 
     def test_each_dependency_non_success(self):
-        for name in REQUIRED:
+        for name in self.needs:
             for result in ('failure', 'cancelled', 'skipped', ''):
                 with self.subTest(job=name, result=result):
                     run = self.execute_body(name, result)

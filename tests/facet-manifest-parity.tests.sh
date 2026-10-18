@@ -389,7 +389,7 @@ for suite in $SIX_SUITES; do
   else
     fail "TEST-033: tests/run-all.sh does NOT register tests/${suite}.tests.sh"
   fi
-  if grep -qF "tests/${suite}.tests.ps1" "$REPO_ROOT/tests/run-all.ps1"; then
+  if { registered_ps1="$(python3 "$REPO_ROOT/tests/verification.py" --profile local-powershell --list)" && grep -qF "tests/${suite}.tests.ps1" <<< "$registered_ps1"; }; then
     ok "TEST-033: tests/run-all.ps1 registers tests/${suite}.tests.ps1"
   else
     fail "TEST-033: tests/run-all.ps1 does NOT register tests/${suite}.tests.ps1"

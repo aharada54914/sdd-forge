@@ -491,7 +491,7 @@ fi
 echo "=== registration self-check ==="
 if registered_suites="$(bash "${REPO_ROOT}/tests/run-all.sh" --list)" &&
    grep -Fx "tests/component-path-diff-basis.tests.sh" <<< "$registered_suites" >/dev/null \
-   && grep -q "component-path-diff-basis" "${REPO_ROOT}/tests/run-all.ps1"; then
+   && { registered_ps1="$(python3 "${REPO_ROOT}/tests/verification.py" --profile local-powershell --list)" && grep -q "component-path-diff-basis" <<< "$registered_ps1"; }; then
   ok "component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1"
 else
   fail "component-path-diff-basis missing from tests/run-all.sh/.ps1 registration"

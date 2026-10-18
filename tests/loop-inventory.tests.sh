@@ -356,7 +356,7 @@ assert_registered_sh() {
 }
 assert_registered_ps1() {
   local basename="$1"
-  grep -q "tests/${basename}\.ps1" "$RUN_ALL_PS1" 2>/dev/null && \
+  { registered_ps1="$(python3 "$(dirname "$RUN_ALL_PS1")/verification.py" --profile local-powershell --list)" && grep -q "tests/${basename}\.ps1" <<< "$registered_ps1"; } && \
     grep -q "${basename}\.ps1" "$TEST_YML" 2>/dev/null
 }
 

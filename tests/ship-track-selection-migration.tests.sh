@@ -1091,7 +1091,7 @@ if registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
 else
   fail "self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh"
 fi
-if grep -q 'tests/ship-track-selection-migration.tests.ps1' "$ROOT/tests/run-all.ps1"; then
+if { registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -q 'tests/ship-track-selection-migration.tests.ps1' <<< "$registered_ps1"; }; then
   pass "self-registration: tests/ship-track-selection-migration.tests.ps1 registered in tests/run-all.ps1"
 else
   fail "self-registration: tests/ship-track-selection-migration.tests.ps1 registered in tests/run-all.ps1"

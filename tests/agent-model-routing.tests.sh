@@ -1154,7 +1154,7 @@ fi
 registered_suites="$(bash "$ROOT/tests/run-all.sh" --list)" &&
   grep -Fx 'tests/agent-model-routing.tests.sh' <<< "$registered_suites" >/dev/null ||
   fail "TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh"
-grep -q 'tests/agent-model-routing\.tests\.ps1' "$ROOT/tests/run-all.ps1" ||
+{ registered_ps1="$(python3 "$ROOT/tests/verification.py" --profile local-powershell --list)" && grep -q 'tests/agent-model-routing\.tests\.ps1' <<< "$registered_ps1"; } ||
   fail "TEST-027 tests/agent-model-routing.tests.ps1 not registered in tests/run-all.ps1"
 
 STAGED_TEST_YML="$ROOT/specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml"

@@ -311,7 +311,8 @@ if should_run TEST-041; then
     grep -Fx 'tests/ownership-digest.tests.sh' <<< "$registered_suites" >/dev/null; then
     wiring_count=$((wiring_count + 1))
   fi
-  grep -Fq "'tests/ownership-digest.tests.ps1'" "$run_all_ps1" && wiring_count=$((wiring_count + 1))
+  registered_ps1="$(python3 "$REPO_ROOT/tests/verification.py" --profile local-powershell --list)" &&
+    grep -Fxq "tests/ownership-digest.tests.ps1" <<< "$registered_ps1" && wiring_count=$((wiring_count + 1))
   grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
   grep -Fq './tests/ownership-digest.tests.ps1' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
   grep -Fq '`tests/ownership-digest.tests.sh` / `.ps1`' "$REPO_ROOT/specs/epic-191-a3-path-ownership/design.md" && wiring_count=$((wiring_count + 1))

@@ -461,7 +461,7 @@ if ($LASTEXITCODE -eq 0 -and $posixEntries -ccontains 'tests/run-panelist-effort
 } else {
     Fail "self-registration: run-panelist-effort.tests.sh NOT registered in tests/run-all.sh"
 }
-if (Select-String -LiteralPath $runAllPs1 -Pattern 'run-panelist-effort\.tests\.ps1' -CaseSensitive -Quiet) {
+if (((& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) -split "`n") -ccontains "tests/run-panelist-effort.tests.ps1") {
     Ok "self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1"
 } else {
     Fail "self-registration: run-panelist-effort.tests.ps1 NOT registered in tests/run-all.ps1"

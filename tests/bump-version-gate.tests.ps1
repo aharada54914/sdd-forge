@@ -530,7 +530,7 @@ function Test-006 {
         Ok "TEST-006 (AC-006, CI-resilience): this suite drives no real validator (non-use declaration)"
     }
 
-    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { Get-Content -LiteralPath $runAllPs1 -Raw } else { "" }
+    $runAllPs1Content = if (Test-Path -LiteralPath $runAllPs1) { (& (Join-Path $PSScriptRoot 'lib/verification-registration.ps1') $runAllPs1) } else { "" }
     $testYmlContent = if (Test-Path -LiteralPath $testYml) { Get-Content -LiteralPath $testYml -Raw } else { "" }
     if ($runAllPs1Content.Contains("bump-version-gate.tests.ps1") -and $testYmlContent.Contains("bump-version-gate.tests.ps1")) {
         Ok "TEST-006 (AC-006): bump-version-gate.tests.ps1 is registered in tests/run-all.ps1 and .github/workflows/test.yml"
