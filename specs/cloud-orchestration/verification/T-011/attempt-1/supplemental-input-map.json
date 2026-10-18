@@ -1,0 +1,52 @@
+[
+  {
+    "path": "initial/tests/sdd-domain-multitarget-T-004.tests.py",
+    "source": "tests/sdd-domain-multitarget-T-004.tests.py",
+    "sha256": "a3f440cd0a8a28a1deac3d804d798133b326e44df02c96b265af87c1e0ee2f40"
+  },
+  {
+    "path": "initial/specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json",
+    "source": "specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json",
+    "sha256": "1200522106dbeb13a03885233bbf8486501518e954b7d1480b13effbceb97688"
+  },
+  {
+    "path": "initial/plugins/sdd-quality-loop/scripts/check-contract.py",
+    "source": "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7"
+  },
+  {
+    "path": "initial/plugins/sdd-quality-loop/scripts/validate_path.py",
+    "source": "plugins/sdd-quality-loop/scripts/validate_path.py",
+    "sha256": "56306107b68809f5ee443085028019f6187cba7c99379ad290be51661933d2b9"
+  },
+  {
+    "path": "initial/reports/implementation/cloud-orchestration/T-009.md",
+    "source": "reports/implementation/cloud-orchestration/T-009.md",
+    "sha256": "8a771e42e4b0e03e8ee10cb21d404cb6115597d1ef21a7378c2899015e155f0e"
+  },
+  {
+    "path": "external/5/SKILL.md",
+    "source": "/workspace/.tools/sdd-forge-dev/pstack-codex/skills/pstack-behavior-eval/SKILL.md",
+    "sha256": "13620c666f6bd55ee30262e18d6ae8428fae1bfb2876c1f47239f7d7705e25e9"
+  },
+  {
+    "path": "external/6/README.md",
+    "source": "/workspace/.tools/sdd-forge-dev/README.md",
+    "sha256": "c400d5acf4c7f578168d5590f201905ef9b2dba036d4d668506d3e84ebd7c7b4"
+  },
+  {
+    "path": "external/7/verify-codex",
+    "source": "/workspace/.tools/sdd-forge-dev/verify-codex",
+    "sha256": "f133cc0d14f756d7ed5aa2fccbc83b5c42ea6f15509144ce2484540f5ca37c88"
+  },
+  {
+    "path": "external/8/cloud-native-host-trial.py",
+    "source": "/tmp/cloud-native-host-trial.py",
+    "sha256": "34e953f033548e67af3ffc021ce165b6b8ab2ef54d2174c9c286079481083565"
+  },
+  {
+    "path": "external/9/cloud-T011-host-rubric.md",
+    "source": "/tmp/cloud-T011-host-rubric.md",
+    "sha256": "58c6f17d5d8d55c91c362afc706dcb970f9e43a001284698bccfc318da37dbdc"
+  }
+]

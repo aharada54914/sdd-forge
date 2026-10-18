@@ -1,0 +1,21 @@
+test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) ... 
+  test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) (path='plugins/sdd-quality-loop/scripts/check-contract.py') ... FAIL
+
+======================================================================
+FAIL: test_005_007_reviewed_contracts_templates_and_checks_unchanged (__main__.CompatibilityTests.test_005_007_reviewed_contracts_templates_and_checks_unchanged) (path='plugins/sdd-quality-loop/scripts/check-contract.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/cloud-T011-01a14fdf/rollback/tests/sdd-domain-multitarget-T-004.tests.py", line 63, in test_005_007_reviewed_contracts_templates_and_checks_unchanged
+    self.assert_reviewed_consumer(path, (ROOT / path).read_bytes(), expected)
+  File "/tmp/cloud-T011-01a14fdf/rollback/tests/sdd-domain-multitarget-T-004.tests.py", line 56, in assert_reviewed_consumer
+    self.assertEqual(hashlib.sha256(content).hexdigest(), expected)
+AssertionError: '9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7' != '2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3'
+- 9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7
++ 2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+exit_code=1

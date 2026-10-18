@@ -31,6 +31,27 @@ DOCUMENTS = ('requirements', 'acceptance-tests', 'design', 'ux-spec',
              'frontend-spec', 'infra-spec', 'security-spec')
 
 
+# T009 reviewed additive v3 dispatch. Both exact new bytes and the reconstructed
+# original baseline remain bound; this is NOT a general cloud-code exception.
+CHECK_CONTRACT = 'plugins/sdd-quality-loop/scripts/check-contract.py'
+REVIEWED_CLOUD_SHA256 = '9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7'
+REVIEWED_CLOUD_INSERTION = b"""    # Cloud runtime is deliberately lazy: the legacy entry remains stdlib 3.6+.
+    if isinstance(contract, dict) and contract.get("schema") == "verification-contract/v3":
+        if sys.version_info < (3, 10):
+            return contract.get("task_id", "?"), ["cloud profile requires Python 3.10+"]
+        try:
+            from cloud_verification import saved_profile_plan
+            with open(contract_path, "rb") as stream:
+                saved_profile_plan(stream.read(), _discover_project_root(contract_path, root))
+        except (ImportError, OSError, ValueError, TypeError, KeyError) as exc:
+            return contract.get("task_id", "?"), ["cloud profile invalid: " + str(exc)]
+        return contract.get("task_id", "?"), ["cloud profile requires fresh authenticated collection; saved evidence is not provenance"]
+    if isinstance(contract, dict) and "profile" in contract:
+        return contract.get("task_id", "?"), ["cloud profile requires verification-contract/v3"]
+
+"""
+
+
 def load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
@@ -84,6 +105,62 @@ class CompatibilityTests(unittest.TestCase):
         unrelated = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(unrelated, (ROOT / unrelated).read_bytes() + b'changed', baseline[unrelated])
+
+    def test_reviewed_cloud_extension_is_exact_and_retains_original_baseline(self):
+        baseline = json.loads((ROOT / 'specs/sdd-domain-multitarget/verification/T-004/consumer-baseline.json').read_text())['sha256']
+        content = (ROOT / CHECK_CONTRACT).read_bytes()
+        expected = baseline[CHECK_CONTRACT]
+        self.assert_reviewed_consumer(CHECK_CONTRACT, content, expected)
+        mutations = {
+            'missing': content.replace(REVIEWED_CLOUD_INSERTION, b'', 1),
+            'duplicate': content.replace(REVIEWED_CLOUD_INSERTION, REVIEWED_CLOUD_INSERTION * 2, 1),
+            'moved': content.replace(REVIEWED_CLOUD_INSERTION, b'', 1) + REVIEWED_CLOUD_INSERTION,
+            'version': content.replace(b'verification-contract/v3', b'verification-contract/v4', 1),
+            'legacy-body': content.replace(b'BASELINE_IDS = {', b'BASELINE_IDS = set() # {', 1),
+            'trailing': content + b'\n',
+        }
+        for label, changed in mutations.items():
+            with self.subTest(mutation=label), self.assertRaises(AssertionError):
+                self.assert_reviewed_consumer(CHECK_CONTRACT, changed, expected)
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(CHECK_CONTRACT, content, REVIEWED_CLOUD_SHA256)
+        reconstructed = content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)
+        self.assertEqual(hashlib.sha256(reconstructed).hexdigest(), expected)
+
+    def test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy(self):
+        # Run baseline and current CLI with only the original stdlib dependency.
+        # Missing cloud modules is deliberate: legacy must not import them.
+        content = (ROOT / CHECK_CONTRACT).read_bytes()
+        self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_CLOUD_SHA256)
+        with tempfile.TemporaryDirectory(prefix='t004-legacy-extension-') as folder:
+            work = Path(folder).resolve()
+            for name, code in (('original.py', content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)), ('reviewed.py', content)):
+                (work / name).write_bytes(code)
+            shutil.copy2(SCRIPTS / 'validate_path.py', work / 'validate_path.py')
+            (work / 'evidence.log').write_text('Synthetic legacy check evidence\n')
+            ids = ('lint', 'typecheck', 'unit-tests', 'build', 'placeholder-scan', 'task-state-check')
+            for schema in (None, 'verification-contract/v2'):
+                for variant in ('matched', 'missing-check', 'false-check', 'bad-evidence', 'duplicate-check'):
+                    with self.subTest(schema=schema, variant=variant):
+                        contract: dict = dict(task_id='T-004', checks=[dict(id=cid, required=True, passes=True, evidence='evidence.log') for cid in ids])
+                        if schema is not None:
+                            contract['schema'] = schema
+                        if variant == 'missing-check':
+                            contract['checks'].pop()
+                        elif variant == 'false-check':
+                            contract['checks'][0]['passes'] = False
+                        elif variant == 'bad-evidence':
+                            contract['checks'][0]['evidence'] = '../outside.log'
+                        elif variant == 'duplicate-check':
+                            contract['checks'].append(contract['checks'][0].copy())
+                        path = work / 'contract.json'
+                        path.write_text(json.dumps(contract))
+                        results = [subprocess.run([sys.executable, '-I', '-B', str(work / name), str(path), str(work)],
+                                                 capture_output=True, text=True, timeout=15)
+                                   for name in ('original.py', 'reviewed.py')]
+                        self.assertEqual(results[0].returncode, 0 if variant == 'matched' else 1, results[0].stdout + results[0].stderr)
+                        self.assertEqual((results[0].returncode, results[0].stdout, results[0].stderr),
+                                         (results[1].returncode, results[1].stdout, results[1].stderr))
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')
