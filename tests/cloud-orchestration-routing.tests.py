@@ -769,13 +769,14 @@ class AwsRouting(unittest.TestCase):
         for edit in (lambda: self.owner.update(owners=[]),
                      lambda: self.config.update(import_resources=True),
                      lambda: self.req.update(provider="azure", owner="bicep", route="azure-bicep")):
-            edit(); self.refresh()
+            edit()
+            self.refresh()
             self.assertEqual(self.invoke(expected=2)["result"], "BLOCKED")
             self.owner, self.config, self.req = copy.deepcopy(initial)
         (self.root/self.source["path"]).unlink()
         self.source = self.put("bundle/unit/main.tf", b"# No import")
         self.req["input_artifacts"] = [dict(kind="source", **self.source)]
-        self.req.update(owner="terraform", route=None)
+        self.req.update(owner="terraform", route=None, operation="route")
         self.owner["owners"][0]["owner"] = "terraform"
         self.refresh()
         self.assertEqual(self.invoke(expected=2)["error_code"], "OWNER_UNSUPPORTED")
@@ -868,7 +869,9 @@ class AwsNativePreparation(AwsRouting):
         for i,edit in enumerate(edits):
             with self.subTest(case=i):
                 self.config,self.params,self.policy,self.owner,self.lock=copy.deepcopy(initial)
-                edit();self.write_parameters();self.refresh()
+                edit()
+                self.write_parameters()
+                self.refresh()
                 self.assertEqual(self.invoke("plan",expected=2)["result"],"BLOCKED")
                 self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
 
@@ -886,11 +889,183 @@ class AwsNativePreparation(AwsRouting):
         self.put("bundle/unit/cdk.out/raw.json",dict(Resources={}))
         self.assertEqual(self.invoke(expected=2)["error_code"],"OWNER_CONFLICT")
 
+    def test_malformed_compiled_outputs_always_typed_and_no_receipt(self):
+        self.native_prerequisites()
+        result=self.invoke('plan')
+        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
+        locked=self.contracts.read_artifact(self.root,ev['locked_request'],'cloud-run-request/v1')
+        artifacts={a['path']:(self.root/a['path']).read_bytes() for a in locked['input_artifacts'] if a['kind']=='compiled'}
+        manifest=next(p for p in artifacts if p.endswith('/manifest.json'))
+        assets=next(p for p in artifacts if p.endswith('.assets.json'))
+        template=next(p for p in artifacts if p.endswith('.template.json'))
+        cases=[(manifest,{'version':'54.0.0','artifacts':{'bad':None}}),
+            (manifest,[]),(assets,{'version':'54.0.0','files':{'bad':None}}),
+            (template,{'Resources':{'bad':None}}),(template,{'Resources':{},'Parameters':[]}),
+            (template,b'{"Resources":{},"Resources":{}}'),(assets,b'{"version":NaN}')]
+        for i,(path,body) in enumerate(cases):
+            with self.subTest(case=i):
+                for name,data in artifacts.items():
+                    (self.root/name).write_bytes(data)
+                self.req=copy.deepcopy(locked)
+                ref=self.put(path,body)
+                next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
+                result=self.invoke('validate',expected=2,output=self.evidence+f'/malformed-{i}.json')
+                self.assertEqual(result['result'],'BLOCKED')
+                self.assertIsNone(result['evidence_manifest_path'])
+
+    def test_fixed_tool_and_upstream_schema_lock_mismatch(self):
+        initial=copy.deepcopy(self.lock)
+        for mode in ('tool-hash','schema','upstream-file','adapter'):
+            self.lock=copy.deepcopy(initial)
+            if mode=='tool-hash':
+                self.lock['tools'][0]['sha256']='a'*64
+            elif mode=='adapter':
+                self.lock['adapter_version']='99.0.0'
+            elif mode=='upstream-file':
+                self.lock['upstream'][0]['files'].pop()
+            else:
+                ref=self.put('bundle/schema.json',{'type':'changed-schema'})
+                self.lock['managed_endpoints']=[dict(endpoint='https://example.invalid',tool_schema=ref)]
+            self.refresh()
+            self.assertEqual(self.invoke('plan',expected=2)['result'],'BLOCKED')
+            self.assertFalse(list((self.root/'bundle/generated').iterdir()))
+
+    def test_replanning_is_immutable_and_non_json_asset_is_typed_unsupported(self):
+        self.native_prerequisites()
+        result=self.invoke('plan')
+        ev=json.loads((self.root/result['evidence_manifest_path']).read_bytes())
+        initial={a['path']:(self.root/a['path']).read_bytes() for a in ev['assembly']}
+        self.assertEqual(self.invoke('plan',expected=2,output=self.evidence+'/repeat.json')['error_code'],'PLAN_EXISTS')
+        self.assertEqual({p:(self.root/p).read_bytes() for p in initial},initial)
+        # Add a real file asset; current adapter deliberately supports template-only publication.
+        ref=self.put('bundle/unit/file.txt',b'harmless local asset')
+        self.source_refs.append(ref)
+        original=(self.root/'bundle/unit/app.js').read_text()
+        self.replace_app(original.replace('app.synth();', "new cdk.aws_s3_assets.Asset(stack,'File',{path:require('path').join(__dirname,'file.txt')}); app.synth();"))
+        self.assertEqual(self.invoke('plan',expected=2,output=self.evidence+'/asset.json')['error_code'],'ASSET_TYPE_UNSUPPORTED')
+        self.assertEqual(len(list((self.root/'bundle/generated').iterdir())),2)
+
+    def replace_app(self, body):
+        ref=self.put("bundle/unit/app.js",body.encode())
+        self.source_refs=[ref if r["path"]==ref["path"] else r for r in self.source_refs]
+        self.write_parameters()
+        self.refresh()
+
+    def test_independently_authored_private_graph(self):
+        self.native_prerequisites()
+        self.replace_app(r"""
+const { App, Stack, CfnResource, CfnParameter, Fn, Validations, DefaultStackSynthesizer } = require('aws-cdk-lib');
+const settings = require('./parameters.json');
+const application = new App();
+const unit = new Stack(application, 'Independent', { env: {region:settings.region,account:settings.account},
+  stackName:settings.stackName, synthesizer:new DefaultStackSynthesizer({generateBootstrapVersionRule:false}) });
+const image = new CfnParameter(unit,'SelectedImage',{type:'AWS::EC2::Image::Id',default:settings.imageId});
+const policy = new CfnResource(unit, 'EndpointAccess', {type:'AWS::EC2::SecurityGroup',properties:{
+  VpcId:settings.vpcId, GroupDescription:'Independent private endpoint access',
+  SecurityGroupEgress:[{CidrIp:'172.16.4.0/24',IpProtocol:'tcp',FromPort:443,ToPort:443}] }});
+const vm = new CfnResource(unit,'Compute',{type:'AWS::EC2::Instance',properties:{
+  InstanceType:settings.instanceType, ImageId:image.valueAsString, IamInstanceProfile:settings.instanceProfile,
+  NetworkInterfaces:[{SubnetId:settings.subnetId, DeviceIndex:'0', AssociatePublicIpAddress:false,
+    GroupSet:[policy.getAtt('GroupId')],DeleteOnTermination:true}],
+  Monitoring:true, MetadataOptions:{HttpTokens:'required',HttpEndpoint:'enabled'},
+  Tags:[{Key:'purpose',Value:'independent-positive'}],
+  BlockDeviceMappings:[{DeviceName:'/dev/sda1',Ebs:{VolumeSize:32,VolumeType:'gp2',Encrypted:true,DeleteOnTermination:false}}]
+}});
+Validations.of(vm).acknowledge({id:'CloudFormation-Validate::W9010',reason:'Explicit immutable image input, not a mutable lookup.'});
+new CfnResource(unit,'Retention',{type:'AWS::Backup::BackupSelection',properties:{BackupPlanId:settings.backupPlanId,
+  BackupSelection:{SelectionName:'independent-retention',IamRoleArn:settings.backupRoleArn,
+    Resources:[Fn.sub('arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/${Compute}')]}}});
+new CfnResource(unit,'StatusAlarm',{type:'AWS::CloudWatch::Alarm',properties:{
+  Dimensions:[{Name:'InstanceId',Value:vm.ref}], TreatMissingData:'breaching',
+  ComparisonOperator:'GreaterThanThreshold', Threshold:0, EvaluationPeriods:3, Period:120,
+  Statistic:'Maximum', MetricName:'StatusCheckFailed',Namespace:'AWS/EC2'}});
+application.synth();
+""")
+        for row in self.owner["existing_resources"]:
+            for a in row["attachments"]:
+                a["name"]={"PrivateGroup":"EndpointAccess","Workload":"Compute","Protection":"Retention"}[a["name"]]
+        self.refresh()
+        result=self.invoke("plan")
+        ev=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+        self.req=self.contracts.read_artifact(self.root,ev["locked_request"],"cloud-run-request/v1")
+        self.assertEqual(self.invoke("validate")["state"],"LOCAL_VALIDATED")
+
+    def test_actual_synth_public_mutation_and_missing_backup_negatives(self):
+        self.native_prerequisites()
+        original=(self.root/"bundle/unit/app.js").read_text()
+        cases=[(original.replace('associatePublicIpAddress: false','associatePublicIpAddress: true'),'PUBLIC_NETWORK_DENIED'),
+            (original.replace("cidrIp: '10.0.0.0/16'","cidrIp: '0.0.0.0/0'"),'PUBLIC_NETWORK_DENIED'),
+            (original.replace('app.synth();',"new cdk.aws_ec2.CfnSubnet(stack,'ChangedSubnet',{vpcId:p.vpcId,cidrBlock:'10.9.0.0/24'}); app.synth();"),'EXISTING_RESOURCE_MUTATION'),
+            (original.replace('app.synth();',"stack.node.tryRemoveChild('Protection'); app.synth();"),'BACKUP_REQUIRED'),
+            (original.replace('monitoring: true','monitoring: false'),'LOCAL_POLICY_DENIED')]
+        for body,code in cases:
+            with self.subTest(code=code):
+                self.replace_app(body)
+                result=self.invoke("plan",expected=2)
+                self.assertEqual(result["error_code"],code)
+                self.assertFalse(list((self.root/"bundle/generated").iterdir()))
+
+    def test_native_assembly_schema_assets_and_executable_surface_denials(self):
+        self.native_prerequisites()
+        result=self.invoke("plan")
+        ev=json.loads((self.root/result["evidence_manifest_path"]).read_bytes())
+        locked=self.contracts.read_artifact(self.root,ev["locked_request"],"cloud-run-request/v1")
+        files={a["path"]:(self.root/a["path"]).read_bytes() for a in locked["input_artifacts"] if a["kind"]=="compiled"}
+        manifest=next(p for p in files if p.endswith('/manifest.json'))
+        assets=next(p for p in files if p.endswith('.assets.json'))
+        template=next(p for p in files if p.endswith('.template.json'))
+        cases=[(manifest,lambda b:b.update(version='999.0.0'),'ASSEMBLY_SCHEMA_DRIFT'),
+               (assets,lambda b:b.update(version='999.0.0'),'ASSET_SCHEMA_DRIFT'),
+               (assets,lambda b:b.update(dockerImages={'synthetic':{}}),'ASSET_TYPE_UNSUPPORTED'),
+               (assets,lambda b:next(iter(b['files'].values()))['source'].update(executable=['sh']),'ASSET_TYPE_UNSUPPORTED'),
+               (assets,lambda b:next(iter(b['files'].values()))['source'].update(packaging='zip'),'ASSET_TYPE_UNSUPPORTED'),
+               (template,lambda b:b.update(Transform='AWS::Serverless-2016-10-31'),'CFN_STRUCTURE_UNSUPPORTED'),
+               (template,lambda b:b['Resources']['Workload']['Properties'].update(UserData={'Fn::Base64':'untrusted'}),'CFN_EXPRESSION_UNSUPPORTED'),
+               (template,lambda b:b.update(Outputs={'Bad':{'Value':{'Fn::ImportValue':'external'}}}),'CFN_EXPRESSION_UNSUPPORTED')]
+        for i,(path,mutate,code) in enumerate(cases):
+            with self.subTest(code=code):
+                for name,data in files.items():
+                    (self.root/name).write_bytes(data)
+                self.req=copy.deepcopy(locked)
+                body=json.loads(files[path])
+                mutate(body)
+                ref=self.put(path,body)
+                next(a for a in self.req['input_artifacts'] if a['path']==path).update(ref)
+                self.assertEqual(self.invoke('validate',expected=2,output=self.evidence+f'/negative-{i}.json')['error_code'],code)
+
+    def test_config_schema_required_and_unknown_fields(self):
+        schema=json.loads((AWS_PLUGIN/'references/aws-local-config.schema.json').read_bytes())
+        self.assertEqual(self.oracle._schema_validate(schema,self.config),[])
+        original=copy.deepcopy(self.config)
+        for key in original:
+            self.config=copy.deepcopy(original)
+            del self.config[key]
+            self.assertTrue(self.oracle._schema_validate(schema,self.config))
+            self.refresh()
+            self.assertEqual(self.invoke('plan',expected=2)['result'],'BLOCKED')
+
+    def test_expression_depth_and_noncanonical_native_windows_root(self):
+        probe="""import sys
+sys.path.insert(0,sys.argv[1])
+import cloud
+from aws_graph import Expressions
+value='x'
+for _ in range(100): value={'Fn::Join':['',[value]]}
+try: Expressions({},{}).value(value)
+except cloud.c.ContractError as exc: print(str(exc))
+else: raise SystemExit(1)
+"""
+        proc=subprocess.run([sys.executable,'-B','-c',probe,str(AWS_CLI.parent)],env={'PATH':os.defpath},capture_output=True,timeout=15)
+        self.assertEqual(proc.returncode,0)
+        self.assertEqual(proc.stdout.strip(),b'CFN_EXPRESSION_LIMIT')
+        self.assertEqual(self.invoke(expected=2,env_extra={'CLOUD_WORKSPACE_ROOT':'C:'+chr(92)+'workspace'})['result'],'BLOCKED')
+
     def test_explicit_node_location_and_bytes(self):
         self.native_prerequisites()
         self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":""})["error_code"],"NODE_UNAVAILABLE")
         alternate=self.root/"trusted-node"
-        alternate.write_bytes(self.node.read_bytes());alternate.chmod(0o700)
+        alternate.write_bytes(self.node.read_bytes())
+        alternate.chmod(0o700)
         self.assertEqual(self.invoke("plan",env_extra={"CLOUD_NODE_BIN":str(alternate)})["state"],"PLANNED")
         alternate.write_bytes(b"#!/bin/sh\nexit 0\n")
         self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_NODE_BIN":str(alternate)},output=self.evidence+"/wrong-node.json")["error_code"],"NODE_RUNTIME_DRIFT")
