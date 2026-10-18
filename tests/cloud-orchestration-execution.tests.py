@@ -33,6 +33,8 @@ SUBSCRIPTION = "00000000-0000-0000-0000-000000000001"
 TENANT = "00000000-0000-0000-0000-000000000002"
 CLIENT = "00000000-0000-0000-0000-000000000003"
 OBJECT = "00000000-0000-0000-0000-000000000004"
+APPLY_CLIENT = "00000000-0000-0000-0000-000000000005"
+APPLY_OBJECT = "00000000-0000-0000-0000-000000000006"
 OIDC_URL = "https://pipelines.actions.githubusercontent.com/synthetic/idtoken?api-version=2.0"
 
 
@@ -115,9 +117,9 @@ class DeterministicTransport:
         self.account = "123456789012"
         self.lease_end = NOW + 300
         self.azure_claims = dict(
-            oid=OBJECT,
+            oid=OBJECT if stage == "prepare" else APPLY_OBJECT,
             tid=TENANT,
-            appid=CLIENT,
+            appid=CLIENT if stage == "prepare" else APPLY_CLIENT,
             aud="https://management.azure.com/",
             iat=NOW - 10,
             nbf=NOW - 10,
@@ -176,7 +178,7 @@ class DeterministicTransport:
             assert method == "POST"
             args = parse_qs(body.decode())
             assert args == dict(
-                client_id=[CLIENT],
+                client_id=[self.azure_claims["appid"]],
                 grant_type=["client_credentials"],
                 scope=["https://management.azure.com/.default"],
                 client_assertion_type=["urn:ietf:params:oauth:client-assertion-type:jwt-bearer"],
@@ -301,8 +303,8 @@ class Admission(unittest.TestCase):
             ttl_seconds=120,
             aws_role_arn=f"arn:aws:iam::123456789012:role/cloud-{stage}",
             azure_tenant=TENANT,
-            azure_client=CLIENT,
-            azure_principal=OBJECT,
+            azure_client=CLIENT if stage == "prepare" else APPLY_CLIENT,
+            azure_principal=OBJECT if stage == "prepare" else APPLY_OBJECT,
         )
         self.runtime = self.a.Runtime("synthetic-github-bearer", OIDC_URL, "synthetic-oidc-bearer")
         self.boundary = self.a.WriteBoundary(
@@ -330,7 +332,7 @@ class Admission(unittest.TestCase):
                 with self.subTest(provider=provider, stage=stage):
                     self.setup_case(provider, stage)
                     # Each fixture is an independent protected job evidence directory.
-                    for p in self.evidence.iterdir():
+                    for p in self.evidence.glob("*.authorization.json"):
                         p.unlink()
                     ref, _ = self.write()
                     receipt = contracts.parse_artifact(contracts.read_verified(self.root, ref))
@@ -357,7 +359,7 @@ class Admission(unittest.TestCase):
                     self.assertEqual(receipt["subject"], self.transport.subject)
                     self.assertEqual(receipt["issuer"], "https://token.actions.githubusercontent.com")
                     self.assertEqual(
-                        receipt["principal"], self.transport.principal if provider == "aws" else OBJECT
+                        receipt["principal"], self.transport.principal if provider == "aws" else self.transport.azure_claims["oid"]
                     )
                     self.assertEqual(
                         receipt["approval_evidence"],
@@ -647,11 +649,41 @@ class Admission(unittest.TestCase):
         for path in policies:
             json.loads(path.read_bytes())
 
+    def test_expiry_after_final_binding_denies_and_retains_consumed_receipt(self):
+        for provider in ("aws", "azure"):
+            for stage in ("prepare", "apply"):
+                for elapsed in (109, 110, 111):
+                    with self.subTest(provider=provider, stage=stage, elapsed=elapsed):
+                        self.setup_case(provider, stage)
+                        self.writes.clear()
+                        for receipt in self.evidence.glob("*.authorization.json"):
+                            receipt.unlink()
+                        original = contracts.verify_binding
+                        calls = []
+
+                        def verify(*args, **kwargs):
+                            result = original(*args, **kwargs)
+                            calls.append(True)
+                            if len(calls) == 3:
+                                self.boundary.clock = lambda: NOW + elapsed
+                            return result
+
+                        with patch.object(contracts, "verify_binding", side_effect=verify):
+                            if elapsed < 110:
+                                self.write()
+                                self.assertEqual(self.writes, ["write"])
+                            else:
+                                with self.assertRaises(self.a.AdmissionDenied):
+                                    self.write()
+                                self.assertEqual(self.writes, [])
+                        self.assertEqual(len(calls), 3)
+                        self.assertEqual(len(list(self.evidence.glob("*.authorization.json"))), 1)
+
     def test_expiry_or_artifact_swap_during_scan_denies_before_submit(self):
         for case in ("expiry", "swap", "revoked"):
             with self.subTest(case=case):
                 self.setup_case("azure")
-                for p in self.evidence.iterdir():
+                for p in self.evidence.glob("*.authorization.json"):
                     p.unlink()
 
                 def scan(_):
@@ -692,6 +724,7 @@ class Admission(unittest.TestCase):
                 self.put(path, b"changed")
                 self.denied()
         self.setup_case(stage="apply")
+        assert self.preview_ref is not None
         preview = json.loads((self.root / self.preview_ref["path"]).read_bytes())
         preview["preview_identity"] = "other-native-preview"
         self.preview_ref = self.put("preview.json", preview)
@@ -815,7 +848,8 @@ class Admission(unittest.TestCase):
             self.assertEqual(prepare_receipt["operation"], "prepare")
             # Separate protected apply identity; never rewrite the frozen request.
             self.policy = replace(self.policy, operation="apply", environment="sandbox-apply",
-                aws_role_arn="arn:aws:iam::123456789012:role/cloud-apply")
+                aws_role_arn="arn:aws:iam::123456789012:role/cloud-apply",
+                azure_client=APPLY_CLIENT, azure_principal=APPLY_OBJECT)
             self.transport = DeterministicTransport(provider, "apply")
             changes = self.put("changes.json", b"synthetic-preview")
             preview = dict(schema="cloud-preview/v1",
@@ -832,6 +866,8 @@ class Admission(unittest.TestCase):
             self.assertEqual(apply_receipt["operation"], "apply")
             self.assertNotEqual(prepare_receipt["ci"]["environment"], apply_receipt["ci"]["environment"])
             self.assertEqual(prepare_policy.policy_sha256, self.policy.policy_sha256)
+            self.assertNotEqual(prepare_receipt["subject"], apply_receipt["subject"])
+            self.assertNotEqual(prepare_receipt["principal"], apply_receipt["principal"])
             self.assertEqual(prepare_receipt["request"], apply_receipt["request"])
             self.assertEqual(request_bytes, (self.root / request_ref["path"]).read_bytes())
             contracts.verify_binding(self.root, request_ref, self.preview_ref, apply_ref,
