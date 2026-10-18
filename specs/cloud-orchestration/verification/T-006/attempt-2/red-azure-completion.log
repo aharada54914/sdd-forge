@@ -1,0 +1,199 @@
+test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries) ... FAIL
+test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow) ... ERROR
+test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) ... 
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=0) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=1) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=2) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=3) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=4) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=5) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=6) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=7) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=8) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=9) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=10) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=11) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=12) ... ERROR
+  test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=13) ... ERROR
+
+======================================================================
+ERROR: test_original_job_completion_matches_fixed_pinned_workflow (__main__.AzureCompletionCases.test_original_job_completion_matches_fixed_pinned_workflow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1273, in test_original_job_completion_matches_fixed_pinned_workflow
+    self.assertEqual(self.completion(), '2026-10-18T06:01:00Z')
+                     ^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+ERROR: test_original_job_counterpart_mismatches (__main__.AzureCompletionCases.test_original_job_counterpart_mismatches) (case=13)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1287, in test_original_job_counterpart_mismatches
+    self.completion(mutation)
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1267, in completion
+    stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'azure_observation' has no attribute 'original_apply_completion'
+
+======================================================================
+FAIL: test_inert_template_has_literal_separate_phase_boundaries (__main__.AzureCompletionCases.test_inert_template_has_literal_separate_phase_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 1226, in test_inert_template_has_literal_separate_phase_boundaries
+    self.assertEqual(set(workflow['jobs']), {'prepare', 'apply', 'reconcile', 'observe', 'verify'})
+AssertionError: Items in the second set but not the first:
+'reconcile'
+'observe'
+'verify'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.104s
+
+FAILED (failures=1, errors=15)

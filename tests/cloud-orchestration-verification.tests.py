@@ -339,14 +339,16 @@ class ReducerCases(unittest.TestCase):
         for code in (202, 403, 500):
             case = reducer_case()
             record = case[5][0]
-            payload = json.loads(record['payload_bytes'])
-            payload['queries'][0]['http_status'] = code
-            record['payload_bytes'] = encode(payload)
-            observation = json.loads(record['observation_bytes'])
-            observation['result']['sha256'] = hashlib.sha256(record['payload_bytes']).hexdigest()
-            record['observation_bytes'] = encode(observation)
+            payload = json.loads(record["payload_bytes"])
+            payload["queries"][0]["http_status"] = code
+            record["payload_bytes"] = encode(payload)
+            observation = json.loads(record["observation_bytes"])
+            observation["result"]["sha256"] = hashlib.sha256(
+                record["payload_bytes"]
+            ).hexdigest()
+            record["observation_bytes"] = encode(observation)
             with self.subTest(http_status=code):
-                self.assertEqual(self.reduce(case)['overall_result'], 'BLOCKED')
+                self.assertEqual(self.reduce(case)["overall_result"], "BLOCKED")
 
     def test_context_shape_and_window(self):
         for field, value in [
@@ -1202,6 +1204,87 @@ class AwsObservationOrchestration(unittest.TestCase):
                 del changed[key]
                 with self.subTest(contract=contract, missing=key):
                     self.assertTrue(oracle._schema_validate(schema, changed))
+
+
+class AzureCompletionCases(unittest.TestCase):
+    def setUp(self):
+        scripts = str(ROOT / 'plugins/sdd-azure-cloud/scripts')
+        self.modules = patch.dict(sys.modules)
+        self.modules.start()
+        self.addCleanup(self.modules.stop)
+        for name in ('cloud', 'azure_governed', 'azure_execution', 'azure_observation', 'azure_arm', 'azure_local', 'azure_graph'):
+            sys.modules.pop(name, None)
+        paths = patch.object(sys, 'path', [scripts, *sys.path])
+        paths.start()
+        self.addCleanup(paths.stop)
+        import azure_governed
+        import azure_observation
+        self.g, self.o = azure_governed, azure_observation
+
+    def test_inert_template_has_literal_separate_phase_boundaries(self):
+        workflow = self.g.workflow_template()
+        self.assertEqual(set(workflow['jobs']), {'prepare', 'apply', 'reconcile', 'observe', 'verify'})
+        for phase, job in workflow['jobs'].items():
+            self.assertEqual(job['environment'], 'sandbox-' + phase)
+            self.assertEqual(job['if'], "${{ github.run_attempt == 1 && inputs.operation == '" + phase + "' }}")
+            step = job['steps'][1]
+            self.assertNotIn('CLOUD_PHASE', step['env'])
+            self.assertIn('azure_governed.py ' + phase + ' --workspace', step['run'])
+            self.assertEqual('--require-native-apply' in step['run'], phase == 'apply')
+
+    def completion(self, mutation=None):
+        from types import SimpleNamespace
+        import base64
+        repo, revision = 'synthetic/control', 'a' * 40
+        request_ref = dict(path='request.json', sha256='b' * 64)
+        preview = dict(path='preview.json', sha256='c' * 64)
+        scope = dict(account_id='00000000-0000-0000-0000-000000000001', region='eastus', deployment_scope='sandbox')
+        workflow = self.g.workflow_template(executor_repository='synthetic/executor', executor_revision='d' * 40,
+            subscription=scope['account_id'], region=scope['region'], input_repository='synthetic/plans')
+        run = dict(id=123, run_attempt=1, status='completed', conclusion='success', event='workflow_dispatch',
+            head_sha=revision, path='.github/workflows/cloud.yml', display_title='cloud:'+request_ref['sha256']+':'+preview['sha256'],
+            repository=dict(id=42, full_name=repo), head_repository=dict(id=42, full_name=repo))
+        job = dict(id=456, run_id=123, run_attempt=1, head_sha=revision, name='apply', status='completed', conclusion='success',
+            started_at='2026-10-18T06:00:00Z', completed_at='2026-10-18T06:01:00Z',
+            steps=[dict(number=2, name='Execute original apply; require native completion', status='completed', conclusion='success',
+                started_at='2026-10-18T06:00:01Z', completed_at='2026-10-18T06:00:59Z')])
+        jobs = dict(total_count=1, jobs=[job])
+        if mutation:
+            mutation(run, job, jobs, workflow)
+        class Transport:
+            calls = []
+            def request(self, method, url, headers):
+                self.calls.append((method, url))
+                if '/contents/' in url:
+                    return encode(dict(type='file', encoding='base64', path='.github/workflows/cloud.yml',
+                        content=base64.b64encode(encode(workflow)).decode()))
+                return encode(jobs if '/jobs?' in url else run)
+        transport = Transport()
+        policy = SimpleNamespace(repository=repo, repository_id=42, workflow='.github/workflows/cloud.yml', workflow_revision=revision)
+        executor = SimpleNamespace(request_ref=request_ref, request=dict(scope=scope), clock=lambda:1792303320,
+            boundary=SimpleNamespace(policy=policy, runtime=SimpleNamespace(github_token='synthetic'), transport=transport))
+        trace = []
+        stamp = self.o.original_apply_completion(executor, 123, preview, trace)
+        self.assertTrue(all(method == 'GET' for method, _ in transport.calls))
+        self.assertEqual(len(trace), 3)
+        return stamp
+
+    def test_original_job_completion_matches_fixed_pinned_workflow(self):
+        self.assertEqual(self.completion(), '2026-10-18T06:01:00Z')
+
+    def test_original_job_counterpart_mismatches(self):
+        cases = [lambda r,j,l,w: r.update(id=999), lambda r,j,l,w: r.update(run_attempt=2),
+            lambda r,j,l,w: r.update(head_sha='f'*40), lambda r,j,l,w: r.update(display_title='copied'),
+            lambda r,j,l,w: r.update(repository=dict(id=99,full_name='other/repo')),
+            lambda r,j,l,w: j.update(run_id=999), lambda r,j,l,w: j.update(head_sha='f'*40),
+            lambda r,j,l,w: j.update(name='reconcile'), lambda r,j,l,w: j.update(conclusion='skipped'),
+            lambda r,j,l,w: j.update(completed_at=None), lambda r,j,l,w: j['steps'][0].update(conclusion='skipped'),
+            lambda r,j,l,w: l.update(total_count=101),
+            lambda r,j,l,w: w['jobs']['apply']['steps'][1].update(run='python arbitrary.py'),
+            lambda r,j,l,w: w['jobs']['apply']['steps'][0]['with'].update(ref='main')]
+        for index, mutation in enumerate(cases):
+            with self.subTest(case=index), self.assertRaises(ValueError):
+                self.completion(mutation)
 
 
 class ObservationWire:
