@@ -1,0 +1,36 @@
+test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) ... 
+  test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) (provider='azure') ... ERROR
+  test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) (provider='aws') ... ERROR
+test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale) ... ERROR
+
+======================================================================
+ERROR: test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) (provider='azure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 210, in test_native_collectors_have_closed_configuration_and_read_only_boundaries
+    module=__import__(provider+'_observation')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'azure_observation'
+
+======================================================================
+ERROR: test_native_collectors_have_closed_configuration_and_read_only_boundaries (__main__.NativeCollectorCases.test_native_collectors_have_closed_configuration_and_read_only_boundaries) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 210, in test_native_collectors_have_closed_configuration_and_read_only_boundaries
+    module=__import__(provider+'_observation')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'aws_observation'
+
+======================================================================
+ERROR: test_native_healthy_and_each_unhealthy_denied_missing_stale (__main__.NativeCollectorCases.test_native_healthy_and_each_unhealthy_denied_missing_stale)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 222, in test_native_healthy_and_each_unhealthy_denied_missing_stale
+    module=__import__(provider+'_observation')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'azure_observation'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (errors=3)

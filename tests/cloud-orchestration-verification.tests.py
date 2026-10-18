@@ -163,6 +163,7 @@ class ReducerCases(unittest.TestCase):
                     if variant == 'stale': payload['sampled_at']='2026-10-18T05:59:59Z'
                     else:
                         payload['status']=observation['status']=variant
+                        payload['reason']='UNHEALTHY' if variant=='FAIL' else 'NATIVE_UNAVAILABLE'
                         observation['exit_code']=1
                     record['payload_bytes']=encode(payload)
                     observation['result']['sha256']=hashlib.sha256(record['payload_bytes']).hexdigest()
@@ -200,6 +201,186 @@ class ReducerCases(unittest.TestCase):
             observation['result']['sha256']=hashlib.sha256(record['payload_bytes']).hexdigest()
             record['observation_bytes']=encode(observation)
             with self.subTest(field=field), self.assertRaises(ValueError):self.reduce(case)
+
+class NativeCollectorCases(unittest.TestCase):
+    def test_native_collectors_have_closed_configuration_and_read_only_boundaries(self):
+        for provider in ('azure','aws'):
+            with self.subTest(provider=provider):
+                sys.path.insert(0,str(ROOT/f'plugins/sdd-{provider}-cloud/scripts'))
+                module=__import__(provider+'_observation')
+                cfg=observation_config(provider)
+                module.configuration(cfg)
+                for field in cfg:
+                    changed=copy.deepcopy(cfg);changed[field]='; arbitrary command'
+                    with self.subTest(field=field),self.assertRaises(ValueError):module.configuration(changed)
+                changed=copy.deepcopy(cfg);changed['command']='arbitrary'
+                with self.assertRaises(ValueError):module.configuration(changed)
+
+    def test_native_healthy_and_each_unhealthy_denied_missing_stale(self):
+        for provider in ('azure','aws'):
+            sys.path.insert(0,str(ROOT/f'plugins/sdd-{provider}-cloud/scripts'))
+            module=__import__(provider+'_observation')
+            for check in ('resource','network','identity','monitoring','workload','backup'):
+                for variant in ('healthy','unhealthy','denied','missing','stale'):
+                    with self.subTest(provider=provider,check=check,variant=variant):
+                        fixture=NativeFixture(provider,check,variant)
+                        collector=module.Collector(fixture.scope,fixture.cfg,fixture.credentials,
+                            principal=fixture.principal,completed='2026-10-18T06:00:00Z',
+                            age=300,clock=lambda:1792303260,transport=fixture)
+                        if variant in ('denied','missing') or (variant=='stale' and check in ('monitoring','workload','backup')):
+                            with self.assertRaises((ValueError,KeyError,TypeError)):getattr(collector,check)()
+                        else:
+                            healthy,_=getattr(collector,check)()
+                            self.assertEqual(healthy,variant!='unhealthy')
+                        self.assertTrue(fixture.calls)
+
+
+def observation_config(provider: str) -> dict:
+    if provider=='aws':
+        return dict(instance_id='i-0123456789abcdef0',vpc_id='vpc-0123456789abcdef0',subnet_id='subnet-0123456789abcdef0',
+            security_group_ids=['sg-0123456789abcdef0'],instance_profile_arn='arn:aws:iam::123456789012:instance-profile/workload',
+            role_arn='arn:aws:iam::123456789012:role/workload',guard_policy_name='ObservationGuard',alarm_name='workload-health',
+            workload_metric=dict(namespace='Workload',name='Healthy',minimum=1,maximum=1),
+            backup=dict(plan_id='plan',selection_id='selection',vault_name='vault',
+                recovery_point_arn='arn:aws:backup:us-east-1:123456789012:recovery-point:point',
+                role_arn='arn:aws:iam::123456789012:role/backup'))
+    prefix='/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/sandbox/providers/'
+    vm=prefix+'Microsoft.Compute/virtualMachines/workload'
+    protected=prefix+'Microsoft.RecoveryServices/vaults/vault/backupFabrics/Azure/protectionContainers/container/protectedItems/workload'
+    return dict(vm_id=vm,nic_id=prefix+'Microsoft.Network/networkInterfaces/workload-nic',
+        subnet_id=prefix+'Microsoft.Network/virtualNetworks/private/subnets/workload',
+        identity_id=prefix+'Microsoft.ManagedIdentity/userAssignedIdentities/workload',
+        association_id=vm+'/providers/Microsoft.Insights/dataCollectionRuleAssociations/monitor',
+        data_collection_rule_id=prefix+'Microsoft.Insights/dataCollectionRules/workload',
+        workload_metric=dict(namespace='Workload',name='Healthy',minimum=1,maximum=1),
+        backup=dict(protected_item_id=protected,policy_id=prefix+'Microsoft.RecoveryServices/vaults/vault/backupPolicies/daily',
+                    recovery_point_id=protected+'/recoveryPoints/1'))
+
+
+class NativeFixture:
+    """Native response transport double; NEVER native evidence provenance."""
+    def __init__(self,provider,check,variant):
+        self.provider,self.check,self.variant=provider,check,variant
+        self.cfg=observation_config(provider)
+        self.scope=dict(account_id='123456789012' if provider=='aws' else '00000000-0000-0000-0000-000000000001',
+                        region='us-east-1' if provider=='aws' else 'eastus',deployment_scope='sandbox')
+        self.principal='00000000-0000-0000-0000-000000000004' if provider=='azure' else 'synthetic-observer'
+        self.credentials={'AZURE_ACCESS_TOKEN':'synthetic', 'AWS_ACCESS_KEY_ID':'synthetic',
+                          'AWS_SECRET_ACCESS_KEY':'synthetic','AWS_SESSION_TOKEN':'synthetic'}
+        self.calls:list[tuple[str,str,bytes|None]]=[]
+
+    def request(self,method,url,headers,body=None):
+        self.calls.append((method,url,body))
+        # Response construction is deliberately centralized, not a prebuilt
+        # observation: tests exercise real parsing, native target and health logic.
+        from types import SimpleNamespace
+        if self.variant=='denied':return SimpleNamespace(status=403,headers={},body=b'{}')
+        if self.variant=='missing':return SimpleNamespace(status=200,headers={},body=b'{}')
+        value=self.azure(url,method) if self.provider=='azure' else self.aws(url,method,body)
+        return SimpleNamespace(status=200,headers={},body=value if isinstance(value,bytes) else encode(value))
+
+    def stamp(self):
+        return '2026-10-18T05:00:00Z' if self.variant=='stale' else '2026-10-18T06:01:00Z'
+
+    def azure(self,url,method):
+        from urllib.parse import urlsplit,parse_qs
+        path=urlsplit(url).path;query=parse_qs(urlsplit(url).query);cfg=self.cfg
+        bad=self.variant=='unhealthy'
+        self.assert_read(method,path)
+        if path.endswith('/permissions'):
+            resource=path.removesuffix('/providers/Microsoft.Authorization/permissions')
+            module=__import__('azure_observation')
+            actions=sorted(module.permission_ceiling(resource,cfg))
+            if bad and self.check=='identity':actions.append('Microsoft.Authorization/roleAssignments/write')
+            return dict(value=[dict(actions=actions,notActions=[],dataActions=[],notDataActions=[])])
+        if path==cfg['identity_id']:
+            return dict(id=path,properties=dict(principalId=self.principal,clientId='00000000-0000-0000-0000-000000000003'))
+        if path==cfg['vm_id']:
+            return dict(id=path,location='eastus',identity=dict(type='UserAssigned',userAssignedIdentities={cfg['identity_id']:dict(principalId=self.principal)}),
+                properties=dict(provisioningState='Failed' if bad and self.check=='resource' else 'Succeeded',
+                    networkProfile=dict(networkInterfaces=[dict(id=cfg['nic_id'])])))
+        if path==cfg['vm_id']+'/instanceView':return dict(statuses=[dict(code='PowerState/running')])
+        if path==cfg['nic_id']:
+            return dict(id=path,properties=dict(virtualMachine=dict(id=cfg['vm_id']),
+                ipConfigurations=[dict(properties=dict(subnet=dict(id=cfg['subnet_id']),privateIPAddress='10.0.0.4'))]))
+        if path.endswith('/effectiveNetworkSecurityGroups'):
+            return dict(value=[dict(association=dict(networkInterface=dict(id=cfg['nic_id'])),
+                effectiveSecurityRules=[dict(direction='Inbound',access='Allow',expandedSourceAddressPrefix=['0.0.0.0/0' if bad else '10.0.0.0/16']),
+                                        dict(direction='Outbound',access='Allow',expandedDestinationAddressPrefix=['10.0.0.0/16'])])])
+        if path==cfg['association_id']:
+            return dict(id=path,properties=dict(dataCollectionRuleId=cfg['data_collection_rule_id']))
+        if path.endswith('/metrics'):
+            name=query['metricnames'][0]
+            metric_bad=bad and self.check in ('monitoring','workload')
+            val=999 if metric_bad else (1 if name=='Healthy' else 10)
+            metadata=[dict(name=dict(value=k),value=v) for k,v in [('RunId','synthetic-run'),('UnitId','synthetic-unit')]] if name=='Healthy' else []
+            return dict(value=[dict(id=path+'/'+name,name=dict(value=name),timeseries=[dict(metadatavalues=metadata,data=[dict(timeStamp=self.stamp(),maximum=val)])])])
+        b=cfg['backup']
+        if path==b['protected_item_id']:
+            return dict(id=path,properties=dict(virtualMachineId=cfg['vm_id'],policyId=b['policy_id'],
+                protectionState='ProtectionError' if bad else 'Protected',lastBackupStatus='Completed',lastBackupTime=self.stamp()))
+        if path==b['recovery_point_id']:return dict(id=path,properties=dict(recoveryPointTime=self.stamp(),recoveryPointType='AppConsistent'))
+        raise AssertionError('unrecognized fixed Azure read '+path)
+
+    @staticmethod
+    def assert_read(method,path):
+        assert method=='GET' or (method=='POST' and path.endswith('/effectiveNetworkSecurityGroups'))
+
+    def aws(self,url,method,body):
+        from urllib.parse import parse_qs,urlsplit,quote
+        cfg=self.cfg;bad=self.variant=='unhealthy';host=urlsplit(url).netloc
+        if host.startswith('backup.'):
+            assert method=='GET'
+            if '/selections/' in url:return dict(BackupPlanId='plan',SelectionId='selection',BackupSelection=dict(Resources=['arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id']],IamRoleArn=cfg['backup']['role_arn']))
+            return dict(RecoveryPointArn=cfg['backup']['recovery_point_arn'],BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id'],
+                CreatedBy=dict(BackupPlanId='plan'),Status='PARTIAL' if bad else 'COMPLETED',IsEncrypted=True,
+                CompletionDate=1792299600 if self.variant=='stale' else 1792303260)
+        assert method=='POST'
+        args=parse_qs(body.decode());action=args['Action'][0]
+        if host.startswith('ec2.'):
+            ns='http://ec2.amazonaws.com/doc/2016-11-15/'
+            if action=='DescribeInstances':
+                values=dict(reservationSet=[dict(ownerId='123456789012',instancesSet=[dict(instanceId=cfg['instance_id'],instanceState=dict(name='stopped' if bad and self.check=='resource' else 'running'),
+                    vpcId=cfg['vpc_id'],subnetId=cfg['subnet_id'],monitoring=dict(state='enabled'),iamInstanceProfile=dict(arn=cfg['instance_profile_arn']),
+                    groupSet=[dict(groupId=cfg['security_group_ids'][0])],networkInterfaceSet=[dict(subnetId=cfg['subnet_id'],groupSet=[dict(groupId=cfg['security_group_ids'][0])],ipv6AddressesSet=[])])])])
+            elif action=='DescribeSecurityGroups':
+                ingress=[dict(ipProtocol='-1',ipRanges=[dict(cidrIp='0.0.0.0/0')])] if bad else []
+                values=dict(securityGroupInfo=[dict(ownerId='123456789012',groupId=cfg['security_group_ids'][0],vpcId=cfg['vpc_id'],ipPermissions=ingress,
+                    ipPermissionsEgress=[dict(ipProtocol='tcp',fromPort='443',toPort='443',ipRanges=[dict(cidrIp='10.0.0.0/16')],ipv6Ranges=[],groups=[],prefixListIds=[])])])
+            else:raise AssertionError(action)
+            return native_xml(action,values,ns,ec2=True)
+        if host=='iam.amazonaws.com':
+            ns='https://iam.amazonaws.com/doc/2010-05-08/'
+            if action=='GetInstanceProfile':values=dict(InstanceProfile=dict(Arn=cfg['instance_profile_arn'],Roles=[dict(Arn=cfg['role_arn'],RoleName='workload')]))
+            elif action=='GetRolePolicy':
+                module=__import__('aws_observation');policy=module.guard_policy(cfg['workload_metric']['namespace'])
+                if bad:policy['Statement'].pop(0)
+                values=dict(RoleName='workload',PolicyName=cfg['guard_policy_name'],PolicyDocument=quote(json.dumps(policy)))
+            else:raise AssertionError(action)
+            return native_xml(action,values,ns)
+        assert host=='monitoring.us-east-1.amazonaws.com'
+        ns='http://monitoring.amazonaws.com/doc/2010-08-01/'
+        if action=='DescribeAlarms':values=dict(MetricAlarms=[dict(AlarmName=cfg['alarm_name'],Namespace='AWS/EC2',MetricName='StatusCheckFailed',Statistic='Maximum',Period='60',EvaluationPeriods='2',Threshold='0',ComparisonOperator='GreaterThanThreshold',TreatMissingData='breaching',Dimensions=[dict(Name='InstanceId',Value=cfg['instance_id'])],StateValue='ALARM' if bad else 'OK')])
+        elif action=='GetMetricStatistics':
+            name=args['MetricName'][0]
+            values=dict(Label=name,Datapoints=[dict(Timestamp=self.stamp(),Maximum='999' if bad else ('1' if name=='Healthy' else '0'))])
+        else:raise AssertionError(action)
+        return native_xml(action,values,ns)
+
+
+def native_xml(action,values,namespace,ec2=False):
+    import xml.etree.ElementTree as ET
+    root=ET.Element(action+'Response',xmlns=namespace)
+    target=root if ec2 else ET.SubElement(root,action+'Result')
+    def add(parent,key,value):
+        node=ET.SubElement(parent,key)
+        if isinstance(value,dict):
+            for k,v in value.items():add(node,k,v)
+        elif isinstance(value,list):
+            for v in value:add(node,'item' if ec2 else 'member',v)
+        else:node.text=str(value)
+    for k,v in values.items():add(target,k,v)
+    return ET.tostring(root)
 
 
 if __name__ == '__main__':
