@@ -885,6 +885,16 @@ class AwsNativePreparation(AwsRouting):
         self.put("bundle/unit/cdk.out/raw.json",dict(Resources={}))
         self.assertEqual(self.invoke(expected=2)["error_code"],"OWNER_CONFLICT")
 
+    def test_installed_runtime_mutation_denied(self):
+        self.native_prerequisites()
+        import shutil
+        clone=self.root/"toolchain"
+        shutil.copytree(self.toolroot,clone,symlinks=True)
+        target=clone/"node_modules/aws-cdk/bin/cdk"
+        target.write_bytes(target.read_bytes()+b"\n// altered runtime\n")
+        self.assertEqual(self.invoke("plan",expected=2,env_extra={"CLOUD_CDK_ROOT":str(clone)})["error_code"],"CDK_RUNTIME_DRIFT")
+        self.assertEqual(list((self.root/"bundle/generated").iterdir()),[])
+
     def test_unsupported_executable_config_and_unlocked_sources(self):
         self.put("bundle/unit/hidden.js",b"// not locked")
         self.assertEqual(self.invoke("plan",expected=2)["error_code"],"UNLOCKED_SOURCE")
