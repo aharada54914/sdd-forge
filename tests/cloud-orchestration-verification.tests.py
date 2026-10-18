@@ -235,6 +235,31 @@ class NativeCollectorCases(unittest.TestCase):
                         self.assertTrue(fixture.calls)
 
 
+    def test_backup_discovery_without_future_identifier(self):
+        sys.path.insert(0, str(ROOT / 'plugins/sdd-aws-cloud/scripts'))
+        import aws_observation as module
+        fixture = NativeFixture('aws', 'backup', 'healthy')
+        config = copy.deepcopy(fixture.cfg)
+        config['backup'].pop('recovery_point_arn')
+        collector = module.Collector(fixture.scope, config, fixture.credentials,
+            principal=fixture.principal, completed='2026-10-18T06:00:00Z', age=300,
+            clock=lambda:1792303260, transport=fixture, run_id='synthetic-run', unit_id='synthetic-unit')
+        self.assertTrue(collector.backup()[0])
+        self.assertTrue(any('resourceArn=' in url and 'backupPlanId=' in url for _, url, _ in fixture.calls))
+
+    def test_expired_collector_lease_has_zero_reads(self):
+        for provider in ('aws', 'azure'):
+            sys.path.insert(0, str(ROOT / f'plugins/sdd-{provider}-cloud/scripts'))
+            module = __import__(provider + '_observation')
+            fixture = NativeFixture(provider, 'resource', 'healthy')
+            collector = module.Collector(fixture.scope, fixture.cfg, fixture.credentials,
+                principal=fixture.principal, completed='2026-10-18T06:00:00Z', age=300,
+                clock=lambda:1792303260, transport=fixture, run_id='synthetic-run', unit_id='synthetic-unit')
+            collector.lease = 1792303259
+            with self.subTest(provider=provider), self.assertRaisesRegex(ValueError, 'READ_CREDENTIAL_EXPIRED'):
+                collector.resource()
+            self.assertEqual(fixture.calls, [])
+
 def observation_config(provider: str) -> dict:
     if provider=='aws':
         return dict(instance_id='i-0123456789abcdef0',vpc_id='vpc-0123456789abcdef0',subnet_id='subnet-0123456789abcdef0',
@@ -332,9 +357,13 @@ class NativeFixture:
         if host.startswith('backup.'):
             assert method=='GET'
             if '/selections/' in url:return dict(BackupPlanId='plan',SelectionId='selection',BackupSelection=dict(Resources=['arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id']],IamRoleArn=cfg['backup']['role_arn']))
-            return dict(RecoveryPointArn=cfg['backup']['recovery_point_arn'],BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id'],
+            recovery = dict(RecoveryPointArn=cfg['backup']['recovery_point_arn'],BackupVaultName='vault',ResourceArn='arn:aws:ec2:us-east-1:123456789012:instance/'+cfg['instance_id'],
                 CreatedBy=dict(BackupPlanId='plan'),Status='PARTIAL' if bad else 'COMPLETED',IsEncrypted=True,
+                CreationDate=1792299600 if self.variant=='stale' else 1792303260,
                 CompletionDate=1792299600 if self.variant=='stale' else 1792303260)
+            if urlsplit(url).path.endswith('/recovery-points/'):
+                return dict(RecoveryPoints=[recovery])
+            return recovery
         assert method=='POST'
         args=parse_qs(body.decode());action=args['Action'][0]
         if host.startswith('ec2.'):

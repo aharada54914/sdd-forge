@@ -1,0 +1,58 @@
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... 
+  test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) (provider='aws') ... FAIL
+test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) ... FAIL
+test_backup_discovery_without_future_identifier (__main__.NativeCollectorCases.test_backup_discovery_without_future_identifier) ... ERROR
+
+======================================================================
+ERROR: test_backup_discovery_without_future_identifier (__main__.NativeCollectorCases.test_backup_discovery_without_future_identifier)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 244, in test_backup_discovery_without_future_identifier
+    collector = module.Collector(fixture.scope, config, fixture.credentials,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 83, in __init__
+    configuration(cfg, resolved=True)
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 47, in configuration
+    c._record(cfg, fields, dict(backup=lambda v:c._record(v,backup_fields)))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 110, in _record
+    validator(value[name])
+  File "/workspace/sdd-forge/plugins/sdd-aws-cloud/scripts/aws_observation.py", line 47, in <lambda>
+    c._record(cfg, fields, dict(backup=lambda v:c._record(v,backup_fields)))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 107, in _record
+    _require(set(fields) <= set(value) <= set(fields) | set(optional))
+  File "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/cloud_contracts.py", line 41, in _require
+    raise ContractError(code)
+cloud_contracts.ContractError: INVALID_ARTIFACT
+
+======================================================================
+FAIL: test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads) (provider='aws')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 259, in test_expired_collector_lease_has_zero_reads
+    with self.subTest(provider=provider), self.assertRaisesRegex(ValueError, 'READ_CREDENTIAL_EXPIRED'):
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_expired_collector_lease_has_zero_reads (__main__.NativeCollectorCases.test_expired_collector_lease_has_zero_reads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/cloud-orchestration-verification.tests.py", line 261, in test_expired_collector_lease_has_zero_reads
+    self.assertEqual(fixture.calls, [])
+AssertionError: Lists differ: [('POST', 'https://ec2.us-east-1.amazonaws[84 chars]f0')] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+('POST', 'https://ec2.us-east-1.amazonaws.com/', b'Action=DescribeInstances&Version=2016-11-15&InstanceId.1=i-0123456789abcdef0')
+
++ []
+- [('POST',
+-   'https://ec2.us-east-1.amazonaws.com/',
+-   b'Action=DescribeInstances&Version=2016-11-15&InstanceId.1=i-0123456789abc'
+-   b'def0')]
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.025s
+
+FAILED (failures=2, errors=1)
